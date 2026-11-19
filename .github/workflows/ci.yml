@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
       - run: bash scripts/sbom.sh
       - if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: sbom-dependencias
           path: sbom/
@@ -62,7 +62,7 @@ jobs:
           docker build -q -f Dockerfile.frontend -t arandurape-frontend:latest .
       - run: bash scripts/sbom.sh --imagens
       - if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: sbom-imagens
           path: sbom/
@@ -171,7 +171,7 @@ jobs:
           RESULTADOS: ${{ runner.temp }}/t7
         run: KATHARA="$RUNNER_TEMP/kathara/bin/python -m kathara" bash tests/ipv6/run.sh
       - if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: t7-ipv6
           path: ${{ runner.temp }}/t7
