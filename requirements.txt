@@ -2,9 +2,9 @@
 # requirements.lock, regravado por `bash scripts/travar-dependencias.sh` depois de qualquer mudança aqui.
 
 # API
-fastapi==0.138.1
-uvicorn[standard]==0.34.2
-pydantic==2.11.5
+fastapi==0.163.1
+uvicorn[standard]==0.54.0
+pydantic==2.14.3
 
 # Cache LRU em memória (byte-cache do snapshot latest)
 cachetools==5.5.0
@@ -23,10 +23,10 @@ brotli==1.2.1
 PyJWT==2.15.1
 
 # Rate limiting (anti-abuso) — middleware estilo slowapi por IP/rota
-slowapi==0.1.9
+slowapi==0.1.10
 
 # YAML
-pyyaml==6.0.2
+pyyaml==6.0.3
 
 # Logs estruturados
 structlog==25.3.0
