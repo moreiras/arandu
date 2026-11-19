@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: anatel_sici_movel
+nome: Acessos de telefonia móvel (SICI)
+ordem: 12
+modulo: sources.anatel_sici_movel.collect
+fontes:
+- anatel_sici_movel
+politica_falha: opcional
+descricao: ''

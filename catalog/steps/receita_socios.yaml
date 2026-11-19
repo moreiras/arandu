@@ -1,0 +1,17 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: receita_socios
+nome: Sócios (dados abertos de CNPJ — Receita Federal)
+ordem: 32
+modulo: sources.receita_socios.collect
+fontes:
+- receita_socios
+politica_falha: usar_ultima_valida
+executar_se:
+  marcador: receita_socios_last_run.json
+  campo: date
+  max_idade_dias: 30
+  env_max_idade: RECEITA_SOCIOS_MAX_AGE_DAYS
+gravar_marcador: receita_socios_last_run.json
+reaproveita: normalized/{date}/summary/receita_socios.json.gz
+descricao: Baixa só se a última coleta tiver 30 dias ou mais; senão (ou se falhar) copia receita_socios.json.gz
+  da última coleta.

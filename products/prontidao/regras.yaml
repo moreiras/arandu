@@ -1,0 +1,45 @@
+# Regras do índice de prontidão em segurança de roteamento. Mudar um peso, um limiar ou um componente muda a SEMÂNTICA do índice:
+# suba `versao`, registre no CHANGELOG e submeta a metodologia à revisão do mantenedor (política editorial). O nome "MANRS" não é usado na pontuação.
+versao: 1
+
+# Cada pilar tem um peso; cada componente, um valor de 0 a 100 e um peso dentro do pilar. Componente sem dado sai da conta (os pesos dos que restam se renormalizam);
+# pilar sem nenhum componente com dado sai do total (os pesos dos pilares restantes se renormalizam). O índice sempre diz quais pilares entraram.
+pilares:
+  filtragem:
+    nome: Filtragem
+    peso: 25
+    descricao: "A rede descarta rotas RPKI-inválidas (medição do APNIC) e não origina prefixos em espaço reservado ou não alocado."
+    requer: [rov]            # sem a medição de ROV o pilar não entra: "sem bogon" sozinho é evidência fraca e inflaria o pilar de quem não foi medido
+    componentes:
+      rov: {peso: 3, descricao: "% das medições do APNIC em que a rede não alcança rota RPKI-inválida; vale com pelo menos `min_amostras_rov` amostras"}
+      sem_bogon: {peso: 1, descricao: "100 se nenhum prefixo originado está em espaço reservado (IANA) ou não alocado (Team Cymru) e o ASN não é reservado; 0 caso contrário"}
+  anti_spoofing:
+    nome: Anti-spoofing
+    peso: 25
+    descricao: "Testes voluntários do CAIDA Spoofer (origem forjada): % das sessões conclusivas em que a rede barrou os pacotes. Só com o mínimo de sessões conclusivas fora de NAT."
+    componentes:
+      spoofer: {peso: 1, descricao: "% das sessões conclusivas (em IPv6, e em IPv4 fora de NAT) em que nenhum pacote forjado chegou"}
+  coordenacao:
+    nome: Coordenação
+    peso: 20
+    descricao: "O ASN é encontrável e documenta sua política (PeeringDB e IRR)."
+    componentes:
+      peeringdb: {peso: 1, descricao: "100 se o ASN tem registro no PeeringDB; 0 caso contrário"}
+      irr_aut_num: {peso: 1, descricao: "100 se o ASN tem objeto aut-num no TC ou no RADB; 0 caso contrário"}
+      irr_as_set: {peso: 1, descricao: "100 se o registro do PeeringDB informa um as-set IRR; 0 se registrado sem as-set; sem dado se não há registro"}
+  validacao_global:
+    nome: Validação global
+    peso: 30
+    descricao: "Os prefixos anunciados têm ROA válido e objeto IRR; o ASN publica ASPA."
+    componentes:
+      roa: {peso: 3, descricao: "% dos prefixos anunciados cuja validação de origem (RPKI) é válida"}
+      irr: {peso: 2, descricao: "% dos prefixos anunciados com objeto route/route6 (mesmo prefixo e origem) no TC ou no RADB, de qualquer autor"}
+      aspa: {peso: 1, descricao: "100 se o ASN publica ASPA; ASPA é adoção inicial, então a ausência não conta (sem dado)"}
+
+minimos:
+  amostras_rov: 100          # amostras do APNIC para o ROV valer
+  pilares: 2                 # pilares com dado para o ASN receber índice; abaixo disso, sem_dados
+
+classes:                     # limite inferior do índice (0 a 100)
+  pronto: 80
+  em_progresso: 50           # abaixo disso: atrasado

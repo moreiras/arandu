@@ -1,0 +1,102 @@
+{
+ "data": {
+  "asns": {
+   "totalCount": 5,
+   "pageInfo": {
+    "hasNextPage": true
+   },
+   "edges": [
+    {
+     "node": {
+      "rank": 1,
+      "asn": "64496",
+      "asnName": "",
+      "source": "ARIN",
+      "cliqueMember": true,
+      "seen": true,
+      "ixp": null,
+      "longitude": -46.5,
+      "latitude": -21.2,
+      "organization": {
+       "orgId": "aaa"
+      },
+      "cone": {
+       "numberAsns": 500,
+       "numberPrefixes": 900,
+       "numberAddresses": 1073741824
+      },
+      "country": {
+       "iso": "US"
+      },
+      "asnDegree": {
+       "total": 300,
+       "customer": 290,
+       "peer": 10,
+       "provider": 0
+      }
+     }
+    },
+    {
+     "node": {
+      "rank": 7887,
+      "asn": "64497",
+      "asnName": "",
+      "source": "LACNIC",
+      "cliqueMember": false,
+      "seen": true,
+      "ixp": null,
+      "longitude": -46.5,
+      "latitude": -21.2,
+      "organization": {
+       "orgId": "b7966dd5a6"
+      },
+      "cone": {
+       "numberAsns": 2,
+       "numberPrefixes": 8188,
+       "numberAddresses": 10895360
+      },
+      "country": {
+       "iso": "BR"
+      },
+      "asnDegree": {
+       "total": 31,
+       "customer": 1,
+       "peer": 29,
+       "provider": 1
+      }
+     }
+    },
+    {
+     "node": {
+      "rank": 9000,
+      "asn": "64498",
+      "asnName": "",
+      "source": "LACNIC",
+      "cliqueMember": false,
+      "seen": true,
+      "ixp": null,
+      "longitude": -46.5,
+      "latitude": -21.2,
+      "organization": {
+       "orgId": "b7966dd5a6"
+      },
+      "cone": {
+       "numberAsns": 1,
+       "numberPrefixes": 1,
+       "numberAddresses": 256
+      },
+      "country": {
+       "iso": "AR"
+      },
+      "asnDegree": {
+       "total": 2,
+       "customer": 1,
+       "peer": 1,
+       "provider": 0
+      }
+     }
+    }
+   ]
+  }
+ }
+}

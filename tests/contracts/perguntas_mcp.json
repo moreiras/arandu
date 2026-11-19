@@ -1,0 +1,356 @@
+{
+ "_doc": "30 perguntas de referência do MCP: cada uma com a tool esperada e argumentos válidos sobre o dataset sintético. O T5 executa todas (tests/products/test_t5_mcp.py::test_perguntas_de_referencia). Placeholders {x} vêm do dataset sintético.",
+ "perguntas": [
+  {
+   "id": 1,
+   "pergunta": "Quais snapshots existem e qual é o mais recente?",
+   "tool": "historico_snapshots",
+   "args": {},
+   "espera": [
+    "snapshots"
+   ]
+  },
+  {
+   "id": 2,
+   "pergunta": "Me mostre o AS {asn}: nome, prefixos e presença em IXPs.",
+   "tool": "asn_detalhe",
+   "args": {
+    "asn": "{asn}"
+   },
+   "espera": [
+    "asn",
+    "name"
+   ]
+  },
+  {
+   "id": 3,
+   "pergunta": "Qual é o número do AS de um provedor chamado 'Provedor 01'?",
+   "tool": "asn_lista",
+   "args": {
+    "q": "Provedor 01"
+   },
+   "espera": [
+    "items"
+   ]
+  },
+  {
+   "id": 4,
+   "pergunta": "Quais PTTs do IX.br existem e como estão (membros, prefixos)?",
+   "tool": "ixp_lista",
+   "args": {},
+   "espera": [
+    "ixps"
+   ]
+  },
+  {
+   "id": 5,
+   "pergunta": "Quem são os membros do PTT {code}?",
+   "tool": "ixp_participantes",
+   "args": {
+    "code": "{code}",
+    "visao": "membros"
+   },
+   "espera": [
+    "v4",
+    "v6"
+   ]
+  },
+  {
+   "id": 6,
+   "pergunta": "Quantos usuários finais brasileiros são alcançados via o PTT {code}?",
+   "tool": "ixp_usuarios",
+   "args": {
+    "code": "{code}"
+   },
+   "espera": [
+    "estimated_users"
+   ]
+  },
+  {
+   "id": 7,
+   "pergunta": "Que ASes têm prefixos a até 300 km do PTT {code} e ainda não estão lá?",
+   "tool": "ixp_proximos",
+   "args": {
+    "code": "{code}",
+    "radius_km": 300
+   },
+   "espera": [
+    "asns",
+    "summary"
+   ]
+  },
+  {
+   "id": 8,
+   "pergunta": "Quais CDNs estão presentes nos IXPs?",
+   "tool": "cdn_presenca",
+   "args": {},
+   "espera": [
+    "cdns"
+   ]
+  },
+  {
+   "id": 9,
+   "pergunta": "Em que PTTs o AS {asn} faz peering direto e com quantos prefixos?",
+   "tool": "asn_rede",
+   "args": {
+    "asn": "{asn}",
+    "visao": "ixp_peers"
+   },
+   "espera": [
+    "asn"
+   ]
+  },
+  {
+   "id": 10,
+   "pergunta": "Quais provedores SCM de {uf} ainda não têm ASN?",
+   "tool": "outorga_lista",
+   "args": {
+    "servico": "SCM",
+    "uf": "{uf}",
+    "com_asn": false,
+    "limit": 5
+   },
+   "espera": [
+    "items",
+    "total"
+   ]
+  },
+  {
+   "id": 11,
+   "pergunta": "Quais empresas têm outorga de STFC e de SeAC ao mesmo tempo?",
+   "tool": "outorga_lista",
+   "args": {
+    "servico": "STFC,SeAC",
+    "todos": true,
+    "limit": 5
+   },
+   "espera": [
+    "items",
+    "total"
+   ]
+  },
+  {
+   "id": 12,
+   "pergunta": "Detalhe as outorgas do CNPJ {cnpj}.",
+   "tool": "outorga_detalhe",
+   "args": {
+    "cnpj": "{cnpj}"
+   },
+   "espera": [
+    "servicos"
+   ]
+  },
+  {
+   "id": 13,
+   "pergunta": "Perfil completo da operadora de CNPJ {cnpj}.",
+   "tool": "operadora_detalhe",
+   "args": {
+    "cnpj": "{cnpj}"
+   },
+   "espera": [
+    "cnpj"
+   ]
+  },
+  {
+   "id": 14,
+   "pergunta": "Quantos assinantes de banda larga fixa a operadora {cnpj} declarou à Anatel?",
+   "tool": "operadora_acessos",
+   "args": {
+    "cnpj": "{cnpj}"
+   },
+   "espera": [
+    "acessos",
+    "mes_referencia"
+   ]
+  },
+  {
+   "id": 15,
+   "pergunta": "Quais são as maiores operadoras de telefonia móvel por acessos?",
+   "tool": "operadora_ranking",
+   "args": {
+    "servico": "movel",
+    "limit": 5
+   },
+   "espera": [
+    "items",
+    "servico"
+   ]
+  },
+  {
+   "id": 16,
+   "pergunta": "Quem oferece banda larga no município {ibge} e quão concentrado é o mercado?",
+   "tool": "municipio_banda_larga",
+   "args": {
+    "ibge": "{ibge}"
+   },
+   "espera": [
+    "operadores"
+   ]
+  },
+  {
+   "id": 17,
+   "pergunta": "Como evoluíram os acessos nacionais de banda larga fixa mês a mês?",
+   "tool": "historico_acessos",
+   "args": {},
+   "espera": [
+    "serie_nacional"
+   ]
+  },
+  {
+   "id": 18,
+   "pergunta": "Onde os usuários estimados pelo APNIC divergem dos acessos declarados à Anatel?",
+   "tool": "operadora_divergencia",
+   "args": {
+    "limit": 5
+   },
+   "espera": [
+    "distribuicao"
+   ]
+  },
+  {
+   "id": 19,
+   "pergunta": "Como está o município {ibge}: banda larga, móvel, fibra e PTT mais próximo?",
+   "tool": "municipio_detalhe",
+   "args": {
+    "ibge": "{ibge}"
+   },
+   "espera": [
+    "ibge"
+   ]
+  },
+  {
+   "id": 20,
+   "pergunta": "Quero um quadro das 27 UFs: PTTs, acessos, fibra e usuários.",
+   "tool": "uf_detalhe",
+   "args": {},
+   "espera": [
+    "items",
+    "total"
+   ]
+  },
+  {
+   "id": 21,
+   "pergunta": "A empresa {cnpj} pertence a algum grupo econômico? Que empresas se relacionam com ela?",
+   "tool": "operadora_grupo",
+   "args": {
+    "cnpj": "{cnpj}"
+   },
+   "espera": [
+    "grupo_id",
+    "relacionadas"
+   ]
+  },
+  {
+   "id": 22,
+   "pergunta": "Quantos assinantes de banda larga o PTT {code} alcança, direta e indiretamente?",
+   "tool": "ixp_assinantes",
+   "args": {
+    "code": "{code}"
+   },
+   "espera": [
+    "assinantes_diretos",
+    "assinantes_total"
+   ]
+  },
+  {
+   "id": 23,
+   "pergunta": "Como está a tabela de roteamento global para os prefixos brasileiros (P_BR)?",
+   "tool": "rota_analise",
+   "args": {},
+   "espera": [
+    "snapshot_date"
+   ],
+   "indisponivel_ok": true
+  },
+  {
+   "id": 24,
+   "pergunta": "O AS {asn} tem a rota estável ou gera muitas atualizações BGP?",
+   "tool": "rota_estabilidade",
+   "args": {
+    "asn": "{asn}"
+   },
+   "espera": [
+    "snapshot_date"
+   ],
+   "indisponivel_ok": true
+  },
+  {
+   "id": 25,
+   "pergunta": "Quanto do espaço IP anunciado pelos ASNs brasileiros tem ROA?",
+   "tool": "rota_rpki",
+   "args": {},
+   "espera": [
+    "br_asns_with_roa"
+   ]
+  },
+  {
+   "id": 26,
+   "pergunta": "O prefixo {prefix} tem ROA válida?",
+   "tool": "rota_rpki",
+   "args": {
+    "prefix": "{prefix}"
+   },
+   "espera": [
+    "estado",
+    "asn"
+   ]
+  },
+  {
+   "id": 27,
+   "pergunta": "Que cabos submarinos, enlaces e linhas de transmissão passam a 500 km de um ponto de {municipio}?",
+   "tool": "infra_proximos",
+   "args": {
+    "lat": "{lat}",
+    "lon": "{lon}",
+    "raio_km": 500
+   },
+   "espera": [
+    "camadas"
+   ]
+  },
+  {
+   "id": 28,
+   "pergunta": "De qual prefixo é o endereço {ip}, e onde está?",
+   "tool": "rota_prefixo",
+   "args": {
+    "ip": "{ip}"
+   },
+   "espera": [
+    "prefix",
+    "consulta"
+   ]
+  },
+  {
+   "id": 29,
+   "pergunta": "Quais ASes brasileiros são diretos no PTT {code} e têm ROA?",
+   "tool": "query",
+   "args": {
+    "collection": "asns",
+    "filter": {
+     "and": [
+      {
+       "field": "is_br",
+       "op": "eq",
+       "value": true
+      }
+     ]
+    },
+    "limit": 5
+   },
+   "espera": [
+    "items"
+   ]
+  },
+  {
+   "id": 30,
+   "pergunta": "A que ASes pertence a marca 'Arandu'?",
+   "tool": "operadora_resolver",
+   "args": {
+    "name": "Arandu"
+   },
+   "espera": [
+    "asns"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,58 @@
+# Tabela CURADA marca → raiz do CNPJ. Usada também pelo Consumidor.gov.br.
+#
+# O RQUAL e as reclamações da Anatel identificam a empresa pelo NOME (a coluna "Marca" ou "Prestadora"), não pelo CNPJ. Esta tabela liga o nome à raiz do CNPJ (8 dígitos: matriz e
+# filiais) usando só dados públicos: a razão social e o nome fantasia das outorgas da Anatel (SCM, SMP, STFC, SeAC) e os grupos do SICI que o Arandurapé já publica. Nada de dado de pessoa
+# física. Marca que não está aqui nem casa por nome fantasia único (regra automática, rotulada "automático") fica SEM CNPJ: a contagem aparece como "marca sem CNPJ", nunca atribuída
+# por palpite. Uma marca pode ter várias raízes (grupo econômico). Correções: arandurape@internetbitabit.com.br.
+#
+# Campos: `marca` (como na fonte, em maiúsculas), `raizes` (lista de 8 dígitos), `base` (o que sustenta o vínculo). A comparação ignora acento, caixa e pontuação.
+versao: 2
+curada_em: 2026-11-07
+fonte_da_curadoria: razão social e nome fantasia das outorgas da Anatel (snapshot 2026-11-05) e grupos do SICI do Arandurapé
+marcas:
+  - {marca: VIVO, raizes: ["02558157"], base: "Telefônica Brasil S.A., nome VIVO nas outorgas e no SICI (grupo TELEFONICA)"}
+  - {marca: CLARO, raizes: ["40432544", "66970229"], base: "Claro S.A. e Claro NXT Telecomunicações (grupo TELECOM AMERICAS no SICI)"}
+  - {marca: NET, raizes: ["66970229", "40432544"], base: "marca NET do grupo Claro; Claro NXT Telecomunicações e Claro S.A. (grupo TELECOM AMERICAS no SICI)"}
+  - {marca: TIM, raizes: ["02421421"], base: "TIM S.A., nome TIM nas outorgas e no SICI (grupo TELECOM ITALIA)"}
+  - {marca: OI, raizes: ["76535764", "53420564"], base: "Oi S.A. e Client Co Serviços de Rede Nordeste (grupo OI no SICI)"}
+  - {marca: SKY, raizes: ["00497373"], base: "Sky Serviços de Banda Larga Ltda, outorgas de SCM, SeAC e SMP"}
+  - {marca: ALGAR, raizes: ["71208516", "05872814"], base: "Algar Telecom S/A e Vogel Soluções (grupo ALGAR (CTBC TELECOM) no SICI)"}
+  - {marca: SERCOMTEL, raizes: ["01371416"], base: "Sercomtel S/A Telecomunicações (nome fantasia SERCOMTEL nas outorgas)"}
+  - {marca: LIGGA TELECOM, raizes: ["65649511", "04368865"], base: "Ligga Serviços em Telecom e Ligga Telecomunicações (nome fantasia LIGGA TELECOM nas outorgas)"}
+  - {marca: LIGGA, raizes: ["65649511", "04368865"], base: "igual a LIGGA TELECOM"}
+  - {marca: HUGHES, raizes: ["05206385"], base: "Hughes Telecomunicações do Brasil Ltda. (grupo HUGHES no SICI)"}
+  - {marca: BRISANET, raizes: ["04601397", "44250088"], base: "Brisanet Serviços de Telecomunicações S.A. e 4J (grupo BRISANET no SICI)"}
+  - {marca: VERO, raizes: ["31748174"], base: "Vero S.A. (grupo VERO no SICI)"}
+  - {marca: DESKTOP, raizes: ["08170849"], base: "Desktop S.A. (grupo DESKTOP no SICI)"}
+  - {marca: ALARES, raizes: ["02952192"], base: "Alares Internet S/A (grupo ALARES no SICI)"}
+  - {marca: UNIFIQUE, raizes: ["02255187"], base: "Unifique Telecomunicações S/A (grupo UNIFIQUE no SICI)"}
+  - {marca: SURF TELECOM, raizes: ["10455746"], base: "Surf Telecom S.A. (grupo SURF TELECOM no SICI)"}
+  - {marca: GIGA+, raizes: ["07714104", "41644220"], base: "grupo GIGA MAIS FIBRA no SICI (marca Giga+)"}
+  - {marca: PROXXIMA, raizes: ["40120343"], base: "Proxxima Telecomunicações S.A., nome fantasia nas outorgas"}
+  - {marca: MHNET TELECOM, raizes: ["05245502"], base: "Mhnet Telecomunicações Ltda, nome fantasia Mhnet Telecom nas outorgas"}
+  - {marca: VALENET, raizes: ["05684180"], base: "Companhia Itabirana de Telecomunicações Ltda, nome fantasia Valenet nas outorgas"}
+  - {marca: CORREIOS CELULAR, raizes: ["34028316"], base: "Empresa Brasileira de Correios e Telégrafos, outorga de SMP"}
+  - {marca: TVN, raizes: ["07335723"], base: "TIP Nacional Telecom Ltda (ex-TVN), razão social nas outorgas"}
+  - {marca: BLINK TELECOM, raizes: ["21085708"], base: "PRV Telecomunicações Ltda, nome fantasia Blink Telecomunicações nas outorgas"}
+  - {marca: CABONNET, raizes: ["47082017"], base: "Cabonnet Internet Ltda, nome fantasia nas outorgas"}
+  - {marca: LOGA INTERNET, raizes: ["31679144"], base: "Ultra Internet Ltda, nome fantasia Loga Internet nas outorgas"}
+  - {marca: AGE TELECOM, raizes: ["36230547"], base: "Age Telecomunicações S.A., outorgas"}
+  - {marca: BRASIL TECPAR, raizes: ["07756651"], base: "grupo BRASIL TECPAR no SICI"}
+  - {marca: DATORA, raizes: ["39495486"], base: "Datora Telecomunicações Ltda, razão social nas outorgas (nome fantasia Data Telecom); incluída para o Consumidor.gov.br"}
+  - {marca: NET ANGRA, raizes: ["31150034"], base: "TSCM Net Angra Telecomunicações Ltda, razão social nas outorgas; incluída para o Consumidor.gov.br"}
+# Apelidos do Consumidor.gov.br: o "Nome Fantasia" que a empresa usa lá, ligado a uma marca da tabela acima (as raízes são as da marca). Só entra apelido sem dúvida; o que
+# ficou de fora (NIO e OI Fibra, que mudaram de dono; Claro Fixo - Embratel, cuja raiz não é a da Claro S.A.; Click Telecom, nome usado por dezenas de provedores) fica sem CNPJ.
+aliases_consumidor_gov:
+  - {nome: "Vivo - Telefônica", marca: VIVO, base: "mesma Telefônica Brasil S.A. da marca VIVO"}
+  - {nome: "Claro Celular", marca: CLARO, base: "linha móvel da Claro S.A."}
+  - {nome: "Claro Residencial", marca: CLARO, base: "linha residencial (ex-NET) da Claro; raízes da marca CLARO"}
+  - {nome: "Oi Fixo", marca: OI, base: "linha fixa da Oi S.A."}
+  - {nome: "Oi Celular", marca: OI, base: "linha móvel da Oi S.A."}
+  - {nome: "Brisanet Telecom", marca: BRISANET, base: "nome completo da marca BRISANET"}
+  - {nome: "Algar Fixo", marca: ALGAR, base: "linha fixa do grupo Algar Telecom"}
+  - {nome: "Algar Celular", marca: ALGAR, base: "linha móvel do grupo Algar Telecom"}
+  - {nome: "Ligga Telecom (antiga Copel Telecom)", marca: LIGGA TELECOM, base: "a Copel Telecom passou a se chamar Ligga Telecom"}
+  - {nome: "Giga Mais Fibra", marca: GIGA+, base: "o Consumidor.gov.br usa o nome por extenso da marca Giga+ (grupo GIGA MAIS FIBRA no SICI)"}
+  - {nome: "Proxxima Telecom", marca: PROXXIMA, base: "nome fantasia da Proxxima Telecomunicações S.A."}
+  - {nome: "Datora Telecomunicações", marca: DATORA, base: "razão social da Datora Telecomunicações Ltda"}
+  - {nome: "Net Angra", marca: NET ANGRA, base: "nome fantasia da TSCM Net Angra Telecomunicações Ltda"}

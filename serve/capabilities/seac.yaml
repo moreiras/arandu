@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Capacidade declarada: daqui nascem as rotas REST (api/capacidades.py), o contrato e a matriz API × MCP × UI.
+entidade: seac
+rotulo: SEAC
+plural: SEACs
+nome_longo: Serviço de Acesso Condicionado
+servico: seac
+tag: seac
+privacidade: sem_contatos
+descricao_llm: >
+  Outorgas de SEAC pela API REST; no MCP, ver outorgas.
+operacoes:
+  - id: lista
+    tipo: lista_outorgas
+    http: GET /seacs
+    funcao: list_seacs
+    sem_mcp: "coberto por outorga_lista e outorga_detalhe"
+    summary: "Listar outorgas SEAC (Serviço de Acesso Condicionado)"
+    descricao: |
+      Lista as outorgas de SEAC coletadas da Anatel, opcionalmente
+      filtradas por UF, município ou busca textual, com indicação de cruzamento com ASN do
+      Registro.br por CNPJ.
+
+      Operadoras de TV por assinatura (SeAC): ~1.400 CNPJs outorgados. Campos de contato (`telefone`, `email`) não são
+      servidos neste endpoint.
+    filtros:
+      - uf
+      - municipio
+      - q
+      - com_asn
+    ordena_por: [asns, cnpj, data_outorga, municipio, razao_social, uf]
+  - id: stats
+    tipo: stats_outorgas
+    http: GET /seacs/stats
+    funcao: seac_stats
+    sem_mcp: "coberto por outorga_lista e outorga_detalhe"
+    summary: "Estatísticas das outorgas SEAC"
+  - id: por_cnpj
+    tipo: por_cnpj
+    http: GET /seacs/{cnpj}
+    funcao: get_seac
+    sem_mcp: "coberto por outorga_lista e outorga_detalhe"
+    summary: "Outorgas SEAC de um CNPJ"

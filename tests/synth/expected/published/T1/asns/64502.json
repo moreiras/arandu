@@ -1,0 +1,316 @@
+{
+ "alerts": [
+  {
+   "category": "presenca",
+   "desde_versao": 2,
+   "detail": "O AS aparenta depender de um único upstream (IPv6 e IPv4) na tabela global — risco de resiliência.",
+   "id": "single_homed",
+   "refs": {
+    "upstream_v4": 4200000002,
+    "upstream_v6": 4200000002
+   },
+   "severity": "aviso",
+   "title": "Conectividade single-homed"
+  },
+  {
+   "category": "roteamento",
+   "desde_versao": 1,
+   "detail": "1 bloco(s) atribuído(s) pelo Registro.br não têm nenhuma rota (nem agregado que os cubra, nem mais-específico) na tabela de roteamento global — espaço alocado mas não anunciado.",
+   "id": "prefixo_inalcancavel",
+   "refs": {
+    "prefixes": [
+     "198.18.33.0/24"
+    ]
+   },
+   "severity": "aviso",
+   "title": "Bloco alocado não anunciado"
+  },
+  {
+   "category": "roteamento",
+   "desde_versao": 1,
+   "detail": "1 prefixo(s) deste AS são originados na full table por um ASN diferente. Pode ser anúncio gerenciado por terceiro — vale confirmar se é intencional.",
+   "id": "anuncio_por_outro_as",
+   "refs": {
+    "items": [
+     {
+      "origin_asn": 64503,
+      "prefix": "198.18.24.0/21"
+     }
+    ]
+   },
+   "severity": "aviso",
+   "title": "Bloco anunciado por outro AS"
+  },
+  {
+   "category": "rpki",
+   "desde_versao": 1,
+   "detail": "1 bloco(s) alocado(s) não têm ROA cobrindo — parte do espaço fica sem proteção de origem.",
+   "id": "rpki_cobertura_parcial",
+   "refs": {
+    "prefixes": [
+     "198.18.33.0/24"
+    ]
+   },
+   "severity": "aviso",
+   "title": "Cobertura RPKI parcial"
+  },
+  {
+   "category": "rpki",
+   "desde_versao": 1,
+   "detail": "O AS possui ROAs no RPKI mas não publicou nenhum objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os upstreams autorizados e permite validação de AS_PATH — sua ausência não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
+   "id": "sem_aspa",
+   "refs": {},
+   "severity": "aviso",
+   "title": "Sem ASPA"
+  },
+  {
+   "category": "presenca",
+   "desde_versao": 1,
+   "detail": "O cadastro no PeeringDB não informa um as-set no IRR. Sem objeto IRR, peers e provedores não conseguem montar filtros de prefixo automaticamente.",
+   "id": "sem_irr_as_set",
+   "refs": {},
+   "severity": "info",
+   "title": "Sem AS-SET no IRR"
+  }
+ ],
+ "announced_ipv4_addresses": 256,
+ "announced_ipv6_48s": 1,
+ "apnic_users": 21130,
+ "apnic_users_pct_cc": 1.0565,
+ "apnic_v6_pct_as": 80.0,
+ "apnic_v6_users": 16904,
+ "asn": 64502,
+ "cnpj": "90000007000104",
+ "downstreams": [],
+ "downstreams_global_v4": [],
+ "downstreams_global_v6": [],
+ "downstreams_v4": [],
+ "downstreams_v6": [],
+ "external_ixps": [],
+ "geo_org": {
+  "city": "Mbaracayú Novo",
+  "cnpj": "90000007000104",
+  "geo_confidence": "city_centroid",
+  "geo_source": "nominatim",
+  "lat": -24.95,
+  "lon": -53.45,
+  "municipio": "Mbaracayú Novo",
+  "name": "Provedor 07 Telecom Ltda",
+  "uf": "PR"
+ },
+ "geo_prefixes_v4": {
+  "198.18.32.0/24": {
+   "city": "Mbaracayú Novo",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -24.95,
+   "lon": -53.45,
+   "uf": "PR"
+  }
+ },
+ "geo_prefixes_v6": {
+  "2001:db8:8::/48": {
+   "city": "Mbaracayú Novo",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -24.95,
+   "lon": -53.45,
+   "uf": "PR"
+  }
+ },
+ "global_prefixes_v4": [
+  "198.18.32.0/24"
+ ],
+ "global_prefixes_v4_count": 1,
+ "global_prefixes_v6": [
+  "2001:db8:8::/48"
+ ],
+ "global_prefixes_v6_count": 1,
+ "has_ipv6": true,
+ "is_br": true,
+ "is_multihomed_v4": false,
+ "is_multihomed_v6": false,
+ "ixp_member_codes": [
+  "za"
+ ],
+ "ixp_paths": {
+  "zb": [
+   [
+    4200000002
+   ]
+  ]
+ },
+ "ixp_presence": {
+  "za": {
+   "v4": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "198.18.32.0/24"
+    ]
+   },
+   "v6": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "2001:db8:8::/48"
+    ]
+   }
+  },
+  "zb": {
+   "v4": {
+    "direct": false,
+    "origin": true,
+    "prefixes": [
+     "198.18.24.0/21"
+    ]
+   },
+   "v6": {
+    "direct": false,
+    "origin": true,
+    "prefixes": [
+     "2001:db8:8::/48"
+    ]
+   }
+  }
+ },
+ "ixps_direct": [
+  "za"
+ ],
+ "ixps_origin": [
+  "za",
+  "zb"
+ ],
+ "name": "Provedor 07 Telecom Ltda",
+ "path_node_meta": {
+  "4200000002": {
+   "is_br": true,
+   "name": "Trânsito Nacional 3 S.A.",
+   "space_v4": 6,
+   "space_v6": 1
+  }
+ },
+ "pdb": {
+  "asn": 64502,
+  "info_type": "Cable/DSL/ISP",
+  "name": "Provedor 07 Telecom Ltda",
+  "policy_general": "Open"
+ },
+ "pdb_registered": true,
+ "rir_prefixes_v4": [
+  "198.18.24.0/21",
+  "198.18.32.0/24",
+  "198.18.33.0/24"
+ ],
+ "rir_prefixes_v4_count": 3,
+ "rir_prefixes_v6": [
+  "2001:db8:8::/48"
+ ],
+ "rir_prefixes_v6_count": 1,
+ "roa_list": [
+  {
+   "asn": 64502,
+   "maxLength": 21,
+   "prefix": "198.18.24.0/21",
+   "ta": "lacnic"
+  },
+  {
+   "asn": 64502,
+   "maxLength": 24,
+   "prefix": "198.18.32.0/24",
+   "ta": "lacnic"
+  },
+  {
+   "asn": 64502,
+   "maxLength": 48,
+   "prefix": "2001:db8:8::/48",
+   "ta": "lacnic"
+  }
+ ],
+ "rpki_validation": {
+  "198.18.24.0/21": "valid",
+  "198.18.32.0/24": "valid",
+  "198.18.33.0/24": "not_found",
+  "2001:db8:8::/48": "valid"
+ },
+ "sici": {
+  "acessos": 6037,
+  "acessos_compartilhados": false,
+  "acessos_internet": 6037,
+  "asns": [
+   64502
+  ],
+  "capacidade_internet_mbps": 724440.0,
+  "capacidade_mbps": 724440.0,
+  "cnpj": "90000007000104",
+  "divergencia_apnic_anatel": {
+   "acessos_sici": 6037,
+   "apnic_users": 21130,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "empresa": "Provedor 07 Telecom Ltda",
+  "grupo": "OUTROS",
+  "meio_predominante": "Fibra",
+  "mes_referencia": "2026-08",
+  "municipios": 1,
+  "pf": 5433,
+  "pj": 604,
+  "por_faixa": {
+   "> 34Mbps": 6037
+  },
+  "por_meio": {
+   "Fibra": 6037
+  },
+  "por_produto": {
+   "INTERNET": 6037
+  },
+  "por_tecnologia": {
+   "FTTH": 6037
+  },
+  "porte": "Pequeno Porte",
+  "serie": [
+   [
+    "2026-07",
+    5855,
+    5270,
+    585
+   ],
+   [
+    "2026-08",
+    6037,
+    5433,
+    604
+   ]
+  ],
+  "tecnologia_predominante": "FTTH",
+  "velocidade_media_mbps": 120.0,
+  "velocidade_mediana_mbps": 120.0
+ },
+ "single_upstream_v4": 4200000002,
+ "single_upstream_v6": 4200000002,
+ "snapshot_date": "2026-09-20",
+ "upstreams": [
+  4200000002
+ ],
+ "upstreams_global_v4": [
+  4200000002
+ ],
+ "upstreams_global_v6": [
+  4200000002
+ ],
+ "upstreams_v4": [
+  4200000002
+ ],
+ "upstreams_v6": [
+  4200000002
+ ],
+ "users_per_ip": 82.54,
+ "users_per_v6_48": 16904.0
+}

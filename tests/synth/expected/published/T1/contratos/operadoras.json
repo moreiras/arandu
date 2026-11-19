@@ -1,0 +1,254 @@
+{
+ "aviso": "Cada linha é um resultado de item de contratação publicado no PNCP (Lei 14.133) e espelhado no Compras.gov.br, consultado na data indicada para o CNPJ de matriz da empresa; não é, por si, contrato assinado nem pagamento. O valor é o homologado no resultado do item, sem correção. Itens cancelados ficam fora dos valores e são contados à parte.",
+ "cobertura": {
+  "contratacoes": 4,
+  "contratacoes_com_detalhe": 3,
+  "contratacoes_com_municipio": 4,
+  "itens": 4,
+  "janela_inicio": "2021-04-01",
+  "leitura_mais_antiga": "2026-08-21",
+  "leitura_mais_recente": "2026-09-20",
+  "municipios_com_contratacao": 3,
+  "raizes_com_leitura": 4,
+  "raizes_com_resultado": 2,
+  "raizes_faixa_a": 42,
+  "raizes_incompletas": 0,
+  "raizes_no_universo": 43,
+  "raizes_sem_leitura": 39
+ },
+ "coletado_em": "2026-09-20T00:00:00+00:00",
+ "fonte": {
+  "api": "sintético",
+  "consultado_em": "2026-09-20",
+  "licenca": "dados abertos (Lei 12.527/2011, LAI; PNCP, Lei 14.133/2021, art. 174); sem licença nominal publicada",
+  "nome": "Compras.gov.br (dados abertos), espelho do PNCP, Lei 14.133",
+  "url": "https://dadosabertos.compras.gov.br"
+ },
+ "licenca": "dados abertos (Lei 12.527/2011, LAI; PNCP, Lei 14.133/2021, art. 174); sem licença nominal publicada",
+ "limites": "Só a Lei 14.133 (o legado do SIASG anterior a 2021 não entra); só o CNPJ de matriz da raiz (contrato em nome de filial não aparece); só órgão que publica no PNCP. A coleta é um rodízio de dias: cada raiz tem a data da sua leitura (faixa A, que declara acessos no SICI, até ~7 dias; faixa B até ~56) e raiz ainda não lida não tem número, o que não quer dizer zero. Esfera, município do órgão e objeto só existem para as contratações já detalhadas (`cobertura.contratacoes_com_detalhe`); o município é o do órgão comprador, não o do local de entrega. A esfera é a informada no PNCP e pode estar inconsistente.",
+ "natureza": "fato_publicado",
+ "operadoras": {
+  "90000001": {
+   "cnpj_consultado": "90000001000129",
+   "contratacoes": 3,
+   "contratacoes_detalhadas": 3,
+   "desde": "2021-04-01",
+   "faixa": "A",
+   "idade_dias": 0,
+   "incompleto": false,
+   "itens": 3,
+   "itens_cancelados": 1,
+   "lida_em": "2026-09-20",
+   "nome": "Provedor 01 Telecom Ltda",
+   "orgaos": 2,
+   "orgaos_principais": [
+    {
+     "contratacoes": 2,
+     "esfera": "federal",
+     "itens": 2,
+     "org": "11000000000191",
+     "orgao": "ORGAO FEDERAL SINTETICO",
+     "uf": "SP",
+     "valor": 251500.0
+    },
+    {
+     "contratacoes": 1,
+     "esfera": "municipal",
+     "itens": 1,
+     "org": "11000000000272",
+     "orgao": "PREFEITURA SINTETICA",
+     "uf": "RJ",
+     "valor": 4000.25
+    }
+   ],
+   "por_ano": [
+    {
+     "ano": "2025",
+     "contratacoes": 1,
+     "itens": 1,
+     "valor": 250000.0
+    },
+    {
+     "ano": "2026",
+     "contratacoes": 2,
+     "itens": 2,
+     "valor": 5500.25
+    }
+   ],
+   "por_esfera": [
+    {
+     "contratacoes": 2,
+     "esfera": "federal",
+     "itens": 2,
+     "valor": 251500.0
+    },
+    {
+     "contratacoes": 1,
+     "esfera": "municipal",
+     "itens": 1,
+     "valor": 4000.25
+    }
+   ],
+   "por_uf": [
+    {
+     "contratacoes": 2,
+     "itens": 2,
+     "uf": "SP",
+     "valor": 251500.0
+    },
+    {
+     "contratacoes": 1,
+     "itens": 1,
+     "uf": "RJ",
+     "valor": 4000.25
+    }
+   ],
+   "primeiro_resultado": "2025-11-20",
+   "raiz": "90000001",
+   "recentes": [
+    {
+     "contratacao": "11000000000272-1-000002/2026",
+     "data": "2026-08-03",
+     "esfera": "municipal",
+     "ibge": "9900002",
+     "itens": 1,
+     "modalidade": "Dispensa",
+     "municipio": "Tupãnópolis",
+     "objeto": "Link dedicado (sintético)",
+     "orgao": "PREFEITURA SINTETICA",
+     "orgao_detalhado": true,
+     "uf": "RJ",
+     "valor": 4000.25
+    },
+    {
+     "contratacao": "11000000000191-1-000001/2026",
+     "data": "2026-02-10",
+     "esfera": "federal",
+     "ibge": "9900001",
+     "itens": 1,
+     "modalidade": "Pregão - Eletrônico",
+     "municipio": "Arandurápolis",
+     "objeto": "Contratação de acesso à Internet (sintético)",
+     "orgao": "ORGAO FEDERAL SINTETICO",
+     "orgao_detalhado": true,
+     "uf": "SP",
+     "valor": 1500.0
+    },
+    {
+     "contratacao": "11000000000353-1-000003/2025",
+     "data": "2025-11-20",
+     "esfera": "federal",
+     "ibge": "9900001",
+     "itens": 1,
+     "modalidade": "Pregão - Eletrônico",
+     "municipio": "Arandurápolis",
+     "objeto": "Rede de dados (sintético)",
+     "orgao": "ORGAO FEDERAL SINTETICO",
+     "orgao_detalhado": true,
+     "uf": "SP",
+     "valor": 250000.0
+    }
+   ],
+   "resultado": "com_resultado",
+   "ultimo_resultado": "2026-08-03",
+   "valor_homologado": 255500.25
+  },
+  "90000002": {
+   "cnpj_consultado": "90000002000173",
+   "contratacoes": 1,
+   "contratacoes_detalhadas": 0,
+   "desde": "2021-04-01",
+   "faixa": "A",
+   "idade_dias": 0,
+   "incompleto": false,
+   "itens": 1,
+   "itens_cancelados": 0,
+   "lida_em": "2026-09-20",
+   "nome": "Provedor 02 Telecom Ltda",
+   "orgaos": 1,
+   "orgaos_principais": [
+    {
+     "contratacoes": 1,
+     "esfera": null,
+     "itens": 1,
+     "org": "11000000000434",
+     "orgao": null,
+     "uf": "PR",
+     "valor": 777.0
+    }
+   ],
+   "por_ano": [
+    {
+     "ano": "2026",
+     "contratacoes": 1,
+     "itens": 1,
+     "valor": 777.0
+    }
+   ],
+   "por_esfera": [
+    {
+     "contratacoes": 1,
+     "esfera": "nao_detalhada",
+     "itens": 1,
+     "valor": 777.0
+    }
+   ],
+   "por_uf": [
+    {
+     "contratacoes": 1,
+     "itens": 1,
+     "uf": "PR",
+     "valor": 777.0
+    }
+   ],
+   "primeiro_resultado": "2026-09-01",
+   "raiz": "90000002",
+   "recentes": [
+    {
+     "contratacao": "11000000000434-1-000004/2026",
+     "data": "2026-09-01",
+     "esfera": null,
+     "ibge": "9900003",
+     "itens": 1,
+     "modalidade": null,
+     "municipio": "Guaraniópolis",
+     "objeto": null,
+     "orgao": "UNIDADE SINTETICA 3",
+     "orgao_detalhado": false,
+     "uf": "PR",
+     "valor": 777.0
+    }
+   ],
+   "resultado": "com_resultado",
+   "ultimo_resultado": "2026-09-01",
+   "valor_homologado": 777.0
+  },
+  "90000003": {
+   "cnpj_consultado": "90000003000118",
+   "contratacoes": 0,
+   "desde": "2021-04-01",
+   "faixa": "A",
+   "idade_dias": 0,
+   "incompleto": false,
+   "itens": 0,
+   "lida_em": "2026-09-20",
+   "nome": "Provedor 03 Telecom Ltda",
+   "raiz": "90000003",
+   "resultado": "sem_resultado_na_consulta"
+  },
+  "90000004": {
+   "cnpj_consultado": "90000004000162",
+   "contratacoes": 0,
+   "desde": "2021-04-01",
+   "faixa": "B",
+   "idade_dias": 30,
+   "incompleto": false,
+   "itens": 0,
+   "lida_em": "2026-08-21",
+   "nome": "Provedor 04 Telecom Ltda",
+   "raiz": "90000004",
+   "resultado": "sem_resultado_na_consulta"
+  }
+ },
+ "snapshot_date": "2026-09-20"
+}

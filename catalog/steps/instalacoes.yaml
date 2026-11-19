@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: instalacoes
+nome: Instalações do PeeringDB, vínculos, atributos das redes e portas externas
+ordem: -93
+modulo: products.passos
+args:
+- --passo
+- instalacoes
+- --date
+- '{date}'
+parcial:
+- instalacoes
+depois_de:
+- peeringdb_fac
+- asn_indice
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: instalações do PeeringDB, vínculos, atributos das redes e portas dos PTTs externos. Roda sozinho; lê o normalizado da fonte e o índice de ASNs.'

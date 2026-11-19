@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: host_warmup
+nome: Aquecimento dos caches da API
+ordem: 42
+runner: host
+comando:
+- docker
+- compose
+- exec
+- -T
+- api
+- python
+- -c
+- <POST /api/v1/warmup>
+depois_de:
+- saude_asn
+politica_falha: opcional
+descricao: Roda no host (compose exec), por scripts/host-steps.sh, enquanto o arandu roda no container.

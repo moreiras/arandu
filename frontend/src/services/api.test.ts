@@ -1,0 +1,126 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  AccessError, fetchASN, fetchASNContacts, fetchASNs, fetchIXP, fetchSnapshots, onAnonLimitReached,
+  onLoginRequired, setCurrentArea,
+} from './api'
+import { fixtures, seenHeaders, server } from '../test/server'
+import { http, HttpResponse } from 'msw'
+
+beforeEach(() => setCurrentArea('open'))
+
+describe('cliente da API sobre respostas reais do dataset sintético', () => {
+  it('lista snapshots e devolve o formato da API', async () => {
+    const r = await fetchSnapshots()
+    expect(r.latest).toBe(fixtures.snapshots.latest)
+    expect(r.snapshots.length).toBeGreaterThan(0)
+  })
+
+  it('envia a área de acesso e o fingerprint em todo pedido', async () => {
+    setCurrentArea('metered')
+    await fetchSnapshots()
+    const h = seenHeaders['/api/v1/snapshots']
+    expect(h['x-arandu-area']).toBe('metered')
+    expect(Object.keys(h).some((k) => k.includes('fingerprint') || k.includes('device'))).toBe(true)
+  })
+
+  it('primeira página da lista de ASNs', async () => {
+    const r = await fetchASNs({ page: 1, limit: 5 })
+    expect(r.items.length).toBeLessThanOrEqual(5)
+    expect(r.total).toBe(fixtures.asnsPage1.total)
+  })
+
+  it('documento de um ASN', async () => {
+    const d = await fetchASN(64496)
+    expect(d.asn).toBe(64496)
+    expect(Array.isArray(d.ixps_direct)).toBe(true)
+  })
+})
+
+describe('tratamento de acesso (regra: qualquer 401 abre o modal, nunca erro cru)', () => {
+  it('401 de paginação notifica o login com o motivo e vira AccessError(login)', async () => {
+    const cb = vi.fn()
+    const off = onLoginRequired(cb)
+    await expect(fetchASNs({ page: 2, limit: 10 })).rejects.toMatchObject({ name: 'AccessError', kind: 'login' })
+    expect(cb).toHaveBeenCalledWith('lista-expandida')
+    off()
+  })
+
+  it('401 em /contacts usa o motivo "contatos" mesmo sem reason no corpo', async () => {
+    const cb = vi.fn()
+    const off = onLoginRequired(cb)
+    await expect(fetchASNContacts(64496)).rejects.toBeInstanceOf(AccessError)
+    expect(cb).toHaveBeenCalledWith('contatos')
+    off()
+  })
+
+  it('429 vira AccessError(taxa) com a mensagem da API, sem abrir login', async () => {
+    const cb = vi.fn()
+    const off = onLoginRequired(cb)
+    const msg = 'Você atingiu o limite de consultas de contato para sua conta. Tente novamente em 9 min.'
+    server.use(http.get('*/api/v1/asns/:asn/contacts', () => HttpResponse.json({ detail: msg }, { status: 429, headers: { 'Retry-After': '540' } })))
+    await expect(fetchASNContacts(64496)).rejects.toMatchObject({ kind: 'taxa', message: msg })
+    server.use(http.get('*/api/v1/asns/:asn/contacts', () => new HttpResponse('slow down', { status: 429 })))
+    await expect(fetchASNContacts(64496)).rejects.toMatchObject({ kind: 'taxa' })
+    expect(cb).not.toHaveBeenCalled()
+    off()
+  })
+
+  it('403 com anon_limit_reached notifica o limite e vira AccessError(limit)', async () => {
+    const cb = vi.fn()
+    const off = onAnonLimitReached(cb)
+    const { fetchMapAsns } = await import('./api')
+    await expect(fetchMapAsns()).rejects.toMatchObject({ kind: 'limit' })
+    expect(cb).toHaveBeenCalled()
+    off()
+  })
+
+  it('erro 500 não vira AccessError nem abre login', async () => {
+    const cb = vi.fn()
+    const off = onLoginRequired(cb)
+    const err = await fetchIXP('sp').catch((e) => e)
+    expect(err).toBeInstanceOf(Error)
+    expect(err).not.toBeInstanceOf(AccessError)
+    expect(String(err.message)).toContain('HTTP 500')
+    expect(cb).not.toHaveBeenCalled()
+    off()
+  })
+})
+
+describe('API ocupada (503 busy): espera e tenta de novo', () => {
+  afterEach(() => vi.useRealTimers())
+
+  it('repete depois do Retry-After e devolve o dado quando a fila anda', async () => {
+    vi.useFakeTimers()
+    let chamadas = 0
+    server.use(http.get('*/api/v1/asns/:asn', () => {
+      chamadas += 1
+      return chamadas < 3
+        ? HttpResponse.json({ detail: 'Servidor ocupado', busy: true }, { status: 503, headers: { 'Retry-After': '2' } })
+        : HttpResponse.json(fixtures.asnDetail)
+    }))
+    const p = fetchASN(64496)
+    await vi.advanceTimersByTimeAsync(20000)
+    expect((await p).asn).toBe(64496)
+    expect(chamadas).toBe(3)
+  })
+
+  it('desiste depois de BUSY_RETRIES e mostra o erro (nunca fica em laço)', async () => {
+    vi.useFakeTimers()
+    let chamadas = 0
+    server.use(http.get('*/api/v1/asns/:asn', () => {
+      chamadas += 1
+      return HttpResponse.json({ detail: 'ocupado', busy: true }, { status: 503, headers: { 'Retry-After': '1' } })
+    }))
+    const p = fetchASN(64496).catch((e) => e)
+    await vi.advanceTimersByTimeAsync(60000)
+    expect((await p).message).toMatch(/HTTP 503/)
+    expect(chamadas).toBe(4)          // 1 + 3 retentativas
+  })
+
+  it('503 que não é "ocupado" (ex.: erro real) não é repetido', async () => {
+    let chamadas = 0
+    server.use(http.get('*/api/v1/asns/:asn', () => { chamadas += 1; return new HttpResponse('falhou', { status: 503 }) }))
+    await expect(fetchASN(64496)).rejects.toThrow(/HTTP 503/)
+    expect(chamadas).toBe(1)
+  })
+})

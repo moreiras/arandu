@@ -1,0 +1,50 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: curada_pix
+nome: Pontos de intercâmbio físicos do IX.br (config/pix.yaml)
+tipo: curada
+ativa: true
+arquivo: config/pix.yaml
+publicavel: true
+descricao: Localização física (nome, endereço, CEP, lat/lon) de cada PIX por localidade do IX.br; gerada
+  por raspagem de old.ix.br/adesao e geocodificada, com correções manuais.
+origem:
+  formato: YAML mantido à mão em config/
+  licenca: Curadoria do projeto (dados factuais; fontes citadas)
+  uso_comercial: nao_verificado
+  nota: 'Fonte: https://old.ix.br/adesao/{code} (raspado por scripts/scrape_pix_locations.py); coordenadas
+    via OSM/PeeringDB (ex.: AP, corrigido em 2026-09-28).'
+cadencia:
+  fonte_atualiza: irregular
+  coleta: sob_demanda
+  coleta_atual: semanal
+  frescor_maximo: 400d
+politica_falha: opcional
+entradas:
+- curada_ixps
+saidas: {}
+chaves:
+- ixp
+- ponto
+campos:
+- nome: pix[code][].name
+  tipo: str
+  significado: 'Nome do ponto (ex.: ''[PIX RNP]'').'
+  publicado_em:
+  - mapas_prefixos → /api/v1/map/pix
+- nome: pix[code][].address / cep
+  tipo: str
+  significado: Endereço e CEP do ponto.
+  tratamento: Endereço de instalação, não de pessoa física.
+  publicado_em:
+  - mapas_prefixos → /api/v1/map/pix
+- nome: pix[code][].lat / lon
+  tipo: float
+  significado: Coordenadas do ponto.
+  tratamento: Geocodificadas por OSM; podem ter sido corrigidas à mão.
+  publicado_em:
+  - mapas_prefixos → /api/v1/map/pix
+limites: Raspagem de página que pode mudar; já houve endereço repetido por engano (Macapá/Boa Vista).
+retencao:
+  normalizado: git
+pendencias:
+- Licença/termos dos dados do IX.br e da raspagem de old.ix.br.

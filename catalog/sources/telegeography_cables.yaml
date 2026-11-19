@@ -1,0 +1,57 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: telegeography_cables
+nome: Cabos submarinos (TeleGeography)
+tipo: bruta
+ativa: true
+modulo: sources.telegeography_cables.collect
+publicavel: true
+descricao: Cabos submarinos e pontos de aterragem do Submarine Cable Map (API v3).
+origem:
+  url: https://www.submarinecablemap.com/api/v3/
+  formato: JSON/GeoJSON
+  licenca: CC BY-SA 4.0 (conforme declarado no código do coletor)
+  uso_comercial: restrito
+  nota: 'O código do coletor declara CC BY-SA 4.0 com atribuição obrigatória e mantida na UI (mapTheme.ts).
+    Share-alike: obras derivadas da base herdam a licença. Não verificado na origem (site é uma SPA sem
+    texto estático em 2026-10-13).'
+cadencia:
+  fonte_atualiza: irregular
+  coleta: mensal
+  coleta_atual: semanal
+  frescor_maximo: 45d
+politica_falha: usar_ultima_valida
+saidas:
+  normalizado:
+  - summary/telegeography_cables.json.gz
+chaves:
+- cabo
+- pais
+- ponto
+campos:
+- nome: cables[].name / id
+  tipo: str
+  significado: Nome e identificador do cabo.
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_cables.geojson
+- nome: cables[].length / owners / rfs_year / is_planned
+  tipo: str|int|bool
+  significado: Extensão, proprietários, ano de entrada em serviço e se é planejado.
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_cables.geojson
+- nome: cables[].landing_countries
+  tipo: list[str]
+  significado: Países de aterragem.
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_cables.geojson
+- nome: landing_points[]
+  tipo: dict
+  significado: Pontos de aterragem (nome, id, geometria).
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_landing_points.geojson
+limites: Mapa de referência, não registro oficial; traçado esquemático. Atribuição à TeleGeography obrigatória.
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/telegeography/
+pendencias:
+- Confirmar a licença (CC BY-SA 4.0?) diretamente na TeleGeography e as implicações de share-alike para
+  a camada publicada.

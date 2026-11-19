@@ -1,0 +1,52 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: prontidao
+nome: Prontidão em segurança de roteamento por ASN
+descricao: Índice de 0 a 100 por ASN do Brasil em quatro pilares (filtragem, anti-spoofing, coordenação e validação global), com classe (pronto, em progresso, atrasado, sem dados), os componentes e as regras
+  versionadas. Medições e fatos de terceiros com fonte e data; não é veredito sobre a empresa e não usa o nome de nenhuma iniciativa.
+modulo: products.prontidao.build
+entradas:
+- source: caida_spoofer
+- source: irr_route_objects
+- source: apnic_irov
+- source: bogons
+chaves_de_juncao:
+- asn
+- uf
+- cnpj
+saidas:
+  publicado:
+  - prontidao/asns.json.gz
+campos:
+- nome: asns[asn].total / classe / pilares_sem_dado
+  tipo: float / str / lista
+  significado: Índice (0 a 100) com os pilares que tinham dado, a classe (pronto ≥ 80, em progresso ≥ 50, atrasado, ou sem dados quando há menos de dois pilares) e os pilares que ficaram de fora.
+  tratamento: Pesos de componentes e pilares se renormalizam pelo que existe; o índice sempre diz quais pilares entraram.
+  publicado_em:
+  - prontidao → prontidao/asns.json.gz#asns
+- nome: asns[asn].pilares[pilar].componentes
+  tipo: dict
+  significado: Valor (0 a 100), peso e detalhe de cada componente (ROV, bogons, Spoofer, PeeringDB, aut-num, as-set, ROA, IRR, ASPA).
+  tratamento: Cada componente cita a fonte nas regras; o objeto IRR documenta política e pode ter sido criado por terceiro; ASPA só conta a favor.
+- nome: brasil / por_uf / por_faixa_porte / por_operadora
+  tipo: dict
+  significado: Por grupo (país, UF, porte por usuários estimados do APNIC, operadora), ASNs por classe, média ponderada pelos usuários estimados, mediana e cobertura de cada pilar.
+  tratamento: Agregados; não há lista nominal dos piores. Operadora = raiz do CNPJ do ASN.
+  publicado_em:
+  - prontidao → prontidao/asns.json.gz#por_uf
+  - prontidao → prontidao/asns.json.gz#por_faixa_porte
+  - prontidao → prontidao/asns.json.gz#por_operadora
+  - prontidao → prontidao/asns.json.gz#brasil
+- nome: regras / fontes / limites / natureza
+  tipo: dict
+  significado: Versão e hash das regras, pesos e descrição de cada pilar e componente, fonte e data de cada insumo, e as limitações.
+  publicado_em:
+  - prontidao → prontidao/asns.json.gz#regras
+  - prontidao → prontidao/asns.json.gz#fontes
+  - prontidao → prontidao/asns.json.gz#limites
+  - prontidao → prontidao/asns.json.gz#natureza
+- nome: snapshot_date / generated_at
+  tipo: str
+  significado: Data do snapshot e instante em que o arquivo foi gerado.
+  publicado_em:
+  - prontidao → prontidao/asns.json.gz#snapshot_date
+  - prontidao → prontidao/asns.json.gz#generated_at

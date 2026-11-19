@@ -1,0 +1,83 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: bgp_updates_routeviews
+nome: Updates BGP do RouteViews São Paulo (7 dias)
+tipo: bruta
+ativa: true
+modulo: sources.bgp_updates_routeviews.collect
+publicavel: true
+descricao: Baixa os arquivos de update MRT do coletor route-views.saopaulo dos 7 dias anteriores ao snapshot
+  e conta eventos (anúncios, retiradas, mudanças de atributo) por (AS, prefixo), com deduplicação.
+origem:
+  url: http://archive.routeviews.org/route-views.saopaulo/bgpdata
+  formato: MRT updates (bz2)
+  licenca: CC BY 4.0 (RouteViews)
+  uso_comercial: permitido
+  termos: https://www.routeviews.org/routeviews/faq/
+  nota: 'RouteViews: FAQ → Creative Commons v4 com Atribuição (verificado em 2026-10-13).'
+cadencia:
+  fonte_atualiza: continua
+  coleta: diaria
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: opcional
+entradas:
+- fulltable_routeviews
+- registro_br
+saidas:
+  bruto:
+  - route-views.saopaulo/updates.{AAAAMMDD}.{HHMM}.bz2
+  normalizado:
+  - summary/bgp_stability.json.gz
+  - summary/bgp_stability_manifest.json
+chaves:
+- asn
+- prefixo
+campos:
+- nome: period
+  tipo: dict
+  significado: Janela analisada (início, fim, dias, coletor, arquivos processados e ausentes, eventos
+    vistos e contados).
+  publicado_em:
+  - bgp_stability → bgp_stability.json
+- nome: period.dedup_rate_pct
+  tipo: float
+  significado: '% de eventos descartados como duplicados entre peers.'
+  publicado_em:
+  - bgp_stability → bgp_stability.json
+- nome: as_stability[].asn
+  tipo: int
+  significado: ASN analisado.
+  publicado_em:
+  - bgp_stability → bgp_stability.json
+- nome: as_stability[].classification
+  tipo: str
+  significado: Classe de estabilidade atribuída ao AS pela taxa de eventos por prefixo por dia.
+  tratamento: Faixas definidas em analysis/bgp_stability.
+  publicado_em:
+  - bgp_stability → bgp_stability.json
+- nome: as_stability[].daily/hourly
+  tipo: dict
+  significado: Contagem de eventos por dia e por hora (UTC).
+  publicado_em:
+  - bgp_stability → bgp_stability.json
+- nome: as_stability[].top_prefixes
+  tipo: list[dict]
+  significado: Prefixos com mais eventos para o AS.
+  publicado_em:
+  - bgp_stability → bgp_stability.json
+- nome: distribution.{v6,v4}
+  tipo: dict
+  significado: Distribuição de eventos por prefixo/dia (percentis p50–p99 e buckets).
+  publicado_em:
+  - bgp_stability → bgp_stability.json
+- nome: hourly_global
+  tipo: dict
+  significado: Série horária global de anúncios, retiradas e mudanças de atributo.
+  publicado_em:
+  - bgp_stability → bgp_stability.json
+limites: 'Um único coletor (peers latino-americanos): é a visão do route-views.saopaulo, não da Internet.
+  Evento é variação observada, não necessariamente instabilidade de causa interna ao AS.'
+retencao:
+  bruto: 14 dias
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/bgp_updates/

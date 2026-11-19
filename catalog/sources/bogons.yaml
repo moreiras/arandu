@@ -1,0 +1,48 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: bogons
+nome: Bogons (IANA e Team Cymru)
+tipo: bruta
+ativa: true
+modulo: sources.bogons.collect
+publicavel: true
+descricao: Espaço de endereços e números de AS que não deveriam aparecer na tabela de rotas pública, a partir dos registros de uso
+  especial da IANA (IPv6, IPv4 e AS) e das listas fullbogons do Team Cymru (reservados e ainda não alocados por nenhum RIR).
+origem:
+  url: https://www.iana.org/assignments/iana-ipv4-special-registry/
+  formato: CSV da IANA e texto de um CIDR por linha do Team Cymru
+  licenca: registros da IANA são de uso livre; Team Cymru publica as listas como "Free. Forever." sem cláusula de redistribuição
+  uso_comercial: nao_verificado
+  termos: https://www.team-cymru.com/bogon-reference-http
+  nota: Só o derivado (prefixo anunciado dentro de bogon) é publicado, com a fonte e a data da lista; a lista inteira não é republicada.
+cadencia:
+  fonte_atualiza: diaria
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 10d
+politica_falha: opcional
+saidas:
+  normalizado:
+  - summary/bogons.json.gz
+chaves:
+- prefixo
+- asn
+campos:
+- nome: iana.v6[] / iana.v4[]
+  tipo: list[dict]
+  significado: Blocos de uso especial não alcançáveis globalmente (privados, documentação, loopback etc.) com nome e RFC.
+- nome: iana.asns[]
+  tipo: list[dict]
+  significado: Faixas de ASN reservadas (documentação, uso privado, AS_TRANS etc.) com o motivo.
+- nome: cymru.v6[] / cymru.v4[]
+  tipo: list[str]
+  significado: Fullbogons (reservados mais espaço ainda não alocado por nenhum RIR).
+  tratamento: A lista de espaço não alocado muda todo dia; vale a data da lista (cymru.as_of).
+limites: 'O fullbogons IPv6 tem ~158 mil linhas (arquivo de ~0,4 MB comprimido). Um prefixo "não alocado" pode ter sido alocado horas antes da atualização da lista.'
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/bogons/
+pendencias:
+- Redistribuição das listas do Team Cymru não é tratada nos termos publicados; publicar só o derivado.
+etapa:
+  tentativas: 3
+  espera_s: 60

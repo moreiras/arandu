@@ -1,0 +1,199 @@
+{
+ "asns": {
+  "64496": {
+   "bgp": {
+    "vazou": 1,
+    "vitima_de_sequestro": 1
+   },
+   "ipv6": {
+    "em": "2026-09-20",
+    "pct": 55.5
+   },
+   "trafego_pct_do_brasil": 8.0,
+   "velocidade": {
+    "download_mbps": 250.5,
+    "jitter_ocioso_ms": 2.0,
+    "latencia_carregada_ms": 20.0,
+    "latencia_ociosa_ms": 9.5,
+    "testes": 321,
+    "upload_mbps": 120.25
+   }
+  },
+  "64497": {
+   "bgp": {
+    "no_caminho_de_vazamento": 1,
+    "sequestrou": 1
+   },
+   "ipv6": {
+    "em": "2026-09-20",
+    "pct": 0.0
+   }
+  }
+ },
+ "aviso": "O IPv6 é o percentual das requisições HTTP de pessoas (não de robôs) que a Cloudflare viu naquele ASN nos últimos 28 dias; mede quem usa a Cloudflare, não a rede inteira. Tráfego e velocidade só existem para os ASNs de topo do Brasil; ASN fora das listas não tem esses números, e isso não quer dizer zero. Os eventos de BGP são os que o Radar detectou: não provam intenção nem dano. Os agregados por UF são derivados dos ASNs do mapeamento ASN → UF do projeto.",
+ "bgp": {
+  "criterio": "evento com algum ASN do Brasil no caminho (vazamento) ou como sequestrador/vítima (sequestro); por ASN vale o papel, não a contagem do país",
+  "em": "2026-09-20",
+  "janela_dias": 28,
+  "sequestros_com_asn_do_brasil": 2,
+  "vazamentos_com_asn_do_brasil": 5
+ },
+ "cobertura": {
+  "asns_com_dado_ipv6": 2,
+  "asns_com_leitura_ipv6": 3,
+  "asns_com_velocidade": 1,
+  "asns_do_brasil_no_snapshot": 36,
+  "asns_na_lista_do_radar": 37,
+  "asns_no_topo_de_trafego": 1,
+  "leitura_mais_antiga": "2026-09-20",
+  "leitura_mais_recente": "2026-09-20"
+ },
+ "coletado_em": "2026-09-20T00:00:00+00:00",
+ "fonte": {
+  "api": "https://api.cloudflare.com/client/v4/radar/",
+  "atribuicao": "sintético (Cloudflare Radar, CC BY-NC 4.0)",
+  "licenca": "CC BY-NC 4.0",
+  "licenca_url": "https://creativecommons.org/licenses/by-nc/4.0/",
+  "nome": "Cloudflare Radar",
+  "url": "https://radar.cloudflare.com"
+ },
+ "janela_ipv6": "28d",
+ "licenca": "CC BY-NC 4.0",
+ "limites": "Rodízio: cada ASN tem a sua data de leitura de IPv6 (até ~7 dias de idade além da janela de 28 dias); ASN sem leitura ainda não foi consultado. Cobertura declarada em `cobertura`. Velocidade: só os ASNs com testes suficientes na lista do Radar. Quedas: o Radar só anota quedas de escala nacional ou regional ampla; 'sem quedas' é o que a consulta do país devolveu. UF é agregado derivado, não dado do Radar; ASN multi-UF conta na UF do seu cadastro.",
+ "por_uf": {
+  "AM": {
+   "asns": 3,
+   "asns_com_ipv6": 0,
+   "asns_no_ponderado": 0,
+   "bgp": {
+    "no_caminho_de_vazamento": 0,
+    "sequestrou": 0,
+    "vazou": 0,
+    "vitima_de_sequestro": 0
+   },
+   "derivado": true,
+   "ipv6_mediana_pct": null,
+   "ipv6_ponderado_pelo_trafego_pct": null
+  },
+  "BA": {
+   "asns": 2,
+   "asns_com_ipv6": 0,
+   "asns_no_ponderado": 0,
+   "bgp": {
+    "no_caminho_de_vazamento": 0,
+    "sequestrou": 0,
+    "vazou": 0,
+    "vitima_de_sequestro": 0
+   },
+   "derivado": true,
+   "ipv6_mediana_pct": null,
+   "ipv6_ponderado_pelo_trafego_pct": null
+  },
+  "GO": {
+   "asns": 2,
+   "asns_com_ipv6": 0,
+   "asns_no_ponderado": 0,
+   "bgp": {
+    "no_caminho_de_vazamento": 0,
+    "sequestrou": 0,
+    "vazou": 0,
+    "vitima_de_sequestro": 0
+   },
+   "derivado": true,
+   "ipv6_mediana_pct": null,
+   "ipv6_ponderado_pelo_trafego_pct": null
+  },
+  "MG": {
+   "asns": 3,
+   "asns_com_ipv6": 0,
+   "asns_no_ponderado": 0,
+   "bgp": {
+    "no_caminho_de_vazamento": 0,
+    "sequestrou": 0,
+    "vazou": 0,
+    "vitima_de_sequestro": 0
+   },
+   "derivado": true,
+   "ipv6_mediana_pct": null,
+   "ipv6_ponderado_pelo_trafego_pct": null
+  },
+  "PR": {
+   "asns": 7,
+   "asns_com_ipv6": 0,
+   "asns_no_ponderado": 0,
+   "bgp": {
+    "no_caminho_de_vazamento": 0,
+    "sequestrou": 0,
+    "vazou": 0,
+    "vitima_de_sequestro": 0
+   },
+   "derivado": true,
+   "ipv6_mediana_pct": null,
+   "ipv6_ponderado_pelo_trafego_pct": null
+  },
+  "RJ": {
+   "asns": 4,
+   "asns_com_ipv6": 1,
+   "asns_no_ponderado": 0,
+   "bgp": {
+    "no_caminho_de_vazamento": 1,
+    "sequestrou": 1,
+    "vazou": 0,
+    "vitima_de_sequestro": 0
+   },
+   "derivado": true,
+   "ipv6_mediana_pct": 0.0,
+   "ipv6_ponderado_pelo_trafego_pct": null
+  },
+  "RN": {
+   "asns": 2,
+   "asns_com_ipv6": 0,
+   "asns_no_ponderado": 0,
+   "bgp": {
+    "no_caminho_de_vazamento": 0,
+    "sequestrou": 0,
+    "vazou": 0,
+    "vitima_de_sequestro": 0
+   },
+   "derivado": true,
+   "ipv6_mediana_pct": null,
+   "ipv6_ponderado_pelo_trafego_pct": null
+  },
+  "RS": {
+   "asns": 5,
+   "asns_com_ipv6": 0,
+   "asns_no_ponderado": 0,
+   "bgp": {
+    "no_caminho_de_vazamento": 0,
+    "sequestrou": 0,
+    "vazou": 0,
+    "vitima_de_sequestro": 0
+   },
+   "derivado": true,
+   "ipv6_mediana_pct": null,
+   "ipv6_ponderado_pelo_trafego_pct": null
+  },
+  "SP": {
+   "asns": 8,
+   "asns_com_ipv6": 1,
+   "asns_no_ponderado": 1,
+   "bgp": {
+    "no_caminho_de_vazamento": 0,
+    "sequestrou": 0,
+    "vazou": 1,
+    "vitima_de_sequestro": 1
+   },
+   "derivado": true,
+   "ipv6_mediana_pct": 55.5,
+   "ipv6_ponderado_pelo_trafego_pct": 55.5
+  }
+ },
+ "quedas": {
+  "anomalias": 0,
+  "anotacoes": 0,
+  "consultado": true,
+  "em": "2026-09-20",
+  "janela": "52w"
+ },
+ "snapshot_date": "2026-09-20"
+}

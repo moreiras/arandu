@@ -1,0 +1,21 @@
+{
+  "fac": [
+    {"id": 9101, "org_id": 7001, "org_name": "Operadora Fictícia S.A.", "campus_id": 7, "name": "Datacenter Exemplo SP-1", "aka": "", "name_long": "", "website": "https://dc1.example.org",
+     "social_media": [{"service": "website", "identifier": "https://dc1.example.org"}], "clli": "", "rencode": "", "npanxx": "", "notes": "Contato do NOC: noc-fake@example.org, +55 11 5555-0000",
+     "net_count": 2, "ix_count": 1, "carrier_count": 1, "sales_email": "vendas-fake@example.org", "sales_phone": "+55 11 5555-0001", "tech_email": "tecnico-fake@example.org", "tech_phone": "+55 11 5555-0002",
+     "available_voltage_services": [], "diverse_serving_substations": true, "property": "Owner", "region_continent": "South America", "status_dashboard": "https://status.example.org", "logo": null,
+     "created": "2012-03-01T00:00:00Z", "updated": "2026-08-20T12:00:00Z", "status": "ok", "address1": "Rua Fictícia, 100", "address2": "", "city": "Arandurápolis", "country": "BR", "state": "SP",
+     "zipcode": "00000000", "floor": "", "suite": "", "latitude": -23.6, "longitude": -46.7},
+    {"id": 9102, "org_id": 7002, "org_name": "Colo Fictícia Ltda", "campus_id": null, "name": "Colo Exemplo RJ", "aka": "CER", "name_long": "", "website": "contato em nenhum-site@example.org",
+     "social_media": [], "notes": "", "net_count": 1, "ix_count": 0, "carrier_count": 0, "sales_email": "", "sales_phone": "", "tech_email": "", "tech_phone": "", "property": "", "region_continent": "South America",
+     "created": "2015-05-05T00:00:00Z", "updated": "2019-03-10T00:00:00Z", "status": "ok", "city": "Tupãnópolis", "country": "BR", "state": "RJ", "latitude": null, "longitude": null}
+  ],
+  "net": [
+    {"asn": 64496, "status": "ok", "info_scope": "Regional", "info_ipv6": true, "info_multicast": false, "info_unicast": true, "info_never_via_route_servers": false,
+     "looking_glass": "https://lg.example.org/", "route_server": "telnet://rs.example.org", "created": "2019-01-01T00:00:00Z", "updated": "2026-05-01T00:00:00Z",
+     "netixlan_updated": "2025-01-01T00:00:00Z", "netfac_updated": "2026-06-01T00:00:00Z", "ix_count": 1, "fac_count": 1,
+     "notes": "NOC: noc-fake@example.org", "poc_updated": "2023-08-21T21:24:27Z"},
+    {"asn": 64498, "status": "ok", "info_scope": "Global", "info_ipv6": false, "info_multicast": false, "info_unicast": true, "info_never_via_route_servers": false,
+     "looking_glass": "https://usuario:senha@lg.example.org/", "route_server": "noc-fake@example.org", "created": "2011-01-01T00:00:00Z", "updated": "2020-01-01T00:00:00Z", "ix_count": 0, "fac_count": 0}
+  ]
+}

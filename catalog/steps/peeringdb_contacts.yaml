@@ -1,0 +1,11 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: peeringdb_contacts
+nome: Contatos PeeringDB por ASN (POC)
+ordem: 8
+modulo: sources.peeringdb_contacts.collect
+fontes:
+- peeringdb_contacts
+tentativas: 2
+espera_s: 60
+politica_falha: opcional
+descricao: ''

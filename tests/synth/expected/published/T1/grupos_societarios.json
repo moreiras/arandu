@@ -1,0 +1,1222 @@
+{
+ "by_cnpj": {
+  "90000001000129": {
+   "cnpj": "90000001000129",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000000",
+    "codigo_ibge": "9900001",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 1",
+    "municipio": "Arandurápolis",
+    "numero": "100",
+    "uf": "SP"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000002000173": {
+   "cnpj": "90000002000173",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000001",
+    "codigo_ibge": "9900002",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 2",
+    "municipio": "Tupãnópolis",
+    "numero": "101",
+    "uf": "RJ"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000003000118": {
+   "cnpj": "90000003000118",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000002",
+    "codigo_ibge": "9900003",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 3",
+    "municipio": "Guaraniópolis",
+    "numero": "102",
+    "uf": "PR"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000004000162": {
+   "cnpj": "90000004000162",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000003",
+    "codigo_ibge": "9900004",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 4",
+    "municipio": "Itapuãzinho",
+    "numero": "103",
+    "uf": "SP"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000005000107": {
+   "cnpj": "90000005000107",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000004",
+    "codigo_ibge": "9900005",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 5",
+    "municipio": "Curumim do Sul",
+    "numero": "104",
+    "uf": "RS"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000007000104": {
+   "cnpj": "90000007000104",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000005",
+    "codigo_ibge": "9900007",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 6",
+    "municipio": "Mbaracayú Novo",
+    "numero": "105",
+    "uf": "PR"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000008000140": {
+   "cnpj": "90000008000140",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000006",
+    "codigo_ibge": "9900008",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 7",
+    "municipio": "Tabajara do Norte",
+    "numero": "106",
+    "uf": "AM"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000009000195": {
+   "cnpj": "90000009000195",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000007",
+    "codigo_ibge": "9900009",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 8",
+    "municipio": "Potiguara",
+    "numero": "107",
+    "uf": "RN"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000010000110": {
+   "cnpj": "90000010000110",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000008",
+    "codigo_ibge": "9900010",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 9",
+    "municipio": "Caeté Velho",
+    "numero": "108",
+    "uf": "BA"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000011000164": {
+   "cnpj": "90000011000164",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000009",
+    "codigo_ibge": "9900011",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 10",
+    "municipio": "Jaguarão de Cima",
+    "numero": "109",
+    "uf": "RS"
+   },
+   "grupo_id": "grp_90000012",
+   "holdings_externas": [],
+   "mesmo_grupo": [
+    {
+     "cnpj": "90000012000109",
+     "tipo_relacao": "quadro_identico"
+    }
+   ],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    },
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 2
+  },
+  "90000012000109": {
+   "cnpj": "90000012000109",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000010",
+    "codigo_ibge": "9900012",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 11",
+    "municipio": "Pindorama Alta",
+    "numero": "110",
+    "uf": "GO"
+   },
+   "grupo_id": "grp_90000012",
+   "holdings_externas": [],
+   "mesmo_grupo": [
+    {
+     "cnpj": "90000011000164",
+     "tipo_relacao": "quadro_identico"
+    }
+   ],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    },
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 2
+  },
+  "90000013000153": {
+   "cnpj": "90000013000153",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000011",
+    "codigo_ibge": "9900001",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 12",
+    "municipio": "Arandurápolis",
+    "numero": "111",
+    "uf": "SP"
+   },
+   "grupo_id": "grp_90000014",
+   "holdings_externas": [
+    {
+     "bairro": "",
+     "capital_social": 1000000,
+     "cep": "",
+     "cnae_fiscal_descricao": "Holdings de instituições não-financeiras",
+     "cnpj_basico": "55500001",
+     "complemento": "",
+     "data_inicio_atividade": "2010-01-01",
+     "logradouro": "",
+     "municipio": "Arandurápolis",
+     "natureza_juridica": "Sociedade Anônima Fechada",
+     "nome_fantasia": "",
+     "numero": "",
+     "porte": "DEMAIS",
+     "razao_social": "HOLDING EXEMPLO PARTICIPACOES SA",
+     "situacao_cadastral": "ATIVA",
+     "uf": "SP"
+    }
+   ],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [
+    {
+     "cnpj": "90000014000106",
+     "nomes_em_comum": [
+      "HOLDING EXEMPLO PARTICIPACOES SA"
+     ],
+     "socios_em_comum": 1,
+     "tipo_relacao": "socios_em_comum"
+    }
+   ],
+   "socios": [
+    {
+     "documento": "55500001",
+     "nome": "HOLDING EXEMPLO PARTICIPACOES SA",
+     "qualificacao": "49",
+     "tipo": "juridica"
+    },
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 2
+  },
+  "90000014000106": {
+   "cnpj": "90000014000106",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000012",
+    "codigo_ibge": "9900002",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 13",
+    "municipio": "Tupãnópolis",
+    "numero": "112",
+    "uf": "RJ"
+   },
+   "grupo_id": "grp_90000014",
+   "holdings_externas": [
+    {
+     "bairro": "",
+     "capital_social": 1000000,
+     "cep": "",
+     "cnae_fiscal_descricao": "Holdings de instituições não-financeiras",
+     "cnpj_basico": "55500001",
+     "complemento": "",
+     "data_inicio_atividade": "2010-01-01",
+     "logradouro": "",
+     "municipio": "Arandurápolis",
+     "natureza_juridica": "Sociedade Anônima Fechada",
+     "nome_fantasia": "",
+     "numero": "",
+     "porte": "DEMAIS",
+     "razao_social": "HOLDING EXEMPLO PARTICIPACOES SA",
+     "situacao_cadastral": "ATIVA",
+     "uf": "SP"
+    }
+   ],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [
+    {
+     "cnpj": "90000013000153",
+     "nomes_em_comum": [
+      "HOLDING EXEMPLO PARTICIPACOES SA"
+     ],
+     "socios_em_comum": 1,
+     "tipo_relacao": "socios_em_comum"
+    }
+   ],
+   "socios": [
+    {
+     "documento": "55500001",
+     "nome": "HOLDING EXEMPLO PARTICIPACOES SA",
+     "qualificacao": "49",
+     "tipo": "juridica"
+    },
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 2
+  },
+  "90000015000142": {
+   "cnpj": "90000015000142",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000013",
+    "codigo_ibge": "9900003",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 14",
+    "municipio": "Guaraniópolis",
+    "numero": "113",
+    "uf": "PR"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000016000197": {
+   "cnpj": "90000016000197",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000014",
+    "codigo_ibge": "9900004",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 15",
+    "municipio": "Itapuãzinho",
+    "numero": "114",
+    "uf": "SP"
+   },
+   "grupo_id": "grp_90000016",
+   "holdings_externas": [],
+   "mesmo_grupo": [
+    {
+     "cnpj": "90000017000131",
+     "tipo_relacao": "controle_exclusivo_exercido"
+    }
+   ],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 2
+  },
+  "90000017000131": {
+   "cnpj": "90000017000131",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000015",
+    "codigo_ibge": "9900005",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 16",
+    "municipio": "Curumim do Sul",
+    "numero": "115",
+    "uf": "RS"
+   },
+   "grupo_id": "grp_90000016",
+   "holdings_externas": [],
+   "mesmo_grupo": [
+    {
+     "cnpj": "90000016000197",
+     "tipo_relacao": "controle_exclusivo_recebido"
+    }
+   ],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "documento": "90000016",
+     "nome": "Provedor 16 Telecom Ltda",
+     "qualificacao": "49",
+     "tipo": "juridica"
+    }
+   ],
+   "tamanho_grupo": 2
+  },
+  "90000018000186": {
+   "cnpj": "90000018000186",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000016",
+    "codigo_ibge": "9900006",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 17",
+    "municipio": "Ybyrapé",
+    "numero": "116",
+    "uf": "MG"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000019000120": {
+   "cnpj": "90000019000120",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000017",
+    "codigo_ibge": "9900007",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 18",
+    "municipio": "Mbaracayú Novo",
+    "numero": "117",
+    "uf": "PR"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000020000155": {
+   "cnpj": "90000020000155",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000018",
+    "codigo_ibge": "9900008",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 19",
+    "municipio": "Tabajara do Norte",
+    "numero": "118",
+    "uf": "AM"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000021000108": {
+   "cnpj": "90000021000108",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000019",
+    "codigo_ibge": "9900009",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 20",
+    "municipio": "Potiguara",
+    "numero": "119",
+    "uf": "RN"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000022000144": {
+   "cnpj": "90000022000144",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000020",
+    "codigo_ibge": "9900010",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 21",
+    "municipio": "Caeté Velho",
+    "numero": "120",
+    "uf": "BA"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000023000199": {
+   "cnpj": "90000023000199",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000021",
+    "codigo_ibge": "9900011",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 22",
+    "municipio": "Jaguarão de Cima",
+    "numero": "121",
+    "uf": "RS"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000024000133": {
+   "cnpj": "90000024000133",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000022",
+    "codigo_ibge": "9900012",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 23",
+    "municipio": "Pindorama Alta",
+    "numero": "122",
+    "uf": "GO"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000025000188": {
+   "cnpj": "90000025000188",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000023",
+    "codigo_ibge": "9900001",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 24",
+    "municipio": "Arandurápolis",
+    "numero": "123",
+    "uf": "SP"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000026000122": {
+   "cnpj": "90000026000122",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000024",
+    "codigo_ibge": "9900002",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 25",
+    "municipio": "Tupãnópolis",
+    "numero": "124",
+    "uf": "RJ"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000027000177": {
+   "cnpj": "90000027000177",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000025",
+    "codigo_ibge": "9900003",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 26",
+    "municipio": "Guaraniópolis",
+    "numero": "125",
+    "uf": "PR"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000028000111": {
+   "cnpj": "90000028000111",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000026",
+    "codigo_ibge": "9900004",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 27",
+    "municipio": "Itapuãzinho",
+    "numero": "126",
+    "uf": "SP"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000029000166": {
+   "cnpj": "90000029000166",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000027",
+    "codigo_ibge": "9900005",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 28",
+    "municipio": "Curumim do Sul",
+    "numero": "127",
+    "uf": "RS"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000030000190": {
+   "cnpj": "90000030000190",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000028",
+    "codigo_ibge": "9900006",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 29",
+    "municipio": "Ybyrapé",
+    "numero": "128",
+    "uf": "MG"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000031000135": {
+   "cnpj": "90000031000135",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000029",
+    "codigo_ibge": "9900007",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 30",
+    "municipio": "Mbaracayú Novo",
+    "numero": "129",
+    "uf": "PR"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000032000180": {
+   "cnpj": "90000032000180",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000030",
+    "codigo_ibge": "9900008",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 31",
+    "municipio": "Tabajara do Norte",
+    "numero": "130",
+    "uf": "AM"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000100000100": {
+   "cnpj": "90000100000100",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000031",
+    "codigo_ibge": "9900001",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 32",
+    "municipio": "Arandurápolis",
+    "numero": "131",
+    "uf": "SP"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000101000155": {
+   "cnpj": "90000101000155",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000032",
+    "codigo_ibge": "9900002",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 33",
+    "municipio": "Tupãnópolis",
+    "numero": "132",
+    "uf": "RJ"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000102000108": {
+   "cnpj": "90000102000108",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000033",
+    "codigo_ibge": "9900003",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 34",
+    "municipio": "Guaraniópolis",
+    "numero": "133",
+    "uf": "PR"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000103000144": {
+   "cnpj": "90000103000144",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000034",
+    "codigo_ibge": "9900001",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 35",
+    "municipio": "Arandurápolis",
+    "numero": "134",
+    "uf": "SP"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000200000137": {
+   "cnpj": "90000200000137",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000035",
+    "codigo_ibge": "9900004",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 36",
+    "municipio": "Itapuãzinho",
+    "numero": "135",
+    "uf": "SP"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000201000181": {
+   "cnpj": "90000201000181",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000036",
+    "codigo_ibge": "9900005",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 37",
+    "municipio": "Curumim do Sul",
+    "numero": "136",
+    "uf": "RS"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000202000126": {
+   "cnpj": "90000202000126",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000037",
+    "codigo_ibge": "9900006",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 38",
+    "municipio": "Ybyrapé",
+    "numero": "137",
+    "uf": "MG"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000203000170": {
+   "cnpj": "90000203000170",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000038",
+    "codigo_ibge": "9900007",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 39",
+    "municipio": "Mbaracayú Novo",
+    "numero": "138",
+    "uf": "PR"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000204000115": {
+   "cnpj": "90000204000115",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000039",
+    "codigo_ibge": "9900008",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 40",
+    "municipio": "Tabajara do Norte",
+    "numero": "139",
+    "uf": "AM"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000205000160": {
+   "cnpj": "90000205000160",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000040",
+    "codigo_ibge": "9900009",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 41",
+    "municipio": "Potiguara",
+    "numero": "140",
+    "uf": "RN"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000206000104": {
+   "cnpj": "90000206000104",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000041",
+    "codigo_ibge": "9900010",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 42",
+    "municipio": "Caeté Velho",
+    "numero": "141",
+    "uf": "BA"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  },
+  "90000207000159": {
+   "cnpj": "90000207000159",
+   "endereco_sede": {
+    "bairro": "Centro",
+    "cep": "99000042",
+    "codigo_ibge": "9900011",
+    "complemento": "",
+    "logradouro": "Rua do Exemplo 43",
+    "municipio": "Jaguarão de Cima",
+    "numero": "142",
+    "uf": "RS"
+   },
+   "grupo_id": null,
+   "holdings_externas": [],
+   "mesmo_grupo": [],
+   "receita_dump_reference": "2026-09",
+   "relacionadas_parcial": [],
+   "socios": [
+    {
+     "qualificacao": "49",
+     "tipo": "fisica"
+    }
+   ],
+   "tamanho_grupo": 1
+  }
+ },
+ "grupos": [
+  {
+   "classificacao": "total",
+   "cnpj_basicos": [
+    "90000011",
+    "90000012"
+   ],
+   "cnpjs": [
+    "90000011000164",
+    "90000012000109"
+   ],
+   "grupo_id": "grp_90000012",
+   "tamanho": 2
+  },
+  {
+   "classificacao": "parcial",
+   "cnpj_basicos": [
+    "90000013",
+    "90000014"
+   ],
+   "cnpjs": [
+    "90000013000153",
+    "90000014000106"
+   ],
+   "grupo_id": "grp_90000014",
+   "tamanho": 2
+  },
+  {
+   "classificacao": "total",
+   "cnpj_basicos": [
+    "90000016",
+    "90000017"
+   ],
+   "cnpjs": [
+    "90000016000197",
+    "90000017000131"
+   ],
+   "grupo_id": "grp_90000016",
+   "tamanho": 2
+  }
+ ],
+ "receita_dump_reference": "2026-09",
+ "snapshot_date": "2026-09-20",
+ "total_cnpjs_em_grupo": 6,
+ "total_grupos": 3
+}

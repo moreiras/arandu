@@ -1,0 +1,103 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: fulltable_routeviews
+nome: Tabela BGP global (RouteViews + RIPE RIS)
+tipo: bruta
+ativa: true
+modulo: sources.fulltable_routeviews.collect
+publicavel: true
+descricao: Baixa RIBs MRT TABLE_DUMP_V2 (RFC 6396) de vários coletores RouteViews e RIPE RIS, processa
+  em streaming e grava prefixos únicos, origem por prefixo e grafo de adjacências de AS-PATH, com o recorte
+  das rotas brasileiras. Não guarda os dumps (raw vazio).
+origem:
+  url: http://archive.routeviews.org/{coletor}/bgpdata/{AAAA.MM}/RIBS/rib.{data}.{hora}.bz2; https://data.ris.ripe.net/{rrc}/{AAAA.MM}/bview.{data}.{hora}.gz
+  formato: MRT TABLE_DUMP_V2 (bz2/gz)
+  licenca: 'CC BY 4.0 (RouteViews); RIPE RIS: nao_verificado'
+  uso_comercial: nao_verificado
+  termos: https://www.routeviews.org/routeviews/faq/
+  nota: 'RouteViews: FAQ ''Is RouteViews data licensed?'' → Creative Commons v4 com Atribuição (verificado
+    em 2026-10-13). RIPE RIS: termos não verificados; enquanto isso, a fonte inteira fica nao_verificado.'
+cadencia:
+  fonte_atualiza: continua
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: critica
+entradas:
+- registro_br
+saidas:
+  normalizado:
+  - summary/routes-{afi}.json.gz
+  - summary/origin-prefixes-{afi}.json.gz
+  - summary/prefix-set-{afi}.json.gz
+  - summary/aspath-adj-{afi}.json.gz
+  - summary/aspaths-{afi}/{coletor}.tsv.gz
+  - summary/br-routes-{afi}.json.gz
+  - summary/fulltable_manifest.json
+chaves:
+- asn
+- prefixo
+campos:
+- nome: origin-prefixes[asn]
+  tipo: list[str]
+  significado: Prefixos originados por cada ASN na tabela global.
+  tratamento: Chave é o ASN como string.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#global_prefixes_v4
+  - asn_docs → asns/{asn}.json#global_prefixes_v6
+- nome: prefix-set
+  tipo: list[str]
+  significado: Conjunto ordenado de todos os prefixos únicos vistos na tabela global (v6 ou v4).
+  publicado_em:
+  - snapshot → summary.json#ft_space_v4
+  - snapshot → summary.json#ft_space_v6
+- nome: aspath-adj[asn].up
+  tipo: list[int]
+  significado: ASNs vistos imediatamente à esquerda do AS em qualquer AS-PATH dos coletores. Adjacência (inclui provedores, pares e o ponto de observação); a classificação em relações vem do produto `as_relationships`.
+  tratamento: Inferido do AS-PATH; não é relação contratual.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#upstreams_global_v4
+  - asn_docs → asns/{asn}.json#upstreams_global_v6
+- nome: aspath-adj[asn].down
+  tipo: list[int]
+  significado: ASNs vistos imediatamente à direita do AS em qualquer AS-PATH dos coletores. Adjacência (inclui clientes e pares), não é relação comercial.
+  tratamento: Inferido do AS-PATH; não é relação contratual.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#downstreams_global_v4
+  - asn_docs → asns/{asn}.json#downstreams_global_v6
+- nome: br-routes[].p
+  tipo: str
+  significado: Prefixo de uma rota cuja origem é ASN brasileiro.
+- nome: br-routes[].a
+  tipo: list[int]
+  significado: AS-PATH (mais representativo entre os coletores) da rota brasileira.
+- nome: br-routes[].c
+  tipo: list[str]
+  significado: Communities BGP associadas (standard e large).
+  publicado_em:
+  - routing_analysis → routing_analysis.json
+- nome: routes-{afi}.stats
+  tipo: dict
+  significado: Totais da tabela (rotas, prefixos únicos, ASNs diretos, de origem e stub).
+  publicado_em:
+  - snapshot → summary.json#global_table
+- nome: fulltable_manifest.{v6,v4}.sources
+  tipo: list[str]
+  significado: URLs dos dumps efetivamente usados em cada AFI.
+  tratamento: Mostra quais coletores entraram; checado por publish.coleta_checks.
+limites: Visão agregada de poucos coletores (6 v6/7 v4); não vê tudo da Internet e a escolha de AS-PATH
+  por prefixo é determinística, não 'o' caminho real. Dump de horário diferente por coletor (00h/02h).
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/fulltable/
+pendencias:
+- Termos de uso do RIPE RIS (dados brutos MRT) não verificados.
+armazem:
+  # Os caminhos únicos com VP (summary/aspaths-{afi}/, ~130 MB por coleta) não entram na versão do armazém: são insumo do produto
+  # as_relationships, que na falta deles usa os da coleta anterior (até 10 dias). Evita guardar 52 semanas × 130 MB.
+  incluir:
+  - normalized:summary/routes-{afi}.json.gz
+  - normalized:summary/origin-prefixes-{afi}.json.gz
+  - normalized:summary/prefix-set-{afi}.json.gz
+  - normalized:summary/aspath-adj-{afi}.json.gz
+  - normalized:summary/br-routes-{afi}.json.gz
+  - normalized:summary/fulltable_manifest.json

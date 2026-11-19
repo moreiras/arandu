@@ -1,0 +1,20 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: erbs
+nome: Estações do SMP licenciadas (ERBs)
+ordem: -72
+modulo: products.passos
+args:
+- --passo
+- erbs
+- --date
+- '{date}'
+parcial:
+- erbs
+depois_de:
+- anatel_erbs
+- ibge_censo_pnad
+- outorgas_demais
+- sici_movel
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: consolida as estações do SMP licenciadas por município, UF e operadora (gerações 2G a 5G, municípios com estação e com 5G, estações por 10 mil habitantes), com o casamento com o IBGE e o CNPJ e a sanidade contra o SICI móvel. Roda sozinho; lê o que o sici_movel e as outorgas deixaram em published/.'

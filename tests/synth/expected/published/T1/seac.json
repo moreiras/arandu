@@ -1,0 +1,406 @@
+{
+ "by_cnpj": {
+  "90000202000126": [
+   {
+    "asns": [],
+    "bairro": "Centro",
+    "cep": "99000000",
+    "cnpj": "90000202000126",
+    "codigo_ibge": "9900006",
+    "complemento": "",
+    "data_outorga": "10/01/2015",
+    "email": "contato0@example.org",
+    "geo_confidence": "city_centroid",
+    "geo_source": "nominatim",
+    "lat": -19.9,
+    "logradouro": "Rua do Exemplo 1",
+    "lon": -43.95,
+    "municipio": "Ybyrapé",
+    "nome_fantasia": "SemASN3",
+    "num_servico": "750 - Serviço de Acesso Condicionado",
+    "numero": "100",
+    "razao_social": "Provedor Sem ASN 3 Ltda",
+    "situacao": "",
+    "telefone": "(11) 90000-0000",
+    "uf": "MG"
+   }
+  ],
+  "90000203000170": [
+   {
+    "asns": [],
+    "bairro": "Centro",
+    "cep": "99000001",
+    "cnpj": "90000203000170",
+    "codigo_ibge": "9900007",
+    "complemento": "",
+    "data_outorga": "11/02/2016",
+    "email": "contato1@example.org",
+    "geo_confidence": "city_centroid",
+    "geo_source": "nominatim",
+    "lat": -24.95,
+    "logradouro": "Rua do Exemplo 2",
+    "lon": -53.45,
+    "municipio": "Mbaracayú Novo",
+    "nome_fantasia": "SemASN4",
+    "num_servico": "750 - Serviço de Acesso Condicionado",
+    "numero": "101",
+    "razao_social": "Provedor Sem ASN 4 Ltda",
+    "situacao": "",
+    "telefone": "(11) 90001-0000",
+    "uf": "PR"
+   }
+  ],
+  "90000204000115": [
+   {
+    "asns": [],
+    "bairro": "Centro",
+    "cep": "99000002",
+    "cnpj": "90000204000115",
+    "codigo_ibge": "9900008",
+    "complemento": "",
+    "data_outorga": "12/03/2017",
+    "email": "contato2@example.org",
+    "geo_confidence": "city_centroid",
+    "geo_source": "nominatim",
+    "lat": -3.15,
+    "logradouro": "Rua do Exemplo 3",
+    "lon": -60.0,
+    "municipio": "Tabajara do Norte",
+    "nome_fantasia": "SemASN5",
+    "num_servico": "750 - Serviço de Acesso Condicionado",
+    "numero": "102",
+    "razao_social": "Provedor Sem ASN 5 Ltda",
+    "situacao": "",
+    "telefone": "(11) 90002-0000",
+    "uf": "AM"
+   }
+  ],
+  "90000205000160": [
+   {
+    "asns": [],
+    "bairro": "Centro",
+    "cep": "99000003",
+    "cnpj": "90000205000160",
+    "codigo_ibge": "9900009",
+    "complemento": "",
+    "data_outorga": "13/04/2018",
+    "email": "contato3@example.org",
+    "geo_confidence": "city_centroid",
+    "geo_source": "nominatim",
+    "lat": -5.8,
+    "logradouro": "Rua do Exemplo 4",
+    "lon": -35.2,
+    "municipio": "Potiguara",
+    "nome_fantasia": "SemASN6",
+    "num_servico": "750 - Serviço de Acesso Condicionado",
+    "numero": "103",
+    "razao_social": "Provedor Sem ASN 6 Ltda",
+    "situacao": "",
+    "telefone": "(11) 90003-0000",
+    "uf": "RN"
+   }
+  ],
+  "90000206000104": [
+   {
+    "asns": [],
+    "bairro": "Centro",
+    "cep": "99000004",
+    "cnpj": "90000206000104",
+    "codigo_ibge": "9900010",
+    "complemento": "",
+    "data_outorga": "14/05/2019",
+    "email": "contato4@example.org",
+    "geo_confidence": "city_centroid",
+    "geo_source": "nominatim",
+    "lat": -12.95,
+    "logradouro": "Rua do Exemplo 5",
+    "lon": -38.5,
+    "municipio": "Caeté Velho",
+    "nome_fantasia": "SemASN7",
+    "num_servico": "750 - Serviço de Acesso Condicionado",
+    "numero": "104",
+    "razao_social": "Provedor Sem ASN 7 Ltda",
+    "situacao": "",
+    "telefone": "(11) 90004-0000",
+    "uf": "BA"
+   }
+  ],
+  "90000207000159": [
+   {
+    "asns": [],
+    "bairro": "Centro",
+    "cep": "99000005",
+    "cnpj": "90000207000159",
+    "codigo_ibge": "9900011",
+    "complemento": "",
+    "data_outorga": "15/06/2020",
+    "email": "contato5@example.org",
+    "geo_confidence": "city_centroid",
+    "geo_source": "nominatim",
+    "lat": -32.55,
+    "logradouro": "Rua do Exemplo 6",
+    "lon": -53.35,
+    "municipio": "Jaguarão de Cima",
+    "nome_fantasia": "SemASN8",
+    "num_servico": "750 - Serviço de Acesso Condicionado",
+    "numero": "105",
+    "razao_social": "Provedor Sem ASN 8 Ltda",
+    "situacao": "",
+    "telefone": "(11) 90005-0000",
+    "uf": "RS"
+   }
+  ]
+ },
+ "cnpj_to_asns": {
+  "90000001000129": [
+   64496
+  ],
+  "90000002000173": [
+   64497
+  ],
+  "90000003000118": [
+   64498
+  ],
+  "90000004000162": [
+   64499
+  ],
+  "90000005000107": [
+   64500,
+   64501
+  ],
+  "90000007000104": [
+   64502
+  ],
+  "90000008000140": [
+   64503
+  ],
+  "90000009000195": [
+   64504
+  ],
+  "90000010000110": [
+   64505
+  ],
+  "90000011000164": [
+   64506
+  ],
+  "90000012000109": [
+   64507
+  ],
+  "90000013000153": [
+   64508
+  ],
+  "90000014000106": [
+   64509
+  ],
+  "90000015000142": [
+   64510
+  ],
+  "90000016000197": [
+   64511
+  ],
+  "90000017000131": [
+   65536
+  ],
+  "90000018000186": [
+   65537
+  ],
+  "90000019000120": [
+   65538
+  ],
+  "90000020000155": [
+   65539
+  ],
+  "90000021000108": [
+   65540
+  ],
+  "90000022000144": [
+   65541
+  ],
+  "90000023000199": [
+   65542
+  ],
+  "90000024000133": [
+   65543
+  ],
+  "90000025000188": [
+   65544
+  ],
+  "90000026000122": [
+   65545
+  ],
+  "90000027000177": [
+   65546
+  ],
+  "90000028000111": [
+   65547
+  ],
+  "90000029000166": [
+   65548
+  ],
+  "90000030000190": [
+   65549
+  ],
+  "90000031000135": [
+   65550
+  ],
+  "90000032000180": [
+   65551
+  ],
+  "90000100000100": [
+   4200000000
+  ],
+  "90000101000155": [
+   4200000001
+  ],
+  "90000102000108": [
+   4200000002
+  ],
+  "90000103000144": [
+   4200000003
+  ]
+ },
+ "matched_asns": 0,
+ "seacs": [
+  {
+   "asns": [],
+   "bairro": "Centro",
+   "cep": "99000000",
+   "cnpj": "90000202000126",
+   "codigo_ibge": "9900006",
+   "complemento": "",
+   "data_outorga": "10/01/2015",
+   "email": "contato0@example.org",
+   "geo_confidence": "city_centroid",
+   "geo_source": "nominatim",
+   "lat": -19.9,
+   "logradouro": "Rua do Exemplo 1",
+   "lon": -43.95,
+   "municipio": "Ybyrapé",
+   "nome_fantasia": "SemASN3",
+   "num_servico": "750 - Serviço de Acesso Condicionado",
+   "numero": "100",
+   "razao_social": "Provedor Sem ASN 3 Ltda",
+   "situacao": "",
+   "telefone": "(11) 90000-0000",
+   "uf": "MG"
+  },
+  {
+   "asns": [],
+   "bairro": "Centro",
+   "cep": "99000001",
+   "cnpj": "90000203000170",
+   "codigo_ibge": "9900007",
+   "complemento": "",
+   "data_outorga": "11/02/2016",
+   "email": "contato1@example.org",
+   "geo_confidence": "city_centroid",
+   "geo_source": "nominatim",
+   "lat": -24.95,
+   "logradouro": "Rua do Exemplo 2",
+   "lon": -53.45,
+   "municipio": "Mbaracayú Novo",
+   "nome_fantasia": "SemASN4",
+   "num_servico": "750 - Serviço de Acesso Condicionado",
+   "numero": "101",
+   "razao_social": "Provedor Sem ASN 4 Ltda",
+   "situacao": "",
+   "telefone": "(11) 90001-0000",
+   "uf": "PR"
+  },
+  {
+   "asns": [],
+   "bairro": "Centro",
+   "cep": "99000002",
+   "cnpj": "90000204000115",
+   "codigo_ibge": "9900008",
+   "complemento": "",
+   "data_outorga": "12/03/2017",
+   "email": "contato2@example.org",
+   "geo_confidence": "city_centroid",
+   "geo_source": "nominatim",
+   "lat": -3.15,
+   "logradouro": "Rua do Exemplo 3",
+   "lon": -60.0,
+   "municipio": "Tabajara do Norte",
+   "nome_fantasia": "SemASN5",
+   "num_servico": "750 - Serviço de Acesso Condicionado",
+   "numero": "102",
+   "razao_social": "Provedor Sem ASN 5 Ltda",
+   "situacao": "",
+   "telefone": "(11) 90002-0000",
+   "uf": "AM"
+  },
+  {
+   "asns": [],
+   "bairro": "Centro",
+   "cep": "99000003",
+   "cnpj": "90000205000160",
+   "codigo_ibge": "9900009",
+   "complemento": "",
+   "data_outorga": "13/04/2018",
+   "email": "contato3@example.org",
+   "geo_confidence": "city_centroid",
+   "geo_source": "nominatim",
+   "lat": -5.8,
+   "logradouro": "Rua do Exemplo 4",
+   "lon": -35.2,
+   "municipio": "Potiguara",
+   "nome_fantasia": "SemASN6",
+   "num_servico": "750 - Serviço de Acesso Condicionado",
+   "numero": "103",
+   "razao_social": "Provedor Sem ASN 6 Ltda",
+   "situacao": "",
+   "telefone": "(11) 90003-0000",
+   "uf": "RN"
+  },
+  {
+   "asns": [],
+   "bairro": "Centro",
+   "cep": "99000004",
+   "cnpj": "90000206000104",
+   "codigo_ibge": "9900010",
+   "complemento": "",
+   "data_outorga": "14/05/2019",
+   "email": "contato4@example.org",
+   "geo_confidence": "city_centroid",
+   "geo_source": "nominatim",
+   "lat": -12.95,
+   "logradouro": "Rua do Exemplo 5",
+   "lon": -38.5,
+   "municipio": "Caeté Velho",
+   "nome_fantasia": "SemASN7",
+   "num_servico": "750 - Serviço de Acesso Condicionado",
+   "numero": "104",
+   "razao_social": "Provedor Sem ASN 7 Ltda",
+   "situacao": "",
+   "telefone": "(11) 90004-0000",
+   "uf": "BA"
+  },
+  {
+   "asns": [],
+   "bairro": "Centro",
+   "cep": "99000005",
+   "cnpj": "90000207000159",
+   "codigo_ibge": "9900011",
+   "complemento": "",
+   "data_outorga": "15/06/2020",
+   "email": "contato5@example.org",
+   "geo_confidence": "city_centroid",
+   "geo_source": "nominatim",
+   "lat": -32.55,
+   "logradouro": "Rua do Exemplo 6",
+   "lon": -53.35,
+   "municipio": "Jaguarão de Cima",
+   "nome_fantasia": "SemASN8",
+   "num_servico": "750 - Serviço de Acesso Condicionado",
+   "numero": "105",
+   "razao_social": "Provedor Sem ASN 8 Ltda",
+   "situacao": "",
+   "telefone": "(11) 90005-0000",
+   "uf": "RS"
+  }
+ ],
+ "snapshot_date": "2026-09-20",
+ "total": 6,
+ "unique_cnpjs": 6
+}

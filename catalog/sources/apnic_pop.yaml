@@ -1,0 +1,62 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: apnic_pop
+nome: Estimativas de usuários por AS (APNIC Labs)
+tipo: bruta
+ativa: true
+modulo: sources.apnic_pop.collect
+publicavel: true
+descricao: Tabela do APNIC Labs (v6pop, país BR, janela de 60 dias) com usuários estimados por AS, % da
+  população do país e % de usuários IPv6. Medição por anúncio, não censo.
+origem:
+  url: https://stats.labs.apnic.net/v6pop?c=BR&w=60
+  formato: HTML com tabela embutida em JavaScript (google.visualization)
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: 'Página não declara licença legível (verificado em 2026-10-13: HTML de 2 MB sem termos). Termos
+    da APNIC Labs a confirmar.'
+cadencia:
+  fonte_atualiza: continua
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: opcional
+saidas:
+  bruto:
+  - apnic_v6pop-{as_of}.html
+  normalizado:
+  - summary/apnic_pop.json.gz
+chaves:
+- asn
+campos:
+- nome: window_days
+  tipo: int
+  significado: Janela de medição em dias (60).
+- nome: asns[asn].users
+  tipo: int
+  significado: Usuários de Internet estimados atrás do AS.
+  tratamento: Estimativa por amostragem de anúncios, rotulada 'estimado'.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#apnic_users
+- nome: asns[asn].users_pct_cc
+  tipo: float
+  significado: '% da população estimada do país (BR) que o AS representa.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#apnic_users_pct_cc
+- nome: asns[asn].v6_users
+  tipo: int
+  significado: Usuários IPv6 estimados.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#apnic_v6_users
+- nome: asns[asn].v6_pct_as
+  tipo: float
+  significado: '% dos usuários do AS que usam IPv6.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#apnic_v6_pct_as
+limites: 'Estimativa estatística; não é número de clientes nem de domicílios. ASNs com poucos usuários
+  podem faltar. Mudança de leiaute do HTML quebra o parser (falha opcional: campos viram nulos).'
+retencao:
+  bruto: 4 versões
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/apnic_pop/
+pendencias:
+- Licença/termos da série APNIC Labs a confirmar.

@@ -1,0 +1,21 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: sici_indicadores
+nome: Indicadores do SICI e outorgas sem declaração
+ordem: -65
+modulo: products.passos
+args:
+- --passo
+- sici_indicadores
+- --date
+- '{date}'
+parcial:
+- sici_indicadores
+depois_de:
+- sici
+- outorgas_scm
+- grupos_societarios
+- asn_indice
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: share, HHI, variações, declínio e outorgas SCM sem declaração, com os
+  usuários estimados (APNIC). Roda sozinho; lê o que os anteriores deixaram em published/ e o cache mensal do SICI.'

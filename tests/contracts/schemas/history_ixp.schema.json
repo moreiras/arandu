@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Linha de histórico de PTT (weekly/{date}/ixp.jsonl.gz)",
+  "type": "object",
+  "required": [
+    "ixp"
+  ],
+  "properties": {
+    "ixp": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "n_direct": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_br_direct": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_origin": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_br_origin": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_membros": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "v4_rotas": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "v4_prefixos": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "v6_rotas": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "v6_prefixos": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

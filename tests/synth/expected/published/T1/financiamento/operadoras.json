@@ -1,0 +1,238 @@
+{
+ "fontes": {
+  "bndes": {
+   "dump_reference": "2026-10-24",
+   "fonte": "BNDES, dados abertos (operações não automáticas)",
+   "licenca": "ODbL"
+  },
+  "cgu": {
+   "arquivos": {
+    "CEIS": "2026-09-20",
+    "CNEP": "2026-09-20"
+   },
+   "fonte": "CGU, Portal da Transparência (CEIS e CNEP)"
+  }
+ },
+ "limites": "Operações do BNDES: só as diretas e não automáticas (as indiretas têm o CNPJ mascarado); valores nominais da data da contratação; a operadora entra se o CNPJ básico está no universo de telecom. Sanções: registro do órgão sancionador na data do arquivo da CGU, sem julgamento; pode já ter sido suspensa, anulada ou cumprida sem refletir no arquivo; sanção a uma filial aparece na raiz com o CNPJ da filial. Duas fontes que não se ligam entre si: crédito público e sanção não têm relação de causa e efeito neste produto.",
+ "natureza": "registro_de_fonte_oficial",
+ "operadoras": {
+  "90000001": {
+   "financiamento": {
+    "contratado_total": 2300000.5,
+    "desembolsado_total": 1200000.0,
+    "operacoes": [
+     {
+      "cnae": "J6110801",
+      "cnpj": "90000001000200",
+      "contratado": 800000.0,
+      "contrato": "9000002",
+      "data": "2023-07-01",
+      "desembolsado": 0.0,
+      "forma": "DIRETA",
+      "ibge": "3205200",
+      "instrumento": "CREDITO",
+      "porte": "PEQUENA",
+      "produto": "BNDES FINAME",
+      "projeto": "AMPLIACAO DA REDE DE FIBRA OPTICA",
+      "situacao": "ATIVO",
+      "uf": "ES"
+     },
+     {
+      "cnae": "J6110801",
+      "cnpj": "90000001000129",
+      "contratado": 1500000.5,
+      "contrato": "9000001",
+      "data": "2022-03-10",
+      "desembolsado": 1200000.0,
+      "forma": "DIRETA",
+      "ibge": "3205309",
+      "instrumento": "CREDITO",
+      "porte": "PEQUENA",
+      "produto": "BNDES FINAME",
+      "projeto": "AMPLIACAO DA REDE DE FIBRA OPTICA",
+      "situacao": "ATIVO",
+      "uf": "ES"
+     }
+    ],
+    "operacoes_omitidas": 0,
+    "operacoes_total": 2,
+    "por_ano": [
+     {
+      "ano": "2022",
+      "contratado": 1500000.5,
+      "desembolsado": 1200000.0,
+      "operacoes": 1
+     },
+     {
+      "ano": "2023",
+      "contratado": 800000.0,
+      "desembolsado": 0.0,
+      "operacoes": 1
+     }
+    ],
+    "por_uf": [
+     {
+      "contratado": 2300000.5,
+      "desembolsado": 1200000.0,
+      "operacoes": 2,
+      "uf": "ES"
+     }
+    ],
+    "primeira": "2022-03-10",
+    "ultima": "2023-07-01"
+   },
+   "sancoes": {
+    "encerradas": [],
+    "futuras": [],
+    "total": 1,
+    "vigentes": [
+     {
+      "abrangencia": "Em todos os Poderes da Esfera do órgão sancionador",
+      "cadastro": "CEIS",
+      "categoria": "Impedimento/proibição de contratar com prazo determinado",
+      "cnpj": "90000001000129",
+      "codigo": "810001",
+      "esfera": "MUNICIPAL",
+      "fim": null,
+      "fundamento": "LEI 8666 - ART. 87, III",
+      "inicio": "2024-01-10",
+      "orgao": "Prefeitura Fictícia",
+      "processo": "P-810001",
+      "publicacao": "2024-01-10",
+      "sem_fim_informado": true,
+      "sem_prazo": true,
+      "situacao": "vigente",
+      "uf_orgao": "ES"
+     }
+    ]
+   }
+  },
+  "90000002": {
+   "financiamento": {
+    "contratado_total": 1500000.5,
+    "desembolsado_total": 1200000.0,
+    "operacoes": [
+     {
+      "cnae": "J6110801",
+      "cnpj": "90000002000173",
+      "contratado": 1500000.5,
+      "contrato": "9000011",
+      "data": "2022-03-10",
+      "desembolsado": 1200000.0,
+      "forma": "DIRETA",
+      "ibge": "3205309",
+      "instrumento": "CREDITO",
+      "porte": "PEQUENA",
+      "produto": "BNDES FINAME",
+      "projeto": "AMPLIACAO DA REDE DE FIBRA OPTICA",
+      "situacao": "ATIVO",
+      "uf": "ES"
+     }
+    ],
+    "operacoes_omitidas": 0,
+    "operacoes_total": 1,
+    "por_ano": [
+     {
+      "ano": "2022",
+      "contratado": 1500000.5,
+      "desembolsado": 1200000.0,
+      "operacoes": 1
+     }
+    ],
+    "por_uf": [
+     {
+      "contratado": 1500000.5,
+      "desembolsado": 1200000.0,
+      "operacoes": 1,
+      "uf": "ES"
+     }
+    ],
+    "primeira": "2022-03-10",
+    "ultima": "2022-03-10"
+   },
+   "sancoes": {
+    "encerradas": [
+     {
+      "abrangencia": "Em todos os Poderes da Esfera do órgão sancionador",
+      "cadastro": "CEIS",
+      "categoria": "Suspensão",
+      "cnpj": "90000002000173",
+      "codigo": "810002",
+      "esfera": "FEDERAL",
+      "fim": "2021-02-01",
+      "fundamento": "LEI 8666 - ART. 87, III",
+      "inicio": "2019-02-01",
+      "orgao": "Órgão Fictício",
+      "processo": "P-810002",
+      "publicacao": "2019-02-01",
+      "sem_fim_informado": false,
+      "sem_prazo": false,
+      "situacao": "encerrada",
+      "uf_orgao": "DF"
+     }
+    ],
+    "futuras": [],
+    "total": 2,
+    "vigentes": [
+     {
+      "abrangencia": "Em todos os Poderes da Esfera do órgão sancionador",
+      "cadastro": "CNEP",
+      "categoria": "Multa",
+      "cnpj": "90000002000173",
+      "codigo": "820001",
+      "esfera": "FEDERAL",
+      "fim": null,
+      "fundamento": "LEI 8666 - ART. 87, III",
+      "inicio": "2023-05-05",
+      "multa": 36680.49,
+      "orgao": "Órgão Federal Fictício",
+      "processo": "P-820001",
+      "publicacao": "2023-05-05",
+      "sem_fim_informado": true,
+      "sem_prazo": false,
+      "situacao": "vigente",
+      "uf_orgao": ""
+     }
+    ]
+   }
+  },
+  "90000003": {
+   "sancoes": {
+    "encerradas": [],
+    "futuras": [
+     {
+      "abrangencia": "Em todos os Poderes da Esfera do órgão sancionador",
+      "cadastro": "CEIS",
+      "categoria": "Impedimento/proibição de contratar com prazo determinado",
+      "cnpj": "90000003000118",
+      "codigo": "810003",
+      "esfera": "ESTADUAL",
+      "fim": "2999-12-31",
+      "fundamento": "LEI 8666 - ART. 87, III",
+      "inicio": "2999-01-01",
+      "orgao": "Órgão Fictício",
+      "processo": "P-810003",
+      "publicacao": "2999-01-01",
+      "sem_fim_informado": false,
+      "sem_prazo": false,
+      "situacao": "futura",
+      "uf_orgao": "ES"
+     }
+    ],
+    "total": 1,
+    "vigentes": []
+   }
+  }
+ },
+ "resumo": {
+  "bndes_presente": true,
+  "cgu_presente": true,
+  "contratado_total": 3800001.0,
+  "operacoes": 3,
+  "operadoras_com_financiamento": 2,
+  "operadoras_com_sancao": 3,
+  "operadoras_com_sancao_vigente": 2,
+  "sancoes": 4
+ },
+ "snapshot_date": "2026-09-20"
+}

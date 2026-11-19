@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ibge_bc250_rodovias
+nome: Malha rodoviária (IBGE BC250)
+ordem: 18
+modulo: sources.ibge_bc250_rodovias.collect
+fontes:
+- ibge_bc250_rodovias
+politica_falha: opcional
+descricao: ''

@@ -1,0 +1,50 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: penetracao
+nome: Penetração de banda larga fixa e mercado não visto
+descricao: Acessos fixos declarados (SICI) sobre os domicílios do Censo 2022 projetados pelo crescimento de domicílios da UF
+  na PNAD, por município, UF e país, e uma estimativa do mercado não visto (domicílios com internet pela PNAD menos
+  acessos de pessoa física).
+modulo: products.penetracao.build
+entradas:
+- source: ibge_censo_pnad
+- source: anatel_sici
+chaves_de_juncao:
+- ibge
+- uf
+saidas:
+  publicado:
+  - territorio/municipios.json.gz
+campos:
+- nome: municipios[ibge].domicilios_projetados / fator_projecao_uf
+  tipo: int / float
+  significado: Domicílios do Censo 2022 × crescimento de domicílios da UF entre 2022 e o ano mais recente da PNAD.
+  tratamento: PROJEÇÃO. Supõe o mesmo crescimento em todos os municípios da UF; sem a série da PNAD fica no nível do Censo e sem o fator.
+  publicado_em:
+  - penetracao → territorio/municipios.json.gz#municipios
+- nome: municipios[ibge].penetracao / penetracao_pf / penetracao_censo
+  tipo: float
+  significado: Acessos fixos declarados (e só os de pessoa física) por domicílio projetado; `penetracao_censo` usa os domicílios do Censo, sem projeção.
+  tratamento: Acesso não é domicílio; pode passar de 1. Ausente quando o município não tem domicílios no IBGE.
+  publicado_em:
+  - penetracao → territorio/municipios.json.gz#municipios
+- nome: municipios[ibge].nao_visto / nao_visto_pct / domicilios_com_internet_est
+  tipo: int / float
+  significado: max(0, domicílios projetados × taxa de internet da UF − acessos de pessoa física); a taxa é a da PNAD ("havia utilização de internet").
+  tratamento: ESTIMATIVA. Inclui quem usa só o celular; a taxa é da UF aplicada ao município. Fórmula e limites no próprio artefato.
+  publicado_em:
+  - penetracao → territorio/municipios.json.gz#municipios
+- nome: ufs[uf] / brasil
+  tipo: dict
+  significado: Soma dos municípios e a taxa da PNAD com o coeficiente de variação da UF.
+  publicado_em:
+  - penetracao → territorio/municipios.json.gz#ufs
+- nome: casamento
+  tipo: dict
+  significado: Quantos municípios do SICI casaram com o IBGE e quais ficaram sem código no IBGE.
+  publicado_em:
+  - penetracao → territorio/municipios.json.gz#casamento
+- nome: limites / formulas
+  tipo: str / dict
+  significado: Texto das limitações e as fórmulas usadas.
+  publicado_em:
+  - penetracao → territorio/municipios.json.gz#limites

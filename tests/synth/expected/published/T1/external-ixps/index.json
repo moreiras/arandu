@@ -1,0 +1,15 @@
+{
+ "ixps": [
+  {
+   "br_member_count": 3,
+   "city": "Cidade Exemplo",
+   "code": "zx",
+   "country": "UY",
+   "last_updated": "2026-09-20",
+   "member_count": 5,
+   "name": "IX Externo Fictício",
+   "pdb_ix_id": 99001
+  }
+ ],
+ "snapshot_date": "2026-09-20"
+}

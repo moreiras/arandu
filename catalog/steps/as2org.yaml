@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: as2org
+nome: Organização por ASN (CAIDA) e irmãos do Brasil
+ordem: -91
+modulo: products.passos
+args:
+- --passo
+- as2org
+- --date
+- '{date}'
+parcial:
+- as2org
+depois_de:
+- caida_as2org
+- asn_indice
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: organização de cada ASN do Brasil (CAIDA, via AS Rank), irmãos e cobertura. Roda sozinho; lê o normalizado da fonte e o índice de ASNs.'

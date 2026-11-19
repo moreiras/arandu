@@ -1,0 +1,12 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: fulltable_routeviews
+nome: Full table global (RouteViews + RIPE RIS)
+ordem: 5
+modulo: sources.fulltable_routeviews.collect
+fontes:
+- fulltable_routeviews
+tentativas: 3
+espera_s: 120
+pesada: true
+politica_falha: critica
+descricao: 'Cada família (v6, v4) grava seu próprio manifesto: numa retentativa só a que falhou é refeita.'

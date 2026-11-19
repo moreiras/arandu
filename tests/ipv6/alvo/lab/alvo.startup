@@ -1,0 +1,27 @@
+#!/bin/sh
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Antonio M. Moreiras / Internet Bit a Bit
+# Este arquivo faz parte do Arandurape.
+# Licença: GNU Affero General Public License v3 ou posterior.
+#
+# Sobe gate (8001), API (8000) e nginx (8080, IPv4 e IPv6) no dispositivo alvo.
+# O nginx-frontend.conf aponta para os hosts "api" e "mcp" do compose.
+echo "127.0.0.1 api mcp" >> /etc/hosts
+
+export DATA_DIR=/data
+export JWT_SECRET=v6lab-segredo-de-teste-v6lab-1234
+export GOOGLE_CLIENT_ID=v6lab GOOGLE_CLIENT_SECRET=v6lab
+export APP_BASE_URL=http://dual.lab.arandurape.test:8080
+export ACCESS_POLICY_MODE=enforce
+# Um IPv6 e um IPv4 na allowlist: mostra o que acontece com eles atrás de SIIT e NAT64.
+export ALLOWED_IPS=2001:db8:1::10/128,192.168.0.40/32
+export USAGE_LOG=on
+
+# --no-proxy-headers: na produção o nginx está em outro contêiner e o uvicorn (que
+# por padrão só confia em X-Forwarded-For vindo de 127.0.0.1) ignora esse cabeçalho.
+# Aqui o nginx fala com a API por 127.0.0.1; sem a opção, o request.client.host
+# viraria o X-Forwarded-For que o cliente mandasse, coisa que não acontece lá.
+cd /app
+nohup uvicorn api.gate_app:app --host 127.0.0.1 --port 8001 --no-proxy-headers --log-level warning > /var/log/gate.log 2>&1 &
+nohup uvicorn api.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers > /var/log/api.log 2>&1 &
+nginx

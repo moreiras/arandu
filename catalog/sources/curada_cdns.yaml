@@ -1,0 +1,49 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: curada_cdns
+nome: CDNs e grandes provedores de conteúdo (config/cdns.yaml)
+tipo: curada
+ativa: true
+arquivo: config/cdns.yaml
+publicavel: true
+descricao: Agrupamento manual de ASNs por CDN/provedor de conteúdo (Cloudflare, Google/GGC, Akamai, Meta,
+  Microsoft, AWS, Netflix/OCA…) para medir presença nos IXPs.
+origem:
+  formato: YAML mantido à mão em config/
+  licenca: Curadoria do projeto (dados factuais; fontes citadas)
+  uso_comercial: nao_verificado
+  nota: Pesquisa manual + PeeringDB (comentário do arquivo). Lista factual de ASNs.
+cadencia:
+  fonte_atualiza: irregular
+  coleta: sob_demanda
+  coleta_atual: semanal
+  frescor_maximo: 400d
+politica_falha: opcional
+saidas:
+  publicado:
+  - cdns.json
+chaves:
+- asn
+- ixp
+campos:
+- nome: cdns[].name
+  tipo: str
+  significado: Nome do provedor/CDN.
+  publicado_em:
+  - cdns → cdns.json#cdns
+- nome: cdns[].asns
+  tipo: list[int]
+  significado: ASNs atribuídos ao provedor.
+  tratamento: Presença em um IXP = QUALQUER dos ASNs presente.
+  publicado_em:
+  - cdns → cdns.json#cdns
+- nome: cdns[].aka
+  tipo: str
+  significado: 'Nome do programa de cache (ex.: GGC, OCA).'
+  publicado_em:
+  - cdns → cdns.json#cdns
+limites: Lista curada à mão, incompleta e subjetiva (o que é 'CDN'); ASN de CDN pode servir também outros
+  propósitos.
+retencao:
+  normalizado: git
+pendencias:
+- Licença das informações originadas do PeeringDB (AUP) usadas na pesquisa.

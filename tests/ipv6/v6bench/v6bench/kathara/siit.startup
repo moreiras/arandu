@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# SIIT with TAYGA (userspace, TUN). TAYGA 0.9.2 has no RFC 7757 EAM prefixes,
+# only 1:1 "map" entries, which is enough here: one IPv4-only client and one
+# target. The target's IPv6 comes from target.env, written by
+# zonefile_creator.py from the same addresses the DNS zone uses (it used to be
+# a hardcoded address that was not the target's).
+
+. /shared/env/test_vars.env
+. /shared/env/target.env
+if [ -z "${TARGET_IPV6:-}" ]; then
+    echo "siit: TARGET_IPV6 is empty; the SIIT scenario cannot reach the target" >&2
+    exit 1
+fi
+
+mkdir -p /dev/net /var/spool/tayga
+[ -c /dev/net/tun ] || mknod /dev/net/tun c 10 200
+
+cat > /etc/tayga.conf <<CONF
+tun-device siit
+ipv4-addr 192.168.254.1
+ipv6-addr 2001:db8:47::1
+prefix 2001:db8:46::/96
+map 192.168.0.40 2001:db8:4::28
+map 192.168.46.1 ${TARGET_IPV6}
+data-dir /var/spool/tayga
+CONF
+
+tayga --mktun -c /etc/tayga.conf
+ip link set siit up
+ip route add 192.168.46.0/24 dev siit
+ip -6 route add 2001:db8:4::/120 dev siit
+tayga -c /etc/tayga.conf

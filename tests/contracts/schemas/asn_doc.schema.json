@@ -1,0 +1,272 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Documento de um ASN",
+ "description": "Contrato T3 do artefato publicado asns/{asn}.json. Inferido do snapshot real 2026-09-20 e conferido com o dataset sintético (tests/contracts/infer.py); campos novos são permitidos, remoção ou mudança de tipo falham.",
+ "type": "object",
+ "required": [
+  "announced_ipv4_addresses",
+  "announced_ipv6_48s",
+  "apnic_users",
+  "apnic_users_pct_cc",
+  "apnic_v6_pct_as",
+  "apnic_v6_users",
+  "asn",
+  "cnpj",
+  "downstreams",
+  "downstreams_global_v4",
+  "downstreams_global_v6",
+  "downstreams_v4",
+  "downstreams_v6",
+  "external_ixps",
+  "generated_at",
+  "geo_org",
+  "geo_prefixes_v4",
+  "geo_prefixes_v6",
+  "global_prefixes_v4",
+  "global_prefixes_v4_count",
+  "global_prefixes_v6",
+  "global_prefixes_v6_count",
+  "has_ipv6",
+  "is_br",
+  "is_multihomed_v4",
+  "is_multihomed_v6",
+  "ixp_presence",
+  "ixps_direct",
+  "ixps_origin",
+  "name",
+  "pdb",
+  "pdb_registered",
+  "rir_prefixes_v4",
+  "rir_prefixes_v4_count",
+  "rir_prefixes_v6",
+  "rir_prefixes_v6_count",
+  "single_upstream_v4",
+  "single_upstream_v6",
+  "snapshot_date",
+  "upstreams",
+  "upstreams_global_v4",
+  "upstreams_global_v6",
+  "upstreams_v4",
+  "upstreams_v6",
+  "users_per_ip",
+  "users_per_v6_48"
+ ],
+ "properties": {
+  "alerts": {
+   "type": "array"
+  },
+  "announced_ipv4_addresses": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "announced_ipv6_48s": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "apnic_users": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "apnic_users_pct_cc": {
+   "type": [
+    "null",
+    "number"
+   ]
+  },
+  "apnic_v6_pct_as": {
+   "type": [
+    "null",
+    "number"
+   ]
+  },
+  "apnic_v6_users": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "asn": {
+   "type": "integer"
+  },
+  "aspa_customers": {
+   "type": "array"
+  },
+  "aspa_providers": {
+   "type": "array"
+  },
+  "cnpj": {
+   "type": "string"
+  },
+  "downstreams": {
+   "type": "array"
+  },
+  "downstreams_global_v4": {
+   "type": "array"
+  },
+  "downstreams_global_v6": {
+   "type": "array"
+  },
+  "downstreams_v4": {
+   "type": "array"
+  },
+  "downstreams_v6": {
+   "type": "array"
+  },
+  "external_ixps": {
+   "type": "array"
+  },
+  "generated_at": {
+   "type": "string"
+  },
+  "geo_org": {
+   "type": [
+    "null",
+    "object"
+   ]
+  },
+  "geo_prefixes_v4": {
+   "type": "object"
+  },
+  "geo_prefixes_v6": {
+   "type": "object"
+  },
+  "global_prefixes_v4": {
+   "type": "array"
+  },
+  "global_prefixes_v4_count": {
+   "type": "integer"
+  },
+  "global_prefixes_v6": {
+   "type": "array"
+  },
+  "global_prefixes_v6_count": {
+   "type": "integer"
+  },
+  "has_ipv6": {
+   "type": "boolean"
+  },
+  "is_br": {
+   "type": "boolean"
+  },
+  "is_multihomed_v4": {
+   "type": "boolean"
+  },
+  "is_multihomed_v6": {
+   "type": "boolean"
+  },
+  "ixp_member_codes": {
+   "type": "array"
+  },
+  "ixp_paths": {
+   "type": "object"
+  },
+  "ixp_presence": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "object",
+    "required": [
+     "v4",
+     "v6"
+    ],
+    "properties": {
+     "v4": {
+      "type": "object"
+     },
+     "v6": {
+      "type": "object"
+     }
+    }
+   }
+  },
+  "ixps_direct": {
+   "type": "array"
+  },
+  "ixps_origin": {
+   "type": "array"
+  },
+  "name": {
+   "type": "string"
+  },
+  "path_node_meta": {
+   "type": "object"
+  },
+  "pdb": {
+   "type": [
+    "null",
+    "object"
+   ]
+  },
+  "pdb_registered": {
+   "type": "boolean"
+  },
+  "rir_prefixes_v4": {
+   "type": "array"
+  },
+  "rir_prefixes_v4_count": {
+   "type": "integer"
+  },
+  "rir_prefixes_v6": {
+   "type": "array"
+  },
+  "rir_prefixes_v6_count": {
+   "type": "integer"
+  },
+  "roa_list": {
+   "type": "array"
+  },
+  "rpki_validation": {
+   "type": "object"
+  },
+  "sici": {
+   "type": "object"
+  },
+  "single_upstream_v4": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "single_upstream_v6": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "snapshot_date": {
+   "type": "string"
+  },
+  "upstreams": {
+   "type": "array"
+  },
+  "upstreams_global_v4": {
+   "type": "array"
+  },
+  "upstreams_global_v6": {
+   "type": "array"
+  },
+  "upstreams_v4": {
+   "type": "array"
+  },
+  "upstreams_v6": {
+   "type": "array"
+  },
+  "users_per_ip": {
+   "type": [
+    "null",
+    "number"
+   ]
+  },
+  "users_per_v6_48": {
+   "type": [
+    "null",
+    "number"
+   ]
+  }
+ }
+}

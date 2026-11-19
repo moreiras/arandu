@@ -1,0 +1,1324 @@
+{
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     -46.7,
+     -23.6
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64496
+    ],
+    "cnpj": "90000001000129",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Arandurápolis",
+    "nome_fantasia": "Provedor 01",
+    "razao_social": "Provedor 01 Telecom Ltda",
+    "sici_acessos": 876,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 105120.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 788,
+    "sici_pj": 88,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.25,
+     -22.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64497
+    ],
+    "cnpj": "90000002000173",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Tupãnópolis",
+    "nome_fantasia": "Provedor 02",
+    "razao_social": "Provedor 02 Telecom Ltda",
+    "sici_acessos": 1797,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 215640.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 1617,
+    "sici_pj": 180,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RJ"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -49.3,
+     -25.45
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64498
+    ],
+    "cnpj": "90000003000118",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Guaraniópolis",
+    "nome_fantasia": "Provedor 03",
+    "razao_social": "Provedor 03 Telecom Ltda",
+    "sici_acessos": 2695,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 323400.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 2425,
+    "sici_pj": 270,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -47.1,
+     -22.9
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64499
+    ],
+    "cnpj": "90000004000162",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Itapuãzinho",
+    "nome_fantasia": "Provedor 04",
+    "razao_social": "Provedor 04 Telecom Ltda",
+    "sici_acessos": 3545,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 425400.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 3190,
+    "sici_pj": 355,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -51.2,
+     -30.05
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64500,
+     64501
+    ],
+    "cnpj": "90000005000107",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Curumim do Sul",
+    "nome_fantasia": "Provedor 05",
+    "razao_social": "Provedor 05 Telecom Ltda",
+    "sici_acessos": 5152,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 618240.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 4636,
+    "sici_pj": 516,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RS"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -53.45,
+     -24.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64502
+    ],
+    "cnpj": "90000007000104",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Mbaracayú Novo",
+    "nome_fantasia": "Provedor 07",
+    "razao_social": "Provedor 07 Telecom Ltda",
+    "sici_acessos": 6037,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 724440.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 5433,
+    "sici_pj": 604,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -60.0,
+     -3.15
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64503
+    ],
+    "cnpj": "90000008000140",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Tabajara do Norte",
+    "nome_fantasia": "Provedor 08",
+    "razao_social": "Provedor 08 Telecom Ltda",
+    "sici_acessos": 6874,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 824880.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 6186,
+    "sici_pj": 688,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "AM"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -35.2,
+     -5.8
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64504
+    ],
+    "cnpj": "90000009000195",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Potiguara",
+    "nome_fantasia": "Provedor 09",
+    "razao_social": "Provedor 09 Telecom Ltda",
+    "sici_acessos": 1000,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 120000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 900,
+    "sici_pj": 100,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RN"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -38.5,
+     -12.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64505
+    ],
+    "cnpj": "90000010000110",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Caeté Velho",
+    "nome_fantasia": "Provedor 10",
+    "razao_social": "Provedor 10 Telecom Ltda",
+    "sici_acessos": 5000,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 600000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 4500,
+    "sici_pj": 500,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "BA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -53.35,
+     -32.55
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64506
+    ],
+    "cnpj": "90000011000164",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Jaguarão de Cima",
+    "nome_fantasia": "Provedor 11",
+    "razao_social": "Provedor 11 Telecom Ltda",
+    "sici_acessos": 9494,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 1139280.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 8544,
+    "sici_pj": 950,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RS"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -49.25,
+     -16.7
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64507
+    ],
+    "cnpj": "90000012000109",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Pindorama Alta",
+    "nome_fantasia": "Provedor 12",
+    "razao_social": "Provedor 12 Telecom Ltda",
+    "sici_acessos": 10354,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 1242480.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 9318,
+    "sici_pj": 1036,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "GO"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -46.7,
+     -23.6
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64508
+    ],
+    "cnpj": "90000013000153",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Arandurápolis",
+    "nome_fantasia": "Provedor 13",
+    "razao_social": "Provedor 13 Telecom Ltda",
+    "sici_acessos": 11238,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 1348560.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 10114,
+    "sici_pj": 1124,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.25,
+     -22.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64509
+    ],
+    "cnpj": "90000014000106",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Tupãnópolis",
+    "nome_fantasia": "Provedor 14",
+    "razao_social": "Provedor 14 Telecom Ltda",
+    "sici_acessos": 12055,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 1446600.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 10849,
+    "sici_pj": 1206,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RJ"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -49.3,
+     -25.45
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64510
+    ],
+    "cnpj": "90000015000142",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Guaraniópolis",
+    "nome_fantasia": "Provedor 15",
+    "razao_social": "Provedor 15 Telecom Ltda",
+    "sici_acessos": 0,
+    "sici_ativo": false,
+    "sici_capacidade_mbps": 0.0,
+    "sici_mes_referencia": "",
+    "sici_municipios": 0,
+    "sici_pf": 0,
+    "sici_pj": 0,
+    "sici_tecnologia": "",
+    "situacao": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -47.1,
+     -22.9
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     64511
+    ],
+    "cnpj": "90000016000197",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Itapuãzinho",
+    "nome_fantasia": "Provedor 16",
+    "razao_social": "Provedor 16 Telecom Ltda",
+    "sici_acessos": 13744,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 1649280.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 12369,
+    "sici_pj": 1375,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -51.2,
+     -30.05
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65536
+    ],
+    "cnpj": "90000017000131",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Curumim do Sul",
+    "nome_fantasia": "Provedor 17",
+    "razao_social": "Provedor 17 Telecom Ltda",
+    "sici_acessos": 14585,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 1750200.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 13126,
+    "sici_pj": 1459,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RS"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.95,
+     -19.9
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65537
+    ],
+    "cnpj": "90000018000186",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Ybyrapé",
+    "nome_fantasia": "Provedor 18",
+    "razao_social": "Provedor 18 Telecom Ltda",
+    "sici_acessos": 15499,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 1859880.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 13949,
+    "sici_pj": 1550,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "MG"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -53.45,
+     -24.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65538
+    ],
+    "cnpj": "90000019000120",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Mbaracayú Novo",
+    "nome_fantasia": "Provedor 19",
+    "razao_social": "Provedor 19 Telecom Ltda",
+    "sici_acessos": 16289,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 1954680.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 14660,
+    "sici_pj": 1629,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -60.0,
+     -3.15
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65539
+    ],
+    "cnpj": "90000020000155",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Tabajara do Norte",
+    "nome_fantasia": "Provedor 20",
+    "razao_social": "Provedor 20 Telecom Ltda",
+    "sici_acessos": 17273,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 2072760.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 15545,
+    "sici_pj": 1728,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "AM"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -35.2,
+     -5.8
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65540
+    ],
+    "cnpj": "90000021000108",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Potiguara",
+    "nome_fantasia": "Provedor 21",
+    "razao_social": "Provedor 21 Telecom Ltda",
+    "sici_acessos": 18122,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 2174640.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 16309,
+    "sici_pj": 1813,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RN"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -38.5,
+     -12.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65541
+    ],
+    "cnpj": "90000022000144",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Caeté Velho",
+    "nome_fantasia": "Provedor 22",
+    "razao_social": "Provedor 22 Telecom Ltda",
+    "sici_acessos": 18914,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 2269680.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 17022,
+    "sici_pj": 1892,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "BA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -53.35,
+     -32.55
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65542
+    ],
+    "cnpj": "90000023000199",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Jaguarão de Cima",
+    "nome_fantasia": "Provedor 23",
+    "razao_social": "Provedor 23 Telecom Ltda",
+    "sici_acessos": 19777,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 2373240.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 17799,
+    "sici_pj": 1978,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RS"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -49.25,
+     -16.7
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65543
+    ],
+    "cnpj": "90000024000133",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Pindorama Alta",
+    "nome_fantasia": "Provedor 24",
+    "razao_social": "Provedor 24 Telecom Ltda",
+    "sici_acessos": 20660,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 2479200.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 18594,
+    "sici_pj": 2066,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "GO"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -46.7,
+     -23.6
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65544
+    ],
+    "cnpj": "90000025000188",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Arandurápolis",
+    "nome_fantasia": "Provedor 25",
+    "razao_social": "Provedor 25 Telecom Ltda",
+    "sici_acessos": 21540,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 2584800.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 19386,
+    "sici_pj": 2154,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.25,
+     -22.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65545
+    ],
+    "cnpj": "90000026000122",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Tupãnópolis",
+    "nome_fantasia": "Provedor 26",
+    "razao_social": "Provedor 26 Telecom Ltda",
+    "sici_acessos": 22397,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 2687640.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 20157,
+    "sici_pj": 2240,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RJ"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -49.3,
+     -25.45
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65546
+    ],
+    "cnpj": "90000027000177",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Guaraniópolis",
+    "nome_fantasia": "Provedor 27",
+    "razao_social": "Provedor 27 Telecom Ltda",
+    "sici_acessos": 23143,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 2777160.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 20828,
+    "sici_pj": 2315,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -47.1,
+     -22.9
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65547
+    ],
+    "cnpj": "90000028000111",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Itapuãzinho",
+    "nome_fantasia": "Provedor 28",
+    "razao_social": "Provedor 28 Telecom Ltda",
+    "sici_acessos": 24101,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 2892120.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 21690,
+    "sici_pj": 2411,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -51.2,
+     -30.05
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65548
+    ],
+    "cnpj": "90000029000166",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Curumim do Sul",
+    "nome_fantasia": "Provedor 29",
+    "razao_social": "Provedor 29 Telecom Ltda",
+    "sici_acessos": 24922,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 2990640.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 22429,
+    "sici_pj": 2493,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RS"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.95,
+     -19.9
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65549
+    ],
+    "cnpj": "90000030000190",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Ybyrapé",
+    "nome_fantasia": "Provedor 30",
+    "razao_social": "Provedor 30 Telecom Ltda",
+    "sici_acessos": 25753,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 3090360.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 23177,
+    "sici_pj": 2576,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "MG"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -53.45,
+     -24.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65550
+    ],
+    "cnpj": "90000031000135",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Mbaracayú Novo",
+    "nome_fantasia": "Provedor 31",
+    "razao_social": "Provedor 31 Telecom Ltda",
+    "sici_acessos": 26676,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 3201120.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 24008,
+    "sici_pj": 2668,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -60.0,
+     -3.15
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     65551
+    ],
+    "cnpj": "90000032000180",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Tabajara do Norte",
+    "nome_fantasia": "Provedor 32",
+    "razao_social": "Provedor 32 Telecom Ltda",
+    "sici_acessos": 27545,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 3305400.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 24790,
+    "sici_pj": 2755,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "AM"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -46.7,
+     -23.6
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     4200000000
+    ],
+    "cnpj": "90000100000100",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Arandurápolis",
+    "nome_fantasia": "Trânsito Nacional 1 S.A.",
+    "razao_social": "Trânsito Nacional 1 S.A.",
+    "sici_acessos": 600,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 72000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 540,
+    "sici_pj": 60,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.25,
+     -22.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     4200000001
+    ],
+    "cnpj": "90000101000155",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Tupãnópolis",
+    "nome_fantasia": "Trânsito Nacional 2 S.A.",
+    "razao_social": "Trânsito Nacional 2 S.A.",
+    "sici_acessos": 600,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 72000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 540,
+    "sici_pj": 60,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RJ"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -49.3,
+     -25.45
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     4200000002
+    ],
+    "cnpj": "90000102000108",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Guaraniópolis",
+    "nome_fantasia": "Trânsito Nacional 3 S.A.",
+    "razao_social": "Trânsito Nacional 3 S.A.",
+    "sici_acessos": 600,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 72000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 540,
+    "sici_pj": 60,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -46.7,
+     -23.6
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [
+     4200000003
+    ],
+    "cnpj": "90000103000144",
+    "geo_confidence": "city_centroid",
+    "has_asn": true,
+    "municipio": "Arandurápolis",
+    "nome_fantasia": "Trânsito Nacional 4 S.A.",
+    "razao_social": "Trânsito Nacional 4 S.A.",
+    "sici_acessos": 600,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 72000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 540,
+    "sici_pj": 60,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -47.1,
+     -22.9
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [],
+    "cnpj": "90000200000137",
+    "geo_confidence": "city_centroid",
+    "has_asn": false,
+    "municipio": "Itapuãzinho",
+    "nome_fantasia": "SemASN1",
+    "razao_social": "Provedor Sem ASN 1 Ltda",
+    "sici_acessos": 600,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 72000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 540,
+    "sici_pj": 60,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -51.2,
+     -30.05
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [],
+    "cnpj": "90000201000181",
+    "geo_confidence": "city_centroid",
+    "has_asn": false,
+    "municipio": "Curumim do Sul",
+    "nome_fantasia": "SemASN2",
+    "razao_social": "Provedor Sem ASN 2 Ltda",
+    "sici_acessos": 600,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 72000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 540,
+    "sici_pj": 60,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RS"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.95,
+     -19.9
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [],
+    "cnpj": "90000202000126",
+    "geo_confidence": "city_centroid",
+    "has_asn": false,
+    "municipio": "Ybyrapé",
+    "nome_fantasia": "SemASN3",
+    "razao_social": "Provedor Sem ASN 3 Ltda",
+    "sici_acessos": 600,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 72000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 540,
+    "sici_pj": 60,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "MG"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -53.45,
+     -24.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [],
+    "cnpj": "90000203000170",
+    "geo_confidence": "city_centroid",
+    "has_asn": false,
+    "municipio": "Mbaracayú Novo",
+    "nome_fantasia": "SemASN4",
+    "razao_social": "Provedor Sem ASN 4 Ltda",
+    "sici_acessos": 600,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 72000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 540,
+    "sici_pj": 60,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -60.0,
+     -3.15
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [],
+    "cnpj": "90000204000115",
+    "geo_confidence": "city_centroid",
+    "has_asn": false,
+    "municipio": "Tabajara do Norte",
+    "nome_fantasia": "SemASN5",
+    "razao_social": "Provedor Sem ASN 5 Ltda",
+    "sici_acessos": 600,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 72000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 540,
+    "sici_pj": 60,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "AM"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -35.2,
+     -5.8
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [],
+    "cnpj": "90000205000160",
+    "geo_confidence": "city_centroid",
+    "has_asn": false,
+    "municipio": "Potiguara",
+    "nome_fantasia": "SemASN6",
+    "razao_social": "Provedor Sem ASN 6 Ltda",
+    "sici_acessos": 600,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 72000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 540,
+    "sici_pj": 60,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RN"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -38.5,
+     -12.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [],
+    "cnpj": "90000206000104",
+    "geo_confidence": "city_centroid",
+    "has_asn": false,
+    "municipio": "Caeté Velho",
+    "nome_fantasia": "SemASN7",
+    "razao_social": "Provedor Sem ASN 7 Ltda",
+    "sici_acessos": 600,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 72000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 540,
+    "sici_pj": 60,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "BA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -53.35,
+     -32.55
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asns": [],
+    "cnpj": "90000207000159",
+    "geo_confidence": "city_centroid",
+    "has_asn": false,
+    "municipio": "Jaguarão de Cima",
+    "nome_fantasia": "SemASN8",
+    "razao_social": "Provedor Sem ASN 8 Ltda",
+    "sici_acessos": 600,
+    "sici_ativo": true,
+    "sici_capacidade_mbps": 72000.0,
+    "sici_mes_referencia": "2026-08",
+    "sici_municipios": 1,
+    "sici_pf": 540,
+    "sici_pj": 60,
+    "sici_tecnologia": "FTTH",
+    "situacao": "",
+    "uf": "RS"
+   },
+   "type": "Feature"
+  }
+ ],
+ "snapshot_date": "2026-09-20",
+ "type": "FeatureCollection"
+}

@@ -1,0 +1,82 @@
+# Cenários do testador de carga (tests/carga/locustfile.py). O `padrao` vale para todos; cada cenário sobrescreve o que precisar.
+# degraus: usuários simultâneos em cada degrau; degrau_s: duração de cada um (o relatório descarta o 1º terço de cada degrau, a subida).
+# pesos: proporção entre os tipos de usuário (visitante, assistente, api, abusivo); 0 ou ausente = fora.
+# Referência de dimensionamento: até 1.000 simultâneos, expectativa abaixo de 10% disso.
+
+padrao:
+  degraus: [10, 25, 50, 100, 200, 400, 700, 1000]
+  degrau_s: 240
+  taxa_de_entrada: 5            # usuários novos por segundo ao subir de degrau
+  zipf: 1.0                     # concentração nas entidades mais procuradas (0 = uniforme, cauda fria)
+  paginas_de_entidades: 20      # páginas de 100 da lista de ASNs, operadoras e prefixos nos conjuntos (municípios e PTTs: todos)
+  estaticos: false              # estáticos (JS, CSS, fontes) e tiles do mapa: em produção vêm do cache da Cloudflare; true = origem sem CDN
+  ipv6: 0.0                     # fração de usuários com IPv6 (prefixo IPv6 largo no ALLOWED_IPS do alvo põe todos na allowlist)
+  visitante_novo: 0.5           # chance de a próxima visita ser de outra pessoa (IP novo, cache vazio)
+  paginas_por_visita: [2, 8]
+  pensar_pagina_s: [5, 30]
+  pausa_entre_visitas_s: [20, 120]
+  # páginas: peso de cada uma como destino (entrada e navegação)
+  paginas: {home: 25, asn: 20, ptt: 10, operadora: 10, municipio: 8, uf: 4, prefixo: 3, panorama_tecnico: 4, panorama_mercado: 3,
+            mapa: 4, bgp: 2, explorar: 2, rankings: 1, ases: 1, municipios: 1, operadoras: 1, mudancas: 1, qualidade: 1,
+            seguranca_roteamento: 1, uso_da_internet: 1}
+  mcp_chamadas_por_conversa: [5, 20]
+  mcp_pensar_s: [2, 15]         # o modelo lendo a resposta e decidindo a próxima chamada
+  mcp_pausa_entre_conversas_s: [30, 240]
+
+# Critérios de capacidade (o relatório marca o último degrau que cumpre todos). Tempos do servidor: log de uso da API e do MCP (sem a
+# rede); tempos do cliente incluem a rede do gerador até o alvo (o relatório mostra o RTT medido antes).
+slo:
+  servidor_api_p95_ms: 500
+  servidor_mcp_p95_ms: 2000
+  falhas_pct: 0.5               # conexão, 429 e 5xx dos usuários normais (o abusivo fica de fora)
+  canario_p95_ms: 5000          # navegador real: da navegação até o conteúdo na tela
+
+cenarios:
+  fumaca:
+    descricao: valida o testador (poucos usuários, poucos minutos)
+    degraus: [3, 6]
+    degrau_s: 60
+    pesos: {visitante: 3, assistente: 2, api: 1}
+
+  web:
+    descricao: só navegação no site, rampa até 1.000 simultâneos
+    pesos: {visitante: 1}
+
+  mcp:
+    descricao: só assistentes no MCP
+    degraus: [5, 10, 25, 50, 100, 200, 400]
+    pesos: {assistente: 1}
+
+  misto:
+    descricao: 80% web, 20% MCP (o uso esperado)
+    pesos: {visitante: 8, assistente: 2}
+
+  misto_meio:
+    descricao: metade web, metade MCP (interferência entre os dois)
+    pesos: {visitante: 1, assistente: 1}
+
+  divulgacao:
+    descricao: pico depois de uma divulgação, muitos visitantes novos nas páginas de entrada, visitas curtas
+    pesos: {visitante: 1}
+    visitante_novo: 1.0
+    paginas_por_visita: [1, 3]
+    pausa_entre_visitas_s: [5, 30]
+    paginas: {home: 50, panorama_tecnico: 15, panorama_mercado: 10, mapa: 10, asn: 10, ptt: 5}
+
+  cauda_fria:
+    descricao: entidades uniformes (sem concentração), web + clientes de API varrendo, o pior caso de cache e memória
+    zipf: 0.0
+    paginas_de_entidades: 60
+    pesos: {visitante: 6, api: 4}
+    degraus: [10, 25, 50, 100, 200, 400]
+
+  sem_cdn:
+    descricao: como o misto, mas a origem serve também estáticos e tiles (Cloudflare fora do ar ou ignorada)
+    estaticos: true
+    pesos: {visitante: 8, assistente: 2}
+    degraus: [10, 25, 50, 100, 200]
+
+  abuso:
+    descricao: um IP martelando rotas caras enquanto visitantes e assistentes usam normalmente (os limites devem proteger os demais)
+    degraus: [50, 100, 200]
+    pesos: {visitante: 40, assistente: 10, abusivo: 1}

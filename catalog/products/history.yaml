@@ -1,0 +1,76 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: history
+nome: Histórico por snapshot
+descricao: Camada derivada e reconstruível (data/history/) com uma linha por ASN e snapshot, séries agregadas e um log
+  de eventos confirmados por janela. Lê só o publicado (asns/, manifest.json) e nunca o altera; a base de
+  tendências, de "o que mudou" e dos alertas, expostos pela API, pelo MCP e pela interface.
+modulo: products.history.build
+entradas:
+- product: asn_docs
+- product: asn_saude
+chaves_de_juncao:
+- asn
+saidas:
+  publicado: []     # nada em published/: a saída vive em data/history/ (weekly/{date}/asn.jsonl.gz e index.json)
+campos:
+- nome: asn / is_br
+  tipo: int / bool
+  significado: Número do AS e se é brasileiro no snapshot.
+- nome: users / v6users
+  tipo: int
+  significado: Usuários estimados pela APNIC no snapshot (total e IPv6). Estimativa, não contagem; a média móvel de 4 semanas
+    fica nas séries agregadas.
+  tratamento: Ausente quando o AS não tem estimativa.
+- nome: p4 / p6
+  tipo: int
+  significado: Prefixos IPv6 e IPv4 do AS na tabela global do snapshot.
+- nome: n_ixd / n_ixm
+  tipo: int
+  significado: PTTs onde o AS é par direto observado (ixps_direct) e onde é membro cadastrado (ixp_member_codes).
+- nome: n_provedores
+  tipo: int
+  significado: Provedores de nível confirmado ou superior (declarado, confirmado) segundo o ARC v1. Inferência rotulada.
+  tratamento: Ausente nos snapshots anteriores ao bloco de relações; nunca zero inventado.
+- nome: n_roa / rpki_valid / rpki_invalid / rpki_not_found
+  tipo: int
+  significado: ROAs do AS e prefixos por estado de validação RPKI.
+- nome: n_alertas / hash_alertas
+  tipo: int / str
+  significado: Quantidade de alertas do AS (só ASN BR) e hash dos ids, para detectar alerta novo ou resolvido sem guardar os conjuntos.
+  tratamento: Só se compara entre snapshots de mesmo rules_version.
+- nome: hash_relacoes / hash_ixd / hash_ixm / hash_pfx
+  tipo: str
+  significado: Hash curto (sha1, 12 hex) do conjunto de provedores confirmado+, PTTs diretos, PTTs membros e prefixos globais.
+    Mudou o hash, o gerador de eventos lê os dois documentos publicados e calcula a diferença.
+- nome: ixp.jsonl.gz (ixp, status, n_direct, n_br_direct, n_origin, n_br_origin, n_membros, v4_rotas, v4_prefixos, v6_rotas, v6_prefixos)
+  tipo: dict
+  significado: Uma linha por PTT e snapshot, do índice de PTTs publicado. status é o da coleta (ok, partial, missing, failed); eventos
+    negativos só valem para PTT coletado.
+- nome: operadora.jsonl.gz / uf.jsonl.gz
+  tipo: dict
+  significado: Soma dos ASNs BR por CNPJ (com grupo_id, só o id) e por UF da sede da organização (não a UF dos usuários), com users_ma4,
+    a média das amostras de usuários APNIC dos últimos 28 dias, e n_ma4, o número de amostras.
+  tratamento: A estimativa APNIC é suavizada pela média móvel; só entram datas anteriores ou iguais à do snapshot.
+- nome: events/{date}.jsonl.gz (id, data, tipo, entidade, chave, de, para, janela, estado, confirmado, confirmado_em, revertido_em, destaque, detalhe)
+  tipo: dict
+  significado: Diferença observada entre este snapshot e o anterior com histórico. estado é pendente até o novo estado persistir por
+    `janela` snapshots (contando o de origem), depois confirmado; revertido se um snapshot seguinte o desmente. Tipos e janelas (snapshots) —
+    asn_novo/asn_sumido 2; ixp_entrada/ixp_saida (cadastral) 1; ixp_entrada_observada/ixp_saida_observada 2; provedor_novo/provedor_perdido 3;
+    mudanca_origem 2; roa_ganho/roa_perdido 1; aspa_ganho/aspa_perdido 1; rpki_invalido_novo/rpki_invalido_resolvido 2; outorga_nova 1,
+    outorga_baixa 2; alerta_novo/alerta_resolvido 2.
+  tratamento: Snapshot de coleta parcial não gera evento negativo e não confirma nem desmente evento. Evento observado de PTT só se o PTT
+    foi coletado por inteiro nos dois snapshots. Alertas só se comparam com o mesmo rules_version. mudanca_origem exige origem única
+    (sem MOAS) e uma ponta brasileira; destaque quando o novo estado é RPKI inválido. provedor_* é inferência (ARC). O evento descreve
+    a diferença, sem causa nem intenção, e leva só a chave (ASN, PTT, CNPJ, prefixo), nunca nome de empresa.
+- nome: index.json
+  tipo: dict
+  significado: Snapshots com histórico, estado da coleta (coleta, coleta_ok), PTTs coletados e falhos, rules_version, linhas, sha256 do
+    conteúdo e built_at.
+cenarios_de_teste:
+- ptt_coleta_parcial
+- mudanca_de_origem
+limites: Camada derivada, fora de published/; reconstruível dos snapshots. Cresce com os snapshots (retenção indefinida, como o
+  publicado; o gc não a remove). Eventos negativos só valem com coleta completa e confirmação por janela. Comparar alertas só
+  entre snapshots de mesmo rules_version.
+pendencias:
+- Backfill dos 3 snapshots mais recentes e medições.

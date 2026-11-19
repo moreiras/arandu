@@ -1,0 +1,390 @@
+# IXPs consultados via PeeringDB.
+# IDs validados em 2026-06-09 via GET /api/ix.
+#
+# external: IXPs fora do IX.br — exibidos como "IXPs externos" no sistema.
+# ixbr:     IXPs do IX.br — consultados apenas para cruzamento com cadastro PeeringDB.
+
+external:
+  # Brasil
+  - code: decix-sp
+    name: DE-CIX São Paulo
+    city: São Paulo
+    country: BR
+    pdb_ix_id: 4642
+
+  - code: decix-rj
+    name: DE-CIX Rio de Janeiro
+    city: Rio de Janeiro
+    country: BR
+    pdb_ix_id: 4641
+
+  - code: equinix-sp
+    name: Equinix São Paulo
+    city: São Paulo
+    country: BR
+    pdb_ix_id: 119
+
+  # América do Sul
+  - code: cabase
+    name: AR-IX Cabase
+    city: Buenos Aires
+    country: AR
+    pdb_ix_id: 3788
+
+  - code: pit-chile
+    name: PIT Santiago
+    city: Santiago
+    country: CL
+    pdb_ix_id: 1514
+
+  - code: nap-pe
+    name: Nap Peru
+    city: Lima
+    country: PE
+    pdb_ix_id: 1028
+
+  - code: nap-colombia
+    name: NAP Colombia
+    city: Bogotá
+    country: CO
+    pdb_ix_id: 252
+
+  # América do Norte
+  - code: equinix-mi
+    name: Equinix Miami
+    city: Miami
+    country: US
+    pdb_ix_id: 17
+
+  - code: equinix-iad
+    name: Equinix Ashburn
+    city: Ashburn
+    country: US
+    pdb_ix_id: 1
+
+  - code: decix-ny
+    name: DE-CIX New York
+    city: New York
+    country: US
+    pdb_ix_id: 804
+
+  - code: nyiix-ny
+    name: NYIIX New York
+    city: New York
+    country: US
+    pdb_ix_id: 14
+
+  - code: equinix-ch
+    name: Equinix Chicago
+    city: Chicago
+    country: US
+    pdb_ix_id: 2
+
+  - code: any2-west
+    name: Any2West
+    city: Los Angeles
+    country: US
+    pdb_ix_id: 142
+
+  - code: six
+    name: SIX Seattle
+    city: Seattle
+    country: US
+    pdb_ix_id: 13
+
+  - code: fl-ix
+    name: FL-IX
+    city: Miami
+    country: US
+    pdb_ix_id: 954
+
+  - code: de-cix-dallas
+    name: DE-CIX Dallas
+    city: Dallas
+    country: US
+    pdb_ix_id: 1249
+
+  - code: de-cix-chicago
+    name: DE-CIX Chicago
+    city: Chicago
+    country: US
+    pdb_ix_id: 3378
+
+  - code: megaix-miami
+    name: MegaIX Miami
+    city: Miami
+    country: US
+    pdb_ix_id: 4362
+
+  - code: megaix-chicago
+    name: MegaIX Chicago
+    city: Chicago
+    country: US
+    pdb_ix_id: 4507
+
+  - code: bgp-exchange-miami
+    name: BGP.Exchange Miami
+    city: Miami
+    country: US
+    pdb_ix_id: 3923
+
+  - code: fremix
+    name: FREMIX
+    city: Fremont
+    country: US
+    pdb_ix_id: 3685
+
+  - code: digital-realty-ny
+    name: Digital Realty New York
+    city: New York
+    country: US
+    pdb_ix_id: 325
+
+  - code: digital-realty-atl
+    name: Digital Realty Atlanta
+    city: Atlanta
+    country: US
+    pdb_ix_id: 22
+
+  - code: torix
+    name: TorIX
+    city: Toronto
+    country: CA
+    pdb_ix_id: 24
+
+  # América do Sul (novos)
+  - code: pit-paraguay
+    name: PIT Paraguay
+    city: Ciudad del Este
+    country: PY
+    pdb_ix_id: 4761
+
+  - code: ix-cde
+    name: IX CDE
+    city: Ciudad del Este
+    country: PY
+    pdb_ix_id: 4458
+
+  - code: ixpy
+    name: IXpy
+    city: San Lorenzo
+    country: PY
+    pdb_ix_id: 1522
+
+  # Europa
+  - code: amsix
+    name: AMS-IX
+    city: Amsterdam
+    country: NL
+    pdb_ix_id: 26
+
+  - code: decix-fra
+    name: DE-CIX Frankfurt
+    city: Frankfurt
+    country: DE
+    pdb_ix_id: 31
+
+  - code: linx-lon1
+    name: LINX LON1
+    city: London
+    country: GB
+    pdb_ix_id: 18
+
+  - code: linx-lon2
+    name: LINX LON2
+    city: London
+    country: GB
+    pdb_ix_id: 321
+
+  - code: de-cix-lisbon
+    name: DE-CIX Lisbon
+    city: Lisbon
+    country: PT
+    pdb_ix_id: 2531
+
+  - code: gigapix
+    name: GigaPIX
+    city: Lisbon
+    country: PT
+    pdb_ix_id: 72
+
+  - code: de-cix-madrid
+    name: DE-CIX Madrid
+    city: Madrid
+    country: ES
+    pdb_ix_id: 1277
+
+  - code: de-cix-barcelona
+    name: DE-CIX Barcelona
+    city: Barcelona
+    country: ES
+    pdb_ix_id: 3446
+
+  - code: de-cix-marseille
+    name: DE-CIX Marseille
+    city: Marseille
+    country: FR
+    pdb_ix_id: 1149
+
+  - code: de-cix-munich
+    name: DE-CIX Munich
+    city: Munich
+    country: DE
+    pdb_ix_id: 248
+
+  - code: de-cix-hamburg
+    name: DE-CIX Hamburg
+    city: Hamburg
+    country: DE
+    pdb_ix_id: 74
+
+  - code: bgp-exchange-fra
+    name: BGP.Exchange Frankfurt
+    city: Frankfurt
+    country: DE
+    pdb_ix_id: 3829
+
+  - code: nix-cz
+    name: NIX.CZ
+    city: Prague
+    country: CZ
+    pdb_ix_id: 71
+
+  - code: de-cix-palermo
+    name: DE-CIX Palermo
+    city: Palermo
+    country: IT
+    pdb_ix_id: 1131
+
+  - code: sbix-zurich
+    name: SBIX Zurich
+    city: Zurich
+    country: CH
+    pdb_ix_id: 2571
+
+  - code: 4b42-ixp
+    name: 4b42 Internet Exchange Point
+    city: Zurich
+    country: CH
+    pdb_ix_id: 2447
+
+  - code: nl-ix
+    name: NL-ix
+    city: Amsterdam
+    country: NL
+    pdb_ix_id: 64
+
+  - code: speed-ix
+    name: Speed-IX
+    city: Amsterdam
+    country: NL
+    pdb_ix_id: 1842
+
+  - code: interix
+    name: INTERIX
+    city: Amsterdam
+    country: NL
+    pdb_ix_id: 3990
+
+  - code: gnm-ix
+    name: GNM-IX
+    city: Amsterdam
+    country: NL
+    pdb_ix_id: 358
+
+  - code: global-ix
+    name: Global-IX
+    city: Amsterdam
+    country: NL
+    pdb_ix_id: 1088
+
+  - code: netix
+    name: NetIX
+    city: Sofia
+    country: BG
+    pdb_ix_id: 699
+
+  - code: bfd-ix
+    name: BFD-IX
+    city: Bradford
+    country: GB
+    pdb_ix_id: 3098
+
+  - code: msk-ix
+    name: MSK-IX Moscow
+    city: Moscow
+    country: RU
+    pdb_ix_id: 100
+
+  - code: gnm-ix-ua
+    name: GNM-IX UA
+    city: Kiev
+    country: UA
+    pdb_ix_id: 4640
+
+  # África
+  - code: napafrica-jnb
+    name: NAPAfrica Johannesburg
+    city: Johannesburg
+    country: ZA
+    pdb_ix_id: 592
+
+  - code: napafrica-cpt
+    name: NAPAfrica Cape Town
+    city: Cape Town
+    country: ZA
+    pdb_ix_id: 597
+
+  - code: angonix
+    name: ANGONIX
+    city: Luanda
+    country: AO
+    pdb_ix_id: 1007
+
+  - code: pyramix
+    name: PyramIX
+    city: Cairo
+    country: EG
+    pdb_ix_id: 3302
+
+ixbr:
+  - { code: sp,          pdb_ix_id: 171  }
+  - { code: rj,          pdb_ix_id: 177  }
+  - { code: ce,          pdb_ix_id: 710  }
+  - { code: df,          pdb_ix_id: 178  }
+  - { code: rs,          pdb_ix_id: 173  }
+  - { code: pr,          pdb_ix_id: 174  }
+  - { code: mg,          pdb_ix_id: 176  }
+  - { code: pe,          pdb_ix_id: 705  }
+  - { code: ba,          pdb_ix_id: 556  }
+  - { code: sc,          pdb_ix_id: 175  }
+  - { code: sjp,         pdb_ix_id: 709  }
+  - { code: cpv,         pdb_ix_id: 415  }
+  - { code: gyn,         pdb_ix_id: 575  }
+  - { code: mao,         pdb_ix_id: 707  }
+  - { code: bel,         pdb_ix_id: 711  }
+  - { code: the,         pdb_ix_id: 2078 }
+  - { code: slz,         pdb_ix_id: 2086 }
+  - { code: nat,         pdb_ix_id: 708  }
+  - { code: lda,         pdb_ix_id: 314  }
+  - { code: mgf,         pdb_ix_id: 818  }
+  - { code: laj,         pdb_ix_id: 790  }
+  - { code: cxj,         pdb_ix_id: 558  }
+  - { code: cgb,         pdb_ix_id: 859  }
+  - { code: vix,         pdb_ix_id: 706  }
+  - { code: cac,         pdb_ix_id: 603  }
+  - { code: se,          pdb_ix_id: 1684 }
+  - { code: mcz,         pdb_ix_id: 2291 }
+  - { code: cas,         pdb_ix_id: 2822 }
+  - { code: cgr,         pdb_ix_id: 3096 }
+  - { code: jpa,         pdb_ix_id: 1983 }
+  - { code: igu,         pdb_ix_id: 1276 }
+  - { code: to,          pdb_ix_id: 3680 }
+  - { code: rr,          pdb_ix_id: 3616 }
+  - { code: ac,          pdb_ix_id: 4159 }
+  - { code: ap,          pdb_ix_id: 5102 }
+  - { code: ro,          pdb_ix_id: 4556 }
+  - { code: ria,         pdb_ix_id: 4862 }
+  - { code: fec,         pdb_ix_id: 4578 }
+  - { code: cau,         pdb_ix_id: 4587 }
+  - { code: santa-maria, pdb_ix_id: 1847 }

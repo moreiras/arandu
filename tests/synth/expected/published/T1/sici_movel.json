@@ -1,0 +1,157 @@
+{
+ "asn_to_cnpj": {
+  "4200000003": "90000103000144"
+ },
+ "cnpj_to_asns": {
+  "90000103000144": [
+   4200000003
+  ]
+ },
+ "cnpjs": {
+  "90000103000144": {
+   "acessos": 5000,
+   "acessos_compartilhados": false,
+   "acessos_m2m": 0,
+   "acessos_outros": 0,
+   "asns": [
+    4200000003
+   ],
+   "empresa": "Trânsito Nacional 4 S.A.",
+   "geracao_predominante": "4G",
+   "grupo": "OUTROS",
+   "municipios": 1,
+   "pf": 5000,
+   "pj": 0,
+   "por_geracao": {
+    "4G": 5000
+   },
+   "por_modalidade": {
+    "Pré-pago": 5000
+   },
+   "por_municipio": {
+    "9900001": {
+     "acessos": 5000,
+     "nome": "Arandurápolis",
+     "pf": 5000,
+     "pj": 0,
+     "uf": "SP"
+    }
+   },
+   "por_produto": {
+    "VOZ+DADOS": 5000
+   },
+   "porte": "Pequeno Porte",
+   "uf": "SP"
+  },
+  "90000200000137": {
+   "acessos": 10000,
+   "acessos_compartilhados": false,
+   "acessos_m2m": 0,
+   "acessos_outros": 0,
+   "asns": [],
+   "empresa": "Provedor Sem ASN 1 Ltda",
+   "geracao_predominante": "4G",
+   "grupo": "OUTROS",
+   "municipios": 1,
+   "pf": 10000,
+   "pj": 0,
+   "por_geracao": {
+    "4G": 10000
+   },
+   "por_modalidade": {
+    "Pré-pago": 10000
+   },
+   "por_municipio": {
+    "9900004": {
+     "acessos": 10000,
+     "nome": "Itapuãzinho",
+     "pf": 10000,
+     "pj": 0,
+     "uf": "SP"
+    }
+   },
+   "por_produto": {
+    "VOZ+DADOS": 10000
+   },
+   "porte": "Pequeno Porte",
+   "uf": "SP"
+  },
+  "90000201000181": {
+   "acessos": 15000,
+   "acessos_compartilhados": false,
+   "acessos_m2m": 0,
+   "acessos_outros": 0,
+   "asns": [],
+   "empresa": "Provedor Sem ASN 2 Ltda",
+   "geracao_predominante": "4G",
+   "grupo": "OUTROS",
+   "municipios": 1,
+   "pf": 15000,
+   "pj": 0,
+   "por_geracao": {
+    "4G": 15000
+   },
+   "por_modalidade": {
+    "Pré-pago": 15000
+   },
+   "por_municipio": {
+    "9900005": {
+     "acessos": 15000,
+     "nome": "Curumim do Sul",
+     "pf": 15000,
+     "pj": 0,
+     "uf": "RS"
+    }
+   },
+   "por_produto": {
+    "VOZ+DADOS": 15000
+   },
+   "porte": "Pequeno Porte",
+   "uf": "RS"
+  }
+ },
+ "distrib_modalidade": {},
+ "fonte": "sintético",
+ "matched_acessos": 5000,
+ "matched_cnpjs": 1,
+ "mes_referencia": "2026-08",
+ "meses_disponiveis": [
+  "2026-08"
+ ],
+ "serie_por_cnpj": {
+  "90000103000144": [
+   [
+    "2026-08",
+    5000,
+    5000,
+    0
+   ]
+  ],
+  "90000200000137": [
+   [
+    "2026-08",
+    10000,
+    10000,
+    0
+   ]
+  ],
+  "90000201000181": [
+   [
+    "2026-08",
+    15000,
+    15000,
+    0
+   ]
+  ]
+ },
+ "serie_total": [
+  {
+   "acessos": 30000,
+   "cnpjs": 3,
+   "mes": "2026-08"
+  }
+ ],
+ "snapshot_date": "2026-09-20",
+ "total_acessos": 30000,
+ "total_cnpjs": 3
+}

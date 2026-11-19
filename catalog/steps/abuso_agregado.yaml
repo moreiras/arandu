@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: abuso_agregado
+nome: Abuso agregado por ASN (Feodo Tracker)
+ordem: -92
+modulo: products.passos
+args:
+- --passo
+- abuso_agregado
+- --date
+- '{date}'
+parcial:
+- abuso_agregado
+depois_de:
+- abusech
+- asn_indice
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: contagens por ASN do Brasil de servidores C2 do Feodo Tracker (abuse.ch). Sem IPs. Roda sozinho; lê o normalizado da fonte.'

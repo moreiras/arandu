@@ -1,0 +1,14 @@
+﻿Ano;Mês;Grupo Econômico;Empresa;CNPJ;Porte da Prestadora;UF;Município;Código IBGE Município;Faixa de Velocidade;Velocidade;Tecnologia;Meio de Acesso;Tipo de Pessoa;Tipo de Produto;Acessos
+2026;6;OUTROS;S R Lima Eireli;04492527000131;Pequeno Porte;SP;Miguelópolis;3529708;> 34Mbps;264,38;FTTH;Fibra;Pessoa Física;INTERNET;189
+2026;6;OUTROS;S R Lima Eireli;04492527000131;Pequeno Porte;SP;Miguelópolis;3529708;> 34Mbps;264,38;FTTH;Fibra;Pessoa Jurídica;INTERNET;12
+2026;6;OUTROS;Novanet Telecom;11645718000151;Pequeno Porte;MA;Passagem Franca;2107902;> 34Mbps;246,71;FTTH;Fibra;Pessoa Física;INTERNET;197
+2026;6;OUTROS;Novanet Telecom;11645718000151;Pequeno Porte;MA;Passagem Franca;2107902;> 34Mbps;246,71;FTTH;Fibra;Pessoa Jurídica;INTERNET;3
+2026;6;OUTROS;ALEX TECNOLOGIA EM REDES DE COMPUTADORES EIRELI;17390418000155;Pequeno Porte;RN;Caraúbas;2402303;2Mbps a 12Mbps;102,58;FTTH;Fibra;Pessoa Física;INTERNET;187
+2026;7;OUTROS;S R Lima Eireli;04492527000131;Pequeno Porte;SP;Miguelópolis;3529708;> 34Mbps;264,38;FTTH;Fibra;Pessoa Física;INTERNET;189
+2026;7;OUTROS;S R Lima Eireli;04492527000131;Pequeno Porte;SP;Miguelópolis;3529708;> 34Mbps;264,38;FTTH;Fibra;Pessoa Jurídica;INTERNET;12
+2026;7;OUTROS;Novanet Telecom;11645718000151;Pequeno Porte;MA;Passagem Franca;2107902;> 34Mbps;269,22;FTTH;Fibra;Pessoa Física;INTERNET;198
+2026;7;OUTROS;Novanet Telecom;11645718000151;Pequeno Porte;MA;Passagem Franca;2107902;> 34Mbps;269,22;FTTH;Fibra;Pessoa Jurídica;INTERNET;3
+2026;7;OUTROS;ALEX TECNOLOGIA EM REDES DE COMPUTADORES EIRELI;17390418000155;Pequeno Porte;RN;Caraúbas;2402303;12Mbps a 34Mbps;97,75;FTTH;Fibra;Pessoa Física;INTERNET;201
+2026;7;OUTROS;S R Lima Eireli;04492527000131;Pequeno Porte;SP;Miguelópolis;3529708;> 34Mbps;1000;FTTH;Fibra;Pessoa Jurídica;LINHA_DEDICADA;5
+2026;7;OUTROS;Empresa Sem CNPJ;123;Pequeno Porte;SP;X;3550308;x;1;x;x;Pessoa Física;INTERNET;9
+2026;7;OUTROS;S R Lima Eireli;04492527000131;Pequeno Porte;SP;Miguelópolis;3529708;x;1;x;x;Pessoa Física;INTERNET;0

@@ -1,0 +1,40 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: lacnic_listas
+nome: Listas do LACNIC (transferências e infraestrutura crítica)
+tipo: bruta
+ativa: true
+modulo: sources.lacnic_listas.collect
+publicavel: false
+exposicao: nenhuma
+descricao: Log de transferências de recursos (transfers_latest.json, append-only) e lista de recursos de infraestrutura crítica do LACNIC. Só guardados, comprimidos, todo dia.
+origem:
+  url: https://ftp.lacnic.net/pub/stats/lacnic/{transfers/transfers_latest.json, critical_infra/critical-infra-AAAAMMDD}
+  formato: JSON (transferências) e CSV rir|pais|tipo|recurso|cantidad|fecha|estado|orgid|id_documento|nombre (infraestrutura crítica)
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: README do diretório não declara termos (estudo de 2026-10-09).
+cadencia:
+  fonte_atualiza: diaria
+  coleta: diaria
+  coleta_atual: diaria
+  frescor_maximo: 3d
+politica_falha: opcional
+saidas:
+  bruto:
+  - summary/lacnic-transfers-{as_of}.gz
+  - summary/lacnic-critical-infra-{as_of}.gz
+chaves:
+- prefixo
+- asn
+campos: []
+limites: Só guarda o bruto comprimido; quem os lê é a fonte derivada `ipv4_listas`. Arquivos em Latin-1 no Registro.br.
+retencao:
+  bruto: 365 versões no armazém (as listas públicas só guardam a versão atual)
+fixture: tests/fixtures/raw/listas_numeracao/
+pendencias:
+- Termos de uso dos arquivos do LACNIC não confirmados.
+armazem:
+  incluir:
+  - raw:summary/lacnic-transfers-{as_of}.gz
+  - raw:summary/lacnic-critical-infra-{as_of}.gz
+  manter_versoes: 365

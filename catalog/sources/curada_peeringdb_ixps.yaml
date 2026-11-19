@@ -1,0 +1,44 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: curada_peeringdb_ixps
+nome: IXPs consultados no PeeringDB (config/peeringdb_ixps.yaml)
+tipo: curada
+ativa: true
+arquivo: config/peeringdb_ixps.yaml
+publicavel: true
+descricao: IDs de IX do PeeringDB (pdb_ix_id) dos IXPs externos exibidos e dos IXPs do IX.br usados no
+  cruzamento.
+origem:
+  formato: YAML mantido à mão em config/
+  licenca: Curadoria do projeto (dados factuais; fontes citadas)
+  uso_comercial: nao_verificado
+  nota: IDs validados em 2026-06-09 via GET /api/ix do PeeringDB.
+cadencia:
+  fonte_atualiza: irregular
+  coleta: sob_demanda
+  coleta_atual: semanal
+  frescor_maximo: 400d
+politica_falha: critica
+saidas: {}
+chaves:
+- ixp
+- pais
+campos:
+- nome: external[].code / name / city / country
+  tipo: str
+  significado: Identificação do IXP externo exibido.
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json
+- nome: external[].pdb_ix_id
+  tipo: int
+  significado: Identificador do IX no PeeringDB.
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json#pdb_ix_id
+- nome: ixbr[]
+  tipo: list
+  significado: IXPs do IX.br com ID no PeeringDB, para cruzamento do cadastro.
+  tratamento: Operacional.
+limites: IDs podem mudar no PeeringDB; revalidar periodicamente.
+retencao:
+  normalizado: git
+pendencias:
+- IDs vêm do PeeringDB (AUP); ver peeringdb_ixps.

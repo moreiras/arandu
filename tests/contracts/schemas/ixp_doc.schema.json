@@ -1,0 +1,236 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Documento de um PTT do IX.br",
+ "description": "Contrato T3 do artefato publicado ixps/{code}.json. Inferido do snapshot real 2026-09-20 e conferido com o dataset sintético (tests/contracts/infer.py); campos novos são permitidos, remoção ou mudança de tipo falham.",
+ "type": "object",
+ "required": [
+  "generated_at",
+  "ixp",
+  "name",
+  "snapshot_date",
+  "uf",
+  "v4",
+  "v6"
+ ],
+ "properties": {
+  "generated_at": {
+   "type": "string"
+  },
+  "ixp": {
+   "type": "string"
+  },
+  "name": {
+   "type": "string"
+  },
+  "snapshot_date": {
+   "type": "string"
+  },
+  "uf": {
+   "type": "string"
+  },
+  "v4": {
+   "description": "métricas completas, ou {\"status\": \"missing\"} quando o PTT não foi coletado nessa AFI",
+   "anyOf": [
+    {
+     "type": "object",
+     "required": [
+      "status"
+     ],
+     "properties": {
+      "status": {
+       "enum": [
+        "missing",
+        "partial"
+       ]
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "asn_direct",
+      "asn_direct_count",
+      "asn_origin_count",
+      "asn_stub",
+      "asn_stub_count",
+      "br_asns_direct",
+      "br_asns_direct_count",
+      "br_asns_direct_pct",
+      "br_asns_origin",
+      "br_asns_origin_count",
+      "br_asns_origin_pct",
+      "br_prefix_coverage_pct",
+      "br_prefix_covered_space",
+      "br_prefix_declared_space",
+      "ft_space",
+      "ixp_space",
+      "ixp_vs_fulltable_space_pct",
+      "total_routes",
+      "unique_prefixes"
+     ],
+     "properties": {
+      "asn_direct": {
+       "type": "array"
+      },
+      "asn_direct_count": {
+       "type": "integer"
+      },
+      "asn_origin_count": {
+       "type": "integer"
+      },
+      "asn_stub": {
+       "type": "array"
+      },
+      "asn_stub_count": {
+       "type": "integer"
+      },
+      "br_asns_direct": {
+       "type": "array"
+      },
+      "br_asns_direct_count": {
+       "type": "integer"
+      },
+      "br_asns_direct_pct": {
+       "type": "number"
+      },
+      "br_asns_origin": {
+       "type": "array"
+      },
+      "br_asns_origin_count": {
+       "type": "integer"
+      },
+      "br_asns_origin_pct": {
+       "type": "number"
+      },
+      "br_prefix_coverage_pct": {
+       "type": "number"
+      },
+      "br_prefix_covered_space": {
+       "type": "integer"
+      },
+      "br_prefix_declared_space": {
+       "type": "integer"
+      },
+      "ft_space": {
+       "type": "integer"
+      },
+      "ixp_space": {
+       "type": "integer"
+      },
+      "ixp_vs_fulltable_space_pct": {
+       "type": "number"
+      },
+      "total_routes": {
+       "type": "integer"
+      },
+      "unique_prefixes": {
+       "type": "integer"
+      }
+     }
+    }
+   ]
+  },
+  "v6": {
+   "description": "métricas completas, ou {\"status\": \"missing\"} quando o PTT não foi coletado nessa AFI",
+   "anyOf": [
+    {
+     "type": "object",
+     "required": [
+      "status"
+     ],
+     "properties": {
+      "status": {
+       "enum": [
+        "missing",
+        "partial"
+       ]
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "asn_direct",
+      "asn_direct_count",
+      "asn_origin_count",
+      "asn_stub",
+      "asn_stub_count",
+      "br_asns_direct",
+      "br_asns_direct_count",
+      "br_asns_direct_pct",
+      "br_asns_origin",
+      "br_asns_origin_count",
+      "br_asns_origin_pct",
+      "br_prefix_coverage_pct",
+      "br_prefix_covered_space",
+      "br_prefix_declared_space",
+      "ft_space",
+      "ixp_space",
+      "ixp_vs_fulltable_space_pct",
+      "total_routes",
+      "unique_prefixes"
+     ],
+     "properties": {
+      "asn_direct": {
+       "type": "array"
+      },
+      "asn_direct_count": {
+       "type": "integer"
+      },
+      "asn_origin_count": {
+       "type": "integer"
+      },
+      "asn_stub": {
+       "type": "array"
+      },
+      "asn_stub_count": {
+       "type": "integer"
+      },
+      "br_asns_direct": {
+       "type": "array"
+      },
+      "br_asns_direct_count": {
+       "type": "integer"
+      },
+      "br_asns_direct_pct": {
+       "type": "number"
+      },
+      "br_asns_origin": {
+       "type": "array"
+      },
+      "br_asns_origin_count": {
+       "type": "integer"
+      },
+      "br_asns_origin_pct": {
+       "type": "number"
+      },
+      "br_prefix_coverage_pct": {
+       "type": "number"
+      },
+      "br_prefix_covered_space": {
+       "type": "integer"
+      },
+      "br_prefix_declared_space": {
+       "type": "integer"
+      },
+      "ft_space": {
+       "type": "integer"
+      },
+      "ixp_space": {
+       "type": "integer"
+      },
+      "ixp_vs_fulltable_space_pct": {
+       "type": "number"
+      },
+      "total_routes": {
+       "type": "integer"
+      },
+      "unique_prefixes": {
+       "type": "integer"
+      }
+     }
+    }
+   ]
+  }
+ }
+}

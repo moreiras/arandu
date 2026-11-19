@@ -1,0 +1,16 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: regiao
+nome: ASNs por município (região)
+ordem: -49
+modulo: products.regiao.build
+produtos:
+- regiao_municipios
+depois_de:
+- metricas_ixp_asn
+- as_relationships
+- sici
+- sici_movel
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: indexa os ASNs do Brasil por município (operadora que declara acessos no SICI, sede do CNPJ e prefixos geolocalizados pelo DB-IP) e guarda, por ASN,
+  os PTTs (direto e indireto), os carregadores observados e os provedores de trânsito inferidos. Alimenta GET /regiao e a página de município com raio. Inferência, com os limites no artefato.'

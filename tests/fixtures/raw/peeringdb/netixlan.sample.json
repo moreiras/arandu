@@ -1,0 +1,60 @@
+{
+ "data": [
+  {
+   "id": 1000,
+   "ix_id": 4642,
+   "name": "DE-CIX Sao Paulo",
+   "ixlan_id": 4642,
+   "asn": 112,
+   "speed": 10000,
+   "is_rs_peer": true,
+   "operational": true,
+   "status": "ok"
+  },
+  {
+   "id": 1001,
+   "ix_id": 4642,
+   "name": "DE-CIX Sao Paulo",
+   "ixlan_id": 4642,
+   "asn": 6939,
+   "speed": 100000,
+   "is_rs_peer": true,
+   "operational": true,
+   "status": "ok"
+  },
+  {
+   "id": 1002,
+   "ix_id": 4642,
+   "name": "DE-CIX Sao Paulo",
+   "ixlan_id": 4642,
+   "asn": 11432,
+   "speed": 10000,
+   "is_rs_peer": true,
+   "operational": true,
+   "status": "ok"
+  },
+  {
+   "id": 1003,
+   "ix_id": 4642,
+   "name": "DE-CIX Sao Paulo",
+   "ixlan_id": 4642,
+   "asn": 16509,
+   "speed": 100000,
+   "is_rs_peer": true,
+   "operational": true,
+   "status": "ok"
+  },
+  {
+   "id": 1004,
+   "ix_id": 4642,
+   "name": "DE-CIX Sao Paulo",
+   "ixlan_id": 4642,
+   "asn": 16509,
+   "speed": 100000,
+   "is_rs_peer": true,
+   "operational": true,
+   "status": "ok"
+  }
+ ],
+ "meta": {}
+}

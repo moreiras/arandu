@@ -1,0 +1,49 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: anatel_multas
+nome: Anatel — multas constituídas
+tipo: bruta
+ativa: true
+modulo: sources.anatel_multas.collect
+publicavel: true
+descricao: 'Multas constituídas pela Anatel (arrecadação), uma linha por multa, de 2002 em diante: entidade, CNPJ, serviço, valor original, valor pago, saldo devedor atualizado e situação
+  (Quitado, Devedor, Parcial). Aqui só as pessoas jurídicas de SCM, SMP, STFC e SeAC são consolidadas, por raiz do CNPJ e grupo de serviço.'
+origem:
+  url: https://www.anatel.gov.br/dadosabertos/paineis_de_dados/arrecadacao/arrecadacao.zip
+  formato: ZIP com `multas_constituidas.csv` (UTF-8 com BOM, separador `;`, ~68,6 mil linhas, ~35 MB)
+  licenca: Dados Abertos Anatel
+  uso_comercial: permitido
+  termos: https://www.gov.br/anatel/pt-br/dados/dados-abertos
+  nota: 'Endereço achado por padrão de nome e verificado em 2026-11-02 (HTTP 200, 5.267.946 bytes). O CPF já vem mascarado na fonte (`***.999.999-**`); essas linhas são descartadas e contadas. Uma requisição, com User-Agent identificado.'
+cadencia:
+  fonte_atualiza: diaria
+  coleta: mensal
+  coleta_atual: semanal
+  frescor_maximo: 45d
+politica_falha: opcional
+saidas:
+  bruto:
+  - summary/multas-AAAA-MM-DD.zip
+  normalizado:
+  - summary/anatel_multas.json.gz
+chaves:
+- cnpj
+campos:
+- nome: empresas[].raiz / grupo / entidade / cnpjs / uf
+  tipo: str
+  significado: Raiz do CNPJ (8 dígitos, matriz e filiais), grupo de serviço (SCM, SMP, STFC ou SeAC), nome mais frequente, CNPJs completos e UF mais frequente.
+  tratamento: 'Grupo pelo nome do serviço no arquivo; serviços fora dos quatro (radiodifusão, privados, radioamador) e multas sem serviço (a quem não tem outorga) ficam de fora.'
+- nome: empresas[].multas / original / pago / saldo / situacoes / anos
+  tipo: int / float / dict
+  significado: Número de multas, valor original, valor pago e saldo devedor atualizado (R$), multas por situação e por ano de aplicação.
+  tratamento: 'Multa constituída não é condenação definitiva: pode estar em recurso, parcelada ou suspensa judicialmente.'
+- nome: resumo / data_arquivo / sha256
+  tipo: dict
+  significado: Linhas lidas, pessoas físicas descartadas, linhas fora do escopo, empresas e multas consolidadas; data de modificação do arquivo na Anatel e seu hash.
+limites: Não traz a decisão final do processo nem o motivo da infração. Pessoa física não é publicada.
+retencao:
+  bruto: 2 versões
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/anatel_multas/
+etapa:
+  tentativas: 3
+  espera_s: 300

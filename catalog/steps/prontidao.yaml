@@ -1,0 +1,16 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: prontidao
+nome: Prontidão em segurança de roteamento por ASN
+ordem: -77
+modulo: products.prontidao.build
+produtos:
+- prontidao
+depois_de:
+- caida_spoofer
+- irr_route_objects
+- seguranca_asn
+- saude_asn
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: calcula o índice de prontidão por ASN do Brasil em quatro pilares (filtragem, anti-spoofing, coordenação e validação global) com as regras versionadas em products/prontidao/regras.yaml,
+  e os agregados por UF, porte e operadora. Roda depois de saude_asn (precisa da validação RPKI de cada prefixo); lê o produto seguranca_asn, o Spoofer, os IRRs, os ASPAs e os documentos de ASN.'

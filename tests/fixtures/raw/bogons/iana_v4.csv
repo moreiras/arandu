@@ -1,0 +1,6 @@
+Address Block,Name,RFC,Allocation Date,Termination Date,Source,Destination,Forwardable,Globally Reachable,Reserved-by-Protocol
+0.0.0.0/8,"""This network""","[RFC 791, Section 3.2]",1981-09,N/A,True,False,False,False,True
+10.0.0.0/8,Private-Use,[RFC 1918],1996-02,N/A,True,True,True,False,False
+192.0.0.0/24 [2],IETF Protocol Assignments,"[RFC 6890, Section 2.1]",2010-01,N/A,False,False,False,False,False
+192.0.0.9/32,Port Control Protocol Anycast,[RFC 7723],2015-10,N/A,True,True,True,True,False
+198.18.0.0/15,Benchmarking,[RFC 2544],1999-03,N/A,True,True,True,False,False

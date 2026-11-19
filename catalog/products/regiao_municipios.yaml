@@ -1,0 +1,38 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: regiao_municipios
+nome: ASNs por município e fatos de rede
+descricao: Para cada município, os ASNs do Brasil ligados a ele por um de três vínculos (a operadora declara acessos no SICI, a sede do CNPJ está nele, ou o DB-IP geolocaliza prefixos dele ali) e, por ASN, os PTTs em que
+  está (direto e indireto), os ASNs vizinhos observados nos caminhos dos PTTs (carregadores) e os provedores de trânsito inferidos pelo ARC v1 com a probabilidade. Inferência; nenhuma posição de prefixo sai daqui.
+modulo: products.regiao.build
+entradas:
+- source: anatel_sici
+- source: anatel_sici_movel
+- source: registro_br
+- source: prefix_geo
+- source: cnpj_geo
+chaves_de_juncao:
+- asn
+- ibge
+saidas:
+  publicado:
+  - territorio/regiao.json.gz
+campos:
+- nome: municipios
+  tipo: dict
+  significado: Por código IBGE, os ASNs com vínculo SICI (acessos fixo e móvel), sede ou prefixos geolocalizados (só a contagem).
+  publicado_em:
+  - regiao_municipios → territorio/regiao.json.gz#municipios
+- nome: asns
+  tipo: dict
+  significado: Por ASN, nome, PTTs diretos (d) e de origem (o), carregadores observados (c) e provedores de trânsito com probabilidade e nível (p).
+  publicado_em:
+  - regiao_municipios → territorio/regiao.json.gz#asns
+- nome: natureza / limites / fontes / snapshot_date / generated_at
+  tipo: str
+  significado: Rótulo de inferência, limites, fontes e data.
+  publicado_em:
+  - regiao_municipios → territorio/regiao.json.gz#natureza
+  - regiao_municipios → territorio/regiao.json.gz#limites
+  - regiao_municipios → territorio/regiao.json.gz#fontes
+  - regiao_municipios → territorio/regiao.json.gz#snapshot_date
+  - regiao_municipios → territorio/regiao.json.gz#generated_at

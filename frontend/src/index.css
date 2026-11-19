@@ -1,0 +1,131 @@
+@tailwind base;
+
+/* Um <select> com opções longas toma a largura da maior opção e empurra a página no celular. */
+@layer base {
+  select { max-width: calc(100vw - 2rem); }
+  label { max-width: 100%; }
+}
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure Leaflet containers are visible */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+
+/* Smooth scrolling for the page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for tables */
+.overflow-auto::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.overflow-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.overflow-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+/* Popups de mapa (MapLibre) — fonte um pouco maior e linhas mais justas.
+   O padrão do MapLibre é 12px/20px, que deixa o espaçamento muito solto. */
+.maplibregl-map,
+.maplibregl-canvas-container,
+.maplibregl-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.maplibregl-canvas-container {
+  position: relative;
+}
+
+.maplibregl-popup-content {
+  font-size: 13px;
+  line-height: 1.35;
+  padding: 8px 11px;
+}
+
+/* Tabelas em cartões no celular: ver lib/tabelasResponsivas.ts. O cabeçalho continua no DOM (leitores de tela), fora da vista. */
+@media (max-width: 639px) {
+  table.tab-cartoes { display: block; width: 100%; min-width: 0; }
+  .tab-cartoes thead { position: absolute; left: 0; top: 0; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .tab-cartoes { position: relative; }
+  .tab-cartoes tbody, .tab-cartoes tfoot { display: block; }
+  .tab-cartoes tr { display: block; margin-bottom: 0.5rem; padding: 0.25rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; background: #fff; }
+  .tab-cartoes td { display: block; padding: 0.125rem 0; border: 0; min-width: 0; overflow-wrap: anywhere; text-align: left; }
+  /* rótulo ao lado do valor (flutuante, para o conteúdo da célula poder ter vários elementos) */
+  .tab-cartoes td[data-label]::before { content: attr(data-label); float: left; clear: left; width: 42%; padding-right: 0.5rem; font-size: 0.6875rem; line-height: 1.25rem; color: #6b7280; }
+  .tab-cartoes td[data-label]::after { content: ''; display: block; clear: both; }
+  .tab-cartoes td[data-label] { overflow: hidden; }
+}
+
+
+/* Acessibilidade (auditoria com axe-core). `text-gray-400` dava 2,5:1 sobre branco (mínimo 4,5:1): o texto sobe para o cinza 500 (4,8:1), e o
+   `gray-400` continua valendo em borda e fundo. Link dentro de texto corrido precisa de algo além da cor (WCAG 1.4.1): sublinhado. */
+html .text-gray-400, html .text-gray-500 { color: #646b78; }   /* 5,4:1 sobre branco e 4,9:1 sobre o cinza 100 dos selos e cabeçalhos */
+/* tokens de cor de texto que não chegavam a 4,5:1 sobre branco: aviso (âmbar 600, 3,2:1) e alerta (laranja 500, 2,8:1) */
+html .text-aviso-600 { color: #b45309; }
+html .text-alerta-500 { color: #c2410c; }
+html .text-v6-400 { color: #7e22ce; }
+html .text-primario-400 { color: #1d4ed8; }
+html .text-tecnico-500 { color: #0369a1; }
+html .text-estimado-500 { color: #6d28d9; }
+html main p a, html main figcaption a, html main dd a { text-decoration: underline; text-underline-offset: 2px; }
+/* auditoria com axe-core: link no meio de texto em `li` e em linhas de texto (`div`/`span` text-xs/sm) também sublinhado;
+   laranja 600, azul 600 com transparência e cinza 300 usados em texto não chegavam a 4,5:1 (fora de fundos escuros, onde o cinza claro é o certo). */
+html main :is(li, div.text-xs, div.text-sm, span.text-xs, span.text-sm) > a:not([role]):not([class*="rounded"]) { text-decoration: underline; text-underline-offset: 2px; }
+html .text-alerta-600 { color: #c2410c; }
+html .text-primario-600\/80 { color: #1d4ed8; }
+html main .text-gray-300:not(.bg-gray-900, .bg-gray-800, .bg-black):not(:is(.bg-gray-900, .bg-gray-800, .bg-black) *) { color: #6b7280; }
+/* Teste de acessibilidade: verde 600 (3,2:1 sobre o cinza 50; 3:1 sobre o verde 100 dos selos) e céu 600 (3,9:1) em texto. */
+html .text-ok-600 { color: #15803d; }
+html .text-tecnico-600 { color: #0369a1; }
+/* Em fundo escuro (blocos de código), o cinza de texto precisa ser claro: o ajuste do cinza 400/500 acima é para fundo claro. */
+html :is(.bg-gray-900, .bg-gray-800) :is(.text-gray-400, .text-gray-500) { color: #9ca3af; }
+html :is(.bg-gray-900, .bg-gray-800) .text-primario-400 { color: #60a5fa; }
+
+/* Texto corrido (NBR 17225 5.12.6): parágrafos com no máximo 80 caracteres por linha. A entrelinha de 1,5
+   vem dos tamanhos de fonte (tailwind.config.js). */
+main p { max-width: 80ch; }
+
+/* "Leitura confortável" (NBR 17225 5.12.1–5.12.4; WCAG 1.4.12): o mecanismo que a norma aceita. Valores mínimos da norma, com !important para
+   vencer os utilitários; o teste de acessibilidade confere que nada some nem se sobrepõe com eles ligados. */
+html.leitura-confortavel body * { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; }
+html.leitura-confortavel main p, html.leitura-confortavel main li, html.leitura-confortavel main dd { margin-bottom: 2em !important; }
+html.leitura-confortavel main table p, html.leitura-confortavel main table li { margin-bottom: 0 !important; }
+
+/* Alvos de toque de 44 px em tela de toque: botões, abas e o "ver dados" dos gráficos. Botão dentro de tabela fica como está (altura da linha). */
+@media (pointer: coarse) {
+  html main button:not(td button):not(th button):not(.dica-gatilho), html main [role="tab"] { min-height: 44px; }
+  html .dica-gatilho { min-width: 24px; min-height: 24px; }
+  html main summary { padding-block: 0.75rem; }
+  html header a.group { min-width: 44px; min-height: 44px; }
+}
+
+/* NBR 17225 5.8.7: link solto (fora de frase, lista ou célula) com área de toque de pelo menos 24 px em telas de toque. */
+@media (pointer: coarse) {
+  html main a[href]:not(:is(p, li, dd, td, th, figcaption) a):not([class*="flex"]):not([class*="block"]):not([class*="grid"]) { display: inline-block; min-height: 24px; line-height: 24px; }
+}
+
+/* Movimento reduzido (NBR 17225 5.15): sem animações, transições nem rolagem suave para quem pede. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* Relatório de uma página: A4, sem fundo cinza nem margens da página. O menu e o rodapé do site somem com `print:hidden`. */
+@media print {
+  @page { size: A4; margin: 12mm; }
+  body { background: #fff !important; }
+  main { padding: 0 !important; max-width: none !important; }
+  /* o layout usa min-h-screen: na impressão isso vira uma segunda folha em branco */
+  html, body, #root, .min-h-screen { min-height: 0 !important; height: auto !important; }
+  [data-testid="relatorio"] { max-width: none; font-size: 11px; }
+}

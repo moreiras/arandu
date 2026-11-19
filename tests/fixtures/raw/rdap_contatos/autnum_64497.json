@@ -1,0 +1,26 @@
+{
+ "objectClassName": "autnum",
+ "handle": "AS64497",
+ "startAutnum": 64497,
+ "endAutnum": 64497,
+ "name": "AS-EXEMPLO-DOIS",
+ "type": "DIRECT ALLOCATION",
+ "country": "BR",
+ "entities": [
+  {
+   "objectClassName": "entity",
+   "handle": "EXE002",
+   "roles": ["registrant"],
+   "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["kind", {}, "text", "org"], ["fn", {}, "text", "Exemplo Provedor Ficticio SA"]]],
+   "entities": [
+    {"objectClassName": "entity", "handle": "ADM002", "roles": ["administrative"], "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["kind", {}, "text", "individual"], ["fn", {}, "text", "Contato Ficticio Dois"], ["email", {}, "text", "Admin2@Example.NET"]]]}
+   ]
+  },
+  {
+   "objectClassName": "entity",
+   "handle": "ABU002",
+   "roles": ["abuse"],
+   "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["kind", {}, "text", "individual"], ["fn", {}, "text", "Abuso Ficticio Dois"], ["email", {}, "text", "abuse2@example.net"]]]
+  }
+ ]
+}

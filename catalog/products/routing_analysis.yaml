@@ -1,0 +1,122 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: routing_analysis
+nome: Análise de roteamento BGP do Brasil
+descricao: Composição do espaço BR na tabela global (estrito, só origem, só prefixo), distribuição de
+  tamanhos, mais-específicos, agregação possível, cobertura do Registro.br, MOAS e prefixos específicos
+  demais.
+modulo: products.routing_analysis.build
+entradas:
+- source: fulltable_routeviews
+- source: registro_br
+- source: rpki_collector
+- source: asn_names
+- source: curada_bgp_communities
+chaves_de_juncao:
+- asn
+- prefixo
+saidas:
+  publicado:
+  - routing_analysis.json
+  - routing_analysis_resumo.json
+campos:
+- nome: pbr_composition.{v6,v4}.strict_br / origin_only_br / prefix_only_br
+  tipo: dict
+  significado: Rotas e ASNs em que prefixo e origem são BR (estrito), só a origem é BR ou só o prefixo
+    é BR.
+  tratamento: Definição de PBR do projeto.
+  publicado_em:
+  - routing_analysis → routing_analysis.json#pbr_composition
+- nome: aggregation_by_asn[].savings_origin / savings_path / savings_path_pct
+  tipo: int / float
+  significado: Rotas economizáveis se agregadas por origem ou por caminho.
+  tratamento: Estimativa teórica; agregação real depende de política.
+  publicado_em:
+  - routing_analysis → routing_analysis.json#aggregation_by_asn
+- nome: moas
+  tipo: list
+  significado: Prefixos com mais de uma origem observada.
+  tratamento: Pode ser legítimo (anycast, DDoS mitigation).
+  publicado_em:
+  - routing_analysis → routing_analysis.json#moas
+- nome: too_specific
+  tipo: list
+  significado: Prefixos mais específicos que o limite prático (/48 IPv6, /24 IPv4).
+  publicado_em:
+  - routing_analysis → routing_analysis.json#too_specific
+- nome: registro_br_coverage[].coverage_pct / has_exact_aggregate
+  tipo: float / bool
+  significado: Cobertura do bloco alocado por rotas e se o agregado exato é anunciado.
+  publicado_em:
+  - routing_analysis → routing_analysis.json#registro_br_coverage
+- nome: has_path_data
+  tipo: bool
+  significado: Se os dados de AS-PATH estavam disponíveis para as análises de caminho.
+  publicado_em:
+  - routing_analysis → routing_analysis.json#has_path_data
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - routing_analysis → routing_analysis.json#snapshot_date
+- nome: generated_at
+  tipo: str
+  significado: Instante UTC em que o arquivo foi gerado.
+  publicado_em:
+  - routing_analysis → routing_analysis.json#generated_at
+- nome: br_asns_visible
+  tipo: int
+  significado: ASNs BR vistos na tabela global.
+  publicado_em:
+  - routing_analysis → routing_analysis.json#br_asns_visible
+- nome: br_asns_registered
+  tipo: int
+  significado: ASNs BR registrados.
+  publicado_em:
+  - routing_analysis → routing_analysis.json#br_asns_registered
+- nome: summary
+  tipo: dict
+  significado: Totais por família (rotas, prefixos, ASNs globais; rotas e ASNs PBR).
+  publicado_em:
+  - routing_analysis → routing_analysis.json#summary
+- nome: prefix_length_dist
+  tipo: dict
+  significado: Distribuição de rotas e espaço por comprimento de prefixo (v6, v4).
+  publicado_em:
+  - routing_analysis → routing_analysis.json#prefix_length_dist
+- nome: more_specifics
+  tipo: dict
+  significado: Contagem de raízes e mais-específicos (mesma origem × origem diferente) e profundidade.
+  publicado_em:
+  - routing_analysis → routing_analysis.json#more_specifics
+- nome: top_asns_more_specifics
+  tipo: list[dict]
+  significado: ASNs BR com mais rotas mais-específicas.
+  publicado_em:
+  - routing_analysis → routing_analysis.json#top_asns_more_specifics
+- nome: global_comparison
+  tipo: dict
+  significado: Percentuais de /48 (v6) ou /24 (v4) e de mais-específicos, global × PBR, por família.
+  publicado_em:
+  - routing_analysis → routing_analysis.json#global_comparison
+- nome: as_path_stats
+  tipo: dict
+  significado: 'Estatísticas de AS-PATH por família: comprimento (média, mediana, p95), rotas com prepend,
+    AS privado, loops e AS_TRANS; só com dados de caminho.'
+  publicado_em:
+  - routing_analysis → routing_analysis.json#as_path_stats
+- nome: rpki.{v6,v4}.valid / invalid / not_found / espaco
+  tipo: dict
+  significado: Rotas brasileiras (P_BR) por estado RPKI de origem (RFC 6811), com a união do espaço de cada estado (/48 ou /24) e os
+    ASNs de origem com rota inválida.
+  tratamento: Validação contra os VRPs do snapshot; um bloco pode ter rotas em mais de um estado, então os espaços não somam o total.
+  publicado_em:
+  - routing_analysis → routing_analysis_resumo.json#rpki
+- nome: saude.{v6,v4}.mais_especificos / filtraveis; saude.moas
+  tipo: dict
+  significado: Totais de saúde da tabela para o Panorama técnico (mais-específicos, prefixos filtráveis, MOAS), copiados da análise
+    completa.
+  publicado_em:
+  - routing_analysis → routing_analysis_resumo.json#saude
+cenarios_de_teste:
+- rpki_invalido_moas
+limites: Depende do RPKI estar coletado antes.

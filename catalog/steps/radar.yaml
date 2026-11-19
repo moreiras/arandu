@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: radar
+nome: Cloudflare Radar por ASN e UF
+ordem: -87
+modulo: products.passos
+args:
+- --passo
+- radar
+- --date
+- '{date}'
+parcial:
+- radar
+depois_de:
+- cloudflare_radar
+- asn_indice
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: IPv6 por ASN (com a data da leitura do rodízio), participação no tráfego e velocidade dos ASNs de topo, papéis nos eventos de BGP dos últimos 28 dias e agregado derivado por UF, com a cobertura declarada. Lê o normalizado da fonte `cloudflare_radar`; sem ele não gera nada. Sem ranking de ASN.'

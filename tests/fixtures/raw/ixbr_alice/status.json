@@ -1,0 +1,38 @@
+{
+ "version": "6.1.0",
+ "routes": {
+  "total_routes": {
+   "filtered": 0,
+   "imported": 900
+  },
+  "route_servers": [
+   {
+    "name": "rs1.saopaulo.sp.ix.br (IPv4)",
+    "routes": {
+     "filtered": 0,
+     "imported": 800
+    },
+    "state": "READY",
+    "updated_at": "2026-10-30T04:00:00Z"
+   },
+   {
+    "name": "rs2.saopaulo.sp.ix.br (IPv4)",
+    "routes": {
+     "filtered": 0,
+     "imported": 100
+    },
+    "state": "BUSY",
+    "updated_at": "2026-10-30T04:10:00Z"
+   },
+   {
+    "name": "rs1.boavista.rr.ix.br (IPv6)",
+    "routes": {
+     "filtered": 0,
+     "imported": 0
+    },
+    "state": "ERROR",
+    "updated_at": "2026-10-30T03:00:00Z"
+   }
+  ]
+ }
+}

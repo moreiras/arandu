@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: smp_geo
+nome: Geolocalização das outorgas SMP
+ordem: 26
+modulo: sources.smp_geo.enrich
+fontes:
+- smp_geo
+politica_falha: opcional
+descricao: ''

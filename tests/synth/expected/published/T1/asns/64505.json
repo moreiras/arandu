@@ -1,0 +1,284 @@
+{
+ "alerts": [
+  {
+   "category": "presenca",
+   "desde_versao": 1,
+   "detail": "O AS é membro de PTT(s) do IX.br mas não tem registro no PeeringDB, o que dificulta o estabelecimento de peering.",
+   "id": "sem_peeringdb",
+   "refs": {},
+   "severity": "aviso",
+   "title": "Sem cadastro no PeeringDB"
+  },
+  {
+   "category": "presenca",
+   "desde_versao": 2,
+   "detail": "O AS aparenta depender de um único upstream (IPv6 e IPv4) na tabela global — risco de resiliência.",
+   "id": "single_homed",
+   "refs": {
+    "upstream_v4": 4200000001,
+    "upstream_v6": 4200000001
+   },
+   "severity": "aviso",
+   "title": "Conectividade single-homed"
+  },
+  {
+   "category": "roteamento",
+   "desde_versao": 1,
+   "detail": "O AS tem presença em IPv4 mas nenhum prefixo IPv6 alocado nem anunciado. IPv6 é requisito de boas práticas para novas redes.",
+   "id": "sem_ipv6",
+   "refs": {},
+   "severity": "aviso",
+   "title": "Sem IPv6"
+  },
+  {
+   "category": "roteamento",
+   "desde_versao": 1,
+   "detail": "1 bloco(s) atribuído(s) pelo Registro.br não têm nenhuma rota (nem agregado que os cubra, nem mais-específico) na tabela de roteamento global — espaço alocado mas não anunciado.",
+   "id": "prefixo_inalcancavel",
+   "refs": {
+    "prefixes": [
+     "198.18.45.0/24"
+    ]
+   },
+   "severity": "aviso",
+   "title": "Bloco alocado não anunciado"
+  },
+  {
+   "category": "rpki",
+   "desde_versao": 1,
+   "detail": "1 bloco(s) alocado(s) não têm ROA cobrindo — parte do espaço fica sem proteção de origem.",
+   "id": "rpki_cobertura_parcial",
+   "refs": {
+    "prefixes": [
+     "198.18.45.0/24"
+    ]
+   },
+   "severity": "aviso",
+   "title": "Cobertura RPKI parcial"
+  },
+  {
+   "category": "rpki",
+   "desde_versao": 1,
+   "detail": "O AS possui ROAs no RPKI mas não publicou nenhum objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os upstreams autorizados e permite validação de AS_PATH — sua ausência não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
+   "id": "sem_aspa",
+   "refs": {},
+   "severity": "aviso",
+   "title": "Sem ASPA"
+  }
+ ],
+ "announced_ipv4_addresses": 512,
+ "announced_ipv6_48s": null,
+ "apnic_users": 500,
+ "apnic_users_pct_cc": 0.025,
+ "apnic_v6_pct_as": 20.0,
+ "apnic_v6_users": 100,
+ "asn": 64505,
+ "cnpj": "90000010000110",
+ "downstreams": [],
+ "downstreams_global_v4": [],
+ "downstreams_global_v6": [],
+ "downstreams_v4": [],
+ "downstreams_v6": [],
+ "external_ixps": [],
+ "geo_org": {
+  "city": "Caeté Velho",
+  "cnpj": "90000010000110",
+  "geo_confidence": "city_centroid",
+  "geo_source": "nominatim",
+  "lat": -12.95,
+  "lon": -38.5,
+  "municipio": "Caeté Velho",
+  "name": "Provedor 10 Telecom Ltda",
+  "uf": "BA"
+ },
+ "geo_prefixes_v4": {
+  "198.18.43.0/24": {
+   "city": "Caeté Velho",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -12.95,
+   "lon": -38.5,
+   "uf": "BA"
+  },
+  "198.18.44.0/24": {
+   "city": "Caeté Velho",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -12.95,
+   "lon": -38.5,
+   "uf": "BA"
+  }
+ },
+ "geo_prefixes_v6": {},
+ "global_prefixes_v4": [
+  "198.18.43.0/24",
+  "198.18.44.0/24"
+ ],
+ "global_prefixes_v4_count": 2,
+ "global_prefixes_v6": [],
+ "global_prefixes_v6_count": 0,
+ "has_ipv6": false,
+ "is_br": true,
+ "is_multihomed_v4": false,
+ "is_multihomed_v6": false,
+ "ixp_member_codes": [
+  "za",
+  "zb"
+ ],
+ "ixp_presence": {
+  "za": {
+   "v4": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "198.18.43.0/24",
+     "198.18.44.0/24"
+    ]
+   },
+   "v6": {
+    "direct": true,
+    "origin": true,
+    "prefixes": []
+   }
+  },
+  "zb": {
+   "v4": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "198.18.43.0/24",
+     "198.18.44.0/24"
+    ]
+   },
+   "v6": {
+    "direct": true,
+    "origin": true,
+    "prefixes": []
+   }
+  }
+ },
+ "ixps_direct": [
+  "za",
+  "zb"
+ ],
+ "ixps_origin": [
+  "za",
+  "zb"
+ ],
+ "name": "Provedor 10 Telecom Ltda",
+ "path_node_meta": {
+  "4200000001": {
+   "is_br": true,
+   "name": "Trânsito Nacional 2 S.A.",
+   "space_v4": 6,
+   "space_v6": 1
+  }
+ },
+ "pdb": null,
+ "pdb_registered": false,
+ "rir_prefixes_v4": [
+  "198.18.43.0/24",
+  "198.18.44.0/24",
+  "198.18.45.0/24"
+ ],
+ "rir_prefixes_v4_count": 3,
+ "rir_prefixes_v6": [],
+ "rir_prefixes_v6_count": 0,
+ "roa_list": [
+  {
+   "asn": 64505,
+   "maxLength": 24,
+   "prefix": "198.18.43.0/24",
+   "ta": "lacnic"
+  },
+  {
+   "asn": 64505,
+   "maxLength": 24,
+   "prefix": "198.18.44.0/24",
+   "ta": "lacnic"
+  }
+ ],
+ "rpki_validation": {
+  "198.18.43.0/24": "valid",
+  "198.18.44.0/24": "valid",
+  "198.18.45.0/24": "not_found"
+ },
+ "sici": {
+  "acessos": 5000,
+  "acessos_compartilhados": false,
+  "acessos_internet": 5000,
+  "asns": [
+   64505
+  ],
+  "capacidade_internet_mbps": 600000.0,
+  "capacidade_mbps": 600000.0,
+  "cnpj": "90000010000110",
+  "divergencia_apnic_anatel": {
+   "acessos_sici": 5000,
+   "apnic_users": 500,
+   "classificacao": "apnic_baixo",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 0.1
+  },
+  "empresa": "Provedor 10 Telecom Ltda",
+  "grupo": "OUTROS",
+  "meio_predominante": "Fibra",
+  "mes_referencia": "2026-08",
+  "municipios": 1,
+  "pf": 4500,
+  "pj": 500,
+  "por_faixa": {
+   "> 34Mbps": 5000
+  },
+  "por_meio": {
+   "Fibra": 5000
+  },
+  "por_produto": {
+   "INTERNET": 5000
+  },
+  "por_tecnologia": {
+   "FTTH": 5000
+  },
+  "porte": "Pequeno Porte",
+  "serie": [
+   [
+    "2026-07",
+    4850,
+    4365,
+    485
+   ],
+   [
+    "2026-08",
+    5000,
+    4500,
+    500
+   ]
+  ],
+  "tecnologia_predominante": "FTTH",
+  "velocidade_media_mbps": 120.0,
+  "velocidade_mediana_mbps": 120.0
+ },
+ "single_upstream_v4": 4200000001,
+ "single_upstream_v6": 4200000001,
+ "snapshot_date": "2026-09-20",
+ "upstreams": [
+  4200000001
+ ],
+ "upstreams_global_v4": [
+  4200000001
+ ],
+ "upstreams_global_v6": [
+  4200000001
+ ],
+ "upstreams_v4": [
+  4200000001
+ ],
+ "upstreams_v6": [],
+ "users_per_ip": 0.98,
+ "users_per_v6_48": null
+}

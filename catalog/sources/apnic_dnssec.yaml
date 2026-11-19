@@ -1,0 +1,50 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: apnic_dnssec
+nome: Validação de DNSSEC por ASN (APNIC)
+tipo: bruta
+ativa: true
+modulo: sources.apnic_dnssec.collect
+publicavel: true
+descricao: Percentual de clientes de cada ASN do Brasil que validam DNSSEC (total e parcial), medido pelo APNIC na janela de 1 dia.
+origem:
+  url: https://stats.labs.apnic.net/dnssec/BR
+  formato: HTML com a tabela por ASN embutida em JavaScript (as mesmas medições do JSON por ASN, que pesa 4 MB por chamada)
+  licenca: reuso com atribuição (campo copyright do JSON do APNIC)
+  uso_comercial: nao_verificado
+  termos: https://data1.labs.apnic.net/ipv6-data-format.html
+  nota: 'O JSON do APNIC traz "(c) APNIC Pty/Ltd. re-use with attribution permitted"; a página HTML mostra a mesma medição. Citar APNIC Labs como fonte.
+    Uso comercial não foi confirmado além dessa frase.'
+cadencia:
+  fonte_atualiza: diaria
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 10d
+politica_falha: opcional
+saidas:
+  bruto:
+  - summary/apnic-dnssec-BR-{as_of}.html.gz
+  normalizado:
+  - summary/apnic_dnssec.json.gz
+chaves:
+- asn
+campos:
+- nome: asns[asn].validates_pct
+  tipo: float
+  significado: Percentual de clientes que validam DNSSEC ("DNSSEC Validates"); "Partial Validation" vai em parcial_pct.
+  tratamento: Medição por amostragem (anúncios em experimentos de usuários); alto = valida. Não é declaração da rede.
+- nome: asns[asn].amostras
+  tipo: int
+  significado: Tamanho da amostra da janela; com poucas amostras o percentual é instável.
+- nome: as_of
+  tipo: str
+  significado: Último dia da série da página (a janela termina nele).
+limites: 'ASN sem amostras suficientes não aparece (a página lista ASNs sem medição com valor vazio). A janela é de 1 dia(s). Se o layout
+  da página mudar a coleta falha (o cabeçalho das colunas é conferido); o JSON por ASN é o plano B, mais pesado.'
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/apnic_labs/
+pendencias:
+- Uso comercial dos dados do APNIC Labs.
+etapa:
+  tentativas: 3
+  espera_s: 60

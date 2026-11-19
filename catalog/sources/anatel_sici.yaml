@@ -1,0 +1,88 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: anatel_sici
+nome: Acessos de banda larga fixa (SICI/Anatel)
+tipo: bruta
+ativa: true
+modulo: sources.anatel_sici.collect
+publicavel: true
+descricao: Acessos em serviço declarados mensalmente por prestadora (CNPJ), município, velocidade, tecnologia,
+  meio e tipo de cliente (PF/PJ). Leitura incremental do ZIP de ~1 GB por HTTP Range; só baixa o ano corrente
+  quando há mês novo e mantém cache imutável por mês.
+origem:
+  url: https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip
+  formato: zip/csv (~1 GB; leitura por HTTP Range)
+  licenca: Dados Abertos Anatel (licença aberta, crédito à fonte)
+  uso_comercial: permitido
+  termos: https://www.gov.br/anatel/pt-br/dados/dados-abertos
+  nota: 'Plano de Dados Abertos da Anatel (verificado em 2026-10-13): dados ''disponibilizados sob licença
+    aberta que permita sua livre utilização, consumo ou cruzamento, limitando-se a creditar a autoria
+    ou a fonte'' (Decreto 8.777/2016). A licença específica do conjunto em dados.gov.br não pôde ser lida
+    (exige JavaScript/token).'
+cadencia:
+  fonte_atualiza: mensal
+  coleta: diaria_se_novo_mes
+  coleta_atual: semanal
+  frescor_maximo: 45d
+politica_falha: opcional
+saidas:
+  normalizado:
+  - summary/sici_acessos.json.gz
+  - ../sici_cache/state.json
+  - ../sici_cache/months/{AAAA-MM}.json.gz
+chaves:
+- cnpj
+- ibge
+- uf
+- mes_referencia
+campos:
+- nome: mes_referencia
+  tipo: str
+  significado: Último mês de declaração disponível (AAAA-MM). Distinto da data do snapshot.
+  tratamento: Citar sempre as duas datas.
+  publicado_em:
+  - sici → sici.json.gz#mes_referencia
+- nome: cnpjs[cnpj].acessos
+  tipo: int
+  significado: Contratos de acesso à Internet em serviço declarados no mês. Não é usuário nem domicílio.
+  tratamento: Somar por CNPJ; não somar ASNs do mesmo CNPJ (acessos_compartilhados).
+  publicado_em:
+  - sici → sici.json.gz#cnpjs
+- nome: cnpjs[cnpj].pf / pj
+  tipo: int
+  significado: Acessos de clientes pessoa física e pessoa jurídica.
+  publicado_em:
+  - sici → sici.json.gz#cnpjs
+- nome: cnpjs[cnpj].capacidade_mbps
+  tipo: float
+  significado: Soma da velocidade contratada dos acessos (Mbps).
+  tratamento: Soma de contratados, não de tráfego.
+  publicado_em:
+  - sici → sici.json.gz#cnpjs
+- nome: cnpjs[cnpj].por_tecnologia / por_meio / por_faixa / por_produto / por_municipio
+  tipo: dict
+  significado: Acessos por tecnologia, meio físico, faixa de velocidade, produto e município.
+  publicado_em:
+  - sici → sici.json.gz#cnpjs
+- nome: cnpjs[cnpj].velocidade_mediana_mbps / velocidade_media_mbps
+  tipo: float
+  significado: Mediana e média ponderada da velocidade contratada.
+  publicado_em:
+  - sici → sici.json.gz#cnpjs
+- nome: serie_por_cnpj / serie_total
+  tipo: list
+  significado: Série mensal de acessos por CNPJ e total nacional.
+  publicado_em:
+  - sici → sici.json.gz#serie_total
+- nome: distrib_velocidade[uf]
+  tipo: dict
+  significado: Distribuição de acessos por faixa de velocidade e UF, PF×PJ.
+  publicado_em:
+  - sici → sici.json.gz#distrib_velocidade
+limites: Autodeclarado; ausência pode ser omissão, não inexistência. Um CNPJ pode ter vários ASNs (acessos_compartilhados).
+retencao:
+  bruto: cache incremental (1 arquivo por mês, imutável)
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/anatel_sici/
+pendencias:
+- Confirmar a licença no registro do conjunto em dados.gov.br (página exige JavaScript; API pública responde
+  401).

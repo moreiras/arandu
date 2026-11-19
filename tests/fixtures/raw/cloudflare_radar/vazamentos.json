@@ -1,0 +1,35 @@
+{
+ "success": true,
+ "errors": [],
+ "result": {
+  "asn_info": [],
+  "events": [
+   {
+    "id": 1,
+    "countries": [
+     "BR",
+     "BR"
+    ],
+    "detected_ts": "2026-11-09T10:00:00",
+    "finished": false,
+    "leak_asn": 64497,
+    "leak_count": 1,
+    "leak_seg": [
+     64499,
+     64497,
+     64496
+    ],
+    "leak_type": 1,
+    "origin_count": 1,
+    "peer_count": 1,
+    "prefix_count": 3
+   }
+  ]
+ },
+ "result_info": {
+  "count": 1,
+  "total_count": 1,
+  "page": 1,
+  "per_page": 50
+ }
+}

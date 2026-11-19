@@ -1,0 +1,67 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: cloudflare_radar
+nome: Cloudflare Radar — IPv6, tráfego, velocidade, BGP e quedas do Brasil (CC BY-NC 4.0)
+tipo: bruta
+ativa: true
+modulo: sources.cloudflare_radar.collect
+publicavel: true
+descricao: 'Séries do Cloudflare Radar para o Brasil: percentual de IPv6 das requisições HTTP de pessoas por ASN (rodízio de dias: todos os ASNs do Brasil conhecidos pelo Radar, ~9,2 mil), participação no tráfego e
+  velocidade/latência dos ASNs de topo, vazamentos e sequestros de BGP dos últimos 28 dias com ASN do Brasil e a consulta de quedas e anomalias do país. Requer token de conta com `Account → Radar → Read`.'
+origem:
+  url: https://api.cloudflare.com/client/v4/radar/
+  formato: JSON (API v4; `result` e `result_info`)
+  licenca: CC BY-NC 4.0 (Cloudflare Radar)
+  uso_comercial: restrito
+  termos: https://developers.cloudflare.com/radar/
+  nota: 'API gratuita com token (sem ele responde "Authentication error"). Cota de 1.200 requisições por 5 minutos (cabeçalho `Ratelimit`). Limites de página medidos em 2026-11-09: 100 em `entities/asns`, 300 nos
+    `top/ases`, 50 nos eventos de BGP. Atribuição obrigatória em todo derivado; a pergunta do NC (apoio por PIX e institucional) segue em aberto, como no OONI. Coletor com User-Agent identificado, uma requisição
+    por vez e pausa de 0,5 s. O token só vive no `.env` e chega ao worker pela variável `CLOUDFLARE_API_TOKEN`; nunca em log nem arquivo.'
+cadencia:
+  fonte_atualiza: continua
+  coleta: diaria
+  coleta_atual: diaria
+  frescor_maximo: 10d
+politica_falha: usar_ultima_valida
+saidas:
+  normalizado:
+  - summary/cloudflare_radar.json.gz
+chaves:
+- asn
+campos:
+- nome: ipv6[asn]
+  tipo: dict
+  significado: 'Percentual de IPv6 das requisições HTTP de pessoas (`botClass=LIKELY_HUMAN`) do ASN nos últimos 28 dias (`v6`) e a data da leitura (`em`). `v6` nulo = o Radar não devolveu dado para o ASN.'
+  tratamento: Rodízio de `RADAR_ASNS_POR_EXECUCAO` ASNs por execução (padrão 1.400), os sem leitura primeiro e depois os de leitura mais antiga; cada ASN leva a sua data. Mede quem usa a Cloudflare.
+  publicado_em:
+  - radar → radar/asns.json.gz#asns
+- nome: trafego.topo / velocidade.topo
+  tipo: list
+  significado: 'Os até 300 ASNs do Brasil com maior participação nas requisições HTTP (`pct`) e os até 300 com testes de velocidade (download, upload, latência ociosa e carregada, jitter, `testes`).'
+  tratamento: Só existe para os ASNs das listas; fora delas não há número (não é zero). A lista de velocidade veio com 179 ASNs em 2026-11-09.
+  publicado_em:
+  - radar → radar/asns.json.gz#asns
+- nome: bgp.vazamentos / bgp.sequestros
+  tipo: dict
+  significado: 'Eventos dos últimos 28 dias com ASN do Brasil: vazamentos (vazador, caminho, prefixos) e sequestros (sequestrador, vítimas, nº de prefixos, RPKI inválido). Prefixos só em contagem.'
+  tratamento: Reduzidos ao necessário para atribuir o papel de cada ASN; o critério do país (`involvedCountry=BR`) pega qualquer evento com ASN do Brasil no caminho, por isso o produto usa o papel.
+  publicado_em:
+  - radar → radar/asns.json.gz#asns
+  - radar → radar/asns.json.gz#bgp
+- nome: quedas
+  tipo: dict
+  significado: Consulta de anomalias de tráfego e de quedas anotadas do Brasil em 52 semanas (contagens) e a data da consulta.
+  tratamento: Em 2026-11-09 o Brasil não aparece em nenhum dos dois rankings do Radar (67 e 49 países). Sem série; publica-se o resultado da consulta.
+  publicado_em:
+  - radar → radar/asns.json.gz#quedas
+- nome: licenca / atribuicao
+  tipo: str
+  significado: CC BY-NC 4.0 e o texto de atribuição, que acompanham todo derivado.
+  publicado_em:
+  - radar → radar/asns.json.gz#licenca
+  - radar → radar/asns.json.gz#fonte
+limites: Cobre quem usa a Cloudflare, não a rede toda. Velocidade e tráfego só para os ASNs de topo. IPv6 em rodízio (até ~7 dias de idade, 28 dias de janela). Quedas só de escala ampla. O Radar não tem recorte por UF.
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/cloudflare_radar/
+pendencias:
+- 'A questão do NC segue em aberto, como no OONI. Para desligar: apagar `CLOUDFLARE_API_TOKEN` do `.env` (a etapa falha com "token ausente" e reaproveita a última coleta) e apagar `published/{data}/radar/`.'

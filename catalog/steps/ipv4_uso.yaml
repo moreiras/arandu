@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ipv4_uso
+nome: Espaço IPv4 sem uso e hipóteses de uso por terceiros
+ordem: -74
+modulo: products.passos
+args:
+- --passo
+- ipv4_uso
+- --date
+- '{date}'
+parcial:
+- ipv4_uso
+depois_de:
+- ipv4
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: classifica cada bloco IPv4 do Brasil (anunciado, parcial, ROA sem anúncio, não anunciado, em recuperação), conta quantas tabelas de origem distintas seguidas sem anúncio foram observadas
+  e avalia os sinais de uso por terceiros S1 a S4 (S5 a S7 ainda sem fonte). Hipótese, nunca "aluguel"; "não anunciado" não é "sem uso". Lê o estado do delegated, a tabela de origens do snapshot, os ROAs e o histórico de mudanças de origem.'

@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: rs_policy
+nome: Rejeições, communities e política de roteamento nos route servers do IX.br
+ordem: -79
+modulo: products.passos
+args:
+- --passo
+- rs_policy
+- --date
+- '{date}'
+parcial:
+- rs_policy
+depois_de:
+- ixbr_alice_rotas
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: decodifica as communities pelo dicionário do snapshot e publica rejeições por PTT e ASN, política de roteamento (perfil inferido),
+  explorador de communities, grafo declarado "não exporto para" e linhas para o /query. Roda sozinho; lê só os normalizados do `ixbr_alice` e do `ixbr_alice_rotas`.'

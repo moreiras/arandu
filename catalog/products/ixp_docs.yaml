@@ -1,0 +1,242 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ixp_docs
+nome: Documentos por IXP, agregado e IXPs externos
+descricao: Métricas por IXP do IX.br (ASNs diretos, originadores, stubs, cobertura de espaço × tabela
+  global), a união entre IXPs e os documentos dos IXPs externos do PeeringDB.
+modulo: products.ixp_metrics.build; publish.snapshot_builder
+entradas:
+- product: bgp_ixp_normalizado
+- source: fulltable_routeviews
+- source: registro_br
+- source: ixbr_api
+- source: peeringdb_ixps
+- source: curada_ixps
+- source: curada_peeringdb_ixps
+- source: lacnic_delegated
+chaves_de_juncao:
+- ixp
+- asn
+- uf
+saidas:
+  publicado:
+  - ixps/{ixp}.json
+  - ixps/index.json
+  - ixps/_aggregate.json
+  - external-ixps/{ixp}.json
+  - external-ixps/index.json
+campos:
+- nome: v6/v4.asn_direct_count / asn_origin_count / asn_stub_count
+  tipo: int
+  significado: Contagem de ASNs diretos, originadores e stubs no IXP.
+  publicado_em:
+  - ixp_docs → ixps/{ixp}.json#v4
+- nome: v6/v4.br_asns_direct_pct / br_asns_origin_pct
+  tipo: float
+  significado: '% dos ASNs BR da tabela global que são diretos / originadores no IXP.'
+  publicado_em:
+  - ixp_docs → ixps/{ixp}.json#v4
+- nome: v6/v4.ixp_space
+  tipo: int
+  significado: Espaço de endereços anunciado no IXP (/48 em IPv6; endereços em IPv4).
+  tratamento: União de prefixos, sem dupla contagem.
+  publicado_em:
+  - ixp_docs → ixps/{ixp}.json#v4
+- nome: v6/v4.br_prefix_coverage_pct
+  tipo: float
+  significado: '% do espaço declarado ao Registro.br coberto por prefixos vistos no IXP.'
+  publicado_em:
+  - ixp_docs → ixps/{ixp}.json#v4
+- nome: v6/v4.ixp_vs_fulltable_space_pct
+  tipo: float
+  significado: Espaço do IXP como % do espaço da tabela global.
+  publicado_em:
+  - ixp_docs → ixps/{ixp}.json#v4
+- nome: ixbr_members_count
+  tipo: int
+  significado: Membros cadastrados no IX.br (inclui bilaterais).
+  publicado_em:
+  - ixp_docs → ixps/index.json#ixbr_members_count
+- nome: status
+  tipo: str
+  significado: ok, parcial ou ausente conforme a coleta da família no IXP.
+  publicado_em:
+  - ixp_docs → ixps/index.json#status
+- nome: asn_direct_union_count / asn_origin_union_count
+  tipo: int
+  significado: Tamanho da união (não a soma) de ASNs entre todos os IXPs.
+  publicado_em:
+  - ixp_docs → ixps/_aggregate.json#asn_direct_union_count
+- nome: members[] (external-ixps)
+  tipo: list[dict]
+  significado: Membros do IXP externo com asn, nome, velocidade e is_br.
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json#members
+- nome: br_member_count
+  tipo: int
+  significado: Membros brasileiros do IXP externo.
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json#br_member_count
+- nome: ixp
+  tipo: str
+  significado: Código do IXP.
+  publicado_em:
+  - ixp_docs → ixps/{ixp}.json#ixp
+- nome: name
+  tipo: str
+  significado: Cidade-sede do IXP.
+  publicado_em:
+  - ixp_docs → ixps/{ixp}.json#name
+- nome: uf
+  tipo: str
+  significado: UF do IXP.
+  publicado_em:
+  - ixp_docs → ixps/{ixp}.json#uf
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - ixp_docs → ixps/{ixp}.json#snapshot_date
+- nome: generated_at
+  tipo: str
+  significado: Instante UTC em que o arquivo foi gerado.
+  publicado_em:
+  - ixp_docs → ixps/{ixp}.json#generated_at
+- nome: v6
+  tipo: dict
+  significado: Métricas IPv6 do IXP (mesma estrutura de v4).
+  publicado_em:
+  - ixp_docs → ixps/{ixp}.json#v6
+- nome: v4
+  tipo: dict
+  significado: Métricas IPv4 do IXP (rotas, prefixos, ASNs diretos/originadores/stubs, cobertura).
+  publicado_em:
+  - ixp_docs → ixps/{ixp}.json#v4
+- nome: code
+  tipo: str
+  significado: Código do IXP externo (configuração).
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json#code
+- nome: name
+  tipo: str
+  significado: Nome do IXP externo.
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json#name
+- nome: city
+  tipo: str
+  significado: Cidade do IXP externo.
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json#city
+- nome: country
+  tipo: str
+  significado: País (ISO 3166-1 alfa-2).
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json#country
+- nome: member_count
+  tipo: int
+  significado: Quantidade de membros listados no PeeringDB.
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json#member_count
+- nome: last_updated
+  tipo: str
+  significado: Data de referência dos dados do IXP externo (igual à do snapshot).
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json#last_updated
+- nome: asn_direct_union_count
+  tipo: int
+  significado: ASNs diretos distintos (união v6+v4) no IXP.
+  publicado_em:
+  - ixp_docs → ixps/index.json#asn_direct_union_count
+- nome: asn_origin_union_count
+  tipo: int
+  significado: ASNs originadores distintos (união v6+v4).
+  publicado_em:
+  - ixp_docs → ixps/index.json#asn_origin_union_count
+- nome: br_asns_direct_union_count
+  tipo: int
+  significado: ASNs BR diretos distintos.
+  publicado_em:
+  - ixp_docs → ixps/index.json#br_asns_direct_union_count
+- nome: br_asns_origin_union_count
+  tipo: int
+  significado: ASNs BR originadores distintos.
+  publicado_em:
+  - ixp_docs → ixps/index.json#br_asns_origin_union_count
+- nome: uf
+  tipo: str
+  significado: UF do IXP.
+  publicado_em:
+  - ixp_docs → ixps/index.json#uf
+- nome: v6
+  tipo: dict
+  significado: Resumo IPv6 do IXP.
+  publicado_em:
+  - ixp_docs → ixps/index.json#v6
+- nome: v4
+  tipo: dict
+  significado: Resumo IPv4 do IXP.
+  publicado_em:
+  - ixp_docs → ixps/index.json#v4
+- nome: ixp
+  tipo: str
+  significado: Sempre '_aggregate'.
+  publicado_em:
+  - ixp_docs → ixps/_aggregate.json#ixp
+- nome: name
+  tipo: str
+  significado: Rótulo do agregado.
+  publicado_em:
+  - ixp_docs → ixps/_aggregate.json#name
+- nome: uf
+  tipo: str
+  significado: UF (vazia no agregado).
+  publicado_em:
+  - ixp_docs → ixps/_aggregate.json#uf
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - ixp_docs → ixps/_aggregate.json#snapshot_date
+- nome: generated_at
+  tipo: str
+  significado: Instante UTC em que o arquivo foi gerado.
+  publicado_em:
+  - ixp_docs → ixps/_aggregate.json#generated_at
+- nome: ixp_count
+  tipo: int
+  significado: Quantidade de IXPs na união.
+  publicado_em:
+  - ixp_docs → ixps/_aggregate.json#ixp_count
+- nome: asn_origin_union_count
+  tipo: int
+  significado: ASNs originadores distintos entre todos os IXPs.
+  publicado_em:
+  - ixp_docs → ixps/_aggregate.json#asn_origin_union_count
+- nome: br_asns_origin_union_count
+  tipo: int
+  significado: ASNs BR originadores distintos entre todos os IXPs.
+  publicado_em:
+  - ixp_docs → ixps/_aggregate.json#br_asns_origin_union_count
+- nome: v6
+  tipo: dict
+  significado: Métricas IPv6 da união de todos os IXPs.
+  publicado_em:
+  - ixp_docs → ixps/_aggregate.json#v6
+- nome: v4
+  tipo: dict
+  significado: Métricas IPv4 da união de todos os IXPs.
+  publicado_em:
+  - ixp_docs → ixps/_aggregate.json#v4
+- nome: ixps
+  tipo: list[dict]
+  significado: IXPs externos exibidos, com contagens.
+  publicado_em:
+  - ixp_docs → external-ixps/index.json#ixps
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - ixp_docs → external-ixps/index.json#snapshot_date
+cenarios_de_teste:
+- ptt_coleta_parcial
+- municipio_sem_ptt
+limites: 'Visão do Route Server: membro bilateral só aparece pelo cadastro. AP não coletou em 2026-10-11.'

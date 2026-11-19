@@ -1,0 +1,46 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: rede_territorio
+nome: Rede no território (IPv6, ROV e trânsito)
+descricao: IPv6 estimado por município (acessos do SICI × adoção de IPv6 do AS), usuários estimados atrás de ASNs que validam ROV por UF e dependência de trânsito (operadoras com um único provedor inferido), por município e UF.
+modulo: products.rede_territorio.build
+entradas:
+- source: anatel_sici
+- source: apnic_pop
+- source: apnic_irov
+- source: caida_asrel
+chaves_de_juncao:
+- ibge
+- uf
+- asn
+- cnpj
+saidas:
+  publicado:
+  - territorio/rede_territorio.json.gz
+campos:
+- nome: ipv6.municipios[ibge] / ufs / brasil
+  tipo: dict
+  significado: Acessos fixos declarados, acessos com estimativa, acessos em IPv6 estimados, percentual e a cobertura (parcela dos acessos que entrou).
+  tratamento: ESTIMATIVA. Supõe que a adoção de IPv6 do AS (APNIC, ponderada pelos usuários) vale igual em todos os municípios da operadora; operadora sem ASN ou sem medida fica de fora.
+  publicado_em:
+  - rede_territorio → territorio/rede_territorio.json.gz#ipv6
+- nome: rov.ufs[uf] / brasil
+  tipo: dict
+  significado: Usuários estimados, os com medida de ROV e os atrás de ASNs que validam ROV, por UF da sede do ASN.
+  tratamento: ESTIMATIVA. Fração de testes da APNIC em que o AS valida ROV (mínimo de 100 amostras) × usuários estimados; a UF é a da sede do ASN.
+  publicado_em:
+  - rede_territorio → territorio/rede_territorio.json.gz#rov
+- nome: transito.municipios[ibge] / ufs
+  tipo: dict
+  significado: Parcela dos acessos (das operadoras com relação inferida) cujos ASNs têm um único provedor de trânsito, e o provedor do qual mais acessos dependem.
+  tratamento: INFERIDO (relações p2c do ARC em nível provável ou superior); operadora sem relação inferida fica de fora, e um provedor só pode ser falta de observação.
+  publicado_em:
+  - rede_territorio → territorio/rede_territorio.json.gz#transito
+- nome: snapshot_date / generated_at / natureza / limites / fontes
+  tipo: str / dict
+  significado: "Cabeçalho do produto: snapshot, natureza (estimado), limites e a suposição, e o período de cada fonte."
+  publicado_em:
+  - rede_territorio → territorio/rede_territorio.json.gz#snapshot_date
+  - rede_territorio → territorio/rede_territorio.json.gz#generated_at
+  - rede_territorio → territorio/rede_territorio.json.gz#natureza
+  - rede_territorio → territorio/rede_territorio.json.gz#limites
+  - rede_territorio → territorio/rede_territorio.json.gz#fontes

@@ -1,0 +1,25 @@
+{
+ "resultado": [
+  {
+   "codigoUasg": "900001",
+   "nomeUasg": "UNIDADE FICTICIA 1",
+   "siglaUf": "DF",
+   "codigoMunicipioIbge": 5300108,
+   "nomeMunicipioIbge": "BRASÍLIA",
+   "cnpjCpfOrgao": "00000000000191",
+   "statusUasg": true
+  },
+  {
+   "codigoUasg": "900002",
+   "nomeUasg": "UNIDADE FICTICIA 2",
+   "siglaUf": "SP",
+   "codigoMunicipioIbge": 3550308,
+   "nomeMunicipioIbge": "SÃO PAULO",
+   "cnpjCpfOrgao": "00000000000272",
+   "statusUasg": true
+  }
+ ],
+ "totalRegistros": 3,
+ "totalPaginas": 2,
+ "paginasRestantes": 1
+}

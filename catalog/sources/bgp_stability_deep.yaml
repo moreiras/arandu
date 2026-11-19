@@ -1,0 +1,57 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: bgp_stability_deep
+nome: Estabilidade BGP aprofundada (top ASes ruidosos)
+tipo: derivada
+ativa: true
+modulo: sources.bgp_stability_deep.collect
+publicavel: true
+descricao: 'Relê os updates em cache dos N ASes mais ruidosos para diagnosticar a causa: o ruído é do
+  próprio AS, de um prefixo específico ou de um upstream suspeito.'
+cadencia:
+  fonte_atualiza: continua
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: opcional
+entradas:
+- bgp_updates_routeviews
+- fulltable_routeviews
+saidas:
+  normalizado:
+  - summary/bgp_stability_deep.json.gz
+chaves:
+- asn
+- prefixo
+campos:
+- nome: suspected_upstreams[].asn
+  tipo: int
+  significado: ASN do upstream suspeito de propagar instabilidade.
+  tratamento: Hipótese estatística sobre AS-PATH, não afirmação.
+  publicado_em:
+  - bgp_stability → bgp_stability_deep.json
+- nome: suspected_upstreams[].events_attributed
+  tipo: int
+  significado: Eventos atribuídos a esse upstream.
+  publicado_em:
+  - bgp_stability → bgp_stability_deep.json
+- nome: as_diagnosis[].verdict
+  tipo: str
+  significado: Veredito da análise para o AS (origem interna, prefixo específico, upstream).
+  tratamento: Rótulo inferido.
+  publicado_em:
+  - bgp_stability → bgp_stability_deep.json
+- nome: as_diagnosis[].prefix_sync_score
+  tipo: float
+  significado: Quão sincronizados estão os eventos entre prefixos do AS (0–1).
+  publicado_em:
+  - bgp_stability → bgp_stability_deep.json
+- nome: as_diagnosis[].upstream_concentration_pct
+  tipo: float
+  significado: '% dos eventos concentrados no upstream mais provável.'
+  publicado_em:
+  - bgp_stability → bgp_stability_deep.json
+limites: 'Diagnóstico inferido (rotulado como hipótese); depende da janela de 7 dias e de um único
+  coletor.'
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/bgp_updates/

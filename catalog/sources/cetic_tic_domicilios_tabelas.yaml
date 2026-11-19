@@ -1,0 +1,58 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: cetic_tic_domicilios_tabelas
+nome: TIC Domicílios — tabelas oficiais (Cetic.br)
+tipo: bruta
+ativa: true
+modulo: sources.cetic_tic_domicilios_tabelas.collect
+publicavel: true
+descricao: 'Tabelas oficiais da pesquisa TIC Domicílios (uso das tecnologias de informação e comunicação nos domicílios brasileiros), edição vigente: proporção, total e margens de erro por região, área, classe social e renda familiar, em formato longo.'
+origem:
+  url: https://cetic.br/pt/pesquisa/domicilios/microdados/
+  formato: ZIP com quatro planilhas XLSX (proporção, margem de erro, total e margem de erro do total), uma aba por indicador
+  licenca: CC BY 4.0
+  uso_comercial: permitido
+  termos: https://creativecommons.org/licenses/by/4.0/deed.pt_BR
+  nota: 'Citar "Cetic.br|NIC.br, TIC Domicílios AAAA" (CC BY 4.0). Não há API nem URL estável: a página lista os links diretos da edição vigente e o coletor os descobre
+    por ela. O robots.txt do cetic.br libera tudo e não pede Crawl-delay; o coletor faz 3 requisições por execução, com pausa de 2 s e User-Agent identificado.'
+cadencia:
+  fonte_atualiza: anual
+  coleta: mensal
+  coleta_atual: semanal
+  frescor_maximo: 400d
+politica_falha: opcional
+saidas:
+  bruto:
+  - summary/tic_domicilios_AAAA_*_xlsx_v1.0.zip
+  normalizado:
+  - summary/cetic_tic_domicilios.json.gz
+chaves:
+- uf
+campos:
+- nome: edicao / fonte / url / sha256
+  tipo: int / str
+  significado: Ano da edição, citação, endereço do ZIP de origem e hash do arquivo guardado.
+  tratamento: A edição é a mais recente listada na página do Cetic.br; as anteriores não ficam disponíveis ali.
+- nome: tabelas[aba]
+  tipo: object
+  significado: Código, título, universo (a quem a pergunta se aplica) e notas de cada tabela da pesquisa.
+  tratamento: O texto vem da planilha; as marcas de nota de rodapé do título são retiradas.
+- nome: linhas[].proporcao / margem_proporcao
+  tipo: float
+  significado: Percentual da resposta dentro do recorte e a margem de erro da estimativa, em pontos percentuais.
+  tratamento: Estimativa amostral publicada pelo Cetic.br; vazio quando a planilha não traz o valor (nunca zero inventado).
+- nome: linhas[].total / margem_total
+  tipo: float
+  significado: Domicílios que dão a resposta no recorte, estimados pela amostra, e a margem de erro dessa estimativa.
+  tratamento: Estimativa expandida pelos pesos da pesquisa, não contagem.
+- nome: linhas[].dimensao / recorte / item / resposta
+  tipo: str
+  significado: 'Como a linha se abre: dimensão do recorte (Total, Região, Área, Classe social, Renda familiar), categoria dentro dela, item da pergunta quando a pergunta tem vários itens e a resposta.'
+limites: 'Estimativas amostrais com margem de erro; o recorte mais fino das tabelas é a grande região (não há UF nas tabelas públicas: ela vem dos microdados). Proporção de domicílios, não de pessoas, salvo onde a tabela diz. O ano de referência é o da pesquisa (coleta no ano anterior à publicação).'
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/cetic/
+pendencias:
+- 'Microdados: a base pública de domicílios é a fonte `cetic_tic_domicilios_microdados`; os sob Termo de Acesso estão fora do escopo.'
+etapa:
+  tentativas: 3
+  espera_s: 120

@@ -1,0 +1,42 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ipv4_subasignacao
+nome: Bitácora de sub-asignações de IPv4 (política LAC-2025-5, esquema hipotético)
+tipo: bruta
+ativa: false
+modulo: sources.ipv4_subasignacao.collect
+publicavel: true
+descricao: 'Registros públicos de sub-asignação de IPv4 (aluguel regulado) que o LACNIC e o Registro.br publicarão depois que a política LAC-2025-5 (ratificada em 24/03/2026; produção prevista até o fim de 2026) entrar em
+  produção. NÃO EXISTE fonte oficial até 2026-11-02: o adaptador está pronto e DESATIVADO, com um esquema hipotético (bloco, ASN do receptor, início, fim, cedente, RIR). Ele só roda com ARANDU_SUBASIGNACAO_URL definida,
+  depois que o formato real for conferido e o `parse` ajustado. O vigia de diretórios (ipv4_vigia) avisa no dia em que surgir arquivo novo.'
+origem:
+  url: nao_verificado
+  formato: desconhecido (esquema hipotético em core/ipv4_subasignacao.py)
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: 'Fonte inexistente em 2026-11-02. Quando surgir: conferir formato, termos e cadência; ajustar `parse`; definir ARANDU_SUBASIGNACAO_URL; ativar (`ativa: true`) e registrar a decisão.'
+cadencia:
+  fonte_atualiza: nao_verificado
+  coleta: diaria
+  coleta_atual: diaria
+  frescor_maximo: nao_verificado
+politica_falha: opcional
+saidas:
+  normalizado:
+  - summary/ipv4_subasignacoes.json.gz
+chaves:
+- prefixo
+- asn
+campos:
+- nome: registros[]
+  tipo: lista
+  significado: 'Sub-asignação no esquema hipotético: bloco, ASN do receptor, início, fim (opcional), ASN do cedente (opcional) e RIR.'
+  tratamento: ESQUEMA HIPOTÉTICO; nada é publicado como fato enquanto a fonte não estiver ativada e o formato real conferido.
+limites: Sem fonte oficial, o artefato publicado diz "aguardando a publicação oficial". As validações aceitam `None` (sem dado) e nunca inventam resultado.
+pendencias:
+- 'Bitácora pública da LAC-2025-5 inexistente: formato, URL, termos e cadência a verificar quando surgir.'
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/ipv4_listas/
+etapa:
+  tentativas: 2
+  espera_s: 60

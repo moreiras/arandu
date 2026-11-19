@@ -1,0 +1,21 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: mapas_infraestrutura
+nome: Camadas de infraestrutura física
+ordem: -62
+modulo: products.passos
+args:
+- --passo
+- mapas_infraestrutura
+- --date
+- '{date}'
+parcial:
+- mapas_infraestrutura
+depois_de:
+- aneel_sigel_transmission
+- ibge_bc250_rodovias
+- itu_transmission
+- telegeography_cables
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: Camadas de infraestrutura física. Roda sozinho; lê o que os anteriores
+  deixaram em published/ e build/intermediarios/.'

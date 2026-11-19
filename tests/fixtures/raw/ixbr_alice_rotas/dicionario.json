@@ -1,0 +1,176 @@
+{
+ "reject_reasons": {
+  "26162": {
+   "100": {
+    "0": "Invalid on Registro.br"
+   },
+   "190": {
+    "0": "Invalid prefix length",
+    "1": "Bogon prefix",
+    "2": "Bogon ASN",
+    "3": "Transit free",
+    "4": "Never via route server",
+    "5": "IX.br prefixes"
+   },
+   "300": {
+    "0": "Invalid on RPKI"
+   },
+   "400": {
+    "0": "Invalid on RIRs"
+   },
+   "616": {
+    "666": "Confirmed blackhole"
+   }
+  },
+  "65535": {
+   "616": {
+    "666": "Blackhole"
+   }
+  }
+ },
+ "noexport": {
+  "load_on_demand": true
+ },
+ "noexport_reasons": {
+  "65000": {
+   "0": {
+    "*": "No export to AS$2"
+   }
+  },
+  "65001": {
+   "0": {
+    "*": "Only export to AS$2"
+   }
+  },
+  "65002": {
+   "0": {
+    "0": "No export to Afrinic ASNs",
+    "1": "No export to Apnic ASNs",
+    "2": "No export to Arin ASNs",
+    "3": "No export to Lacnic ASNs",
+    "4": "No export to Ripe ASNs",
+    "5": "No export to Brasil ASNs"
+   }
+  },
+  "65003": {
+   "0": {
+    "0": "Only export to Afrinic ASNs",
+    "1": "Only export to Apnic ASNs",
+    "2": "Only export to Arin ASNs",
+    "3": "Only export to Lacnic ASNs",
+    "4": "Only export to Ripe ASNs",
+    "5": "Only export to Brasil ASNs"
+   }
+  },
+  "65010": {
+   "0": {
+    "10": "No export to RTT > 10ms",
+    "100": "No export to RTT > 100ms",
+    "150": "No export to RTT > 150ms",
+    "200": "No export to RTT > 200ms",
+    "250": "No export to RTT > 250ms",
+    "50": "No export to RTT > 50ms",
+    "999": "No export to RTT is unknown"
+   }
+  },
+  "65011": {
+   "0": {
+    "10": "No export to packet loss > 10%",
+    "2": "No export to packet loss > 2%",
+    "999": "No export to packet loss = 100% or unknown"
+   }
+  },
+  "65004": {
+   "0": {
+    "65011": "No export to IX.br São Paulo/SP",
+    "65021": "No export to IX.br Rio de Janeiro/RJ",
+    "65085": "No export to IX.br Fortaleza/CE"
+   }
+  }
+ },
+ "reject_candidates": {},
+ "rpki": {
+  "enabled": true,
+  "valid": [
+   [
+    "26162",
+    "300",
+    "1"
+   ]
+  ],
+  "unknown": [
+   [
+    "26162",
+    "300",
+    "2"
+   ]
+  ],
+  "not_checked": [
+   [
+    "26162",
+    "300",
+    "3"
+   ]
+  ],
+  "invalid": [
+   [
+    "26162",
+    "300",
+    "0"
+   ]
+  ]
+ },
+ "bgp_communities": {
+  "26162": {
+   "*": "Prefix being announced by AS$1",
+   "0": {
+    "*": "Prefix being announced by AS$2",
+    "65011": "IX.br São Paulo/SP",
+    "65085": "IX.br Fortaleza/CE"
+   },
+   "100": {
+    "0": "Invalid on Registro.br",
+    "1": "Valid on Registro.br",
+    "2": "Unknown on Registro.br"
+   },
+   "190": {
+    "0": "Invalid prefix length",
+    "1": "Bogon prefix",
+    "2": "Bogon ASN",
+    "3": "Transit free",
+    "4": "Never via route server",
+    "5": "IX.br prefixes"
+   },
+   "200": {
+    "1": "Prefix present in AS-SET on IRR",
+    "2": "Prefix not present in AS-SET on IRR"
+   },
+   "300": {
+    "0": "Invalid on RPKI",
+    "1": "Valid on RPKI",
+    "2": "Unknown on RPKI"
+   },
+   "400": {
+    "0": "Invalid on RIRs",
+    "1": "Valid on RIRs",
+    "2": "Unknown on RIRs"
+   }
+  }
+ },
+ "bgp_blackhole_communities": {
+  "standard": [
+   [
+    [
+     65535,
+     65535
+    ],
+    [
+     666,
+     666
+    ]
+   ]
+  ],
+  "extended": [],
+  "large": []
+ }
+}

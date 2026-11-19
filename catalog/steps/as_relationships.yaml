@@ -1,0 +1,23 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: as_relationships
+nome: Relações entre ASNs (ARC v1)
+ordem: 49
+modulo: products.as_relationships.build
+produtos:
+- as_relationships
+parcial:
+- asn_docs
+depois_de:
+- caida_asrel
+- caida_as2org
+- rs_policy
+- fulltable_routeviews
+- rpki_collector
+- registro_br
+- bgp_ixp
+- metricas_ixp_asn
+- sici
+- asn_ixp_paths
+politica_falha: opcional
+descricao: Infere provedor/cliente/par entre ASNs com ao menos um brasileiro, usando a rampa dos route servers do IX.br,
+  os caminhos dos coletores com VP, o ASPA e o CAIDA como prior. Rótulo de nível e probabilidade em cada elo.

@@ -1,0 +1,11 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: metricas_ixp_asn
+nome: Métricas por IXP e documentos de ASN
+ordem: 30
+modulo: products.ixp_metrics.build
+produtos:
+- asn_docs
+- ixp_docs
+politica_falha: critica
+replay: true
+descricao: Gera ixps/{ixp}.json e asns/{asn}.json; a etapa saude_asn completa os documentos de ASN com RPKI e alertas.

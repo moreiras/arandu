@@ -1,0 +1,60 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: peeringdb_intl_geo
+nome: Geolocalização de ASNs internacionais (PeeringDB org + Nominatim)
+tipo: derivada
+ativa: true
+modulo: sources.peeringdb_intl_geo.enrich
+publicavel: true
+descricao: 'Posição de ASNs não brasileiros: coordenadas da organização no PeeringDB (org_coords) ou centroide
+  da cidade via Nominatim.'
+origem:
+  url: https://nominatim.openstreetmap.org/search
+  formato: JSON (geocodificação)
+  licenca: ODbL 1.0 (dados OpenStreetMap)
+  uso_comercial: restrito
+  termos: https://operations.osmfoundation.org/policies/nominatim/
+  nota: 'Política de uso do Nominatim público (verificada em 2026-10-13): máximo absoluto de 1 req/s,
+    User-Agent identificado, atribuição visível; dados sob ODbL com share-alike (extrações pequenas tendem
+    a ser uso justo). O código aceita NOMINATIM_URL para instância própria (padrão de localhost:8088).'
+cadencia:
+  fonte_atualiza: continua
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: opcional
+entradas:
+- ixbr_api
+- peeringdb_networks
+saidas:
+  normalizado:
+  - summary/geo_intl_asns.json.gz
+  - ../geo_cache/peeringdb_intl.json.gz
+  - ../geo_cache/peeringdb_intl_nom.json.gz
+chaves:
+- asn
+- pais
+- ponto
+campos:
+- nome: asns[asn].name / city / country
+  tipo: str
+  significado: Nome da organização, cidade e país no PeeringDB.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_org
+- nome: asns[asn].lat / lon
+  tipo: float
+  significado: Coordenadas da organização (PeeringDB) ou da cidade (Nominatim); nulas quando desconhecidas.
+  publicado_em:
+  - mapas_prefixos → maps/asns.geojson
+- nome: asns[asn].geo_confidence
+  tipo: str
+  significado: org_coords, city_centroid ou unknown.
+  tratamento: Rótulo do método.
+limites: Posição da sede/organização, não da rede; ~288 ASNs internacionais no snapshot de 2026-10-11,
+  vários 'unknown'.
+retencao:
+  normalizado: 52 semanas; cache permanente
+fixture: tests/fixtures/raw/nominatim/
+pendencias:
+- Confirmar atribuição OSM/ODbL na interface e se o resultado geocodificado publicado é obra derivada
+  com share-alike; avaliar instância própria do Nominatim.
+- Uso do PeeringDB (org/net) segue a AUP descrita em peeringdb_networks (restrito).

@@ -1,0 +1,13 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: history
+nome: Histórico por snapshot
+ordem: 50
+modulo: products.history.build
+produtos:
+- history
+depois_de:
+- saude_asn
+- as_relationships
+politica_falha: opcional
+descricao: Séries por ASN (e agregadas por PTT, operadora e UF) e log de eventos derivados do snapshot
+  publicado. Camada derivada em data/history/, fora de published/. Não fatal, pois o snapshot já está publicado.

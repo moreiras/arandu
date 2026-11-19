@@ -1,0 +1,358 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: snapshot
+nome: Manifesto, resumo e detalhe do snapshot
+descricao: 'Metadados do snapshot: versão do pipeline, estado da coleta, checksums, totais nacionais e
+  o detalhe pré-calculado usado pela API.'
+modulo: publish.snapshot_builder
+entradas:
+- product: asn_docs
+- product: ixp_docs
+- product: outorgas
+- product: sici
+- source: fulltable_routeviews
+- source: registro_br
+chaves_de_juncao:
+- mes
+saidas:
+  publicado:
+  - manifest.json
+  - summary.json
+  - snapshot_detail.json
+campos:
+- nome: pipeline_version
+  tipo: str
+  significado: Versão do pipeline que gerou o snapshot (arquivo VERSION).
+  publicado_em:
+  - snapshot → manifest.json#pipeline_version
+- nome: ixps_configured / ixps_collected / ixps_failed
+  tipo: list[str]
+  significado: IXPs configurados, coletados e que falharam na coleta.
+  publicado_em:
+  - snapshot → manifest.json#ixps_failed
+- nome: fulltable_v4_status / fulltable_v6_status / registro_br_status
+  tipo: str
+  significado: Estado das fontes críticas (ok, parcial, ausente).
+  publicado_em:
+  - snapshot → manifest.json#fulltable_v4_status
+- nome: geolite2_version
+  tipo: str
+  significado: Versão da base de geolocalização usada (AAAA-MM; GeoLite2 até 2026-10, DB-IP Lite depois). O nome do campo é histórico.
+  publicado_em:
+  - snapshot → manifest.json#geolite2_version
+- nome: checksums
+  tipo: dict
+  significado: SHA-256 de cada arquivo publicado; prova de imutabilidade.
+  publicado_em:
+  - snapshot → manifest.json#checksums
+- nome: total_asns_br / total_asns_global
+  tipo: int
+  significado: ASNs brasileiros e ASNs globais no snapshot.
+  publicado_em:
+  - snapshot → summary.json#total_asns_br
+- nome: br_asns_with_ipv6 / br_ipv6_pct
+  tipo: int / float
+  significado: ASNs BR com IPv6 e o percentual.
+  publicado_em:
+  - snapshot → summary.json#br_asns_with_ipv6
+- nome: global_table
+  tipo: dict
+  significado: Totais da tabela global (prefixos, espaço, cobertura BR, ASNs).
+  publicado_em:
+  - snapshot → summary.json#global_table
+- nome: ixp_aggregate
+  tipo: dict
+  significado: Resumo da união entre IXPs.
+  publicado_em:
+  - snapshot → summary.json#ixp_aggregate
+- nome: versao
+  tipo: int
+  significado: Versão do formato do snapshot_detail.json.
+  publicado_em:
+  - snapshot → snapshot_detail.json#versao
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - snapshot → summary.json#snapshot_date
+- nome: generated_at
+  tipo: str
+  significado: Instante UTC em que o arquivo foi gerado.
+  publicado_em:
+  - snapshot → summary.json#generated_at
+- nome: pipeline_version
+  tipo: str
+  significado: Versão do pipeline que gerou o snapshot.
+  publicado_em:
+  - snapshot → summary.json#pipeline_version
+- nome: ixps_configured
+  tipo: int
+  significado: Quantidade de IXPs configurados.
+  publicado_em:
+  - snapshot → summary.json#ixps_configured
+- nome: ixps_ok
+  tipo: int
+  significado: IXPs com v6 e v4 coletados.
+  publicado_em:
+  - snapshot → summary.json#ixps_ok
+- nome: ixps_partial
+  tipo: int
+  significado: IXPs com só uma das famílias coletada.
+  publicado_em:
+  - snapshot → summary.json#ixps_partial
+- nome: ixps_missing
+  tipo: int
+  significado: IXPs sem coleta.
+  publicado_em:
+  - snapshot → summary.json#ixps_missing
+- nome: ixps_failed
+  tipo: list[str]
+  significado: Códigos dos IXPs que falharam.
+  publicado_em:
+  - snapshot → summary.json#ixps_failed
+- nome: fulltable_v4_status
+  tipo: str
+  significado: Estado da tabela global IPv4 (ok/missing).
+  publicado_em:
+  - snapshot → summary.json#fulltable_v4_status
+- nome: fulltable_v6_status
+  tipo: str
+  significado: Estado da tabela global IPv6 (ok/missing).
+  publicado_em:
+  - snapshot → summary.json#fulltable_v6_status
+- nome: registro_br_status
+  tipo: str
+  significado: Estado do arquivo do Registro.br (ok/missing).
+  publicado_em:
+  - snapshot → summary.json#registro_br_status
+- nome: total_asns_global
+  tipo: int
+  significado: ASNs no índice (BR ∪ vistos em IXP ∪ vistos na tabela global).
+  publicado_em:
+  - snapshot → summary.json#total_asns_global
+- nome: br_ipv6_pct
+  tipo: float
+  significado: '% dos ASNs BR com IPv6.'
+  publicado_em:
+  - snapshot → summary.json#br_ipv6_pct
+- nome: registro_br_asns
+  tipo: int
+  significado: ASNs no arquivo do Registro.br.
+  publicado_em:
+  - snapshot → summary.json#registro_br_asns
+- nome: m3_asns
+  tipo: int
+  significado: O mesmo que registro_br_asns (nome mantido por compatibilidade).
+  publicado_em:
+  - snapshot → summary.json#m3_asns
+- nome: registro_br_prefixes_v6
+  tipo: int
+  significado: Prefixos IPv6 alocados no Registro.br.
+  publicado_em:
+  - snapshot → summary.json#registro_br_prefixes_v6
+- nome: m3_prefixes_v6
+  tipo: int
+  significado: O mesmo que registro_br_prefixes_v6 (nome mantido por compatibilidade).
+  publicado_em:
+  - snapshot → summary.json#m3_prefixes_v6
+- nome: registro_br_prefixes_v4
+  tipo: int
+  significado: Prefixos IPv4 alocados no Registro.br.
+  publicado_em:
+  - snapshot → summary.json#registro_br_prefixes_v4
+- nome: m3_prefixes_v4
+  tipo: int
+  significado: O mesmo que registro_br_prefixes_v4 (nome mantido por compatibilidade).
+  publicado_em:
+  - snapshot → summary.json#m3_prefixes_v4
+- nome: registro_br_declared_space_v6
+  tipo: int
+  significado: Espaço IPv6 alocado segundo o Registro.br (endereços).
+  publicado_em:
+  - snapshot → summary.json#registro_br_declared_space_v6
+- nome: m3_declared_space_v6
+  tipo: int
+  significado: O mesmo que registro_br_declared_space_v6 (nome mantido por compatibilidade).
+  publicado_em:
+  - snapshot → summary.json#m3_declared_space_v6
+- nome: registro_br_declared_space_v4
+  tipo: int
+  significado: Espaço IPv4 alocado (endereços) segundo o Registro.br.
+  publicado_em:
+  - snapshot → summary.json#registro_br_declared_space_v4
+- nome: m3_declared_space_v4
+  tipo: int
+  significado: O mesmo que registro_br_declared_space_v4 (nome mantido por compatibilidade).
+  publicado_em:
+  - snapshot → summary.json#m3_declared_space_v4
+- nome: ft_space_v6
+  tipo: int
+  significado: Espaço IPv6 da tabela global (endereços).
+  publicado_em:
+  - snapshot → summary.json#ft_space_v6
+- nome: ft_space_v4
+  tipo: int
+  significado: Espaço IPv4 da tabela global (endereços).
+  publicado_em:
+  - snapshot → summary.json#ft_space_v4
+- nome: br_asns_peeringdb
+  tipo: int
+  significado: ASNs BR com cadastro no PeeringDB.
+  publicado_em:
+  - snapshot → summary.json#br_asns_peeringdb
+- nome: br_asns_geolocalized
+  tipo: int
+  significado: ASNs BR com organização geolocalizada.
+  publicado_em:
+  - snapshot → summary.json#br_asns_geolocalized
+- nome: br_asns_with_ipv6
+  tipo: int
+  significado: ASNs BR com IPv6.
+  publicado_em:
+  - snapshot → summary.json#br_asns_with_ipv6
+- nome: ixp_aggregate
+  tipo: dict
+  significado: Resumo da união entre IXPs.
+  publicado_em:
+  - snapshot → summary.json#ixp_aggregate
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - snapshot → manifest.json#snapshot_date
+- nome: generated_at
+  tipo: str
+  significado: Instante UTC em que o arquivo foi gerado.
+  publicado_em:
+  - snapshot → manifest.json#generated_at
+- nome: ixps_configured
+  tipo: list[str]
+  significado: Códigos dos IXPs configurados.
+  publicado_em:
+  - snapshot → manifest.json#ixps_configured
+- nome: ixps_collected
+  tipo: list[str]
+  significado: Códigos dos IXPs com coleta.
+  publicado_em:
+  - snapshot → manifest.json#ixps_collected
+- nome: ixps_failed
+  tipo: list[str]
+  significado: Códigos dos IXPs que falharam.
+  publicado_em:
+  - snapshot → manifest.json#ixps_failed
+- nome: fulltable_v4_status
+  tipo: str
+  significado: Estado da tabela global IPv4.
+  publicado_em:
+  - snapshot → manifest.json#fulltable_v4_status
+- nome: fulltable_v6_status
+  tipo: str
+  significado: Estado da tabela global IPv6.
+  publicado_em:
+  - snapshot → manifest.json#fulltable_v6_status
+- nome: registro_br_status
+  tipo: str
+  significado: Estado do arquivo do Registro.br.
+  publicado_em:
+  - snapshot → manifest.json#registro_br_status
+- nome: total_asns_br
+  tipo: int
+  significado: ASNs brasileiros no snapshot.
+  publicado_em:
+  - snapshot → manifest.json#total_asns_br
+- nome: total_asns_global
+  tipo: int
+  significado: ASNs no índice global.
+  publicado_em:
+  - snapshot → manifest.json#total_asns_global
+- nome: registro_br_prefixes_v6
+  tipo: int
+  significado: Prefixos IPv6 do Registro.br.
+  publicado_em:
+  - snapshot → manifest.json#registro_br_prefixes_v6
+- nome: m3_prefixes_v6
+  tipo: int
+  significado: O mesmo que registro_br_prefixes_v6 (nome mantido por compatibilidade).
+  publicado_em:
+  - snapshot → manifest.json#m3_prefixes_v6
+- nome: registro_br_prefixes_v4
+  tipo: int
+  significado: Prefixos IPv4 do Registro.br.
+  publicado_em:
+  - snapshot → manifest.json#registro_br_prefixes_v4
+- nome: m3_prefixes_v4
+  tipo: int
+  significado: O mesmo que registro_br_prefixes_v4 (nome mantido por compatibilidade).
+  publicado_em:
+  - snapshot → manifest.json#m3_prefixes_v4
+- nome: ft_space_v6
+  tipo: int
+  significado: Espaço IPv6 da tabela global.
+  publicado_em:
+  - snapshot → manifest.json#ft_space_v6
+- nome: ft_space_v4
+  tipo: int
+  significado: Espaço IPv4 da tabela global.
+  publicado_em:
+  - snapshot → manifest.json#ft_space_v4
+- nome: pipeline_version
+  tipo: str
+  significado: Versão do pipeline.
+  publicado_em:
+  - snapshot → manifest.json#pipeline_version
+- nome: geolite2_version
+  tipo: str
+  significado: Versão da base de geolocalização usada (GeoLite2 até 2026-10, DB-IP Lite depois; nome histórico).
+  publicado_em:
+  - snapshot → manifest.json#geolite2_version
+- nome: checksums
+  tipo: dict
+  significado: SHA-256 de cada arquivo publicado.
+  publicado_em:
+  - snapshot → manifest.json#checksums
+- nome: versao
+  tipo: int
+  significado: Versão do formato do detalhe.
+  publicado_em:
+  - snapshot → snapshot_detail.json#versao
+- nome: date
+  tipo: str
+  significado: Data do snapshot.
+  publicado_em:
+  - snapshot → snapshot_detail.json#date
+- nome: summary
+  tipo: dict
+  significado: Conteúdo de summary.json acrescido de contagens usadas pela API (usuários estimados por
+    IXP, provedores SICI…).
+  publicado_em:
+  - snapshot → snapshot_detail.json#summary
+- nome: manifest
+  tipo: dict
+  significado: 'Manifesto reduzido: versão do pipeline, geração, IXPs configurados/coletados/falhos e
+    estados das fontes críticas.'
+  publicado_em:
+  - snapshot → snapshot_detail.json#manifest
+- nome: checks
+  tipo: dict
+  significado: 'Resultado de cada verificação de sanidade da coleta (ptt_coletados, asns_br, prefixos,
+    vrps, pdb_registrados): status ok/falha/sem_base/pendente.'
+  publicado_em:
+  - snapshot → manifest.json#checks
+- nome: coleta_ok
+  tipo: bool
+  significado: Falso quando alguma verificação de sanidade falhou; não bloqueia a publicação.
+  publicado_em:
+  - snapshot → manifest.json#coleta_ok
+- nome: coleta
+  tipo: str
+  significado: completa, parcial ou pendente, conforme as verificações.
+  publicado_em:
+  - snapshot → manifest.json#coleta
+- nome: comparado_com
+  tipo: str
+  significado: Data do snapshot anterior usado como base das comparações.
+  publicado_em:
+  - snapshot → manifest.json#comparado_com
+cenarios_de_teste:
+- ptt_coleta_parcial
+limites: 'manifest.json é aditivo (layout_version e sources[] podem faltar). Snapshot sem snapshot_detail.json:
+  backfill opcional.'

@@ -1,0 +1,67 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ibge_censo_pnad
+nome: População, domicílios e uso de internet (IBGE, Censo 2022 e PNAD Contínua)
+tipo: bruta
+ativa: true
+modulo: sources.ibge_censo_pnad.collect
+publicavel: true
+descricao: População, área e domicílios particulares permanentes ocupados por município (Censo 2022, tabelas SIDRA 4714
+  e 4712), população estimada por município (Estimativas de População, tabela 6579) e domicílios com e sem utilização
+  de internet por UF (PNAD Contínua anual, tabela 7307, com a série de domicílios de todos os anos). Denominador da
+  penetração de banda larga e do mercado não visto.
+origem:
+  url: https://apisidra.ibge.gov.br/values
+  formato: JSON da API SIDRA (cabeçalho como primeiro elemento; valores em texto)
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  termos: https://www.ibge.gov.br/acesso-informacao/institucional/termo-de-uso.html
+  nota: Dados abertos do IBGE; a página de termos respondeu HTTP 403 em 2026-10-31, então a licença não foi lida. Citar "IBGE" como fonte.
+cadencia:
+  fonte_atualiza: anual
+  coleta: mensal
+  coleta_atual: semanal
+  frescor_maximo: 400d
+politica_falha: opcional
+saidas:
+  bruto:
+  - summary/ibge-sidra-{tabela}-{ano}.json.gz
+  normalizado:
+  - summary/ibge_municipios.json.gz
+  - summary/ibge_taxa_internet.json.gz
+chaves:
+- ibge
+- uf
+campos:
+- nome: municipios[ibge].populacao / area_km2
+  tipo: int / float
+  significado: População residente e área da unidade territorial no Censo 2022.
+  tratamento: Censo de 2022 (não é estimativa anual); município sem valor fica sem o campo.
+- nome: municipios[ibge].populacao_estimada
+  tipo: int
+  significado: População residente estimada pelo IBGE em 1º de julho do ano mais recente (tabela 6579), calculada a partir do Censo 2022.
+  tratamento: Estimativa oficial; cobre município criado depois do Censo (que não tem os demais campos).
+- nome: municipios[ibge].domicilios / moradores
+  tipo: int
+  significado: Domicílios particulares permanentes OCUPADOS e seus moradores (Censo 2022).
+  tratamento: Não inclui domicílios coletivos, de uso ocasional nem vagos.
+- nome: ufs[uf].domicilios_mil / com_internet_mil / taxa
+  tipo: float
+  significado: Domicílios (mil) e os em que havia utilização de internet; taxa = com internet ÷ total, por UF (PNAD).
+  tratamento: Estimativa amostral. "Utilização de internet" inclui quem usa só o celular; não é banda larga fixa.
+- nome: ufs[uf].domicilios_mil_por_ano
+  tipo: dict
+  significado: Domicílios (mil) da UF na PNAD em cada ano da tabela; a razão entre o ano atual e o do Censo projeta os domicílios municipais.
+  tratamento: Estimativa amostral; a definição de domicílio da PNAD não é idêntica à do Censo.
+- nome: ufs[uf].cv_domicilios_pct
+  tipo: float
+  significado: Coeficiente de variação da estimativa de domicílios da UF.
+limites: 'O Censo é de 2022, a PNAD do ano mais recente (2025 na coleta de 2026-10) e a população estimada de 2026: idades diferentes. A taxa de internet é
+  por UF, não por município. Domicílio e acesso não são a mesma unidade (um domicílio pode ter vários acessos).'
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/ibge_sidra/
+pendencias:
+- Licença e termos de uso do IBGE (página de termos inacessível por HTTP 403); consulta jurídica em aberto.
+etapa:
+  tentativas: 3
+  espera_s: 60

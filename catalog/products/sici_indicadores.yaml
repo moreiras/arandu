@@ -1,0 +1,121 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: sici_indicadores
+nome: Indicadores do SICI e outorgas sem declaração
+descricao: Share, HHI, variações, declínio contínuo e parada de declaração por operadora, UF e município; outorgas SCM
+  sem acessos declarados, com os usuários estimados (APNIC) dos ASNs do CNPJ.
+modulo: products.sici_indicadores.build
+entradas:
+- source: anatel_sici
+- source: apnic_pop
+- source: anatel_scm
+- source: socios_grupos
+chaves_de_juncao:
+- cnpj
+- asn
+- ibge
+- uf
+- mes_referencia
+saidas:
+  publicado:
+  - sici_indicadores.json.gz
+  - sici_serie_municipio.json.gz
+  - mercado_grupos.json.gz
+  - omissao_sici.json.gz
+campos:
+- nome: municipios[ibge].hhi_cnpj / hhi_grupo / faixa_cnpj / faixa_grupo; ufs[uf]; resumo.mudam_de_faixa
+  tipo: int / str
+  significado: HHI do mercado fixo por CNPJ e por grupo econômico (CNPJs do mesmo grupo contam como um) em cada município e UF, a faixa (competitivo, moderado, concentrado) e quantos municípios mudam de faixa.
+  tratamento: INFERIDO (o grupo é inferência do quadro societário em comum); sobre acessos declarados, não receita; só `grupos[].cnpjs` e `grupo_id` são lidos, nenhum dado de sócio.
+  publicado_em:
+  - sici_indicadores → mercado_grupos.json.gz#municipios
+- nome: sobreposicao[cnpj][]
+  tipo: list[dict]
+  significado: As 10 operadoras que mais aparecem nos mesmos municípios, com municípios em comum e os acessos de cada lado ali.
+  tratamento: Presença nos mesmos municípios, não rivalidade nem disputa de clientes.
+  publicado_em:
+  - sici_indicadores → mercado_grupos.json.gz#sobreposicao
+- nome: municipios[ibge].acessos / hhi / lideres[].share (série de 13 meses)
+  tipo: list[int|null] / list[int|null] / list[float|null]
+  significado: Série mensal de acessos declarados, HHI e participação das 4 maiores operadoras do mês de referência, por município.
+  tratamento: Sobre acessos declarados, não sobre receita; mês ausente do cache fica vazio (null), nunca zero; a operadora que ainda não existia no mês conta zero na participação.
+  publicado_em:
+  - sici_indicadores → sici_serie_municipio.json.gz#municipios
+- nome: operadoras[cnpj].share_br / posicao_br
+  tipo: float / int
+  significado: Parcela dos acessos fixos declarados no país e a posição por acessos.
+  tratamento: Sobre acessos declarados, não sobre receita; dado declarado.
+  publicado_em:
+  - sici_indicadores → sici_indicadores.json.gz#operadoras
+- nome: operadoras[cnpj].var_mm / var_aa
+  tipo: dict
+  significado: Variação absoluta e percentual de acessos contra o mês anterior e contra o mesmo mês do ano anterior.
+  publicado_em:
+  - sici_indicadores → sici_indicadores.json.gz#operadoras
+- nome: operadoras[cnpj].meses_declinio / em_declinio
+  tipo: int / bool
+  significado: Meses seguidos de queda até o mês de referência; verdadeiro quando chega ao limite dos parâmetros.
+  publicado_em:
+  - sici_indicadores → sici_indicadores.json.gz#operadoras
+- nome: parou_de_declarar[cnpj]
+  tipo: dict
+  significado: CNPJ que declarou antes e está sem declaração há pelo menos a janela dos parâmetros.
+  tratamento: Fato sobre a declaração (último mês declarado), sem causa.
+  publicado_em:
+  - sici_indicadores → sici_indicadores.json.gz#parou_de_declarar
+- nome: ufs[uf] / municipios[ibge] / brasil
+  tipo: dict
+  significado: Acessos, HHI, número de operadoras, líder, variações, ganho e perda do ano.
+  tratamento: HHI sobre acessos declarados.
+  publicado_em:
+  - sici_indicadores → sici_indicadores.json.gz#municipios
+- nome: parametros
+  tipo: dict
+  significado: Janelas e limiares usados no cálculo.
+  publicado_em:
+  - sici_indicadores → sici_indicadores.json.gz#parametros
+- nome: itens[cnpj].classe / usuarios_apnic
+  tipo: str / int
+  significado: Outorga SCM sem acessos declarados no mês e a classe pelos usuários estimados dos ASNs do CNPJ.
+  tratamento: Usuários APNIC são estimativa (medição estatística); a classe nao_comparavel é CNPJ sem ASN.
+  publicado_em:
+  - sici_indicadores → omissao_sici.json.gz#itens
+- nome: itens[cnpj].grupo_declara
+  tipo: bool
+  significado: Outro CNPJ do mesmo grupo societário declarou acessos no mês.
+  tratamento: Evidência para quem lê a linha; grupo parcial não prova controle.
+  publicado_em:
+  - sici_indicadores → omissao_sici.json.gz#itens
+- nome: por_uf
+  tipo: dict
+  significado: Contagem por UF das outorgas sem declaração, por classe, e soma dos usuários estimados.
+  publicado_em:
+  - sici_indicadores → omissao_sici.json.gz#por_uf
+- nome: snapshot_date / mes_referencia
+  tipo: str
+  significado: Data do snapshot e mês de referência da declaração.
+  publicado_em:
+  - sici_indicadores → sici_indicadores.json.gz#mes_referencia
+  - sici_indicadores → omissao_sici.json.gz#mes_referencia
+- nome: snapshot_date / generated_at / mes_referencia / natureza / fonte / limites / faixas / resumo / ufs
+  tipo: str / dict
+  significado: "Cabeçalho do cruzamento de mercado: data do snapshot, mês de referência, natureza (inferido), fonte, limites, as faixas de HHI, o resumo de municípios que mudam de faixa e o HHI por UF."
+  publicado_em:
+  - sici_indicadores → mercado_grupos.json.gz#snapshot_date
+  - sici_indicadores → mercado_grupos.json.gz#generated_at
+  - sici_indicadores → mercado_grupos.json.gz#mes_referencia
+  - sici_indicadores → mercado_grupos.json.gz#natureza
+  - sici_indicadores → mercado_grupos.json.gz#fonte
+  - sici_indicadores → mercado_grupos.json.gz#limites
+  - sici_indicadores → mercado_grupos.json.gz#faixas
+  - sici_indicadores → mercado_grupos.json.gz#resumo
+  - sici_indicadores → mercado_grupos.json.gz#ufs
+- nome: snapshot_date / generated_at / mes_referencia / meses / fonte / parametros
+  tipo: str / dict
+  significado: "Cabeçalho da série de participação por município: snapshot, mês de referência, os 13 meses da janela, fonte e parâmetros (meses e líderes)."
+  publicado_em:
+  - sici_indicadores → sici_serie_municipio.json.gz#snapshot_date
+  - sici_indicadores → sici_serie_municipio.json.gz#generated_at
+  - sici_indicadores → sici_serie_municipio.json.gz#mes_referencia
+  - sici_indicadores → sici_serie_municipio.json.gz#meses
+  - sici_indicadores → sici_serie_municipio.json.gz#fonte
+  - sici_indicadores → sici_serie_municipio.json.gz#parametros

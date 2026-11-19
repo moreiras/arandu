@@ -1,0 +1,45 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ibge_malha_municipal
+nome: Malha municipal do IBGE (limites dos municípios e UFs, em tiles)
+tipo: curada
+ativa: true
+arquivo: frontend/public/malha-municipal.pmtiles
+publicavel: true
+descricao: Limites dos 5.571 municípios do Brasil (Malha Municipal 2024 do IBGE, shapefile em SIRGAS 2000), simplificados e servidos como tiles vetoriais PMTiles com duas camadas
+  (`municipios` e `ufs`, zoom 0 a 7) para os mapas coropléticos. Gerado por `scripts/build-malha-municipal.py` a partir de um ZIP baixado à mão (um arquivo, ~200 MB).
+origem:
+  url: https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_Municipios_2024.zip
+  formato: PMTiles v3 (MVT, gzip) derivado de zip/shapefile (SIRGAS 2000)
+  licenca: 'IBGE, dados abertos; citar "Fonte: IBGE" (uso autorizado pelo mantenedor em 2026-11-11; texto de licença não lido)'
+  uso_comercial: nao_verificado
+  termos: https://www.ibge.gov.br/acesso-informacao/institucional/termo-de-uso.html
+  nota: 'As páginas de termos do IBGE respondem HTTP 403 a acesso automatizado (2026-11-11), então o texto não foi lido. O mantenedor autorizou o uso da malha com a atribuição "Fonte: IBGE". As lagoas
+    dos Patos e Mirim (4300001, 4300002) ficam de fora. Simplificação topológica de 1 pixel por zoom: não serve para medir área nem fronteira, só para desenhar.'
+cadencia:
+  fonte_atualiza: anual
+  coleta: sob_demanda
+  coleta_atual: sob_demanda
+  frescor_maximo: 800d
+politica_falha: opcional
+entradas: []
+saidas: {}
+chaves:
+- ibge
+- uf
+campos:
+- nome: municipios.ibge / nome / uf
+  tipo: str
+  significado: Código IBGE de 7 dígitos, nome e sigla da UF de cada município.
+  publicado_em:
+  - frontend → /malha-municipal.pmtiles
+- nome: ufs.uf / nome
+  tipo: str
+  significado: Sigla e nome de cada UF (união dos municípios simplificados).
+  publicado_em:
+  - frontend → /malha-municipal.pmtiles
+limites: Geometria simplificada (tolerância de 1 pixel do zoom, até o zoom 7), serve para mapas temáticos, não para área, fronteira nem georreferenciamento. A malha muda
+  quando o IBGE publica a de um ano novo; o código e a data de origem ficam em `frontend/public/malha-municipal.json`.
+retencao:
+  normalizado: git
+pendencias:
+- 'Texto da licença/termos de uso do IBGE (páginas respondem 403 a acesso automatizado); até lá o uso vale pela autorização do mantenedor de 2026-11-11, com a atribuição "Fonte: IBGE".'

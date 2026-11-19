@@ -1,0 +1,88 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: instalacoes
+nome: Instalações do PeeringDB, vínculos, atributos das redes e portas externas
+descricao: Instalações (datacenters, pontos de interconexão) do Brasil e as dos PTTs externos cadastrados, com PTTs, carriers, campus, redes vinculadas, o indicador de cadastro vivo ou abandonado
+  (inferido das datas de atualização), os atributos de peering autodeclarados das redes do Brasil e as portas (velocidade declarada) nos PTTs externos. Cadastro autodeclarado no PeeringDB; sem contatos.
+modulo: products.instalacoes.build
+entradas:
+- source: peeringdb_fac
+- source: peeringdb_ixps
+- product: asn_docs
+chaves_de_juncao:
+- asn
+- facilidade
+saidas:
+  publicado:
+  - instalacoes/instalacoes.json.gz
+  - instalacoes/vinculos.json.gz
+  - instalacoes/atributos_rede.json.gz
+  - instalacoes/portas_externas.json.gz
+campos:
+- nome: instalacoes[id]
+  tipo: dict
+  significado: Instalação com organização, localização, datas, PTTs (com o código do Arandurapé quando conhecido), carriers, campus, número de redes coletadas e o indicador `cadastro`.
+  tratamento: Autodeclarado. `cadastro` (recente até 12 meses, parado de 1 a 3 anos, antigo acima de 3 anos desde a última atualização do registro ou dos vínculos) é INFERÊNCIA; mede a manutenção do cadastro, não a operação da instalação nem da empresa.
+  publicado_em:
+  - instalacoes → instalacoes/instalacoes.json.gz#instalacoes
+- nome: carriers[id] / campus[id]
+  tipo: dict
+  significado: Carriers e campus referenciados pelas instalações.
+  publicado_em:
+  - instalacoes → instalacoes/instalacoes.json.gz#carriers
+  - instalacoes → instalacoes/instalacoes.json.gz#campus
+- nome: cobertura / limiares_cadastro_dias
+  tipo: dict
+  significado: Instalações do Brasil, com coordenadas, PTT, carrier e campus; PTTs do IX.br e externos com instalação cadastrada; ASNs do Brasil com instalação; distribuição do indicador de cadastro e seus limiares.
+  tratamento: Medidas de cobertura da fonte, não de qualidade.
+  publicado_em:
+  - instalacoes → instalacoes/instalacoes.json.gz#cobertura
+  - instalacoes → instalacoes/instalacoes.json.gz#limiares_cadastro_dias
+- nome: por_instalacao / por_asn / redes
+  tipo: dict
+  significado: Redes por instalação e instalações por ASN (vínculo netfac com as datas de criação e atualização), e o nome e a marca de Brasil de cada rede citada.
+  tratamento: Declaração no cadastro; não indica tráfego nem contrato.
+  publicado_em:
+  - instalacoes → instalacoes/vinculos.json.gz#por_instalacao
+  - instalacoes → instalacoes/vinculos.json.gz#por_asn
+  - instalacoes → instalacoes/vinculos.json.gz#redes
+- nome: asns[asn]
+  tipo: dict
+  significado: Atributos de peering declarados pela rede no PeeringDB (escopo, IPv6, multicast, unicast, nunca via route server, looking glass, route server, contagens) e o `cadastro` inferido das datas.
+  tratamento: Autodeclarado; URLs não verificadas.
+  publicado_em:
+  - instalacoes → instalacoes/atributos_rede.json.gz#asns
+- nome: ixps[code] / por_asn
+  tipo: dict
+  significado: Por PTT externo, portas, membros, soma, mediana, maior velocidade e histograma por velocidade (Mbps); por ASN do Brasil, as velocidades das portas em cada PTT externo.
+  tratamento: Velocidade declarada; a soma é capacidade contratada declarada, não tráfego.
+  publicado_em:
+  - instalacoes → instalacoes/portas_externas.json.gz#ixps
+  - instalacoes → instalacoes/portas_externas.json.gz#por_asn
+- nome: fonte / limites / coletado_em
+  tipo: dict
+  significado: Fonte (PeeringDB, com citação e AUP), limitações e instante da coleta.
+  publicado_em:
+  - instalacoes → instalacoes/instalacoes.json.gz#fonte
+  - instalacoes → instalacoes/instalacoes.json.gz#limites
+  - instalacoes → instalacoes/instalacoes.json.gz#coletado_em
+  - instalacoes → instalacoes/vinculos.json.gz#fonte
+  - instalacoes → instalacoes/vinculos.json.gz#limites
+  - instalacoes → instalacoes/vinculos.json.gz#coletado_em
+  - instalacoes → instalacoes/atributos_rede.json.gz#fonte
+  - instalacoes → instalacoes/atributos_rede.json.gz#limites
+  - instalacoes → instalacoes/atributos_rede.json.gz#coletado_em
+  - instalacoes → instalacoes/portas_externas.json.gz#fonte
+  - instalacoes → instalacoes/portas_externas.json.gz#limites
+  - instalacoes → instalacoes/portas_externas.json.gz#coletado_em
+- nome: snapshot_date / generated_at
+  tipo: str
+  significado: Data do snapshot e instante UTC de geração.
+  publicado_em:
+  - instalacoes → instalacoes/instalacoes.json.gz#snapshot_date
+  - instalacoes → instalacoes/instalacoes.json.gz#generated_at
+  - instalacoes → instalacoes/vinculos.json.gz#snapshot_date
+  - instalacoes → instalacoes/vinculos.json.gz#generated_at
+  - instalacoes → instalacoes/atributos_rede.json.gz#snapshot_date
+  - instalacoes → instalacoes/atributos_rede.json.gz#generated_at
+  - instalacoes → instalacoes/portas_externas.json.gz#snapshot_date
+  - instalacoes → instalacoes/portas_externas.json.gz#generated_at

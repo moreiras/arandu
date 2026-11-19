@@ -1,0 +1,16 @@
+# Vigia de saúde do Arandurapé (S-34): reinicia, com recuo, o serviço que o Docker marcou como unhealthy. Ver scripts/vigia-saude.sh.
+# Instalação (root): copie este arquivo e o .timer para /etc/systemd/system/, ajuste WorkingDirectory e User, e
+#   systemctl daemon-reload && systemctl enable --now arandurape-vigia.timer
+[Unit]
+Description=Vigia de saúde do Arandurapé (reinício com recuo de contêiner unhealthy)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+# Ajuste: usuário do grupo docker (o mesmo do cron do pipeline; root também serve) e diretório do projeto.
+User=arandu
+WorkingDirectory=/srv/arandu
+ExecStart=/usr/bin/env bash scripts/vigia-saude.sh
+# Opcional: comando de alerta que recebe a mensagem no stdin (ex.: envio de e-mail pelo relay do host).
+# Environment=VIGIA_ALERTA_CMD=...

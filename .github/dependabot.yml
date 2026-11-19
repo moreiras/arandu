@@ -1,0 +1,37 @@
+# Atualizações de dependências (versões e digests). Cada PR passa pela CI como qualquer outra mudança; nada é integrado sozinho.
+# Mudança de versão maior chega em PR próprio, fora dos grupos, para ser revisada à parte.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    groups:
+      actions: { update-types: [minor, patch] }
+
+  # Dockerfile.api e Dockerfile.frontend. No frontend, ao trocar a imagem do nginx confira NGINX_VERSION (o build falha se a base
+  # trouxer um nginx mais novo que ela).
+  - package-ecosystem: docker
+    directory: /
+    schedule: { interval: weekly }
+    groups:
+      imagens: { update-types: [minor, patch] }
+
+  - package-ecosystem: docker
+    directory: /docker
+    schedule: { interval: weekly }
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 10
+    groups:
+      npm-producao: { dependency-type: production, update-types: [minor, patch] }
+      npm-dev: { dependency-type: development, update-types: [minor, patch] }
+
+  # Muda requirements*.txt; os locks (requirements*.lock) são regravados no PR com `bash scripts/travar-dependencias.sh`
+  # (tests/unit/test_lock_dependencias.py reprova enquanto não forem).
+  - package-ecosystem: pip
+    directory: /
+    schedule: { interval: weekly }
+    groups:
+      pip: { update-types: [minor, patch] }

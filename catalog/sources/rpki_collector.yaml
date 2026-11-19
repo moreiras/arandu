@@ -1,0 +1,76 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: rpki_collector
+nome: VRPs e ASPA validados (Routinator)
+tipo: bruta
+ativa: true
+modulo: sources.rpki_collector.collect
+publicavel: true
+descricao: Lê a saída do Routinator avulso (scripts/rpki-avulso.sh grava data/cache/rpki/vrps.json antes do worker) e
+  grava os VRPs (ROAs validados) e os objetos ASPA validados diretamente em published/{date}/rpki/. Base do status RPKI
+  (valid/invalid/not-found) por rota.
+origem:
+  url: rsync/RRDP dos Trust Anchors dos 5 RIRs (via Routinator, `routinator vrps -f json`)
+  formato: JSON do Routinator (VRPs, ASPA)
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: Dados RPKI dos Trust Anchors dos 5 RIRs validados localmente; termos de cada TAL (em especial
+    ARIN) não verificados.
+cadencia:
+  fonte_atualiza: continua
+  coleta: diaria
+  coleta_atual: diaria
+  frescor_maximo: 2d
+politica_falha: opcional
+saidas:
+  publicado:
+  - rpki/vrp_list.json.gz
+  - rpki/aspa_list.json.gz
+chaves:
+- asn
+- prefixo
+campos:
+- nome: vrps[].asn
+  tipo: str|int
+  significado: ASN autorizado a originar o prefixo pela ROA.
+  publicado_em:
+  - rpki_collector → rpki/vrp_list.json.gz#asn
+- nome: vrps[].prefix
+  tipo: str
+  significado: Prefixo coberto pela ROA.
+  publicado_em:
+  - rpki_collector → rpki/vrp_list.json.gz#prefix
+- nome: vrps[].maxLength
+  tipo: int
+  significado: Comprimento máximo de prefixo autorizado (mais específicos até este valor são cobertos).
+  publicado_em:
+  - rpki_collector → rpki/vrp_list.json.gz#maxLength
+- nome: vrps[].ta
+  tipo: str
+  significado: Trust Anchor (RIR) que emitiu a ROA.
+  publicado_em:
+  - rpki_collector → rpki/vrp_list.json.gz#ta
+- nome: aspa[].customer
+  tipo: int
+  significado: ASN que publicou o objeto ASPA (cliente).
+  publicado_em:
+  - rpki_collector → rpki/aspa_list.json.gz#customer
+- nome: aspa[].providers
+  tipo: list[int]
+  significado: ASNs provedores autorizados pelo objeto ASPA.
+  publicado_em:
+  - rpki_collector → rpki/aspa_list.json.gz#providers
+- nome: aspa[].tal
+  tipo: str
+  significado: Trust Anchor (RIR) que emitiu o objeto ASPA.
+  publicado_em:
+  - rpki_collector → rpki/aspa_list.json.gz#tal
+limites: Instantâneo da validação feita logo antes do pipeline; com o cache frio (instalação nova) a primeira execução
+  leva horas num disco lento (2 h 58 min, medido); a morno, ~20 min. O coletor recusa arquivo com mais de RPKI_MAX_IDADE_H
+  (12 h). ROAs expiram/mudam rápido (alvo diário). ASPA ainda tem baixa adoção.
+retencao:
+  publicado: imutável; bruto não retido (data/cache/rpki/vrps.json é sobrescrito a cada execução)
+fixture: tests/fixtures/raw/rpki/
+pendencias:
+- 'Lacuna conhecida: rpki_collector e coletores de rede não entram no replay.'
+armazem:
+  manter_versoes: 365

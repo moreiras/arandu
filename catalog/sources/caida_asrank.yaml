@@ -1,0 +1,53 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: caida_asrank
+nome: Rank, grau e cone de ASNs (CAIDA AS Rank)
+tipo: bruta
+ativa: true
+modulo: sources.caida_asrank.collect
+publicavel: true
+descricao: Rank, grau (clientes, pares e provedores) e cone de cada ASN do Brasil, pela API REST pública do CAIDA AS Rank
+  (listagem paginada de todos os ~123 mil ASNs, filtrada pelo país). Inferência do CAIDA sobre a tabela de rotas pública.
+origem:
+  url: https://api.asrank.caida.org/v2/restful/asns/
+  formato: JSON (data.asns.edges[].node), paginado por first/offset
+  licenca: dados públicos do CAIDA (Acceptable Use Agreement for Publicly Accessible Datasets), atribuição obrigatória
+  uso_comercial: nao_verificado
+  termos: https://www.caida.org/about/legal/aua/
+  nota: 'Citação: "The CAIDA UCSD AS Rank, https://asrank.caida.org". O AS Rank é inferência do CAIDA e nunca vai como verdade: rotulado como estimado.'
+cadencia:
+  fonte_atualiza: mensal
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 45d
+politica_falha: opcional
+saidas:
+  normalizado:
+  - summary/caida_asrank.json.gz
+chaves:
+- asn
+campos:
+- nome: asns[asn].rank
+  tipo: int
+  significado: Posição do ASN pelo tamanho do cone de clientes (1 = maior).
+  tratamento: Inferência do CAIDA (relações entre ASNs); estimado.
+- nome: asns[asn].cone
+  tipo: dict
+  significado: Tamanho do cone de clientes (ASNs, prefixos e endereços).
+  tratamento: Inferência do CAIDA.
+- nome: asns[asn].grau
+  tipo: dict
+  significado: Número de vizinhos por tipo (total, clientes, pares, provedores) inferido pelo CAIDA.
+  tratamento: Inferência; difere do que o Arandurapé infere em as_relationships.
+- nome: asns[asn].clique
+  tipo: bool
+  significado: Campo cliqueMember da API do CAIDA.
+  tratamento: 'NÃO USADO nos produtos. A API devolve true para ASNs de rank baixo (conferido em 2026-10-31, caso do AS28573, posição 7.887), então não é a clique de nível 1.'
+limites: 'Mensal, defasado até ~1 mês; "país" é o do registro do ASN (pode diferir de is_br do Arandurapé). Listagem completa leva 4 a 5 minutos (13 páginas de ~3,6 MB, ~20 s cada).'
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/caida_asrank/
+pendencias:
+- Uso comercial do dataset (AUA); servir só o derivado rotulado, com a atribuição.
+etapa:
+  tentativas: 3
+  espera_s: 60

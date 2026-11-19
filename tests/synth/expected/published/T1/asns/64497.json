@@ -1,0 +1,348 @@
+{
+ "alerts": [
+  {
+   "category": "rpki",
+   "desde_versao": 1,
+   "detail": "1 prefixo(s) anunciado(s) estão como RPKI inválidos (origem/maxLength não batem com os ROAs) e podem ser descartados por redes que validam.",
+   "id": "rpki_invalido",
+   "refs": {
+    "prefixes": [
+     "198.18.0.0/24"
+    ]
+   },
+   "severity": "critico",
+   "title": "Anúncio RPKI inválido"
+  },
+  {
+   "category": "presenca",
+   "desde_versao": 1,
+   "detail": "O AS é membro de PTT(s) do IX.br mas não tem registro no PeeringDB, o que dificulta o estabelecimento de peering.",
+   "id": "sem_peeringdb",
+   "refs": {},
+   "severity": "aviso",
+   "title": "Sem cadastro no PeeringDB"
+  },
+  {
+   "category": "presenca",
+   "desde_versao": 2,
+   "detail": "O AS aparenta depender de um único upstream (IPv6 e IPv4) na tabela global — risco de resiliência.",
+   "id": "single_homed",
+   "refs": {
+    "upstream_v4": 4200000001,
+    "upstream_v6": 4200000001
+   },
+   "severity": "aviso",
+   "title": "Conectividade single-homed"
+  },
+  {
+   "category": "roteamento",
+   "desde_versao": 1,
+   "detail": "1 prefixo(s) deste AS são originados na full table por um ASN diferente. Pode ser anúncio gerenciado por terceiro — vale confirmar se é intencional.",
+   "id": "anuncio_por_outro_as",
+   "refs": {
+    "items": [
+     {
+      "origin_asn": 64496,
+      "prefix": "198.18.0.0/24"
+     }
+    ]
+   },
+   "severity": "aviso",
+   "title": "Bloco anunciado por outro AS"
+  },
+  {
+   "category": "rpki",
+   "desde_versao": 1,
+   "detail": "3 bloco(s) alocado(s) não têm ROA cobrindo — parte do espaço fica sem proteção de origem.",
+   "id": "rpki_cobertura_parcial",
+   "refs": {
+    "prefixes": [
+     "198.18.0.0/24",
+     "198.18.2.0/24",
+     "198.18.3.0/24"
+    ]
+   },
+   "severity": "aviso",
+   "title": "Cobertura RPKI parcial"
+  },
+  {
+   "category": "rpki",
+   "desde_versao": 1,
+   "detail": "O AS possui ROAs no RPKI mas não publicou nenhum objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os upstreams autorizados e permite validação de AS_PATH — sua ausência não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
+   "id": "sem_aspa",
+   "refs": {},
+   "severity": "aviso",
+   "title": "Sem ASPA"
+  },
+  {
+   "category": "presenca",
+   "desde_versao": 1,
+   "detail": "No Alice-LG do IX.br, em 2026-01-01, ao menos uma sessão do AS tinha 80% ou mais do limite de importação ocupado: ZA (90%). Passar do limite derruba a sessão ou descarta rotas, conforme a configuração do route server.",
+   "id": "import_limit_proximo",
+   "refs": {
+    "coletado_em": "2026-01-01T06:00:00+00:00",
+    "ixps": {
+     "za": 0.9
+    }
+   },
+   "severity": "info",
+   "title": "Perto do limite de importação no route server"
+  }
+ ],
+ "announced_ipv4_addresses": 512,
+ "announced_ipv6_48s": 2,
+ "apnic_users": 6291,
+ "apnic_users_pct_cc": 0.3145,
+ "apnic_v6_pct_as": 30.0,
+ "apnic_v6_users": 1887,
+ "asn": 64497,
+ "cnpj": "90000002000173",
+ "downstreams": [],
+ "downstreams_global_v4": [],
+ "downstreams_global_v6": [],
+ "downstreams_v4": [],
+ "downstreams_v6": [],
+ "external_ixps": [
+  "zx"
+ ],
+ "geo_org": {
+  "city": "Tupãnópolis",
+  "cnpj": "90000002000173",
+  "geo_confidence": "city_centroid",
+  "geo_source": "nominatim",
+  "lat": -22.95,
+  "lon": -43.25,
+  "municipio": "Tupãnópolis",
+  "name": "Provedor 02 Telecom Ltda",
+  "uf": "RJ"
+ },
+ "geo_prefixes_v4": {
+  "198.18.2.0/24": {
+   "city": "Tupãnópolis",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -22.95,
+   "lon": -43.25,
+   "uf": "RJ"
+  },
+  "198.18.3.0/24": {
+   "city": "Tupãnópolis",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -22.95,
+   "lon": -43.25,
+   "uf": "RJ"
+  }
+ },
+ "geo_prefixes_v6": {
+  "2001:db8:1::/48": {
+   "city": "Tupãnópolis",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -22.95,
+   "lon": -43.25,
+   "uf": "RJ"
+  },
+  "2001:db8:2::/48": {
+   "city": "Tupãnópolis",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -22.95,
+   "lon": -43.25,
+   "uf": "RJ"
+  }
+ },
+ "global_prefixes_v4": [
+  "198.18.2.0/24",
+  "198.18.3.0/24"
+ ],
+ "global_prefixes_v4_count": 2,
+ "global_prefixes_v6": [
+  "2001:db8:1::/48",
+  "2001:db8:2::/48"
+ ],
+ "global_prefixes_v6_count": 2,
+ "has_ipv6": true,
+ "is_br": true,
+ "is_multihomed_v4": false,
+ "is_multihomed_v6": false,
+ "ixp_member_codes": [
+  "za"
+ ],
+ "ixp_paths": {
+  "zb": [
+   [
+    4200000001
+   ]
+  ]
+ },
+ "ixp_presence": {
+  "za": {
+   "v4": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "198.18.0.0/24",
+     "198.18.2.0/24",
+     "198.18.3.0/24"
+    ]
+   },
+   "v6": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "2001:db8:1::/48",
+     "2001:db8:2::/48"
+    ]
+   }
+  },
+  "zb": {
+   "v4": {
+    "direct": false,
+    "origin": true,
+    "prefixes": [
+     "198.18.2.0/24"
+    ]
+   },
+   "v6": {
+    "direct": false,
+    "origin": true,
+    "prefixes": [
+     "2001:db8:1::/48"
+    ]
+   }
+  }
+ },
+ "ixps_direct": [
+  "za"
+ ],
+ "ixps_origin": [
+  "za",
+  "zb"
+ ],
+ "name": "Provedor 02 Telecom Ltda",
+ "path_node_meta": {
+  "4200000001": {
+   "is_br": true,
+   "name": "Trânsito Nacional 2 S.A.",
+   "space_v4": 6,
+   "space_v6": 1
+  }
+ },
+ "pdb": null,
+ "pdb_registered": false,
+ "rir_prefixes_v4": [
+  "198.18.0.0/24",
+  "198.18.2.0/24",
+  "198.18.3.0/24"
+ ],
+ "rir_prefixes_v4_count": 3,
+ "rir_prefixes_v6": [
+  "2001:db8:1::/48",
+  "2001:db8:2::/48"
+ ],
+ "rir_prefixes_v6_count": 2,
+ "roa_list": [
+  {
+   "asn": 64497,
+   "maxLength": 48,
+   "prefix": "2001:db8:1::/48",
+   "ta": "lacnic"
+  },
+  {
+   "asn": 64497,
+   "maxLength": 48,
+   "prefix": "2001:db8:2::/48",
+   "ta": "lacnic"
+  }
+ ],
+ "rpki_validation": {
+  "198.18.0.0/24": "invalid",
+  "198.18.2.0/24": "not_found",
+  "198.18.3.0/24": "not_found",
+  "2001:db8:1::/48": "valid",
+  "2001:db8:2::/48": "valid"
+ },
+ "sici": {
+  "acessos": 1797,
+  "acessos_compartilhados": false,
+  "acessos_internet": 1797,
+  "asns": [
+   64497
+  ],
+  "capacidade_internet_mbps": 215640.0,
+  "capacidade_mbps": 215640.0,
+  "cnpj": "90000002000173",
+  "divergencia_apnic_anatel": {
+   "acessos_sici": 1797,
+   "apnic_users": 6291,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "empresa": "Provedor 02 Telecom Ltda",
+  "grupo": "OUTROS",
+  "meio_predominante": "Fibra",
+  "mes_referencia": "2026-08",
+  "municipios": 1,
+  "pf": 1617,
+  "pj": 180,
+  "por_faixa": {
+   "> 34Mbps": 1797
+  },
+  "por_meio": {
+   "Fibra": 1797
+  },
+  "por_produto": {
+   "INTERNET": 1797
+  },
+  "por_tecnologia": {
+   "FTTH": 1797
+  },
+  "porte": "Pequeno Porte",
+  "serie": [
+   [
+    "2026-07",
+    1743,
+    1568,
+    174
+   ],
+   [
+    "2026-08",
+    1797,
+    1617,
+    180
+   ]
+  ],
+  "tecnologia_predominante": "FTTH",
+  "velocidade_media_mbps": 120.0,
+  "velocidade_mediana_mbps": 120.0
+ },
+ "single_upstream_v4": 4200000001,
+ "single_upstream_v6": 4200000001,
+ "snapshot_date": "2026-09-20",
+ "upstreams": [
+  4200000001
+ ],
+ "upstreams_global_v4": [
+  4200000001
+ ],
+ "upstreams_global_v6": [
+  4200000001
+ ],
+ "upstreams_v4": [
+  4200000001
+ ],
+ "upstreams_v6": [
+  4200000001
+ ],
+ "users_per_ip": 12.29,
+ "users_per_v6_48": 943.5
+}

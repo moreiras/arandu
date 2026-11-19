@@ -1,0 +1,7 @@
+{"subasignacoes": [
+  {"bloco": "198.18.0.0/24", "receptor_asn": "AS64500", "inicio": "2026-12-01", "fim": "2027-12-01", "cedente_asn": 64496, "rir": "LACNIC"},
+  {"bloco": "198.18.4.0/23", "receptor_asn": 64501, "inicio": "2026-12-10"},
+  {"bloco": "198.19.0.0/16", "receptor_asn": 64502, "inicio": "2026-12-10"},
+  {"bloco": "nao-e-bloco", "receptor_asn": 64503, "inicio": "2026-12-10"},
+  {"bloco": "198.18.8.0/24", "receptor_asn": 64504, "inicio": "2026-12-10", "fim": "2026-01-01"}
+]}

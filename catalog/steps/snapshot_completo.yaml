@@ -1,0 +1,23 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: snapshot_completo
+nome: Publicação do snapshot
+ordem: 35
+modulo: publish.snapshot_builder
+parcial:
+- snapshot
+- outorgas
+- sici
+- grupos_societarios
+- mapas_infraestrutura
+- mapas_prefixos
+- cdns
+- ixp_docs
+depois_de:
+- metricas_ixp_asn
+- rpki_collector
+- registrobr_listas      # fontes só do arandu: coletadas antes do `snapshot_completo` para o sources[] do manifesto ter a versão do dia
+- lacnic_listas
+politica_falha: critica
+so_com_only: true       # build num só processo (replay e operações manuais); no pipeline, o build é feito pelos passos de products/passos.py
+replay: false
+descricao: Índices, mapas, mercado, manifesto e checksums. ixps/index.json e _aggregate.json saem daqui.

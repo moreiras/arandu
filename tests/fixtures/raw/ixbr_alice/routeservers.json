@@ -1,0 +1,25 @@
+{
+ "routeservers": [
+  {
+   "id": "SP-rs1-v4",
+   "type": "bird",
+   "name": "rs1.saopaulo.sp.ix.br (IPv4)",
+   "group": "IX.br São Paulo/SP",
+   "blackholes": []
+  },
+  {
+   "id": "SP-rs2-v4",
+   "type": "bird",
+   "name": "rs2.saopaulo.sp.ix.br (IPv4)",
+   "group": "IX.br São Paulo/SP",
+   "blackholes": []
+  },
+  {
+   "id": "RR-rs1-v6",
+   "type": "bird",
+   "name": "rs1.boavista.rr.ix.br (IPv6)",
+   "group": "IX.br Boa Vista/RR",
+   "blackholes": []
+  }
+ ]
+}

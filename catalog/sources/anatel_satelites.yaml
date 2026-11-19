@@ -1,0 +1,51 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: anatel_satelites
+nome: Anatel — satélites com direito de exploração
+tipo: bruta
+ativa: true
+modulo: sources.anatel_satelites.collect
+publicavel: true
+descricao: 'Direitos de exploração de satélite no Brasil (operadora, satélite, posição orbital, banda, tipo nacional ou estrangeiro, status e validade), constelações de órbita não geoestacionária
+  (NGEO, como as de órbita baixa) e satélites em operação comercial.'
+origem:
+  url: https://www.anatel.gov.br/dadosabertos/paineis_de_dados/espectro_e_orbita/satelites.zip
+  formato: ZIP com 7 CSVs (UTF-8 com BOM, separador `;`); lidos os de direitos (123 linhas), de constelações NGEO (73) e de satélites em operação comercial (55)
+  licenca: Dados Abertos Anatel
+  uso_comercial: permitido
+  termos: https://www.gov.br/anatel/pt-br/dados/dados-abertos
+  nota: 'Endereço achado por padrão de nome e verificado em 2026-11-02 (HTTP 200, 49.431 bytes). Uma requisição, com User-Agent identificado.'
+cadencia:
+  fonte_atualiza: diaria
+  coleta: mensal
+  coleta_atual: semanal
+  frescor_maximo: 45d
+politica_falha: opcional
+saidas:
+  bruto:
+  - summary/satelites-AAAA-MM-DD.zip
+  normalizado:
+  - summary/anatel_satelites.json.gz
+chaves:
+- cnpj
+campos:
+- nome: direitos[].operadora / satelite / codigo / posicao / banda / tipo / status
+  tipo: str
+  significado: Operadora, satélite, código do direito, posição orbital, banda, tipo (Brasileiro ou Estrangeiro) e status do direito.
+- nome: direitos[].lancamento / validade / prorrogado
+  tipo: data / bool
+  significado: Data de lançamento, validade do direito e se foi prorrogado.
+- nome: ngeo[] / operando[]
+  tipo: lista
+  significado: Constelações NGEO (prestadora, CNPJ, objeto comercial, órbita, planos e satélites da constelação) e satélites em operação comercial.
+  tratamento: CNPJ só nas constelações NGEO (prestadora no Brasil); nos direitos não há CNPJ.
+- nome: resumo / data_arquivo / sha256
+  tipo: dict
+  significado: Linhas lidas por tabela; data de modificação do arquivo na Anatel e seu hash.
+limites: Direito concedido não é capacidade em uso nem número de assinantes. Muitas operadoras são estrangeiras e não se ligam aos grupos do SICI.
+retencao:
+  bruto: 2 versões
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/anatel_satelites/
+etapa:
+  tentativas: 3
+  espera_s: 300

@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: anatel_stfc
+nome: Outorgas STFC (Anatel)
+ordem: 16
+modulo: sources.anatel_stfc.collect
+fontes:
+- anatel_stfc
+politica_falha: opcional
+descricao: ''

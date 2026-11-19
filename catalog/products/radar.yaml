@@ -1,0 +1,51 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: radar
+nome: Cloudflare Radar por ASN e UF (CC BY-NC 4.0)
+descricao: Para cada ASN do Brasil do snapshot, o percentual de IPv6 das requisições de pessoas vistas pela Cloudflare (com a data da leitura), a participação no tráfego e a velocidade/latência (só os ASNs de topo) e o papel
+  nos eventos de BGP dos últimos 28 dias; por UF, agregado derivado dos ASNs. Cobertura declarada; ausência de dado não é zero; sem ranking. Dados do Cloudflare Radar sob CC BY-NC 4.0, com atribuição no arquivo.
+modulo: products.radar.build
+entradas:
+- source: cloudflare_radar
+- product: asn_docs
+chaves_de_juncao:
+- asn
+saidas:
+  publicado:
+  - radar/asns.json.gz
+campos:
+- nome: asns[asn]
+  tipo: dict
+  significado: '`ipv6` (`pct` e `em`), `trafego_pct_do_brasil`, `velocidade` (download, upload, latências, jitter, testes) e `bgp` (vazou, no_caminho_de_vazamento, sequestrou, vitima_de_sequestro), só do que existe para o ASN.'
+  tratamento: Ausência não é zero. IPv6 mede quem usa a Cloudflare; velocidade e tráfego só dos ASNs de topo; eventos de BGP não provam intenção nem dano.
+  publicado_em:
+  - radar → radar/asns.json.gz#asns
+- nome: por_uf
+  tipo: dict
+  significado: Por UF, ASNs do cadastro, ASNs com IPv6, mediana de IPv6, IPv6 ponderado pelo tráfego (só ASNs com os dois números, com a contagem) e soma dos papéis de BGP.
+  tratamento: DERIVADO dos ASNs pelo mapeamento ASN → UF do projeto; o Radar não tem recorte por UF.
+  publicado_em:
+  - radar → radar/asns.json.gz#por_uf
+- nome: cobertura / bgp / quedas
+  tipo: dict
+  significado: Cobertura (ASNs no snapshot, na lista do Radar, lidos, com dado, datas da leitura mais antiga e mais recente, ASNs de topo), resumo e critério dos eventos de BGP e a consulta de quedas do país.
+  tratamento: Declarados para não confundir ausência de leitura com ausência de problema; "sem quedas" é o que a consulta devolveu na data.
+  publicado_em:
+  - radar → radar/asns.json.gz#cobertura
+  - radar → radar/asns.json.gz#bgp
+  - radar → radar/asns.json.gz#quedas
+- nome: fonte / licenca / aviso / limites / coletado_em / janela_ipv6
+  tipo: dict
+  significado: Fonte, licença CC BY-NC 4.0 e atribuição, avisos, limites, instante da coleta e janela do IPv6.
+  publicado_em:
+  - radar → radar/asns.json.gz#fonte
+  - radar → radar/asns.json.gz#licenca
+  - radar → radar/asns.json.gz#aviso
+  - radar → radar/asns.json.gz#limites
+  - radar → radar/asns.json.gz#coletado_em
+  - radar → radar/asns.json.gz#janela_ipv6
+- nome: snapshot_date / generated_at
+  tipo: str
+  significado: Data do snapshot e instante da geração.
+  publicado_em:
+  - radar → radar/asns.json.gz#snapshot_date
+  - radar → radar/asns.json.gz#generated_at

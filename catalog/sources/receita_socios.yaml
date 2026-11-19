@@ -1,0 +1,67 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: receita_socios
+nome: Quadro societário (dados abertos do CNPJ — Receita Federal)
+tipo: bruta
+ativa: true
+modulo: sources.receita_socios.collect
+publicavel: true
+descricao: Lê, em streaming e arquivo a arquivo, as partes de Sócios do dump mensal do CNPJ e guarda só
+  os sócios dos CNPJs já presentes na base (SCM/SMP/STFC/SeAC). Não guarda o dump (vários GB).
+origem:
+  url: https://arquivos.receitafederal.gov.br/index.php/s/YggdBLfdninEJX9
+  formato: zip/csv (;-delimitado, latin-1, sem cabeçalho) via WebDAV Nextcloud
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  termos: https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/dados-abertos/cadastros/cnpj
+  nota: 'Dados abertos do CNPJ da Receita (Decreto 8.777/2016). A página oficial exige JavaScript e não
+    foi lida em 2026-10-13; o domínio antigo dadosabertos.rfb.gov.br saiu do ar (confirmado em 2026-09).
+    Contém pessoa física (CPF parcialmente mascarado): LGPD.'
+cadencia:
+  fonte_atualiza: mensal
+  coleta: mensal
+  coleta_atual: mensal
+  frescor_maximo: 45d
+politica_falha: usar_ultima_valida
+saidas:
+  normalizado:
+  - summary/receita_socios.json.gz
+chaves:
+- cnpj
+campos:
+- nome: by_cnpj_basico[cnpj8][].nome_socio
+  tipo: str
+  significado: Nome do sócio (PF) ou razão social (PJ).
+  tratamento: 'PF: dado pessoal (LGPD); só entra em produto agregado.'
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#by_cnpj
+  sensivel: true
+- nome: by_cnpj_basico[cnpj8][].cnpj_cpf_socio
+  tipo: str
+  significado: 'Para PJ: 8 dígitos do CNPJ básico do sócio; para PF: CPF com 3 primeiros e 2 últimos dígitos
+    ocultos.'
+  tratamento: CPF mascarado pela Receita; colisões possíveis (falso positivo).
+  sensivel: true
+- nome: by_cnpj_basico[cnpj8][].identificador_socio
+  tipo: str
+  significado: 1=Pessoa Jurídica, 2=Pessoa Física, 3=Estrangeiro.
+- nome: by_cnpj_basico[cnpj8][].qualificacao_socio
+  tipo: str
+  significado: Código de qualificação do sócio (administrador, sócio, etc.).
+- nome: by_cnpj_basico[cnpj8][].data_entrada_sociedade
+  tipo: str
+  significado: Data de entrada do sócio na sociedade.
+- nome: by_cnpj_basico[cnpj8][].faixa_etaria
+  tipo: str
+  significado: Código da faixa etária do sócio PF (1=0–12 … 9=80+; 0=não se aplica).
+  sensivel: true
+- nome: dump_reference
+  tipo: str
+  significado: Mês de referência (AAAA-MM) do dump da Receita usado.
+limites: 'Sócio PJ só traz o CNPJ básico (8 dígitos). Sócio oculto/indireto não aparece. Cadência efetiva:
+  download no máximo a cada 30 dias (marcador em data/receita_socios_last_run.json).'
+retencao:
+  normalizado: 2 versões (dado pessoal)
+fixture: tests/fixtures/raw/receita_socios/
+pendencias:
+- Licença/termos do conjunto CNPJ não lidos (página exige JavaScript).
+- Revisão jurídica do uso de nome/CPF mascarado de PF.

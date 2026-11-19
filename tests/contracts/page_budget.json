@@ -1,0 +1,302 @@
+{
+ "_doc": "Baseline de requisições e bytes por página (smoke.js --update). Orçamento = baseline + tolerância.",
+ "paginas": {
+  "home": {
+   "chamadas": 26,
+   "api": 12,
+   "bytes": 174940,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "explorar": {
+   "chamadas": 15,
+   "api": 4,
+   "bytes": 38912,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "fontes": {
+   "chamadas": 16,
+   "api": 4,
+   "bytes": 90269,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "estados": {
+   "chamadas": 17,
+   "api": 4,
+   "bytes": 7952,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "dados": {
+   "chamadas": 14,
+   "api": 3,
+   "bytes": 7281,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "dashboard": {
+   "chamadas": 45,
+   "api": 12,
+   "bytes": 687282,
+   "erros_5xx": 0,
+   "erros_console": 4,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "asn": {
+   "chamadas": 34,
+   "api": 6,
+   "bytes": 113272,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "ptt": {
+   "chamadas": 26,
+   "api": 5,
+   "bytes": 48710,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "operadora": {
+   "chamadas": 36,
+   "api": 8,
+   "bytes": 46737,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "municipio": {
+   "chamadas": 27,
+   "api": 7,
+   "bytes": 91624,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "uf": {
+   "chamadas": 31,
+   "api": 7,
+   "bytes": 27511,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "prefixo": {
+   "chamadas": 19,
+   "api": 7,
+   "bytes": 15723,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "mapa": {
+   "chamadas": 30,
+   "api": 9,
+   "bytes": 207032,
+   "erros_5xx": 0,
+   "erros_console": 4,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "bgp": {
+   "chamadas": 18,
+   "api": 5,
+   "bytes": 26541,
+   "erros_5xx": 0,
+   "erros_console": 2,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "estatisticas": {
+   "chamadas": 25,
+   "api": 7,
+   "bytes": 21585,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "panorama_tecnico_ipv6": {
+   "chamadas": 37,
+   "api": 9,
+   "bytes": 6829,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "mudancas": {
+   "chamadas": 17,
+   "api": 5,
+   "bytes": 9029,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "uso_da_internet": {
+   "chamadas": 21,
+   "api": 7,
+   "bytes": 25098,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "qualidade": {
+   "chamadas": 18,
+   "api": 6,
+   "bytes": 16128,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "regulatorio": {
+   "chamadas": 17,
+   "api": 5,
+   "bytes": 12642,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "seguranca_roteamento": {
+   "chamadas": 20,
+   "api": 4,
+   "bytes": 14160,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "mercado_ipv4": {
+   "chamadas": 17,
+   "api": 5,
+   "bytes": 13728,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "rankings": {
+   "chamadas": 20,
+   "api": 4,
+   "bytes": 21009,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "municipios": {
+   "chamadas": 16,
+   "api": 4,
+   "bytes": 10412,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "communities": {
+   "chamadas": 15,
+   "api": 4,
+   "bytes": 9384,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "ases": {
+   "chamadas": 16,
+   "api": 4,
+   "bytes": 13773,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "comparar_asn": {
+   "chamadas": 18,
+   "api": 4,
+   "bytes": 21739,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "relatorio_asn": {
+   "chamadas": 21,
+   "api": 6,
+   "bytes": 11799,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "panorama_mercado_concentracao": {
+   "chamadas": 24,
+   "api": 6,
+   "bytes": 6194,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "operadoras_ranking": {
+   "chamadas": 19,
+   "api": 4,
+   "bytes": 4060,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "panorama_mercado_maiores": {
+   "chamadas": 24,
+   "api": 6,
+   "bytes": 5764,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "grupo": {
+   "chamadas": 34,
+   "api": 9,
+   "bytes": 20452,
+   "erros_5xx": 0,
+   "erros_console": 3,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  },
+  "cdncap": {
+   "chamadas": 21,
+   "api": 6,
+   "bytes": 20532,
+   "erros_5xx": 0,
+   "erros_console": 0,
+   "erros_pagina": 0,
+   "mostra_erro_na_tela": false
+  }
+ }
+}

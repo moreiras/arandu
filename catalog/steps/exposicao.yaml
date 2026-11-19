@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: exposicao
+nome: Exposição de serviços por ASN e UF
+ordem: -310
+modulo: products.passos
+args:
+- --passo
+- exposicao
+- --date
+- '{date}'
+parcial:
+- exposicao
+depois_de:
+- shodan_exposicao
+- asn_indice
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: serviços observados pelo Shodan por ASN (com a data da leitura do rodízio), serviços em portas de risco por classe, CVEs se o plano as tiver, e agregado derivado por UF, com a cobertura declarada. Lê o normalizado da fonte `shodan_exposicao`; sem ele não gera nada. Só contagens, sem lista de IPs, sem ranking de ASN.'

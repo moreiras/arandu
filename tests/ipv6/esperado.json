@@ -1,0 +1,13 @@
+{
+  "_comentario": "Como o Arandurapé (GET /auth/diag, atrás do nginx) deve enxergar cada cliente em cada cenário do laboratório IPv6 (T7). ALLOWED_IPS do alvo: 2001:db8:1::10/128 e 192.168.0.40/32. Mudança aqui é mudança de comportamento: revisar como contrato.",
+  "dual_client/dual":       {"ip_visto": "2001:db8:1::10",  "versao": 6, "na_allowlist": true,  "tier": "allowed"},
+  "dual_client/ipv4":       {"ip_visto": "192.168.0.10",    "versao": 4, "na_allowlist": false, "tier": "anon"},
+  "dual_client/ipv6":       {"ip_visto": "2001:db8:1::10",  "versao": 6, "na_allowlist": true,  "tier": "allowed"},
+  "ipv4_client/dual":       {"ip_visto": "192.168.0.40",    "versao": 4, "na_allowlist": true,  "tier": "allowed"},
+  "ipv4_client/ipv4":       {"ip_visto": "192.168.0.40",    "versao": 4, "na_allowlist": true,  "tier": "allowed"},
+  "ipv4_client/siit":       {"ip_visto": "2001:db8:4::28",  "versao": 6, "na_allowlist": false, "tier": "anon"},
+  "ipv6_strict_client/dual":{"ip_visto": "2001:db8:1::60",  "versao": 6, "na_allowlist": false, "tier": "anon"},
+  "ipv6_strict_client/ipv6":{"ip_visto": "2001:db8:1::60",  "versao": 6, "na_allowlist": false, "tier": "anon"},
+  "ipv6_nat64_client/ipv4": {"ip_visto": "192.168.0.64",    "versao": 4, "na_allowlist": false, "tier": "anon"},
+  "ipv6_nat64_client/ipv6": {"ip_visto": "2001:db8:1::664", "versao": 6, "na_allowlist": false, "tier": "anon"}
+}

@@ -1,0 +1,20 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ipv4
+nome: Mercado de IPv4 (transferências, recuperação, blocos do Brasil)
+ordem: -73
+modulo: products.passos
+args:
+- --passo
+- ipv4
+- --date
+- '{date}'
+parcial:
+- ipv4
+depois_de:
+- ipv4_listas
+- ipv4_delegated
+- asn_indice
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: agrupa as transferências do Registro.br e do LACNIC em operações (mesmo dia e mesmas partes), casa o bloco com o ASN do snapshot, resume o mercado por ano,
+  direção e tamanho, lista os recursos em recuperação e publica os blocos IPv4 do Brasil com o estado atual no delegated. Roda sozinho; lê o normalizado das listas e o estado de data/ipv4/.'

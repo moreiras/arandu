@@ -1,0 +1,62 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: irr_route_objects
+nome: IRR (TC e RADB) — objetos route/route6 dos ASNs brasileiros
+tipo: bruta
+ativa: true
+modulo: sources.irr_route_objects.collect
+publicavel: true
+descricao: 'Dumps públicos do TC IRR (bgp.net.br) e do RADB (Merit), lidos em fluxo; ficam só os pares prefixo/origem (`route`/`route6`) cuja origem é ASN brasileiro (Registro.br) e quais ASNs brasileiros
+  têm `aut-num`. Serve para medir quanto dos prefixos que o ASN anuncia tem objeto IRR. Mantenedor, contato e texto dos objetos não são guardados.'
+origem:
+  url: https://ftp.bgp.net.br/tc.db.gz e ftp://ftp.radb.net/radb/dbase/radb.db.gz
+  formato: RPSL (texto, gzip); serial em TC.CURRENTSERIAL e RADB.CURRENTSERIAL
+  licenca: TC termos de uso; RADB ToS (cópia arquivada)
+  uso_comercial: nao_verificado
+  termos: https://bgp.net.br/terms.html e https://www.radb.net/terms-of-service
+  nota: 'TC (terms.html, lido em 2026-11-02): permite consultar dados técnicos e "usar as informações para operação, segurança, auditoria e pesquisa de redes"; proíbe automação agressiva e objetos proxy; sem
+    cláusula de redistribuição, de uso comercial nem de citação. RADB: o ToS é um contrato de registrante; a informação "não é confidencial" e fica à disposição de quem acessa o Registry; o suporte diz que o
+    dump FTP é público, sem assinatura, e que se deve consultar o serial antes de baixar; revenda de serviços é proibida. O site do RADB responde 403 a requisição automática, então o ToS foi lido em cópia
+    arquivada (TOSTracker, 2026-07-09) e a Acceptable Use policy da Merit não foi lida. Decisão do mantenedor (2026-11-02): RADB considerado OK, coletar e usar como ativo, publicando só derivados por ASN.'
+cadencia:
+  fonte_atualiza: diaria
+  coleta: mensal
+  coleta_atual: semanal
+  frescor_maximo: 45d
+politica_falha: opcional
+entradas:
+- registro_br
+saidas:
+  bruto:
+  - summary/irr-tc-AAAA-MM-DD.db.gz
+  - summary/irr-radb-AAAA-MM-DD.db.gz
+  normalizado:
+  - summary/irr_route_objects.json.gz
+chaves:
+- asn
+- prefixo
+campos:
+- nome: rotas[irr][asn]
+  tipo: lista
+  significado: Prefixos (CIDR) de objetos `route`/`route6` com o ASN brasileiro como origem, por IRR (TC e RADB).
+  tratamento: 'Só o par prefixo/origem. O RADB aceita objetos criados por terceiros (o provedor, por exemplo) e o TC não: a existência do objeto não prova que o ASN o criou.'
+- nome: aut_num[irr]
+  tipo: lista
+  significado: ASNs brasileiros com objeto `aut-num` no IRR.
+- nome: politicas[irr][asn]
+  tipo: lista
+  significado: 'Por `aut-num` brasileiro, as linhas `import`/`export` com par ASN explícito, reduzidas a sentido (in ou out), ASN do par e classe do filtro (any, proprio, par, as_set, outro).'
+  tratamento: 'Só a classe do filtro; o texto da política, mantenedor e contato não são guardados. Linhas com conjunto no lugar do par, refine/except e fatores múltiplos são ignoradas. Declarado não é praticado: serve de referência e de evidência candidata do 1.5.30, nunca de verdade.'
+- nome: fontes[irr]
+  tipo: dict
+  significado: URL, serial, tamanho, hash, contagem de objetos do dump (todos, não só brasileiros), ASNs brasileiros com route, prefixos e `aut-num`; `reaproveitado_de` quando o serial não mudou.
+limites: Objeto IRR documenta política ou intenção de roteamento; não substitui delegação nem RPKI. TC e RADB cobrem 95% dos ASNs brasileiros que anunciam prefixos, mas RIPE, ARIN, LACNIC e outros IRRs não são lidos
+  (acrescentariam 13 ASNs na medição de 2026-11-02). Objetos `as-set` não são lidos (não há vínculo confiável entre o as-set e o ASN).
+retencao:
+  bruto: 2 versões
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/irr_route_objects/
+pendencias:
+- Confirmação formal do RADB (support@radb.net) sobre o uso do dump em derivados é opcional; ler a Acceptable Use policy da Merit.
+etapa:
+  tentativas: 3
+  espera_s: 600

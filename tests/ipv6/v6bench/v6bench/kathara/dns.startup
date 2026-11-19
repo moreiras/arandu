@@ -1,0 +1,7 @@
+#!/bin/sh
+
+mv /etc/bindfiles/* /etc/bind/
+rm -rfv /etc/bindfiles
+
+# Daemonized: devices no longer use a blocking entrypoint (see run_lab.sh).
+/usr/sbin/named -c /etc/bind/named.conf

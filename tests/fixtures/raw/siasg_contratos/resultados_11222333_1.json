@@ -1,0 +1,49 @@
+{
+ "resultado": [
+  {
+   "idCompraItem": "90000100001",
+   "idCompra": "00000000000191100",
+   "idContratacaoPNCP": "00000000000191-1-000001/2025",
+   "unidadeOrgaoCodigoUnidade": "900001",
+   "unidadeOrgaoUfSigla": "DF",
+   "numeroItemPncp": 1,
+   "sequencialResultado": 1,
+   "niFornecedor": "11222333000181",
+   "tipoPessoa": "PJ",
+   "nomeRazaoSocialFornecedor": "FORNECEDOR FICTICIO",
+   "quantidadeHomologada": 12,
+   "valorUnitarioHomologado": 1000.0,
+   "valorTotalHomologado": 12000.0,
+   "situacaoCompraItemResultadoId": 1,
+   "situacaoCompraItemResultadoNome": "Informado",
+   "dataResultadoPncp": "2025-03-10T00:00:00",
+   "numeroControlePNCPCompra": "00000000000191-1-000001/2025",
+   "orgaoEntidadeCnpj": "00000000000191",
+   "codigoPais": "BRA"
+  },
+  {
+   "idCompraItem": "90000100002",
+   "idCompra": "00000000000191100",
+   "idContratacaoPNCP": "00000000000191-1-000001/2025",
+   "unidadeOrgaoCodigoUnidade": "900001",
+   "unidadeOrgaoUfSigla": "DF",
+   "numeroItemPncp": 2,
+   "sequencialResultado": 1,
+   "niFornecedor": "11222333000181",
+   "tipoPessoa": "PJ",
+   "nomeRazaoSocialFornecedor": "FORNECEDOR FICTICIO",
+   "quantidadeHomologada": 1,
+   "valorUnitarioHomologado": 500.5,
+   "valorTotalHomologado": 500.5,
+   "situacaoCompraItemResultadoId": 2,
+   "situacaoCompraItemResultadoNome": "Cancelado",
+   "dataResultadoPncp": "2025-03-10T00:00:00",
+   "numeroControlePNCPCompra": "00000000000191-1-000001/2025",
+   "orgaoEntidadeCnpj": "00000000000191",
+   "codigoPais": "BRA"
+  }
+ ],
+ "totalRegistros": 5,
+ "totalPaginas": 2,
+ "paginasRestantes": 1
+}

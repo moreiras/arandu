@@ -1,0 +1,80 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: socios_grupos
+nome: Grupos societários entre operadoras (cruzamento do QSA)
+tipo: derivada
+ativa: true
+modulo: sources.socios_grupos.enrich
+publicavel: true
+descricao: 'Cruza o quadro societário das operadoras SCM/SMP/STFC/SeAC: propriedade direta entre CNPJs
+  da base e sócios em comum, classificando relações em ''mesmo_grupo'' (quadro idêntico ou controle exclusivo)
+  e ''relacionadas_parcial''. Holdings externas têm o cadastro resolvido via BrasilAPI.'
+origem:
+  url: https://brasilapi.com.br/api/cnpj/v1/{cnpj}
+  formato: JSON (holdings externas)
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  termos: https://brasilapi.com.br/
+  nota: Só para holdings externas à base; ver cnpj_geo. A base do quadro societário vem de receita_socios.
+cadencia:
+  fonte_atualiza: mensal
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: opcional
+entradas:
+- receita_socios
+- anatel_scm
+- anatel_smp
+- anatel_stfc
+- anatel_seac
+saidas:
+  normalizado:
+  - summary/grupos_societarios.json.gz
+  - ../holdings_cache/cartoes.json.gz
+chaves:
+- cnpj
+- grupo
+campos:
+- nome: grupos[].grupo_id
+  tipo: str
+  significado: Identificador do grupo (determinístico a partir dos CNPJs básicos ordenados).
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#grupos
+- nome: grupos[].classificacao
+  tipo: str
+  significado: Rótulo do tipo de relação que formou o grupo.
+  tratamento: Inferido; transitividade não é aplicada dentro do grupo.
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#grupos
+- nome: by_cnpj[cnpj].mesmo_grupo
+  tipo: list
+  significado: CNPJs com quadro de sócios idêntico ou controlador exclusivo.
+  tratamento: Relação TOTAL, não inferida por transitividade.
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#by_cnpj
+- nome: by_cnpj[cnpj].relacionadas_parcial
+  tipo: list[dict]
+  significado: CNPJs com sócios em comum, com a contagem e os nomes dos sócios PJ em comum (pessoa física só conta).
+  tratamento: 'PARCIAL: pode haver falso positivo por colisão de nome + CPF mascarado.'
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#by_cnpj
+- nome: by_cnpj[cnpj].holdings_externas
+  tipo: list[dict]
+  significado: Cadastro completo (BrasilAPI) das controladoras fora do universo de outorgas.
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#by_cnpj
+- nome: by_cnpj[cnpj].socios
+  tipo: list[dict]
+  significado: Quadro de sócios do CNPJ; nome e CNPJ básico só de sócio PJ.
+  tratamento: 'LGPD: sócio pessoa física ou estrangeiro sai só com tipo e qualificação, sem nome nem CPF (core.cpf.sem_socios_pessoa_fisica).'
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#by_cnpj
+  sensivel: true
+limites: 'CPF mascarado pela Receita: nomes comuns podem colidir (falso positivo). Sócio indireto/oculto
+  não aparece. ''Grupo'' é hipótese baseada em quadro societário, não afirmação sobre controle econômico.'
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/receita_socios/
+pendencias:
+- 'Nome de sócio PF não é gravado nem servido; o cruzamento continua usando nome + CPF mascarado em memória.'
+- Linguagem de evidência antes de qualquer afirmação sobre empresas.

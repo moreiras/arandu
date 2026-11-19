@@ -1,0 +1,19 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: route_servers
+nome: Route servers do IX.br, sessões × cadastro
+ordem: -68
+modulo: products.passos
+args:
+- --passo
+- route_servers
+- --date
+- '{date}'
+parcial:
+- route_servers
+depois_de:
+- ixbr_alice
+- ixbr_api
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: cruza as sessões BGP vistas no Alice-LG (ixbr_alice) com o cadastro de membros do IX.br
+  (ixbr_api) e publica um bloco por PTT e outro por ASN. Roda sozinho; lê os normalizados e o raw de membros.'

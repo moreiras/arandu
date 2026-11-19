@@ -1,0 +1,70 @@
+{
+ "00000000000191-1-000001/2025": {
+  "resultado": [
+   {
+    "numeroControlePNCP": "00000000000191-1-000001/2025",
+    "anoCompraPncp": 2025,
+    "orgaoEntidadeCnpj": "00000000000191",
+    "orgaoEntidadeRazaoSocial": "ORGAO FEDERAL FICTICIO",
+    "orgaoEntidadeEsferaId": "F",
+    "unidadeOrgaoUfSigla": "DF",
+    "unidadeOrgaoMunicipioNome": "BRASÍLIA",
+    "unidadeOrgaoCodigoIbge": 5300108,
+    "modalidadeNome": "Pregão - Eletrônico",
+    "objetoCompra": "Contratação de serviço de telefonia móvel (objeto fictício)"
+   }
+  ],
+  "totalRegistros": 1
+ },
+ "00000000000272-1-000002/2026": {
+  "resultado": [
+   {
+    "numeroControlePNCP": "00000000000272-1-000002/2026",
+    "anoCompraPncp": 2026,
+    "orgaoEntidadeCnpj": "00000000000272",
+    "orgaoEntidadeRazaoSocial": "SECRETARIA ESTADUAL FICTICIA",
+    "orgaoEntidadeEsferaId": "E",
+    "unidadeOrgaoUfSigla": "SP",
+    "unidadeOrgaoMunicipioNome": "SÃO PAULO",
+    "unidadeOrgaoCodigoIbge": 3550308,
+    "modalidadeNome": "Dispensa",
+    "objetoCompra": "Link dedicado de dados\n  com   espaços extras xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   }
+  ],
+  "totalRegistros": 1
+ },
+ "00000000000353-1-000003/2026": {
+  "resultado": [
+   {
+    "numeroControlePNCP": "00000000000353-1-000003/2026",
+    "anoCompraPncp": 2026,
+    "orgaoEntidadeCnpj": "00000000000353",
+    "orgaoEntidadeRazaoSocial": "PREFEITURA FICTICIA",
+    "orgaoEntidadeEsferaId": "M",
+    "unidadeOrgaoUfSigla": "MG",
+    "unidadeOrgaoMunicipioNome": "BELO HORIZONTE",
+    "unidadeOrgaoCodigoIbge": 3106200,
+    "modalidadeNome": "Pregão - Eletrônico",
+    "objetoCompra": "Acesso à Internet"
+   }
+  ],
+  "totalRegistros": 1
+ },
+ "00000000000353-1-000005/2026": {
+  "resultado": [
+   {
+    "numeroControlePNCP": "00000000000353-1-000005/2026",
+    "anoCompraPncp": 2026,
+    "orgaoEntidadeCnpj": "00000000000353",
+    "orgaoEntidadeRazaoSocial": "PREFEITURA FICTICIA",
+    "orgaoEntidadeEsferaId": "M",
+    "unidadeOrgaoUfSigla": "MG",
+    "unidadeOrgaoMunicipioNome": "BELO HORIZONTE",
+    "unidadeOrgaoCodigoIbge": 3106200,
+    "modalidadeNome": "Dispensa",
+    "objetoCompra": "Telefonia fixa"
+   }
+  ],
+  "totalRegistros": 1
+ }
+}

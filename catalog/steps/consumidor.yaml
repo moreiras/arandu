@@ -1,0 +1,23 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: consumidor
+nome: Reclamações no Consumidor.gov.br
+ordem: -81
+modulo: products.passos
+args:
+- --passo
+- consumidor
+- --date
+- '{date}'
+parcial:
+- consumidor
+depois_de:
+- consumidor_gov
+- anatel_scm
+- anatel_smp
+- anatel_stfc
+- anatel_seac
+- ibge_censo_pnad
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: agrega as reclamações finalizadas de operadoras no Consumidor.gov.br por empresa, UF, município (casado ao código IBGE pelo nome), assunto e grupo de problema, com
+  índice de solução, tempo médio de resposta e nota média só com base mínima, e liga a empresa ao CNPJ pela tabela curada de marcas (mais os apelidos do Consumidor.gov.br). Só agregados; sem ranking.'

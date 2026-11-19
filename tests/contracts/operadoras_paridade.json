@@ -1,0 +1,131 @@
+{
+ "_doc": "Paridade das páginas de outorga por serviço (operadoras.js --update), gravada nas páginas antigas antes da unificação (1.3.3).",
+ "servicos": {
+  "scm": {
+   "stats": {
+    "Outorgas": "1.143",
+    "CNPJs únicos": "1.143",
+    "Geolocalizadas": "1.143",
+    "CNPJs com ASN": "1.135"
+   },
+   "resultados": "1.143 resultados",
+   "pagina": "Página 1 de 23 · 1.143 outorgas",
+   "colunas": [
+    "CNPJ↕",
+    "Razão Social / Nome Fantasia↕",
+    "Município / UF↕",
+    "Outorga↕",
+    "Acessos↓",
+    "B2B↕",
+    "Munic.↕",
+    "ASN(s)↕"
+   ],
+   "linha1": [
+    "90.000.032/0001-80",
+    "Provedor 32 Telecom LtdaProvedor 32",
+    "Tabajara do Norte/AM",
+    "22/04/2021",
+    "27.545",
+    "2.755",
+    "1",
+    "AS65551"
+   ],
+   "filtros": [
+    "Apenas com AS identificado",
+    "Apenas em operação"
+   ],
+   "titulo": "Outorgas SCM"
+  },
+  "smp": {
+   "stats": {
+    "Outorgas": "3",
+    "CNPJs únicos": "3",
+    "Geolocalizadas": "3",
+    "CNPJs com ASN": "3"
+   },
+   "resultados": "3 resultados",
+   "pagina": null,
+   "colunas": [
+    "Operadora↕",
+    "UF sede↕",
+    "Acessos↓",
+    "B2B↕",
+    "Munic.↕",
+    "Geração",
+    "ASN(s)",
+    "Rede virtual"
+   ],
+   "linha1": [
+    "Escala 0002 Telecom Ltda90.001.001/0001-43",
+    "RJ",
+    "15.000",
+    "0",
+    "1",
+    "4G",
+    "AS4200001001",
+    "—"
+   ],
+   "filtros": [
+    "Apenas com AS identificado",
+    "Apenas em operação"
+   ],
+   "titulo": "Operadoras SMP"
+  },
+  "stfc": {
+   "stats": {
+    "Outorgas": "3",
+    "CNPJs únicos": "3",
+    "Geolocalizadas": "3",
+    "CNPJs com ASN": "3"
+   },
+   "resultados": "3 resultados",
+   "pagina": null,
+   "colunas": [
+    "Prestadora↑",
+    "UF↕",
+    "Município↕",
+    "Outorga↕",
+    "ASN(s)↕"
+   ],
+   "linha1": [
+    "Provedor 0190.000.001/0001-29",
+    "SP",
+    "Arandurápolis",
+    "10/01/2015",
+    "AS64496"
+   ],
+   "filtros": [
+    "Apenas com AS identificado"
+   ],
+   "titulo": "Outorgas STFC"
+  },
+  "seac": {
+   "stats": {
+    "Outorgas": "6",
+    "CNPJs únicos": "6",
+    "Geolocalizadas": "6",
+    "CNPJs com ASN": "0"
+   },
+   "resultados": "6 resultados",
+   "pagina": null,
+   "colunas": [
+    "Prestadora↑",
+    "UF↕",
+    "Município↕",
+    "Outorga↕",
+    "ASN(s)↕"
+   ],
+   "linha1": [
+    "SemASN390.000.202/0001-26",
+    "MG",
+    "Ybyrapé",
+    "10/01/2015",
+    "—"
+   ],
+   "filtros": [
+    "Apenas com AS identificado"
+   ],
+   "titulo": "Outorgas SeAC"
+  }
+ }
+}

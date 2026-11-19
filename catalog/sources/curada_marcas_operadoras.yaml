@@ -1,0 +1,39 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: curada_marcas_operadoras
+nome: Marca → raiz do CNPJ (config/curada_marcas_operadoras.yaml)
+tipo: curada
+ativa: true
+arquivo: config/curada_marcas_operadoras.yaml
+publicavel: true
+descricao: Tabela curada que liga o nome da marca ou da prestadora, como aparece no RQUAL e nas reclamações da Anatel, à raiz do CNPJ (8 dígitos). Feita à mão com a razão social e o nome fantasia das outorgas da
+  Anatel e os grupos do SICI; marca fora da tabela só casa por nome fantasia único (regra automática, rotulada) e, sem casamento, fica sem CNPJ. Usada também pelo Consumidor.gov.br.
+origem:
+  formato: YAML mantido à mão em config/
+  licenca: Curadoria do projeto (dados públicos; nada de pessoa física)
+  uso_comercial: permitido
+  nota: 'Criada em 2026-11-06 sobre as outorgas do snapshot 2026-11-05. Cada linha traz a base do vínculo (razão social ou grupo do SICI). Correções por arandurape@internetbitabit.com.br (política editorial).'
+cadencia:
+  fonte_atualiza: irregular
+  coleta: sob_demanda
+  coleta_atual: semanal
+  frescor_maximo: 400d
+politica_falha: opcional
+entradas:
+- anatel_scm
+- anatel_smp
+- anatel_stfc
+- anatel_seac
+saidas: {}
+chaves:
+- cnpj
+campos:
+- nome: marcas[].marca / raizes / base
+  tipo: str / lista / str
+  significado: Marca como na fonte, raízes de CNPJ (8 dígitos) a que ela se liga e o que sustenta o vínculo.
+  tratamento: Uma marca pode ter várias raízes (grupo econômico). Casamento sempre rotulado como curado ou automático; sem casamento a marca fica sem CNPJ.
+  publicado_em:
+  - qualidade → qualidade/rqual.json.gz#prestadoras
+  - qualidade → qualidade/reclamacoes.json.gz#marcas
+limites: Cobre as marcas de maior volume e as do RQUAL; as demais só casam por nome fantasia único. O grupo econômico da marca pode ser maior do que as raízes listadas.
+retencao:
+  normalizado: git

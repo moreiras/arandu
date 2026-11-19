@@ -1,0 +1,23 @@
+[
+ {
+  "place_id": 123456,
+  "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+  "osm_type": "way",
+  "osm_id": 987654,
+  "lat": "-23.5614",
+  "lon": "-46.6558",
+  "category": "building",
+  "type": "yes",
+  "place_rank": 30,
+  "importance": 9.99e-06,
+  "addresstype": "building",
+  "name": "",
+  "display_name": "Avenida Paulista, Bela Vista, São Paulo, Brasil",
+  "boundingbox": [
+   "-23.5615",
+   "-23.5613",
+   "-46.6559",
+   "-46.6557"
+  ]
+ }
+]

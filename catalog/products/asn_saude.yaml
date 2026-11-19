@@ -1,0 +1,51 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: asn_saude
+nome: 'Saúde do ASN: RPKI e alertas'
+descricao: 'Fragmento gravado dentro de asns/{asn}.json depois do RPKI: ROAs que cobrem o AS, validação
+  por prefixo, objetos ASPA e alertas. Roda depois do índice de ASNs porque usa os VRPs do snapshot e o índice publicado.'
+modulo: publish.snapshot_builder (--asn-health-only); api/asn_health.py
+entradas:
+- product: asn_docs
+- source: rpki_collector
+- source: anatel_sici
+chaves_de_juncao:
+- asn
+- prefixo
+saidas:
+  publicado:
+  - asns/{asn}.json
+  fragmentos:
+  - asn.saude (alerts, roa_list, rpki_validation, aspa_providers, aspa_customers)
+campos:
+- nome: roa_list
+  tipo: list[dict]
+  significado: VRPs que cobrem os prefixos do AS.
+  publicado_em:
+  - asn_saude → asns/{asn}.json#roa_list
+- nome: rpki_validation[prefix]
+  tipo: str
+  significado: 'Estado RPKI do prefixo anunciado: valid, invalid ou not_found.'
+  tratamento: Calculado no pipeline (etapa saude_asn) contra os VRPs do snapshot.
+  publicado_em:
+  - asn_saude → asns/{asn}.json#rpki_validation
+- nome: alerts[].id / category / severity / title / detail / refs
+  tipo: dict
+  significado: Achados de saúde do AS (presença, roteamento, RPKI, redundância).
+  tratamento: Regras de api/asn_health; achado negativo é observação, não prova.
+  publicado_em:
+  - asn_saude → asns/{asn}.json#alerts
+- nome: aspa_providers
+  tipo: list[int]
+  significado: Provedores autorizados pelo objeto ASPA do próprio AS (RPKI).
+  publicado_em:
+  - asn_saude → asns/{asn}.json#aspa_providers
+- nome: aspa_customers
+  tipo: list[int]
+  significado: ASNs que declaram este AS como provedor em seus objetos ASPA.
+  publicado_em:
+  - asn_saude → asns/{asn}.json#aspa_customers
+cenarios_de_teste:
+- rpki_invalido_moas
+- mudanca_de_origem
+limites: 'Não fatal: se falhar, a API calcula sob demanda (memoizado). O arquivo asns/{asn}.json é reescrito
+  no lugar (única exceção ao ''escrito uma vez'').'

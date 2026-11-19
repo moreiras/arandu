@@ -1,0 +1,52 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: aneel_sigel_transmission
+nome: Linhas de transmissão de alta tensão (SIGEL/ANEEL)
+tipo: bruta
+ativa: true
+modulo: sources.aneel_sigel_transmission.collect
+publicavel: true
+descricao: Linhas da rede básica nacional (ONS) do SIGEL/ANEEL via ArcGIS REST, com tensão e extensão
+  extraídas por regex de campos de texto livre. Não informa presença de OPGW.
+origem:
+  url: https://sigel.aneel.gov.br/arcgis/rest/services/PORTAL/Transmiss%C3%A3o/MapServer/1
+  formato: ArcGIS REST (Esri JSON → GeoJSON)
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  termos: https://dadosabertos.aneel.gov.br/
+  nota: Portal de Dados Abertos da ANEEL declara dados sob 'licença aberta' em geral (2026-10-13); a camada
+    SIGEL específica não foi verificada.
+cadencia:
+  fonte_atualiza: irregular
+  coleta: mensal
+  coleta_atual: semanal
+  frescor_maximo: 45d
+politica_falha: usar_ultima_valida
+saidas:
+  normalizado:
+  - summary/aneel_transmission.json.gz
+chaves:
+- ponto
+campos:
+- nome: features[].geometry
+  tipo: GeoJSON
+  significado: Traçado da linha.
+  tratamento: Vértices duplicados em ciclo no serviço de origem são deduplicados.
+  publicado_em:
+  - mapas_infraestrutura → maps/power_transmission_lines.geojson
+- nome: features[].properties.Name
+  tipo: str
+  significado: 'Descrição da linha em texto livre (ex.: ''Linha LT 230 kV A / B C 1 UF'').'
+  publicado_em:
+  - mapas_infraestrutura → maps/power_transmission_lines.geojson
+- nome: features[].properties.tensao_kv / extensao_km
+  tipo: float
+  significado: Tensão e extensão extraídas por regex de Name/PopupInfo (best-effort).
+  tratamento: Nulos quando o parsing falha.
+  publicado_em:
+  - mapas_infraestrutura → maps/power_transmission_lines.geojson
+limites: Não indica OPGW (fibra no cabo para-raios); só geometria e atributos. Não cobre subtransmissão/distribuição.
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/aneel_sigel/
+pendencias:
+- Licença/termos da camada SIGEL PORTAL/Transmissão.

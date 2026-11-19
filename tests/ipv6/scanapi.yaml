@@ -1,0 +1,26 @@
+# Plano do ScanAPI do laboratório IPv6 (T7): poucas rotas `open`, de propósito.
+# O plano gerado do OpenAPI inteiro (scanapi_conversor.sh) mediria sobretudo
+# limite de taxa, cota anônima e parâmetros, não IPv6; o que importa por cenário
+# está em checks/run (/auth/diag).
+endpoints:
+  - name: arandurape
+    path: ${BASE_URL}
+    requests:
+      - name: health
+        method: get
+        path: /health
+        tests:
+          - name: status_200
+            assert: ${{ response.status_code == 200 }}
+      - name: snapshots
+        method: get
+        path: /api/v1/snapshots
+        tests:
+          - name: status_200
+            assert: ${{ response.status_code == 200 }}
+      - name: ixps
+        method: get
+        path: /api/v1/ixps
+        tests:
+          - name: status_200
+            assert: ${{ response.status_code == 200 }}

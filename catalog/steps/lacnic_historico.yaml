@@ -1,0 +1,15 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: lacnic_historico
+nome: Backfill do histórico do LACNIC
+ordem: 48
+modulo: sources.lacnic_historico.collect
+args:
+- --tipo
+- delegated
+fontes:
+- lacnic_historico
+tentativas: 1
+so_com_only: true
+politica_falha: opcional
+descricao: 'Manual: `arandu run --only lacnic_historico` baixa até 500 arquivos novos do delegated-extended; o log
+  de transferências se roda pelo módulo (`--tipo transfers`).'

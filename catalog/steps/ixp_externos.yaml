@@ -1,0 +1,24 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ixp_externos
+nome: IXPs externos do PeeringDB
+ordem: -54
+modulo: products.passos
+args:
+- --passo
+- ixp_externos
+- --date
+- '{date}'
+parcial:
+- ixp_docs
+depois_de:
+- asn_indice
+- fulltable_routeviews
+- ixbr_api
+- lacnic_delegated
+- bgp_ixp
+- peeringdb_ixps
+- registro_br
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: IXPs externos do PeeringDB. Roda sozinho; lê o que os anteriores
+  deixaram em published/ e build/intermediarios/.'

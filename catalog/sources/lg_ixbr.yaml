@@ -1,0 +1,61 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: lg_ixbr
+nome: Looking Glasses do IX.br (tabelas BGP dos Route Servers)
+tipo: bruta
+ativa: true
+modulo: sources.lg_ixbr.collect
+publicavel: true
+descricao: Sessão Telnet em cada um dos 40 Looking Glasses do IX.br (lg.{ixp}.ix.br, porta 23) que executa
+  `show ip bgp` / `show bgp ipv6` e guarda o texto bruto. Mostra o que os Route Servers do IXP enxergam
+  (ASNs com sessão BGP ativa), base da distinção entre presença direta e originador.
+origem:
+  url: telnet://lg.{ixp}.ix.br:23
+  formato: texto do CLI (FRR/Quagga), v6 e v4
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: 'Looking Glass público do IX.br. Nenhum termo de uso localizado no repositório nem em ix.br (verificado
+    em 2026-10-13: a página lista apenas Política de Privacidade e Termos de Uso do site, sem tratar de
+    dados de LG). Combinar janelas e limites com a engenharia do IX.br.'
+cadencia:
+  fonte_atualiza: continua
+  coleta: diaria
+  coleta_atual: semanal
+  frescor_maximo: 8d
+  janela_horaria: janela a combinar
+politica_falha: critica
+saidas:
+  bruto:
+  - '{ixp}/bgp-v4-{ixp}-{as_of}.txt.gz'
+  - '{ixp}/bgp-v6-{ixp}-{as_of}.txt.gz'
+  - '{ixp}/bgp-v4-{ixp}-{as_of}.txt'     # bruto sem compressão
+  - '{ixp}/bgp-v6-{ixp}-{as_of}.txt'
+  - collection_manifest.json
+chaves:
+- ixp
+- asn
+- prefixo
+campos:
+- nome: collection_manifest.ixps[].v6/v4
+  tipo: dict
+  significado: Resultado da coleta de uma família de endereços em um IXP (ok, tamanho, tentativas, erro).
+  publicado_em:
+  - snapshot → manifest.json#ixps_collected
+  - snapshot → manifest.json#ixps_failed
+- nome: bgp-v{4,6}-{ixp}-{as_of}.txt
+  tipo: texto
+  significado: Saída literal do comando de tabela BGP do Route Server do IXP, uma linha por rota.
+  tratamento: Parseado por products.bgp_routes.build (produto bgp_ixp_normalizado).
+limites: Uma única sessão por IXP, em um instante; enxerga só o que o Route Server aprende (membros bilaterais
+  ficam invisíveis). Variação de firmware (FRR/Quagga) muda o comando v6. Coleta falha em um IXP não derruba
+  os demais (AP falhou em 2026-10-11).
+retencao:
+  bruto: 90 dias, comprimido
+fixture: tests/fixtures/raw/lg_ixbr/
+pendencias:
+- Licença/termos de uso dos Looking Glasses do IX.br não localizados.
+- Frescor e janelas diárias dependem de acordo com o IX.br.
+armazem:
+  incluir:
+  - raw:collection_manifest.json
+  - raw:{ixp}/bgp-v4-{ixp}-{as_of}.txt.gz
+  - raw:{ixp}/bgp-v6-{ixp}-{as_of}.txt.gz

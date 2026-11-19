@@ -1,0 +1,10 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: bgp_ixp
+nome: Parser BGP (raw → normalized)
+ordem: 29
+modulo: products.bgp_routes.build
+produtos:
+- bgp_ixp_normalizado
+politica_falha: critica
+replay: true
+descricao: ''

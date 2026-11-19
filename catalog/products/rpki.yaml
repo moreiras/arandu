@@ -1,0 +1,16 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: rpki
+nome: VRPs e ASPA publicados (cópia direta do coletor)
+descricao: O coletor grava em published/ diretamente; este produto só registra a saída para o grafo (sem
+  build próprio).
+modulo: sources.rpki_collector.collect
+entradas:
+- source: rpki_collector
+chaves_de_juncao:
+- asn
+- prefixo
+saidas:
+  publicado:
+  - rpki/vrp_list.json.gz
+  - rpki/aspa_list.json.gz
+limites: Ver rpki_collector.

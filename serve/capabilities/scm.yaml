@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Capacidade declarada: daqui nascem as rotas REST (api/capacidades.py), o contrato e a matriz API × MCP × UI.
+entidade: scm
+rotulo: SCM
+plural: SCMs
+nome_longo: Serviço de Comunicação Multimídia
+servico: scm
+tag: scms
+privacidade: sem_contatos
+descricao_llm: >
+  Use list_scms para filtrar e get_scm para detalhar um CNPJ.
+operacoes:
+  - id: lista
+    tipo: lista_outorgas
+    http: GET /scms
+    funcao: list_scms
+    mcp:
+      tool: list_scms
+      filtros: [uf, q, com_asn, situacao]
+      limite_max: 500
+      descricao: |
+        Lista paginada de outorgas SCM (Serviço de Comunicação Multimídia) da Anatel.
+
+        Dados abertos da Anatel cruzados com ASNs do Registro.br por CNPJ.
+        Cada outorga contém: cnpj, razao_social, nome_fantasia, municipio, uf,
+        data_outorga, situacao e campo `asns` (lista de ASNs
+        associados ao CNPJ, [] se não cruzado). Geolocalização em `lat`/`lon`
+        quando disponível.
+
+        Args:
+            uf: Filtra por UF (2 letras, ex.: SP).
+            q: Busca por razão social ou CNPJ (substring, case-insensitive).
+            com_asn: True = apenas outorgas com ASN identificado; False = sem ASN.
+            situacao: Filtra por situação da outorga (ex.: ATI, EXT, SUS).
+            page: Página (>=1). limit: itens por página (1..500).
+            date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.
+    summary: "Listar outorgas SCM (Serviço de Comunicação Multimídia)"
+    descricao: |
+      Lista os provedores SCM coletados da Anatel, uma linha por CNPJ (deduplicada — um CNPJ
+      pode ter várias outorgas), opcionalmente filtrada por UF, município ou busca textual, e
+      com indicação de cruzamento com ASN do Registro.br por CNPJ.
+
+      Cada item inclui: `cnpj`, `razao_social`, `nome_fantasia`, `data_outorga`, `municipio`,
+      `uf`, `cep`, `codigo_ibge`, `situacao`, `lat`, `lon`,
+      `geo_confidence` e `asns` (lista de ASNs do Registro.br com mesmo CNPJ).
+
+      Quando o snapshot tem dados do SICI (etapas anatel_sici e sici), cada item traz também `sici_ativo`
+      (declarou acessos no mês de referência), `sici_acessos`, `sici_pf` (B2C), `sici_pj`
+      (B2B), `sici_municipios`, `sici_capacidade_mbps`, `sici_tecnologia` e
+      `sici_mes_referencia` — que é um mês diferente da data do snapshot.
+
+      Campos de contato (`telefone`, `email`) não são servidos neste endpoint — disponíveis
+      apenas por AS via `GET /asns/{asn}/contacts` (autenticado).
+
+      Paginado. Use `?com_asn=true` para retornar apenas SCMs que cruzam com um AS.
+    filtros:
+      - uf
+      - municipio: {descricao: "Filtrar por município (substring, case-insensitive)."}
+      - q
+      - com_asn
+      - situacao
+      - ativo
+      - min_acessos
+    ordena_por: [asns, cnpj, data_outorga, municipio, razao_social, sici_acessos, sici_capacidade_mbps, sici_municipios, sici_pf, sici_pj, uf]
+    paginacao:
+      page: "Número da página"
+      limit: "Itens por página (máx 1000)"
+      sort_desc: "True para ordem decrescente"
+    deduplicar_por_cnpj: true
+    dica_ausente: "Rode anatel_scm e scm_geo primeiro."
+  - id: stats
+    tipo: stats_outorgas
+    http: GET /scms/stats
+    funcao: scm_stats
+    sem_mcp: "coberto por outorga_lista e outorga_detalhe"
+    summary: "Estatísticas das outorgas SCM"
+    descricao: "Retorna totais de SCMs, únicas por CNPJ, geolocalizadas e com ASN identificado."
+    blocos: [top_municipios, cobertura_asn]
+  - id: por_cnpj
+    tipo: por_cnpj
+    http: GET /scms/{cnpj}
+    funcao: get_scm
+    mcp:
+      tool: get_scm
+      chave_resposta: records
+      descricao: |
+        Outorgas SCM de uma empresa pelo CNPJ (Anatel).
+
+        Retorna todas as outorgas SCM registradas para o CNPJ informado, com
+        geolocalização (lat/lon) e ASNs associados. CNPJ pode ser informado
+        com ou sem formatação (pontos, barras, traços).
+
+        Args:
+            cnpj: CNPJ da empresa (14 dígitos, com ou sem formatação).
+            date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.
+    summary: "Outorgas SCM de um CNPJ"
+    descricao: "Retorna todas as outorgas SCM de um CNPJ (14 dígitos, com ou sem formatação)."

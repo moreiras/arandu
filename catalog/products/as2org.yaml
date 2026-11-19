@@ -1,0 +1,46 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: as2org
+nome: Organização por ASN (CAIDA) e irmãos do Brasil
+descricao: Para cada ASN do Brasil conhecido pelo CAIDA AS Rank, a organização (nome, país, número de ASNs no mundo) e os outros ASNs do Brasil da mesma organização
+  ("irmãos"), mais a cobertura em relação aos ASNs do Brasil do snapshot. Organização inferida pelo CAIDA a partir do WHOIS; não é grupo societário.
+modulo: products.as2org.build
+entradas:
+- source: caida_as2org
+- product: asn_docs
+chaves_de_juncao:
+- asn
+saidas:
+  publicado:
+  - as2org/asns.json.gz
+campos:
+- nome: asns[asn].org_nome / org_id / org_pais / membros_total
+  tipo: dict
+  significado: Organização do ASN no CAIDA AS Rank.
+  tratamento: Inferência do CAIDA a partir do WHOIS; pode agrupar filiais sob uma 'Parent'; rotulada como do CAIDA.
+  publicado_em:
+  - as2org → as2org/asns.json.gz#asns
+- nome: asns[asn].irmaos_br
+  tipo: list[int]
+  significado: Outros ASNs do Brasil com a mesma organização.
+  tratamento: Só ASNs do Brasil; a organização pode ter ASNs em outros países (membros_total).
+  publicado_em:
+  - as2org → as2org/asns.json.gz#asns
+- nome: cobertura
+  tipo: dict
+  significado: ASNs do Brasil do snapshot, quantos têm organização, percentual e número de organizações com mais de um ASN do Brasil.
+  tratamento: Medida de cobertura da fonte, não de qualidade do dado.
+  publicado_em:
+  - as2org → as2org/asns.json.gz#cobertura
+- nome: fonte / limites / coletado_em
+  tipo: dict
+  significado: Fonte, citação exigida, limitações e instante da coleta.
+  publicado_em:
+  - as2org → as2org/asns.json.gz#fonte
+  - as2org → as2org/asns.json.gz#limites
+  - as2org → as2org/asns.json.gz#coletado_em
+- nome: snapshot_date / generated_at
+  tipo: str
+  significado: Data do snapshot e instante UTC de geração.
+  publicado_em:
+  - as2org → as2org/asns.json.gz#snapshot_date
+  - as2org → as2org/asns.json.gz#generated_at

@@ -1,0 +1,41 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: rdap
+nome: Organizações BR a partir do Registro.br (ASN→nome/CNPJ)
+tipo: derivada
+ativa: true
+modulo: sources.rdap.enrich
+publicavel: true
+descricao: 'Reduz registro_br a um mapeamento compacto {asn: {name, cnpj}} usado pelas geocodificações
+  e pelos produtos. Sem consulta externa (apesar do nome).'
+cadencia:
+  fonte_atualiza: diaria
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: opcional
+entradas:
+- registro_br
+saidas:
+  normalizado:
+  - summary/orgs.json.gz
+chaves:
+- asn
+- cnpj
+campos:
+- nome: orgs[asn].name
+  tipo: str
+  significado: Nome da organização titular do ASN no whois do NIC.br.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#name
+- nome: orgs[asn].cnpj
+  tipo: str
+  significado: CNPJ da organização.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#cnpj
+- nome: total / with_cnpj
+  tipo: int
+  significado: ASNs no mapeamento e quantos têm CNPJ.
+limites: 'Não consulta RDAP: o nome do módulo é histórico.'
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/registro_br/

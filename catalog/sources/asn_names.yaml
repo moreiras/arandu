@@ -1,0 +1,45 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: asn_names
+nome: Nomes de ASNs (RIPE NCC, bulk global)
+tipo: bruta
+ativa: true
+modulo: sources.asn_names.collect
+publicavel: true
+descricao: Arquivo asn.txt do RIPE NCC compilado do whois dos cinco RIRs; ~128 mil ASNs com nome. Usado
+  para dar nome a ASNs não brasileiros que aparecem em AS-PATHs.
+origem:
+  url: https://ftp.ripe.net/ripe/asnames/asn.txt
+  formato: texto 'ASN nome, CC'
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: Sem termos no diretório (2026-10-13). Derivado do whois dos RIRs; termos do RIPE Database não
+    verificados para este arquivo.
+cadencia:
+  fonte_atualiza: diaria
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: critica
+saidas:
+  bruto:
+  - summary/asn-names-{as_of}.txt.gz
+  normalizado:
+  - summary/asn_names.json.gz
+  publicado:
+  - asns/names.json
+chaves:
+- asn
+campos:
+- nome: '{asn}'
+  tipo: str
+  significado: Nome do ASN (descrição curta do whois, com código de país ao final).
+  tratamento: Chaves string; o publicado traz só os ASNs presentes no snapshot.
+  publicado_em:
+  - asn_docs → asns/names.json#*
+limites: Nome é texto livre do whois; pode estar desatualizado ou ser genérico. Em 2026-10-11 a origem serviu o arquivo em outro formato (128.261 nomes, 32% no formato 'HANDLE - Descrição' contra 68%); o bruto agora é guardado e o check asn_names do manifesto marca o snapshot como parcial quando isso se repete.
+retencao:
+  bruto: 4 versões
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/asn_names/
+pendencias:
+- Termos de uso de ftp.ripe.net/ripe/asnames/asn.txt não localizados.

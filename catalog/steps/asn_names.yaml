@@ -1,0 +1,11 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: asn_names
+nome: Nomes de ASNs (RIPE NCC bulk)
+ordem: 19
+modulo: sources.asn_names.collect
+fontes:
+- asn_names
+tentativas: 3
+espera_s: 60
+politica_falha: critica
+descricao: ''

@@ -1,0 +1,40 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: bgp_ixp_normalizado
+nome: Tabelas BGP normalizadas por IXP
+descricao: 'Parser do texto bruto dos Looking Glasses: rotas, conjunto de prefixos, prefixos por origem
+  e relações (diretos, originadores, stubs) de cada IXP.'
+modulo: products.bgp_routes.build
+entradas:
+- source: lg_ixbr
+chaves_de_juncao:
+- ixp
+- asn
+- prefixo
+saidas:
+  normalizado:
+  - '{ixp}/routes-{afi}.json.gz'
+  - '{ixp}/prefix-set-{afi}.json.gz'
+  - '{ixp}/origin-prefixes-{afi}.json.gz'
+  - '{ixp}/peers-{afi}.json.gz'
+campos:
+- nome: peers-{afi}.json.gz
+  tipo: dict
+  significado: 'Por peer direto (primeiro AS do AS-PATH): prefixos próprios e de terceiros, ASNs originadores distintos e espaço em /48 (v6) ou /24 (v4). Calculado pela etapa bgp_ixp (core/ixp_peers.py) para a API não reler as rotas do PTT inteiro (1.4.2.1).'
+- nome: routes[].prefix / status / aspath / origin / nexthop
+  tipo: dict
+  significado: 'Rota vista no Route Server: prefixo, status BGP, AS-PATH, origem e next-hop.'
+- nome: relationships.asn_direct
+  tipo: list[int]
+  significado: ASNs com sessão BGP direta com o Route Server (primeiro AS do AS-PATH).
+  tratamento: Definição de 'direto' do glossário do MCP.
+- nome: relationships.asn_origin
+  tipo: list[int]
+  significado: ASNs que aparecem como origem de rotas no IXP (inclui os alcançados por terceiros).
+  tratamento: '''Originador'' ≠ presente fisicamente.'
+- nome: relationships.asn_stub
+  tipo: list[int]
+  significado: ASNs diretos que só originam o próprio espaço (sem trânsito).
+  tratamento: Inferido do AS-PATH.
+cenarios_de_teste:
+- ptt_coleta_parcial
+limites: Depende do formato textual do firmware do LG; falha de um IXP não derruba os demais.

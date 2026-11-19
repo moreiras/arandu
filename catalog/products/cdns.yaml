@@ -1,0 +1,41 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: cdns
+nome: Presença de CDNs nos IXPs
+descricao: Cruza a lista curada de CDNs com a presença dos ASNs em IXPs do IX.br e externos.
+modulo: publish.snapshot_builder
+entradas:
+- source: curada_cdns
+- product: asn_docs
+chaves_de_juncao:
+- asn
+- ixp
+saidas:
+  publicado:
+  - cdns.json
+campos:
+- nome: cdns[].ixbr / external
+  tipo: list[str]
+  significado: IXPs do IX.br e externos em que algum ASN do CDN está presente.
+  publicado_em:
+  - cdns → cdns.json#cdns
+- nome: cdns[].ixbr_count / external_count
+  tipo: int
+  significado: Quantidade de IXPs de cada tipo.
+  publicado_em:
+  - cdns → cdns.json#cdns
+- nome: ixbr_columns / external_columns
+  tipo: list[dict]
+  significado: 'Colunas da matriz: IXP e quantos CDNs estão presentes.'
+  publicado_em:
+  - cdns → cdns.json#ixbr_columns
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - cdns → cdns.json#snapshot_date
+- nome: external_columns
+  tipo: list[dict]
+  significado: 'Colunas da matriz para IXPs externos: código, nome e CDNs presentes.'
+  publicado_em:
+  - cdns → cdns.json#external_columns
+limites: Presença = qualquer ASN do grupo; lista de CDNs curada e incompleta.

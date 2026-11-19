@@ -1,0 +1,5 @@
+# last updated 1793480101 (Sat Oct 31 20:55:01 2026 GMT)
+# Know your network!  Please rigorously test all filters!
+::/10
+40::/11
+2001:db8::/32

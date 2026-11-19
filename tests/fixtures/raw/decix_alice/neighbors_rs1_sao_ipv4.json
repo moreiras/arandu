@@ -1,0 +1,44 @@
+{
+ "api": {
+  "version": "6.2.0",
+  "cache_status": {
+   "cached_at": "2026-11-10T11:30:00.123456789Z",
+   "orig_ttl": 0
+  },
+  "result_from_cache": true,
+  "ttl": "2026-11-10T11:31:00Z"
+ },
+ "neighbors": [
+  {
+   "id": "S1_7",
+   "address": "198.18.1.7",
+   "asn": 64496,
+   "state": "up",
+   "description": "AS64496",
+   "routes_received": 5,
+   "routes_filtered": 0,
+   "routes_exported": 500,
+   "routes_preferred": 0,
+   "routes_accepted": 5,
+   "uptime": 610149593842846,
+   "last_error": "",
+   "routeserver_id": "rs1_sao_ipv4_de-cix",
+   "routes_channels": {},
+   "details": {
+    "bgp_state": "Established",
+    "state_changed": "2026-11-01 10:00:00",
+    "import_limit": 20000,
+    "receive_limit": 40000,
+    "route_changes": {
+     "import_updates": {
+      "received": 5,
+      "accepted": 5,
+      "filtered": 0,
+      "rejected": 0,
+      "ignored": 0
+     }
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,49 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: curada_ixps
+nome: Localidades do IX.br (config/ixps.yaml)
+tipo: curada
+ativa: true
+arquivo: config/ixps.yaml
+publicavel: true
+descricao: Lista das 40 localidades ativas do IX.br com código, nome, UF, host do Looking Glass, porta,
+  timeout e CEP aproximado para geolocalização.
+origem:
+  formato: YAML mantido à mão em config/
+  licenca: Curadoria do projeto (dados factuais; fontes citadas)
+  uso_comercial: nao_verificado
+  nota: 'Fonte factual: https://ix.br/localidades/atuais (verificada manualmente em 2026-09-28).'
+cadencia:
+  fonte_atualiza: irregular
+  coleta: sob_demanda
+  coleta_atual: semanal
+  frescor_maximo: 400d
+politica_falha: critica
+saidas: {}
+chaves:
+- ixp
+- uf
+campos:
+- nome: ixps[].code
+  tipo: str
+  significado: 'Código curto do IXP (minúsculas; ex.: sp, rj, vix).'
+  tratamento: Chave de junção em todo o sistema.
+  publicado_em:
+  - ixp_docs → ixps/index.json#code
+- nome: ixps[].name / uf
+  tipo: str
+  significado: Cidade-sede e UF da localidade.
+  publicado_em:
+  - ixp_docs → ixps/index.json#name
+- nome: ixps[].telnet_host / telnet_port / timeout
+  tipo: str|int
+  significado: Host e porta do Looking Glass e tempo máximo de leitura da tabela.
+  tratamento: Operacional; não publicado.
+- nome: ixps[].cep
+  tipo: str
+  significado: CEP aproximado usado para posicionar a localidade.
+  tratamento: Aproximação; PIX têm coordenadas próprias em pix.yaml.
+limites: 'Edição humana: nova localidade exige atualizar o arquivo e o frontend. Verificação manual datada.'
+retencao:
+  normalizado: git
+pendencias:
+- Licença/termos dos dados do IX.br.

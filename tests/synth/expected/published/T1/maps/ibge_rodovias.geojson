@@ -1,0 +1,39 @@
+{
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      -46.7,
+      -23.6
+     ],
+     [
+      -47.1,
+      -22.9
+     ]
+    ],
+    "type": "LineString"
+   },
+   "properties": {
+    "administracao": "Federal",
+    "codigo_trecho": "999BSP0010",
+    "concessionaria": null,
+    "jurisdicao": "Federal",
+    "limite_velocidade_kmh": 100,
+    "nr_faixas": 4,
+    "nr_pistas": 2,
+    "operacional": "Sim",
+    "pavimentada": true,
+    "revestimento": "Pavimentado",
+    "sigla": "BR-999",
+    "situacao": "Construída",
+    "tipo_via": "Rodovia",
+    "trafego": "Permanente"
+   },
+   "type": "Feature"
+  }
+ ],
+ "snapshot_date": "2026-09-20",
+ "source": "sintético",
+ "type": "FeatureCollection"
+}

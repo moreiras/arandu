@@ -1,0 +1,2905 @@
+{
+ "asn_to_cnpj": {
+  "4200000000": "90000100000100",
+  "4200000001": "90000101000155",
+  "4200000002": "90000102000108",
+  "4200000003": "90000103000144",
+  "64496": "90000001000129",
+  "64497": "90000002000173",
+  "64498": "90000003000118",
+  "64499": "90000004000162",
+  "64500": "90000005000107",
+  "64501": "90000005000107",
+  "64502": "90000007000104",
+  "64503": "90000008000140",
+  "64504": "90000009000195",
+  "64505": "90000010000110",
+  "64506": "90000011000164",
+  "64507": "90000012000109",
+  "64508": "90000013000153",
+  "64509": "90000014000106",
+  "64511": "90000016000197",
+  "65536": "90000017000131",
+  "65537": "90000018000186",
+  "65538": "90000019000120",
+  "65539": "90000020000155",
+  "65540": "90000021000108",
+  "65541": "90000022000144",
+  "65542": "90000023000199",
+  "65543": "90000024000133",
+  "65544": "90000025000188",
+  "65545": "90000026000122",
+  "65546": "90000027000177",
+  "65547": "90000028000111",
+  "65548": "90000029000166",
+  "65549": "90000030000190",
+  "65550": "90000031000135",
+  "65551": "90000032000180"
+ },
+ "cnpj_to_asns": {
+  "90000001000129": [
+   64496
+  ],
+  "90000002000173": [
+   64497
+  ],
+  "90000003000118": [
+   64498
+  ],
+  "90000004000162": [
+   64499
+  ],
+  "90000005000107": [
+   64500,
+   64501
+  ],
+  "90000007000104": [
+   64502
+  ],
+  "90000008000140": [
+   64503
+  ],
+  "90000009000195": [
+   64504
+  ],
+  "90000010000110": [
+   64505
+  ],
+  "90000011000164": [
+   64506
+  ],
+  "90000012000109": [
+   64507
+  ],
+  "90000013000153": [
+   64508
+  ],
+  "90000014000106": [
+   64509
+  ],
+  "90000016000197": [
+   64511
+  ],
+  "90000017000131": [
+   65536
+  ],
+  "90000018000186": [
+   65537
+  ],
+  "90000019000120": [
+   65538
+  ],
+  "90000020000155": [
+   65539
+  ],
+  "90000021000108": [
+   65540
+  ],
+  "90000022000144": [
+   65541
+  ],
+  "90000023000199": [
+   65542
+  ],
+  "90000024000133": [
+   65543
+  ],
+  "90000025000188": [
+   65544
+  ],
+  "90000026000122": [
+   65545
+  ],
+  "90000027000177": [
+   65546
+  ],
+  "90000028000111": [
+   65547
+  ],
+  "90000029000166": [
+   65548
+  ],
+  "90000030000190": [
+   65549
+  ],
+  "90000031000135": [
+   65550
+  ],
+  "90000032000180": [
+   65551
+  ],
+  "90000100000100": [
+   4200000000
+  ],
+  "90000101000155": [
+   4200000001
+  ],
+  "90000102000108": [
+   4200000002
+  ],
+  "90000103000144": [
+   4200000003
+  ]
+ },
+ "cnpjs": {
+  "90000001000129": {
+   "acessos": 876,
+   "acessos_compartilhados": false,
+   "acessos_internet": 876,
+   "asns": [
+    64496
+   ],
+   "capacidade_internet_mbps": 105120.0,
+   "capacidade_mbps": 105120.0,
+   "empresa": "Provedor 01 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 788,
+   "pj": 88,
+   "por_faixa": {
+    "> 34Mbps": 876
+   },
+   "por_meio": {
+    "Fibra": 876
+   },
+   "por_municipio": {
+    "9900001": {
+     "acessos": 876,
+     "capacidade_mbps": 105120.0,
+     "fibra": 700,
+     "nome": "Arandurápolis",
+     "pf": 788,
+     "pj": 88,
+     "uf": "SP"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 876
+   },
+   "por_tecnologia": {
+    "FTTH": 876
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "SP",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000002000173": {
+   "acessos": 1797,
+   "acessos_compartilhados": false,
+   "acessos_internet": 1797,
+   "asns": [
+    64497
+   ],
+   "capacidade_internet_mbps": 215640.0,
+   "capacidade_mbps": 215640.0,
+   "empresa": "Provedor 02 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 1617,
+   "pj": 180,
+   "por_faixa": {
+    "> 34Mbps": 1797
+   },
+   "por_meio": {
+    "Fibra": 1797
+   },
+   "por_municipio": {
+    "9900002": {
+     "acessos": 1797,
+     "capacidade_mbps": 215640.0,
+     "fibra": 1437,
+     "nome": "Tupãnópolis",
+     "pf": 1617,
+     "pj": 180,
+     "uf": "RJ"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 1797
+   },
+   "por_tecnologia": {
+    "FTTH": 1797
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RJ",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000003000118": {
+   "acessos": 2695,
+   "acessos_compartilhados": false,
+   "acessos_internet": 2695,
+   "asns": [
+    64498
+   ],
+   "capacidade_internet_mbps": 323400.0,
+   "capacidade_mbps": 323400.0,
+   "empresa": "Provedor 03 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 2425,
+   "pj": 270,
+   "por_faixa": {
+    "> 34Mbps": 2695
+   },
+   "por_meio": {
+    "Fibra": 2695
+   },
+   "por_municipio": {
+    "9900003": {
+     "acessos": 2695,
+     "capacidade_mbps": 323400.0,
+     "fibra": 2156,
+     "nome": "Guaraniópolis",
+     "pf": 2425,
+     "pj": 270,
+     "uf": "PR"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 2695
+   },
+   "por_tecnologia": {
+    "FTTH": 2695
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "PR",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000004000162": {
+   "acessos": 3545,
+   "acessos_compartilhados": false,
+   "acessos_internet": 3545,
+   "asns": [
+    64499
+   ],
+   "capacidade_internet_mbps": 425400.0,
+   "capacidade_mbps": 425400.0,
+   "empresa": "Provedor 04 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 3190,
+   "pj": 355,
+   "por_faixa": {
+    "> 34Mbps": 3545
+   },
+   "por_meio": {
+    "Fibra": 3545
+   },
+   "por_municipio": {
+    "9900004": {
+     "acessos": 3545,
+     "capacidade_mbps": 425400.0,
+     "fibra": 2836,
+     "nome": "Itapuãzinho",
+     "pf": 3190,
+     "pj": 355,
+     "uf": "SP"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 3545
+   },
+   "por_tecnologia": {
+    "FTTH": 3545
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "SP",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000005000107": {
+   "acessos": 5152,
+   "acessos_compartilhados": true,
+   "acessos_internet": 5152,
+   "asns": [
+    64500,
+    64501
+   ],
+   "capacidade_internet_mbps": 618240.0,
+   "capacidade_mbps": 618240.0,
+   "empresa": "Provedor 05 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 4636,
+   "pj": 516,
+   "por_faixa": {
+    "> 34Mbps": 5152
+   },
+   "por_meio": {
+    "Fibra": 5152
+   },
+   "por_municipio": {
+    "9900005": {
+     "acessos": 5152,
+     "capacidade_mbps": 618240.0,
+     "fibra": 4121,
+     "nome": "Curumim do Sul",
+     "pf": 4636,
+     "pj": 516,
+     "uf": "RS"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 5152
+   },
+   "por_tecnologia": {
+    "FTTH": 5152
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RS",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000007000104": {
+   "acessos": 6037,
+   "acessos_compartilhados": false,
+   "acessos_internet": 6037,
+   "asns": [
+    64502
+   ],
+   "capacidade_internet_mbps": 724440.0,
+   "capacidade_mbps": 724440.0,
+   "empresa": "Provedor 07 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 5433,
+   "pj": 604,
+   "por_faixa": {
+    "> 34Mbps": 6037
+   },
+   "por_meio": {
+    "Fibra": 6037
+   },
+   "por_municipio": {
+    "9900007": {
+     "acessos": 6037,
+     "capacidade_mbps": 724440.0,
+     "fibra": 4829,
+     "nome": "Mbaracayú Novo",
+     "pf": 5433,
+     "pj": 604,
+     "uf": "PR"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 6037
+   },
+   "por_tecnologia": {
+    "FTTH": 6037
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "PR",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000008000140": {
+   "acessos": 6874,
+   "acessos_compartilhados": false,
+   "acessos_internet": 6874,
+   "asns": [
+    64503
+   ],
+   "capacidade_internet_mbps": 824880.0,
+   "capacidade_mbps": 824880.0,
+   "empresa": "Provedor 08 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 6186,
+   "pj": 688,
+   "por_faixa": {
+    "> 34Mbps": 6874
+   },
+   "por_meio": {
+    "Fibra": 6874
+   },
+   "por_municipio": {
+    "9900008": {
+     "acessos": 6874,
+     "capacidade_mbps": 824880.0,
+     "fibra": 5499,
+     "nome": "Tabajara do Norte",
+     "pf": 6186,
+     "pj": 688,
+     "uf": "AM"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 6874
+   },
+   "por_tecnologia": {
+    "FTTH": 6874
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "AM",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000009000195": {
+   "acessos": 1000,
+   "acessos_compartilhados": false,
+   "acessos_internet": 1000,
+   "asns": [
+    64504
+   ],
+   "capacidade_internet_mbps": 120000.0,
+   "capacidade_mbps": 120000.0,
+   "empresa": "Provedor 09 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 900,
+   "pj": 100,
+   "por_faixa": {
+    "> 34Mbps": 1000
+   },
+   "por_meio": {
+    "Fibra": 1000
+   },
+   "por_municipio": {
+    "9900009": {
+     "acessos": 1000,
+     "capacidade_mbps": 120000.0,
+     "fibra": 800,
+     "nome": "Potiguara",
+     "pf": 900,
+     "pj": 100,
+     "uf": "RN"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 1000
+   },
+   "por_tecnologia": {
+    "FTTH": 1000
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RN",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000010000110": {
+   "acessos": 5000,
+   "acessos_compartilhados": false,
+   "acessos_internet": 5000,
+   "asns": [
+    64505
+   ],
+   "capacidade_internet_mbps": 600000.0,
+   "capacidade_mbps": 600000.0,
+   "empresa": "Provedor 10 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 4500,
+   "pj": 500,
+   "por_faixa": {
+    "> 34Mbps": 5000
+   },
+   "por_meio": {
+    "Fibra": 5000
+   },
+   "por_municipio": {
+    "9900010": {
+     "acessos": 5000,
+     "capacidade_mbps": 600000.0,
+     "fibra": 4000,
+     "nome": "Caeté Velho",
+     "pf": 4500,
+     "pj": 500,
+     "uf": "BA"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 5000
+   },
+   "por_tecnologia": {
+    "FTTH": 5000
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "BA",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000011000164": {
+   "acessos": 9494,
+   "acessos_compartilhados": false,
+   "acessos_internet": 9494,
+   "asns": [
+    64506
+   ],
+   "capacidade_internet_mbps": 1139280.0,
+   "capacidade_mbps": 1139280.0,
+   "empresa": "Provedor 11 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 8544,
+   "pj": 950,
+   "por_faixa": {
+    "> 34Mbps": 9494
+   },
+   "por_meio": {
+    "Fibra": 9494
+   },
+   "por_municipio": {
+    "9900011": {
+     "acessos": 9494,
+     "capacidade_mbps": 1139280.0,
+     "fibra": 7595,
+     "nome": "Jaguarão de Cima",
+     "pf": 8544,
+     "pj": 950,
+     "uf": "RS"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 9494
+   },
+   "por_tecnologia": {
+    "FTTH": 9494
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RS",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000012000109": {
+   "acessos": 10354,
+   "acessos_compartilhados": false,
+   "acessos_internet": 10354,
+   "asns": [
+    64507
+   ],
+   "capacidade_internet_mbps": 1242480.0,
+   "capacidade_mbps": 1242480.0,
+   "empresa": "Provedor 12 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 9318,
+   "pj": 1036,
+   "por_faixa": {
+    "> 34Mbps": 10354
+   },
+   "por_meio": {
+    "Fibra": 10354
+   },
+   "por_municipio": {
+    "9900012": {
+     "acessos": 10354,
+     "capacidade_mbps": 1242480.0,
+     "fibra": 8283,
+     "nome": "Pindorama Alta",
+     "pf": 9318,
+     "pj": 1036,
+     "uf": "GO"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 10354
+   },
+   "por_tecnologia": {
+    "FTTH": 10354
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "GO",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000013000153": {
+   "acessos": 11238,
+   "acessos_compartilhados": false,
+   "acessos_internet": 11238,
+   "asns": [
+    64508
+   ],
+   "capacidade_internet_mbps": 1348560.0,
+   "capacidade_mbps": 1348560.0,
+   "empresa": "Provedor 13 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 10114,
+   "pj": 1124,
+   "por_faixa": {
+    "> 34Mbps": 11238
+   },
+   "por_meio": {
+    "Fibra": 11238
+   },
+   "por_municipio": {
+    "9900001": {
+     "acessos": 11238,
+     "capacidade_mbps": 1348560.0,
+     "fibra": 8990,
+     "nome": "Arandurápolis",
+     "pf": 10114,
+     "pj": 1124,
+     "uf": "SP"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 11238
+   },
+   "por_tecnologia": {
+    "FTTH": 11238
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "SP",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000014000106": {
+   "acessos": 12055,
+   "acessos_compartilhados": false,
+   "acessos_internet": 12055,
+   "asns": [
+    64509
+   ],
+   "capacidade_internet_mbps": 1446600.0,
+   "capacidade_mbps": 1446600.0,
+   "empresa": "Provedor 14 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 10849,
+   "pj": 1206,
+   "por_faixa": {
+    "> 34Mbps": 12055
+   },
+   "por_meio": {
+    "Fibra": 12055
+   },
+   "por_municipio": {
+    "9900002": {
+     "acessos": 12055,
+     "capacidade_mbps": 1446600.0,
+     "fibra": 9644,
+     "nome": "Tupãnópolis",
+     "pf": 10849,
+     "pj": 1206,
+     "uf": "RJ"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 12055
+   },
+   "por_tecnologia": {
+    "FTTH": 12055
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RJ",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000016000197": {
+   "acessos": 13744,
+   "acessos_compartilhados": false,
+   "acessos_internet": 13744,
+   "asns": [
+    64511
+   ],
+   "capacidade_internet_mbps": 1649280.0,
+   "capacidade_mbps": 1649280.0,
+   "empresa": "Provedor 16 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 12369,
+   "pj": 1375,
+   "por_faixa": {
+    "> 34Mbps": 13744
+   },
+   "por_meio": {
+    "Fibra": 13744
+   },
+   "por_municipio": {
+    "9900004": {
+     "acessos": 13744,
+     "capacidade_mbps": 1649280.0,
+     "fibra": 10995,
+     "nome": "Itapuãzinho",
+     "pf": 12369,
+     "pj": 1375,
+     "uf": "SP"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 13744
+   },
+   "por_tecnologia": {
+    "FTTH": 13744
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "SP",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000017000131": {
+   "acessos": 14585,
+   "acessos_compartilhados": false,
+   "acessos_internet": 14585,
+   "asns": [
+    65536
+   ],
+   "capacidade_internet_mbps": 1750200.0,
+   "capacidade_mbps": 1750200.0,
+   "empresa": "Provedor 17 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 13126,
+   "pj": 1459,
+   "por_faixa": {
+    "> 34Mbps": 14585
+   },
+   "por_meio": {
+    "Fibra": 14585
+   },
+   "por_municipio": {
+    "9900005": {
+     "acessos": 14585,
+     "capacidade_mbps": 1750200.0,
+     "fibra": 11668,
+     "nome": "Curumim do Sul",
+     "pf": 13126,
+     "pj": 1459,
+     "uf": "RS"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 14585
+   },
+   "por_tecnologia": {
+    "FTTH": 14585
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RS",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000018000186": {
+   "acessos": 15499,
+   "acessos_compartilhados": false,
+   "acessos_internet": 15499,
+   "asns": [
+    65537
+   ],
+   "capacidade_internet_mbps": 1859880.0,
+   "capacidade_mbps": 1859880.0,
+   "empresa": "Provedor 18 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 13949,
+   "pj": 1550,
+   "por_faixa": {
+    "> 34Mbps": 15499
+   },
+   "por_meio": {
+    "Fibra": 15499
+   },
+   "por_municipio": {
+    "9900006": {
+     "acessos": 15499,
+     "capacidade_mbps": 1859880.0,
+     "fibra": 12399,
+     "nome": "Ybyrapé",
+     "pf": 13949,
+     "pj": 1550,
+     "uf": "MG"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 15499
+   },
+   "por_tecnologia": {
+    "FTTH": 15499
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "MG",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000019000120": {
+   "acessos": 16289,
+   "acessos_compartilhados": false,
+   "acessos_internet": 16289,
+   "asns": [
+    65538
+   ],
+   "capacidade_internet_mbps": 1954680.0,
+   "capacidade_mbps": 1954680.0,
+   "empresa": "Provedor 19 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 14660,
+   "pj": 1629,
+   "por_faixa": {
+    "> 34Mbps": 16289
+   },
+   "por_meio": {
+    "Fibra": 16289
+   },
+   "por_municipio": {
+    "9900007": {
+     "acessos": 16289,
+     "capacidade_mbps": 1954680.0,
+     "fibra": 13031,
+     "nome": "Mbaracayú Novo",
+     "pf": 14660,
+     "pj": 1629,
+     "uf": "PR"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 16289
+   },
+   "por_tecnologia": {
+    "FTTH": 16289
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "PR",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000020000155": {
+   "acessos": 17273,
+   "acessos_compartilhados": false,
+   "acessos_internet": 17273,
+   "asns": [
+    65539
+   ],
+   "capacidade_internet_mbps": 2072760.0,
+   "capacidade_mbps": 2072760.0,
+   "empresa": "Provedor 20 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 15545,
+   "pj": 1728,
+   "por_faixa": {
+    "> 34Mbps": 17273
+   },
+   "por_meio": {
+    "Fibra": 17273
+   },
+   "por_municipio": {
+    "9900008": {
+     "acessos": 17273,
+     "capacidade_mbps": 2072760.0,
+     "fibra": 13818,
+     "nome": "Tabajara do Norte",
+     "pf": 15545,
+     "pj": 1728,
+     "uf": "AM"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 17273
+   },
+   "por_tecnologia": {
+    "FTTH": 17273
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "AM",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000021000108": {
+   "acessos": 18122,
+   "acessos_compartilhados": false,
+   "acessos_internet": 18122,
+   "asns": [
+    65540
+   ],
+   "capacidade_internet_mbps": 2174640.0,
+   "capacidade_mbps": 2174640.0,
+   "empresa": "Provedor 21 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 16309,
+   "pj": 1813,
+   "por_faixa": {
+    "> 34Mbps": 18122
+   },
+   "por_meio": {
+    "Fibra": 18122
+   },
+   "por_municipio": {
+    "9900009": {
+     "acessos": 18122,
+     "capacidade_mbps": 2174640.0,
+     "fibra": 14497,
+     "nome": "Potiguara",
+     "pf": 16309,
+     "pj": 1813,
+     "uf": "RN"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 18122
+   },
+   "por_tecnologia": {
+    "FTTH": 18122
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RN",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000022000144": {
+   "acessos": 18914,
+   "acessos_compartilhados": false,
+   "acessos_internet": 18914,
+   "asns": [
+    65541
+   ],
+   "capacidade_internet_mbps": 2269680.0,
+   "capacidade_mbps": 2269680.0,
+   "empresa": "Provedor 22 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 17022,
+   "pj": 1892,
+   "por_faixa": {
+    "> 34Mbps": 18914
+   },
+   "por_meio": {
+    "Fibra": 18914
+   },
+   "por_municipio": {
+    "9900010": {
+     "acessos": 18914,
+     "capacidade_mbps": 2269680.0,
+     "fibra": 15131,
+     "nome": "Caeté Velho",
+     "pf": 17022,
+     "pj": 1892,
+     "uf": "BA"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 18914
+   },
+   "por_tecnologia": {
+    "FTTH": 18914
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "BA",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000023000199": {
+   "acessos": 19777,
+   "acessos_compartilhados": false,
+   "acessos_internet": 19777,
+   "asns": [
+    65542
+   ],
+   "capacidade_internet_mbps": 2373240.0,
+   "capacidade_mbps": 2373240.0,
+   "empresa": "Provedor 23 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 17799,
+   "pj": 1978,
+   "por_faixa": {
+    "> 34Mbps": 19777
+   },
+   "por_meio": {
+    "Fibra": 19777
+   },
+   "por_municipio": {
+    "9900011": {
+     "acessos": 19777,
+     "capacidade_mbps": 2373240.0,
+     "fibra": 15821,
+     "nome": "Jaguarão de Cima",
+     "pf": 17799,
+     "pj": 1978,
+     "uf": "RS"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 19777
+   },
+   "por_tecnologia": {
+    "FTTH": 19777
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RS",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000024000133": {
+   "acessos": 20660,
+   "acessos_compartilhados": false,
+   "acessos_internet": 20660,
+   "asns": [
+    65543
+   ],
+   "capacidade_internet_mbps": 2479200.0,
+   "capacidade_mbps": 2479200.0,
+   "empresa": "Provedor 24 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 18594,
+   "pj": 2066,
+   "por_faixa": {
+    "> 34Mbps": 20660
+   },
+   "por_meio": {
+    "Fibra": 20660
+   },
+   "por_municipio": {
+    "9900012": {
+     "acessos": 20660,
+     "capacidade_mbps": 2479200.0,
+     "fibra": 16528,
+     "nome": "Pindorama Alta",
+     "pf": 18594,
+     "pj": 2066,
+     "uf": "GO"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 20660
+   },
+   "por_tecnologia": {
+    "FTTH": 20660
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "GO",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000025000188": {
+   "acessos": 21540,
+   "acessos_compartilhados": false,
+   "acessos_internet": 21540,
+   "asns": [
+    65544
+   ],
+   "capacidade_internet_mbps": 2584800.0,
+   "capacidade_mbps": 2584800.0,
+   "empresa": "Provedor 25 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 19386,
+   "pj": 2154,
+   "por_faixa": {
+    "> 34Mbps": 21540
+   },
+   "por_meio": {
+    "Fibra": 21540
+   },
+   "por_municipio": {
+    "9900001": {
+     "acessos": 21540,
+     "capacidade_mbps": 2584800.0,
+     "fibra": 17232,
+     "nome": "Arandurápolis",
+     "pf": 19386,
+     "pj": 2154,
+     "uf": "SP"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 21540
+   },
+   "por_tecnologia": {
+    "FTTH": 21540
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "SP",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000026000122": {
+   "acessos": 22397,
+   "acessos_compartilhados": false,
+   "acessos_internet": 22397,
+   "asns": [
+    65545
+   ],
+   "capacidade_internet_mbps": 2687640.0,
+   "capacidade_mbps": 2687640.0,
+   "empresa": "Provedor 26 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 20157,
+   "pj": 2240,
+   "por_faixa": {
+    "> 34Mbps": 22397
+   },
+   "por_meio": {
+    "Fibra": 22397
+   },
+   "por_municipio": {
+    "9900002": {
+     "acessos": 22397,
+     "capacidade_mbps": 2687640.0,
+     "fibra": 17917,
+     "nome": "Tupãnópolis",
+     "pf": 20157,
+     "pj": 2240,
+     "uf": "RJ"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 22397
+   },
+   "por_tecnologia": {
+    "FTTH": 22397
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RJ",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000027000177": {
+   "acessos": 23143,
+   "acessos_compartilhados": false,
+   "acessos_internet": 23143,
+   "asns": [
+    65546
+   ],
+   "capacidade_internet_mbps": 2777160.0,
+   "capacidade_mbps": 2777160.0,
+   "empresa": "Provedor 27 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 20828,
+   "pj": 2315,
+   "por_faixa": {
+    "> 34Mbps": 23143
+   },
+   "por_meio": {
+    "Fibra": 23143
+   },
+   "por_municipio": {
+    "9900003": {
+     "acessos": 23143,
+     "capacidade_mbps": 2777160.0,
+     "fibra": 18514,
+     "nome": "Guaraniópolis",
+     "pf": 20828,
+     "pj": 2315,
+     "uf": "PR"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 23143
+   },
+   "por_tecnologia": {
+    "FTTH": 23143
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "PR",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000028000111": {
+   "acessos": 24101,
+   "acessos_compartilhados": false,
+   "acessos_internet": 24101,
+   "asns": [
+    65547
+   ],
+   "capacidade_internet_mbps": 2892120.0,
+   "capacidade_mbps": 2892120.0,
+   "empresa": "Provedor 28 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 21690,
+   "pj": 2411,
+   "por_faixa": {
+    "> 34Mbps": 24101
+   },
+   "por_meio": {
+    "Fibra": 24101
+   },
+   "por_municipio": {
+    "9900004": {
+     "acessos": 24101,
+     "capacidade_mbps": 2892120.0,
+     "fibra": 19280,
+     "nome": "Itapuãzinho",
+     "pf": 21690,
+     "pj": 2411,
+     "uf": "SP"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 24101
+   },
+   "por_tecnologia": {
+    "FTTH": 24101
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "SP",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000029000166": {
+   "acessos": 24922,
+   "acessos_compartilhados": false,
+   "acessos_internet": 24922,
+   "asns": [
+    65548
+   ],
+   "capacidade_internet_mbps": 2990640.0,
+   "capacidade_mbps": 2990640.0,
+   "empresa": "Provedor 29 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 22429,
+   "pj": 2493,
+   "por_faixa": {
+    "> 34Mbps": 24922
+   },
+   "por_meio": {
+    "Fibra": 24922
+   },
+   "por_municipio": {
+    "9900005": {
+     "acessos": 24922,
+     "capacidade_mbps": 2990640.0,
+     "fibra": 19937,
+     "nome": "Curumim do Sul",
+     "pf": 22429,
+     "pj": 2493,
+     "uf": "RS"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 24922
+   },
+   "por_tecnologia": {
+    "FTTH": 24922
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RS",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000030000190": {
+   "acessos": 25753,
+   "acessos_compartilhados": false,
+   "acessos_internet": 25753,
+   "asns": [
+    65549
+   ],
+   "capacidade_internet_mbps": 3090360.0,
+   "capacidade_mbps": 3090360.0,
+   "empresa": "Provedor 30 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 23177,
+   "pj": 2576,
+   "por_faixa": {
+    "> 34Mbps": 25753
+   },
+   "por_meio": {
+    "Fibra": 25753
+   },
+   "por_municipio": {
+    "9900006": {
+     "acessos": 25753,
+     "capacidade_mbps": 3090360.0,
+     "fibra": 20602,
+     "nome": "Ybyrapé",
+     "pf": 23177,
+     "pj": 2576,
+     "uf": "MG"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 25753
+   },
+   "por_tecnologia": {
+    "FTTH": 25753
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "MG",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000031000135": {
+   "acessos": 26676,
+   "acessos_compartilhados": false,
+   "acessos_internet": 26676,
+   "asns": [
+    65550
+   ],
+   "capacidade_internet_mbps": 3201120.0,
+   "capacidade_mbps": 3201120.0,
+   "empresa": "Provedor 31 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 24008,
+   "pj": 2668,
+   "por_faixa": {
+    "> 34Mbps": 26676
+   },
+   "por_meio": {
+    "Fibra": 26676
+   },
+   "por_municipio": {
+    "9900007": {
+     "acessos": 26676,
+     "capacidade_mbps": 3201120.0,
+     "fibra": 21340,
+     "nome": "Mbaracayú Novo",
+     "pf": 24008,
+     "pj": 2668,
+     "uf": "PR"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 26676
+   },
+   "por_tecnologia": {
+    "FTTH": 26676
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "PR",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000032000180": {
+   "acessos": 27545,
+   "acessos_compartilhados": false,
+   "acessos_internet": 27545,
+   "asns": [
+    65551
+   ],
+   "capacidade_internet_mbps": 3305400.0,
+   "capacidade_mbps": 3305400.0,
+   "empresa": "Provedor 32 Telecom Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 24790,
+   "pj": 2755,
+   "por_faixa": {
+    "> 34Mbps": 27545
+   },
+   "por_meio": {
+    "Fibra": 27545
+   },
+   "por_municipio": {
+    "9900008": {
+     "acessos": 27545,
+     "capacidade_mbps": 3305400.0,
+     "fibra": 22036,
+     "nome": "Tabajara do Norte",
+     "pf": 24790,
+     "pj": 2755,
+     "uf": "AM"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 27545
+   },
+   "por_tecnologia": {
+    "FTTH": 27545
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "AM",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000100000100": {
+   "acessos": 600,
+   "acessos_compartilhados": false,
+   "acessos_internet": 600,
+   "asns": [
+    4200000000
+   ],
+   "capacidade_internet_mbps": 72000.0,
+   "capacidade_mbps": 72000.0,
+   "empresa": "Trânsito Nacional 1 S.A.",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 540,
+   "pj": 60,
+   "por_faixa": {
+    "> 34Mbps": 600
+   },
+   "por_meio": {
+    "Fibra": 600
+   },
+   "por_municipio": {
+    "9900001": {
+     "acessos": 600,
+     "capacidade_mbps": 72000.0,
+     "fibra": 480,
+     "nome": "Arandurápolis",
+     "pf": 540,
+     "pj": 60,
+     "uf": "SP"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 600
+   },
+   "por_tecnologia": {
+    "FTTH": 600
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "SP",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000101000155": {
+   "acessos": 600,
+   "acessos_compartilhados": false,
+   "acessos_internet": 600,
+   "asns": [
+    4200000001
+   ],
+   "capacidade_internet_mbps": 72000.0,
+   "capacidade_mbps": 72000.0,
+   "empresa": "Trânsito Nacional 2 S.A.",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 540,
+   "pj": 60,
+   "por_faixa": {
+    "> 34Mbps": 600
+   },
+   "por_meio": {
+    "Fibra": 600
+   },
+   "por_municipio": {
+    "9900002": {
+     "acessos": 600,
+     "capacidade_mbps": 72000.0,
+     "fibra": 480,
+     "nome": "Tupãnópolis",
+     "pf": 540,
+     "pj": 60,
+     "uf": "RJ"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 600
+   },
+   "por_tecnologia": {
+    "FTTH": 600
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RJ",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000102000108": {
+   "acessos": 600,
+   "acessos_compartilhados": false,
+   "acessos_internet": 600,
+   "asns": [
+    4200000002
+   ],
+   "capacidade_internet_mbps": 72000.0,
+   "capacidade_mbps": 72000.0,
+   "empresa": "Trânsito Nacional 3 S.A.",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 540,
+   "pj": 60,
+   "por_faixa": {
+    "> 34Mbps": 600
+   },
+   "por_meio": {
+    "Fibra": 600
+   },
+   "por_municipio": {
+    "9900003": {
+     "acessos": 600,
+     "capacidade_mbps": 72000.0,
+     "fibra": 480,
+     "nome": "Guaraniópolis",
+     "pf": 540,
+     "pj": 60,
+     "uf": "PR"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 600
+   },
+   "por_tecnologia": {
+    "FTTH": 600
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "PR",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000103000144": {
+   "acessos": 600,
+   "acessos_compartilhados": false,
+   "acessos_internet": 600,
+   "asns": [
+    4200000003
+   ],
+   "capacidade_internet_mbps": 72000.0,
+   "capacidade_mbps": 72000.0,
+   "empresa": "Trânsito Nacional 4 S.A.",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 540,
+   "pj": 60,
+   "por_faixa": {
+    "> 34Mbps": 600
+   },
+   "por_meio": {
+    "Fibra": 600
+   },
+   "por_municipio": {
+    "9900001": {
+     "acessos": 600,
+     "capacidade_mbps": 72000.0,
+     "fibra": 480,
+     "nome": "Arandurápolis",
+     "pf": 540,
+     "pj": 60,
+     "uf": "SP"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 600
+   },
+   "por_tecnologia": {
+    "FTTH": 600
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "SP",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000200000137": {
+   "acessos": 600,
+   "acessos_compartilhados": false,
+   "acessos_internet": 600,
+   "asns": [],
+   "capacidade_internet_mbps": 72000.0,
+   "capacidade_mbps": 72000.0,
+   "empresa": "Provedor Sem ASN 1 Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 540,
+   "pj": 60,
+   "por_faixa": {
+    "> 34Mbps": 600
+   },
+   "por_meio": {
+    "Fibra": 600
+   },
+   "por_municipio": {
+    "9900004": {
+     "acessos": 600,
+     "capacidade_mbps": 72000.0,
+     "fibra": 480,
+     "nome": "Itapuãzinho",
+     "pf": 540,
+     "pj": 60,
+     "uf": "SP"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 600
+   },
+   "por_tecnologia": {
+    "FTTH": 600
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "SP",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000201000181": {
+   "acessos": 600,
+   "acessos_compartilhados": false,
+   "acessos_internet": 600,
+   "asns": [],
+   "capacidade_internet_mbps": 72000.0,
+   "capacidade_mbps": 72000.0,
+   "empresa": "Provedor Sem ASN 2 Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 540,
+   "pj": 60,
+   "por_faixa": {
+    "> 34Mbps": 600
+   },
+   "por_meio": {
+    "Fibra": 600
+   },
+   "por_municipio": {
+    "9900005": {
+     "acessos": 600,
+     "capacidade_mbps": 72000.0,
+     "fibra": 480,
+     "nome": "Curumim do Sul",
+     "pf": 540,
+     "pj": 60,
+     "uf": "RS"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 600
+   },
+   "por_tecnologia": {
+    "FTTH": 600
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RS",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000202000126": {
+   "acessos": 600,
+   "acessos_compartilhados": false,
+   "acessos_internet": 600,
+   "asns": [],
+   "capacidade_internet_mbps": 72000.0,
+   "capacidade_mbps": 72000.0,
+   "empresa": "Provedor Sem ASN 3 Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 540,
+   "pj": 60,
+   "por_faixa": {
+    "> 34Mbps": 600
+   },
+   "por_meio": {
+    "Fibra": 600
+   },
+   "por_municipio": {
+    "9900006": {
+     "acessos": 600,
+     "capacidade_mbps": 72000.0,
+     "fibra": 480,
+     "nome": "Ybyrapé",
+     "pf": 540,
+     "pj": 60,
+     "uf": "MG"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 600
+   },
+   "por_tecnologia": {
+    "FTTH": 600
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "MG",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000203000170": {
+   "acessos": 600,
+   "acessos_compartilhados": false,
+   "acessos_internet": 600,
+   "asns": [],
+   "capacidade_internet_mbps": 72000.0,
+   "capacidade_mbps": 72000.0,
+   "empresa": "Provedor Sem ASN 4 Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 540,
+   "pj": 60,
+   "por_faixa": {
+    "> 34Mbps": 600
+   },
+   "por_meio": {
+    "Fibra": 600
+   },
+   "por_municipio": {
+    "9900007": {
+     "acessos": 600,
+     "capacidade_mbps": 72000.0,
+     "fibra": 480,
+     "nome": "Mbaracayú Novo",
+     "pf": 540,
+     "pj": 60,
+     "uf": "PR"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 600
+   },
+   "por_tecnologia": {
+    "FTTH": 600
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "PR",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000204000115": {
+   "acessos": 600,
+   "acessos_compartilhados": false,
+   "acessos_internet": 600,
+   "asns": [],
+   "capacidade_internet_mbps": 72000.0,
+   "capacidade_mbps": 72000.0,
+   "empresa": "Provedor Sem ASN 5 Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 540,
+   "pj": 60,
+   "por_faixa": {
+    "> 34Mbps": 600
+   },
+   "por_meio": {
+    "Fibra": 600
+   },
+   "por_municipio": {
+    "9900008": {
+     "acessos": 600,
+     "capacidade_mbps": 72000.0,
+     "fibra": 480,
+     "nome": "Tabajara do Norte",
+     "pf": 540,
+     "pj": 60,
+     "uf": "AM"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 600
+   },
+   "por_tecnologia": {
+    "FTTH": 600
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "AM",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000205000160": {
+   "acessos": 600,
+   "acessos_compartilhados": false,
+   "acessos_internet": 600,
+   "asns": [],
+   "capacidade_internet_mbps": 72000.0,
+   "capacidade_mbps": 72000.0,
+   "empresa": "Provedor Sem ASN 6 Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 540,
+   "pj": 60,
+   "por_faixa": {
+    "> 34Mbps": 600
+   },
+   "por_meio": {
+    "Fibra": 600
+   },
+   "por_municipio": {
+    "9900009": {
+     "acessos": 600,
+     "capacidade_mbps": 72000.0,
+     "fibra": 480,
+     "nome": "Potiguara",
+     "pf": 540,
+     "pj": 60,
+     "uf": "RN"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 600
+   },
+   "por_tecnologia": {
+    "FTTH": 600
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RN",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000206000104": {
+   "acessos": 600,
+   "acessos_compartilhados": false,
+   "acessos_internet": 600,
+   "asns": [],
+   "capacidade_internet_mbps": 72000.0,
+   "capacidade_mbps": 72000.0,
+   "empresa": "Provedor Sem ASN 7 Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 540,
+   "pj": 60,
+   "por_faixa": {
+    "> 34Mbps": 600
+   },
+   "por_meio": {
+    "Fibra": 600
+   },
+   "por_municipio": {
+    "9900010": {
+     "acessos": 600,
+     "capacidade_mbps": 72000.0,
+     "fibra": 480,
+     "nome": "Caeté Velho",
+     "pf": 540,
+     "pj": 60,
+     "uf": "BA"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 600
+   },
+   "por_tecnologia": {
+    "FTTH": 600
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "BA",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  },
+  "90000207000159": {
+   "acessos": 600,
+   "acessos_compartilhados": false,
+   "acessos_internet": 600,
+   "asns": [],
+   "capacidade_internet_mbps": 72000.0,
+   "capacidade_mbps": 72000.0,
+   "empresa": "Provedor Sem ASN 8 Ltda",
+   "grupo": "OUTROS",
+   "meio_predominante": "Fibra",
+   "municipios": 1,
+   "pf": 540,
+   "pj": 60,
+   "por_faixa": {
+    "> 34Mbps": 600
+   },
+   "por_meio": {
+    "Fibra": 600
+   },
+   "por_municipio": {
+    "9900011": {
+     "acessos": 600,
+     "capacidade_mbps": 72000.0,
+     "fibra": 480,
+     "nome": "Jaguarão de Cima",
+     "pf": 540,
+     "pj": 60,
+     "uf": "RS"
+    }
+   },
+   "por_produto": {
+    "INTERNET": 600
+   },
+   "por_tecnologia": {
+    "FTTH": 600
+   },
+   "porte": "Pequeno Porte",
+   "tecnologia_predominante": "FTTH",
+   "uf": "RS",
+   "velocidade_media_mbps": 120.0,
+   "velocidade_mediana_mbps": 120.0
+  }
+ },
+ "distrib_velocidade": {},
+ "divergencia": {
+  "4200000000": {
+   "classificacao": "sem_dados"
+  },
+  "4200000001": {
+   "classificacao": "sem_dados"
+  },
+  "4200000002": {
+   "classificacao": "sem_dados"
+  },
+  "4200000003": {
+   "classificacao": "sem_dados"
+  },
+  "64496": {
+   "acessos_sici": 876,
+   "apnic_users": 3068,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "64497": {
+   "acessos_sici": 1797,
+   "apnic_users": 6291,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "64498": {
+   "acessos_sici": 2695,
+   "apnic_users": 9433,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "64499": {
+   "acessos_sici": 3545,
+   "apnic_users": 12410,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "64500": {
+   "classificacao": "nao_comparavel",
+   "motivo": "acessos_compartilhados"
+  },
+  "64501": {
+   "classificacao": "nao_comparavel",
+   "motivo": "acessos_compartilhados"
+  },
+  "64502": {
+   "acessos_sici": 6037,
+   "apnic_users": 21130,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "64503": {
+   "acessos_sici": 6874,
+   "apnic_users": 24060,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "64504": {
+   "acessos_sici": 1000,
+   "apnic_users": 50000,
+   "classificacao": "apnic_alto",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 50.0
+  },
+  "64505": {
+   "acessos_sici": 5000,
+   "apnic_users": 500,
+   "classificacao": "apnic_baixo",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 0.1
+  },
+  "64506": {
+   "acessos_sici": 9494,
+   "apnic_users": 33230,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "64507": {
+   "acessos_sici": 10354,
+   "apnic_users": 36241,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "64508": {
+   "acessos_sici": 11238,
+   "apnic_users": 39333,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "64509": {
+   "acessos_sici": 12055,
+   "apnic_users": 42194,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "64511": {
+   "acessos_sici": 13744,
+   "apnic_users": 48107,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65536": {
+   "acessos_sici": 14585,
+   "apnic_users": 51048,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65537": {
+   "acessos_sici": 15499,
+   "apnic_users": 54249,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65538": {
+   "acessos_sici": 16289,
+   "apnic_users": 57014,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65539": {
+   "acessos_sici": 17273,
+   "apnic_users": 60457,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65540": {
+   "acessos_sici": 18122,
+   "apnic_users": 63427,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65541": {
+   "acessos_sici": 18914,
+   "apnic_users": 66199,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65542": {
+   "acessos_sici": 19777,
+   "apnic_users": 69221,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65543": {
+   "acessos_sici": 20660,
+   "apnic_users": 72311,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65544": {
+   "acessos_sici": 21540,
+   "apnic_users": 75390,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65545": {
+   "acessos_sici": 22397,
+   "apnic_users": 78392,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65546": {
+   "acessos_sici": 23143,
+   "apnic_users": 81001,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65547": {
+   "acessos_sici": 24101,
+   "apnic_users": 84356,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65548": {
+   "acessos_sici": 24922,
+   "apnic_users": 87228,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65549": {
+   "acessos_sici": 25753,
+   "apnic_users": 90136,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65550": {
+   "acessos_sici": 26676,
+   "apnic_users": 93369,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "65551": {
+   "acessos_sici": 27545,
+   "apnic_users": 96410,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  }
+ },
+ "fonte": "sintético",
+ "matched_acessos": 429457,
+ "matched_cnpjs": 34,
+ "mes_referencia": "2026-08",
+ "meses_disponiveis": [
+  "2026-07",
+  "2026-08"
+ ],
+ "serie_por_cnpj": {
+  "90000001000129": [
+   [
+    "2026-07",
+    849,
+    764,
+    85
+   ],
+   [
+    "2026-08",
+    876,
+    788,
+    88
+   ]
+  ],
+  "90000002000173": [
+   [
+    "2026-07",
+    1743,
+    1568,
+    174
+   ],
+   [
+    "2026-08",
+    1797,
+    1617,
+    180
+   ]
+  ],
+  "90000003000118": [
+   [
+    "2026-07",
+    2614,
+    2352,
+    261
+   ],
+   [
+    "2026-08",
+    2695,
+    2425,
+    270
+   ]
+  ],
+  "90000004000162": [
+   [
+    "2026-07",
+    3438,
+    3094,
+    344
+   ],
+   [
+    "2026-08",
+    3545,
+    3190,
+    355
+   ]
+  ],
+  "90000005000107": [
+   [
+    "2026-07",
+    4997,
+    4496,
+    500
+   ],
+   [
+    "2026-08",
+    5152,
+    4636,
+    516
+   ]
+  ],
+  "90000007000104": [
+   [
+    "2026-07",
+    5855,
+    5270,
+    585
+   ],
+   [
+    "2026-08",
+    6037,
+    5433,
+    604
+   ]
+  ],
+  "90000008000140": [
+   [
+    "2026-07",
+    6667,
+    6000,
+    667
+   ],
+   [
+    "2026-08",
+    6874,
+    6186,
+    688
+   ]
+  ],
+  "90000009000195": [
+   [
+    "2026-07",
+    970,
+    873,
+    97
+   ],
+   [
+    "2026-08",
+    1000,
+    900,
+    100
+   ]
+  ],
+  "90000010000110": [
+   [
+    "2026-07",
+    4850,
+    4365,
+    485
+   ],
+   [
+    "2026-08",
+    5000,
+    4500,
+    500
+   ]
+  ],
+  "90000011000164": [
+   [
+    "2026-07",
+    9209,
+    8287,
+    921
+   ],
+   [
+    "2026-08",
+    9494,
+    8544,
+    950
+   ]
+  ],
+  "90000012000109": [
+   [
+    "2026-07",
+    10043,
+    9038,
+    1004
+   ],
+   [
+    "2026-08",
+    10354,
+    9318,
+    1036
+   ]
+  ],
+  "90000013000153": [
+   [
+    "2026-07",
+    10900,
+    9810,
+    1090
+   ],
+   [
+    "2026-08",
+    11238,
+    10114,
+    1124
+   ]
+  ],
+  "90000014000106": [
+   [
+    "2026-07",
+    11693,
+    10523,
+    1169
+   ],
+   [
+    "2026-08",
+    12055,
+    10849,
+    1206
+   ]
+  ],
+  "90000016000197": [
+   [
+    "2026-07",
+    13331,
+    11997,
+    1333
+   ],
+   [
+    "2026-08",
+    13744,
+    12369,
+    1375
+   ]
+  ],
+  "90000017000131": [
+   [
+    "2026-07",
+    14147,
+    12732,
+    1415
+   ],
+   [
+    "2026-08",
+    14585,
+    13126,
+    1459
+   ]
+  ],
+  "90000018000186": [
+   [
+    "2026-07",
+    15034,
+    13530,
+    1503
+   ],
+   [
+    "2026-08",
+    15499,
+    13949,
+    1550
+   ]
+  ],
+  "90000019000120": [
+   [
+    "2026-07",
+    15800,
+    14220,
+    1580
+   ],
+   [
+    "2026-08",
+    16289,
+    14660,
+    1629
+   ]
+  ],
+  "90000020000155": [
+   [
+    "2026-07",
+    16754,
+    15078,
+    1676
+   ],
+   [
+    "2026-08",
+    17273,
+    15545,
+    1728
+   ]
+  ],
+  "90000021000108": [
+   [
+    "2026-07",
+    17578,
+    15819,
+    1758
+   ],
+   [
+    "2026-08",
+    18122,
+    16309,
+    1813
+   ]
+  ],
+  "90000022000144": [
+   [
+    "2026-07",
+    18346,
+    16511,
+    1835
+   ],
+   [
+    "2026-08",
+    18914,
+    17022,
+    1892
+   ]
+  ],
+  "90000023000199": [
+   [
+    "2026-07",
+    19183,
+    17265,
+    1918
+   ],
+   [
+    "2026-08",
+    19777,
+    17799,
+    1978
+   ]
+  ],
+  "90000024000133": [
+   [
+    "2026-07",
+    20040,
+    18036,
+    2004
+   ],
+   [
+    "2026-08",
+    20660,
+    18594,
+    2066
+   ]
+  ],
+  "90000025000188": [
+   [
+    "2026-07",
+    20893,
+    18804,
+    2089
+   ],
+   [
+    "2026-08",
+    21540,
+    19386,
+    2154
+   ]
+  ],
+  "90000026000122": [
+   [
+    "2026-07",
+    21725,
+    19552,
+    2172
+   ],
+   [
+    "2026-08",
+    22397,
+    20157,
+    2240
+   ]
+  ],
+  "90000027000177": [
+   [
+    "2026-07",
+    22448,
+    20203,
+    2245
+   ],
+   [
+    "2026-08",
+    23143,
+    20828,
+    2315
+   ]
+  ],
+  "90000028000111": [
+   [
+    "2026-07",
+    23377,
+    21039,
+    2338
+   ],
+   [
+    "2026-08",
+    24101,
+    21690,
+    2411
+   ]
+  ],
+  "90000029000166": [
+   [
+    "2026-07",
+    24174,
+    21756,
+    2418
+   ],
+   [
+    "2026-08",
+    24922,
+    22429,
+    2493
+   ]
+  ],
+  "90000030000190": [
+   [
+    "2026-07",
+    24980,
+    22481,
+    2498
+   ],
+   [
+    "2026-08",
+    25753,
+    23177,
+    2576
+   ]
+  ],
+  "90000031000135": [
+   [
+    "2026-07",
+    25875,
+    23287,
+    2587
+   ],
+   [
+    "2026-08",
+    26676,
+    24008,
+    2668
+   ]
+  ],
+  "90000032000180": [
+   [
+    "2026-07",
+    26718,
+    24046,
+    2672
+   ],
+   [
+    "2026-08",
+    27545,
+    24790,
+    2755
+   ]
+  ],
+  "90000100000100": [
+   [
+    "2026-07",
+    582,
+    523,
+    58
+   ],
+   [
+    "2026-08",
+    600,
+    540,
+    60
+   ]
+  ],
+  "90000101000155": [
+   [
+    "2026-07",
+    582,
+    523,
+    58
+   ],
+   [
+    "2026-08",
+    600,
+    540,
+    60
+   ]
+  ],
+  "90000102000108": [
+   [
+    "2026-07",
+    582,
+    523,
+    58
+   ],
+   [
+    "2026-08",
+    600,
+    540,
+    60
+   ]
+  ],
+  "90000103000144": [
+   [
+    "2026-07",
+    582,
+    523,
+    58
+   ],
+   [
+    "2026-08",
+    600,
+    540,
+    60
+   ]
+  ],
+  "90000200000137": [
+   [
+    "2026-07",
+    582,
+    523,
+    58
+   ],
+   [
+    "2026-08",
+    600,
+    540,
+    60
+   ]
+  ],
+  "90000201000181": [
+   [
+    "2026-07",
+    582,
+    523,
+    58
+   ],
+   [
+    "2026-08",
+    600,
+    540,
+    60
+   ]
+  ],
+  "90000202000126": [
+   [
+    "2026-07",
+    582,
+    523,
+    58
+   ],
+   [
+    "2026-08",
+    600,
+    540,
+    60
+   ]
+  ],
+  "90000203000170": [
+   [
+    "2026-07",
+    582,
+    523,
+    58
+   ],
+   [
+    "2026-08",
+    600,
+    540,
+    60
+   ]
+  ],
+  "90000204000115": [
+   [
+    "2026-07",
+    582,
+    523,
+    58
+   ],
+   [
+    "2026-08",
+    600,
+    540,
+    60
+   ]
+  ],
+  "90000205000160": [
+   [
+    "2026-07",
+    582,
+    523,
+    58
+   ],
+   [
+    "2026-08",
+    600,
+    540,
+    60
+   ]
+  ],
+  "90000206000104": [
+   [
+    "2026-07",
+    582,
+    523,
+    58
+   ],
+   [
+    "2026-08",
+    600,
+    540,
+    60
+   ]
+  ],
+  "90000207000159": [
+   [
+    "2026-07",
+    582,
+    523,
+    58
+   ],
+   [
+    "2026-08",
+    600,
+    540,
+    60
+   ]
+  ]
+ },
+ "serie_total": [
+  {
+   "acessos": 0,
+   "cnpjs": 42,
+   "mes": "2026-07"
+  },
+  {
+   "acessos": 0,
+   "cnpjs": 42,
+   "mes": "2026-08"
+  }
+ ],
+ "snapshot_date": "2026-09-20",
+ "total_acessos": 434257,
+ "total_cnpjs": 42
+}

@@ -1,0 +1,32 @@
+{
+ "norte-conectado-infovia-06": {
+  "id": "norte-conectado-infovia-06",
+  "name": "Norte Conectado (Infovia 06)",
+  "length": "2,847 km",
+  "owners": "Entidade Administradora da Faixa (EAF)",
+  "suppliers": null,
+  "rfs_year": 2028,
+  "is_planned": true,
+  "url": "https://eaf.org.br/infovias",
+  "landing_points": [
+   {
+    "country": "Brazil"
+   }
+  ]
+ },
+ "norte-conectado-infovia-08": {
+  "id": "norte-conectado-infovia-08",
+  "name": "Norte Conectado (Infovia 08)",
+  "length": "2,766 km",
+  "owners": "Entidade Administradora da Faixa (EAF)",
+  "suppliers": null,
+  "rfs_year": 2028,
+  "is_planned": true,
+  "url": "https://eaf.org.br/infovias",
+  "landing_points": [
+   {
+    "country": "Brazil"
+   }
+  ]
+ }
+}

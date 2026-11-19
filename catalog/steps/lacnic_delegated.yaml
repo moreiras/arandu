@@ -1,0 +1,11 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: lacnic_delegated
+nome: ASNs brasileiros (LACNIC delegated)
+ordem: 4
+modulo: sources.lacnic_delegated.collect
+fontes:
+- lacnic_delegated
+tentativas: 3
+espera_s: 60
+politica_falha: critica
+descricao: ''

@@ -1,0 +1,32 @@
+{
+ "data": [
+  {
+   "id": 9001,
+   "name": "Org Exemplo Frankfurt",
+   "city": "Frankfurt",
+   "country": "DE",
+   "latitude": 50.11,
+   "longitude": 8.68,
+   "status": "ok"
+  },
+  {
+   "id": 9002,
+   "name": "Org Exemplo Sem Coordenadas",
+   "city": "Buenos Aires",
+   "country": "AR",
+   "latitude": null,
+   "longitude": null,
+   "status": "ok"
+  },
+  {
+   "id": 9003,
+   "name": "Org Exemplo Sem Cidade",
+   "city": "",
+   "country": "US",
+   "latitude": null,
+   "longitude": null,
+   "status": "ok"
+  }
+ ],
+ "meta": {}
+}

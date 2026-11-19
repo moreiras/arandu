@@ -1,0 +1,59 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: cetic_tic_domicilios_microdados
+nome: TIC Domicílios — microdados (Cetic.br), estimativas por UF
+tipo: bruta
+ativa: true
+modulo: sources.cetic_tic_domicilios_microdados.collect
+publicavel: true
+descricao: 'Base de microdados de domicílios da pesquisa TIC Domicílios (edição vigente; ~27 mil domicílios, desidentificada, com a UF e 200 pesos de réplica).
+  Só agregados saem dela: proporção, total e erro-padrão por UF, região e Brasil de três indicadores (acesso à Internet, computador e banda larga fixa). É estimativa do
+  Arandurapé, não número do Cetic.br.'
+origem:
+  url: https://cetic.br/pt/pesquisa/domicilios/microdados/
+  formato: CSV (Latin-1, separador `;`, vírgula decimal), uma linha por domicílio, com PESO e REP1 a REP200
+  licenca: CC BY 4.0
+  uso_comercial: permitido
+  termos: https://creativecommons.org/licenses/by/4.0/deed.pt_BR
+  nota: 'Citar "Cetic.br|NIC.br, TIC Domicílios AAAA (microdados)" (CC BY 4.0). Base desidentificada e de acesso público (sem Termo de Acesso); microdados restritos estão fora do escopo.
+    A base de domicílios fica só no bruto e nunca é publicada. Sem API nem URL estável: o coletor descobre o link na página de microdados. Uma requisição para a página e
+    uma para o CSV (36 MB), com pausa e User-Agent identificado.'
+cadencia:
+  fonte_atualiza: anual
+  coleta: mensal
+  coleta_atual: semanal
+  frescor_maximo: 400d
+politica_falha: opcional
+saidas:
+  bruto:
+  - summary/tic_domicilios_AAAA_domicilios_base_de_microdados_v1.0.csv.gz
+  normalizado:
+  - summary/cetic_tic_domicilios_uf.json.gz
+chaves:
+- uf
+campos:
+- nome: grupos[BR | região | UF].indicadores[id].proporcao / erro_padrao / margem / cv
+  tipo: float
+  significado: 'Percentual de domicílios do grupo com a característica, erro-padrão em pontos percentuais, margem de erro de 95% (1,96 × erro-padrão) e coeficiente de variação.'
+  tratamento: 'Estimativa do Arandurapé: ponto pelo peso amostral e variância pelas 200 réplicas da base pública. A estimativa pontual coincide com a das tabelas oficiais; a margem
+    oficial é de 1,08 a 1,14 vez a estimada aqui (validação no produto). Precisão "baixa" quando o CV passa de 30%.'
+- nome: grupos[...].indicadores[id].total / total_erro_padrao
+  tipo: int
+  significado: Domicílios do grupo com a característica, estimados pelos pesos, e erro-padrão do total.
+  tratamento: Estimativa expandida; não é contagem.
+- nome: grupos[...].n / domicilios / domicilios_se
+  tipo: int
+  significado: Domicílios entrevistados no grupo, domicílios estimados e erro-padrão.
+  tratamento: Grupo com menos de 30 entrevistados é suprimido (`suprimido` no lugar dos números).
+- nome: indicadores[id].rotulo / definicao
+  tipo: str
+  significado: O que cada indicador mede e quais colunas da base o definem.
+limites: 'Estimativa amostral com 700 a 1.500 domicílios por UF: a margem de erro por UF é bem maior que a do Brasil e deve acompanhar o número. Não há município nem pessoa. As colunas usadas são
+  A4 (acesso à Internet), A1_AGREG (computador) e A7_AGREG (banda larga fixa); a definição de domicílio e o ano de referência são os da pesquisa.'
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/cetic/
+pendencias:
+- Margem de erro própria 8% a 14% menor que a das tabelas oficiais; investigar com o Cetic.br se há uma regra de variância que a reproduza.
+etapa:
+  tentativas: 3
+  espera_s: 120

@@ -1,0 +1,7 @@
+# Dependências só de build (malha municipal e mapa de fundo; não rodam em produção), versões fixadas.
+# Instalar: pip install -r requirements-build.txt
+shapely==2.2.0
+pyshp==3.1.9
+mapbox-vector-tile==2.2.0
+pmtiles==3.8.1
+numpy==2.5.5

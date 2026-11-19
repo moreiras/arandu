@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: prefix_geo
+nome: Geolocalização de prefixos BR (DB-IP Lite)
+ordem: 24
+modulo: sources.prefix_geo.enrich
+fontes:
+- prefix_geo
+politica_falha: opcional
+descricao: ''

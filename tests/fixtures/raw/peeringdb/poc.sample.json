@@ -1,0 +1,70 @@
+{
+ "data": [
+  {
+   "id": 8889,
+   "net_id": 4272,
+   "role": "Technical",
+   "visible": "Users",
+   "name": "Contato Ficticio 1",
+   "phone": "+5511900000000",
+   "email": "contato1@example.org",
+   "url": "",
+   "created": "2013-09-19T00:00:00Z",
+   "updated": "2023-04-26T16:00:02Z",
+   "status": "ok"
+  },
+  {
+   "id": 66308,
+   "net_id": 4272,
+   "role": "Technical",
+   "visible": "Users",
+   "name": "Contato Ficticio 2",
+   "phone": "+5511900000001",
+   "email": "contato2@example.org",
+   "url": "",
+   "created": "2024-04-24T16:21:35Z",
+   "updated": "2025-06-06T13:56:53Z",
+   "status": "ok"
+  },
+  {
+   "id": 8181,
+   "net_id": 2680,
+   "role": "NOC",
+   "visible": "Public",
+   "name": "Contato Ficticio 3",
+   "phone": "+5511900000002",
+   "email": "contato3@example.org",
+   "url": "",
+   "created": "2013-05-04T00:00:00Z",
+   "updated": "2023-12-18T15:26:59Z",
+   "status": "ok"
+  },
+  {
+   "id": 8182,
+   "net_id": 2680,
+   "role": "Technical",
+   "visible": "Public",
+   "name": "Contato Ficticio 4",
+   "phone": "+5511900000003",
+   "email": "contato4@example.org",
+   "url": "",
+   "created": "2013-05-04T00:00:00Z",
+   "updated": "2026-02-19T19:56:00Z",
+   "status": "ok"
+  },
+  {
+   "id": 8183,
+   "net_id": 2680,
+   "role": "Technical",
+   "visible": "Public",
+   "name": "Contato Ficticio 5",
+   "phone": "+5511900000004",
+   "email": "contato5@example.org",
+   "url": "",
+   "created": "2013-05-04T00:00:00Z",
+   "updated": "2026-03-18T20:25:56Z",
+   "status": "ok"
+  }
+ ],
+ "meta": {}
+}

@@ -1,0 +1,6 @@
+AS Number,Reason for Reservation,Reference
+0,Reserved by [RFC 7607],[RFC 7607]
+23456,AS_TRANS; reserved by [RFC 6793],[RFC 6793]
+64496-64511,For documentation and sample code; reserved by [RFC 5398],[RFC 5398]
+64512-65534,For private use; reserved by [RFC 6996],[RFC 6996]
+4294967295,Reserved by [RFC 7300],[RFC 7300]

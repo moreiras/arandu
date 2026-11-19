@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Stateful NAT64 with TAYGA (userspace, TUN): stateless translation into a
+# private IPv4 pool, then NAT44 (MASQUERADE) out of eth0. No kernel module.
+#
+# Prefix: a network-specific prefix (2001:db8:64::/96) instead of the
+# well-known 64:ff9b::/96, because RFC 6052 forbids the well-known prefix for
+# non-global IPv4 addresses and a lab-local target has a private IPv4.
+
+mkdir -p /dev/net /var/spool/tayga
+[ -c /dev/net/tun ] || mknod /dev/net/tun c 10 200
+
+cat > /etc/tayga.conf <<CONF
+tun-device nat64
+ipv4-addr 192.168.255.1
+ipv6-addr 2001:db8:ff::1
+prefix 2001:db8:64::/96
+dynamic-pool 192.168.255.0/24
+data-dir /var/spool/tayga
+CONF
+
+tayga --mktun -c /etc/tayga.conf
+ip link set nat64 up
+ip route add 192.168.255.0/24 dev nat64
+ip -6 route add 2001:db8:64::/96 dev nat64
+iptables -t nat -A POSTROUTING -s 192.168.255.0/24 -o eth0 -j MASQUERADE
+tayga -c /etc/tayga.conf

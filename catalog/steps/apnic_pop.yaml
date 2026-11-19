@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: apnic_pop
+nome: Estimativas de usuários por AS (APNIC Labs)
+ordem: 20
+modulo: sources.apnic_pop.collect
+fontes:
+- apnic_pop
+politica_falha: opcional
+descricao: ''

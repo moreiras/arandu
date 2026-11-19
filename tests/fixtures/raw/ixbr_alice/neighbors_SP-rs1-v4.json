@@ -1,0 +1,121 @@
+{
+ "api": {
+  "version": "6.1.0",
+  "cache_status": {
+   "cached_at": "2026-10-30T05:40:00.123456789Z",
+   "orig_ttl": 0
+  },
+  "result_from_cache": true,
+  "ttl": "2026-10-30T05:46:00Z"
+ },
+ "neighbors": [
+  {
+   "id": "AS64497_203_0_113_20",
+   "address": "203.0.113.20",
+   "asn": 64497,
+   "state": "up",
+   "description": "REDE EXEMPLO A",
+   "routes_received": 90,
+   "routes_filtered": 0,
+   "routes_exported": 500,
+   "routes_preferred": 90,
+   "routes_accepted": 90,
+   "uptime": 733445874228121,
+   "last_error": "",
+   "routeserver_id": "SP-rs1-v4",
+   "details": {
+    "action": "restart",
+    "bgp_state": "Established",
+    "import_limit": 100,
+    "receive_limit": 100,
+    "state_changed": "2026-10-23 07:34:44",
+    "state": "UP",
+    "neighbor_as": 64497,
+    "route_changes": {
+     "import_updates": {
+      "accepted": 90,
+      "filtered": 0,
+      "ignored": 3,
+      "received": 93,
+      "rejected": 0
+     },
+     "export_updates": {
+      "accepted": 9
+     }
+    }
+   }
+  },
+  {
+   "id": "AS64496_203_0_113_10",
+   "address": "203.0.113.10",
+   "asn": 64496,
+   "state": "down",
+   "description": "REDE EXEMPLO B",
+   "routes_received": 0,
+   "routes_filtered": 0,
+   "routes_exported": 0,
+   "routes_preferred": 0,
+   "routes_accepted": 0,
+   "uptime": 733445874228121,
+   "last_error": "BGP Error: Hold timer expired",
+   "routeserver_id": "SP-rs1-v4",
+   "details": {
+    "action": "restart",
+    "bgp_state": "Passive",
+    "import_limit": 100,
+    "receive_limit": 100,
+    "state_changed": "2026-10-23 07:34:44",
+    "state": "DOWN",
+    "neighbor_as": 64496,
+    "route_changes": {
+     "import_updates": {
+      "accepted": 0,
+      "filtered": 0,
+      "ignored": 3,
+      "received": 3,
+      "rejected": 0
+     },
+     "export_updates": {
+      "accepted": 9
+     }
+    }
+   }
+  },
+  {
+   "id": "AS64496_203_0_113_11",
+   "address": "203.0.113.11",
+   "asn": 64496,
+   "state": "up",
+   "description": "REDE EXEMPLO B",
+   "routes_received": 10,
+   "routes_filtered": 1,
+   "routes_exported": 500,
+   "routes_preferred": 9,
+   "routes_accepted": 9,
+   "uptime": 733445874228121,
+   "last_error": "",
+   "routeserver_id": "SP-rs1-v4",
+   "details": {
+    "action": "restart",
+    "bgp_state": "Established",
+    "import_limit": 100,
+    "receive_limit": 100,
+    "state_changed": "2026-10-23 07:34:44",
+    "state": "UP",
+    "neighbor_as": 64496,
+    "route_changes": {
+     "import_updates": {
+      "accepted": 9,
+      "filtered": 1,
+      "ignored": 3,
+      "received": 13,
+      "rejected": 0
+     },
+     "export_updates": {
+      "accepted": 9
+     }
+    }
+   }
+  }
+ ]
+}

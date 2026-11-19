@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: scm_geo
+nome: Geolocalização das outorgas SCM
+ordem: 25
+modulo: sources.scm_geo.enrich
+fontes:
+- scm_geo
+politica_falha: opcional
+descricao: ''

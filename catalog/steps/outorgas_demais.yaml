@@ -1,0 +1,28 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: outorgas_demais
+nome: Outorgas SMP, STFC e SeAC
+ordem: -61
+modulo: products.passos
+args:
+- --passo
+- outorgas_demais
+- --date
+- '{date}'
+parcial:
+- outorgas
+depois_de:
+- anatel_scm
+- anatel_seac
+- anatel_sici
+- anatel_smp
+- anatel_stfc
+- outorgas_scm
+- registro_br
+- scm_geo
+- seac_geo
+- smp_geo
+- stfc_geo
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: Outorgas SMP, STFC e SeAC. Roda sozinho; lê o que os anteriores
+  deixaram em published/ e build/intermediarios/.'

@@ -1,0 +1,10 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: aneel_sigel_transmission
+nome: Linhas de transmissão (SIGEL/ANEEL)
+ordem: 15
+modulo: sources.aneel_sigel_transmission.collect
+fontes:
+- aneel_sigel_transmission
+politica_falha: usar_ultima_valida
+descricao: ''
+reaproveita: normalized/{date}/summary/aneel_transmission.json.gz

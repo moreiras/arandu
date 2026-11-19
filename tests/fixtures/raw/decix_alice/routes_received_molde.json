@@ -1,0 +1,75 @@
+{
+ "api": {
+  "version": "2.0.0",
+  "cache_status": {
+   "cached_at": "2026-11-10T11:30:00.123456789Z",
+   "orig_ttl": 0
+  },
+  "result_from_cache": false,
+  "ttl": "2026-11-10T11:31:00Z"
+ },
+ "pagination": {
+  "page": 0,
+  "page_size": 250,
+  "total_pages": 3,
+  "total_results": 600
+ },
+ "request_duration_ms": 12,
+ "filters_available": [
+  {
+   "key": "sources",
+   "filters": []
+  },
+  {
+   "key": "asns",
+   "filters": []
+  }
+ ],
+ "filters_applied": [],
+ "filters_not_available": [],
+ "imported": [
+  {
+   "neighbor_id": "X",
+   "network": "192.0.2.0/24",
+   "interface": "eth1",
+   "gateway": "198.18.93.2",
+   "metric": 100,
+   "bgp": {
+    "origin": "IGP",
+    "as_path": [
+     64497,
+     64520
+    ],
+    "next_hop": "198.18.93.2",
+    "communities": [
+     [
+      64496,
+      100
+     ]
+    ],
+    "large_communities": [
+     [
+      64496,
+      1,
+      2
+     ]
+    ],
+    "ext_communities": [],
+    "local_pref": 100,
+    "med": 0,
+    "otc": null
+   },
+   "age": 99396927663193,
+   "type": [
+    "BGP",
+    "univ"
+   ],
+   "primary": true,
+   "learnt_from": "198.18.93.2",
+   "address_family": 1,
+   "details": null
+  }
+ ],
+ "filtered": [],
+ "not_exported": []
+}

@@ -1,0 +1,25 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: mapas_geo
+nome: Mapas GeoJSON de prefixos e ASNs
+ordem: -58
+modulo: products.passos
+args:
+- --passo
+- mapas_geo
+- --date
+- '{date}'
+parcial:
+- mapas_prefixos
+depois_de:
+- asn_indice
+- cnpj_geo
+- fulltable_routeviews
+- global_prefix_geo
+- bgp_ixp
+- peeringdb_intl_geo
+- prefix_geo
+- registro_br
+politica_falha: critica
+replay: true
+descricao: 'Passo do build do snapshot: Mapas GeoJSON de prefixos e ASNs. Roda sozinho; lê o que os anteriores
+  deixaram em published/ e build/intermediarios/.'

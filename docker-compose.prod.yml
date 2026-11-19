@@ -1,0 +1,89 @@
+# Overrides para produção com infraestrutura externa (nginx já existente no host)
+# Uso: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d   (docker-compose.yml = cópia do docker-compose.exemplo.yml)
+
+services:
+  api:
+    restart: unless-stopped
+    environment:
+      - DATA_DIR=/data
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - NOMINATIM_USER_AGENT=${NOMINATIM_USER_AGENT}
+      - ALERT_WEBHOOK_URL=${ALERT_WEBHOOK_URL:-}
+      # Limita arenas do glibc malloc: o ThreadPoolExecutor do Store (até 8 threads)
+      # cria uma arena por thread e a fragmentação não volta ao SO.
+      - MALLOC_ARENA_MAX=2
+      # Byte-cache das respostas do latest (soma dos corpos, em bytes) e teto por entrada.
+      - LATEST_CACHE_MAX_BYTES=${LATEST_CACHE_MAX_BYTES:-629145600}
+      - LATEST_CACHE_MAX_ENTRY_BYTES=${LATEST_CACHE_MAX_ENTRY_BYTES:-16777216}
+      # LRUs do Store (nº de entradas). _origin_paths é o mais pesado (AS-paths de
+      # um IXP inteiro por entrada) — só aumentar depois de medir o anon do cgroup.
+      - STORE_ORIGIN_PATHS_LRU=${STORE_ORIGIN_PATHS_LRU:-24}
+      - STORE_IXP_PEERS_LRU=${STORE_IXP_PEERS_LRU:-24}
+      - STORE_MAP_RECORTE_LRU=${STORE_MAP_RECORTE_LRU:-32}
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          # 9G: com 7 GiB a API morre por OOM (exit 137) durante o
+          # aquecimento do restart-safe; o pico medido nos deploys foi 6,9 GiB e o regime
+          # 4 a 5,9 GiB, com 60 a 73% do espaço das arenas do pymalloc livre mas retido (fragmentação do alocador).
+          # 9 GiB deixa margem sem tirar a do host (16 GiB, sem swap: API 9 + worker 2 + demais ~0,4; o Routinator roda avulso antes do worker).
+          # Subir daqui só depois de medir o pico do worker (data/ops/mem/). O limite é teto, não reserva.
+          memory: 9G
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  mcp:
+    restart: unless-stopped
+    environment:
+      - DATA_DIR=/data
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          # Carrega os mesmos índices pesados do snapshot que a API (sob demanda,
+          # ao primeiro uso de cada tool). 2G cobre o índice de ASNs + estruturas.
+          memory: 2G
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  worker:
+    environment:
+      - DATA_DIR=/data
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - NOMINATIM_USER_AGENT=${NOMINATIM_USER_AGENT}
+      - ALERT_WEBHOOK_URL=${ALERT_WEBHOOK_URL:-}
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    profiles: ["worker"]
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  frontend:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"

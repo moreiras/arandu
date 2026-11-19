@@ -1,0 +1,37 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: lacnic_historico
+nome: Histórico do LACNIC (delegated-extended diário e log de transferências)
+tipo: bruta
+ativa: true
+modulo: sources.lacnic_historico.collect
+publicavel: false
+exposicao: nenhuma
+descricao: 'Backfill, comprimido e retomável, dos arquivos diários do LACNIC: o delegated-lacnic-extended do archive/
+  (uma versão por dia, desde 2003; coletado desde 2020) e as versões diárias do log de transferências (desde 2016-08-30).
+  Serve ao ciclo de vida do IPv4; nenhum produto lê estes arquivos ainda.'
+origem:
+  url: https://ftp.lacnic.net/pub/stats/lacnic/{archive/AAAA/delegated-lacnic-extended-AAAAMMDD, transfers/AAAA/transfers_AAAAMMDDThhmmssZ.json}
+  formato: texto delimitado por | (delegated) e JSON (transferências)
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: README do diretório não declara termos (estudo de 2026-10-09). Arquivos públicos do LACNIC; a coleta é gentil
+    (1 conexão, pausa, limite por execução).
+cadencia:
+  fonte_atualiza: diaria
+  coleta: manual
+  coleta_atual: manual
+  frescor_maximo: nao_verificado
+politica_falha: opcional
+saidas: {}
+chaves:
+- asn
+- prefixo
+campos: []
+limites: 'Fora de raw/ e normalized/ (data/historico/lacnic/...): o gc não toca. Retomável: o que já existe é pulado.
+  Os md5 do archive/ são conferidos.'
+retencao:
+  bruto: indefinida (histórico); ~1 MB comprimido por dia no delegated
+fixture: tests/fixtures/raw/lacnic_historico/
+pendencias:
+- Termos de uso dos arquivos do LACNIC não confirmados.
+- Só `ipv4_delegated` lê o histórico.

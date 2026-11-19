@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: cnpj_geo
+nome: Geolocalização de organizações por CNPJ
+ordem: 22
+modulo: sources.cnpj_geo.enrich
+fontes:
+- cnpj_geo
+politica_falha: opcional
+descricao: ''

@@ -1,0 +1,133 @@
+{
+ "_doc": "Diferenças conhecidas e explicadas do replay (scripts/replay.py). Entrada: arquivo (glob), tipo (conteudo|ordem|so_original|so_replay), caminhos_regex (opcional: todos os caminhos divergentes precisam casar), motivo.",
+ "diferencas": [
+  {
+   "arquivo": "asns/index.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/\\d+/sici_(acessos|pf|pj|municipios|capacidade_mbps|compartilhado)$",
+   "motivo": "A cópia local de referência de 2026-09-20 foi regenerada com --sici-only numa época em que o build gravava escalares sici_* em asns/index.json; o build atual não os grava (o SICI é por CNPJ). Some quando a cópia local for substituída pela publicada."
+  },
+  {
+   "arquivo": "manifest.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(registro_br_prefixes_v[46]|checks(/asn_names)?|coleta|coleta_ok|comparado_com|layout_version|rules(_version|/.*)?|sources(/.*| \\(len \\d+ ≠ \\d+\\))?)$",
+   "motivo": "O manifesto ganhou campos depois de o snapshot de referência (2026-10-11) ser publicado: a sanidade da coleta (checks, coleta_ok, coleta, comparado_com, incluindo o check asn_names), `layout_version` e `sources[]` (no replay, `sources[]` vem do índice de legado, porque o armazém não é copiado), `rules_version` e `rules` (regras de alerta) e `registro_br_prefixes_v4/v6` (os mesmos números de `m3_prefixes_v4/v6`, com o nome atual). `sources` também muda de tamanho quando uma fonte entra no catálogo depois da publicação: o replay a inclui; a lista publicada não."
+  },
+  {
+   "arquivo": "routing_analysis.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/registro_br_coverage/\\d+/origins_detail/\\d+/routes/\\d+/rpki$",
+   "motivo": "Em o snapshot de referência (2026-10-11) a análise de roteamento rodou antes da coleta de RPKI: sem vrp_list.json.gz, todas as rotas saíram com rpki='not_found'. O replay usa o vrp_list publicado e calcula o estado real. O executor atual roda o RPKI antes da análise de roteamento; a diferença só existe nos snapshots publicados com a ordem antiga."
+  },
+  {
+   "arquivo": "snapshot_detail.json",
+   "tipo": "so_replay",
+   "motivo": "snapshot_detail.json (detalhe de /snapshots/{date} calculado no pipeline) não existia quando o snapshot de referência (2026-10-11) foi publicado; nesses casos a API recalcula o detalhe."
+  },
+  {
+   "arquivo": "snapshot_detail.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(summary/registro_br_\\w+|manifest/(checks(/asn_names)?|coleta|coleta_ok|comparado_com|layout_version|rules(_version|/.*)?|sources(/.*| \\(len \\d+ ≠ \\d+\\))?))$",
+   "motivo": "Mesma causa do manifest.json: o detalhe copia os checks, `rules_version` e `rules` do manifesto, e um detalhe gravado depois por --detail-only sobre um snapshot sem eles não os tem; o replay os recalcula. Também os campos `registro_br_*` do resumo (mesmos números dos `m3_*`), ausentes no detalhe gravado antes deles."
+  },
+  {
+   "arquivo": "asns/*.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/alerts/\\d+/desde_versao$",
+   "motivo": "Cada alerta traz `desde_versao` (versão da regra que o gerou), campo que o snapshot de referência (2026-10-11) não tem."
+  },
+  {
+   "arquivo": "sici.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/cnpjs/\\d+/por_municipio/\\d+/fibra$",
+   "motivo": "O coletor do SICI soma `fibra` (meio \"Fibra\") por município; snapshots publicados antes da recoleta do SICI com esse campo (--force-full, 2026-10-28) não o têm, e o publicado é imutável. Some nos snapshots coletados depois."
+  },
+  {
+   "arquivo": "sici_municipios.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/municipios/\\d+/fibra(_pct)?$",
+   "motivo": "`fibra` e `fibra_pct` por município (derivam de sici.json.gz/por_municipio/fibra). Mesma origem da entrada acima."
+  },
+  {
+   "arquivo": "omissao_sici.json.gz",
+   "tipo": "so_replay",
+   "motivo": "Produto de omissão de declaração no SICI, criado depois de o snapshot de referência (2026-10-11): o replay o gera e o publicado não o tem. Registrada por inferência (ausência no publicado); conteúdo não conferido."
+  },
+  {
+   "arquivo": "sici_indicadores.json.gz",
+   "tipo": "so_replay",
+   "motivo": "Produto de indicadores do SICI, criado depois de o snapshot de referência (2026-10-11): o replay o gera e o publicado não o tem. Registrada por inferência (ausência no publicado); conteúdo não conferido."
+  },
+  {
+   "arquivo": "ipv4/subasignacoes.json.gz",
+   "tipo": "so_replay",
+   "motivo": "Produto de sub-asignações de IPv4, criado depois de o snapshot de referência (2026-10-11): o replay o gera e o publicado não o tem. Registrada por inferência (ausência no publicado); conteúdo não conferido."
+  },
+  {
+   "arquivo": "maps/global_prefixes.col",
+   "tipo": "so_replay",
+   "motivo": "Tabela colunar de prefixos (mmap), gerada à parte nos snapshots já publicados (`python -m products.mapas_prefixos.colunar --date ...`); o replay a gera e o snapshot de referência (2026-10-11) não a tem. Registrada por inferência (ausência no publicado); conteúdo não conferido."
+  },
+  {
+   "arquivo": "cdns.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/cdns/\\d+/categorias$",
+   "motivo": "Cada CDN traz `categorias` (config/cdns.yaml), campo que o snapshot de referência (2026-10-11) não tem."
+  },
+  {
+   "arquivo": "ipv4/ips_sem_uso.json.gz",
+   "tipo": "so_replay",
+   "motivo": "Produto de espaço IPv4 sem uso, criado depois de o snapshot de referência (2026-10-11)."
+  },
+  {
+   "arquivo": "ipv4/uso_por_terceiros.json.gz",
+   "tipo": "so_replay",
+   "motivo": "Produto de hipóteses de uso de IPv4 por terceiros (sinais S1 a S4), criado depois de o snapshot de referência (2026-10-11)."
+  },
+  {
+   "arquivo": "mercado_grupos.json.gz",
+   "tipo": "so_replay",
+   "motivo": "Produto de concentração (HHI) por grupo econômico, criado depois de o snapshot de referência (2026-10-11)."
+  },
+  {
+   "arquivo": "sici_serie_municipio.json.gz",
+   "tipo": "so_replay",
+   "motivo": "Produto de série de participação por município, criado depois de o snapshot de referência (2026-10-11)."
+  },
+  {
+   "arquivo": "asns/*.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(alerts/\\d+/desde_versao|path_node_meta/\\d+/name)$",
+   "motivo": "O pipeline lê parte dos artefatos pelo Store da API, que mascara o CPF embutido no nome (EI/MEI): no replay o `path_node_meta/*/name` sai mascarado (`***XXXXXX**`); em o snapshot de referência (2026-10-11) está cru. Junto com o `desde_versao` dos alertas. Snapshots novos já saem mascarados."
+  },
+  {
+   "arquivo": "asns/*.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(alerts/\\d+/(desde_versao|detail|title)|path_node_meta/\\d+/name)$",
+   "motivo": "Só a redação dos alertas mudou (IPv6 antes de IPv4): \"(IPv6 >/48, IPv4 >/24)\" nos prefixos filtráveis, \"(IPv6 e IPv4)\" no upstream único e a ordem das partes nas políticas divergentes. Regras e versões iguais. Junto com o `desde_versao` dos alertas e o nome mascarado."
+  },
+  {
+   "arquivo": "routing_analysis_resumo.json",
+   "tipo": "so_replay",
+   "motivo": "Resumo nacional da análise de roteamento (estado RPKI das rotas BR e saúde da tabela, usado pelo Panorama técnico), criado depois de o snapshot de referência (2026-10-11); para snapshots já publicados: `python -m products.routing_analysis.resumo --date ...` (aditivo)."
+  },
+  {
+   "arquivo": "external-ixps/*.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/members/\\d+/name$",
+   "motivo": "O nome do membro de PTT externo vem do asn_names (RIPE NCC); em o snapshot de referência (2026-10-11) vem o nome do PTT (o `name` do netixlan do PeeringDB) em todo membro."
+  },
+  {
+   "arquivo": "grupos_societarios.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/by_cnpj/\\d+/(socios/\\d+/(nome|documento)|relacionadas_parcial/\\d+/nomes_em_comum(/\\d+| \\(len \\d+ ≠ \\d+\\))?)$",
+   "motivo": "Nome e CPF mascarado de sócio pessoa física (e estrangeiro) não são gravados, e `nomes_em_comum` só traz nomes de sócios PJ; o snapshot de referência (2026-10-11) os tem."
+  },
+  {
+   "arquivo": "summary.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/registro_br_(asns|prefixes_v[46]|declared_space_v[46])$",
+   "motivo": "Campos `registro_br_*`: os mesmos números dos `m3_*`, com o nome atual (core/chaves_registro.py). Resumo publicado antes deles só tem os `m3_*`; a API completa os dois nomes na leitura."
+  }
+ ]
+}

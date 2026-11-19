@@ -1,0 +1,20 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: cdns
+nome: Presença de CDNs nos IXPs
+ordem: -55
+modulo: products.passos
+args:
+- --passo
+- cdns
+- --date
+- '{date}'
+parcial:
+- cdns
+depois_de:
+- ixp_externos
+- ixp_indice
+- metricas_ixp_asn
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: Presença de CDNs nos IXPs. Roda sozinho; lê o que os anteriores
+  deixaram em published/ e build/intermediarios/.'

@@ -1,0 +1,16 @@
+#!/bin/sh
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Antonio M. Moreiras / Internet Bit a Bit
+# Este arquivo faz parte do Arandurape.
+# Licença: GNU Affero General Public License v3 ou posterior.
+#
+# Verificação por cenário, chamada pelo test_runner.sh do v6bench em cada cliente
+# (CLIENT, SDOM, BASE_URL): como o Arandurapé enxerga este cliente (/auth/diag) e
+# se um X-Forwarded-For/X-Real-IP forjado pelo cliente é ignorado. A comparação
+# com o esperado é feita fora do laboratório (tests/ipv6/verificar.py).
+set -eu
+out=/shared/results/diag
+mkdir -p "$out"
+curl -sf -m 10 "${BASE_URL}/auth/diag" -o "$out/${CLIENT}-${SDOM}.json"
+curl -sf -m 10 -H "X-Forwarded-For: 203.0.113.9" -H "X-Real-IP: 203.0.113.9" \
+    "${BASE_URL}/auth/diag" -o "$out/${CLIENT}-${SDOM}-forjado.json"

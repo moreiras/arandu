@@ -1,0 +1,96 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: peeringdb_networks
+nome: Redes brasileiras no PeeringDB (net)
+tipo: bruta
+ativa: true
+modulo: sources.peeringdb_networks.collect
+publicavel: true
+descricao: Para os ASNs brasileiros do LACNIC, consulta /api/net?asn__in= em lotes e extrai política de
+  peering, tipo de rede, tráfego declarado, IRR as-set e site.
+origem:
+  url: https://www.peeringdb.com/api/net
+  formato: JSON (API REST)
+  licenca: PeeringDB AUP
+  uso_comercial: restrito
+  termos: https://www.peeringdb.com/aup
+  nota: 'PeeringDB AUP (https://www.peeringdb.com/aup, verificado em 2026-10-13): fora de ''finalidades
+    operacionais de Internet'' aprovadas, nenhuma parte dos dados pode ser reproduzida ou repassada em
+    massa sem autorização; o uso excluído inclui ''listas de marketing, mapeamento demográfico ou qualquer
+    outra aplicação comercial''.'
+cadencia:
+  fonte_atualiza: continua
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: critica
+entradas:
+- lacnic_delegated
+saidas:
+  bruto:
+  - summary/peeringdb-networks-{as_of}.json
+  normalizado:
+  - summary/peeringdb_networks.json.gz
+chaves:
+- asn
+campos:
+- nome: networks[asn].name / aka
+  tipo: str
+  significado: Nome e nome alternativo da rede cadastrada no PeeringDB.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#pdb
+- nome: networks[asn].info_type
+  tipo: str
+  significado: Tipo de rede declarado (NSP, Cable/DSL/ISP, Content, Enterprise, Educational…).
+  tratamento: Autodeclarado.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#pdb
+- nome: networks[asn].info_traffic
+  tipo: str
+  significado: Faixa de tráfego declarada.
+  tratamento: Autodeclarado.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#pdb
+- nome: networks[asn].info_ratio
+  tipo: str
+  significado: 'Razão de tráfego declarada (ex.: Balanced, Heavy Inbound).'
+  tratamento: Autodeclarado.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#pdb
+- nome: networks[asn].info_prefixes4 / info_prefixes6
+  tipo: int
+  significado: Quantidade de prefixos que a rede declara anunciar.
+  tratamento: Autodeclarado; comparável aos prefixos observados na tabela global.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#pdb
+- nome: networks[asn].policy_general / policy_locations / policy_ratio / policy_contracts
+  tipo: str|bool
+  significado: Política de peering declarada (Open/Selective/Restrictive), exigência de localização, de
+    razão de tráfego e de contrato.
+  tratamento: Autodeclarado.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#pdb
+- nome: networks[asn].irr_as_set
+  tipo: str
+  significado: as-set de IRR declarado para filtragem de prefixos.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#pdb
+- nome: networks[asn].website
+  tipo: str
+  significado: Site da rede.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#pdb
+- nome: pdb_registered / total_br_asns
+  tipo: int
+  significado: ASNs BR com registro no PeeringDB e total de ASNs BR consultados.
+  tratamento: Checado por publish.coleta_checks (a coleta falha alto em queda anormal).
+  publicado_em:
+  - snapshot → summary.json#br_asns_peeringdb
+limites: Só ASNs que têm cadastro no PeeringDB (5.429 de 9.119 ASNs BR em 2026-10-11); campos autodeclarados
+  e podem estar desatualizados.
+retencao:
+  bruto: 4 versões
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/peeringdb/
+pendencias:
+- Uso comercial e redistribuição de dados do PeeringDB dependem de autorização do PeeringDB (AUP); confirmar
+  com o PeeringDB e o jurídico.

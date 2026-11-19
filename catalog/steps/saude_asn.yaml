@@ -1,0 +1,37 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: saude_asn
+nome: Pré-cálculo de alertas e RPKI por ASN
+ordem: 41
+modulo: publish.snapshot_builder
+args:
+- --date
+- '{date}'
+- --asn-health-only
+produtos:
+- asn_saude
+refresca:
+- asn_docs
+- snapshot
+depois_de:
+- rpki_collector
+- snapshot_completo
+- asn_indice
+- ixp_indice
+- mapas_hilbert
+- snapshot_resumo
+- ixp_externos
+- cdns
+- asn_ixp_paths
+- asn_nomes
+- mapas_geo
+- sici
+- outorgas_scm
+- outorgas_demais
+- mapas_infraestrutura
+- sici_movel
+- grupos_societarios
+- as_relationships
+politica_falha: opcional
+replay: true
+descricao: 'Completa asns/{asn}.json (alerts, roa_list, rpki_validation, aspa_*) e atualiza checks do
+  manifesto. Não fatal: a API calcula sob demanda.'

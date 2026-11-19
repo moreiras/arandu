@@ -1,0 +1,23 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: seguranca_asn
+nome: Segurança de roteamento por ASN, parte A
+ordem: -67
+modulo: products.passos
+args:
+- --passo
+- seguranca_asn
+- --date
+- '{date}'
+parcial:
+- seguranca_asn
+depois_de:
+- apnic_irov
+- apnic_dnssec
+- caida_asrank
+- bogons
+- asn_indice
+- sici
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: reúne ROV e DNSSEC (APNIC), AS Rank (CAIDA) e bogons por ASN do Brasil, com agregados por UF e
+  faixa de porte. Roda sozinho; lê os arquivos normalizados das fontes e o que os passos anteriores deixaram em published/.'

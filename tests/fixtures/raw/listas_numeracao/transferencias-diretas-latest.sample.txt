@@ -1,0 +1,2 @@
+data|origem|RIR origem|pais|destino|RIR destino|pais|recurso
+2025-02-20|V.TAL|LACNIC|BR|GLOBENET|ARIN|US|200.234.0/22

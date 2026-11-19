@@ -1,0 +1,327 @@
+# Localidades ativas do IX.br — verificado em 2026-09-28 (inclusão de Macapá/AP)
+# Fonte: https://ix.br/localidades/atuais
+#
+# telnet_host: padrão lg.{code}.ix.br (porta 23)
+# timeout: segundos aguardados para leitura completa da tabela BGP
+# cep: usado na Fase 2 para geolocalização da localidade (centroide aproximado)
+
+ixps:
+  - code: ac
+    name: Rio Branco
+    uf: AC
+    telnet_host: lg.ac.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "69900000"  # aproximado
+
+  - code: ap
+    name: Macapá
+    uf: AP
+    telnet_host: lg.ap.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "68903419"  # PIX RNP (UNIFAP)
+
+  - code: ba
+    name: Salvador
+    uf: BA
+    telnet_host: lg.ba.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "40170110"
+
+  - code: bel
+    name: Belém
+    uf: PA
+    telnet_host: lg.bel.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "66075110"
+
+  - code: cac
+    name: Cascavel
+    uf: PR
+    telnet_host: lg.cac.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "85819110"
+
+  - code: cas
+    name: Campinas
+    uf: SP
+    telnet_host: lg.cas.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "13015904"
+
+  - code: cau
+    name: Caruaru
+    uf: PE
+    telnet_host: lg.cau.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "55002970"  # aproximado
+
+  - code: ce
+    name: Fortaleza
+    uf: CE
+    telnet_host: lg.ce.ix.br
+    telnet_port: 23
+    timeout: 600
+    cep: "60130240"
+
+  - code: cgb
+    name: Cuiabá
+    uf: MT
+    telnet_host: lg.cgb.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "78045200"
+
+  - code: cgr
+    name: Campo Grande
+    uf: MS
+    telnet_host: lg.cgr.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "79005051"
+
+  - code: cpv
+    name: Campina Grande
+    uf: PB
+    telnet_host: lg.cpv.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "58429620"
+
+  - code: cxj
+    name: Caxias do Sul
+    uf: RS
+    telnet_host: lg.cxj.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "95084900"
+
+  - code: df
+    name: Brasília
+    uf: DF
+    telnet_host: lg.df.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "71736205"
+
+  - code: fec
+    name: Feira de Santana
+    uf: BA
+    telnet_host: lg.fec.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "44001460"  # aproximado
+
+  - code: gyn
+    name: Goiânia
+    uf: GO
+    telnet_host: lg.gyn.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "74605220"
+
+  - code: igu
+    name: Foz do Iguaçu
+    uf: PR
+    telnet_host: lg.igu.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "85867900"
+
+  - code: jpa
+    name: João Pessoa
+    uf: PB
+    telnet_host: lg.jpa.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "58030330"
+
+  - code: laj
+    name: Lajeado
+    uf: RS
+    telnet_host: lg.laj.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "95900000"
+
+  - code: lda
+    name: Londrina
+    uf: PR
+    telnet_host: lg.lda.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "86055900"
+
+  - code: mao
+    name: Manaus
+    uf: AM
+    telnet_host: lg.mao.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "69020110"
+
+  - code: mcz
+    name: Maceió
+    uf: AL
+    telnet_host: lg.mcz.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "57020330"
+
+  - code: mg
+    name: Belo Horizonte
+    uf: MG
+    telnet_host: lg.mg.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "31270010"
+
+  - code: mgf
+    name: Maringá
+    uf: PR
+    telnet_host: lg.mgf.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "87020900"
+
+  - code: nat
+    name: Natal
+    uf: RN
+    telnet_host: lg.nat.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "59064520"
+
+  - code: pe
+    name: Recife
+    uf: PE
+    telnet_host: lg.pe.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "50070540"
+
+  - code: pr
+    name: Curitiba
+    uf: PR
+    telnet_host: lg.pr.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "81530900"
+
+  - code: rao
+    name: Ribeirão Preto
+    uf: SP
+    telnet_host: lg.rao.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "14010080"  # aproximado
+
+  - code: ria
+    name: Santa Maria
+    uf: RS
+    telnet_host: lg.ria.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "97015004"
+
+  - code: rj
+    name: Rio de Janeiro
+    uf: RJ
+    telnet_host: lg.rj.ix.br
+    telnet_port: 23
+    timeout: 600
+    cep: "22290160"
+
+  - code: ro
+    name: Porto Velho
+    uf: RO
+    telnet_host: lg.ro.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "76801170"  # aproximado
+
+  - code: rr
+    name: Boa Vista
+    uf: RR
+    telnet_host: lg.rr.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "69310000"
+
+  - code: rs
+    name: Porto Alegre
+    uf: RS
+    telnet_host: lg.rs.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "90035003"
+
+  - code: sc
+    name: Florianópolis
+    uf: SC
+    telnet_host: lg.sc.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "88040900"
+
+  - code: se
+    name: Aracaju
+    uf: SE
+    telnet_host: lg.se.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "49027010"
+
+  - code: sjp
+    name: São José do Rio Preto
+    uf: SP
+    telnet_host: lg.sjp.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "15025000"
+
+  - code: slz
+    name: São Luís
+    uf: MA
+    telnet_host: lg.slz.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "65080805"
+
+  - code: sp
+    name: São Paulo
+    uf: SP
+    telnet_host: lg.sp.ix.br
+    telnet_port: 23
+    timeout: 600
+    cep: "04723003"
+
+  - code: the
+    name: Teresina
+    uf: PI
+    telnet_host: lg.the.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "64017280"
+
+  - code: to
+    name: Palmas
+    uf: TO
+    telnet_host: lg.to.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "77001020"
+
+  - code: vix
+    name: Vitória
+    uf: ES
+    telnet_host: lg.vix.ix.br
+    telnet_port: 23
+    timeout: 60
+    cep: "29010010"  # aproximado

@@ -1,0 +1,48 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: abusech
+nome: Servidores C2 de botnets por ASN (abuse.ch, Feodo Tracker)
+tipo: bruta
+ativa: true
+modulo: sources.abusech.collect
+publicavel: true
+descricao: Lista de servidores de comando e controle de botnets do Feodo Tracker (abuse.ch), reduzida na coleta a contagens por ASN (total e online, por família de malware).
+  O IP, a porta e o hostname são descartados. Uma requisição por coleta. O URLhaus NÃO é coletado (exige Auth-Key, cadastro).
+origem:
+  url: https://feodotracker.abuse.ch/downloads/ipblocklist.json
+  formato: JSON (array de {ip_address, port, status, as_number, country, malware, first_seen, last_online})
+  licenca: CC0 (Feodo Tracker)
+  uso_comercial: permitido
+  termos: https://feodotracker.abuse.ch/blocklist/
+  nota: 'robots.txt do feodotracker.abuse.ch libera tudo (2026-11-06). Em 2026-11-06 a lista tem 5 entradas (a própria página diz "datasets currently empty"), nenhuma no Brasil. URLhaus: o
+    arquivo csv_recent responde 410 e a API exige Auth-Key; a documentação limita ao uso "fair use" e pede assinatura para uso comercial: sem cadastro, sem coleta.'
+cadencia:
+  fonte_atualiza: continua
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 10d
+politica_falha: opcional
+saidas:
+  normalizado:
+  - summary/abusech.json.gz
+chaves:
+- asn
+campos:
+- nome: feodo.asns[asn].c2_total
+  tipo: int
+  significado: Servidores C2 do Feodo Tracker em prefixos do ASN (instantâneo da lista, que cobre os últimos 30 dias).
+  tratamento: Contagem; o ASN que hospeda não é dono do servidor.
+- nome: feodo.asns[asn].c2_online
+  tipo: int
+  significado: Quantos deles estavam online na coleta.
+- nome: feodo.asns[asn].malware
+  tipo: dict
+  significado: Contagem por família (Dridex, Emotet, TrickBot, QakBot, BazarLoader).
+limites: Lista quase vazia desde 2026; não cobre outras famílias; ausência não é prova de rede limpa. Sem IPs gravados.
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/abusech/
+pendencias:
+- URLhaus bloqueado por exigir cadastro (Auth-Key) e pela cláusula de uso; reavaliar se o mantenedor autorizar o cadastro.
+etapa:
+  tentativas: 3
+  espera_s: 60

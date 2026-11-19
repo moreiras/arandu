@@ -1,0 +1,929 @@
+# PIX (Pontos de Intercâmbio) do IX.br — localização física
+# Gerado por scripts/scrape_pix_locations.py
+# Fonte: https://old.ix.br/adesao/{code}
+
+pix:
+  ac:
+  - name: '[PIX RNP]'
+    cep: '69920900'
+    lat: -9.957258
+    lon: -67.868086
+  ap:
+  # Página de adesão do IX.br (2026-09-28) repete por engano os endereços de Boa Vista/RR;
+  # endereços reais das facilities no PeeringDB (IX 5102), coordenadas via OSM.
+  - name: '[PIX RNP]'
+    address: Rodovia Josmar Chaves Pinto, s/n, KM 02 - Universidade (UNIFAP), Macapá - AP
+    cep: '68903419'
+    lat: -0.004601
+    lon: -51.084902
+  - name: '[PIX PRODAP]'
+    address: Rua São José, 1251 - Central, Macapá - AP
+    cep: '68908272'
+    lat: 0.041386
+    lon: -51.051251
+  ba:
+  - name: '[PIX UFBA]'
+    address: Av. Ademar de Barros, s/n, CPD/UFBA, Salvador - Bahia - 40.170-110
+  - name: '[PIX Tascom]'
+    address: Av. Trancredo Neves, 274, Bl A - SL 204, Salvador - Bahia
+    cep: '41820020'
+    lat: -12.979943
+    lon: -38.457309
+  - name: '[PIX BR.Digital]'
+    address: Av. Tancredo Neves, 1632 - Caminho das Arvores, Salvador - BA
+    cep: '41820020'
+    lat: -12.979943
+    lon: -38.457309
+  - name: '[PIX Telxius]'
+    address: Rua José Augusto Tourinho Dantas, 344 - Bairro Praia do Flamengo, Salvador
+      - BA
+    cep: '41603110'
+  bel:
+  - name: '[PIX RNP]'
+    address: Rua Augusto Correia ,1, Bélem - PA - 66075-110
+    cep: '66075110'
+    lat: -1.475256
+    lon: -48.459075
+  - name: '[PIX PRODEPA]'
+    address: Rod. Augusto Montenegro, Km 10, Bélem - PA - 66820-000
+    cep: '66820000'
+    lat: -1.322847
+    lon: -48.445915
+  - name: '[PIX PRONTONET]'
+    address: Rua Belo Horizonte, 8 - Galpão 01 - Levilândia, Ananindeua - PA - 67015-623
+    cep: '67015623'
+  - name: '[PIX / FAEPA]'
+    address: Travessa Doutor Moraes, 21, 8 andar, Bélem - PA - 66035-080
+    cep: '66035080'
+    lat: -1.457976
+    lon: -48.488011
+  - name: '[PIX AMPLITUDE]'
+    address: Travessa dos Tupinambás, 261 - Batista Campos, Bélem - PA - 66033-815
+    cep: '66033815'
+    lat: -1.462593
+    lon: -48.492565
+  cac:
+  - name: '[PIX UNIOESTE]'
+    address: Rua Universitária, n. 1619 - Jardim Universitário, 85819-110 - Cascavel
+      - PR
+    cep: '85819110'
+    lat: -24.987101
+    lon: -53.449341
+  - name: '[PIX CERTTO]'
+    address: Rua Paraná, 3033 Loja 4 - Centro, 85810-010 - Cascavel - PR
+    cep: '85810010'
+    lat: -24.953692
+    lon: -53.464715
+  - name: '[PIX DIPELNET]'
+    address: Rua Minas Gerais, 1332 Sala 303 - Centro, 85812-035 - Cascavel - PR
+    cep: '85812035'
+  cas:
+  - name: '[PIX DESKTOP]'
+    address: Rua Conceição, 233 - Centro - Ed. Ouro Verde - sl 2713, 13010-050 - Campinas
+      - SP
+    cep: '13010050'
+    lat: -22.903993
+    lon: -47.055736
+  - name: '[PIX IMA]'
+    address: Av. Anchieta, 200, SUBSOLO, 13015-904 - Campinas - SP
+    cep: '13015904'
+    lat: -22.873882
+    lon: -47.144841
+  - name: '[PIX ASCENTY]'
+    address: Av. Pierre Simon de Laplace, 1211 - Techno Park, 13069-320 - Campinas
+      - SP
+    cep: '13069320'
+  - name: '[PIX ASCENTY-VIN]'
+    address: Av. João Batista Nunes, 50 - Distrito Industrial Benedito Storani, 13288-162
+      - Vinhedo - SP
+    cep: '13288162'
+  - name: '[PIX UNICAMP]'
+    address: Rua Saturnino de Brito, 45 - Cidade Universitária Zeferino Vaz, 13083-889
+      - Barão Geraldo - Campinas - SP
+    cep: '13083889'
+  cau:
+  - name: '[PIX BR.Digital]'
+    address: Rua Nazaré da Mata, 246  - Bairro Vassouras, 55028-570 - Caruaru - PE
+    cep: '55028570'
+  - name: '[PIX 1Telecom]'
+    address: 1Telecom Serviços de Tecnologia em Internet Ltda, Avenida Bom Pastor,
+      246 - Bairro Petrópolis, 55030-340 - Caruaru - PE
+    cep: '55030340'
+    lat: -8.298834
+    lon: -35.974054
+  ce:
+  - name: '[PIX ETICE]'
+    address: Avenida Pontes Vieira, 220 - São João Tatuapé, Fortaleza - CE - 60130-240
+    cep: '60130240'
+    lat: -3.753141
+    lon: -38.515255
+  - name: '[PIX GIGA MAIS]'
+    address: Avenida da Abolição, 4140 - Mucuripe, Fortaleza - CE - 60165-082
+    cep: '60165082'
+    lat: -3.724814
+    lon: -38.483708
+  - name: '[PIX RNP]'
+  - name: '[PIX Eletronet]'
+    address: Av. Presidente Costa e Silva, 4677 - Bairro Mondubim, Fortaleza - CE
+      - 60862-515
+    cep: '60862515'
+    lat: -3.825874
+    lon: -38.537887
+  - name: '[PIX BR.Digital]'
+    address: Rua Dr. Ratisbona, 75 - Bairro Fátima, Fortaleza - CE
+    cep: '60411220'
+    lat: -3.753686
+    lon: -38.529392
+  - name: '[PIX Ascenty]'
+    address: Rua 14, n. 1161 Sala:1 Posição I - Bairro Alto Alegre II, Maracanau -
+      CE - 61921-430
+    cep: '61921430'
+  - name: '[PIX Tecto]'
+    address: Rua Raimundo Esteves, n. 333 - Praia do Futuro, Fortaleza - CE - 60182-330
+    cep: '60182330'
+    lat: -3.73384
+    lon: -38.457971
+  - name: '[PIX Angola Cables]'
+    address: Avenida Trajano de Medeiros, 1851 - Praia do Futuro, Fortaleza - CE -
+      60182-325
+    cep: '60182325'
+    lat: -3.74103
+    lon: -38.45907
+  - name: '[PIX Hostweb]'
+    address: Rua Dr. Justa Araújo, n. 631 - Serrinha, Fortaleza - CE - 60741-025
+    cep: '60741025'
+    lat: -3.779932
+    lon: -38.551501
+  - name: '[PIX Cirion]'
+    address: Avenida Dioguinho, 2.950 - Praia do Futuro, Fortaleza - CE - 60182-418
+    cep: '60182418'
+    lat: -3.740024
+    lon: -38.454577
+  - name: '[PIX Telxius]'
+    address: Avenida Dioguinho, 2.223 - Praia do Futuro, Fortaleza - CE - 60182-001
+    cep: '60182001'
+    lat: -3.763526
+    lon: -38.442284
+  cgb:
+  - name: '[PIX Brasil TecPar]'
+    address: Av.  Isaac Póvoas, 901 Sala 201 - Centro, 78045-200 - Cuiabá, MT
+    cep: '78045200'
+  - name: '[PIX CEPROMAT]'
+    address: 78050-970 - Cuiaba - MT
+    cep: '78050970'
+    lat: -15.563352
+    lon: -56.067166
+  - name: '[PIX BR.DIGITAL]'
+    address: Av. Doutor Meirelles, 325, 78088-010 - Cuiaba - MT
+    cep: '78088010'
+    lat: -15.607404
+    lon: -56.002631
+  cgr:
+  - name: '[PIX AGETEC]'
+    address: Rua Anhanduí, 343 - Amambai, 79005-051 - Campo Grande - MS
+    cep: '79005051'
+    lat: -20.471571
+    lon: -54.621216
+  - name: '[PIX FREEWAY]'
+    address: Rua Pernambuco, 2059 - Vila Célia, 79022-340 - Campo Grande - MS
+    cep: '79022340'
+    lat: -20.446965
+    lon: -54.592537
+  cpv:
+  - name: '[PIX ANID]'
+    address: Rua João A. Filho s/n, Quarenta - Campina Grande - PB, Coordenadas:,
+      07°13',2''S, 035°53',4''O
+  - name: '[PIX RNP]'
+    address: Av. Aprígio Veloso, 882 - Bloco CN, Sala 125 - PoP-PB/RNP, 58429-900
+      - Campina Grande - PB
+    cep: '58429900'
+    lat: -7.216002
+    lon: -35.907975
+  cxj:
+  - name: '[PIX BR.Digital]'
+    address: Rua Garibaldi, 789 - Sala 202 - 20º Andar,  Edifício Estrela, Caxias
+      do Sul - RS
+    cep: '95084900'
+  - name: '[PIX Bitcom]'
+    address: Rua Bento Gonçalves, 1012 - Nossa Sra. de Lourdes, Caxias do Sul - RS
+    cep: '95020410'
+  df:
+  - name: '[PIX Elea-BSB1]'
+    address: 70713-000 - Brasília - DF
+    cep: '70713000'
+    lat: -15.787273
+    lon: -47.885107
+  - name: '[PIX Elea-BSB2]'
+  - name: '[PIX RNP]'
+    address: 70070-914, Brasil
+    cep: '70070914'
+    lat: -15.803258
+    lon: -47.885477
+  - name: '[PIX Telebras]'
+    address: 71215-000 - Brasília - DF
+    cep: '71215000'
+    lat: -15.803258
+    lon: -47.885477
+  - name: '[PIX Serpro]'
+  - name: '[PIX BR.Digital]'
+    address: 71736-205 - Brasília - DF
+    cep: '71736205'
+    lat: -15.803258
+    lon: -47.885477
+  - name: '[PIX SAMM]'
+    address: 70716-900 - Asa Norte - Brasília - DF
+    cep: '70716900'
+    lat: -15.787001
+    lon: -47.890433
+  - name: '[PIX ELETRONET]'
+    address: 71215-000 - Brasília - DF
+    cep: '71215000'
+    lat: -15.803258
+    lon: -47.885477
+  fec:
+  - name: '[PIX CORE3]'
+    address: Rua Érico Sophia Brandão, 315 - Parque Getúlio Vargas, 44076-730 - Feira
+      de Santana - BA
+    cep: '44076730'
+  - name: '[PIX TUX NET]'
+    address: Rua II, 49 - Loteamento Residencial Maria Luiza - Mandacaru, 44640-000
+      -  Riachão do Jacuípe - BA
+    cep: '44640000'
+    lat: -11.801167
+    lon: -39.381485
+  - name: '[PIX BR.Digital]'
+  gyn:
+  - name: '[PIX RNP]'
+    address: 74605-220 - Goiânia  - GO
+    cep: '74605220'
+    lat: -16.72589
+    lon: -49.263854
+  - name: '[PIX SAMM - Aquarius]'
+    address: Av. T-63, 3182 - 14º Ed. Aquarius Center - Setor Bueno, 74115-100 - Goiânia  -
+      GO
+    cep: '74115100'
+  - name: '[PIX SAMM - Serra Dourada]'
+    address: Rua Casorina Bittencourt Alves, 349 - Sala 01 - Bloco C, 74810-370 -
+      Goiânia  - GO
+    cep: '74810370'
+  - name: '[PIX Telgo]'
+    address: Av. T-63, 3182 - 8 Andar - Ed. Aquarius Center - Setor Bueno, 74115-100
+      - Goiania - GO
+    cep: '74115100'
+  - name: '[PIX Everest Digital]'
+    address: Av. Fued José Sebba, 700 - Térreo 2 - Jardim Goiás, 74805-100 - Goiania
+      - GO
+    cep: '74805100'
+    lat: -16.691154
+    lon: -49.236388
+  - name: '[PIX BR.Digital]'
+    address: Av. 136, 960 - Sala 704 - Ed. Executive Tower - Bairro Setor Marista,
+      74180-040 - Goiânia  - GO
+    cep: '74180040'
+    lat: -16.699036
+    lon: -49.2625
+  igu:
+  - name: '[PIX Itaipu Parquetec]'
+    address: Av. Tancredo Neves, 6731 | Caixa Postal 2039 | CEP 85.867-900, Tecnologia
+      da Informação e Comunicação - Fundação PTI, Av. Tancredo Neves, 6731 | Caixa
+      Postal 2039 | CEP 85.867-900
+  - name: '[PIX BR.Digital]'
+    address: Rua Lamartine Babo, 1000 - Sala 301, Parque Monjolo - Foz do Iguaçu -
+      PR - CEP 85864-330
+    cep: '85864330'
+  jpa:
+  - name: '[PIX ANID]'
+    address: Av. Goiás, 684 - Bairro dos Estados, 58030-060 - Joao Pessoa - PB
+    cep: '58030060'
+    lat: -7.116676
+    lon: -34.86069
+  - name: '[PIX HOSTDIME]'
+    address: Avenida Sao Paulo, 1223 - Bairro dos Estados, 58030-041 - Joao Pessoa
+      - PB
+    cep: '58030041'
+    lat: -7.117642
+    lon: -34.861265
+  laj:
+  - name: '[PIX / Univates]'
+    address: Rua Avelino Talini, 171, Lajeado - RS
+    cep: '37147040'
+  mao:
+  - name: '[PIX PRODAM]'
+    address: Rua Jonathas Pedrosa, 1937, 69020-110 - Manaus - AM
+    cep: '69020110'
+    lat: -3.120484
+    lon: -60.014384
+  - name: '[PIX RNP]'
+    address: Av. Rodrigo Octávio, 6200, Setor Norte - Faculdade de Tecnologia - Bloco
+      CPD, Manaus - AM
+  - name: '[PIX ENW]'
+    address: Av. Ephigênio Salles, 711 , Parque 10 de Novembro, 69055-736 - Manaus
+      - AM
+    cep: '69055736'
+  - name: '[PIX RIVERNET]'
+    address: Av. Boulevard Álvaro Maia, 2357 - Sala 806 - Cond. Corporate Trade Center
+      - Adrianópolis, 69057-035 - Manaus - AM
+    cep: '69057035'
+  - name: '[PIX Bemol]'
+    address: Rua Miranda Leão, 41 - Centro, 69005-040 - Manaus - AM
+    cep: '69005040'
+    lat: -3.138135
+    lon: -60.024497
+  - name: '[PIX ClickIP]'
+    address: Rua Presidente João Batista Figueiredo, 15 - QD 15 - Central Park, 69058-695
+      - Manaus - AM
+    cep: '69058695'
+    lat: -3.056067
+    lon: -59.989964
+  mcz:
+  - name: '[PIX ACESSO10]'
+    address: Rua Antenor Marinho de Melo, 61 - Gruta de Lourdes, 57052-482 - Maceio
+      - AL
+    cep: '57052482'
+    lat: -9.628615
+    lon: -35.736421
+  - name: '[PIX RNP]'
+    address: Rua Melo Morais, 354, Bairro Centro, 57020-330 - Maceió - AL
+    cep: '57020330'
+    lat: -9.661506
+    lon: -35.742386
+  mgf:
+  - name: '[PIX UEM - Universidade Estadual de Maringá]'
+    address: Av. Colombo, 5790, bloco P03 - NPD, Maringá - PR
+    cep: '87020900'
+    lat: -23.406958
+    lon: -51.938183
+  - name: '[PIX VSX Networks]'
+    address: 'Av. Advogado Horacio Raccanello Filho, 5570, Maringá - PR, Corrdenadas:
+      23.4187197 S, 51.9357193 O'
+    cep: '87020035'
+    lat: -23.418239
+    lon: -51.935432
+  nat:
+  - name: '[PIX / RNP]'
+    address: Av. Sen. Salgado Filho, 3000, Lagoa Nova - Natal - RN - 59072-970
+    cep: '59072970'
+  - name: '[PIX / CABOTELECOM]'
+    address: Rua Senador Jose Ferreira de Souza, 1916, Candelaria - Natal - RN
+    lat: -5.837085
+    lon: -35.212836
+  pe:
+  - name: '[PIX RNP]'
+    address: Av. Professor Luiz Freire, 700 - Bloco B Sala 21 - Cidade Universitária,
+      50740-540  Recife - PE
+    cep: '50740540'
+    lat: -8.058463
+    lon: -34.951482
+  - name: '[PIX Smart]'
+    address: Rua da Soledade, 293, 50070-040 Recife - PE
+    cep: '50070040'
+    lat: -8.058237
+    lon: -34.889753
+  - name: '[PIX Hotlink]'
+    address: Rua Manoel Bezerra, 165, 50610-250 Recife - PE
+    cep: '50610250'
+    lat: -8.054959
+    lon: -34.91049
+  - name: '[PIX 1Telecom]'
+    address: 1Telecom Serviços de Tecnologia em Internet Ltda, Rua José da Silva Lucena,
+      131 - Imbiribeira, 51150-430 Recife - PE
+    cep: '51150430'
+    lat: -8.114262
+    lon: -34.907743
+  - name: '[PIX DTEL]'
+    address: Av. Caxangá, 871 - Zumbi, 50720-500 Recife - PE
+    cep: '50720500'
+    lat: -8.053794
+    lon: -34.916606
+  - name: '[PIX BR.Digital]'
+    address: Rua General Joaquim Inácio, 412 - 12o. andar - Ilha do Leite, 50070-275
+      Recife - PE
+    cep: '50070275'
+    lat: -8.062668
+    lon: -34.895011
+  rao:
+  - name: '[PIX CODERP]'
+    address: Rua Saldanha Marinho, 834 - Centro, Ribeirão Preto - SP
+    cep: '14010060'
+    lat: -21.178303
+    lon: -47.81512
+  - name: '[PIX SAMM]'
+    address: Rua General Augusto Soares dos Santos, 100 - Parque Industrial Lagoinha,
+      Ribeirão Preto - SP
+    cep: '14095240'
+    lat: -21.19952
+    lon: -47.759986
+  - name: '[PIX 3AX]'
+    address: 3AX TELECOM / NEO RIBEIRÃO, Av. Maria de Jesus Condeixa, 600 - Ribeirânia,
+      Ribeirão Preto - SP
+    cep: '14091240'
+    lat: -21.18948
+    lon: -47.79174
+  ria:
+  - name: '[PIX Brasil TecPar]'
+    address: Rua Dr. Bozano, 1293 - Centro, 97015-004 - Santa Maria - RS
+    cep: '97015004'
+    lat: -29.687154
+    lon: -53.80951
+  - name: '[PIX UFSM]'
+    address: Av Roraima, 1000, Cidade Universitaria, 97105-900 -  Santa Maria - RS
+    cep: '97105900'
+    lat: -29.716925
+    lon: -53.716884
+  rj:
+  - name: '[PIX CBPF]'
+    address: Rua Lauro Muller, 455 - Botafogo, Rio de Janeiro - RJ
+    cep: '22290160'
+    lat: -22.952441
+    lon: -43.175724
+  - name: '[PIX EQUINIX-RJ1]'
+    address: Rua Voluntarios da Patria 360, Botafogo - Rio de Janeiro - RJ
+    cep: '22270010'
+    lat: -22.954117
+    lon: -43.192118
+  - name: '[PIX EQUINIX-RJ2]'
+    address: Estrada Adhemar Bebiano (Estrada Velha da Pavuna), 1380, Del Castilho
+      - Rio de Janeiro - RJ
+    cep: '21051070'
+    lat: -22.872868
+    lon: -43.269004
+  - name: '[PIX EQUINIX-RJ3]'
+    address: Rua Maria Soares Sendas, S/N, Venda Velha - São João do Meriti - RJ
+    cep: '25581325'
+  - name: '[PIX UFINET-SC]'
+    address: Rua José Eugênio, 29, São Cristóvão - Rio de Janeiro - RJ
+    cep: '20941140'
+    lat: -22.908257
+    lon: -43.221249
+  - name: '[PIX CIRION]'
+    address: Av. Pedro II, 329 - Sao Cristovão, Botafogo - Rio de Janeiro - RJ
+    cep: '20941070'
+    lat: -22.904722
+    lon: -43.216983
+  - name: '[PIX MUNDIVOX]'
+    cep: '20050006'
+    lat: -22.905618
+    lon: -43.178622
+  - name: '[PIX CLARO]'
+    address: Rua Senador Pompeu, 119 - 17o. andar - Centro, Rio de Janeiro - RJ
+    cep: '20221291'
+  - name: '[PIX Elea-RJO1]'
+    address: Rua Vargem Grande, s/n, Jacarépagua, Rio de Janeiro - RJ
+    cep: '22775020'
+    lat: -22.97301
+    lon: -43.370036
+  - name: '[PIX DURAND - GLOBENET]'
+    address: Estrada dos Bandeirantes, 12742 - Vargem Pequena, Rio de Janeiro - RJ
+    cep: '22783112'
+    lat: -22.992146
+    lon: -43.446386
+  - name: '[PIX LINKFULL]'
+    cep: '20210030'
+    lat: -22.909152
+    lon: -43.201254
+  - name: '[PIX BR.Digital]'
+    cep: '20210030'
+    lat: -22.909152
+    lon: -43.201254
+  - name: '[PIX SAMM]'
+    cep: '20210030'
+    lat: -22.909152
+    lon: -43.201254
+  - name: '[PIX SCALA]'
+    address: Rodovia Presidente Dutra, 4300 - Venda Velha, São João do Meriti - RJ
+    cep: '25565350'
+    lat: -22.796776
+    lon: -43.357376
+  - name: '[PIX Eletronet]'
+    address: Rua Carolina Reydner, 50 - Catumbi, Rio de Janeiro - RJ
+    cep: '20211280'
+    lat: -22.914804
+    lon: -43.196892
+  ro:
+  - name: '[PIX SETIC]'
+    address: Avenida Faquar, 2986 - Complexo Rio Madeira, Edifício Rio Cautário, 6o.
+      andar - Pedrinhas, 76801-466 - Porto Velho - RO
+    cep: '76801466'
+  - name: '[PIX OLLA TELECOM]'
+    address: Avenida Guaporé, 2426 - Lagoinha, 76829-738 -  Porto Velho - RO
+    cep: '76829738'
+    lat: -8.759867
+    lon: -63.861215
+  - name: '[PIX NBS TELECOM]'
+    address: Rua Dom Pedro II, 2669 - Bairro São Cristovão, 76804-27 -  Porto Velho
+      - RO
+  rr:
+  - name: '[PIX RNP]'
+    address: Av. Cap. Ene Garcês, 2413, Boa Vista - RR
+    cep: '69310000'
+    lat: 2.839299
+    lon: -60.698328
+  - name: '[PIX MP-RR]'
+    address: Av. Santos Dumond, 710 - São Pedro, Boa Vista - RR
+    cep: '69306680'
+    lat: 2.827974
+    lon: -60.662954
+  rs:
+  - name: '[PIX RNP / POP-RS]'
+    address: Av. Ramiro Barcelos, 2574 - Bairro Santana, 90035-003 - Porto Alegre,
+      RS
+    cep: '90035003'
+    lat: -30.041948
+    lon: -51.207516
+  - name: '[PIX SYGO]'
+    address: Av. Getúlio Vargas, 1020, 90150-002 - Porto Alegre, RS
+    cep: '90150002'
+    lat: -30.051096
+    lon: -51.221801
+  - name: '[PIX BR.Digital]'
+    address: Rua General Câmara, 156/3o andar, 90010-230 - Porto Alegre, RS
+    cep: '90010230'
+    lat: -30.030169
+    lon: -51.230007
+  - name: '[PIX Elea-POA1]'
+  - name: '[PIX Elea-POA2]'
+    address: Rua Voluntários da Pátria, 1555 - Centro Histórico, 90030-002 - Porto
+      Alegre - RS
+    cep: '90030002'
+    lat: -30.027011
+    lon: -51.224123
+  - name: '[PIX SOUTHTECH ]'
+    address: Rua General Bento Martins, 24/8o andar - Centro, 90010-080 - Porto Alegre,
+      RS
+    cep: '90010080'
+    lat: -30.030365
+    lon: -51.235642
+  - name: '[PIX ADYLNET]'
+    address: Av. Borges de Medeiros, 566, 95320-000 - Nova Prata, RS
+    cep: '95320000'
+    lat: -28.800732
+    lon: -51.599323
+  - name: '[PIX NEXFIBRA]'
+    address: Av. Independência, 1275 - Moinhos de Vento, 90035-074 - Porto Alegre,
+      RS
+    cep: '90035074'
+    lat: -30.031465
+    lon: -51.222354
+  - name: '[PIX NOSSA TELECOM]'
+    address: R. Furriel Luíz Antônio de Vargas, 250 - Bela Vista, 90470-130 - Porto
+      Alegre, RS
+    cep: '90470130'
+    lat: -30.027294
+    lon: -51.182538
+  - name: '[PIX Telium]'
+    address: Av. Independência, 1299 - Independência, 90035-073 - Porto Alegre, RS
+    cep: '90035073'
+    lat: -30.029304
+    lon: -51.208739
+  - name: '[PIX Brasil TecPar]'
+    address: Rua Gomes Portinho, 17 - Sala 201, 93510-360 - Novo Hamburgo, RS
+    cep: '93510360'
+  - name: '[PIX Cirion]'
+    address: Av. Carlos Gomes, 141 - Sala 806, Bairro Auxiliadora - Porto Alegre -
+      RS, Cirion (Auxiliadora), Av. Mariland, 131, Bairro Auxiliadora - Porto Alegre
+      - RS
+    cep: '90480003'
+    lat: -30.027591
+    lon: -51.182481
+  - name: '[PIX Tri Telecom]'
+    address: Av. Assis Brasil, 7802 - Bairro Sarandi, 91140-000 - Porto Alegre, RS
+    cep: '91140000'
+    lat: -29.97989
+    lon: -51.119207
+  - name: '[PIX Defferrari]'
+    address: Rua Mariante, 193 - Sala 101 - Moinhos de Vento, 90430-003 - Porto Alegre,
+      RS
+    cep: '90430003'
+  - name: '[PIX VERO]'
+    address: Av. Carlos Gomes, 141 - Sala 309 - Auxiliadora, 90480-003 - Porto Alegre,
+      RS
+    cep: '90480003'
+    lat: -30.027591
+    lon: -51.182481
+  - name: '[PIX Giganetsul]'
+    address: Rua Fátima, 457 - Maria Regina, 94828-750 - Alvorada, RS
+    cep: '94828750'
+    lat: -29.991596
+    lon: -51.055653
+  - name: '[PIX Scala Data Centers]'
+    address: Av. Pernambuco, 1124 - Navegantes, 90240-001 - Porto Alegre, RS
+    cep: '90240001'
+    lat: -30.006433
+    lon: -51.199662
+  sc:
+  - name: '[PIX UFSC / RNP]'
+    address: 88040-900 - Florianópolis-SC
+    cep: '88040900'
+    lat: -27.600943
+    lon: -48.520065
+  - name: '[PIX CIASC]'
+    address: Rua Murilo Andriani, 327 - Itacorubi, 88034-902 - Florianópolis - SC
+    cep: '88034902'
+    lat: -27.587675
+    lon: -48.500485
+  - name: '[PIX BR.Digital]'
+    address: Av. Patrício de Andrade, 1286, Bairro Capoeiras - Florianópolis - SC,
+      CEP 88085-150
+    cep: '88085150'
+  - name: '[PIX IFSC-SJ]'
+    address: Rua José Lino Kretzer, 608 - Praia Comprida, São José - SC, CEP 88103-902
+    cep: '88103902'
+  - name: '[PIX Cloud DC]'
+    address: Av. dos Lagos, 41 - Bairro Pedra Branca, Palhoça - SC, CEP 88137-100
+    cep: '88137100'
+    lat: -27.630146
+    lon: -48.681945
+  se:
+  - name: '[PIX EMGETIS]'
+    address: Av. Adélia Franco, 3165, Grageru, 49027-010 - Aracaju - SE
+    cep: '49027010'
+    lat: -10.942067
+    lon: -37.066231
+  - name: '[PIX POP-SE RNP]'
+    address: Av. Marcelo Deda Chagas, s/n, Bairro Rosa Elze, 49107-230 - São Cristóvão
+      - SE
+    cep: '49107230'
+    lat: -10.929652
+    lon: -37.104099
+  sjp:
+  - name: '[PIX SAMM]'
+    address: Av Bady Bassit, 2966 - Centro, 15025-000 - São José do Rio Preto - SP
+    cep: '15025000'
+    lat: -20.814832
+    lon: -49.390902
+  slz:
+  - name: '[PIX RNP]'
+    address: Av. dos Portugueses, 1966 - Vila Bacanga, 65080-805 - Sao Luis - MA
+    cep: '65080805'
+    lat: -2.557274
+    lon: -44.308446
+  - name: '[PIX WIKI TELECOM]'
+    address: Av. Daniel de la Touche, 20 - Edif Mocelin Tower - Sala 102, 65074-115
+      - Vila Vicente Fialho - Sao Luis - MA
+    cep: '65074115'
+    lat: -2.525655
+    lon: -44.248666
+  sp:
+  - name: '[PIX ELEA-SPO1]'
+    address: Av Guido Caloi, 1000 - Bloco 7, Jardim São Luis - São Paulo - SP
+    cep: 05802140
+  - name: '[PIX ELEA-SPO2]'
+    address: Avenida Marginal Direita à Rodovia Anchieta, KM 17,5, Jordanópolis -
+      São Bernardo do Campo - SP
+    cep: 09891340
+  - name: '[PIX TAKODA]'
+    address: R. Bento Branco de Andrade Filho, 621 - Jardim Don Bosco, São Paulo -
+      SP
+    cep: '04757000'
+    lat: -23.649172
+    lon: -46.722035
+  - name: '[PIX USP]'
+    address: Av. Professor Luciano Gualberto, travessa 3, nº 71,, Cidade Universitária,
+      Butantã, São Paulo - SP
+    cep: 05508010
+    lat: -23.558985
+    lon: -46.729285
+  - name: '[PIX ALGAR-PIAF]'
+    address: Rua Casa do Ator, 415 - Vila Olimpia, São Paulo - SP
+    cep: '04546002'
+    lat: -23.599121
+    lon: -46.678467
+  - name: '[PIX ALGAR-CENESP]'
+    address: Av. Maria Coelho Aguiar, 215 - Jardim Sao Luis, São Paulo - SP
+    cep: '05805000'
+    lat: -23.654765
+    lon: -46.735264
+  - name: '[PIX ALGAR-RAO]'
+    address: Av. Professor Vicente Rao, 1262 - Santo Amaro, São Paulo - SP
+    cep: '04636001'
+    lat: -23.634634
+    lon: -46.6791
+  - name: '[PIX LOCAWEB]'
+    address: Rua Itapaiuna, 2434, Jardim Morumbi - São Paulo - SP
+    cep: '05707001'
+    lat: -23.638721
+    lon: -46.729438
+  - name: '[PIX EQUINIX]'
+    address: R. Dr. Miguel Couto, 58, Centro - São Paulo - SP
+    cep: '01008010'
+    lat: -23.546228
+    lon: -46.635644
+  - name: '[PIX EQUINIX-SP2]'
+    address: Alameda Araguaia, 3641 - Tambore, Barueri - SP
+    lat: -23.502623
+    lon: -46.827119
+  - name: '[PIX EQUINIX-SP3]'
+    address: Av. Marcos Penteado de Ulhôa Rodrigues, 249, Santana de Parnaíba - SP
+    lat: -23.466315
+    lon: -46.863278
+  - name: '[PIX EQUINIX-SP4]'
+    address: Av. Ceci, 1900 - Tamboré, Barueri - SP
+    cep: '06460120'
+    lat: -23.497446
+    lon: -46.824664
+  - name: '[PIX Cirion]'
+    address: Av. Eid Mansur, 666, Parque São George - Cotia - SP
+    cep: 06708070
+  - name: '[PIX TIM]'
+    address: Av. Alfredo Egídio de Souza Aranha, 100, 04726-170 - São Paulo - SP
+    cep: '04726170'
+    lat: -23.631799
+    lon: -46.714481
+  - name: '[PIX Telium]'
+    address: Av. das Nações Unidas 13797, 2° andar, 04795-100 - São Paulo - SP
+    cep: 04795100
+    lat: -23.659899
+    lon: -46.706963
+  - name: '[PIX GVT]'
+    address: Rua Júlio Diniz, 190, 04547-090 - São Paulo - SP
+    cep: 04547090
+    lat: -23.599036
+    lon: -46.684751
+  - name: '[PIX VERO]'
+    address: Av. Brig. Faria Lima, 1912 6F, São Paulo - SP
+  - name: '[PIX BR.Digital]'
+    address: Rua Cenno Sbrighi, 27 - Barra Funda, 05036-010 - São Paulo - SP
+    cep: '05036010'
+  - name: '[PIX ELETRONET]'
+    address: Av. Alfredo Egidio de Souza Aranha, Nº100 - Bloco D - 13º andar, 04726-170
+      - São Paulo - SP
+    cep: '04726170'
+    lat: -23.631799
+    lon: -46.714481
+  - name: '[PIX NIC-NU]'
+    address: Av. das Nações Unidas 11541, 7° andar, 04578-000 - São Paulo - SP
+    cep: 04578000
+    lat: -23.605823
+    lon: -46.696192
+  - name: '[PIX NIC-JD]'
+    address: Av. João Dias, 3163 - Santo Amaro, 04723-003 - São Paulo - SP
+    cep: '04723003'
+    lat: -23.644843
+    lon: -46.723587
+  - name: '[PIX Sba Edge]'
+    address: Rua Jose Abrantes, 186 - Santo Amaro, Sao Paulo - SP - CEP 04756-010
+    cep: '04756010'
+  - name: '[PIX CLARO]'
+    address: Rua dos Ingleses, 600, Sao Paulo - SP - CEP 01329-000
+    cep: 01329000
+    lat: -23.560847
+    lon: -46.647278
+  - name: '[PIX SAMM]'
+    address: Av. Chedid Jafet 222, Bloco C - Conj. 51C - 5o. andar, São Paulo - SP
+    cep: '04551065'
+    lat: -23.592986
+    lon: -46.689442
+  - name: '[PIX SAMM-Florida]'
+    address: Rua Flórida, 1738 - Conj. Comercial 31 3° andar, Edifício Flórida - Brooklin,
+      São Paulo - SP
+    lat: -23.607134
+    lon: -46.694837
+  - name: '[PIX Scala Data Centers]'
+    address: Av. Ceci, 1850, 06460-120 - Barueri - SP
+    cep: '06460120'
+    lat: -23.497446
+    lon: -46.824664
+  - name: '[PIX UFINET]'
+    address: Av. Ceci, 1850, 06460-120 - Barueri - SP
+    cep: '06460120'
+    lat: -23.497446
+    lon: -46.824664
+  - name: '[PIX ASCENTY SP2]'
+    address: Av. Roberto Pinto Sobrinho, 350 - Vila Menck, 06268-120 - Osasco - SP
+    cep: 06268120
+  - name: '[PIX ASCENTY VIN]'
+    address: Av. João Batista Nunes, 50 - Distrito Industrial Benedito Storani, 13288-162
+      - Vinhedo - SP
+    cep: '13288162'
+  - name: '[PIX ODATA DC SP01]'
+    address: Estrada dos Romeiros, 943 (KM 39,2), 06513-001 - Santana de Parnaiba
+      - SP
+    cep: '06513001'
+    lat: -23.455057
+    lon: -46.915078
+  - name: '[PIX ASAP SP1]'
+    address: Av. das Nações Unidas, 22540, PV01C - Shopping SP Market - Jurubatuba,
+      04795-000 - São Paulo - SP
+    cep: 04795000
+    lat: -23.677978
+    lon: -46.698516
+  - name: '[PIX ULTRANET]'
+    address: Rua Simão Dias da Fonseca, 61 - Cambuci, 01539-020 - São Paulo - SP
+    cep: 01539020
+    lat: -23.572674
+    lon: -46.621334
+  the:
+  - name: '[PIX RNP]'
+    address: Av. Odilon Araújo, 372 - Piçarra, 64017-280 - Teresina - PI
+    cep: '64017280'
+    lat: -5.102334
+    lon: -42.79293
+  to:
+  - name: '[PIX ATI]'
+    address: Quadra 103 Norte, Rua NO-05, Lote 02, 77001-020 - Palmas - TO
+    cep: '77001020'
+    lat: -10.182036
+    lon: -48.337472
+  - name: '[PIX ZAP TELECOM]'
+    address: 501 Sul Av. Teotônio Segurado Cj. 01 Lt. 03 8o Andar Sala 810 - Executive
+      Center, 77016-002 -  Palmas - TO
+    cep: '77016002'
+    lat: -10.215735
+    lon: -48.334066
+  vix:
+  - name: '[PIX RNP]'
+    cep: '29075910'
+    lat: -20.277351
+    lon: -40.303837
+  - name: '[PIX PRODEST]'
+    address: Av. Joao Batista Parra, 465, Praia do Sua - Vitória - ES - 29050-925
+    cep: '29050925'
+    lat: -20.313412
+    lon: -40.296608
+  - name: '[PIX DINÂMICA]'
+    address: Rua Amélia da Cunha Ornelas, 145, Vitória - ES - 29050-620
+    cep: '29050620'
+    lat: -20.311637
+    lon: -40.308372
+  - name: '[PIX VIX Datacenter]'
+    address: Rua Sérgio Cardoso, 75 - Bairro Dom Bosco, Cariacica - ES - 29147-350
+    cep: '29147350'
+  - name: '[PIX NUV]'
+    address: Rua Fioravante Cassini, 28 - Bairro Diamantina, Serra - ES - 29160-855
+    cep: '29160855'
+  mg:
+  - name: '[PIX RNP / POP-MG]'
+    address: Av. Antônio Carlos, 6627 - Pampulha, Belo Horizonte, MG
+    cep: '31270010'
+    lat: -19.874271
+    lon: -43.954228
+  - name: '[PIX PRODABEL]'
+    address: Rua Espírito Santo, 605 - Centro, Belo Horizonte, MG
+    cep: '30160919'
+    lat: -19.920893
+    lon: -43.937716
+  - name: '[PIX ALGAR]'
+    address: Rua Pirapetinga, 322 - Serra, Belo Horizonte, MG
+    cep: '30220150'
+    lat: -19.942032
+    lon: -43.923598
+  - name: '[PIX CENTURY TELECOM]'
+    address: Rua José Permínio da Silva, 80 - Contagem, MG
+    cep: '32341590'
+    lat: -19.93114
+    lon: -44.06315
+  - name: '[PIX SEMPRE TELEPORTO]'
+    address: Av. Marcelo Diniz Xavier, 649 - Califórnia, Belo Horizonte, MG
+    cep: '30855075'
+    lat: -19.927568
+    lon: -44.024084
+  - name: '[PIX ELETRONET]'
+    address: Rua Falcão, 722 - Barreiro, Belo Horizonte, MG
+    cep: '30624200'
+    lat: -19.995615
+    lon: -43.99407
+  lda:
+  - name: '[PIX UEL]'
+    address: Rodovia Celso Garcia Cid - PR 445 Km 380 - Campus Universitário, Londrina
+      - PR
+    cep: '86055900'
+  - name: '[PIX PERSIS TELECOM]'
+    address: Av. Jules Verne, 1111 - Pq Industrial Cacique, Londrina - PR
+    cep: '86072450'
+    lat: -23.283382
+    lon: -51.200318
+  - name: '[PIX SERCOMTEL]'
+    address: Rua Prof. João Cândido, 555 - Centro, Londrina - PR
+    cep: '86010000'
+    lat: -23.315439
+    lon: -51.161337
+  pr:
+  - name: '[PIX RNP / POP-PR]'
+    address: R. Francisco H. dos Santos, 100, Jardim das Américas, Curitiba - PR
+    cep: '81530900'
+  - name: '[PIX Cirion]'
+    address: Rua do Semeador, 350, C.I.C, Curitiba - PR
+    cep: '81270050'
+    lat: -25.468717
+    lon: -49.348266
+  - name: '[PIX Elea-CTA1]'
+    address: Tv. Teixeira de Freitas, 75, Mercês, Curitiba - PR
+    cep: '80410905'
+  - name: '[PIX LIGGA TELECOM]'
+    address: Rua Augusto Stresser, 453, Alto da Glória, Curitiba - PR
+    cep: '80040310'
+    lat: -25.41749
+    lon: -49.245359
+  - name: '[PIX CELEPAR]'
+    address: R. Mateus Leme, 1561, Bom Retiro, Curitiba - PR
+    cep: '80530010'
+    lat: -25.419046
+    lon: -49.271091
+  - name: '[PIX BR.Digital]'
+    address: Rua Professor Rubens Elke Braga, 107, Bairro Parolin, Curitiba - PR
+    cep: '80220320'
+  - name: '[PIX DBUG]'
+    address: Rua José de Alencar, 60, Cristo Rei, Curitiba - PR
+    cep: '80050240'
+    lat: -25.434929
+    lon: -49.254466

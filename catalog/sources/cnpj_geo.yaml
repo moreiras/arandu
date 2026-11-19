@@ -1,0 +1,89 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: cnpj_geo
+nome: Cadastro e geolocalização das organizações (BrasilAPI + Nominatim)
+tipo: derivada
+ativa: true
+modulo: sources.cnpj_geo.enrich
+publicavel: true
+descricao: Para cada CNPJ das organizações BR, obtém dados cadastrais (BrasilAPI) e geocodifica o endereço
+  (Nominatim), com cache persistente em geo_cache/cnpj.json.gz (o primeiro run leva horas).
+origem:
+  url: https://brasilapi.com.br/api/cnpj/v1/{cnpj}
+  formato: JSON (dados cadastrais do CNPJ) + Nominatim
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  termos: https://brasilapi.com.br/
+  nota: 'BrasilAPI é uma iniciativa comunitária e pede para não abusar do serviço; não declara licença
+    dos dados (originários da Receita Federal). Geocodificação: Nominatim/ODbL (ver scm_geo).'
+cadencia:
+  fonte_atualiza: continua
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: opcional
+entradas:
+- rdap
+saidas:
+  normalizado:
+  - summary/geo_orgs.json.gz
+  - ../geo_cache/cnpj.json.gz
+chaves:
+- asn
+- cnpj
+- ibge
+- uf
+- ponto
+campos:
+- nome: orgs[asn].razao_social / nome_fantasia
+  tipo: str
+  significado: Razão social e nome fantasia no cadastro do CNPJ.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_org
+- nome: orgs[asn].cnae_fiscal / cnae_fiscal_descricao
+  tipo: int|str
+  significado: Atividade econômica principal (CNAE).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_org
+- nome: orgs[asn].situacao_cadastral
+  tipo: int|str
+  significado: Situação cadastral do CNPJ (ativa, baixada, suspensa…) e motivo.
+  tratamento: 'Cache: pode estar defasado até o próximo refresh.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_org
+- nome: orgs[asn].natureza_juridica / porte
+  tipo: str
+  significado: Natureza jurídica e porte (ME, EPP, demais).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_org
+- nome: orgs[asn].data_inicio_atividade
+  tipo: str
+  significado: Data de início de atividade.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_org
+- nome: orgs[asn].logradouro … cep / municipio / uf
+  tipo: str
+  significado: Endereço cadastral da organização (pessoa jurídica).
+  tratamento: Endereço de PJ exposto nas rotas públicas listadas (decisão 2026-10-11).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_org
+- nome: orgs[asn].email / ddd_telefone_1 / ddd_telefone_2
+  tipo: str
+  significado: Contato cadastral do CNPJ.
+  tratamento: Presente no arquivo publicado; removido das rotas públicas (T4).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_org
+  sensivel: true
+- nome: orgs[asn].lat / lon / geo_confidence / geo_source
+  tipo: float|str
+  significado: Coordenadas do endereço e como foram obtidas.
+  tratamento: Mesmos rótulos de confiança das outorgas.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_org
+limites: Cadastro do CNPJ pode divergir do endereço operacional; empresa de grupo pode ter outro CNPJ
+  para a rede (ver socios_grupos).
+retencao:
+  normalizado: 52 semanas; cache permanente
+fixture: tests/fixtures/raw/brasilapi/
+pendencias:
+- Licença/termos de uso da BrasilAPI e dos dados de CNPJ expostos por ela.
+- Atribuição OSM/ODbL para a geocodificação.

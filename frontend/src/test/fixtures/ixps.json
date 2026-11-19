@@ -1,0 +1,99 @@
+{
+ "snapshot_date": "2026-09-20",
+ "count": 3,
+ "ixps": [
+  {
+   "code": "za",
+   "name": "Arandurápolis",
+   "uf": "SP",
+   "status": "ok",
+   "asn_direct_union_count": 32,
+   "asn_origin_union_count": 32,
+   "br_asns_origin_union_count": 26,
+   "ixbr_members_count": 32,
+   "v4": {
+    "total_routes": 65,
+    "unique_prefixes": 58,
+    "ixp_space": 29184,
+    "ixp_space_units": 114,
+    "asn_direct_count": 32,
+    "asn_origin_count": 32,
+    "asn_stub_count": 30,
+    "br_asns_origin_count": 26,
+    "br_prefix_coverage_pct": 65.8065,
+    "ixp_vs_fulltable_space_pct": 59.375
+   },
+   "v6": {
+    "total_routes": 39,
+    "unique_prefixes": 32,
+    "ixp_space": 38685626227668133590597632,
+    "ixp_space_units": 32.0,
+    "asn_direct_count": 25,
+    "asn_origin_count": 25,
+    "asn_stub_count": 23,
+    "br_asns_origin_count": 22,
+    "br_prefix_coverage_pct": 74.4186,
+    "ixp_vs_fulltable_space_pct": 58.1818
+   }
+  },
+  {
+   "code": "zb",
+   "name": "Tupãnópolis",
+   "uf": "RJ",
+   "status": "ok",
+   "asn_direct_union_count": 23,
+   "asn_origin_union_count": 26,
+   "br_asns_origin_union_count": 22,
+   "ixbr_members_count": 23,
+   "v4": {
+    "total_routes": 47,
+    "unique_prefixes": 44,
+    "ixp_space": 23552,
+    "ixp_space_units": 92,
+    "asn_direct_count": 23,
+    "asn_origin_count": 26,
+    "asn_stub_count": 21,
+    "br_asns_origin_count": 22,
+    "br_prefix_coverage_pct": 54.1935,
+    "ixp_vs_fulltable_space_pct": 47.9167
+   },
+   "v6": {
+    "total_routes": 29,
+    "unique_prefixes": 25,
+    "ixp_space": 30223145490365729367654400,
+    "ixp_space_units": 25.0,
+    "asn_direct_count": 18,
+    "asn_origin_count": 21,
+    "asn_stub_count": 16,
+    "br_asns_origin_count": 19,
+    "br_prefix_coverage_pct": 58.1395,
+    "ixp_vs_fulltable_space_pct": 45.4545
+   }
+  },
+  {
+   "code": "zc",
+   "name": "Guaraniópolis",
+   "uf": "PR",
+   "status": "partial",
+   "asn_direct_union_count": 11,
+   "asn_origin_union_count": 14,
+   "br_asns_origin_union_count": 12,
+   "ixbr_members_count": 11,
+   "v4": {
+    "total_routes": 22,
+    "unique_prefixes": 22,
+    "ixp_space": 11520,
+    "ixp_space_units": 45,
+    "asn_direct_count": 11,
+    "asn_origin_count": 14,
+    "asn_stub_count": 10,
+    "br_asns_origin_count": 12,
+    "br_prefix_coverage_pct": 27.0968,
+    "ixp_vs_fulltable_space_pct": 23.4375
+   },
+   "v6": {
+    "status": "missing"
+   }
+  }
+ ]
+}

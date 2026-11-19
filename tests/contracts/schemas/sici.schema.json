@@ -1,0 +1,169 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Acessos de banda larga fixa (SICI) por CNPJ",
+ "description": "Contrato T3 do artefato publicado sici.json.gz. Inferido do snapshot real 2026-09-20 e conferido com o dataset sintético (tests/contracts/infer.py); campos novos são permitidos, remoção ou mudança de tipo falham.",
+ "type": "object",
+ "required": [
+  "asn_to_cnpj",
+  "cnpj_to_asns",
+  "cnpjs",
+  "distrib_velocidade",
+  "divergencia",
+  "fonte",
+  "generated_at",
+  "matched_acessos",
+  "matched_cnpjs",
+  "mes_referencia",
+  "meses_disponiveis",
+  "serie_por_cnpj",
+  "serie_total",
+  "snapshot_date",
+  "total_acessos",
+  "total_cnpjs"
+ ],
+ "properties": {
+  "asn_to_cnpj": {
+   "type": "object"
+  },
+  "cnpj_to_asns": {
+   "type": "object"
+  },
+  "cnpjs": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "object",
+    "required": [
+     "acessos",
+     "acessos_compartilhados",
+     "acessos_internet",
+     "asns",
+     "capacidade_internet_mbps",
+     "capacidade_mbps",
+     "empresa",
+     "grupo",
+     "meio_predominante",
+     "municipios",
+     "pf",
+     "pj",
+     "por_faixa",
+     "por_meio",
+     "por_municipio",
+     "por_produto",
+     "por_tecnologia",
+     "porte",
+     "tecnologia_predominante",
+     "uf",
+     "velocidade_media_mbps",
+     "velocidade_mediana_mbps"
+    ],
+    "properties": {
+     "acessos": {
+      "type": "integer"
+     },
+     "acessos_compartilhados": {
+      "type": "boolean"
+     },
+     "acessos_internet": {
+      "type": "integer"
+     },
+     "asns": {
+      "type": "array"
+     },
+     "capacidade_internet_mbps": {
+      "type": "number"
+     },
+     "capacidade_mbps": {
+      "type": "number"
+     },
+     "empresa": {
+      "type": "string"
+     },
+     "grupo": {
+      "type": "string"
+     },
+     "meio_predominante": {
+      "type": "string"
+     },
+     "municipios": {
+      "type": "integer"
+     },
+     "pf": {
+      "type": "integer"
+     },
+     "pj": {
+      "type": "integer"
+     },
+     "por_faixa": {
+      "type": "object"
+     },
+     "por_meio": {
+      "type": "object"
+     },
+     "por_municipio": {
+      "type": "object"
+     },
+     "por_produto": {
+      "type": "object"
+     },
+     "por_tecnologia": {
+      "type": "object"
+     },
+     "porte": {
+      "type": "string"
+     },
+     "tecnologia_predominante": {
+      "type": "string"
+     },
+     "uf": {
+      "type": "string"
+     },
+     "velocidade_media_mbps": {
+      "type": "number"
+     },
+     "velocidade_mediana_mbps": {
+      "type": "number"
+     }
+    }
+   }
+  },
+  "distrib_velocidade": {
+   "type": "object"
+  },
+  "divergencia": {
+   "type": "object"
+  },
+  "fonte": {
+   "type": "string"
+  },
+  "generated_at": {
+   "type": "string"
+  },
+  "matched_acessos": {
+   "type": "integer"
+  },
+  "matched_cnpjs": {
+   "type": "integer"
+  },
+  "mes_referencia": {
+   "type": "string"
+  },
+  "meses_disponiveis": {
+   "type": "array"
+  },
+  "serie_por_cnpj": {
+   "type": "object"
+  },
+  "serie_total": {
+   "type": "array"
+  },
+  "snapshot_date": {
+   "type": "string"
+  },
+  "total_acessos": {
+   "type": "integer"
+  },
+  "total_cnpjs": {
+   "type": "integer"
+  }
+ }
+}

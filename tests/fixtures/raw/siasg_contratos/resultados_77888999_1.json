@@ -1,0 +1,28 @@
+{
+ "resultado": [
+  {
+   "idCompraItem": "90000300001",
+   "idCompra": "00000000000353100",
+   "idContratacaoPNCP": "00000000000353-1-000005/2026",
+   "unidadeOrgaoCodigoUnidade": "900003",
+   "unidadeOrgaoUfSigla": "MG",
+   "numeroItemPncp": 1,
+   "sequencialResultado": 1,
+   "niFornecedor": "77888999000181",
+   "tipoPessoa": "PJ",
+   "nomeRazaoSocialFornecedor": "FORNECEDOR FICTICIO",
+   "quantidadeHomologada": 2,
+   "valorUnitarioHomologado": 150.0,
+   "valorTotalHomologado": 300.0,
+   "situacaoCompraItemResultadoId": 1,
+   "situacaoCompraItemResultadoNome": "Informado",
+   "dataResultadoPncp": "2026-06-01T00:00:00",
+   "numeroControlePNCPCompra": "00000000000353-1-000005/2026",
+   "orgaoEntidadeCnpj": "00000000000353",
+   "codigoPais": "BRA"
+  }
+ ],
+ "totalRegistros": 1,
+ "totalPaginas": 1,
+ "paginasRestantes": 0
+}

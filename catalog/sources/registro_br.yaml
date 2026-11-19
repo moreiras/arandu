@@ -1,0 +1,86 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: registro_br
+nome: Blocos e ASNs do Registro.br (nicbr-asn-blk)
+tipo: bruta
+ativa: true
+modulo: sources.registro_br.collect
+publicavel: true
+descricao: Compilação diária do NIC.br/Registro.br de ASNs com nome da organização, CNPJ e prefixos IP
+  originados (whois público). Fonte do universo de prefixos alocados ao Brasil e do vínculo ASN↔CNPJ.
+origem:
+  url: https://ftp.registro.br/pub/numeracao/origin/nicbr-asn-blk-latest.txt
+  formato: texto delimitado por | (ASN|Org|CNPJ|prefixos...)
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: '00README (2026-10-13): ''Compilation of public whois available ASN Prefix origin information
+    from Nic.br NIR registry''. Sem termos de uso explícitos. O FTP guarda só cerca de 2 semanas de versões
+    diárias (dias úteis); latest.txt aponta a mais recente.'
+cadencia:
+  fonte_atualiza: diaria
+  coleta: diaria
+  coleta_atual: diaria
+  frescor_maximo: 8d
+politica_falha: critica
+saidas:
+  bruto:
+  - summary/nicbr-asn-blk-{as_of}.txt.gz
+  - summary/nicbr-asn-blk-{as_of}.txt
+  normalizado:
+  - summary/registro_br.json.gz
+  - summary/registro_br_diff.json.gz
+chaves:
+- asn
+- cnpj
+- prefixo
+campos:
+- nome: asns[].asn
+  tipo: int
+  significado: Número do sistema autônomo registrado no NIC.br.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#asn
+- nome: asns[].name
+  tipo: str
+  significado: Nome da organização titular do ASN no whois do NIC.br.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#name
+- nome: asns[].cnpj
+  tipo: str
+  significado: CNPJ (14 dígitos) da organização; chave de junção com Anatel e Receita.
+  tratamento: Vazio quando o whois não informa.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#cnpj
+- nome: asns[].prefixes_v6
+  tipo: list[str]
+  significado: Prefixos IPv6 alocados à organização no whois.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#rir_prefixes_v6
+- nome: asns[].prefixes_v4
+  tipo: list[str]
+  significado: Prefixos IPv4 alocados à organização no whois.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#rir_prefixes_v4
+- nome: total_asns / total_prefixes_v6 / total_prefixes_v4
+  tipo: int
+  significado: Totais do arquivo do dia.
+  tratamento: Checados por publish.coleta_checks (variação máxima entre coletas).
+- nome: source_sha256
+  tipo: str
+  significado: SHA-256 do arquivo bruto baixado; prova de proveniência.
+- nome: registro_br_diff.{added,removed,changed}
+  tipo: list
+  significado: Diferença entre este arquivo e o do snapshot anterior (ASNs incluídos, removidos e alterados).
+  tratamento: Gerado só quando há snapshot anterior (use --no-diff para omitir).
+limites: 'Mapeia ASN→prefixos e inclui ASNs estrangeiros que receberam blocos BR (ex.: AS174); ''brasileiro''
+  é definido pelo LACNIC (lacnic_delegated), não por este arquivo. Não traz transferências nem histórico.'
+retencao:
+  bruto: 365 dias (o FTP guarda ~2 semanas)
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/registro_br/
+pendencias:
+- Termos de uso/licença do nicbr-asn-blk não declarados em 00README; confirmar com o NIC.br.
+armazem:
+  incluir:
+  - raw:summary/nicbr-asn-blk-{as_of}.txt.gz
+  - normalized:summary/registro_br.json.gz
+  - normalized:summary/registro_br_diff.json.gz
+  manter_versoes: 365          # o FTP guarda só ~2 semanas: o histórico fino é nosso

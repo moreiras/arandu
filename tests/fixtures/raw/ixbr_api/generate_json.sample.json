@@ -1,0 +1,28 @@
+{
+ "member_list": [
+  {
+   "asnum": 42,
+   "name": "AS42"
+  },
+  {
+   "asnum": 714,
+   "name": "AS714"
+  },
+  {
+   "asnum": 917,
+   "name": "AS917"
+  },
+  {
+   "asnum": 999,
+   "name": "AS999"
+  },
+  {
+   "asnum": 1000,
+   "name": "AS1000"
+  },
+  {
+   "asnum": 1031,
+   "name": "AS1031"
+  }
+ ]
+}

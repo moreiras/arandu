@@ -1,0 +1,149 @@
+{
+ "dump_reference": "2026-09",
+ "fonte": "Receita Federal, dados abertos do CNPJ",
+ "limites": "Cadastro da Receita Federal na data do dump mensal (não o de hoje): situação, datas e CNAE como a empresa declarou. A presença física compara onde há estabelecimento ativo com onde a empresa declara acessos no SICI; são duas fontes que medem coisas diferentes (sede e filiais × assinantes), então a diferença não prova que a empresa atende ou deixou de atender um município. O recorte é o de telecom (outorgas, SICI e CNAE 61): uma filial de outro CNAE de empresa fora desses conjuntos pode faltar. Município por nome e UF; o que não casa com o IBGE fica fora do mapa por município e é contado em `resumo.estabelecimentos_sem_ibge`. Sem e-mail, telefone, rua nem CEP; empresário individual sem razão social nem nome fantasia.",
+ "mercado": {
+  "ativas_por_porte": {
+   "demais": 14,
+   "mei": 1,
+   "micro": 17,
+   "pequeno": 14
+  },
+  "ativas_por_uf": {
+   "ES": 46
+  },
+  "baixas_por_ano": [
+   {
+    "ano": 2024,
+    "por_uf": {
+     "ES": 2
+    },
+    "total": 2
+   }
+  ],
+  "entradas_por_ano": [
+   {
+    "ano": 2008,
+    "por_uf": {
+     "ES": 4
+    },
+    "total": 4
+   },
+   {
+    "ano": 2009,
+    "por_uf": {
+     "ES": 3
+    },
+    "total": 3
+   },
+   {
+    "ano": 2010,
+    "por_uf": {
+     "ES": 3
+    },
+    "total": 3
+   },
+   {
+    "ano": 2011,
+    "por_uf": {
+     "ES": 3
+    },
+    "total": 3
+   },
+   {
+    "ano": 2012,
+    "por_uf": {
+     "ES": 3
+    },
+    "total": 3
+   },
+   {
+    "ano": 2013,
+    "por_uf": {
+     "ES": 3
+    },
+    "total": 3
+   },
+   {
+    "ano": 2014,
+    "por_uf": {
+     "ES": 3
+    },
+    "total": 3
+   },
+   {
+    "ano": 2015,
+    "por_uf": {
+     "ES": 3
+    },
+    "total": 3
+   },
+   {
+    "ano": 2016,
+    "por_uf": {
+     "ES": 3
+    },
+    "total": 3
+   },
+   {
+    "ano": 2017,
+    "por_uf": {
+     "ES": 3
+    },
+    "total": 3
+   },
+   {
+    "ano": 2018,
+    "por_uf": {
+     "ES": 3
+    },
+    "total": 3
+   },
+   {
+    "ano": 2019,
+    "por_uf": {
+     "ES": 4
+    },
+    "total": 4
+   },
+   {
+    "ano": 2020,
+    "por_uf": {
+     "ES": 3
+    },
+    "total": 3
+   },
+   {
+    "ano": 2021,
+    "por_uf": {
+     "ES": 5
+    },
+    "total": 5
+   },
+   {
+    "ano": 2022,
+    "por_uf": {
+     "ES": 1
+    },
+    "total": 1
+   },
+   {
+    "ano": 2023,
+    "por_uf": {
+     "ES": 1
+    },
+    "total": 1
+   }
+  ]
+ },
+ "mes_referencia_sici": "2026-08",
+ "natureza": "fato_cadastral",
+ "resumo": {
+  "empresas_ativas": 46,
+  "empresas_no_recorte": 48,
+  "estabelecimentos_sem_ibge": 0,
+  "operadoras_com_cadastro": 43,
+  "operadoras_sem_cadastro": 0
+ },
+ "snapshot_date": "2026-09-20"
+}

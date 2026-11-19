@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: rdap
+nome: Organizações BR a partir do Registro.br
+ordem: 21
+modulo: sources.rdap.enrich
+fontes:
+- rdap
+politica_falha: opcional
+descricao: ''

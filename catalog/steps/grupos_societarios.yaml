@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: grupos_societarios
+nome: Grupos societários
+ordem: -64
+modulo: products.passos
+args:
+- --passo
+- grupos_societarios
+- --date
+- '{date}'
+parcial:
+- grupos_societarios
+depois_de:
+- socios_grupos
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: Grupos societários. Roda sozinho; lê o que os anteriores deixaram
+  em published/ e build/intermediarios/.'

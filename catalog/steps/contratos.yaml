@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: contratos
+nome: Contratos públicos (PNCP, Lei 14.133) por operadora e município
+ordem: -86
+modulo: products.passos
+args:
+- --passo
+- contratos
+- --date
+- '{date}'
+parcial:
+- contratos
+depois_de:
+- siasg_contratos
+- asn_indice
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: resultados de itens publicados no PNCP por raiz de CNPJ (valor homologado sem os itens cancelados, órgãos, UF, ano, esfera, modalidade e objeto resumido), por município do órgão comprador e o resumo nacional, com a data da leitura de cada raiz e a cobertura do rodízio. Lê o normalizado da fonte `siasg_contratos`; sem ele não gera nada. Ausência não é zero; sem ranking de fornecedor.'

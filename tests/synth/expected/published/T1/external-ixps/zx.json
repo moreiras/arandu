@@ -1,0 +1,42 @@
+{
+ "br_member_count": 3,
+ "city": "Cidade Exemplo",
+ "code": "zx",
+ "country": "UY",
+ "last_updated": "2026-09-20",
+ "member_count": 5,
+ "members": [
+  {
+   "asn": 64496,
+   "is_br": true,
+   "name": "Provedor 01 Telecom Ltda, BR",
+   "speed": 10000
+  },
+  {
+   "asn": 64497,
+   "is_br": true,
+   "name": "Provedor 02 Telecom Ltda, BR",
+   "speed": 10000
+  },
+  {
+   "asn": 64498,
+   "is_br": true,
+   "name": "Provedor 03 Telecom Ltda, BR",
+   "speed": 10000
+  },
+  {
+   "asn": 4200000100,
+   "is_br": false,
+   "name": "Foreign Net 1 Inc, US",
+   "speed": 10000
+  },
+  {
+   "asn": 4200000101,
+   "is_br": false,
+   "name": "Foreign Net 2 Inc, DE",
+   "speed": 10000
+  }
+ ],
+ "name": "IX Externo Fictício",
+ "pdb_ix_id": 99001
+}

@@ -1,0 +1,517 @@
+{
+ "_doc": "Cartões da página inicial (1.3.6): cada um é uma pergunta pronta, a consulta que a responde e para onde ir. As consultas espelham as receitas de api/query.py (RECIPES); tests/products/test_t4_home.py roda todas contra o dataset sintético.",
+ "cartoes": [
+  {
+   "id": "maiores-operadoras",
+   "titulo": "Maiores operadoras de banda larga",
+   "pergunta": "Quem declara mais acessos de banda larga fixa à Anatel?",
+   "consulta": {
+    "tipo": "query",
+    "colecao": "operadoras",
+    "corpo": {
+     "filter": {
+      "field": "ativo",
+      "op": "eq",
+      "value": true
+     },
+     "select": [
+      "empresa",
+      "cnpj",
+      "acessos"
+     ],
+     "sort": [
+      {
+       "field": "acessos",
+       "dir": "desc"
+      }
+     ],
+     "limit": 5
+    }
+   },
+   "linha": {
+    "rotulo": "empresa",
+    "valor": "acessos",
+    "unidade": "acessos",
+    "link": "/operadora/{cnpj}"
+   },
+   "destino": {
+    "to": "/operadoras?servico=scm",
+    "rotulo": "Ver todas as outorgas SCM"
+   },
+   "fontes": [
+    "anatel_sici"
+   ]
+  },
+  {
+   "id": "grandes-sem-asn",
+   "titulo": "Grandes operadoras sem ASN próprio",
+   "pergunta": "Que operadoras com mais de 5 mil assinantes ainda não têm ASN?",
+   "consulta": {
+    "tipo": "query",
+    "colecao": "operadoras",
+    "corpo": {
+     "filter": {
+      "and": [
+       {
+        "field": "acessos",
+        "op": "gte",
+        "value": 5000
+       },
+       {
+        "field": "com_asn",
+        "op": "eq",
+        "value": false
+       }
+      ]
+     },
+     "select": [
+      "empresa",
+      "cnpj",
+      "acessos"
+     ],
+     "sort": [
+      {
+       "field": "acessos",
+       "dir": "desc"
+      }
+     ],
+     "limit": 5
+    }
+   },
+   "linha": {
+    "rotulo": "empresa",
+    "valor": "acessos",
+    "unidade": "acessos",
+    "link": "/operadora/{cnpj}"
+   },
+   "destino": {
+    "to": "/operadoras?servico=scm",
+    "rotulo": "Ver as outorgas SCM"
+   },
+   "fontes": [
+    "anatel_sici",
+    "registro_br"
+   ]
+  },
+  {
+   "id": "sem-rpki",
+   "titulo": "ASes com IPv6 e sem RPKI em 3 ou mais PTTs",
+   "pergunta": "Quais ASes BR já estão em vários PTTs com IPv6 mas não assinaram seus prefixos?",
+   "consulta": {
+    "tipo": "query",
+    "colecao": "asns",
+    "corpo": {
+     "filter": {
+      "and": [
+       {
+        "field": "is_br",
+        "op": "eq",
+        "value": true
+       },
+       {
+        "field": "has_ipv6",
+        "op": "eq",
+        "value": true
+       },
+       {
+        "field": "has_rpki",
+        "op": "eq",
+        "value": false
+       },
+       {
+        "field": "ixps_direct_count",
+        "op": "gte",
+        "value": 3
+       }
+      ]
+     },
+     "select": [
+      "asn",
+      "name",
+      "apnic_users"
+     ],
+     "sort": [
+      {
+       "field": "apnic_users",
+       "dir": "desc"
+      }
+     ],
+     "limit": 5
+    }
+   },
+   "linha": {
+    "rotulo": "name",
+    "valor": "apnic_users",
+    "unidade": "usuários",
+    "link": "/asn/{asn}"
+   },
+   "destino": {
+    "to": "/ases",
+    "rotulo": "Ver os ASes"
+   },
+   "fontes": [
+    "rpki_collector",
+    "apnic_pop",
+    "lg_ixbr"
+   ]
+  },
+  {
+   "id": "monopolio-local",
+   "titulo": "Municípios dominados por uma só operadora",
+   "pergunta": "Onde uma única operadora tem mais de 80% do mercado de banda larga?",
+   "consulta": {
+    "tipo": "query",
+    "colecao": "acessos_municipio",
+    "corpo": {
+     "filter": {
+      "and": [
+       {
+        "field": "share",
+        "op": "gte",
+        "value": 80
+       },
+       {
+        "field": "municipio_acessos",
+        "op": "gte",
+        "value": 1000
+       }
+      ]
+     },
+     "select": [
+      "ibge",
+      "municipio",
+      "uf",
+      "empresa",
+      "share"
+     ],
+     "sort": [
+      {
+       "field": "municipio_acessos",
+       "dir": "desc"
+      }
+     ],
+     "limit": 5
+    }
+   },
+   "linha": {
+    "rotulo": "municipio",
+    "complemento": "empresa",
+    "valor": "share",
+    "unidade": "%",
+    "link": "/municipio/{ibge}"
+   },
+   "destino": {
+    "to": "/localizador",
+    "rotulo": "Abrir o localizador"
+   },
+   "fontes": [
+    "anatel_sici"
+   ]
+  },
+  {
+   "id": "perfil-corporativo",
+   "titulo": "Operadoras com perfil corporativo",
+   "pergunta": "Quem atende mais empresas (B2B) do que residências?",
+   "consulta": {
+    "tipo": "query",
+    "colecao": "operadoras",
+    "corpo": {
+     "filter": {
+      "and": [
+       {
+        "field": "ativo",
+        "op": "eq",
+        "value": true
+       },
+       {
+        "field": "acessos",
+        "op": "gte",
+        "value": 500
+       }
+      ]
+     },
+     "select": [
+      "empresa",
+      "cnpj",
+      "acessos_pj"
+     ],
+     "sort": [
+      {
+       "field": "acessos_pj",
+       "dir": "desc"
+      }
+     ],
+     "limit": 5
+    }
+   },
+   "linha": {
+    "rotulo": "empresa",
+    "valor": "acessos_pj",
+    "unidade": "acessos B2B",
+    "link": "/operadora/{cnpj}"
+   },
+   "destino": {
+    "to": "/operadoras?servico=scm",
+    "rotulo": "Ver as outorgas SCM"
+   },
+   "fontes": [
+    "anatel_sici"
+   ]
+  },
+  {
+   "id": "longe-de-ptt",
+   "titulo": "Municípios a mais de 100 km de um PTT",
+   "pergunta": "Quais municípios com mais de 5 mil acessos de banda larga ficam longe de um PTT?",
+   "consulta": {
+    "tipo": "derivado",
+    "id": "longe-de-ptt",
+    "consultas": [
+     {
+      "colecao": "acessos_municipio",
+      "corpo": {
+       "filter": {
+        "field": "municipio_acessos",
+        "op": "gte",
+        "value": 5000
+       },
+       "group_by": [
+        "ibge",
+        "municipio",
+        "uf"
+       ],
+       "aggregate": [
+        {
+         "fn": "max",
+         "field": "municipio_acessos",
+         "as": "acessos"
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "linha": {
+    "rotulo": "municipio",
+    "complemento": "uf",
+    "valor": "km",
+    "unidade": "km do PTT",
+    "link": "/municipio/{ibge}"
+   },
+   "destino": {
+    "to": "/localizador",
+    "rotulo": "Abrir o localizador"
+   },
+   "fontes": [
+    "anatel_sici",
+    "curada_pix"
+   ]
+  },
+  {
+   "id": "sem-sici-com-usuarios",
+   "titulo": "Outorgados que não declaram ao SICI",
+   "pergunta": "Que operadoras têm outorga SCM, não declaram acessos à Anatel e mesmo assim têm usuários (APNIC)?",
+   "consulta": {
+    "tipo": "derivado",
+    "id": "sem-sici-com-usuarios",
+    "consultas": [
+     {
+      "colecao": "asns",
+      "corpo": {
+       "filter": {
+        "and": [
+         {
+          "field": "is_br",
+          "op": "eq",
+          "value": true
+         },
+         {
+          "field": "cnpj",
+          "op": "exists",
+          "value": true
+         },
+         {
+          "field": "apnic_users",
+          "op": "gte",
+          "value": 3000
+         }
+        ]
+       },
+       "select": [
+        "asn",
+        "cnpj",
+        "apnic_users"
+       ],
+       "sort": [
+        {
+         "field": "apnic_users",
+         "dir": "desc"
+        }
+       ],
+       "limit": 1000
+      }
+     },
+     {
+      "colecao": "operadoras",
+      "corpo": {
+       "filter": {
+        "and": [
+         {
+          "field": "licenciado",
+          "op": "eq",
+          "value": true
+         },
+         {
+          "field": "ativo",
+          "op": "eq",
+          "value": false
+         },
+         {
+          "field": "cnpj",
+          "op": "in",
+          "value": "$cnpjs"
+         }
+        ]
+       },
+       "select": [
+        "cnpj",
+        "razao_social"
+       ],
+       "limit": 1000
+      }
+     }
+    ]
+   },
+   "linha": {
+    "rotulo": "empresa",
+    "valor": "apnic_users",
+    "unidade": "usuários",
+    "link": "/operadora/{cnpj}"
+   },
+   "destino": {
+    "to": "/operadoras?servico=scm",
+    "rotulo": "Ver as outorgas SCM"
+   },
+   "fontes": [
+    "anatel_scm",
+    "anatel_sici",
+    "apnic_pop"
+   ]
+  },
+  {
+   "id": "maiores-ptts",
+   "titulo": "PTTs com mais participantes",
+   "pergunta": "Onde estão os maiores pontos de troca de tráfego do IX.br?",
+   "consulta": {
+    "tipo": "query",
+    "colecao": "ixps",
+    "corpo": {
+     "select": [
+      "code",
+      "name",
+      "ixbr_members_count"
+     ],
+     "sort": [
+      {
+       "field": "ixbr_members_count",
+       "dir": "desc"
+      }
+     ],
+     "limit": 5
+    }
+   },
+   "linha": {
+    "rotulo": "name",
+    "valor": "ixbr_members_count",
+    "unidade": "participantes",
+    "link": "/ixp/{code}"
+   },
+   "destino": {
+    "to": "/ixps",
+    "rotulo": "Ver os PTTs"
+   },
+   "fontes": [
+    "ixbr_api",
+    "lg_ixbr"
+   ]
+  },
+  {
+   "id": "divergencias-apnic-anatel",
+   "titulo": "Divergências APNIC × Anatel",
+   "pergunta": "Onde as estimativas de usuários do APNIC passam muito dos acessos declarados à Anatel?",
+   "consulta": {
+    "tipo": "get",
+    "caminho": "/api/v1/acessos/divergencias",
+    "params": {
+     "classificacao": "apnic_alto",
+     "limit": 5
+    }
+   },
+   "linha": {
+    "rotulo": "name",
+    "valor": "razao",
+    "unidade": "× (APNIC / Anatel)",
+    "link": "/asn/{asn}"
+   },
+   "destino": {
+    "to": "/estatisticas",
+    "rotulo": "Ver as estatísticas"
+   },
+   "fontes": [
+    "apnic_pop",
+    "anatel_sici"
+   ]
+  },
+  {
+   "id": "o-que-mudou",
+   "titulo": "O que mudou",
+   "pergunta": "Quais ASes brasileiros passaram a aparecer na tabela de roteamento, entre os últimos snapshots?",
+   "consulta": {
+    "tipo": "query",
+    "colecao": "eventos",
+    "corpo": {
+     "filter": {
+      "and": [
+       {
+        "field": "tipo",
+        "op": "eq",
+        "value": "asn_novo"
+       },
+       {
+        "field": "estado",
+        "op": "eq",
+        "value": "confirmado"
+       }
+      ]
+     },
+     "select": [
+      "asn",
+      "uf",
+      "data"
+     ],
+     "sort": [
+      {
+       "field": "data",
+       "dir": "desc"
+      }
+     ],
+     "limit": 5
+    }
+   },
+   "linha": {
+    "rotulo": "asn",
+    "complemento": "uf",
+    "valor": "data",
+    "unidade": "",
+    "link": "/asn/{asn}"
+   },
+   "destino": {
+    "to": "/mudancas",
+    "rotulo": "Ver tudo que mudou"
+   },
+   "fontes": [
+    "registro_br",
+    "fulltable_routeviews"
+   ]
+  }
+ ]
+}

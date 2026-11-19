@@ -1,0 +1,86 @@
+# Relações entre ASNs (produto `as_relationships`). Parâmetros do algoritmo ARC (v1 e refino v2).
+# Os pesos são log-verossimilhanças aproximadas; a régua de validação (ASPA, painel) é quem os confirma ou corrige.
+# Mudar um valor muda a SEMÂNTICA do dado: suba `versao` e registre no CHANGELOG.
+versao: 2                   # 2 = ARC v2: v1 como bootstrap de um Naive Bayes iterativo, restrições e histerese
+
+# ASNs de route servers/IXPs que não devem aparecer como salto (removidos do caminho antes de tudo)
+asns_ixp: [26162]
+
+# Sanitização (E0): ASNs que invalidam o caminho. Documentação (RFC 5398) NÃO está na lista de propósito: o dataset sintético os usa.
+descartar_asn:
+  - [0, 0]
+  - [23456, 23456]          # AS_TRANS
+  - [64512, 65535]          # privados 16 bits (RFC 6996) e 65535
+  - [4200000000, 4294967295]  # privados 32 bits
+
+clique:
+  candidatos: 60            # ASNs de maior grau de trânsito considerados
+  tamanho_minimo: 3         # abaixo disto não há clique confiável (dados insuficientes)
+
+propagacao:
+  rodadas: 3                # reaproveita rótulos fortes como âncora nas rodadas seguintes
+  votos_para_ancora: 8      # votos mínimos (e razão abaixo) para um elo virar âncora na rodada seguinte
+  razao_para_ancora: 0.9
+
+# Visibilidade mínima para afirmar single-homed/multihomed de um ASN (basta uma): VPs dos coletores ou PTTs com a rampa
+visibilidade:
+  min_vps: 3
+  min_ptt: 2
+
+# Pesos por evidência (somados por hipótese: a→b, b→a, par, irmãos)
+pesos:
+  prior_par: 0.3
+  aspa_positivo: 7.0        # b declara a como provedor
+  aspa_negativo: 1.0        # b tem ASPA que não lista a: desfavorece "a provedor de b" de leve (ASPA incompleto é comum)
+  rs_max: 3.2               # rampa dos route servers: 1 - exp(-0,7 × membros), mais bônus por PTTs
+  rs_bonus_ptt: 0.4
+  colecao_max: 2.6          # votos da propagação valley-free nos caminhos dos coletores
+  caida_p2c: 1.5
+  caida_p2p: 1.2
+  clique_par: 8.0
+  clique_borda: 2.2         # elo entre um membro do clique e quem está fora: o de fora é cliente
+  irmaos: 2.5
+
+# Níveis (a confiança nunca é maior que a evidência independente: ASPA, rampa RS, coletores e clique)
+niveis:
+  confirmado: {p_min: 0.95, fontes_independentes: 2}
+  provavel: {p_min: 0.70, fontes_independentes: 1}
+  possivel: {p_min: 0.50, fontes_independentes: 0}
+
+# Refino v2 (`products/as_relationships/refino.py`): Naive Bayes iterativo no estilo do ProbLink, treinado com o veredito da v1
+refino:
+  ativo: true
+  iteracoes: 3              # cada iteração relê os caminhos dos coletores com os rótulos novos como âncora
+  p_treino: 0.7             # só vereditos da v1 com p >= isto (e nível >= provável) treinam a 1ª rodada
+  p_ancora: 0.9             # posterior mínimo para virar âncora de propagação na iteração seguinte
+  suavizacao: 1.0           # Laplace
+  # `lg_ixbr`: a política do IRR (`irr_relacao`: import/export dos aut-num, declarada, não praticada) como característica do Naive Bayes. DESLIGADA: só liga
+  # depois que a régua (`validacao --irr`) mostrar que não piora a precisão e o recall BR "≥ provável" da v2 contra o ASPA (v4 0,807/0,727; v6 0,688/0,641).
+  irr: false
+  cap_v1: true              # o nível da v2 nunca passa do da v1: o NB só abstém e rebaixa (a régua mostrou que promovendo ele perde precisão)
+  peso_fraco: 0.3           # peso dos rótulos de nível possível da v1 no treino (os firmes pesam 1)
+  abstencao: 0.5            # posterior abaixo disto: sem classificação (abstenção)
+  # Temperatura da calibração (p ∝ exp(log p / T)), ajustada pela régua SEM o ASPA como entrada
+  # (`python -m products.as_relationships.validacao`, bloco `refino.calibracao`); 1.0 = NB bruto
+  temperatura: {v4: 1.0, v6: 1.0}
+  ece_max: 0.10             # ECE de validação cruzada acima disto: `p` sai marcada como não calibrada
+  complexa_p_min: 0.8       # v4 e v6 divergem "com força": ambos com p >= isto e nível >= provável
+  persistencia: 2           # snapshots seguidos com a mesma proposta para a relação mudar de estado (E6)
+  cone_max_asns: 5000       # teto de ASNs do cone listados por ASN no produto `transito`
+  # ECE (p >= 0,5) da validação cruzada da régua sem ASPA (ARC v2 com cap_v1; data em `calibrado_em`): muito acima de ece_max, então `p` sai NÃO calibrada.
+  # A temperatura ótima medida (v4 4, v6 6) não leva o ECE a menos de 0,37; fica 1.0 (a que gerou as medidas de precisão e recall).
+  ece: {v4: 0.3776, v6: 0.4154}
+  calibrado_em: "2026-11-05"
+  # Estratos de evidência independente. Estrato do p2c visto do provedor: ambos (caida=ab e tripla=ab+), so_caida, so_tripla,
+  # conflito (um confirma e o outro contradiz) ou sem_evidencia. Medido (régua sem ASPA, estratos.py, eventos ASPA):
+  # acerto de conflito 9%/22% e de sem_evidencia 2% (v4/v6); rebaixar os dois de "provável" a "possível" sobe a precisão BR em 10/18 pontos e custa
+  # 1,3/2,8 de recall. p_calibrada = taxa de acerto observada no ASPA (validação cruzada por ASN:
+  # ECE 0,010/0,0005), só para vps > 0; so_tripla (38 eventos) não é calibrável.
+  estratos:
+    ativo: true
+    rebaixar: [conflito, sem_evidencia]
+    p_calibrada:
+      ambos: {v4: 0.9241, v6: 0.9509}
+      so_caida: {v4: 0.9058, v6: 0.9527}
+    medido_em: "2026-11-06"
+

@@ -1,0 +1,23 @@
+{
+ "success": true,
+ "errors": [],
+ "result": {
+  "asns": [
+   {
+    "asn": 64496,
+    "name": "EXEMPLO-A",
+    "country": "BR"
+   },
+   {
+    "asn": 64497,
+    "name": "EXEMPLO-B",
+    "country": "BR"
+   },
+   {
+    "asn": 64498,
+    "name": "EXEMPLO-C",
+    "country": "BR"
+   }
+  ]
+ }
+}

@@ -1,0 +1,60 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ixbr_api
+nome: Cadastro de membros do IX.br (dashboard.ix.br)
+tipo: bruta
+ativa: true
+modulo: sources.ixbr_api.collect
+publicavel: true
+descricao: Lista de membros cadastrados em cada IXP do IX.br via `dashboard.ix.br/generate_json?ixp={code}`,
+  inclusive os que trocam tráfego só bilateralmente e por isso não aparecem no Route Server.
+origem:
+  url: https://dashboard.ix.br/generate_json?ixp={code}
+  formato: JSON (members[].asn, name)
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: Endpoint público do dashboard do IX.br. Termos de uso do dashboard não localizados (a raiz dashboard.ix.br
+    responde 404 em 2026-10-13).
+cadencia:
+  fonte_atualiza: continua
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: critica
+saidas:
+  bruto:
+  - '{ixp}/ixbr_members.json'
+chaves:
+- ixp
+- asn
+campos:
+- nome: ixp
+  tipo: str
+  significado: 'Código do IXP (ex.: sp, rj).'
+- nome: fetched_at
+  tipo: datetime
+  significado: Instante UTC em que a lista foi obtida.
+- nome: members_count
+  tipo: int
+  significado: Quantidade de membros cadastrados no IXP (>= ASNs vistos no Route Server).
+  publicado_em:
+  - ixp_docs → ixps/index.json#ixbr_members_count
+- nome: members[].asn
+  tipo: int
+  significado: ASN do membro cadastrado.
+  tratamento: Servido pela API lendo raw/{date}/{ixp}/ixbr_members.json (o raw não pode ser removido antes
+    da retenção do snapshot).
+  publicado_em:
+  - ixp_docs → ixps/index.json#ixbr_members_count
+- nome: members[].name
+  tipo: str
+  significado: Nome do membro como cadastrado no IX.br.
+  tratamento: Servido pela API lendo o raw (ver members[].asn).
+limites: 'Cadastro autodeclarado/administrativo: membro cadastrado não implica sessão BGP ativa nem tráfego.'
+retencao:
+  bruto: 4 versões
+fixture: tests/fixtures/raw/ixbr_api/
+pendencias:
+- Termos de uso do dashboard.ix.br não localizados.
+armazem:
+  incluir:
+  - raw:{ixp}/ixbr_members.json

@@ -1,0 +1,44 @@
+{
+ "success": true,
+ "errors": [],
+ "result": {
+  "asn_info": [],
+  "events": [
+   {
+    "id": 7,
+    "duration": 3000,
+    "event_type": 0,
+    "hijacker_asn": 64498,
+    "min_hijack_ts": "2026-11-09T10:00:00",
+    "max_hijack_ts": "2026-11-09T11:00:00",
+    "on_going_count": 0,
+    "peer_asns": [
+     64510
+    ],
+    "prefixes": [
+     "192.0.2.0/24",
+     "198.51.100.0/24"
+    ],
+    "tags": [
+     {
+      "name": "rpki_new_origin_invalid",
+      "score": 8
+     },
+     {
+      "name": "irr_new_origin_unknown",
+      "score": 0
+     }
+    ],
+    "victim_asns": [
+     64496
+    ]
+   }
+  ]
+ },
+ "result_info": {
+  "count": 1,
+  "total_count": 1,
+  "page": 1,
+  "per_page": 50
+ }
+}

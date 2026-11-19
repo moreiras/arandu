@@ -1,0 +1,75 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ipv4
+nome: 'Mercado de IPv4 (transferências, recuperação e blocos do Brasil)'
+descricao: 'Operações de transferência de IPv4 com o Brasil (Registro.br e LACNIC), agrupadas por dia e partes, com casamento bloco → ASN; resumo do mercado por ano, direção e tamanho; recursos
+  em recuperação; blocos IPv4 do Brasil com o estado no delegated. Diferenças observadas, sem causa nem intenção.'
+modulo: products.ipv4.build
+entradas:
+- source: ipv4_listas
+- source: ipv4_delegated
+chaves_de_juncao:
+- prefixo
+- asn
+saidas:
+  publicado:
+  - ipv4/transferencias.json.gz
+  - ipv4/mercado.json.gz
+  - ipv4/recuperacao.json.gz
+  - ipv4/blocos_br.json.gz
+campos:
+- nome: transferencias.operacoes[]
+  tipo: lista
+  significado: 'Operação com data, origem e destino (nome, país, RIR, pessoa), blocos, endereços, classe de tamanho, direção (br_br, br_exterior, exterior_br), fontes (registrobr, lacnic), primeira vez visto, defasagem e o ASN atual do destino.'
+  tratamento: 'Nome de pessoa física provável é omitido (Pessoa física). Operação é o mesmo dia e as mesmas partes; `anterior_a_coleta` marca o que já estava na primeira lista coletada (a data real de entrada na lista é anterior).'
+  publicado_em:
+  - ipv4 → ipv4/transferencias.json.gz#operacoes
+- nome: mercado.por_ano / por_tamanho / concentracao / maior_operacao / defasagem / casamento
+  tipo: dict
+  significado: Operações, blocos e endereços por ano e direção; por classe de tamanho; as 10 maiores partes; a maior operação; a defasagem mediana de publicação; o percentual de destinos casados com ASN.
+  publicado_em:
+  - ipv4 → ipv4/mercado.json.gz#por_ano
+  - ipv4 → ipv4/mercado.json.gz#por_tamanho
+  - ipv4 → ipv4/mercado.json.gz#concentracao
+  - ipv4 → ipv4/mercado.json.gz#maior_operacao
+  - ipv4 → ipv4/mercado.json.gz#defasagem
+  - ipv4 → ipv4/mercado.json.gz#casamento
+- nome: mercado.operacoes / blocos / enderecos / periodo
+  tipo: int / list
+  significado: Totais do mercado e o período coberto.
+  publicado_em:
+  - ipv4 → ipv4/mercado.json.gz#operacoes
+  - ipv4 → ipv4/mercado.json.gz#blocos
+  - ipv4 → ipv4/mercado.json.gz#enderecos
+  - ipv4 → ipv4/mercado.json.gz#periodo
+- nome: recuperacao.em_recuperacao / recuperados / eventos_por_mes
+  tipo: dict
+  significado: Recursos em recuperação (com a janela e o status atual do bloco no delegated), recuperados por tipo e eventos de recuperação e liberação por mês.
+  publicado_em:
+  - ipv4 → ipv4/recuperacao.json.gz#em_recuperacao
+  - ipv4 → ipv4/recuperacao.json.gz#recuperados
+  - ipv4 → ipv4/recuperacao.json.gz#eventos_por_mes
+- nome: blocos_br.blocos[] / colunas / ultima_foto
+  tipo: lista
+  significado: 'Blocos IPv4 do Brasil na última foto do delegated: início, quantidade de endereços, status, data de registro, `opaque-id`, ASN e organização.'
+  tratamento: O `opaque-id` é público e não traz nome; a organização vem do casamento com o ASN do snapshot.
+  publicado_em:
+  - ipv4 → ipv4/blocos_br.json.gz#blocos
+  - ipv4 → ipv4/blocos_br.json.gz#colunas
+  - ipv4 → ipv4/blocos_br.json.gz#ultima_foto
+- nome: snapshot_date / generated_at / natureza / fonte / limites / total
+  tipo: str
+  significado: Metadados comuns dos artefatos, o rótulo de natureza (observado) e as limitações.
+  publicado_em:
+  - ipv4 → ipv4/transferencias.json.gz#limites
+  - ipv4 → ipv4/transferencias.json.gz#natureza
+  - ipv4 → ipv4/transferencias.json.gz#fonte
+  - ipv4 → ipv4/transferencias.json.gz#total
+  - ipv4 → ipv4/mercado.json.gz#limites
+  - ipv4 → ipv4/mercado.json.gz#natureza
+  - ipv4 → ipv4/mercado.json.gz#fonte
+  - ipv4 → ipv4/recuperacao.json.gz#limites
+  - ipv4 → ipv4/recuperacao.json.gz#natureza
+  - ipv4 → ipv4/recuperacao.json.gz#fonte
+  - ipv4 → ipv4/blocos_br.json.gz#limites
+  - ipv4 → ipv4/blocos_br.json.gz#natureza
+  - ipv4 → ipv4/blocos_br.json.gz#fonte

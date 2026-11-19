@@ -1,0 +1,11 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: peeringdb_networks
+nome: Redes BR no PeeringDB
+ordem: 7
+modulo: sources.peeringdb_networks.collect
+fontes:
+- peeringdb_networks
+tentativas: 3
+espera_s: 60
+politica_falha: critica
+descricao: ''

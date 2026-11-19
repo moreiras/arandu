@@ -1,0 +1,67 @@
+{
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      -46.7,
+      -23.6
+     ],
+     [
+      -43.25,
+      -22.95
+     ]
+    ],
+    "type": "LineString"
+   },
+   "properties": {
+    "status": "Operational",
+    "type_inf": "Fibre Operational"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      -46.7,
+      -23.6
+     ],
+     [
+      -49.3,
+      -25.45
+     ]
+    ],
+    "type": "LineString"
+   },
+   "properties": {
+    "status": "Planned",
+    "type_inf": "Fibre Planned"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      -43.25,
+      -22.95
+     ],
+     [
+      -43.0,
+      -22.0
+     ]
+    ],
+    "type": "LineString"
+   },
+   "properties": {
+    "status": "Operational",
+    "type_inf": "Microwave Operational"
+   },
+   "type": "Feature"
+  }
+ ],
+ "snapshot_date": "2026-09-20",
+ "source": "sintético",
+ "type": "FeatureCollection"
+}

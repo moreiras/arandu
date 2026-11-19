@@ -1,0 +1,16 @@
+{
+ "resultado": [
+  {
+   "codigoUasg": "900003",
+   "nomeUasg": "UNIDADE FICTICIA 3",
+   "siglaUf": "MG",
+   "codigoMunicipioIbge": 3106200,
+   "nomeMunicipioIbge": "BELO HORIZONTE",
+   "cnpjCpfOrgao": "00000000000353",
+   "statusUasg": true
+  }
+ ],
+ "totalRegistros": 3,
+ "totalPaginas": 2,
+ "paginasRestantes": 0
+}

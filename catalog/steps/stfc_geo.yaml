@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: stfc_geo
+nome: Geolocalização das outorgas STFC
+ordem: 27
+modulo: sources.stfc_geo.enrich
+fontes:
+- stfc_geo
+politica_falha: opcional
+descricao: ''

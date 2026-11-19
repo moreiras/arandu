@@ -1,0 +1,31 @@
+{
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      -46.7,
+      -23.6
+     ],
+     [
+      -47.1,
+      -22.9
+     ]
+    ],
+    "type": "LineString"
+   },
+   "properties": {
+    "extensao_km": 85.2,
+    "name": "Linha LT 230 kV ARANDURA / ITAPUA C 1 SP",
+    "subestacao_destino": "ITAPUA",
+    "subestacao_origem": "ARANDURA",
+    "tensao_kv": 230.0,
+    "uf": "SP"
+   },
+   "type": "Feature"
+  }
+ ],
+ "snapshot_date": "2026-09-20",
+ "source": "sintético",
+ "type": "FeatureCollection"
+}

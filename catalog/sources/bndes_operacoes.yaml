@@ -1,0 +1,53 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: bndes_operacoes
+nome: BNDES — operações de financiamento (não automáticas) a empresas de telecom
+tipo: bruta
+ativa: true
+modulo: sources.bndes_operacoes.collect
+publicavel: true
+descricao: 'Operações de financiamento direto do BNDES (conjunto "operacoes-financiamento", recurso "Operações não automáticas", CSV com CNPJ completo e município IBGE). Guarda só as operações de clientes cujo CNPJ
+  básico está no universo de telecom (outorgas SCM, SMP, STFC e SeAC, SICI e estabelecimentos de CNAE 61 da Receita). Por operação: contrato, data, valor contratado e desembolsado, produto, instrumento, forma de apoio,
+  UF, município (IBGE), CNAE, porte, situação e a descrição curta do projeto.'
+origem:
+  url: https://dadosabertos.bndes.gov.br/dataset/operacoes-financiamento
+  formato: CSV latin-1 (`;`, aspas, cabeçalho, 35 colunas, ~20 MB) via CKAN (`package_show`); decimal com vírgula
+  licenca: ODbL (Open Data Commons Open Database License), com atribuição ao BNDES
+  uso_comercial: permitido
+  termos: https://dadosabertos.bndes.gov.br/
+  nota: 'Licença lida no próprio metadado do conjunto (CKAN, `license_title`) em 2026-11-08; o texto integral da ODbL e a cláusula de compartilhamento pela mesma licença (share-alike) valem para base derivada: avaliar na
+    publicação aberta. Conferido em 2026-11-08 contra o arquivo real (23.896 linhas; 59 CNPJs de telecom, 375 operações no recorte local). O recurso "Operações indiretas automáticas" (1,2 GB) NÃO é coletado: o CNPJ do
+    cliente vem mascarado e não se liga a uma operadora.'
+cadencia:
+  fonte_atualiza: mensal
+  coleta: mensal
+  coleta_atual: mensal
+  frescor_maximo: 60d
+politica_falha: opcional
+entradas:
+- anatel_scm
+- anatel_smp
+- anatel_stfc
+- anatel_seac
+- anatel_sici
+saidas:
+  normalizado:
+  - summary/bndes_operacoes.json.gz
+chaves:
+- cnpj
+- ibge
+campos:
+- nome: operacoes[cnpj14][]
+  tipo: lista
+  significado: Operações do cliente (CNPJ de 14 dígitos, matriz ou filial) com contrato, data, valor contratado e desembolsado (R$), produto, instrumento financeiro, forma de apoio, UF, município IBGE, CNAE, porte, situação e descrição curta do projeto.
+  tratamento: Valores nominais da data da contratação, sem correção. Só operações diretas e não automáticas (o recorte da fonte).
+- nome: dump_reference / linhas_lidas / operacoes_guardadas / cnpjs / universo_cnpjs_basicos
+  tipo: dict
+  significado: Data de modificação do conjunto no portal, linhas lidas, operações e CNPJs guardados e tamanho do universo.
+limites: Só as operações não automáticas (diretas); as indiretas automáticas (via banco credenciado), em volume maior, têm o CNPJ mascarado e ficam de fora. A operadora aparece só se o CNPJ básico estiver no universo de telecom.
+retencao:
+  normalizado: 3 versões
+fixture: tests/fixtures/raw/bndes_operacoes/
+etapa:
+  tentativas: 2
+pendencias:
+- Texto integral da ODbL (base derivada, share-alike) a avaliar na publicação aberta e na consulta jurídica.

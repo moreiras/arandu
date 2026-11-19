@@ -1,0 +1,80 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: peeringdb_contacts
+nome: Contatos de redes BR no PeeringDB (poc)
+tipo: bruta
+ativa: true
+modulo: sources.peeringdb_contacts.collect
+publicavel: true
+exposicao: login
+descricao: 'Coleta /api/poc (pontos de contato) de visibilidade Public das redes BR já presentes em
+  peeringdb_networks. Os de visibilidade Users (restritos pelo dono da rede a usuários do PeeringDB) não são pedidos nem servidos.
+  Dado de pessoa: nunca sai em rota pública nem no MCP; é servido apenas ao usuário logado, com cota, e NÃO é copiado
+  para published/ (AUP). O bruto não é gravado: só o manifesto das requisições.'
+origem:
+  url: https://www.peeringdb.com/api/poc
+  formato: JSON (API REST, depth=1)
+  licenca: PeeringDB AUP
+  uso_comercial: restrito
+  termos: https://www.peeringdb.com/aup
+  nota: 'PeeringDB AUP (https://www.peeringdb.com/aup, verificado em 2026-10-13): fora de ''finalidades
+    operacionais de Internet'' aprovadas, nenhuma parte dos dados pode ser reproduzida ou repassada em
+    massa sem autorização; o uso excluído inclui ''listas de marketing, mapeamento demográfico ou qualquer
+    outra aplicação comercial''.'
+cadencia:
+  fonte_atualiza: continua
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: opcional
+entradas:
+- peeringdb_networks
+saidas:
+  bruto:
+  - summary/peeringdb-contacts-requisicoes-{as_of}.json
+  normalizado:
+  - summary/peeringdb_contacts.json.gz
+chaves:
+- asn
+campos:
+- nome: contacts[asn][].role
+  tipo: str
+  significado: Papel do contato (Abuse, NOC, Policy, Technical, Sales…).
+  publicado_em:
+  - asn_docs → /api/v1/asns/{asn}/contacts
+- nome: contacts[asn][].name
+  tipo: str
+  significado: Nome do contato (pode ser pessoa física).
+  tratamento: 'LGPD: não é produto público.'
+  publicado_em:
+  - asn_docs → /api/v1/asns/{asn}/contacts
+  sensivel: true
+- nome: contacts[asn][].email
+  tipo: str
+  significado: E-mail do contato.
+  tratamento: Só via /contacts com login.
+  publicado_em:
+  - asn_docs → /api/v1/asns/{asn}/contacts
+  sensivel: true
+- nome: contacts[asn][].phone
+  tipo: str
+  significado: Telefone do contato.
+  tratamento: Só via /contacts com login.
+  publicado_em:
+  - asn_docs → /api/v1/asns/{asn}/contacts
+  sensivel: true
+- nome: contacts[asn][].visible
+  tipo: str
+  significado: Visibilidade do POC no PeeringDB. Só `Public` é pedido e servido; `Users` (restrito pelo dono da rede a usuários
+    autenticados do PeeringDB) fica de fora, porque o login do site não distingue provedor.
+  tratamento: A leitura confere o valor; arquivo de coleta anterior a 2026-11-17, sem o campo, não é servido.
+limites: Contatos autodeclarados; só os POCs de visibilidade Public. Servidos com cota por conta, por rede e global
+  (api/contatos_cota.py).
+  Teste T4 garante que nenhuma rota pública expõe e-mail/telefone.
+retencao:
+  bruto: 2 versões (dado pessoal)
+  normalizado: 4 semanas (dado pessoal)
+fixture: tests/fixtures/raw/peeringdb/
+pendencias:
+- Uso comercial e redistribuição de dados do PeeringDB dependem de autorização do PeeringDB (AUP); confirmar
+  com o PeeringDB e o jurídico.
+- Definir retenção mínima para dado pessoal (LGPD) com o jurídico; valores acima são proposta.

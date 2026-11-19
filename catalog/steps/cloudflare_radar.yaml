@@ -1,0 +1,13 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: cloudflare_radar
+nome: Cloudflare Radar (IPv6 por ASN em rodízio, topos, BGP e quedas)
+ordem: 46
+modulo: sources.cloudflare_radar.collect
+fontes:
+- cloudflare_radar
+tentativas: 2
+espera_s: 300
+politica_falha: usar_ultima_valida
+reaproveita: normalized/{date}/summary/cloudflare_radar.json.gz
+descricao: 'Rodízio diário de até 1.400 ASNs (IPv6) mais as listas de topo, os eventos de BGP e a consulta de quedas. O estado do rodízio vem do normalizado anterior; se a coleta falhar, copia o último arquivo
+  válido para a data.'

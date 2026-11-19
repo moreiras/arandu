@@ -1,0 +1,121 @@
+# Overlay opcional — nginx externo (proxy reverso já existente no host)
+#
+# Use este arquivo quando o host já tem um nginx ou Traefik gerenciando HTTPS
+# e você NÃO quer que o Arandurape exponha a porta 80 diretamente.
+#
+# O que este overlay faz:
+#   - Remove a publicação da porta 80 do container frontend
+#   - Conecta o container frontend à rede externa do proxy (WEB_NETWORK_NAME)
+#   - O nginx externo deve apontar para http://arandurape-frontend:8080
+#
+# Configuração mínima no .env:
+#   WEB_NETWORK_NAME=nome_da_rede_docker_do_seu_proxy
+#
+# Descubra o nome da rede do seu proxy:
+#   docker network ls | grep web
+#
+# Pré-requisito: Docker Compose >= 2.17 (suporte à diretiva !reset).
+#
+# Uso manual:
+#   docker compose \
+#     -f docker-compose.yml \
+#     -f docker-compose.no-nginx.yml \
+#     up -d api mcp frontend
+#
+# O scripts/instalar.sh, o restart-safe.sh e o scripts/arandu-weekly.sh detectam automaticamente este
+# overlay quando WEB_NETWORK_NAME está definido no .env.
+
+services:
+
+  api:
+    container_name: arandurape-api
+    restart: unless-stopped
+    environment:
+      - DATA_DIR=/data
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - NOMINATIM_USER_AGENT=${NOMINATIM_USER_AGENT:-}
+      - ALERT_WEBHOOK_URL=${ALERT_WEBHOOK_URL:-}
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          # 3G: dicts parseados do latest (índice de ASNs ~38 MB → centenas de MB
+          # em objetos Python) + byte-cache em memória do latest (~25-45 MB gzipado).
+          memory: 3G
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  mcp:
+    container_name: arandurape-mcp
+    restart: unless-stopped
+    environment:
+      - DATA_DIR=/data
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2G
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    # Permanece apenas na rede interna 'arandurape'; o nginx externo o alcança
+    # via o nginx do frontend (location /mcp → mcp:8001).
+
+  worker:
+    container_name: arandurape-worker
+    environment:
+      - DATA_DIR=/data
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - NOMINATIM_USER_AGENT=${NOMINATIM_USER_AGENT:-}
+      - ALERT_WEBHOOK_URL=${ALERT_WEBHOOK_URL:-}
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2G
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  frontend:
+    container_name: arandurape-frontend
+    restart: unless-stopped
+    # Remove a porta 80:8080 do host (definida no base) — o proxy externo alcança
+    # este container diretamente via rede 'web' pelo hostname arandurape-frontend:8080.
+    ports: !reset []
+    networks:
+      - arandurape  # acesso interno a api:8000
+      - web         # acessível pelo proxy externo
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+
+networks:
+  arandurape:
+    # Herdado do base — bridge interno (api ↔ frontend; o worker e o rpki avulso também)
+
+  web:
+    external: true
+    # Nome da rede do proxy no host. Defina WEB_NETWORK_NAME no .env.
+    # Exemplos comuns: web, proxy, nginx-proxy_default, traefik_web
+    # Descubra com: docker network ls | grep web
+    name: ${WEB_NETWORK_NAME:?WEB_NETWORK_NAME deve estar definido no .env para usar este overlay}

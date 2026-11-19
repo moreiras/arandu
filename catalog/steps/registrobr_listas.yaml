@@ -1,0 +1,14 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: registrobr_listas
+nome: Listas do Registro.br (transferências e recuperação)
+ordem: 0
+modulo: sources.registrobr_listas.collect
+args:
+- --date
+- '{date}'
+fontes:
+- registrobr_listas
+tentativas: 3
+espera_s: 60
+politica_falha: opcional
+descricao: 'Só guarda o bruto comprimido.'

@@ -1,0 +1,178 @@
+# Integração contínua do Arandurapé. Roda o mesmo conjunto de `bash scripts/ci.sh`.
+# Actions fixadas por SHA do commit (a tag pode ser movida; o SHA não), com a versão no comentário. O Dependabot
+# (.github/dependabot.yml) propõe as atualizações.
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    tags: ["v*"]               # versão integrada: SBOM das imagens anexado à release
+  schedule:
+    - cron: "0 5 * * *"        # noturno (02:00 em Brasília): inclui o e2e
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sbom:
+    # SBOM das dependências (Python de produção, frontend, componentes compilados) e verificação com o Grype. Reprova com
+    # vulnerabilidade alta ou crítica, com correção, no que vai para produção; exceções em config/vex.openvex.json.
+    name: sbom (dependências)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+      - run: bash scripts/sbom.sh
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: sbom-dependencias
+          path: sbom/
+          if-no-files-found: ignore
+
+  sbom-imagens:
+    # Imagens de produção construídas e verificadas (pacotes do sistema inclusive). À noite, verifica a ÚLTIMA VERSÃO publicada
+    # (tag vX.Y.Z), não a main: pega CVE nova em software que não mudou. Na tag, anexa os SBOMs à release, se ela existir.
+    name: sbom (imagens)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: write          # só para anexar os SBOMs à release
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+        with:
+          fetch-depth: 0
+      - name: Versão em produção (noturno)
+        if: github.event_name == 'schedule'
+        run: |
+          tag=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)
+          if [ -n "$tag" ] && git cat-file -e "$tag:scripts/sbom.sh" 2>/dev/null; then git checkout --quiet "$tag"; fi
+          echo "verificando: ${tag:-main} ($(cat VERSION))"
+      - name: Imagens
+        run: |
+          docker build -q -f Dockerfile.api -t arandurape-api:latest .
+          docker build -q -f Dockerfile.frontend -t arandurape-frontend:latest .
+      - run: bash scripts/sbom.sh --imagens
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: sbom-imagens
+          path: sbom/
+          if-no-files-found: ignore
+      - name: Anexa os SBOMs à release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" sbom/*.cdx.json --clobber
+          else
+            echo "sem release para $GITHUB_REF_NAME: os SBOMs ficam só no artefato"
+          fi
+
+  python:
+    name: python (T0–T5)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.12"          # a mesma da imagem de produção (Dockerfile.api)
+          cache: pip
+          cache-dependency-path: requirements-dev.lock
+      - name: Dependências (lock de produção + dev, com hashes)
+        run: pip install --require-hashes -r requirements-dev.lock
+      - name: CI (regras de camada, sintaxe, pytest)
+        run: bash scripts/ci.sh
+
+  frontend:
+    name: frontend (tsc, vitest, build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
+        with:
+          node-version: "22"              # a mesma do builder do Dockerfile.frontend
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx vitest run
+      - run: npm run build:only
+
+  e2e:
+    name: e2e (T6, noturno)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install --require-hashes -r requirements-dev.lock
+      - name: Publicado sintético (Arandurápolis) para a API de teste
+        run: python -m tests.synth.publish --out "$RUNNER_TEMP/data" --extra-asns 1100
+      - name: API real sobre o dataset sintético
+        run: |
+          DATA_DIR="$RUNNER_TEMP/data" JWT_SECRET=ci-secret-ci-secret-ci-secret-1234 GOOGLE_CLIENT_ID=a GOOGLE_CLIENT_SECRET=b \
+          APP_BASE_URL=http://localhost ACCESS_POLICY_MODE=enforce ANON_SESSION_LIMIT_MINUTES=1 \
+          ANON_HEARTBEAT_INTERVAL_SECONDS=2 ALLOWED_IPS=203.0.113.128/25 USAGE_LOG=off \
+          nohup uvicorn api.main:app --host 0.0.0.0 --port 8000 > "$RUNNER_TEMP/api.log" 2>&1 &
+          for i in $(seq 1 60); do curl -fs localhost:8000/health && break; sleep 1; done
+      - name: E2E (Playwright, política de acesso)
+        run: bash tests/e2e/run.sh
+      - name: Fumaça das 8 páginas e orçamento de requisições/bytes
+        run: bash tests/e2e/run.sh smoke.js
+      - if: failure()
+        run: tail -n 80 "$RUNNER_TEMP/api.log"
+
+  ipv6:
+    # T7: laboratório do v6bench (Kathará + TAYGA, sem root nem módulo de kernel) com o
+    # Arandurapé sobre o dataset sintético como alvo. Ver tests/ipv6/README.md.
+    name: ipv6 (T7, noturno)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.12"
+      - name: Kathará num venv próprio
+        run: |
+          python -m venv "$RUNNER_TEMP/kathara"
+          "$RUNNER_TEMP/kathara/bin/pip" install -q -r tests/ipv6/requirements.txt
+          "$RUNNER_TEMP/kathara/bin/python" -m kathara check
+          # Sem pergunta interativa sobre atualizar imagens (a CI não tem terminal).
+          python - <<'PY'
+          import json, pathlib
+          p = pathlib.Path.home() / ".config" / "kathara.conf"
+          d = json.loads(p.read_text())
+          d["image_update_policy"] = "Never"
+          p.write_text(json.dumps(d, indent=1))
+          PY
+      - name: T7 IPv6
+        env:
+          RESULTADOS: ${{ runner.temp }}/t7
+        run: KATHARA="$RUNNER_TEMP/kathara/bin/python -m kathara" bash tests/ipv6/run.sh
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: t7-ipv6
+          path: ${{ runner.temp }}/t7
+          if-no-files-found: ignore

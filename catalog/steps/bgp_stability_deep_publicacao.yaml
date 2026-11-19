@@ -1,0 +1,13 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: bgp_stability_deep_publicacao
+nome: Publicação da análise aprofundada
+ordem: 40
+modulo: products.bgp_stability.deep
+produtos:
+- bgp_stability
+depois_de:
+- bgp_stability_deep_coleta
+politica_falha: opcional
+replay: true
+replay_se_publicado: bgp_stability_deep.json
+descricao: ''

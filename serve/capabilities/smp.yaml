@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Capacidade declarada: daqui nascem as rotas REST (api/capacidades.py), o contrato e a matriz API × MCP × UI.
+entidade: smp
+rotulo: SMP
+plural: SMPs
+nome_longo: Serviço Móvel Pessoal
+servico: smp
+tag: smp
+privacidade: sem_contatos
+descricao_llm: >
+  Outorgas de SMP pela API REST; no MCP, ver outorgas.
+operacoes:
+  - id: lista
+    tipo: lista_outorgas
+    http: GET /smps
+    funcao: list_smps
+    sem_mcp: "coberto por outorga_lista e outorga_detalhe"
+    summary: "Listar outorgas SMP (Serviço Móvel Pessoal)"
+    descricao: |
+      Lista as outorgas de SMP coletadas da Anatel (código de serviço 010), opcionalmente
+      filtradas por UF, município ou busca textual, com indicação de cruzamento com ASN do
+      Registro.br por CNPJ.
+
+      Universo pequeno (~30 CNPJs): as grandes operadoras móveis e MVNOs/M2M. Campos de
+      contato (`telefone`, `email`) não são servidos neste endpoint.
+    filtros:
+      - uf
+      - municipio
+      - q
+      - com_asn
+    ordena_por: [asns, cnpj, data_outorga, municipio, razao_social, uf]
+    dica_ausente: "Rode anatel_smp e smp_geo primeiro."
+  - id: stats
+    tipo: stats_outorgas
+    http: GET /smps/stats
+    funcao: smp_stats
+    sem_mcp: "coberto por outorga_lista e outorga_detalhe"
+    summary: "Estatísticas das outorgas SMP"
+    blocos: [rede_virtual]
+  - id: por_cnpj
+    tipo: por_cnpj
+    http: GET /smps/{cnpj}
+    funcao: get_smp
+    sem_mcp: "coberto por outorga_lista e outorga_detalhe"
+    summary: "Outorgas SMP de um CNPJ"

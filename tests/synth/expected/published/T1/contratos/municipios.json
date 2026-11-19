@@ -1,0 +1,85 @@
+{
+ "aviso": "Cada linha é um resultado de item de contratação publicado no PNCP (Lei 14.133) e espelhado no Compras.gov.br, consultado na data indicada para o CNPJ de matriz da empresa; não é, por si, contrato assinado nem pagamento. O valor é o homologado no resultado do item, sem correção. Itens cancelados ficam fora dos valores e são contados à parte.",
+ "cobertura": {
+  "contratacoes": 4,
+  "contratacoes_com_detalhe": 3,
+  "contratacoes_com_municipio": 4,
+  "itens": 4,
+  "janela_inicio": "2021-04-01",
+  "leitura_mais_antiga": "2026-08-21",
+  "leitura_mais_recente": "2026-09-20",
+  "municipios_com_contratacao": 3,
+  "raizes_com_leitura": 4,
+  "raizes_com_resultado": 2,
+  "raizes_faixa_a": 42,
+  "raizes_incompletas": 0,
+  "raizes_no_universo": 43,
+  "raizes_sem_leitura": 39
+ },
+ "coletado_em": "2026-09-20T00:00:00+00:00",
+ "criterio_municipio": "município do órgão comprador (detalhe da contratação ou unidade de compra), não o local de entrega",
+ "fonte": {
+  "api": "sintético",
+  "consultado_em": "2026-09-20",
+  "licenca": "dados abertos (Lei 12.527/2011, LAI; PNCP, Lei 14.133/2021, art. 174); sem licença nominal publicada",
+  "nome": "Compras.gov.br (dados abertos), espelho do PNCP, Lei 14.133",
+  "url": "https://dadosabertos.compras.gov.br"
+ },
+ "licenca": "dados abertos (Lei 12.527/2011, LAI; PNCP, Lei 14.133/2021, art. 174); sem licença nominal publicada",
+ "limites": "Só a Lei 14.133 (o legado do SIASG anterior a 2021 não entra); só o CNPJ de matriz da raiz (contrato em nome de filial não aparece); só órgão que publica no PNCP. A coleta é um rodízio de dias: cada raiz tem a data da sua leitura (faixa A, que declara acessos no SICI, até ~7 dias; faixa B até ~56) e raiz ainda não lida não tem número, o que não quer dizer zero. Esfera, município do órgão e objeto só existem para as contratações já detalhadas (`cobertura.contratacoes_com_detalhe`); o município é o do órgão comprador, não o do local de entrega. A esfera é a informada no PNCP e pode estar inconsistente.",
+ "municipios": {
+  "9900001": {
+   "contratacoes": 2,
+   "fornecedores": [
+    {
+     "cnpj": "90000001000129",
+     "contratacoes": 2,
+     "itens": 2,
+     "nome": "Provedor 01 Telecom Ltda",
+     "raiz": "90000001",
+     "valor": 251500.0
+    }
+   ],
+   "itens": 2,
+   "municipio": "Arandurápolis",
+   "uf": "SP",
+   "valor": 251500.0
+  },
+  "9900002": {
+   "contratacoes": 1,
+   "fornecedores": [
+    {
+     "cnpj": "90000001000129",
+     "contratacoes": 1,
+     "itens": 1,
+     "nome": "Provedor 01 Telecom Ltda",
+     "raiz": "90000001",
+     "valor": 4000.25
+    }
+   ],
+   "itens": 1,
+   "municipio": "Tupãnópolis",
+   "uf": "RJ",
+   "valor": 4000.25
+  },
+  "9900003": {
+   "contratacoes": 1,
+   "fornecedores": [
+    {
+     "cnpj": "90000002000173",
+     "contratacoes": 1,
+     "itens": 1,
+     "nome": "Provedor 02 Telecom Ltda",
+     "raiz": "90000002",
+     "valor": 777.0
+    }
+   ],
+   "itens": 1,
+   "municipio": "Guaraniópolis",
+   "uf": "PR",
+   "valor": 777.0
+  }
+ },
+ "natureza": "fato_publicado",
+ "snapshot_date": "2026-09-20"
+}

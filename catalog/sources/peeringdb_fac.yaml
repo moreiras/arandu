@@ -1,0 +1,76 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: peeringdb_fac
+nome: Instalações, carriers, campus e atributos das redes do Brasil (PeeringDB)
+tipo: bruta
+ativa: true
+modulo: sources.peeringdb_fac.collect
+publicavel: true
+descricao: Instalações (`fac`) do Brasil e as dos PTTs externos já cadastrados, com os vínculos de redes (`netfac`, só instalações do Brasil), de PTTs (`ixfac`) e de carriers
+  (`carrierfac`), os carriers, os campus e os atributos de peering de cada rede do Brasil que está no PeeringDB (`net`, em lotes de 500 ASNs). Cerca de 30 requisições por coleta, uma por vez,
+  com pausa de 1,5 s. Escopo restrito ao Brasil e às instalações dos PTTs cadastrados (sem dump mundial). Os campos de contato (`*_email`, `*_phone`) e `notes` NÃO são mantidos,
+  porque o normalizador usa lista branca e o bruto não é gravado (só o manifesto das requisições).
+origem:
+  url: https://www.peeringdb.com/api/fac
+  formato: JSON (API REST; fac, netfac, ixfac, carrierfac, carrier, campus, ix e net, com filtros country, id__in, asn__in e fields)
+  licenca: PeeringDB AUP
+  uso_comercial: nao_verificado
+  termos: https://www.peeringdb.com/aup
+  nota: 'PeeringDB AUP (https://www.peeringdb.com/aup, verificado em 2026-10-13): fora de ''finalidades operacionais de Internet'' aprovadas, nenhuma parte dos dados pode ser reproduzida ou repassada
+    em massa sem autorização. Em 2026-11-06 o mantenedor autorizou o uso sem confirmação escrita do PeeringDB, com as condições: chave de API (PEERINGDB_API_KEY), coleta só do Brasil e das
+    instalações dos PTTs externos cadastrados, e nunca expor contatos (POC). Não substitui a consulta jurídica; o uso comercial segue não verificado. robots.txt do host só bloqueia
+    /register, /account/login, /username-retrieve e /reset-password (2026-11-06). Limite da API com chave: 1000 requisições por hora.'
+cadencia:
+  fonte_atualiza: continua
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: opcional
+entradas:
+- peeringdb_networks
+- peeringdb_ixps
+saidas:
+  normalizado:
+  - summary/peeringdb_fac.json.gz
+  bruto:
+  - summary/peeringdb-fac-requisicoes-{as_of}.json
+chaves:
+- asn
+- facilidade
+campos:
+- nome: facilities[id]
+  tipo: dict
+  significado: Instalação do PeeringDB (nome, organização, cidade, UF, país, coordenadas, site, propriedade, contagens declaradas, datas de criação e atualização, campus).
+  tratamento: Autodeclarado; lista branca de campos (sem contatos, notes, redes sociais, endereço de rua nem CEP).
+  publicado_em:
+  - instalacoes → instalacoes/instalacoes.json.gz#instalacoes
+- nome: netfac / ixfac / carrierfac
+  tipo: list
+  significado: Vínculos rede × instalação (só instalações do Brasil), PTT × instalação e carrier × instalação, com as datas de criação e atualização do vínculo de rede.
+  tratamento: Declaração no cadastro; não indica tráfego nem contrato.
+  publicado_em:
+  - instalacoes → instalacoes/vinculos.json.gz#por_asn
+  - instalacoes → instalacoes/vinculos.json.gz#por_instalacao
+- nome: carriers[id] / campus[id]
+  tipo: dict
+  significado: Carriers e campus das instalações coletadas (nome, organização, site, datas).
+  tratamento: Autodeclarado; sem notes nem redes sociais.
+  publicado_em:
+  - instalacoes → instalacoes/instalacoes.json.gz#carriers
+  - instalacoes → instalacoes/instalacoes.json.gz#campus
+- nome: redes[asn]
+  tipo: dict
+  significado: Escopo geográfico, IPv6, multicast, unicast, "nunca via route server", URLs de looking glass e de route server, datas e contagens declaradas da rede.
+  tratamento: Autodeclarado; URL só se for http(s), telnet ou ssh sem credencial embutida; sem notes, contatos nem política.
+  publicado_em:
+  - instalacoes → instalacoes/atributos_rede.json.gz#asns
+limites: Só instalações do Brasil e as dos PTTs externos cadastrados; só as redes do Brasil que o peeringdb_networks achou no PeeringDB (5.431 em 2026-11-05). O PeeringDB só dá o estado de agora, então o
+  snapshot recebe a foto do dia da coleta (`fetched_at`), não a da data do snapshot. Cadastro autodeclarado, sem verificação independente.
+retencao:
+  bruto: 4 versões
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/peeringdb_fac/
+pendencias:
+- Uso comercial e redistribuição de dados do PeeringDB dependem de autorização do PeeringDB (AUP); o mantenedor autorizou o desenvolvimento sem confirmação escrita (2026-11-06); a consulta jurídica segue aberta.
+etapa:
+  tentativas: 3
+  espera_s: 60

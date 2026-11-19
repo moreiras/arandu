@@ -1,0 +1,16 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: host_basemap_validate
+nome: Validação do basemap
+ordem: 44
+runner: host
+comando:
+- bash
+- scripts/validate-basemap-tiles.sh
+- --date
+- '{date}'
+depois_de:
+- host_basemap_build
+somente_se_executou:
+- host_basemap_build
+politica_falha: opcional
+descricao: ''

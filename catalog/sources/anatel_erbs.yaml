@@ -1,0 +1,70 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: anatel_erbs
+nome: Anatel — estações do SMP licenciadas (ERBs)
+tipo: bruta
+ativa: true
+modulo: sources.anatel_erbs.collect
+publicavel: true
+descricao: 'Estações do Serviço Móvel Pessoal licenciadas na Anatel: uma linha por estação × setor × frequência no arquivo original (3,3 milhões de linhas), consolidadas aqui em uma
+  linha por estação licenciada (~114 mil), com operadora, município, posição, gerações (2G a 5G), faixas, infraestrutura e ano do primeiro licenciamento. É cadastro de licenciamento:
+  não diz que a estação está em operação, nem a cobertura.'
+origem:
+  url: https://www.anatel.gov.br/dadosabertos/paineis_de_dados/outorga_e_licenciamento/estacoes_smp.zip
+  formato: ZIP com um CSV (UTF-8 com BOM, separador `;`, 41 colunas, ~995 MB descomprimido)
+  licenca: Dados Abertos Anatel
+  uso_comercial: permitido
+  termos: https://www.gov.br/anatel/pt-br/dados/dados-abertos
+  nota: 'Endereço verificado em 2026-11-02 (mesmo padrão do `anatel_smp`; o dataset "Estações licenciadas" do dados.gov.br aponta para a família `paineis_de_dados/outorga_e_licenciamento`).
+    O arquivo `estacoes_licenciadas.zip` (225 MB) é outro: cobre rádio-enlaces e outros serviços, sem as estações do SMP. Uma requisição, com User-Agent identificado.'
+cadencia:
+  fonte_atualiza: mensal
+  coleta: mensal
+  coleta_atual: semanal
+  frescor_maximo: 45d
+politica_falha: opcional
+saidas:
+  bruto:
+  - summary/estacoes_smp-AAAA-MM-DD.zip
+  normalizado:
+  - summary/anatel_erbs.json.gz
+chaves:
+- ibge
+- cnpj
+campos:
+- nome: estacoes[].fistel / estacao
+  tipo: str
+  significado: Número Fistel e número da estação, que juntos identificam a estação licenciada.
+  tratamento: 'Cadastro de licenciamento, não torre física: a mesma torre pode ter mais de um número de estação.'
+- nome: estacoes[].marca / entidade / cnpj
+  tipo: str
+  significado: Operadora (marca, razão social e CNPJ).
+  tratamento: A coluna de CNPJ vem em branco em ~44% das linhas; o CNPJ é o da própria estação quando existe, senão o mais frequente da marca no arquivo.
+- nome: estacoes[].ibge / uf
+  tipo: str
+  significado: Código IBGE do município e UF da estação.
+  tratamento: 'O código só vem em uma de cada três cópias de cada registro; a consolidação usa o valor preenchido. Estação sem nenhum valor fica com `ibge: null`.'
+- nome: estacoes[].lat / lon / posicao_variavel
+  tipo: float / bool
+  significado: Posição da estação (a mais frequente entre as suas linhas).
+  tratamento: Fora do Brasil ou ausente vira null (contado em `resumo`); `posicao_variavel` marca as estações cuja posição muda entre linhas.
+- nome: estacoes[].geracoes / tecnologias / tipo_5g / faixas / setores / combinacoes
+  tipo: lista
+  significado: Gerações (2G a 5G), tecnologias (GSM, WCDMA, LTE, NR), tipo do 5G (SA, NSA, SA-NSA), faixas em MHz, número de setores e de combinações tecnologia × frequência × setor.
+  tratamento: Licenciado, não necessariamente ativo.
+- nome: estacoes[].infra / primeira_licenca / linhas
+  tipo: str / int
+  significado: Tipo de infraestrutura física (Rooftop, Greenfield, Indoor...), ano do primeiro licenciamento e linhas do arquivo original que a compõem.
+- nome: resumo / data_arquivo / sha256
+  tipo: dict
+  significado: Linhas lidas, estações, sem posição, fora do Brasil, posição variável, sem IBGE; data de modificação do arquivo na Anatel e seu hash.
+limites: 'Não há cobertura (%): só o cadastro de estações licenciadas. Um município sem estação licenciada pode ser atendido por estação de município vizinho. O arquivo não
+  traz estações de rádio-enlace nem de operadoras de banda larga fixa.'
+retencao:
+  bruto: 2 versões
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/anatel_erbs/
+pendencias:
+- 'Arquivo aberto de cobertura 4G/5G (% por município) não localizado em 2026-11-02; o painel "Estações do SMP" (informacoes.anatel.gov.br) é aplicação, sem download.'
+etapa:
+  tentativas: 3
+  espera_s: 300

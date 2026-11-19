@@ -1,0 +1,12 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: anatel_outorgas
+nome: CSV de outorgas da Anatel (download único)
+ordem: -2
+modulo: sources.anatel_outorgas.collect
+fontes:
+- anatel_outorgas
+tentativas: 3
+espera_s: 60
+politica_falha: opcional
+descricao: 'Baixa o CSV nacional uma vez por data; SCM, SMP, STFC e SeAC (que o filtram) rodam depois; se
+  esta etapa não rodou, o primeiro coletor baixa.'

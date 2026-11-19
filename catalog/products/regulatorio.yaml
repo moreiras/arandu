@@ -1,0 +1,115 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: regulatorio
+nome: Regulatório complementar
+descricao: Compromissos do FUST por município, UF, programa e edital; multas constituídas por empresa (SCM, SMP, STFC e SeAC); quadro de faixas de frequência (PDFF) e satélites com direito de exploração, a partir dos dados abertos da Anatel. Cadastro regulatório, não desembolso nem licença; o FUST não tem operadora.
+modulo: products.regulatorio.build
+entradas:
+- source: anatel_fust
+- source: anatel_multas
+- source: anatel_pdff
+- source: anatel_satelites
+- source: ibge_censo_pnad
+chaves_de_juncao:
+- ibge
+- cnpj
+saidas:
+  publicado:
+  - regulatorio/fust.json.gz
+  - regulatorio/multas.json.gz
+  - regulatorio/faixas.json.gz
+  - regulatorio/satelites.json.gz
+campos:
+- nome: fust.municipios[ibge]
+  tipo: dict
+  significado: Compromissos do FUST no município (total, atendidos, a vencer, em apuração), investimento previsto, compromissos por programa e por tipo, por 10 mil habitantes.
+  tratamento: Cadastro da Anatel; investimento é o previsto, não o desembolsado. Município sem compromisso não aparece.
+  publicado_em:
+  - regulatorio → regulatorio/fust.json.gz#municipios
+- nome: fust.ufs[uf] / brasil
+  tipo: dict
+  significado: Totais da UF e do país (compromissos, situação, investimento, municípios com compromisso).
+  publicado_em:
+  - regulatorio → regulatorio/fust.json.gz#ufs
+  - regulatorio → regulatorio/fust.json.gz#brasil
+- nome: fust.programas[] / editais[]
+  tipo: lista
+  significado: Totais por programa (código e nome) e por edital ou projeto de origem.
+  publicado_em:
+  - regulatorio → regulatorio/fust.json.gz#programas
+  - regulatorio → regulatorio/fust.json.gz#editais
+- nome: fust.casamento / limites / natureza / fonte / data_arquivo
+  tipo: dict
+  significado: Compromissos com município no IBGE (e por malha 2010 ou 2022), sem investimento, o que o dado é e não é e a data do arquivo na Anatel.
+  publicado_em:
+  - regulatorio → regulatorio/fust.json.gz#casamento
+  - regulatorio → regulatorio/fust.json.gz#limites
+  - regulatorio → regulatorio/fust.json.gz#natureza
+  - regulatorio → regulatorio/fust.json.gz#fonte
+  - regulatorio → regulatorio/fust.json.gz#data_arquivo
+- nome: multas.empresas[]
+  tipo: lista
+  significado: Por empresa (raiz do CNPJ) e grupo de serviço (SCM, SMP, STFC, SeAC), multas constituídas, valor original, pago e saldo devedor atualizado, situações, anos e CNPJ da matriz.
+  tratamento: Só pessoa jurídica. Multa constituída não é condenação definitiva (pode estar em recurso, parcelada ou suspensa).
+  publicado_em:
+  - regulatorio → regulatorio/multas.json.gz#empresas
+- nome: multas.brasil / por_grupo / por_ano
+  tipo: dict
+  significado: Totais do país, por grupo de serviço e multas por ano de aplicação e grupo.
+  publicado_em:
+  - regulatorio → regulatorio/multas.json.gz#brasil
+  - regulatorio → regulatorio/multas.json.gz#por_grupo
+  - regulatorio → regulatorio/multas.json.gz#por_ano
+- nome: multas.limites / natureza / fonte / data_arquivo / leitura
+  tipo: str
+  significado: O que o dado é e não é, o que ficou de fora (pessoa física, outros serviços) e a data do arquivo na Anatel.
+  publicado_em:
+  - regulatorio → regulatorio/multas.json.gz#limites
+  - regulatorio → regulatorio/multas.json.gz#natureza
+  - regulatorio → regulatorio/multas.json.gz#fonte
+  - regulatorio → regulatorio/multas.json.gz#data_arquivo
+  - regulatorio → regulatorio/multas.json.gz#leitura
+- nome: faixas.faixas[] / referencias[]
+  tipo: lista
+  significado: Faixas de frequência em MHz com os serviços destinados e atribuídos no Brasil (caráter primário ou secundário) e as faixas de interesse para a Internet (700 MHz, 3,5 GHz, Wi-Fi 6 GHz...).
+  tratamento: É o quadro normativo, não licença. Os nomes das faixas de interesse são referência do Arandurapé.
+  publicado_em:
+  - regulatorio → regulatorio/faixas.json.gz#faixas
+  - regulatorio → regulatorio/faixas.json.gz#referencias
+- nome: faixas.resumo / limites / natureza / fonte / data_arquivo
+  tipo: dict
+  significado: Faixas lidas, com destinação e com atribuição; o que o dado é e não é; a data do arquivo na Anatel.
+  publicado_em:
+  - regulatorio → regulatorio/faixas.json.gz#resumo
+  - regulatorio → regulatorio/faixas.json.gz#limites
+  - regulatorio → regulatorio/faixas.json.gz#natureza
+  - regulatorio → regulatorio/faixas.json.gz#fonte
+  - regulatorio → regulatorio/faixas.json.gz#data_arquivo
+- nome: satelites.direitos[] / ngeo[] / operando[]
+  tipo: lista
+  significado: Direitos de exploração de satélite (operadora, satélite, posição, banda, tipo, status, validade), constelações NGEO e satélites em operação comercial.
+  tratamento: Direito concedido não é capacidade em uso. Muitas operadoras são estrangeiras e não cruzam com o SICI.
+  publicado_em:
+  - regulatorio → regulatorio/satelites.json.gz#direitos
+  - regulatorio → regulatorio/satelites.json.gz#ngeo
+  - regulatorio → regulatorio/satelites.json.gz#operando
+- nome: satelites.resumo / limites / natureza / fonte / data_arquivo
+  tipo: dict
+  significado: Totais por tipo, status e órbita; direitos vencidos na data do snapshot; o que o dado é e não é; a data do arquivo na Anatel.
+  publicado_em:
+  - regulatorio → regulatorio/satelites.json.gz#resumo
+  - regulatorio → regulatorio/satelites.json.gz#limites
+  - regulatorio → regulatorio/satelites.json.gz#natureza
+  - regulatorio → regulatorio/satelites.json.gz#fonte
+  - regulatorio → regulatorio/satelites.json.gz#data_arquivo
+- nome: snapshot_date / generated_at
+  tipo: str
+  significado: Data do snapshot e instante em que o arquivo foi gerado.
+  publicado_em:
+  - regulatorio → regulatorio/fust.json.gz#snapshot_date
+  - regulatorio → regulatorio/fust.json.gz#generated_at
+  - regulatorio → regulatorio/multas.json.gz#snapshot_date
+  - regulatorio → regulatorio/multas.json.gz#generated_at
+  - regulatorio → regulatorio/faixas.json.gz#snapshot_date
+  - regulatorio → regulatorio/faixas.json.gz#generated_at
+  - regulatorio → regulatorio/satelites.json.gz#snapshot_date
+  - regulatorio → regulatorio/satelites.json.gz#generated_at

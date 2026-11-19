@@ -1,0 +1,331 @@
+{
+ "alerts": [
+  {
+   "category": "rpki",
+   "desde_versao": 1,
+   "detail": "1 prefixo(s) anunciado(s) estão como RPKI inválidos (origem/maxLength não batem com os ROAs) e podem ser descartados por redes que validam.",
+   "id": "rpki_invalido",
+   "refs": {
+    "prefixes": [
+     "198.18.24.0/21"
+    ]
+   },
+   "severity": "critico",
+   "title": "Anúncio RPKI inválido"
+  },
+  {
+   "category": "presenca",
+   "desde_versao": 1,
+   "detail": "O AS é membro de PTT(s) do IX.br mas não tem registro no PeeringDB, o que dificulta o estabelecimento de peering.",
+   "id": "sem_peeringdb",
+   "refs": {},
+   "severity": "aviso",
+   "title": "Sem cadastro no PeeringDB"
+  },
+  {
+   "category": "presenca",
+   "desde_versao": 2,
+   "detail": "O AS aparenta depender de um único upstream (IPv6 e IPv4) na tabela global — risco de resiliência.",
+   "id": "single_homed",
+   "refs": {
+    "upstream_v4": 4200000003,
+    "upstream_v6": 4200000003
+   },
+   "severity": "aviso",
+   "title": "Conectividade single-homed"
+  },
+  {
+   "category": "rpki",
+   "desde_versao": 1,
+   "detail": "O AS possui ROAs no RPKI mas não publicou nenhum objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os upstreams autorizados e permite validação de AS_PATH — sua ausência não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
+   "id": "sem_aspa",
+   "refs": {},
+   "severity": "aviso",
+   "title": "Sem ASPA"
+  },
+  {
+   "category": "roteamento",
+   "desde_versao": 1,
+   "detail": "1 prefixo(s) anunciado(s) não estão contidos em nenhum bloco atribuído a este AS no Registro.br — pode ser espaço sub-alocado por um provedor ou de terceiro.",
+   "id": "prefixo_fora_alocacao",
+   "refs": {
+    "prefixes": [
+     "198.18.24.0/21"
+    ]
+   },
+   "severity": "info",
+   "title": "Prefixo anunciado fora da alocação"
+  }
+ ],
+ "announced_ipv4_addresses": 3584,
+ "announced_ipv6_48s": 2,
+ "apnic_users": 24060,
+ "apnic_users_pct_cc": 1.203,
+ "apnic_v6_pct_as": 20.0,
+ "apnic_v6_users": 4812,
+ "asn": 64503,
+ "cnpj": "90000008000140",
+ "downstreams": [],
+ "downstreams_global_v4": [],
+ "downstreams_global_v6": [],
+ "downstreams_v4": [],
+ "downstreams_v6": [],
+ "external_ixps": [],
+ "geo_org": {
+  "city": "Tabajara do Norte",
+  "cnpj": "90000008000140",
+  "geo_confidence": "city_centroid",
+  "geo_source": "nominatim",
+  "lat": -3.15,
+  "lon": -60.0,
+  "municipio": "Tabajara do Norte",
+  "name": "Provedor 08 Telecom Ltda",
+  "uf": "AM"
+ },
+ "geo_prefixes_v4": {
+  "198.18.24.0/21": {
+   "city": "Mbaracayú Novo",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -24.95,
+   "lon": -53.45,
+   "uf": "PR"
+  },
+  "198.18.36.0/22": {
+   "city": "Tabajara do Norte",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -3.15,
+   "lon": -60.0,
+   "uf": "AM"
+  },
+  "198.18.40.0/23": {
+   "city": "Tabajara do Norte",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -3.15,
+   "lon": -60.0,
+   "uf": "AM"
+  }
+ },
+ "geo_prefixes_v6": {
+  "2001:db8:9::/48": {
+   "city": "Tabajara do Norte",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -3.15,
+   "lon": -60.0,
+   "uf": "AM"
+  },
+  "2001:db8:a::/48": {
+   "city": "Tabajara do Norte",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -3.15,
+   "lon": -60.0,
+   "uf": "AM"
+  }
+ },
+ "global_prefixes_v4": [
+  "198.18.24.0/21",
+  "198.18.36.0/22",
+  "198.18.40.0/23"
+ ],
+ "global_prefixes_v4_count": 3,
+ "global_prefixes_v6": [
+  "2001:db8:9::/48",
+  "2001:db8:a::/48"
+ ],
+ "global_prefixes_v6_count": 2,
+ "has_ipv6": true,
+ "is_br": true,
+ "is_multihomed_v4": false,
+ "is_multihomed_v6": false,
+ "ixp_member_codes": [
+  "za"
+ ],
+ "ixp_paths": {
+  "zc": [
+   [
+    4200000003
+   ]
+  ]
+ },
+ "ixp_presence": {
+  "za": {
+   "v4": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "198.18.24.0/21",
+     "198.18.36.0/22",
+     "198.18.40.0/23"
+    ]
+   },
+   "v6": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "2001:db8:9::/48",
+     "2001:db8:a::/48"
+    ]
+   }
+  },
+  "zc": {
+   "v4": {
+    "direct": false,
+    "origin": true,
+    "prefixes": [
+     "198.18.36.0/22"
+    ]
+   },
+   "v6": {
+    "direct": false,
+    "origin": true,
+    "prefixes": []
+   }
+  }
+ },
+ "ixps_direct": [
+  "za"
+ ],
+ "ixps_origin": [
+  "za",
+  "zc"
+ ],
+ "name": "Provedor 08 Telecom Ltda",
+ "path_node_meta": {
+  "4200000003": {
+   "is_br": true,
+   "name": "Trânsito Nacional 4 S.A.",
+   "space_v4": 6,
+   "space_v6": 1
+  }
+ },
+ "pdb": null,
+ "pdb_registered": false,
+ "rir_prefixes_v4": [
+  "198.18.36.0/22",
+  "198.18.40.0/23"
+ ],
+ "rir_prefixes_v4_count": 2,
+ "rir_prefixes_v6": [
+  "2001:db8:9::/48",
+  "2001:db8:a::/48"
+ ],
+ "rir_prefixes_v6_count": 2,
+ "roa_list": [
+  {
+   "asn": 64503,
+   "maxLength": 22,
+   "prefix": "198.18.36.0/22",
+   "ta": "lacnic"
+  },
+  {
+   "asn": 64503,
+   "maxLength": 23,
+   "prefix": "198.18.40.0/23",
+   "ta": "lacnic"
+  },
+  {
+   "asn": 64503,
+   "maxLength": 48,
+   "prefix": "2001:db8:9::/48",
+   "ta": "lacnic"
+  },
+  {
+   "asn": 64503,
+   "maxLength": 48,
+   "prefix": "2001:db8:a::/48",
+   "ta": "lacnic"
+  }
+ ],
+ "rpki_validation": {
+  "198.18.24.0/21": "invalid",
+  "198.18.36.0/22": "valid",
+  "198.18.40.0/23": "valid",
+  "2001:db8:9::/48": "valid",
+  "2001:db8:a::/48": "valid"
+ },
+ "sici": {
+  "acessos": 6874,
+  "acessos_compartilhados": false,
+  "acessos_internet": 6874,
+  "asns": [
+   64503
+  ],
+  "capacidade_internet_mbps": 824880.0,
+  "capacidade_mbps": 824880.0,
+  "cnpj": "90000008000140",
+  "divergencia_apnic_anatel": {
+   "acessos_sici": 6874,
+   "apnic_users": 24060,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "empresa": "Provedor 08 Telecom Ltda",
+  "grupo": "OUTROS",
+  "meio_predominante": "Fibra",
+  "mes_referencia": "2026-08",
+  "municipios": 1,
+  "pf": 6186,
+  "pj": 688,
+  "por_faixa": {
+   "> 34Mbps": 6874
+  },
+  "por_meio": {
+   "Fibra": 6874
+  },
+  "por_produto": {
+   "INTERNET": 6874
+  },
+  "por_tecnologia": {
+   "FTTH": 6874
+  },
+  "porte": "Pequeno Porte",
+  "serie": [
+   [
+    "2026-07",
+    6667,
+    6000,
+    667
+   ],
+   [
+    "2026-08",
+    6874,
+    6186,
+    688
+   ]
+  ],
+  "tecnologia_predominante": "FTTH",
+  "velocidade_media_mbps": 120.0,
+  "velocidade_mediana_mbps": 120.0
+ },
+ "single_upstream_v4": 4200000003,
+ "single_upstream_v6": 4200000003,
+ "snapshot_date": "2026-09-20",
+ "upstreams": [
+  4200000003
+ ],
+ "upstreams_global_v4": [
+  4200000003
+ ],
+ "upstreams_global_v6": [
+  4200000003
+ ],
+ "upstreams_v4": [
+  4200000003
+ ],
+ "upstreams_v6": [],
+ "users_per_ip": 6.71,
+ "users_per_v6_48": 2406.0
+}

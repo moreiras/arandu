@@ -1,0 +1,72 @@
+{
+ "data": {
+  "asns": {
+   "totalCount": 5,
+   "pageInfo": {
+    "hasNextPage": false
+   },
+   "edges": [
+    {
+     "node": {
+      "rank": 12000,
+      "asn": "64499",
+      "asnName": "",
+      "source": "LACNIC",
+      "cliqueMember": false,
+      "seen": true,
+      "ixp": null,
+      "longitude": -46.5,
+      "latitude": -21.2,
+      "organization": {
+       "orgId": "ccc"
+      },
+      "cone": {
+       "numberAsns": 1,
+       "numberPrefixes": 2,
+       "numberAddresses": 512
+      },
+      "country": {
+       "iso": "BR"
+      },
+      "asnDegree": {
+       "total": 1,
+       "customer": 0,
+       "peer": 0,
+       "provider": 1
+      }
+     }
+    },
+    {
+     "node": {
+      "rank": 13000,
+      "asn": "64500",
+      "asnName": "",
+      "source": "LACNIC",
+      "cliqueMember": false,
+      "seen": true,
+      "ixp": null,
+      "longitude": -46.5,
+      "latitude": -21.2,
+      "organization": {
+       "orgId": "b7966dd5a6"
+      },
+      "cone": {
+       "numberAsns": 1,
+       "numberPrefixes": 1,
+       "numberAddresses": 256
+      },
+      "country": {
+       "iso": "CL"
+      },
+      "asnDegree": {
+       "total": 2,
+       "customer": 1,
+       "peer": 1,
+       "provider": 0
+      }
+     }
+    }
+   ]
+  }
+ }
+}

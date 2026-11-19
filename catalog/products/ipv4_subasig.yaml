@@ -1,0 +1,49 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ipv4_subasig
+nome: 'Sub-asignações de IPv4 (aluguel regulado)'
+descricao: 'Estado das sub-asignações da política LAC-2025-5: aguardando a publicação oficial (com o estado do vigia de diretórios) ou, com a fonte ativada, os registros com as validações da política e o indicador de anúncios de terceiros com e sem registro oficial.'
+modulo: products.ipv4_subasig.build
+entradas:
+- source: ipv4_subasignacao
+- source: ipv4_listas
+chaves_de_juncao:
+- prefixo
+- asn
+saidas:
+  publicado:
+  - ipv4/subasignacoes.json.gz
+campos:
+- nome: ativa / aguardando / aviso / politica
+  tipo: bool / str / dict
+  significado: Se a fonte oficial está ativa, a mensagem "aguardando a publicação oficial" e o estado da política LAC-2025-5.
+  publicado_em:
+  - ipv4_subasig → ipv4/subasignacoes.json.gz#ativa
+  - ipv4_subasig → ipv4/subasignacoes.json.gz#aguardando
+  - ipv4_subasig → ipv4/subasignacoes.json.gz#aviso
+  - ipv4_subasig → ipv4/subasignacoes.json.gz#politica
+- nome: vigia
+  tipo: dict
+  significado: Data da última varredura dos diretórios do Registro.br e do LACNIC e os alertas dos últimos 30 dias (arquivo novo, mudança de formato).
+  publicado_em:
+  - ipv4_subasig → ipv4/subasignacoes.json.gz#vigia
+- nome: subasignacoes[] / eventos[] / ignoradas
+  tipo: lista
+  significado: 'Registros (bloco, receptor, início, fim, validações com True, False ou null, em conformidade e pendentes) e eventos subasignacao_inicio e subasignacao_fim vistos entre snapshots.'
+  tratamento: Vazio até a fonte oficial existir. Esquema hipotético.
+  publicado_em:
+  - ipv4_subasig → ipv4/subasignacoes.json.gz#subasignacoes
+  - ipv4_subasig → ipv4/subasignacoes.json.gz#eventos
+  - ipv4_subasig → ipv4/subasignacoes.json.gz#ignoradas
+- nome: indicador_terceiros
+  tipo: dict
+  significado: Blocos com sinal S1 ou S3 (anúncio de terceiro) cujo anunciante tem sub-asignação registrada e os demais; nulo sem fonte oficial.
+  tratamento: Hipótese, não acusação.
+  publicado_em:
+  - ipv4_subasig → ipv4/subasignacoes.json.gz#indicador_terceiros
+- nome: snapshot_date / generated_at / natureza / validacoes / esquema_hipotetico
+  tipo: str / dict / bool
+  significado: Metadados, a lista de validações da política e a marca de que o esquema é hipotético.
+  publicado_em:
+  - ipv4_subasig → ipv4/subasignacoes.json.gz#natureza
+  - ipv4_subasig → ipv4/subasignacoes.json.gz#validacoes
+  - ipv4_subasig → ipv4/subasignacoes.json.gz#esquema_hipotetico

@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: anatel_smp
+nome: Outorgas SMP (Anatel)
+ordem: 11
+modulo: sources.anatel_smp.collect
+fontes:
+- anatel_smp
+politica_falha: opcional
+descricao: ''

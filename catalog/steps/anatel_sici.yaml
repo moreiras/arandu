@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: anatel_sici
+nome: Acessos de banda larga fixa (SICI)
+ordem: 10
+modulo: sources.anatel_sici.collect
+fontes:
+- anatel_sici
+politica_falha: opcional
+descricao: ''

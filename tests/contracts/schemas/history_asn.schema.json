@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Linha de histórico de ASN (weekly/{date}/asn.jsonl.gz, 1.5.0)",
+  "type": "object",
+  "required": [
+    "asn",
+    "is_br"
+  ],
+  "properties": {
+    "asn": {
+      "type": "integer"
+    },
+    "is_br": {
+      "type": "boolean"
+    },
+    "cnpj": {
+      "type": "string"
+    },
+    "uf": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "users": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "v6users": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "p4": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "p6": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_ixd": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_ixm": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_provedores": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_roa": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_aspa": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rpki_valid": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rpki_invalid": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rpki_not_found": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_alertas": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "hash_alertas": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{12}$"
+    },
+    "hash_relacoes": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{12}$"
+    },
+    "hash_ixd": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{12}$"
+    },
+    "hash_ixm": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{12}$"
+    },
+    "hash_pfx": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{12}$"
+    }
+  }
+}

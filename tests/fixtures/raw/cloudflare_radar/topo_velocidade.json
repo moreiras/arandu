@@ -1,0 +1,24 @@
+{
+ "success": true,
+ "errors": [],
+ "result": {
+  "top_0": [
+   {
+    "clientASN": 64496,
+    "clientASName": "EXEMPLO-A",
+    "bandwidthDownload": "250.1",
+    "bandwidthUpload": "120.2",
+    "latencyIdle": "9.5",
+    "latencyLoaded": "20.1",
+    "jitterIdle": "2.2",
+    "jitterLoaded": "4.4",
+    "numTests": 321,
+    "rankPower": 0.01
+   }
+  ],
+  "meta": {
+   "normalization": "PERCENTAGE",
+   "lastUpdated": "2026-11-09T14:15:00Z"
+  }
+ }
+}

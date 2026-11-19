@@ -1,0 +1,61 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: manifesto
+nome: Fechamento do snapshot (manifesto e checksums)
+ordem: -70
+modulo: publish.manifesto
+produtos:
+- snapshot
+depois_de:
+- asn_indice
+- asn_ixp_paths
+- asn_nomes
+- bgp_stability
+- bgp_stability_deep_publicacao
+- cdns
+- cetic
+- demanda_oferta
+- erbs
+- ipv4
+- ipv4_uso
+- ipv4_subasig
+- grupos_societarios
+- ixp_externos
+- ixp_indice
+- rede_territorio
+- lacnic_listas
+- mapas_geo
+- mapas_hilbert
+- mapas_infraestrutura
+- outorgas_demais
+- outorgas_scm
+- penetracao
+- regulatorio
+- saude_asn
+- prontidao
+- qualidade
+- consumidor
+- cadastro_empresas
+- financiamento_sancoes
+- manrs
+- regiao
+- registrobr_listas
+- route_servers
+- rs_policy
+- as2org
+- abuso_agregado
+- bloqueios
+- radar
+- contratos
+- exposicao
+- instalacoes
+- routing_analysis
+- seguranca_asn
+- sici
+- sici_indicadores
+- sici_movel
+- snapshot_resumo
+politica_falha: critica
+replay: true
+descricao: 'Última etapa do build: monta manifest.json, checks de coleta, sources[], rules_version, o detalhe
+  do snapshot e os checksums de TODOS os arquivos publicados. A API só lista datas com manifest.json: o snapshot
+  aparece quando termina.'

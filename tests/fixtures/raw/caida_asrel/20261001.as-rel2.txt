@@ -1,0 +1,12 @@
+# name: AS Relationships
+# format: <provider-as>|<customer-as>|-1
+# format: <peer-as>|<peer-as>|0|<source>
+# source: topology|BGP
+# serial-2 (SINTÉTICA: ASNs reservados para documentação, RFC 5398)
+64496|64497|-1
+64496|64498|-1
+64497|64499|-1
+64498|64499|-1
+64496|64500|0|BGP
+64497|64498|0|mlp
+64511|64496|-1

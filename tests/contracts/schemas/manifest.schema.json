@@ -1,0 +1,103 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Manifesto do snapshot",
+ "description": "Contrato T3 do artefato publicado manifest.json. Inferido do snapshot real 2026-09-20 e conferido com o dataset sintético (tests/contracts/infer.py); campos novos são permitidos, remoção ou mudança de tipo falham.",
+ "type": "object",
+ "required": [
+  "checksums",
+  "ft_space_v4",
+  "ft_space_v6",
+  "fulltable_v4_status",
+  "fulltable_v6_status",
+  "generated_at",
+  "geolite2_version",
+  "ixps_collected",
+  "ixps_configured",
+  "ixps_failed",
+  "m3_prefixes_v4",
+  "m3_prefixes_v6",
+  "pipeline_version",
+  "registro_br_status",
+  "snapshot_date",
+  "total_asns_br",
+  "total_asns_global"
+ ],
+ "properties": {
+  "checksums": {
+   "type": "object"
+  },
+  "ft_space_v4": {
+   "type": "integer"
+  },
+  "ft_space_v6": {
+   "type": "integer"
+  },
+  "fulltable_v4_status": {
+   "type": "string"
+  },
+  "fulltable_v6_status": {
+   "type": "string"
+  },
+  "generated_at": {
+   "type": "string"
+  },
+  "geolite2_version": {
+   "type": "string"
+  },
+  "ixps_collected": {
+   "type": "array"
+  },
+  "ixps_configured": {
+   "type": "array"
+  },
+  "ixps_failed": {
+   "type": "array"
+  },
+  "m3_prefixes_v4": {
+   "type": "integer"
+  },
+  "m3_prefixes_v6": {
+   "type": "integer"
+  },
+  "pipeline_version": {
+   "type": "string"
+  },
+  "registro_br_status": {
+   "type": "string"
+  },
+  "snapshot_date": {
+   "type": "string"
+  },
+  "total_asns_br": {
+   "type": "integer"
+  },
+  "total_asns_global": {
+   "type": "integer"
+  },
+  "checks": {
+   "type": "object"
+  },
+  "coleta_ok": {
+   "type": "boolean"
+  },
+  "coleta": {
+   "enum": [
+    "completa",
+    "parcial",
+    "pendente"
+   ]
+  },
+  "comparado_com": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "registro_br_prefixes_v4": {
+   "type": "integer"
+  },
+  "registro_br_prefixes_v6": {
+   "type": "integer"
+  }
+ }
+}

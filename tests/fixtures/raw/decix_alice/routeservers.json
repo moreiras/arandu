@@ -1,0 +1,67 @@
+{
+ "routeservers": [
+  {
+   "id": "rs1_rio_ipv4_de-cix",
+   "type": "bird",
+   "name": "rs1.rio.de-cix.net (IPv4)",
+   "group": "DE-CIX Rio",
+   "blackholes": []
+  },
+  {
+   "id": "rs1_rio_ipv6_de-cix",
+   "type": "bird",
+   "name": "rs1.rio.de-cix.net (IPv6)",
+   "group": "DE-CIX Rio",
+   "blackholes": []
+  },
+  {
+   "id": "rs2_rio_ipv4_de-cix",
+   "type": "bird",
+   "name": "rs2.rio.de-cix.net (IPv4)",
+   "group": "DE-CIX Rio",
+   "blackholes": []
+  },
+  {
+   "id": "rs2_rio_ipv6_de-cix",
+   "type": "bird",
+   "name": "rs2.rio.de-cix.net (IPv6)",
+   "group": "DE-CIX Rio",
+   "blackholes": []
+  },
+  {
+   "id": "rs1_sao_ipv4_de-cix",
+   "type": "bird",
+   "name": "rs1.sao.de-cix.net (IPv4)",
+   "group": "DE-CIX Sao Paulo",
+   "blackholes": []
+  },
+  {
+   "id": "rs1_sao_ipv6_de-cix",
+   "type": "bird",
+   "name": "rs1.sao.de-cix.net (IPv6)",
+   "group": "DE-CIX Sao Paulo",
+   "blackholes": []
+  },
+  {
+   "id": "rs2_sao_ipv4_de-cix",
+   "type": "bird",
+   "name": "rs2.sao.de-cix.net (IPv4)",
+   "group": "DE-CIX Sao Paulo",
+   "blackholes": []
+  },
+  {
+   "id": "rs2_sao_ipv6_de-cix",
+   "type": "bird",
+   "name": "rs2.sao.de-cix.net (IPv6)",
+   "group": "DE-CIX Sao Paulo",
+   "blackholes": []
+  },
+  {
+   "id": "rs1_fra_ipv4_de-cix",
+   "type": "bird",
+   "name": "rs1.fra.de-cix.net (IPv4)",
+   "group": "DE-CIX Frankfurt",
+   "blackholes": []
+  }
+ ]
+}

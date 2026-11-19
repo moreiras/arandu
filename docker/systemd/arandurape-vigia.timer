@@ -1,0 +1,11 @@
+# A cada minuto, depois de 2 min do boot (dá tempo de os contêineres subirem). Ver arandurape-vigia.service.
+[Unit]
+Description=Vigia de saúde do Arandurapé, a cada minuto
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+AccuracySec=10s
+
+[Install]
+WantedBy=timers.target

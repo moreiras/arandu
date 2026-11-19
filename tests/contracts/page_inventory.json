@@ -1,0 +1,191 @@
+{
+ "_doc": "Inventário de conteúdo das páginas (inventario.js --update): lista de conferência da migração para blocos (1.3.2).",
+ "paginas": {
+  "asn_br": {
+   "titulos": [
+    "AS64496BrasilIPv6IPv4",
+    "Usuários estimadosAPNIC Labs · janela 60 dias",
+    "Pontos de Atençãocruzando Registro.br, tabela global, RPKI, PeeringDB, IX.br e geo3 aviso1 info",
+    "IPv6 alocado pelo Registro.br (1)",
+    "IPv4 alocado pelo Registro.br (2)",
+    "RPKI: ROAs autorizados IPv6 (0)",
+    "RPKI: ROAs autorizados IPv4 (1)",
+    "ASPA: provedores declarados (1)",
+    "ASPA: declarado como provedor por (0)",
+    "Tabela de rotas global IPv6 (1)1 sem ROA",
+    "Tabela de rotas global IPv4 (1)(-1 vs Registro.br)1 válido",
+    "Presença em IXPs — IPv6",
+    "Presença em IXPs — IPv4",
+    "Base de assinantes declarada à AnatelSICI · mês de referência 2026-08",
+    "Distribuição pelos municípios atendidos",
+    "Evolução mensal · 2026-07 a 2026-08",
+    "Distribuição geográfica de prefixos",
+    "Presença em outros IXPs",
+    "PeeringDB",
+    "Outorgas SCMAnatel · cruzamento por CNPJ",
+    "Outorgas STFCAnatel · cruzamento por CNPJ",
+    "Vizinhos observados no AS_PATH",
+    "Vizinhos IPv6",
+    "Vizinhos IPv4"
+   ],
+   "rotulos": [
+    "Prefixos IPv6 (Registro.br)",
+    "Prefixos IPv4 (Registro.br)",
+    "IXPs direto",
+    "IXPs originador",
+    "Total de usuários",
+    "Usuários por IPv4 anunciado",
+    "Usuários IPv6",
+    "Adoção de IPv6",
+    "Usuários por /48 anunciado",
+    "1 sem ROA",
+    "· ● direto · ○ indireto · Tamanho ∝ log(blocos)",
+    "90.000.001/0001-29",
+    "10/01/2015"
+   ],
+   "colunas": [
+    "Município",
+    "UF",
+    "Acessos",
+    "B2B",
+    "Share",
+    "Razão Social / Nome Fantasia",
+    "CNPJ",
+    "Município / UF",
+    "Data Outorga",
+    "Sit."
+   ],
+   "botoes": [
+    "Revelar contatos (2)",
+    "Ver detalhes",
+    "Zoom in",
+    "Zoom out",
+    "Girar mapa (norte/sul)",
+    "Full table",
+    "Arandurápolis●",
+    "IPv6",
+    "IPv4"
+   ]
+  },
+  "asn_outro": {
+   "titulos": [
+    "AS4200000100IPv6IPv4",
+    "Pontos de Atençãocruzando Registro.br, tabela global, RPKI, PeeringDB, IX.br e geo1 aviso",
+    "RPKI: ROAs autorizados IPv6 (0)",
+    "RPKI: ROAs autorizados IPv4 (0)",
+    "Tabela de rotas global IPv6 (1)(+1 vs Registro.br)1 sem ROA",
+    "Tabela de rotas global IPv4 (1)(+1 vs Registro.br)1 sem ROA",
+    "Presença em IXPs — IPv6",
+    "Presença em IXPs — IPv4",
+    "Distribuição geográfica de prefixos"
+   ],
+   "rotulos": [
+    "Prefixos IPv6 (Registro.br)",
+    "Prefixos IPv4 (Registro.br)",
+    "IXPs direto",
+    "IXPs originador",
+    "1 sem ROA",
+    "· ● direto · ○ indireto · Tamanho ∝ log(blocos)"
+   ],
+   "colunas": [],
+   "botoes": [
+    "Full table",
+    "Arandurápolis●",
+    "IPv6",
+    "IPv4",
+    "Zoom in",
+    "Zoom out",
+    "Girar mapa (norte/sul)"
+   ]
+  },
+  "ptt": {
+   "titulos": [
+    "IX.br ZA — Arandurápolis",
+    "Distribuição geográfica",
+    "Espaço IPv6 — Curva de Hilbert",
+    "Espaço IPv4 — Curva de Hilbert",
+    "ASNs em peering direto — IPv6",
+    "ASNs em peering direto — IPv4"
+   ],
+   "rotulos": [
+    "AS",
+    "AS Participantes — localização dos membros do IXP· 399 ASNs",
+    "AS MembroPIX do IXP· Clique no AS para ver detalhes"
+   ],
+   "colunas": [
+    "ASN",
+    "Empresa",
+    "Usuários (APNIC)",
+    "Assinantes (diretos)",
+    "Assinantes (total, c/ clientes)",
+    "Total prefixos ↓",
+    "/48s",
+    "Próprios",
+    "Terceiros",
+    "ASNs originadores",
+    "/24s"
+   ],
+   "botoes": [
+    "AS Membros",
+    "AS Direto",
+    "AS Origem",
+    "Pref IPv4",
+    "Pref IPv6",
+    "Assin. SCM diretos",
+    "Assin. SCM totais",
+    "Zoom in",
+    "Zoom out",
+    "Girar mapa (norte/sul)"
+   ]
+  },
+  "operadora": {
+   "titulos": [
+    "Provedor 01 Telecom Ltda",
+    "Rede (BGP · RPKI · IX.br)",
+    "SCM (banda larga fixa)",
+    "Onde estão os assinantes",
+    "Evolução mensal (2 meses)",
+    "Tecnologia",
+    "Faixa de velocidade",
+    "SMP (telefonia móvel)",
+    "STFC (telefonia fixa comutada)"
+   ],
+   "rotulos": [
+    "Rua do Exemplo 1, 100 — Centro · CEP 99000000",
+    "10/01/2015"
+   ],
+   "colunas": [
+    "Município",
+    "UF",
+    "Acessos",
+    "B2C",
+    "B2B",
+    "Endereço",
+    "Município / UF",
+    "Data Outorga",
+    "Sit."
+   ],
+   "botoes": [
+    "Revelar contatos (2)",
+    "▸ ver detalhe por ASN (1)",
+    "Zoom in",
+    "Zoom out",
+    "Girar mapa (norte/sul)"
+   ]
+  },
+  "municipio": {
+   "titulos": [
+    "Tabajara do Norte AM"
+   ],
+   "rotulos": [],
+   "colunas": [
+    "#",
+    "Operadora",
+    "ASN",
+    "Acessos",
+    "Participação"
+   ],
+   "botoes": []
+  }
+ }
+}

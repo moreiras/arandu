@@ -1,0 +1,22 @@
+{
+ "success": true,
+ "errors": [],
+ "result": {
+  "top_0": [
+   {
+    "clientASN": 64496,
+    "clientASName": "EXEMPLO-A",
+    "value": "9.9"
+   },
+   {
+    "clientASN": 64497,
+    "clientASName": "EXEMPLO-B",
+    "value": "1.5"
+   }
+  ],
+  "meta": {
+   "normalization": "PERCENTAGE",
+   "lastUpdated": "2026-11-09T14:15:00Z"
+  }
+ }
+}

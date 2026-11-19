@@ -1,0 +1,227 @@
+{
+ "api": {
+  "version": "2.0.0",
+  "cache_status": {
+   "cached_at": "2026-11-06T19:52:42.962910179Z",
+   "orig_ttl": 0
+  },
+  "result_from_cache": false,
+  "ttl": "2026-11-06T19:57:42Z"
+ },
+ "pagination": {
+  "page": 0,
+  "page_size": 250,
+  "total_pages": 1,
+  "total_results": 7
+ },
+ "filters_available": [
+  {
+   "key": "sources",
+   "filters": []
+  },
+  {
+   "key": "asns",
+   "filters": []
+  },
+  {
+   "key": "communities",
+   "filters": [
+    {
+     "cardinality": 7,
+     "name": "26162:64496",
+     "value": []
+    }
+   ]
+  },
+  {
+   "key": "ext_communities",
+   "filters": [
+    {
+     "cardinality": 7,
+     "name": "ro:26162:64496",
+     "value": []
+    }
+   ]
+  },
+  {
+   "key": "large_communities",
+   "filters": [
+    {
+     "cardinality": 4,
+     "name": "26162:300:0",
+     "value": []
+    },
+    {
+     "cardinality": 2,
+     "name": "26162:190:1",
+     "value": []
+    },
+    {
+     "cardinality": 7,
+     "name": "26162:100:2",
+     "value": []
+    },
+    {
+     "cardinality": 7,
+     "name": "26162:0:64496",
+     "value": []
+    }
+   ]
+  }
+ ],
+ "imported": null,
+ "filtered": [
+  {
+   "neighbor_id": "AS64496_203_0_113_10",
+   "network": "198.51.100.0/24",
+   "interface": "eth0",
+   "gateway": "203.0.113.10",
+   "metric": 100,
+   "bgp": {
+    "origin": "IGP",
+    "as_path": [
+     64496,
+     64511
+    ],
+    "next_hop": "203.0.113.10",
+    "communities": [
+     [
+      26162,
+      64496
+     ]
+    ],
+    "large_communities": [
+     [
+      26162,
+      300,
+      0
+     ],
+     [
+      26162,
+      100,
+      2
+     ],
+     [
+      26162,
+      0,
+      64496
+     ]
+    ],
+    "ext_communities": [
+     [
+      "ro",
+      26162,
+      64496
+     ]
+    ],
+    "local_pref": 100,
+    "med": 0
+   },
+   "age": 1,
+   "type": [
+    "BGP",
+    "univ"
+   ],
+   "primary": true,
+   "learnt_from": "203.0.113.10",
+   "details": null
+  },
+  {
+   "neighbor_id": "AS64496_203_0_113_10",
+   "network": "198.51.100.128/25",
+   "interface": "eth0",
+   "gateway": "203.0.113.10",
+   "metric": 100,
+   "bgp": {
+    "origin": "IGP",
+    "as_path": [
+     64496,
+     64511
+    ],
+    "next_hop": "203.0.113.10",
+    "communities": [
+     [
+      26162,
+      64496
+     ]
+    ],
+    "large_communities": [
+     [
+      26162,
+      300,
+      0
+     ],
+     [
+      26162,
+      100,
+      2
+     ],
+     [
+      26162,
+      0,
+      64496
+     ]
+    ],
+    "ext_communities": [],
+    "local_pref": 100,
+    "med": 0
+   },
+   "age": 1,
+   "type": [
+    "BGP",
+    "univ"
+   ],
+   "primary": true,
+   "learnt_from": "203.0.113.10",
+   "details": null
+  },
+  {
+   "neighbor_id": "AS64496_203_0_113_10",
+   "network": "192.0.2.0/24",
+   "interface": "eth0",
+   "gateway": "203.0.113.10",
+   "metric": 100,
+   "bgp": {
+    "origin": "IGP",
+    "as_path": [
+     64496
+    ],
+    "next_hop": "203.0.113.10",
+    "communities": [
+     [
+      26162,
+      64496
+     ]
+    ],
+    "large_communities": [
+     [
+      26162,
+      190,
+      1
+     ],
+     [
+      26162,
+      100,
+      2
+     ],
+     [
+      26162,
+      0,
+      64496
+     ]
+    ],
+    "ext_communities": [],
+    "local_pref": 100,
+    "med": 0
+   },
+   "age": 1,
+   "type": [
+    "BGP",
+    "univ"
+   ],
+   "primary": true,
+   "learnt_from": "203.0.113.10",
+   "details": null
+  }
+ ]
+}

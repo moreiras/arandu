@@ -1,0 +1,132 @@
+{
+ "api": {
+  "version": "2.0.0",
+  "cache_status": {
+   "cached_at": "2026-11-06T19:52:42.962910179Z",
+   "orig_ttl": 0
+  },
+  "result_from_cache": false,
+  "ttl": "2026-11-06T19:57:42Z"
+ },
+ "pagination": {
+  "page": 0,
+  "page_size": 250,
+  "total_pages": 1,
+  "total_results": 100
+ },
+ "filters_available": [
+  {
+   "key": "sources",
+   "filters": []
+  },
+  {
+   "key": "asns",
+   "filters": []
+  },
+  {
+   "key": "communities",
+   "filters": [
+    {
+     "cardinality": 30,
+     "name": "65000:64510",
+     "value": []
+    },
+    {
+     "cardinality": 100,
+     "name": "26162:64497",
+     "value": []
+    },
+    {
+     "cardinality": 2,
+     "name": "65535:666",
+     "value": []
+    }
+   ]
+  },
+  {
+   "key": "ext_communities",
+   "filters": [
+    {
+     "cardinality": 30,
+     "name": "rt:65000:64510",
+     "value": []
+    },
+    {
+     "cardinality": 100,
+     "name": "ro:26162:64497",
+     "value": []
+    }
+   ]
+  },
+  {
+   "key": "large_communities",
+   "filters": [
+    {
+     "cardinality": 12,
+     "name": "65004:0:65021",
+     "value": []
+    },
+    {
+     "cardinality": 98,
+     "name": "26162:300:1",
+     "value": []
+    },
+    {
+     "cardinality": 2,
+     "name": "26162:300:2",
+     "value": []
+    },
+    {
+     "cardinality": 10,
+     "name": "65000:0:4200000200",
+     "value": []
+    }
+   ]
+  }
+ ],
+ "filtered": null,
+ "imported": [
+  {
+   "neighbor_id": "AS64496_203_0_113_10",
+   "network": "203.0.113.0/24",
+   "interface": "eth0",
+   "gateway": "203.0.113.10",
+   "metric": 100,
+   "bgp": {
+    "origin": "IGP",
+    "as_path": [
+     64497
+    ],
+    "next_hop": "203.0.113.10",
+    "communities": [
+     [
+      65000,
+      64510
+     ],
+     [
+      26162,
+      64497
+     ]
+    ],
+    "large_communities": [
+     [
+      26162,
+      300,
+      1
+     ]
+    ],
+    "ext_communities": [],
+    "local_pref": 100,
+    "med": 0
+   },
+   "age": 1,
+   "type": [
+    "BGP",
+    "univ"
+   ],
+   "primary": true,
+   "learnt_from": "203.0.113.10",
+   "details": null
+  }
+ ]
+}

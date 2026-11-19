@@ -1,0 +1,43 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: abuso_agregado
+nome: Abuso agregado por ASN (Feodo Tracker)
+descricao: Contagem, por ASN do Brasil, de servidores de comando e controle de botnets do Feodo Tracker (abuse.ch, CC0), total e online, por família. Sem IPs. Só entram os
+  ASNs com pelo menos um C2; ausência não quer dizer rede limpa. O URLhaus não é coletado (exige cadastro).
+modulo: products.as2org.build
+entradas:
+- source: abusech
+- product: asn_docs
+chaves_de_juncao:
+- asn
+saidas:
+  publicado:
+  - abuso_agregado/asns.json.gz
+campos:
+- nome: asns[asn].feodo_c2 / feodo_c2_online / feodo_malware
+  tipo: dict
+  significado: Servidores C2 do Feodo Tracker em prefixos do ASN, quantos online e por família.
+  tratamento: Contagem de terceiros na data da coleta; o ASN que hospeda não é dono do servidor; sem veredito.
+  publicado_em:
+  - abuso_agregado → abuso_agregado/asns.json.gz#asns
+- nome: feodo_total_mundo / feodo_online_mundo / feodo_asns_br / feodo_c2_br
+  tipo: int
+  significado: Totais da lista no mundo e no Brasil.
+  publicado_em:
+  - abuso_agregado → abuso_agregado/asns.json.gz#feodo_total_mundo
+  - abuso_agregado → abuso_agregado/asns.json.gz#feodo_online_mundo
+  - abuso_agregado → abuso_agregado/asns.json.gz#feodo_asns_br
+  - abuso_agregado → abuso_agregado/asns.json.gz#feodo_c2_br
+- nome: fonte / urlhaus / limites / coletado_em
+  tipo: dict
+  significado: Fonte e licença, estado do URLhaus (indisponível), limitações e instante da coleta.
+  publicado_em:
+  - abuso_agregado → abuso_agregado/asns.json.gz#fonte
+  - abuso_agregado → abuso_agregado/asns.json.gz#urlhaus
+  - abuso_agregado → abuso_agregado/asns.json.gz#limites
+  - abuso_agregado → abuso_agregado/asns.json.gz#coletado_em
+- nome: snapshot_date / generated_at
+  tipo: str
+  significado: Data do snapshot e instante UTC de geração.
+  publicado_em:
+  - abuso_agregado → abuso_agregado/asns.json.gz#snapshot_date
+  - abuso_agregado → abuso_agregado/asns.json.gz#generated_at

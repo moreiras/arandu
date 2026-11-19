@@ -1,0 +1,10 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: bgp_updates_routeviews
+nome: Updates BGP do RouteViews (7 dias)
+ordem: 37
+modulo: sources.bgp_updates_routeviews.collect
+fontes:
+- bgp_updates_routeviews
+pesada: true
+politica_falha: opcional
+descricao: ''

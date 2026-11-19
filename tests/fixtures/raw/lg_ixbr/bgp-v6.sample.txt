@@ -1,0 +1,47 @@
+==============================================
+=           IX.br de Sao Paulo/SP            =
+=            Contact:  eng@ix.br             =
+=              +55 11 5509-3550              =
+=                                            =
+=                                            =
+=          Looking Glass Server              =
+=   All connections and keystrokes logged    =
+==============================================
+lg.sp.ix.br> terminal length 0
+lg.sp.ix.br> show bgp ipv6 unicast
+BGP table version is 185844101, local router ID is 187.16.221.252, vrf id 0
+Default local pref 100, local AS 263044
+Status codes:  s suppressed, d damped, h history, u unsorted, * valid, > best, = multipath,
+               i internal, r RIB-failure, S Stale, R Removed
+Nexthop codes: @NNN nexthop's vrf id, < announce-nh-self
+Origin codes:  i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ *>  2001:4:112::/48  fe80::8a30:3709:f9d8:60ca
+                                               0             0 7195 112 i
+ *=                   fe80::4a5a:d09:b516:532f
+                                               0             0 7195 112 i
+ *=                   fe80::fe0a:81ff:fef9:ff15
+                                               0             0 6939 112 i
+ *=                   fe80::cafe:6a0c:9cb:f39c
+                                                             0 36236 112 i
+ *=                   fe80::fe0a:81ff:fef9:ff15
+                                               0             0 6939 112 i
+ *=                   fe80::4a5a:d09:b516:532f
+                                               0             0 7195 112 i
+ *=                   fe80::8a30:3709:f9d8:60ca
+                                               0             0 7195 112 i
+ *=                   fe80::cafe:6a0c:9cb:f39c
+                                                             0 36236 112 i
+ *                    2001:12f8::213:24
+                                                             0 137409 23961 112 i
+ *                    fe80::b2eb:7f03:359d:795e
+                                                             0 3303 34019 112 i
+ *                    2001:12f8::213:190
+                                                             0 61626 53046 112 i
+ *                    2001:12f8::213:24
+                                                             0 137409 23961 112 i
+
+Displayed 92171 routes and 401161 total paths
+lg.sp.ix.br> 

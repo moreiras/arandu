@@ -1,0 +1,59 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: grupos_societarios
+nome: Grupos societários publicados
+descricao: Publica o cruzamento do quadro societário das operadoras (grupos, relações total/parcial, holdings
+  externas e sede).
+modulo: publish.snapshot_builder
+entradas:
+- source: socios_grupos
+chaves_de_juncao:
+- cnpj
+- grupo
+saidas:
+  publicado:
+  - grupos_societarios.json.gz
+campos:
+- nome: total_grupos / total_cnpjs_em_grupo
+  tipo: int
+  significado: Quantidade de grupos e de CNPJs que pertencem a algum grupo.
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#total_grupos
+- nome: by_cnpj[cnpj].tamanho_grupo
+  tipo: int
+  significado: Número de CNPJs no grupo do CNPJ.
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#by_cnpj
+- nome: by_cnpj[cnpj].endereco_sede
+  tipo: dict
+  significado: Endereço da sede do CNPJ (pessoa jurídica).
+  tratamento: Endereço de PJ exposto (decisão 2026-10-11).
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#by_cnpj
+- nome: receita_dump_reference
+  tipo: str
+  significado: Mês de referência do dump da Receita usado.
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#receita_dump_reference
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#snapshot_date
+- nome: generated_at
+  tipo: str
+  significado: Instante UTC em que o arquivo foi gerado.
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#generated_at
+- nome: receita_socios_generated_at
+  tipo: str
+  significado: Instante em que a coleta de sócios usada foi gerada.
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#receita_socios_generated_at
+- nome: total_cnpjs_em_grupo
+  tipo: int
+  significado: CNPJs que pertencem a algum grupo.
+  publicado_em:
+  - grupos_societarios → grupos_societarios.json.gz#total_cnpjs_em_grupo
+cenarios_de_teste:
+- grupos_societarios
+limites: Hipótese baseada em quadro societário; ver socios_grupos.

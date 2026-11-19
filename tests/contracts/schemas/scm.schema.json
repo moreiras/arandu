@@ -1,0 +1,157 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Outorgas SCM da Anatel cruzadas com ASNs",
+ "description": "Contrato T3 do artefato publicado scm.json.gz. Inferido do snapshot real 2026-09-20 e conferido com o dataset sintético (tests/contracts/infer.py); campos novos são permitidos, remoção ou mudança de tipo falham.",
+ "type": "object",
+ "required": [
+  "by_cnpj",
+  "cnpj_to_asns",
+  "generated_at",
+  "matched_asns",
+  "scms",
+  "snapshot_date",
+  "total",
+  "unique_cnpjs"
+ ],
+ "properties": {
+  "by_cnpj": {
+   "type": "object"
+  },
+  "cnpj_to_asns": {
+   "type": "object"
+  },
+  "generated_at": {
+   "type": "string"
+  },
+  "matched_asns": {
+   "type": "integer"
+  },
+  "scms": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "asns",
+     "bairro",
+     "cep",
+     "cnpj",
+     "codigo_ibge",
+     "complemento",
+     "data_outorga",
+     "email",
+     "geo_confidence",
+     "geo_source",
+     "lat",
+     "logradouro",
+     "lon",
+     "municipio",
+     "nome_fantasia",
+     "num_servico",
+     "numero",
+     "razao_social",
+     "sici_ativo",
+     "telefone",
+     "uf"
+    ],
+    "properties": {
+     "asns": {
+      "type": "array"
+     },
+     "bairro": {
+      "type": "string"
+     },
+     "cep": {
+      "type": "string"
+     },
+     "cnpj": {
+      "type": "string"
+     },
+     "codigo_ibge": {
+      "type": "string"
+     },
+     "complemento": {
+      "type": "string"
+     },
+     "data_outorga": {
+      "type": "string"
+     },
+     "email": {
+      "type": "string"
+     },
+     "geo_confidence": {
+      "type": "string"
+     },
+     "geo_source": {
+      "type": "string"
+     },
+     "lat": {
+      "type": "number"
+     },
+     "logradouro": {
+      "type": "string"
+     },
+     "lon": {
+      "type": "number"
+     },
+     "municipio": {
+      "type": "string"
+     },
+     "nome_fantasia": {
+      "type": "string"
+     },
+     "num_servico": {
+      "type": "string"
+     },
+     "numero": {
+      "type": "string"
+     },
+     "razao_social": {
+      "type": "string"
+     },
+     "sici_acessos": {
+      "type": "integer"
+     },
+     "sici_ativo": {
+      "type": "boolean"
+     },
+     "sici_capacidade_mbps": {
+      "type": "number"
+     },
+     "sici_empresa": {
+      "type": "string"
+     },
+     "sici_mes_referencia": {
+      "type": "string"
+     },
+     "sici_municipios": {
+      "type": "integer"
+     },
+     "sici_pf": {
+      "type": "integer"
+     },
+     "sici_pj": {
+      "type": "integer"
+     },
+     "sici_tecnologia": {
+      "type": "string"
+     },
+     "telefone": {
+      "type": "string"
+     },
+     "uf": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "snapshot_date": {
+   "type": "string"
+  },
+  "total": {
+   "type": "integer"
+  },
+  "unique_cnpjs": {
+   "type": "integer"
+  }
+ }
+}

@@ -1,0 +1,278 @@
+{
+ "alerts": [
+  {
+   "category": "presenca",
+   "desde_versao": 2,
+   "detail": "O AS aparenta depender de um único upstream (IPv6 e IPv4) na tabela global — risco de resiliência.",
+   "id": "single_homed",
+   "refs": {
+    "upstream_v4": 4200000000,
+    "upstream_v6": 4200000000
+   },
+   "severity": "aviso",
+   "title": "Conectividade single-homed"
+  },
+  {
+   "category": "presenca",
+   "desde_versao": 1,
+   "detail": "No Alice-LG do IX.br, em 2026-01-01, todas as sessões do AS estavam down há 7 dias ou mais nos route servers de: ZA (12 dias). É o estado medido no route server; não diz a causa e o AS pode manter peering bilateral no PTT.",
+   "id": "sessao_rs_down",
+   "refs": {
+    "coletado_em": "2026-01-01T06:00:00+00:00",
+    "ixps": {
+     "za": 12
+    }
+   },
+   "severity": "aviso",
+   "title": "Sessões down nos route servers do IX.br"
+  },
+  {
+   "category": "roteamento",
+   "desde_versao": 1,
+   "detail": "1 bloco(s) atribuído(s) pelo Registro.br não têm nenhuma rota (nem agregado que os cubra, nem mais-específico) na tabela de roteamento global — espaço alocado mas não anunciado.",
+   "id": "prefixo_inalcancavel",
+   "refs": {
+    "prefixes": [
+     "198.18.1.0/24"
+    ]
+   },
+   "severity": "aviso",
+   "title": "Bloco alocado não anunciado"
+  },
+  {
+   "category": "rpki",
+   "desde_versao": 1,
+   "detail": "2 bloco(s) alocado(s) não têm ROA cobrindo — parte do espaço fica sem proteção de origem.",
+   "id": "rpki_cobertura_parcial",
+   "refs": {
+    "prefixes": [
+     "198.18.1.0/24",
+     "2001:db8::/48"
+    ]
+   },
+   "severity": "aviso",
+   "title": "Cobertura RPKI parcial"
+  },
+  {
+   "category": "presenca",
+   "desde_versao": 1,
+   "detail": "O cadastro no PeeringDB não informa um as-set no IRR. Sem objeto IRR, peers e provedores não conseguem montar filtros de prefixo automaticamente.",
+   "id": "sem_irr_as_set",
+   "refs": {},
+   "severity": "info",
+   "title": "Sem AS-SET no IRR"
+  }
+ ],
+ "announced_ipv4_addresses": 256,
+ "announced_ipv6_48s": 1,
+ "apnic_users": 3068,
+ "apnic_users_pct_cc": 0.1534,
+ "apnic_v6_pct_as": 19.98,
+ "apnic_v6_users": 613,
+ "asn": 64496,
+ "aspa_providers": [
+  {
+   "providers": [
+    4200000000
+   ],
+   "tal": "lacnic"
+  }
+ ],
+ "cnpj": "90000001000129",
+ "downstreams": [],
+ "downstreams_global_v4": [],
+ "downstreams_global_v6": [],
+ "downstreams_v4": [],
+ "downstreams_v6": [],
+ "external_ixps": [
+  "zx"
+ ],
+ "geo_org": {
+  "city": "Arandurápolis",
+  "cnpj": "90000001000129",
+  "geo_confidence": "city_centroid",
+  "geo_source": "nominatim",
+  "lat": -23.6,
+  "lon": -46.7,
+  "municipio": "Arandurápolis",
+  "name": "Provedor 01 Telecom Ltda",
+  "uf": "SP"
+ },
+ "geo_prefixes_v4": {
+  "198.18.0.0/24": {
+   "city": "Tupãnópolis",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -22.95,
+   "lon": -43.25,
+   "uf": "RJ"
+  }
+ },
+ "geo_prefixes_v6": {
+  "2001:db8::/48": {
+   "city": "Arandurápolis",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -23.6,
+   "lon": -46.7,
+   "uf": "SP"
+  }
+ },
+ "global_prefixes_v4": [
+  "198.18.0.0/24"
+ ],
+ "global_prefixes_v4_count": 1,
+ "global_prefixes_v6": [
+  "2001:db8::/48"
+ ],
+ "global_prefixes_v6_count": 1,
+ "has_ipv6": true,
+ "is_br": true,
+ "is_multihomed_v4": false,
+ "is_multihomed_v6": false,
+ "ixp_member_codes": [
+  "za"
+ ],
+ "ixp_presence": {
+  "za": {
+   "v4": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "198.18.0.0/24"
+    ]
+   },
+   "v6": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "2001:db8::/48"
+    ]
+   }
+  }
+ },
+ "ixps_direct": [
+  "za"
+ ],
+ "ixps_origin": [
+  "za"
+ ],
+ "name": "Provedor 01 Telecom Ltda",
+ "path_node_meta": {
+  "4200000000": {
+   "is_br": true,
+   "name": "Trânsito Nacional 1 S.A.",
+   "space_v4": 6,
+   "space_v6": 1
+  }
+ },
+ "pdb": {
+  "asn": 64496,
+  "info_type": "Cable/DSL/ISP",
+  "name": "Provedor 01 Telecom Ltda",
+  "policy_general": "Open"
+ },
+ "pdb_registered": true,
+ "rir_prefixes_v4": [
+  "198.18.0.0/24",
+  "198.18.1.0/24"
+ ],
+ "rir_prefixes_v4_count": 2,
+ "rir_prefixes_v6": [
+  "2001:db8::/48"
+ ],
+ "rir_prefixes_v6_count": 1,
+ "roa_list": [
+  {
+   "asn": 64496,
+   "maxLength": 24,
+   "prefix": "198.18.0.0/24",
+   "ta": "lacnic"
+  }
+ ],
+ "rpki_validation": {
+  "198.18.0.0/24": "valid",
+  "198.18.1.0/24": "not_found",
+  "2001:db8::/48": "not_found"
+ },
+ "sici": {
+  "acessos": 876,
+  "acessos_compartilhados": false,
+  "acessos_internet": 876,
+  "asns": [
+   64496
+  ],
+  "capacidade_internet_mbps": 105120.0,
+  "capacidade_mbps": 105120.0,
+  "cnpj": "90000001000129",
+  "divergencia_apnic_anatel": {
+   "acessos_sici": 876,
+   "apnic_users": 3068,
+   "classificacao": "normal",
+   "faixa_normal": [
+    1.0,
+    20.0
+   ],
+   "razao": 3.5
+  },
+  "empresa": "Provedor 01 Telecom Ltda",
+  "grupo": "OUTROS",
+  "meio_predominante": "Fibra",
+  "mes_referencia": "2026-08",
+  "municipios": 1,
+  "pf": 788,
+  "pj": 88,
+  "por_faixa": {
+   "> 34Mbps": 876
+  },
+  "por_meio": {
+   "Fibra": 876
+  },
+  "por_produto": {
+   "INTERNET": 876
+  },
+  "por_tecnologia": {
+   "FTTH": 876
+  },
+  "porte": "Pequeno Porte",
+  "serie": [
+   [
+    "2026-07",
+    849,
+    764,
+    85
+   ],
+   [
+    "2026-08",
+    876,
+    788,
+    88
+   ]
+  ],
+  "tecnologia_predominante": "FTTH",
+  "velocidade_media_mbps": 120.0,
+  "velocidade_mediana_mbps": 120.0
+ },
+ "single_upstream_v4": 4200000000,
+ "single_upstream_v6": 4200000000,
+ "snapshot_date": "2026-09-20",
+ "upstreams": [
+  4200000000
+ ],
+ "upstreams_global_v4": [
+  4200000000
+ ],
+ "upstreams_global_v6": [
+  4200000000
+ ],
+ "upstreams_v4": [
+  4200000000
+ ],
+ "upstreams_v6": [
+  4200000000
+ ],
+ "users_per_ip": 11.98,
+ "users_per_v6_48": 613.0
+}

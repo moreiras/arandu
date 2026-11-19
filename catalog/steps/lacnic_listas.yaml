@@ -1,0 +1,14 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: lacnic_listas
+nome: Listas do LACNIC (transferências e infraestrutura crítica)
+ordem: -1
+modulo: sources.lacnic_listas.collect
+args:
+- --date
+- '{date}'
+fontes:
+- lacnic_listas
+tentativas: 3
+espera_s: 60
+politica_falha: opcional
+descricao: 'Só guarda o bruto comprimido.'

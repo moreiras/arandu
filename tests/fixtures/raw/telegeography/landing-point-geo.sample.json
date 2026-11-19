@@ -1,0 +1,50 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "leverburgh-united-kingdom",
+    "name": "Leverburgh, United Kingdom",
+    "is_tbd": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -7.008368065487336,
+     57.769404984215875
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "ratmalana-sri-lanka",
+    "name": "Ratmalana, Sri Lanka",
+    "is_tbd": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     79.88927545353178,
+     6.820387603783256
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "mataram-indonesia",
+    "name": "Mataram, Indonesia",
+    "is_tbd": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     116.08153497084551,
+     -8.586389151919366
+    ]
+   }
+  }
+ ]
+}

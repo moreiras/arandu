@@ -1,0 +1,32 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: financiamento_sancoes
+nome: Crédito público (BNDES) e sanções (CEIS e CNEP) por operadora
+descricao: 'Por operadora (raiz de CNPJ): operações de financiamento do BNDES (total contratado e desembolsado, por ano e UF, últimas operações) e sanções do CEIS e do CNEP (vigentes e encerradas na data do snapshot, com órgão, fundamento legal e período). Registro de fonte oficial, sem julgamento; as duas partes não se ligam.'
+modulo: products.financiamento_sancoes.build
+entradas:
+- source: bndes_operacoes
+- source: cgu_ceis_cnep
+chaves_de_juncao:
+- cnpj
+saidas:
+  publicado:
+  - financiamento/operadoras.json.gz
+campos:
+- nome: operadoras[raiz].financiamento
+  tipo: dict
+  significado: Operações do BNDES da raiz de CNPJ, com total contratado e desembolsado (R$ nominais), primeira e última data, série por ano, por UF e as 50 operações mais recentes.
+  tratamento: Só operações diretas e não automáticas; valores nominais da data da contratação, sem correção.
+  publicado_em:
+  - financiamento_sancoes → financiamento/operadoras.json.gz#operadoras
+- nome: operadoras[raiz].sancoes
+  tipo: dict
+  significado: Sanções do CEIS e do CNEP da raiz de CNPJ, separadas em vigentes (inclui as sem prazo e as que começam depois da data) e encerradas na data do snapshot.
+  tratamento: Registro do órgão sancionador, sem adjetivo; a vigência é calculada pela data do snapshot; sanção sem prazo vem da data 2099-12-31 da fonte.
+  publicado_em:
+  - financiamento_sancoes → financiamento/operadoras.json.gz#operadoras
+- nome: resumo / limites / fontes
+  tipo: dict
+  significado: Operadoras com financiamento e com sanção, operações e valor contratado totais, datas de referência de cada fonte e os limites.
+  publicado_em:
+  - financiamento_sancoes → financiamento/operadoras.json.gz#resumo
+limites: Duas fontes independentes (BNDES e CGU), cada uma na sua data; só operações diretas do BNDES; a sanção pode ter sido suspensa ou anulada sem refletir no arquivo do dia; sem ranking nem veredito.

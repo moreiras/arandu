@@ -1,0 +1,8 @@
+# --------------------------------------------------
+# Alvo: Arandurapé (API + gate + nginx) sobre o dataset sintético
+# --------------------------------------------------
+alvo[0]="LAB"
+alvo[image]="arandurape-v6lab-alvo:local"
+alvo[ipv6]="true"
+alvo[env]="IPv6_ADDR=2001:db8:1::80/64"
+alvo[env]="IPv4_ADDR=192.168.0.80/24"

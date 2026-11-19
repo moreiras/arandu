@@ -1,0 +1,15 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: bgp_stability
+nome: Publicação da análise de estabilidade BGP
+ordem: 38
+modulo: products.bgp_stability.build
+parcial:
+- bgp_stability
+depois_de:
+- asn_indice
+- bgp_updates_routeviews
+- snapshot_completo
+politica_falha: opcional
+replay: true
+replay_se_publicado: bgp_stability.json
+descricao: ''

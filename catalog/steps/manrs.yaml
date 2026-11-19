@@ -1,0 +1,14 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: manrs
+nome: MANRS agregado
+ordem: -78
+modulo: products.manrs.build
+produtos:
+- manrs_agregado
+depois_de:
+- manrs_participantes
+- prontidao
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: participação de ASNs e usuários do Brasil em organizações do programa de operadores do MANRS, por UF e porte, e comparação agregada da prontidão. Só agregados,
+  com atribuição e supressão de recortes com menos de 5 ASNs participantes (termos do MANRS).'

@@ -1,0 +1,118 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: as_relationships
+nome: Relações entre ASNs (ARC v2)
+descricao: Relações provedor-cliente, par e irmãos entre ASNs com ao menos um brasileiro, inferidas com evidência
+  explícita, probabilidade e nível (declarado, confirmado, provável, possível). Usa a rampa dos route servers
+  do IX.br, os caminhos dos coletores (com ponto de observação e propagação valley-free), o ASPA e o CAIDA
+  como prior. Substitui a leitura de "vizinho à esquerda" como provedor. Na v2 um Naive Bayes iterativo refina o veredito (com abstenção e
+  calibração), os irmãos (CNPJ raiz e organização do CAIDA) viram s2s, o grafo p2c é acíclico, v6 e v4 divergentes com força viram `complexa` e a relação publicada só
+  muda depois de persistir (histerese).
+modulo: products.as_relationships.build
+entradas:
+- source: fulltable_routeviews
+- source: lg_ixbr
+- source: rpki_collector
+- source: caida_asrel
+- source: caida_as2org
+- source: registro_br
+- product: rs_policy
+chaves_de_juncao:
+- asn
+saidas:
+  publicado:
+  - as_relationships.json.gz
+campos:
+- nome: relacoes[].a / b / tipo
+  tipo: int / int / str
+  significado: Elo entre os ASNs a e b. Em p2c, a é provedor de b; em p2p, s2s e complexa, a < b. tipo pode ser sem_classificacao (inclui a abstenção e o elo rebaixado por ciclo).
+  tratamento: Inferência rotulada; só entra o elo com ao menos um ASN brasileiro.
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#relacoes
+- nome: relacoes[].p
+  tipo: float
+  significado: Probabilidade posterior da relação indicada (Naive Bayes iterativo da v2, recalibrada por temperatura); `evid.refino.p_v1` guarda a da v1.
+  tratamento: Calibração medida na régua (sem ASPA, contra o ASPA, validação cruzada); `calibracao[afi].p_calibrada` diz se o ECE ficou dentro do limite. Abaixo de 0,5 o elo é abstido (sem_classificacao).
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#relacoes
+- nome: relacoes[].nivel
+  tipo: str
+  significado: 'declarado (ASPA positivo), confirmado (p ≥ 0,95 e 2 fontes independentes), provavel (p ≥ 0,70
+    e 1 fonte independente) ou possivel. O CAIDA e os irmãos sozinhos nunca passam de possivel.'
+  tratamento: Fontes independentes são ASPA, rampa dos route servers, coletores e clique. Um p2c `provavel` cujo estrato é `conflito` ou `sem_evidencia` é publicado como `possivel` (`evid.refino.rebaixado_por_estrato`); `declarado` e `confirmado` não são tocados.
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#relacoes
+- nome: relacoes[].estrato / p_calibrada
+  tipo: str / float ou null
+  significado: 'Só em p2c. `estrato` é a evidência independente do elo vista do provedor inferido: `ambos` (CAIDA concorda e a tripla está confirmada), `so_caida`, `so_tripla`, `conflito` (um confirma e o outro contradiz) ou `sem_evidencia`. `p_calibrada` é a taxa de acerto observada contra o ASPA (régua sem o ASPA como entrada) nesse estrato e família de endereço, só para `ambos` e `so_caida` com `n_vps` > 0; nos demais é null.'
+  tratamento: 'Medido: ECE da `p_calibrada` por validação cruzada por ASN de 0,0005 (v6) e 0,010 (v4); `so_tripla` tem 38 eventos e não é calibrável. CAIDA e tripla vêm dos mesmos coletores do ARC: são independentes do prior de distância ao clique, não dos dados de caminho. O ASPA tende a subestimar por omissão. Tabela e data em `estratos` do documento.'
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#relacoes
+- nome: relacoes[].afi
+  tipo: list[str]
+  significado: Famílias de endereço em que a relação foi inferida; v6 e v4 divergentes viram duas linhas com afi_divergente.
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#relacoes
+- nome: relacoes[].evid
+  tipo: dict
+  significado: Evidência por fonte (rs, colecao, aspa, caida, clique, irmaos), as fontes que sustentam a relação e a
+    hipótese contrária quando alguma fonte independente a apoia (contra).
+  tratamento: ASPA é evidência de alto peso, não veto; a divergência com o BGP aparece em contra.
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#relacoes
+- nome: relacoes[].n_vps / n_ptt
+  tipo: int
+  significado: Maior número de pontos de observação dos coletores e de PTTs com a rampa que viram o elo.
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#relacoes
+- nome: relacoes[].visto_em
+  tipo: str
+  significado: Data do snapshot em que a relação foi inferida.
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#relacoes
+- nome: relacoes[].pendente / mudou_em
+  tipo: dict / str
+  significado: Histerese (E6). `tipo`, `a`, `b`, `p` e `nivel` são o ESTADO publicado; `pendente` é uma mudança vista mas ainda não confirmada (proposta, desde quando, nº de
+    gerações de evidência). `mudou_em` marca o snapshot em que o estado mudou.
+  tratamento: A mudança só vira estado depois de `persistencia` coletas semanais distintas com a mesma proposta (dois snapshots diários sobre a mesma coleta não contam). ASPA positivo muda na hora.
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#relacoes
+- nome: relacoes[] com tipo complexa
+  tipo: dict
+  significado: v6 e v4 divergem com força (p ≥ 0,8 e nível ≥ provável nas duas). `evid.complexa` traz o subtipo (hibrida = p2c numa família e p2p na outra; inversa = p2c nos dois sentidos) e a visão de cada família.
+  tratamento: Inferência; o elo complexo não conta como provedor nem como cliente em `n_provedores`, nos eventos do histórico nem no cone do `transito`.
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#relacoes
+- nome: mudancas / estabilidade / refino / restricoes / calibracao / politica_rs / estratos
+  tipo: dict
+  significado: Mudanças de estado confirmadas no snapshot (de → para), contagens da histerese, iterações do Naive Bayes por família, irmãos/ciclos/complexas aplicados, temperatura e ECE da calibração e cobertura do rs_policy como característica; `estratos` traz a configuração do rebaixo e das `p_calibrada` (data da medição) e a contagem de elos por estrato e de rebaixados.
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#mudancas
+  - as_relationships → as_relationships.json.gz#estabilidade
+  - as_relationships → as_relationships.json.gz#refino
+  - as_relationships → as_relationships.json.gz#restricoes
+  - as_relationships → as_relationships.json.gz#calibracao
+  - as_relationships → as_relationships.json.gz#estratos
+- nome: clique
+  tipo: dict
+  significado: ASNs do topo (clique sem provedor) por família, detectados nos caminhos dos coletores; vazio sem coletores.
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#clique
+- nome: resumo
+  tipo: dict
+  significado: Contagem de elos por tipo/nível.
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#resumo
+- nome: entradas / diagnostico
+  tipo: dict
+  significado: O que foi usado (coletores, objetos ASPA, data do CAIDA) e contadores de sanitização por família.
+  publicado_em:
+  - as_relationships → as_relationships.json.gz#entradas
+cenarios_de_teste:
+- cnpj_dois_asns
+limites: A v2 melhora a estabilidade e a abstenção, mas a verdade de referência (ASPA) é pequena e enviesada, então precisão e calibração medidas são limites. Sem os caminhos dos
+  coletores não há clique nem propagação, e nenhum elo passa de provável. Elos sem ASN brasileiro não são publicados. O CAIDA (rótulo usado como característica, com o erro aprendido)
+  e os coletores compartilham os mesmos VPs (circularidade). O rs_policy cobre poucos PTTs e ASNs, então quase não discrimina. O IRR não entra como evidência de relação (o coletor guarda só
+  route e a existência do aut-num, não import/export). Feedback de operadores e elos ocultos (TopoScope) não foram entregues.
+pendencias:
+- Revisão pelo mantenedor da linguagem pública de "provedor" (níveis e ressalvas).
+- Feedback de operadores e detecção de elos ocultos (E7), fora desta entrega.

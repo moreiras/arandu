@@ -1,0 +1,22 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: sici_movel
+nome: Acessos SICI móveis
+ordem: -63
+modulo: products.passos
+args:
+- --passo
+- sici_movel
+- --date
+- '{date}'
+parcial:
+- sici
+depois_de:
+- anatel_sici
+- anatel_sici_movel
+- apnic_pop
+- registro_br
+- sici
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: Acessos SICI móveis. Roda sozinho; lê o que os anteriores deixaram
+  em published/ e build/intermediarios/.'

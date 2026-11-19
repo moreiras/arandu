@@ -1,0 +1,12 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: shodan_exposicao
+nome: Shodan (contagens de serviços por ASN em rodízio)
+ordem: -311
+modulo: sources.shodan_exposicao.collect
+fontes:
+- shodan_exposicao
+tentativas: 1
+espera_s: 0
+politica_falha: usar_ultima_valida
+reaproveita: normalized/{date}/summary/shodan_exposicao.json.gz
+descricao: 'Rodízio diário de até 1.500 ASNs (três consultas de contagem por ASN com serviço, 1,1 s entre consultas). O estado do rodízio vem do normalizado anterior; se a coleta falhar (chave ausente ou recusada), copia o último arquivo válido para a data.'

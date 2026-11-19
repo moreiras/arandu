@@ -1,0 +1,49 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: itu_transmission
+nome: Enlaces terrestres de transmissão (ITU BBmaps)
+tipo: bruta
+ativa: true
+modulo: sources.itu_transmission.collect
+publicavel: true
+descricao: Geometrias de fibra/micro-ondas do Transmission Networks Geocatalogue da ITU (BBmaps), via
+  WFS, camada global.
+origem:
+  url: https://bbmaps.itu.int/geoserver/itu-geocatalogue/wfs
+  formato: WFS/GeoJSON
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: Sem autenticação; termos de uso do ITU BBmaps não localizados (bbmaps.itu.int/bbmaps/ não retorna
+    texto estático em 2026-10-13).
+cadencia:
+  fonte_atualiza: irregular
+  coleta: mensal
+  coleta_atual: semanal
+  frescor_maximo: 45d
+politica_falha: usar_ultima_valida
+saidas:
+  normalizado:
+  - summary/itu_transmission.json.gz
+chaves:
+- ponto
+campos:
+- nome: features[].geometry
+  tipo: GeoJSON
+  significado: Traçado do enlace (LineString/MultiLineString).
+  publicado_em:
+  - mapas_infraestrutura → maps/itu_transmission.geojson
+- nome: features[].properties
+  tipo: dict
+  significado: Atributos do enlace conforme a ITU (operador, tipo, situação).
+  publicado_em:
+  - mapas_infraestrutura → maps/itu_transmission.geojson
+- nome: status_counts
+  tipo: dict
+  significado: Contagem de enlaces por situação (Operational, Planned, Under Construction…).
+  tratamento: 'Há variações de grafia na origem (ex.: ''Under construction'' e ''Under Construction'').'
+limites: Cobertura heterogênea e declarada por administrações; não indica propriedade nem capacidade.
+  Dado muda pouco.
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/itu/
+pendencias:
+- Termos de uso do ITU BBmaps não localizados.

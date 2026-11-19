@@ -1,0 +1,56 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: caida_spoofer
+nome: CAIDA Spoofer — validação de endereço de origem (SAV)
+tipo: bruta
+ativa: true
+modulo: sources.caida_spoofer.collect
+publicavel: true
+descricao: 'Sessões de teste do Spoofer do CAIDA (cliente voluntário que envia pacotes com origem forjada: privada e roteada, em IPv6 e IPv4) do Brasil, agregadas por ASN em janela de 12 meses:
+  sessões, sessões conclusivas fora de NAT, % em que a rede barrou os dois testes, % em que o pacote privado ou roteado chegou, última sessão. O endereço do cliente (/24) que a API devolve é descartado antes de
+  gravar qualquer coisa.'
+origem:
+  url: https://api.spoofer.caida.org/sessions?country=bra
+  formato: JSON Hydra paginado (itemsPerPage=500), sem chave; filtro `timestamp[after]`
+  licenca: CAIDA Public AUA
+  uso_comercial: permitido
+  termos: https://www.caida.org/about/legal/aua/public_aua/
+  nota: 'Public AUA lida em 2026-11-02: licença limitada para copiar, modificar e usar; citar "The CAIDA UCSD [Dataset Name] - [datas usadas], https://catalog.caida.org/dataset/[url]" e comunicar a publicação ao
+    CAIDA (data-info@caida.org) com um link. A página da "Public Data API" do Spoofer não foi lida. A página do projeto diz que o financiamento do Spoofer acabou (cliente 1.5.0 lançado em 2026-07): a coleta pode parar.
+    Uso liberado com citação e comunicação ao CAIDA.'
+cadencia:
+  fonte_atualiza: continua
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 14d
+politica_falha: opcional
+saidas:
+  normalizado:
+  - summary/caida_spoofer.json.gz
+chaves:
+- asn
+campos:
+- nome: asns[].sessoes / sessoes_v4 / sessoes_v6 / pct_nat_v4 / ultima_sessao
+  tipo: int / float / data
+  significado: Sessões atribuídas ao ASN na janela de 12 meses (por família), percentual das sessões IPv4 atrás de NAT e data da última.
+  tratamento: Sessão que mede IPv6 e IPv4 conta uma vez em `sessoes` e uma vez em cada família.
+- nome: asns[].conclusivas / conclusivas_v4 / conclusivas_v6 / suficiente
+  tipo: int / bool
+  significado: Sessões conclusivas (algum teste `blocked` ou `received`) fora de NAT em IPv6 e em IPv4, e se atingem o mínimo (5) para o ASN ter pontuação neste pilar.
+  tratamento: '`rewritten` (NAT reescreveu a origem) e `unknown` não contam; IPv4 atrás de NAT não conta, porque o resultado não fala da rede do ASN.'
+- nome: asns[].pct_bloqueado / pct_recebido_privado / pct_recebido_roteado
+  tipo: float
+  significado: '% das sessões conclusivas em que nenhum pacote forjado chegou; % dos testes conclusivos com origem privada e com origem roteada em que o pacote chegou.'
+- nome: resumo / citacao / novas_sessoes
+  tipo: dict
+  significado: Sessões na janela, ASNs com dado e suficientes, janela e mínimo; a citação exigida pelo CAIDA; sessões novas baixadas nesta execução.
+limites: O Spoofer é voluntário e concentrado em poucos ASNs (hoje 553 dos 9.123 ASNs brasileiros têm alguma sessão em 12 meses). Resultado `blocked` de sessão atrás de NAT não prova que a rede do ASN filtra.
+  O projeto está sem financiamento e a coleta pode parar; sem sessões novas o pilar fica com a última janela e a data da última sessão.
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/caida_spoofer/
+pendencias:
+- Comunicar a publicação ao CAIDA (data-info@caida.org) depois do deploy, com o link da página que cita o dataset.
+- Ler a página da "Public Data API" do Spoofer (termos específicos do Spoofer, se houver).
+etapa:
+  tentativas: 3
+  espera_s: 600

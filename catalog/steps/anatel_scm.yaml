@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: anatel_scm
+nome: Outorgas SCM (Anatel)
+ordem: 9
+modulo: sources.anatel_scm.collect
+fontes:
+- anatel_scm
+politica_falha: opcional
+descricao: ''

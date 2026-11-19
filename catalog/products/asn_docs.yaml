@@ -1,0 +1,390 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: asn_docs
+nome: Documentos por ASN, índice e nomes
+descricao: Um documento por ASN (BR ∪ visto nos IXPs ∪ visto na tabela global) com identidade, prefixos,
+  presença em IXPs, conectividade, PeeringDB, geolocalização, SICI, RPKI e alertas; mais o índice resumido
+  e o dicionário de nomes.
+modulo: products.ixp_metrics.build; publish.snapshot_builder
+entradas:
+- source: registro_br
+- source: lacnic_delegated
+- source: fulltable_routeviews
+- product: bgp_ixp_normalizado
+- source: asn_names
+- source: apnic_pop
+- source: peeringdb_networks
+- source: peeringdb_ixps
+- source: rdap
+- source: cnpj_geo
+- source: prefix_geo
+- source: peeringdb_intl_geo
+- source: anatel_sici
+chaves_de_juncao:
+- asn
+- cnpj
+- prefixo
+- ixp
+saidas:
+  publicado:
+  - asns/{asn}.json
+  - asns/index.json
+  - asns/names.json
+campos:
+- nome: is_br
+  tipo: bool
+  significado: ASN delegado ao Brasil pelo LACNIC (country=BR), não apenas visto no BR.
+  tratamento: 'Hierarquia: LACNIC delegated, com fallback às chaves do Registro.br.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#is_br
+- nome: ixps_direct
+  tipo: list[str]
+  significado: Códigos dos IXPs em que o AS tem sessão BGP direta com o Route Server.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#ixps_direct
+- nome: ixps_origin
+  tipo: list[str]
+  significado: Códigos dos IXPs em que o AS aparece como origem de rotas (direto ou via terceiros).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#ixps_origin
+- nome: ixp_presence[ixp][afi]
+  tipo: dict
+  significado: 'Por IXP e família: direct, origin e prefixos vistos.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#ixp_presence
+- nome: upstreams / downstreams
+  tipo: list[int]
+  significado: Vizinhos nos AS-PATHs dos Route Servers (v6+v4); _v6/_v4 separam a família.
+  tratamento: Adjacência observada, não contrato.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#upstreams
+- nome: upstreams_global_v6/_v4 / downstreams_global_v6/_v4
+  tipo: list[int]
+  significado: Adjacências do grafo da tabela global (RouteViews/RIS).
+  tratamento: Adjacência observada nos coletores.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#upstreams_global_v4
+- nome: is_multihomed_v6/_v4
+  tipo: bool
+  significado: Mais de um vizinho a montante distinto na tabela global, na família (adjacência no AS_PATH; não distingue provedor de par).
+  tratamento: 'Inferido: depende de quais coletores enxergam o AS.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#is_multihomed_v4
+- nome: single_upstream_v6/_v4
+  tipo: int|null
+  significado: O único vizinho a montante observado na tabela global (quando exatamente um); não prova dependência de um provedor.
+  tratamento: Inferido.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#single_upstream_v4
+- nome: relacoes
+  tipo: dict
+  significado: Relações inferidas do ASN pelo produto as_relationships (ARC v1) — provedores, clientes, pares, irmãos e elos sem classificação, cada um com ASN, probabilidade, nível (declarado, confirmado, provável, possível) e famílias; n_provedores, visibilidade e single_homed/multihomed por família (null = indeterminado).
+  tratamento: Inferência rotulada, não contrato. single_homed só é afirmado com visibilidade mínima (VPs dos coletores ou PTTs) e sem provedor apenas possível. Ausente em snapshots anteriores ao ARC.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#relacoes
+- nome: has_ipv6
+  tipo: bool
+  significado: Há prefixo IPv6 alocado, anunciado ou visto em IXP.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#has_ipv6
+- nome: announced_ipv4_addresses / announced_ipv6_48s
+  tipo: int
+  significado: 'Espaço efetivamente anunciado na tabela global: equivalentes a /48 em IPv6 e endereços em IPv4.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#announced_ipv4_addresses
+- nome: users_per_ip / users_per_v6_48
+  tipo: float
+  significado: Usuários estimados (APNIC) por endereço IPv4 anunciado / por /48.
+  tratamento: Proxy de CGNAT; derivado de estimativa — rotular 'estimado'.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#users_per_ip
+- nome: pdb_registered / external_ixps
+  tipo: bool / list[str]
+  significado: Se há cadastro no PeeringDB e os IXPs externos em que declara presença.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#pdb_registered
+- nome: ixp_member_codes
+  tipo: list[str]
+  significado: IXPs em que o ASN consta no cadastro do IX.br (ixbr_members), mesmo sem sessão no Route
+    Server.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#ixp_member_codes
+- nome: sici
+  tipo: dict
+  significado: 'Bloco do SICI do CNPJ do AS: acessos, PF/PJ, capacidade, tecnologias, série mensal, divergência
+    APNIC×Anatel.'
+  tratamento: '''nao_comparavel'' quando acessos_compartilhados.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#sici
+- nome: path_node_meta[asn]
+  tipo: dict
+  significado: Nome, is_br e espaço v6/v4 dos ASNs que aparecem em caminhos do documento.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#path_node_meta
+- nome: index[].has_rpki / has_aspa
+  tipo: bool
+  significado: Se o AS tem ROA / objeto ASPA no snapshot.
+  publicado_em:
+  - asn_docs → asns/index.json#has_rpki
+- nome: index[].space_v6 / space_v4
+  tipo: int
+  significado: Espaço anunciado (/48 em IPv6; endereços em IPv4) no índice.
+  publicado_em:
+  - asn_docs → asns/index.json#space_v4
+- nome: asn
+  tipo: int
+  significado: Número do sistema autônomo do documento.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#asn
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#snapshot_date
+- nome: generated_at
+  tipo: str
+  significado: Instante UTC em que o arquivo foi gerado.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#generated_at
+- nome: name
+  tipo: str
+  significado: Nome do AS (Registro.br → PeeringDB → RIPE bulk, nessa ordem de prioridade).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#name
+- nome: cnpj
+  tipo: str
+  significado: CNPJ da organização titular, quando conhecido (Registro.br).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#cnpj
+- nome: rir_prefixes_v6
+  tipo: list[str]
+  significado: Prefixos IPv6 alocados à organização no Registro.br.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#rir_prefixes_v6
+- nome: rir_prefixes_v4
+  tipo: list[str]
+  significado: Prefixos IPv4 alocados à organização no Registro.br.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#rir_prefixes_v4
+- nome: rir_prefixes_v4_count
+  tipo: int
+  significado: Quantidade de prefixos IPv4 alocados.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#rir_prefixes_v4_count
+- nome: rir_prefixes_v6_count
+  tipo: int
+  significado: Quantidade de prefixos IPv6 alocados.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#rir_prefixes_v6_count
+- nome: global_prefixes_v6
+  tipo: list[str]
+  significado: Prefixos IPv6 originados pelo AS na tabela global.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#global_prefixes_v6
+- nome: global_prefixes_v4
+  tipo: list[str]
+  significado: Prefixos IPv4 originados pelo AS na tabela global.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#global_prefixes_v4
+- nome: global_prefixes_v4_count
+  tipo: int
+  significado: Quantidade de prefixos IPv4 anunciados.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#global_prefixes_v4_count
+- nome: global_prefixes_v6_count
+  tipo: int
+  significado: Quantidade de prefixos IPv6 anunciados.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#global_prefixes_v6_count
+- nome: upstreams_v6
+  tipo: list[int]
+  significado: Vizinhos à esquerda no AS-PATH IPv6 dos Route Servers (adjacência; não é relação comercial).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#upstreams_v6
+- nome: upstreams_v4
+  tipo: list[int]
+  significado: Vizinhos à esquerda no AS-PATH IPv4 dos Route Servers (adjacência; não é relação comercial).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#upstreams_v4
+- nome: downstreams_v6
+  tipo: list[int]
+  significado: Vizinhos à direita no AS-PATH IPv6 dos Route Servers (adjacência; não é relação comercial).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#downstreams_v6
+- nome: downstreams_v4
+  tipo: list[int]
+  significado: Vizinhos à direita no AS-PATH IPv4 dos Route Servers (adjacência; não é relação comercial).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#downstreams_v4
+- nome: downstreams
+  tipo: list[int]
+  significado: Vizinhos à direita nos AS-PATHs dos Route Servers (v6 e v4 unidos; adjacência, não relação comercial).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#downstreams
+- nome: is_multihomed_v6
+  tipo: bool
+  significado: Mais de um vizinho a montante distinto na tabela global, no IPv6 (adjacência no AS_PATH; não distingue provedor de par).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#is_multihomed_v6
+- nome: single_upstream_v6
+  tipo: int|null
+  significado: O único vizinho a montante observado no IPv6 (quando exatamente um); não prova dependência de um provedor.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#single_upstream_v6
+- nome: geo_prefixes_v6
+  tipo: dict
+  significado: Geolocalização (DB-IP) dos prefixos IPv6 do AS.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_prefixes_v6
+- nome: geo_prefixes_v4
+  tipo: dict
+  significado: 'Geolocalização (DB-IP) dos prefixos IPv4 do AS: {prefixo: {lat, lon, city, uf, …}}.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_prefixes_v4
+- nome: announced_ipv6_48s
+  tipo: int
+  significado: Espaço IPv6 anunciado, em equivalentes a /48.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#announced_ipv6_48s
+- nome: users_per_v6_48
+  tipo: float
+  significado: Usuários estimados (APNIC) por /48 anunciado.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#users_per_v6_48
+- nome: geo_org
+  tipo: dict
+  significado: 'Cadastro e geolocalização da organização (cnpj_geo): endereço, CNAE, situação, porte,
+    coordenadas.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_org
+- nome: pdb
+  tipo: dict
+  significado: Metadados autodeclarados da rede no PeeringDB (política, tipo, tráfego, IRR).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#pdb
+- nome: apnic_users
+  tipo: int|null
+  significado: Usuários de Internet estimados atrás do AS (APNIC Labs, janela de 60 dias).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#apnic_users
+- nome: apnic_users_pct_cc
+  tipo: float|null
+  significado: '% da população estimada do país que o AS representa.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#apnic_users_pct_cc
+- nome: apnic_v6_users
+  tipo: int|null
+  significado: Usuários IPv6 estimados.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#apnic_v6_users
+- nome: apnic_v6_pct_as
+  tipo: float|null
+  significado: '% dos usuários do AS que usam IPv6.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#apnic_v6_pct_as
+- nome: asn
+  tipo: int
+  significado: ASN.
+  publicado_em:
+  - asn_docs → asns/index.json#asn
+- nome: name
+  tipo: str
+  significado: Nome do AS.
+  publicado_em:
+  - asn_docs → asns/index.json#name
+- nome: is_br
+  tipo: bool
+  significado: ASN delegado ao Brasil.
+  publicado_em:
+  - asn_docs → asns/index.json#is_br
+- nome: has_ipv6
+  tipo: bool
+  significado: Há IPv6 alocado, anunciado ou visto em IXP.
+  publicado_em:
+  - asn_docs → asns/index.json#has_ipv6
+- nome: rir_prefixes_v4_count
+  tipo: int
+  significado: Prefixos IPv4 alocados.
+  publicado_em:
+  - asn_docs → asns/index.json#rir_prefixes_v4_count
+- nome: rir_prefixes_v6_count
+  tipo: int
+  significado: Prefixos IPv6 alocados.
+  publicado_em:
+  - asn_docs → asns/index.json#rir_prefixes_v6_count
+- nome: global_prefixes_v4_count
+  tipo: int
+  significado: Prefixos IPv4 anunciados.
+  publicado_em:
+  - asn_docs → asns/index.json#global_prefixes_v4_count
+- nome: global_prefixes_v6_count
+  tipo: int
+  significado: Prefixos IPv6 anunciados.
+  publicado_em:
+  - asn_docs → asns/index.json#global_prefixes_v6_count
+- nome: ixps_direct_count
+  tipo: int
+  significado: IXPs em que o AS é direto.
+  publicado_em:
+  - asn_docs → asns/index.json#ixps_direct_count
+- nome: ixps_origin_count
+  tipo: int
+  significado: IXPs em que o AS é originador.
+  publicado_em:
+  - asn_docs → asns/index.json#ixps_origin_count
+- nome: ixps_origin_v4_count
+  tipo: int
+  significado: IXPs em que o AS origina rotas IPv4.
+  publicado_em:
+  - asn_docs → asns/index.json#ixps_origin_v4_count
+- nome: ixps_origin_v6_count
+  tipo: int
+  significado: IXPs em que o AS origina rotas IPv6.
+  publicado_em:
+  - asn_docs → asns/index.json#ixps_origin_v6_count
+- nome: apnic_users
+  tipo: int|null
+  significado: Usuários estimados (APNIC).
+  publicado_em:
+  - asn_docs → asns/index.json#apnic_users
+- nome: apnic_v6_users
+  tipo: int|null
+  significado: Usuários IPv6 estimados (APNIC).
+  publicado_em:
+  - asn_docs → asns/index.json#apnic_v6_users
+- nome: pct_v6
+  tipo: float|null
+  significado: '% de usuários IPv6 do AS (APNIC).'
+  publicado_em:
+  - asn_docs → asns/index.json#pct_v6
+- nome: external_ixps_count
+  tipo: int
+  significado: IXPs externos em que declara presença (PeeringDB).
+  publicado_em:
+  - asn_docs → asns/index.json#external_ixps_count
+- nome: pdb_registered
+  tipo: bool
+  significado: Há cadastro no PeeringDB.
+  publicado_em:
+  - asn_docs → asns/index.json#pdb_registered
+- nome: has_aspa
+  tipo: bool
+  significado: Há objeto ASPA publicado pelo AS.
+  publicado_em:
+  - asn_docs → asns/index.json#has_aspa
+- nome: space_v6
+  tipo: int
+  significado: Espaço IPv6 anunciado (em /48 equivalentes) no índice.
+  publicado_em:
+  - asn_docs → asns/index.json#space_v6
+- nome: '*'
+  tipo: str
+  significado: Mapa ASN (chave string) → nome do AS; só ASNs do snapshot.
+  publicado_em:
+  - asn_docs → asns/names.json#*
+cenarios_de_teste:
+- rpki_invalido_moas
+- cnpj_dois_asns
+- mudanca_de_origem
+- scm_sem_sici
+limites: 'Arquivo grande (≈ 87 mil ASNs; index.json ≈ 43 MB): listas paginam via /asns/summary. Contém
+  e-mail/telefone de CNPJ em geo_org e nas outorgas; só as rotas públicas os removem.'

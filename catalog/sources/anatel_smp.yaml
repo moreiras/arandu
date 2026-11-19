@@ -1,0 +1,96 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: anatel_smp
+nome: Outorgas SMP (Serviço Móvel Pessoal) e rede virtual
+tipo: derivada
+ativa: true
+modulo: sources.anatel_smp.collect
+publicavel: true
+descricao: Prestadoras com outorga código 010 no cadastro de prestadoras de serviços de telecomunicações
+  da Anatel (operadoras móveis e MVNO), filtradas do CSV nacional por código de serviço, com endereço
+  da sede e contato.
+origem:
+  url: https://www.anatel.gov.br/dadosabertos/paineis_de_dados/outorga_e_licenciamento/prestadoras_servicos_telecomunicacoes.zip
+  formato: zip/csv (;-delimitado, UTF-8 com BOM, ~79 MB)
+  licenca: Dados Abertos Anatel (licença aberta, crédito à fonte)
+  uso_comercial: permitido
+  termos: https://www.gov.br/anatel/pt-br/dados/dados-abertos
+  nota: 'Plano de Dados Abertos da Anatel (verificado em 2026-10-13): dados ''disponibilizados sob licença
+    aberta que permita sua livre utilização, consumo ou cruzamento, limitando-se a creditar a autoria
+    ou a fonte'' (Decreto 8.777/2016). A licença específica do conjunto em dados.gov.br não pôde ser lida
+    (exige JavaScript/token). Rede virtual: https://www.anatel.gov.br/dadosabertos/paineis_de_dados/competicao/contratos.zip.'
+cadencia:
+  fonte_atualiza: irregular
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: opcional
+entradas:
+- anatel_outorgas
+saidas:
+  normalizado:
+  - summary/anatel_smp.json.gz
+chaves:
+- cnpj
+- uf
+- ibge
+campos:
+- nome: cnpj
+  tipo: str
+  significado: CNPJ (14 dígitos) da prestadora outorgada.
+  tratamento: Chave de junção com SICI, Registro.br e Receita.
+  publicado_em:
+  - outorgas → smp.json.gz
+- nome: razao_social / nome_fantasia
+  tipo: str
+  significado: Razão social e nome fantasia da prestadora.
+  publicado_em:
+  - outorgas → smp.json.gz
+- nome: data_outorga
+  tipo: str
+  significado: Data de inclusão da outorga no cadastro da Anatel.
+  publicado_em:
+  - outorgas → smp.json.gz
+- nome: num_servico
+  tipo: str
+  significado: Código do serviço da notificação (045 SCM, 010 SMP, 171 STFC, 750 SeAC).
+  publicado_em:
+  - outorgas → smp.json.gz
+- nome: logradouro / numero / complemento / bairro / cep
+  tipo: str
+  significado: Endereço da sede da prestadora na notificação.
+  tratamento: Endereço de pessoa jurídica; exposto nas rotas públicas listadas (decisão do mantenedor
+    2026-10-11).
+  publicado_em:
+  - outorgas → smp.json.gz
+- nome: municipio / uf / codigo_ibge
+  tipo: str
+  significado: Município e UF da sede e código IBGE do município.
+  publicado_em:
+  - outorgas → smp.json.gz
+- nome: telefone / email
+  tipo: str
+  significado: Contato declarado na notificação.
+  tratamento: Removido das rotas públicas; só via /asns/{asn}/contacts com login (teste T4).
+  publicado_em:
+  - outorgas → smp.json.gz
+  sensivel: true
+- nome: rede_virtual.papel
+  tipo: str
+  significado: '''host'' (detém a rede) ou ''credenciada'' (MVNO credenciada junto a um host).'
+  tratamento: Vem do dataset de competição (contratos_mvno.csv); MVNO puro sem outorga SMP ganha registro
+    sintético.
+  publicado_em:
+  - outorgas → smp.json.gz
+limites: 'Outorga/notificação não prova prestação efetiva de serviço nem tamanho da operação (usar SICI).
+  Endereço é o da sede, não da área de cobertura. Mesmo arquivo-fonte dos demais serviços Anatel: em 2026-10-11
+  os 4 CSVs brutos (SCM, SMP, STFC, SeAC) têm MD5 idêntico (45d83b2a21013a16d5fa9dd31822cac2, 79.361.097
+  bytes) — o SCM não é outra base: é o mesmo arquivo; o filtro por
+  código de serviço faz a diferença. Candidato a download único (anatel_outorgas).'
+retencao:
+  bruto: '4 versões (alvo: 1 download compartilhado)'
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/anatel_outorgas/
+pendencias:
+- Confirmar a licença no registro do conjunto em dados.gov.br (página exige JavaScript; API pública responde
+  401).
+- Frequência real de atualização do CSV da Anatel não medida (fonte_atualiza irregular).

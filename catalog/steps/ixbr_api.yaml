@@ -1,0 +1,11 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ixbr_api
+nome: Membros dos IXPs (dashboard.ix.br)
+ordem: 2
+modulo: sources.ixbr_api.collect
+fontes:
+- ixbr_api
+tentativas: 3
+espera_s: 60
+politica_falha: critica
+descricao: ''

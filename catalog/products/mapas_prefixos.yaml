@@ -1,0 +1,144 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: mapas_prefixos
+nome: Mapas de prefixos, ASNs e curvas de Hilbert
+descricao: GeoJSON de prefixos BR, prefixos globais vistos nos IXPs e ASNs geolocalizados; mapas de ocupação
+  do espaço IPv6/IPv4 (curva de Hilbert).
+modulo: publish.snapshot_builder
+entradas:
+- source: prefix_geo
+- source: global_prefix_geo
+- source: cnpj_geo
+- source: peeringdb_intl_geo
+- source: fulltable_routeviews
+- source: registro_br
+- product: bgp_ixp_normalizado
+- source: curada_pix
+chaves_de_juncao:
+- prefixo
+- asn
+- ponto
+saidas:
+  publicado:
+  - maps/prefixes.geojson
+  - maps/global_prefixes.geojson
+  - maps/global_prefixes.col
+  - maps/asns.geojson
+  - hilbert_v6.json
+  - hilbert_v4.json
+campos:
+- nome: legacy
+  tipo: dict
+  significado: 'Bloco LEGACY do IPv6: camadas por célula /32 (rir_br, global_br, global_all, ixp_all,
+    rir_br_visible; índices esparsos).'
+  publicado_em:
+  - mapas_prefixos → hilbert_v6.json#legacy
+- nome: lacnic
+  tipo: dict
+  significado: 'Bloco LACNIC do IPv6: camadas por célula /32 (rir_br, global_br, global_all, ixp_all,
+    rir_br_visible; índices esparsos).'
+  publicado_em:
+  - mapas_prefixos → hilbert_v6.json#lacnic
+- nome: arin
+  tipo: dict
+  significado: 'Bloco ARIN do IPv6: camadas por célula /32 (rir_br, global_br, global_all, ixp_all, rir_br_visible;
+    índices esparsos).'
+  publicado_em:
+  - mapas_prefixos → hilbert_v6.json#arin
+- nome: ripe
+  tipo: dict
+  significado: 'Bloco RIPE do IPv6: camadas por célula /32 (rir_br, global_br, global_all, ixp_all, rir_br_visible;
+    índices esparsos).'
+  publicado_em:
+  - mapas_prefixos → hilbert_v6.json#ripe
+- nome: apnic
+  tipo: dict
+  significado: 'Bloco APNIC do IPv6: camadas por célula /32 (rir_br, global_br, global_all, ixp_all, rir_br_visible;
+    índices esparsos).'
+  publicado_em:
+  - mapas_prefixos → hilbert_v6.json#apnic
+- nome: afrinic
+  tipo: dict
+  significado: 'Bloco AFRINIC do IPv6: camadas por célula /32 (rir_br, global_br, global_all, ixp_all,
+    rir_br_visible; índices esparsos).'
+  publicado_em:
+  - mapas_prefixos → hilbert_v6.json#afrinic
+- nome: hilbert_v4.rir_br / global_br / global_all / ixp_all / rir_br_visible
+  tipo: list[int]
+  significado: 'Células de 65.536 posições da curva de Hilbert sobre o IPv4: ocupação alocada ao BR, anunciada,
+    global, vista em IXP e BR visível.'
+  tratamento: Contagens por célula (/16 agregado).
+  publicado_em:
+  - mapas_prefixos → hilbert_v4.json
+- nome: rir_br
+  tipo: list[int]
+  significado: 'Por célula /16: espaço alocado ao BR pelo Registro.br.'
+  publicado_em:
+  - mapas_prefixos → hilbert_v4.json#rir_br
+- nome: global_br
+  tipo: list[int]
+  significado: 'Por célula /16: espaço BR anunciado na tabela global.'
+  publicado_em:
+  - mapas_prefixos → hilbert_v4.json#global_br
+- nome: global_all
+  tipo: list[int]
+  significado: 'Por célula /16: espaço anunciado na tabela global (todos os países).'
+  publicado_em:
+  - mapas_prefixos → hilbert_v4.json#global_all
+- nome: ixp_all
+  tipo: list[int]
+  significado: 'Por célula /16: espaço visto nos IXPs.'
+  publicado_em:
+  - mapas_prefixos → hilbert_v4.json#ixp_all
+- nome: rir_br_visible
+  tipo: list[int]
+  significado: 'Por célula /16: espaço alocado ao BR que é visível (anunciado) na tabela global.'
+  publicado_em:
+  - mapas_prefixos → hilbert_v4.json#rir_br_visible
+- nome: type
+  tipo: str
+  significado: Tipo GeoJSON (FeatureCollection).
+  publicado_em:
+  - mapas_prefixos → maps/asns.geojson#type
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - mapas_prefixos → maps/asns.geojson#snapshot_date
+- nome: features
+  tipo: list
+  significado: 'Um ponto por ASN geolocalizado (properties: asn, name, cnpj, razao_social, uf, city, geo_confidence).'
+  publicado_em:
+  - mapas_prefixos → maps/asns.geojson#features
+- nome: type
+  tipo: str
+  significado: Tipo GeoJSON.
+  publicado_em:
+  - mapas_prefixos → maps/prefixes.geojson#type
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - mapas_prefixos → maps/prefixes.geojson#snapshot_date
+- nome: features
+  tipo: list
+  significado: 'Um ponto por prefixo BR geolocalizado (properties: prefix, ip_version, origin_asn, city,
+    uf, geo_confidence).'
+  publicado_em:
+  - mapas_prefixos → maps/prefixes.geojson#features
+- nome: type
+  tipo: str
+  significado: Tipo GeoJSON.
+  publicado_em:
+  - mapas_prefixos → maps/global_prefixes.geojson#type
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - mapas_prefixos → maps/global_prefixes.geojson#snapshot_date
+- nome: features
+  tipo: list
+  significado: 'Um ponto por prefixo visto nos IXPs (properties: prefix, origin_asn, ixps_seen, city,
+    uf, geo_confidence).'
+  publicado_em:
+  - mapas_prefixos → maps/global_prefixes.geojson#features
+limites: Localização por IP (DB-IP) é centroide de cidade; ASN geolocalizado = sede da organização.

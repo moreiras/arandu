@@ -1,0 +1,58 @@
+# Configurações gerais do pipeline Arandurape
+# Variáveis sensíveis (chaves de API, senhas) vêm de variáveis de ambiente,
+# nunca deste arquivo.
+
+pipeline:
+  # Diretório raiz dos dados (relativo à raiz do projeto, ou absoluto)
+  data_dir: ./data
+
+  # Retenção mínima de snapshots em disco
+  retention_weeks: 52
+
+  # Versão do pipeline — incrementar a cada mudança no formato dos artefatos
+  version: "0.1.0"
+
+collection:
+  registro_br:
+    url: "https://ftp.registro.br/pub/numeracao/origin/nicbr-asn-blk-latest.txt"
+
+  receita_federal:
+    # Compartilhamento público (Nextcloud) dos dados abertos do CNPJ, como publicado em
+    # https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/dados-abertos/cadastros/cnpj.
+    # Não é segredo: o último segmento é o token público do compartilhamento. Se o link mudar, troque aqui.
+    compartilhamento_url: "https://arquivos.receitafederal.gov.br/index.php/s/YggdBLfdninEJX9"
+
+  # Número máximo de IXPs em coleta simultânea via Telnet.
+  # Reduzido para minimizar uso de memória em hosts com recursos limitados.
+  parallel_workers: 3
+
+  # Timeout de conexão TCP (antes de receber qualquer dado)
+  connect_timeout: 15
+
+enrichment:
+  rdap:
+    base_url: "https://rdap.lacnic.net/rdap"
+    rate_limit_rps: 1        # requisições por segundo
+    cache_ttl_days: 30       # reprocessar ASN se cache tiver mais de 30 dias
+
+  nominatim:
+    # User-Agent obrigatório pela política do Nominatim: o central (core/site.py, `arandurape/<versão> (+SITE_URL)`)
+    # ou NOMINATIM_USER_AGENT no .env.
+    rate_limit_rps: 1
+
+  viacep:
+    base_url: "https://viacep.com.br/ws"
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  rate_limit_per_minute: 60
+
+logging:
+  level: INFO
+  format: json  # json | text
+
+# auth.allowed_ips migrou para a variável de ambiente ALLOWED_IPS (.env) —
+# ver .env.example. Deixava de ser prático versionar aqui: cada ajuste de
+# faixa de IP exigia um commit/PR.
+

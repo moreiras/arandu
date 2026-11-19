@@ -1,0 +1,250 @@
+{
+ "asn": 64496,
+ "snapshot_date": "2026-09-20",
+ "generated_at": "2026-10-31T22:46:30.286030+00:00",
+ "is_br": true,
+ "name": "Provedor 01 Telecom Ltda",
+ "cnpj": "90000001000129",
+ "rir_prefixes_v4": [
+  "198.18.0.0/24",
+  "198.18.1.0/24"
+ ],
+ "rir_prefixes_v6": [
+  "2001:db8::/48"
+ ],
+ "rir_prefixes_v4_count": 2,
+ "rir_prefixes_v6_count": 1,
+ "global_prefixes_v4": [
+  "198.18.0.0/24"
+ ],
+ "global_prefixes_v6": [
+  "2001:db8::/48"
+ ],
+ "global_prefixes_v4_count": 1,
+ "global_prefixes_v6_count": 1,
+ "has_ipv6": true,
+ "ixps_direct": [
+  "za"
+ ],
+ "ixps_origin": [
+  "za"
+ ],
+ "ixp_presence": {
+  "za": {
+   "v4": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "198.18.0.0/24"
+    ]
+   },
+   "v6": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "2001:db8::/48"
+    ]
+   }
+  }
+ },
+ "upstreams": [
+  4200000000
+ ],
+ "downstreams": [],
+ "upstreams_v4": [
+  4200000000
+ ],
+ "upstreams_v6": [
+  4200000000
+ ],
+ "downstreams_v4": [],
+ "downstreams_v6": [],
+ "upstreams_global_v4": [
+  4200000000
+ ],
+ "upstreams_global_v6": [
+  4200000000
+ ],
+ "downstreams_global_v4": [],
+ "downstreams_global_v6": [],
+ "is_multihomed_v4": false,
+ "is_multihomed_v6": false,
+ "single_upstream_v4": 4200000000,
+ "single_upstream_v6": 4200000000,
+ "relacoes": null,
+ "ixp_member_codes": [
+  "za"
+ ],
+ "path_node_meta": {
+  "4200000000": {
+   "name": "Trânsito Nacional 1 S.A.",
+   "is_br": true,
+   "space_v4": 6,
+   "space_v6": 1
+  }
+ },
+ "roa_list": [
+  {
+   "asn": 64496,
+   "prefix": "198.18.0.0/24",
+   "maxLength": 24,
+   "ta": "lacnic"
+  }
+ ],
+ "rpki_validation": {
+  "198.18.0.0/24": "valid",
+  "198.18.1.0/24": "not_found",
+  "2001:db8::/48": "not_found"
+ },
+ "aspa_providers": [
+  {
+   "providers": [
+    4200000000
+   ],
+   "tal": "lacnic"
+  }
+ ],
+ "aspa_customers": null,
+ "pdb_registered": true,
+ "external_ixps": [
+  "zx"
+ ],
+ "pdb": {
+  "asn": 64496,
+  "name": "Provedor 01 Telecom Ltda",
+  "info_type": "Cable/DSL/ISP",
+  "policy_general": "Open"
+ },
+ "apnic_users": 3068,
+ "apnic_users_pct_cc": 0.1534,
+ "apnic_v6_users": 613,
+ "apnic_v6_pct_as": 19.98,
+ "announced_ipv4_addresses": 256,
+ "users_per_ip": 11.98,
+ "announced_ipv6_48s": 1,
+ "users_per_v6_48": 613.0,
+ "alerts": [
+  {
+   "id": "single_homed",
+   "category": "presenca",
+   "severity": "aviso",
+   "title": "Conectividade single-homed",
+   "detail": "O AS aparenta depender de um único upstream (IPv4 e IPv6) na tabela global — risco de resiliência.",
+   "refs": {
+    "upstream_v4": 4200000000,
+    "upstream_v6": 4200000000
+   }
+  },
+  {
+   "id": "prefixo_inalcancavel",
+   "category": "roteamento",
+   "severity": "aviso",
+   "title": "Bloco alocado não anunciado",
+   "detail": "1 bloco(s) atribuído(s) pelo Registro.br não têm nenhuma rota (nem agregado que os cubra, nem mais-específico) na tabela de roteamento global — espaço alocado mas não anunciado.",
+   "refs": {
+    "prefixes": [
+     "198.18.1.0/24"
+    ]
+   }
+  },
+  {
+   "id": "rpki_cobertura_parcial",
+   "category": "rpki",
+   "severity": "aviso",
+   "title": "Cobertura RPKI parcial",
+   "detail": "2 bloco(s) alocado(s) não têm ROA cobrindo — parte do espaço fica sem proteção de origem.",
+   "refs": {
+    "prefixes": [
+     "198.18.1.0/24",
+     "2001:db8::/48"
+    ]
+   }
+  },
+  {
+   "id": "sem_irr_as_set",
+   "category": "presenca",
+   "severity": "info",
+   "title": "Sem AS-SET no IRR",
+   "detail": "O cadastro no PeeringDB não informa um as-set no IRR. Sem objeto IRR, peers e provedores não conseguem montar filtros de prefixo automaticamente.",
+   "refs": {}
+  }
+ ],
+ "scm": [
+  {
+   "cnpj": "90000001000129",
+   "razao_social": "Provedor 01 Telecom Ltda",
+   "nome_fantasia": "Provedor 01",
+   "data_outorga": "10/01/2015",
+   "num_servico": "045 - Serviço de Comunicação Multimídia",
+   "cep": "99000000",
+   "logradouro": "Rua do Exemplo 1",
+   "numero": "100",
+   "complemento": "",
+   "bairro": "Centro",
+   "municipio": "Arandurápolis",
+   "uf": "SP",
+   "codigo_ibge": "9900001",
+   "situacao": "",
+   "lat": -23.6,
+   "lon": -46.7,
+   "geo_confidence": "city_centroid",
+   "geo_source": "nominatim",
+   "asns": [
+    64496
+   ],
+   "sici_ativo": true,
+   "sici_mes_referencia": "2026-08",
+   "sici_acessos": 876,
+   "sici_pf": 788,
+   "sici_pj": 88,
+   "sici_municipios": 1,
+   "sici_capacidade_mbps": 105120.0,
+   "sici_tecnologia": "FTTH",
+   "sici_empresa": "Provedor 01 Telecom Ltda"
+  }
+ ],
+ "has_scm": true,
+ "smp": null,
+ "has_smp": false,
+ "stfc": [
+  {
+   "cnpj": "90000001000129",
+   "razao_social": "Provedor 01 Telecom Ltda",
+   "nome_fantasia": "Provedor 01",
+   "data_outorga": "10/01/2015",
+   "num_servico": "171 - SERVICO TELEFONICO FIXO COMUTADO",
+   "cep": "99000000",
+   "logradouro": "Rua do Exemplo 1",
+   "numero": "100",
+   "complemento": "",
+   "bairro": "Centro",
+   "municipio": "Arandurápolis",
+   "uf": "SP",
+   "codigo_ibge": "9900001",
+   "situacao": "",
+   "lat": -23.6,
+   "lon": -46.7,
+   "geo_confidence": "city_centroid",
+   "geo_source": "nominatim",
+   "asns": [
+    64496
+   ]
+  }
+ ],
+ "has_stfc": true,
+ "seac": null,
+ "has_seac": false,
+ "same_cnpj_asns": [],
+ "alt_names": [
+  {
+   "name": "Provedor 01",
+   "source": "Anatel (SCM, fantasia)"
+  }
+ ],
+ "contacts_available": {
+  "peeringdb": 1,
+  "anatel": 1,
+  "receita": false,
+  "total": 2
+ }
+}

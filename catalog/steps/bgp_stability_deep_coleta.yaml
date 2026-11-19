@@ -1,0 +1,12 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: bgp_stability_deep_coleta
+nome: Análise aprofundada de estabilidade BGP
+ordem: 39
+modulo: sources.bgp_stability_deep.collect
+fontes:
+- bgp_stability_deep
+depois_de:
+- bgp_stability
+pesada: true
+politica_falha: opcional
+descricao: ''

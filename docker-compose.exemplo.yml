@@ -1,0 +1,281 @@
+# Exemplo versionado. Copie para docker-compose.yml (fora do git) e, se preciso, edite a cópia:
+#   cp docker-compose.exemplo.yml docker-compose.yml
+# Os scripts (instalar.sh, restart-safe.sh, cron) usam o docker-compose.yml. Ao atualizar o repositório, compare a sua cópia com
+# este arquivo (diff docker-compose.exemplo.yml docker-compose.yml) e traga o que mudou.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: arandurape-api:latest
+    restart: unless-stopped
+    # a API pode rodar sem root e com `data/` só leitura, gravando só em auth/, ops/ e cache/.
+    # Desligado por padrão (root e data/ gravável, como antes). Para ligar: `sudo bash scripts/preparar-dados-api-sem-root.sh` e, no .env,
+    # API_USER=1001:0 e API_DATA_MODE=ro; teste no ambiente de teste antes da produção.
+    user: "${API_USER:-0:0}"
+    volumes:
+      - ./data:/data:${API_DATA_MODE:-rw}
+      - ./data/auth:/data/auth
+      - ./data/ops:/data/ops
+      - ./data/cache:/data/cache
+    environment:
+      - DATA_DIR=/data
+      - APP_BASE_URL=${APP_BASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - LINKEDIN_CLIENT_ID=${LINKEDIN_CLIENT_ID:-}
+      - LINKEDIN_CLIENT_SECRET=${LINKEDIN_CLIENT_SECRET:-}
+      - PEERINGDB_CLIENT_ID=${PEERINGDB_CLIENT_ID:-}
+      - PEERINGDB_CLIENT_SECRET=${PEERINGDB_CLIENT_SECRET:-}
+      - INTERNAL_API_TOKEN=${INTERNAL_API_TOKEN:-}
+      - MCP_KEY_ATIVA=${MCP_KEY_ATIVA:-0}          # chave de MCP (desligada por padrão); precisa de MCP_KEY_PEPPER
+      - MCP_KEY_PEPPER=${MCP_KEY_PEPPER:-}         # 32+ caracteres, só no .env; nunca no repositório
+      - ALLOWED_IPS=${ALLOWED_IPS:-}
+      # Identidade do site: vazio = padrão de core/site.py (Arandurapé, http://localhost)
+      - SITE_NOME=${SITE_NOME:-}
+      - SITE_NOME_EXTENSO=${SITE_NOME_EXTENSO:-}
+      - SITE_URL=${SITE_URL:-}
+      - SITE_MCP_ESQUEMA=${SITE_MCP_ESQUEMA:-}
+      - SITE_PREFIXO_ARQUIVOS=${SITE_PREFIXO_ARQUIVOS:-}
+      - SITE_SOFTWARE=${SITE_SOFTWARE:-}
+      - SITE_CONTATO=${SITE_CONTATO:-}
+      - SITE_CODIGO_FONTE=${SITE_CODIGO_FONTE:-}
+      - ANON_SESSION_LIMIT_MINUTES=${ANON_SESSION_LIMIT_MINUTES:-10}
+      - ANON_HEARTBEAT_INTERVAL_SECONDS=${ANON_HEARTBEAT_INTERVAL_SECONDS:-15}
+      - ANON_HEARTBEAT_CEILING_MULTIPLIER=${ANON_HEARTBEAT_CEILING_MULTIPLIER:-3}
+      - ANON_SESSION_TTL_HOURS=${ANON_SESSION_TTL_HOURS:-24}
+      - ANON_INACTIVITY_TIMEOUT_SECONDS=${ANON_INACTIVITY_TIMEOUT_SECONDS:-45}
+      - ANON_API_CLIENT_COST_SECONDS=${ANON_API_CLIENT_COST_SECONDS:-3}   # custo por pedido medido sem sessão válida, na conta do IP
+      - ACCESS_POLICY_MODE=${ACCESS_POLICY_MODE:-shadow}
+    networks:
+      - arandurape
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    # RAM + swap da API. O padrão (16g) não restringe nada e vale para qualquer host que use docker-compose.prod.yml ou .no-nginx.yml, que trocam
+    # `memory` e exigem memswap >= memory. Num host de teste com swap pequeno, defina API_MEMSWAP_LIMIT igual a API_MEM_LIMIT (ver .env.example):
+    # estourar o teto mata a API (o restart a sobe de novo) em vez de deixar o host arrastando em swap.
+    memswap_limit: ${API_MEMSWAP_LIMIT:-16g}
+    deploy:
+      resources:
+        limits:
+          memory: ${API_MEM_LIMIT:-2g}   # ambientes de teste com dados completos podem precisar de mais (ver .env.example)
+          cpus: '${API_CPUS:-2.0}'
+          pids: 200
+    healthcheck:
+      # API e gate (processo próprio na porta 8001 do mesmo contêiner, que volta sozinho se SAIR, mas não se TRAVAR). Os dois /health são
+      # isentos da fila: medem se o laço de eventos responde. O Docker só marca `unhealthy`; quem reinicia é o vigia do host
+      # (scripts/vigia-saude.sh).
+      test: ["CMD", "python3", "-c", "import urllib.request as u; [u.urlopen(f'http://localhost:{p}/health', timeout=3) for p in (8000, 8001)]"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: arandurape-api:latest
+    restart: unless-stopped
+    command: ["uvicorn", "mcp_server.app:app", "--host", "0.0.0.0", "--port", "8001", "--proxy-headers", "--forwarded-allow-ips=*"]
+    # /data é read-only: mcp pode rodar como não-root (appuser UID 1001, grupo root).
+    user: "1001:0"
+    volumes:
+      - ./data:/data:ro
+    environment:
+      - DATA_DIR=/data
+      - INTERNAL_API_TOKEN=${INTERNAL_API_TOKEN:-}  # o MCP pergunta à API se a chave vale e envia o uso por conta
+      - MCP_KEY_ATIVA=${MCP_KEY_ATIVA:-0}
+      - MCP_COTA_DIARIA=${MCP_COTA_DIARIA:-1000}
+      - MCP_API_URL=http://api:8000
+      - MCP_HOSTS_EXTRAS=${MCP_HOSTS_EXTRAS:-}     # hosts além de localhost e do host do SITE_URL (ex.: IP de um ambiente de teste); sem isso, 421
+      - ALLOWED_IPS=${ALLOWED_IPS:-}               # IP na allowlist tem o MCP completo, como no site (sem ela, só chave ou prévia)
+      # Identidade do site: vazio = padrão de core/site.py (Arandurapé, http://localhost)
+      - SITE_NOME=${SITE_NOME:-}
+      - SITE_NOME_EXTENSO=${SITE_NOME_EXTENSO:-}
+      - SITE_URL=${SITE_URL:-}
+      - SITE_MCP_ESQUEMA=${SITE_MCP_ESQUEMA:-}
+      - SITE_PREFIXO_ARQUIVOS=${SITE_PREFIXO_ARQUIVOS:-}
+      - SITE_SOFTWARE=${SITE_SOFTWARE:-}
+      - SITE_CONTATO=${SITE_CONTATO:-}
+      - SITE_CODIGO_FONTE=${SITE_CODIGO_FONTE:-}
+    networks:
+      - arandurape
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+          cpus: '1.0'
+          pids: 100
+    depends_on:
+      - api
+    healthcheck:
+      # MCP Streamable HTTP não tem /health. Um GET em /mcp sem sessão responde 4xx na hora se o laço de eventos está vivo (só a porta aberta
+      # não mostrava processo travado); 5xx, recusa ou silêncio por 3 s contam como falha.
+      test: ["CMD", "python3", "-c", "import urllib.request as u, urllib.error as e\ntry: u.urlopen('http://localhost:8001/mcp', timeout=3)\nexcept e.HTTPError as x:\n    assert x.code < 500"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: arandurape-api:latest
+    volumes:
+      - ./data:/data
+    environment:
+      - DATA_DIR=/data
+      - NOMINATIM_USER_AGENT=${NOMINATIM_USER_AGENT:-}     # vazio = User-Agent central (core/site.py, com o SITE_URL)
+      - PEERINGDB_API_KEY=${PEERINGDB_API_KEY:-}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN:-}      # Cloudflare Radar: token de conta com Account → Radar → Read; só o worker o recebe
+      - SHODAN_API_KEY=${SHODAN:-}                           # Shodan: chave da API principal (variável SHODAN do .env); só o worker a recebe
+      - SHODAN_ASNS_POR_EXECUCAO=${SHODAN_ASNS_POR_EXECUCAO:-}       # ajustes do rodízio (vazio = padrão do coletor)
+      - SHODAN_INTERVALO_S=${SHODAN_INTERVALO_S:-}
+      - RDAP_ASNS_POR_EXECUCAO=${RDAP_ASNS_POR_EXECUCAO:-}           # RDAP de contatos do Registro.br
+      - RDAP_INTERVALO_S=${RDAP_INTERVALO_S:-}
+      # Identidade do site: vazio = padrão de core/site.py (Arandurapé, http://localhost)
+      - SITE_NOME=${SITE_NOME:-}
+      - SITE_NOME_EXTENSO=${SITE_NOME_EXTENSO:-}
+      - SITE_URL=${SITE_URL:-}
+      - SITE_MCP_ESQUEMA=${SITE_MCP_ESQUEMA:-}
+      - SITE_PREFIXO_ARQUIVOS=${SITE_PREFIXO_ARQUIVOS:-}
+      - SITE_SOFTWARE=${SITE_SOFTWARE:-}
+      - SITE_CONTATO=${SITE_CONTATO:-}
+      - SITE_CODIGO_FONTE=${SITE_CODIGO_FONTE:-}
+    networks:
+      - arandurape
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    # Worker precisa escrever em /data (bind mount do host). cap_drop ALL derruba
+    # CAP_DAC_OVERRIDE, que root precisa para criar arquivos em dirs de outro dono.
+    cap_add:
+      - DAC_OVERRIDE
+      - FOWNER
+    # Teto do worker (coleta e pipeline): `docker compose run` só vale se o host tiver folga ao lado da API; sem swap além do teto,
+    # o worker que estoura morre sozinho em vez de derrubar o host. Padrão 3g; cargas maiores: WORKER_MEM_LIMIT (ver .env.example).
+    memswap_limit: ${WORKER_MEM_LIMIT:-3g}
+    deploy:
+      resources:
+        limits:
+          memory: ${WORKER_MEM_LIMIT:-3g}
+          cpus: '${WORKER_CPUS:-2.0}'
+          pids: 200
+    # Sem restart: invocado pontualmente pelo cron do host
+    # Exemplo: docker compose run --rm worker python -m sources.lg_ixbr.collect
+    profiles: ["worker"]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:                                    # identidade do site na compilação (vazio = padrão de src/lib/site.ts)
+        SITE_NOME: ${SITE_NOME:-}
+        SITE_NOME_EXTENSO: ${SITE_NOME_EXTENSO:-}
+        SITE_URL: ${SITE_URL:-}
+        SITE_MCP_ESQUEMA: ${SITE_MCP_ESQUEMA:-}
+        SITE_PREFIXO_ARQUIVOS: ${SITE_PREFIXO_ARQUIVOS:-}
+        SITE_SOFTWARE: ${SITE_SOFTWARE:-}
+        SITE_CONTATO: ${SITE_CONTATO:-}
+        SITE_CODIGO_FONTE: ${SITE_CODIGO_FONTE:-}
+    image: arandurape-frontend:latest
+    restart: unless-stopped
+    ports:
+      - "80:8080"
+    networks:
+      - arandurape
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    # nginx-unprivileged roda como uid 101 desde o início: não precisa de NET_BIND_SERVICE
+    # (porta 8080 > 1024), CHOWN (diretório de cache já pertence ao uid 101) nem SETUID/SETGID.
+    read_only: true
+    volumes:
+      - nginx_cache:/var/cache/nginx
+      # Basemap vetorial auto-hospedado (PMTiles) — gerado por
+      # scripts/build-basemap-tiles.sh, fora do build da imagem, pra permitir
+      # atualizar o basemap sem rebuildar/redeployar o frontend inteiro.
+      - ./data/tiles:/data/tiles:ro
+      # De quem aceitar o X-Forwarded-For: o padrão do repositório não confia na LAN; troque pelo IP exato da borda no .env.
+      - ${NGINX_REAL_IP_INC:-./docker/nginx-real-ip.inc}:/etc/nginx/conf.d/real-ip.inc:ro
+    tmpfs:
+      - /var/run
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: '1.0'
+          pids: 50
+    depends_on:
+      - api
+      - mcp
+    # Passa pela API (location = /health do nginx): se o nginx perder a API (IP novo depois de um reinício), o 502 vira unhealthy e o
+    # vigia (scripts/vigia-saude.sh) reinicia o frontend; enquanto a própria API não estiver healthy, o vigia deixa o frontend em paz.
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # RPKI em modo avulso: não há serviço permanente. scripts/rpki-avulso.sh roda este contêiner antes do worker, no mesmo lock
+  # do pipeline, e grava o JSON em data/cache/rpki/vrps.json, que sources.rpki_collector lê. Um serviço 24/7 teria só esse consumidor
+  # (uma leitura de /json por dia) e revalidaria o repositório o tempo todo: rodadas de 36 min seguidas num disco que satura com
+  # ~50 operações/s (medido). Avulso, a morno: 19 min, 274 MiB de memória anônima (o resto do teto é cache de arquivos).
+  # O cache RPKI (~3 GB, ~56 mil arquivos) fica no volume rpki_cache, no diretório que o Routinator usa (o mesmo na 0.15 e na 0.16)
+  # (fora dele, o cache viveria na camada do contêiner e cada recriação recomeçaria do zero).
+  # Versão fixada por tag e digest: a 0.16 tirou a opção --enable-aspa (ASPA e BGPsec passaram a vir ligados por padrão), e com
+  # `latest` um `docker pull` qualquer derrubaria a coleta. Ao trocar de versão, confira a saída com sources.rpki_collector.
+  rpki:
+    image: nlnetlabs/routinator:${ROUTINATOR_TAG:-v0.16.1@sha256:e79cb17e84eff33f7900c5f9b02e13e25ccd39f6c5819e3a8779ba287f43f319}
+    command: vrps --format json
+    volumes:
+      - rpki_cache:/home/routinator/.rpki-cache
+    # Rede própria: processa objetos RPKI de terceiros e só precisa da Internet, não da API, do gate nem do MCP.
+    networks:
+      - rpki
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    memswap_limit: ${ROUTINATOR_MEM_LIMIT:-1536m}
+    deploy:
+      resources:
+        limits:
+          memory: ${ROUTINATOR_MEM_LIMIT:-1536m}
+          cpus: '${ROUTINATOR_CPUS:-1.0}'
+          pids: 100
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Sem restart: invocado pelo scripts/rpki-avulso.sh
+    profiles: ["rpki"]
+
+networks:
+  arandurape:
+    driver: bridge
+  rpki:
+    driver: bridge
+
+volumes:
+  nginx_cache:
+  rpki_cache:

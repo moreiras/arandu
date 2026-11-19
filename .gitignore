@@ -1,0 +1,68 @@
+# Dados coletados — nunca versionar
+data/
+
+# Variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+.venv*/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.hypothesis/
+.import_linter_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+.claude/
+
+# Cobertura
+.coverage
+htmlcov/
+
+# E2E: o run.sh instala o playwright aqui dentro do container
+tests/e2e/node_modules/
+tests/e2e/package.json
+tests/e2e/package-lock.json
+# configuração local do nginx por ambiente (S-06)
+docker/*.local.inc
+.restart-safe.lock
+
+# testador de carga (tests/carga): gravações e relatórios locais
+tests/carga/saida/
+tests/carga/node_modules/
+tests/carga/package.json
+tests/carga/package-lock.json
+
+# recomendações de implantação da instância oficial: ficam fora do repositório público
+recomendacoes-deployment.md
+
+# SBOMs e relatórios gerados por scripts/sbom.sh (a CI os publica como artefato)
+sbom/
+
+# cópia local do docker-compose.exemplo.yml, editada por instalação
+docker-compose.yml

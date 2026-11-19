@@ -1,0 +1,23 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: financiamento_sancoes
+nome: Crédito público (BNDES) e sanções (CEIS e CNEP) por operadora
+ordem: -88
+modulo: products.passos
+args:
+- --passo
+- financiamento_sancoes
+- --date
+- '{date}'
+parcial:
+- financiamento_sancoes
+depois_de:
+- bndes_operacoes
+- cgu_ceis_cnep
+- anatel_scm
+- anatel_smp
+- anatel_stfc
+- anatel_seac
+- sici
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: reúne, por raiz de CNPJ, as operações de financiamento do BNDES (total contratado e desembolsado, por ano e UF, e as últimas operações) e as sanções do CEIS e do CNEP (vigentes e encerradas na data do snapshot). Registro de fonte oficial, sem julgamento: o BNDES em valores nominais da data da contratação, a sanção na data do arquivo da CGU; sem ligação entre as duas partes. Pessoa física nunca entra.'

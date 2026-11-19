@@ -1,0 +1,11 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: peeringdb_ixps
+nome: IXPs globais (PeeringDB)
+ordem: 6
+modulo: sources.peeringdb_ixps.collect
+fontes:
+- peeringdb_ixps
+tentativas: 3
+espera_s: 60
+politica_falha: critica
+descricao: ''

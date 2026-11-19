@@ -1,0 +1,23 @@
+{
+ "attribution": "© TeleGeography, submarinecablemap.com — CC BY-SA 4.0",
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     -46.4,
+     -24.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "id": "ponto-exemplo-1",
+    "is_tbd": false,
+    "name": "Praia Exemplo, Brazil"
+   },
+   "type": "Feature"
+  }
+ ],
+ "snapshot_date": "2026-09-20",
+ "source": "sintético",
+ "type": "FeatureCollection"
+}

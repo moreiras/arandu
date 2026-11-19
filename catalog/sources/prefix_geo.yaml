@@ -1,0 +1,67 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: prefix_geo
+nome: Geolocalização dos prefixos do Registro.br (DB-IP City Lite)
+tipo: derivada
+ativa: true
+modulo: sources.prefix_geo.enrich
+publicavel: true
+descricao: Geolocaliza o primeiro endereço de cada prefixo alocado ao BR (≈ 22 mil) com o DB-IP City Lite
+  local (baixado uma vez por mês).
+origem:
+  url: https://download.db-ip.com/free/dbip-city-lite-{AAAA-MM}.mmdb.gz
+  formato: MMDB (DB-IP City Lite, mensal)
+  licenca: CC BY 4.0 (DB-IP); dados do GeoNames sob CC BY
+  uso_comercial: permitido
+  termos: https://db-ip.com/db/lite.php
+  nota: 'Lido em 2026-10-31: "licensed under a Creative Commons Attribution 4.0 International License"; atribuição
+    obrigatória, com link para db-ip.com nas páginas que exibem resultados da base ("IP Geolocation by DB-IP") e
+    atribuição ao GeoNames. A cláusula que proíbe oferecer API de geolocalização vale só para a licença paga, mas o
+    Arandurapé não expõe consulta por IP ou bloco. Sem chave de licença. Snapshot
+    gerado com o GeoLite2 (MaxMind) guarda valores derivados dele.'
+cadencia:
+  fonte_atualiza: mensal
+  coleta: mensal
+  coleta_atual: mensal
+  frescor_maximo: 45d
+politica_falha: opcional
+entradas:
+- registro_br
+saidas:
+  bruto:
+  - ../dbip/dbip-city-lite-{AAAA-MM}.mmdb
+  normalizado:
+  - summary/geo_prefixes.json.gz
+chaves:
+- prefixo
+- ponto
+- uf
+campos:
+- nome: prefixes[prefix].lat / lon
+  tipo: float
+  significado: Coordenadas do centroide da cidade que o DB-IP associa ao prefixo.
+  tratamento: Sempre centroide de cidade.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_prefixes_v4
+  - mapas_prefixos → maps/prefixes.geojson
+- nome: prefixes[prefix].city / country / uf
+  tipo: str
+  significado: Cidade, país e UF segundo o DB-IP (município derivado das coordenadas).
+  publicado_em:
+  - asn_docs → asns/{asn}.json#geo_prefixes_v4
+- nome: prefixes[prefix].geo_confidence
+  tipo: str
+  significado: Sempre 'city_centroid'.
+  tratamento: Geolocalização de IP é aproximada.
+- nome: prefixes[prefix].geo_source / mmdb_month
+  tipo: str
+  significado: Versão do banco usada (dbip-lite-AAAA-MM).
+  publicado_em:
+  - snapshot → manifest.json#geolite2_version
+limites: 'IP→local é estatístico: o provedor pode estar longe do cliente e o prefixo pode ser usado em
+  várias cidades. Não é localização de usuário.'
+retencao:
+  bruto: 12 meses (alvo)
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/dbip/
+pendencias:
+- Exibir a atribuição 'IP Geolocation by DB-IP' (link para db-ip.com) onde a geolocalização aparecer (Fontes, mapas, página de prefixo).

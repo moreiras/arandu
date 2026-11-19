@@ -1,0 +1,75 @@
+{
+ "roas": [
+  {
+   "asn": "AS262589",
+   "prefix": "45.65.232.0/24",
+   "maxLength": 24,
+   "ta": "lacnic"
+  },
+  {
+   "asn": "AS262589",
+   "prefix": "45.65.233.0/24",
+   "maxLength": 24,
+   "ta": "lacnic"
+  },
+  {
+   "asn": "AS262589",
+   "prefix": "45.65.234.0/24",
+   "maxLength": 24,
+   "ta": "lacnic"
+  },
+  {
+   "asn": "AS262589",
+   "prefix": "45.65.235.0/24",
+   "maxLength": 24,
+   "ta": "lacnic"
+  },
+  {
+   "asn": "AS262589",
+   "prefix": "45.65.232.0/22",
+   "maxLength": 22,
+   "ta": "lacnic"
+  },
+  {
+   "asn": "AS262589",
+   "prefix": "45.162.76.0/22",
+   "maxLength": 24,
+   "ta": "lacnic"
+  },
+  {
+   "asn": "AS13335",
+   "prefix": "1.0.0.0/24",
+   "maxLength": 24,
+   "ta": "apnic"
+  },
+  {
+   "asn": "AS18144",
+   "prefix": "1.0.64.0/18",
+   "maxLength": 18,
+   "ta": "apnic"
+  }
+ ],
+ "aspas": [
+  {
+   "customer": "AS43",
+   "providers": [
+    "AS293"
+   ],
+   "tal": "arin"
+  },
+  {
+   "customer": "AS68",
+   "providers": [
+    "AS293"
+   ],
+   "tal": "arin"
+  },
+  {
+   "customer": "AS79",
+   "providers": [
+    "AS293"
+   ],
+   "tal": "arin"
+  }
+ ]
+}

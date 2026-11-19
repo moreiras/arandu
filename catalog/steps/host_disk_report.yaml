@@ -1,0 +1,14 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: host_disk_report
+nome: Relatório de uso de disco
+ordem: 45
+runner: host
+comando:
+- bash
+- scripts/disk-report.sh
+- --date
+- '{date}'
+depois_de:
+- host_basemap_validate
+politica_falha: opcional
+descricao: ''

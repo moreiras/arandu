@@ -1,0 +1,121 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Linha do índice de ASNs",
+ "description": "Contrato T3 do artefato publicado asns/index.json (item). Inferido do snapshot real 2026-09-20 e conferido com o dataset sintético (tests/contracts/infer.py); campos novos são permitidos, remoção ou mudança de tipo falham.",
+ "type": "object",
+ "required": [
+  "apnic_users",
+  "apnic_v6_users",
+  "asn",
+  "external_ixps_count",
+  "global_prefixes_v4_count",
+  "global_prefixes_v6_count",
+  "has_aspa",
+  "has_ipv6",
+  "has_rpki",
+  "is_br",
+  "ixps_direct_count",
+  "ixps_origin_count",
+  "ixps_origin_v4_count",
+  "ixps_origin_v6_count",
+  "name",
+  "pct_v6",
+  "pdb_registered",
+  "rir_prefixes_v4_count",
+  "rir_prefixes_v6_count",
+  "space_v4",
+  "space_v6"
+ ],
+ "properties": {
+  "apnic_users": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "apnic_v6_users": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "asn": {
+   "type": "integer"
+  },
+  "external_ixps_count": {
+   "type": "integer"
+  },
+  "global_prefixes_v4_count": {
+   "type": "integer"
+  },
+  "global_prefixes_v6_count": {
+   "type": "integer"
+  },
+  "has_aspa": {
+   "type": "boolean"
+  },
+  "has_ipv6": {
+   "type": "boolean"
+  },
+  "has_rpki": {
+   "type": "boolean"
+  },
+  "is_br": {
+   "type": "boolean"
+  },
+  "ixps_direct_count": {
+   "type": "integer"
+  },
+  "ixps_origin_count": {
+   "type": "integer"
+  },
+  "ixps_origin_v4_count": {
+   "type": "integer"
+  },
+  "ixps_origin_v6_count": {
+   "type": "integer"
+  },
+  "name": {
+   "type": "string"
+  },
+  "pct_v6": {
+   "type": [
+    "null",
+    "number"
+   ]
+  },
+  "pdb_registered": {
+   "type": "boolean"
+  },
+  "rir_prefixes_v4_count": {
+   "type": "integer"
+  },
+  "rir_prefixes_v6_count": {
+   "type": "integer"
+  },
+  "sici_acessos": {
+   "type": "integer"
+  },
+  "sici_capacidade_mbps": {
+   "type": "number"
+  },
+  "sici_compartilhado": {
+   "type": "boolean"
+  },
+  "sici_municipios": {
+   "type": "integer"
+  },
+  "sici_pf": {
+   "type": "integer"
+  },
+  "sici_pj": {
+   "type": "integer"
+  },
+  "space_v4": {
+   "type": "integer"
+  },
+  "space_v6": {
+   "type": "integer"
+  }
+ }
+}

@@ -1,0 +1,79 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: bgp_stability
+nome: Estabilidade BGP (publicação)
+descricao: Publica a análise de estabilidade dos ASNs BR (7 dias, route-views.saopaulo) e o diagnóstico
+  aprofundado dos mais ruidosos.
+modulo: products.bgp_stability.build; products.bgp_stability.deep
+entradas:
+- source: bgp_updates_routeviews
+- source: bgp_stability_deep
+- source: asn_names
+chaves_de_juncao:
+- asn
+saidas:
+  publicado:
+  - bgp_stability.json
+  - bgp_stability_deep.json
+campos:
+- nome: as_stability[].rank / severity / noise_category
+  tipo: int / str
+  significado: Posição no ranking de ruído, severidade e categoria de ruído do AS.
+  tratamento: Faixas definidas em analysis/bgp_stability.
+  publicado_em:
+  - bgp_stability → bgp_stability.json#as_stability
+- nome: epppd_stats
+  tipo: dict
+  significado: 'Eventos por prefixo por dia: mediana, média e máximo.'
+  publicado_em:
+  - bgp_stability → bgp_stability.json#epppd_stats
+- nome: period
+  tipo: dict
+  significado: Janela analisada, coletor e contagem de eventos.
+  publicado_em:
+  - bgp_stability → bgp_stability.json#period
+- nome: distribution
+  tipo: dict
+  significado: Distribuição de eventos por prefixo/dia (percentis e buckets) por família.
+  publicado_em:
+  - bgp_stability → bgp_stability.json#distribution
+- nome: hourly_global
+  tipo: dict
+  significado: Série horária global de anúncios, retiradas e mudanças de atributo.
+  publicado_em:
+  - bgp_stability → bgp_stability.json#hourly_global
+- nome: published_at
+  tipo: str
+  significado: Instante da publicação.
+  publicado_em:
+  - bgp_stability → bgp_stability.json#published_at
+- nome: generated_at
+  tipo: str
+  significado: Instante UTC em que o arquivo foi gerado.
+  publicado_em:
+  - bgp_stability → bgp_stability_deep.json#generated_at
+- nome: date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - bgp_stability → bgp_stability_deep.json#date
+- nome: top_n
+  tipo: int
+  significado: Quantidade de ASes ruidosos analisados.
+  publicado_em:
+  - bgp_stability → bgp_stability_deep.json#top_n
+- nome: suspected_upstreams
+  tipo: list[dict]
+  significado: Upstreams suspeitos com eventos atribuídos e hora de pico (hipótese).
+  publicado_em:
+  - bgp_stability → bgp_stability_deep.json#suspected_upstreams
+- nome: as_diagnosis
+  tipo: list[dict]
+  significado: 'Diagnóstico por AS: veredito, sincronia entre prefixos e concentração em upstream (hipótese).'
+  publicado_em:
+  - bgp_stability → bgp_stability_deep.json#as_diagnosis
+- nome: published_at
+  tipo: str
+  significado: Instante da publicação.
+  publicado_em:
+  - bgp_stability → bgp_stability_deep.json#published_at
+limites: '/bgp-stability completo pesa ~40 MB: listas usam /bgp-stability/summary.'

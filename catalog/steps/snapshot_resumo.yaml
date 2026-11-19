@@ -1,0 +1,23 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: snapshot_resumo
+nome: Resumo do snapshot (summary.json)
+ordem: -53
+modulo: products.passos
+args:
+- --passo
+- snapshot_resumo
+- --date
+- '{date}'
+parcial:
+- snapshot
+depois_de:
+- asn_indice
+- fulltable_routeviews
+- ixp_indice
+- mapas_hilbert
+- metricas_ixp_asn
+- registro_br
+politica_falha: critica
+replay: true
+descricao: 'Passo do build do snapshot: Resumo do snapshot (summary.json). Roda sozinho; lê o que os anteriores
+  deixaram em published/ e build/intermediarios/.'

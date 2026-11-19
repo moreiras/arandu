@@ -1,0 +1,21 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: regulatorio
+nome: Regulatório complementar (FUST, multas, espectro, satélites)
+ordem: -76
+modulo: products.passos
+args:
+- --passo
+- regulatorio
+- --date
+- '{date}'
+parcial:
+- regulatorio
+depois_de:
+- anatel_fust
+- anatel_multas
+- anatel_pdff
+- anatel_satelites
+- ibge_censo_pnad
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: consolida os compromissos do FUST por município, UF, programa e edital (com o casamento com o IBGE), as multas constituídas por empresa de SCM, SMP, STFC e SeAC, o quadro de faixas de frequência (PDFF) e os satélites com direito de exploração. Roda sozinho; lê só o normalizado.'

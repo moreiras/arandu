@@ -1,0 +1,858 @@
+{
+ "checks": {
+  "asn_names": {
+   "anterior_pct_hifen": 0.0,
+   "anterior_total": 60,
+   "limite_pct": 3.0,
+   "limite_pontos_hifen": 15.0,
+   "pct_hifen": 0.0,
+   "status": "ok",
+   "total": 60,
+   "variacao_pct": 0.0,
+   "variacao_pontos_hifen": 0.0
+  },
+  "asns_br": {
+   "anterior": 36,
+   "limite_pct": 1.0,
+   "status": "ok",
+   "valor": 36,
+   "variacao_pct": 0.0
+  },
+  "pdb_registrados": {
+   "limite_pct": 20.0,
+   "pct_dos_asns_br": 50.0,
+   "status": "ok",
+   "valor": 18
+  },
+  "prefixos_v4": {
+   "anterior": 76,
+   "limite_pct": 3.0,
+   "status": "ok",
+   "valor": 76,
+   "variacao_pct": 0.0
+  },
+  "prefixos_v6": {
+   "anterior": 43,
+   "limite_pct": 3.0,
+   "status": "ok",
+   "valor": 43,
+   "variacao_pct": 0.0
+  },
+  "ptt_coletados": {
+   "coletados": 3,
+   "configurados": 3,
+   "status": "ok"
+  },
+  "vrps": {
+   "anterior": 78,
+   "limite_pct": 5.0,
+   "status": "ok",
+   "valor": 78,
+   "variacao_pct": 0.0
+  }
+ },
+ "coleta": "completa",
+ "coleta_ok": true,
+ "comparado_com": "2026-09-13",
+ "ft_space_v4": 49152,
+ "ft_space_v6": 66490920078804604608839680,
+ "fulltable_v4_status": "ok",
+ "fulltable_v6_status": "ok",
+ "geolite2_version": "2026-09",
+ "ixps_collected": [
+  "za",
+  "zb",
+  "zc"
+ ],
+ "ixps_configured": [
+  "za",
+  "zb",
+  "zc"
+ ],
+ "ixps_failed": [],
+ "layout_version": 1,
+ "m3_prefixes_v4": 76,
+ "m3_prefixes_v6": 43,
+ "registro_br_prefixes_v4": 76,
+ "registro_br_prefixes_v6": 43,
+ "registro_br_status": "ok",
+ "rules": {
+  "agregacao_elevada": 1,
+  "anuncio_por_outro_as": 1,
+  "as_loop_detectado": 1,
+  "desagregacao": 1,
+  "import_limit_proximo": 1,
+  "membro_sem_peering": 1,
+  "pdb_prefixos_divergente": 1,
+  "politica_v4v6_divergente": 1,
+  "prefixo_fora_alocacao": 1,
+  "prefixo_inalcancavel": 1,
+  "prefixos_filtraveis": 1,
+  "prepend_excessivo": 1,
+  "ptt_proximo_sem_participar": 1,
+  "roa_maxlength_folgado": 1,
+  "rpki_cobertura_parcial": 1,
+  "rpki_invalido": 1,
+  "sem_aspa": 1,
+  "sem_ipv6": 1,
+  "sem_irr_as_set": 1,
+  "sem_peeringdb": 1,
+  "sem_rpki": 1,
+  "sessao_rs_down": 1,
+  "single_homed": 2
+ },
+ "rules_version": "raf3c4934",
+ "snapshot_date": "2026-09-20",
+ "sources": [
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "abusech",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_erbs",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_fust",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_multas",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": null,
+   "coletado_em": null,
+   "frescor": "ausente",
+   "hash": null,
+   "id": "anatel_outorgas",
+   "origem": "ausente",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_pdff",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_reclamacoes",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_rqual",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_satelites",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_scm",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_seac",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-08",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_sici",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-08",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_sici_movel",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_smp",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "anatel_stfc",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "aneel_sigel_transmission",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "apnic_dnssec",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "apnic_irov",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "apnic_pop",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "asn_names",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": null,
+   "coletado_em": null,
+   "frescor": "ausente",
+   "hash": null,
+   "id": "bgp_stability_deep",
+   "origem": "ausente",
+   "versao": null
+  },
+  {
+   "as_of": null,
+   "coletado_em": null,
+   "frescor": "ausente",
+   "hash": null,
+   "id": "bgp_updates_routeviews",
+   "origem": "ausente",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "bndes_operacoes",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "bogons",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "caida_as2org",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "caida_asrank",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": null,
+   "coletado_em": null,
+   "frescor": "ausente",
+   "hash": null,
+   "id": "caida_asrel",
+   "origem": "ausente",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "caida_spoofer",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "cetic_tic_domicilios_microdados",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "cetic_tic_domicilios_tabelas",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "cetic_tic_provedores_tabelas",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "cgu_ceis_cnep",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "cloudflare_radar",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "cnpj_geo",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "consumidor_gov",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": null,
+   "coletado_em": null,
+   "frescor": "ausente",
+   "hash": null,
+   "id": "decix_alice",
+   "origem": "ausente",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "fulltable_routeviews",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "global_prefix_geo",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "ibge_bc250_rodovias",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "ibge_censo_pnad",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": null,
+   "coletado_em": null,
+   "frescor": "ausente",
+   "hash": null,
+   "id": "ioda_outages",
+   "origem": "ausente",
+   "versao": null
+  },
+  {
+   "as_of": null,
+   "coletado_em": null,
+   "frescor": "ausente",
+   "hash": null,
+   "id": "ipv4_delegated",
+   "origem": "ausente",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "ipv4_listas",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": null,
+   "coletado_em": null,
+   "frescor": "ausente",
+   "hash": null,
+   "id": "ipv4_subasignacao",
+   "origem": "ausente",
+   "versao": null
+  },
+  {
+   "as_of": null,
+   "coletado_em": null,
+   "frescor": "ausente",
+   "hash": null,
+   "id": "ipv4_vigia",
+   "origem": "ausente",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "irr_route_objects",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "itu_transmission",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "ixbr_alice",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "ixbr_alice_rotas",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "ixbr_api",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "lacnic_delegated",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": null,
+   "coletado_em": null,
+   "frescor": "ausente",
+   "hash": null,
+   "id": "lacnic_listas",
+   "origem": "ausente",
+   "versao": null
+  },
+  {
+   "as_of": null,
+   "coletado_em": null,
+   "frescor": "ausente",
+   "hash": null,
+   "id": "lg_ixbr",
+   "origem": "ausente",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "manrs_participantes",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "ooni_bloqueios",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "peeringdb_contacts",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "peeringdb_fac",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "peeringdb_intl_geo",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "peeringdb_ixps",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "peeringdb_networks",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "prefix_geo",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "rdap",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "rdap_contatos",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "receita_cnpj",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "receita_socios",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "registro_br",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": null,
+   "coletado_em": null,
+   "frescor": "ausente",
+   "hash": null,
+   "id": "registrobr_listas",
+   "origem": "ausente",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "rpki_collector",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "scm_geo",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "seac_geo",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "shodan_exposicao",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "siasg_contratos",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "smp_geo",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "socios_grupos",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "stfc_geo",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  },
+  {
+   "as_of": "2026-09-20",
+   "coletado_em": null,
+   "frescor": "desconhecido",
+   "hash": null,
+   "id": "telegeography_cables",
+   "legado": true,
+   "origem": "legado",
+   "versao": null
+  }
+ ],
+ "total_asns_br": 36,
+ "total_asns_global": 60
+}

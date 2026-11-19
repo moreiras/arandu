@@ -1,0 +1,79 @@
+{
+ "29484413000170": {
+  "cnpj": "29484413000170",
+  "razao_social": "COGENT BRASIL TELECOMUNICACOES LTDA.",
+  "nome_fantasia": "",
+  "logradouro": "FRANCISCO MATARAZZO",
+  "descricao_tipo_de_logradouro": "AVENIDA",
+  "numero": "1752",
+  "complemento": "ANDAR 15 CONJ 1506",
+  "bairro": "AGUA BRANCA",
+  "municipio": "SAO PAULO",
+  "uf": "SP",
+  "cep": "05001200",
+  "codigo_municipio": 7107,
+  "codigo_municipio_ibge": 3550308,
+  "identificador_matriz_filial": 1,
+  "descricao_identificador_matriz_filial": "MATRIZ",
+  "cnae_fiscal": 6190601,
+  "cnae_fiscal_descricao": "Provedores de acesso às redes de comunicações",
+  "cnaes_secundarios": [
+   {
+    "codigo": 6110803,
+    "descricao": "Serviços de comunicação multimídia - SCM"
+   },
+   {
+    "codigo": 6190699,
+    "descricao": "Outras atividades de telecomunicações não especificadas anteriormente"
+   },
+   {
+    "codigo": 6462000,
+    "descricao": "Holdings de instituições não-financeiras"
+   }
+  ],
+  "situacao_cadastral": 2,
+  "descricao_situacao_cadastral": "ATIVA",
+  "motivo_situacao_cadastral": 0,
+  "descricao_motivo_situacao_cadastral": "SEM MOTIVO",
+  "natureza_juridica": "Sociedade Empresária Limitada",
+  "codigo_natureza_juridica": 2062,
+  "porte": "DEMAIS",
+  "codigo_porte": 5,
+  "data_inicio_atividade": "2018-01-19",
+  "email": "contato@example.org",
+  "ddd_telefone_1": "1100000000",
+  "ddd_telefone_2": ""
+ },
+ "43828151000145": {
+  "cnpj": "43828151000145",
+  "razao_social": "FUNDACAO DE AMPARO A PESQUISA DO ESTADO DE SAO PAULO FAPESP",
+  "nome_fantasia": "",
+  "logradouro": "PIO XI",
+  "descricao_tipo_de_logradouro": "RUA",
+  "numero": "1500",
+  "complemento": "",
+  "bairro": "ALTO DA LAPA",
+  "municipio": "SAO PAULO",
+  "uf": "SP",
+  "cep": "05468140",
+  "codigo_municipio": 7107,
+  "codigo_municipio_ibge": 3550308,
+  "identificador_matriz_filial": 1,
+  "descricao_identificador_matriz_filial": "MATRIZ",
+  "cnae_fiscal": 8411600,
+  "cnae_fiscal_descricao": "Administração pública em geral",
+  "cnaes_secundarios": [],
+  "situacao_cadastral": 2,
+  "descricao_situacao_cadastral": "ATIVA",
+  "motivo_situacao_cadastral": 0,
+  "descricao_motivo_situacao_cadastral": "SEM MOTIVO",
+  "natureza_juridica": "Fundação Pública de Direito Público Estadual ou do Distrito Federal",
+  "codigo_natureza_juridica": 1147,
+  "porte": "DEMAIS",
+  "codigo_porte": 5,
+  "data_inicio_atividade": "1973-10-05",
+  "email": "contato@example.org",
+  "ddd_telefone_1": "1100000000",
+  "ddd_telefone_2": ""
+ }
+}

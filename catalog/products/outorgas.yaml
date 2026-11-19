@@ -1,0 +1,284 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: outorgas
+nome: Outorgas Anatel (SCM, SMP, STFC, SeAC) e mapas
+descricao: Quatro arquivos de outorgas, cada um com lista, índice por CNPJ, vínculo CNPJ↔ASN, bloco SICI
+  resumido e coordenadas; mais os mapas GeoJSON.
+modulo: publish.snapshot_builder
+entradas:
+- source: anatel_scm
+- source: anatel_seac
+- source: anatel_smp
+- source: anatel_stfc
+- source: scm_geo
+- source: seac_geo
+- source: smp_geo
+- source: stfc_geo
+- source: registro_br
+- source: anatel_sici
+chaves_de_juncao:
+- cnpj
+- asn
+- uf
+- ibge
+saidas:
+  publicado:
+  - scm.json.gz
+  - seac.json.gz
+  - smp.json.gz
+  - stfc.json.gz
+  - maps/scms.geojson
+  - maps/seacs.geojson
+  - maps/smps.geojson
+  - maps/stfcs.geojson
+campos:
+- nome: scms[].asns
+  tipo: list[int]
+  significado: ASNs vinculados ao CNPJ pelo Registro.br.
+  publicado_em:
+  - outorgas → scm.json.gz#scms
+- nome: scms[].sici_ativo / sici_mes_referencia / sici_acessos / sici_pf / sici_pj
+  tipo: bool|str|int
+  significado: Resumo do SICI do CNPJ copiado para a outorga.
+  tratamento: Sem soma por ASN; um CNPJ com vários ASNs não deve ser somado duas vezes.
+  publicado_em:
+  - outorgas → scm.json.gz#scms
+- nome: scms[].sici_municipios / sici_capacidade_mbps / sici_tecnologia / sici_empresa
+  tipo: int|float|str
+  significado: Municípios atendidos, capacidade contratada, tecnologia predominante e nome no SICI.
+  publicado_em:
+  - outorgas → scm.json.gz#scms
+- nome: matched_asns / cnpj_to_asns
+  tipo: int / dict
+  significado: Quantidade de CNPJs ligados a ASN e o mapa CNPJ→ASNs.
+  publicado_em:
+  - outorgas → scm.json.gz#cnpj_to_asns
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - outorgas → scm.json.gz#snapshot_date
+- nome: generated_at
+  tipo: str
+  significado: Instante UTC em que o arquivo foi gerado.
+  publicado_em:
+  - outorgas → scm.json.gz#generated_at
+- nome: total
+  tipo: int
+  significado: Quantidade de registros de outorga.
+  publicado_em:
+  - outorgas → scm.json.gz#total
+- nome: unique_cnpjs
+  tipo: int
+  significado: CNPJs distintos.
+  publicado_em:
+  - outorgas → scm.json.gz#unique_cnpjs
+- nome: matched_asns
+  tipo: int
+  significado: CNPJs com ASN vinculado.
+  publicado_em:
+  - outorgas → scm.json.gz#matched_asns
+- nome: scms
+  tipo: list[dict]
+  significado: Registros de outorga SCM (um por CNPJ/endereço).
+  publicado_em:
+  - outorgas → scm.json.gz#scms
+- nome: by_cnpj
+  tipo: dict
+  significado: Índice CNPJ → registros de outorga.
+  publicado_em:
+  - outorgas → scm.json.gz#by_cnpj
+- nome: cnpj_to_asns
+  tipo: dict
+  significado: CNPJ → ASNs do Registro.br.
+  publicado_em:
+  - outorgas → scm.json.gz#cnpj_to_asns
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - outorgas → seac.json.gz#snapshot_date
+- nome: generated_at
+  tipo: str
+  significado: Instante UTC em que o arquivo foi gerado.
+  publicado_em:
+  - outorgas → seac.json.gz#generated_at
+- nome: total
+  tipo: int
+  significado: Quantidade de registros de outorga.
+  publicado_em:
+  - outorgas → seac.json.gz#total
+- nome: unique_cnpjs
+  tipo: int
+  significado: CNPJs distintos.
+  publicado_em:
+  - outorgas → seac.json.gz#unique_cnpjs
+- nome: matched_asns
+  tipo: int
+  significado: CNPJs com ASN vinculado.
+  publicado_em:
+  - outorgas → seac.json.gz#matched_asns
+- nome: seacs
+  tipo: list[dict]
+  significado: Registros de outorga SeAC.
+  publicado_em:
+  - outorgas → seac.json.gz#seacs
+- nome: by_cnpj
+  tipo: dict
+  significado: Índice CNPJ → registros de outorga.
+  publicado_em:
+  - outorgas → seac.json.gz#by_cnpj
+- nome: cnpj_to_asns
+  tipo: dict
+  significado: CNPJ → ASNs do Registro.br.
+  publicado_em:
+  - outorgas → seac.json.gz#cnpj_to_asns
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - outorgas → smp.json.gz#snapshot_date
+- nome: generated_at
+  tipo: str
+  significado: Instante UTC em que o arquivo foi gerado.
+  publicado_em:
+  - outorgas → smp.json.gz#generated_at
+- nome: total
+  tipo: int
+  significado: Quantidade de registros de outorga.
+  publicado_em:
+  - outorgas → smp.json.gz#total
+- nome: unique_cnpjs
+  tipo: int
+  significado: CNPJs distintos.
+  publicado_em:
+  - outorgas → smp.json.gz#unique_cnpjs
+- nome: matched_asns
+  tipo: int
+  significado: CNPJs com ASN vinculado.
+  publicado_em:
+  - outorgas → smp.json.gz#matched_asns
+- nome: smps
+  tipo: list[dict]
+  significado: Registros de outorga SMP.
+  publicado_em:
+  - outorgas → smp.json.gz#smps
+- nome: by_cnpj
+  tipo: dict
+  significado: Índice CNPJ → registros de outorga.
+  publicado_em:
+  - outorgas → smp.json.gz#by_cnpj
+- nome: cnpj_to_asns
+  tipo: dict
+  significado: CNPJ → ASNs do Registro.br.
+  publicado_em:
+  - outorgas → smp.json.gz#cnpj_to_asns
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - outorgas → stfc.json.gz#snapshot_date
+- nome: generated_at
+  tipo: str
+  significado: Instante UTC em que o arquivo foi gerado.
+  publicado_em:
+  - outorgas → stfc.json.gz#generated_at
+- nome: total
+  tipo: int
+  significado: Quantidade de registros de outorga.
+  publicado_em:
+  - outorgas → stfc.json.gz#total
+- nome: unique_cnpjs
+  tipo: int
+  significado: CNPJs distintos.
+  publicado_em:
+  - outorgas → stfc.json.gz#unique_cnpjs
+- nome: matched_asns
+  tipo: int
+  significado: CNPJs com ASN vinculado.
+  publicado_em:
+  - outorgas → stfc.json.gz#matched_asns
+- nome: stfcs
+  tipo: list[dict]
+  significado: Registros de outorga STFC.
+  publicado_em:
+  - outorgas → stfc.json.gz#stfcs
+- nome: by_cnpj
+  tipo: dict
+  significado: Índice CNPJ → registros de outorga.
+  publicado_em:
+  - outorgas → stfc.json.gz#by_cnpj
+- nome: cnpj_to_asns
+  tipo: dict
+  significado: CNPJ → ASNs do Registro.br.
+  publicado_em:
+  - outorgas → stfc.json.gz#cnpj_to_asns
+- nome: type
+  tipo: str
+  significado: Tipo GeoJSON.
+  publicado_em:
+  - outorgas → maps/scms.geojson#type
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - outorgas → maps/scms.geojson#snapshot_date
+- nome: features
+  tipo: list
+  significado: 'Um ponto por CNPJ com outorga SCM geolocalizado (properties: cnpj, razao_social, municipio,
+    uf, asns, has_asn, geo_confidence; SCM acrescenta sici_*).'
+  publicado_em:
+  - outorgas → maps/scms.geojson#features
+- nome: type
+  tipo: str
+  significado: Tipo GeoJSON.
+  publicado_em:
+  - outorgas → maps/seacs.geojson#type
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - outorgas → maps/seacs.geojson#snapshot_date
+- nome: features
+  tipo: list
+  significado: 'Um ponto por CNPJ com outorga SeAC geolocalizado (properties: cnpj, razao_social, municipio,
+    uf, asns, has_asn, geo_confidence; SCM acrescenta sici_*).'
+  publicado_em:
+  - outorgas → maps/seacs.geojson#features
+- nome: type
+  tipo: str
+  significado: Tipo GeoJSON.
+  publicado_em:
+  - outorgas → maps/smps.geojson#type
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - outorgas → maps/smps.geojson#snapshot_date
+- nome: features
+  tipo: list
+  significado: 'Um ponto por CNPJ com outorga SMP geolocalizado (properties: cnpj, razao_social, municipio,
+    uf, asns, has_asn, geo_confidence; SCM acrescenta sici_*).'
+  publicado_em:
+  - outorgas → maps/smps.geojson#features
+- nome: type
+  tipo: str
+  significado: Tipo GeoJSON.
+  publicado_em:
+  - outorgas → maps/stfcs.geojson#type
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - outorgas → maps/stfcs.geojson#snapshot_date
+- nome: features
+  tipo: list
+  significado: 'Um ponto por CNPJ com outorga STFC geolocalizado (properties: cnpj, razao_social, municipio,
+    uf, asns, has_asn, geo_confidence; SCM acrescenta sici_*).'
+  publicado_em:
+  - outorgas → maps/stfcs.geojson#features
+cenarios_de_teste:
+- scm_sem_sici
+- cnpj_dois_asns
+- contatos_fora_do_published
+limites: 'Uma outorga por (CNPJ, serviço, endereço): CNPJ pode aparecer várias vezes. E-mail/telefone
+  presentes no arquivo e removidos das rotas públicas.'

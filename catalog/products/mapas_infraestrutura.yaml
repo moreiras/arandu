@@ -1,0 +1,134 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: mapas_infraestrutura
+nome: Camadas de infraestrutura (cabos, transmissão, rodovias)
+descricao: 'GeoJSON das camadas de fundo de infraestrutura: cabos submarinos e aterragens, enlaces ITU,
+  linhas de transmissão e rodovias.'
+modulo: publish.snapshot_builder
+entradas:
+- source: telegeography_cables
+- source: itu_transmission
+- source: aneel_sigel_transmission
+- source: ibge_bc250_rodovias
+chaves_de_juncao:
+- ponto
+- cabo
+saidas:
+  publicado:
+  - maps/submarine_cables.geojson
+  - maps/submarine_landing_points.geojson
+  - maps/itu_transmission.geojson
+  - maps/power_transmission_lines.geojson
+  - maps/ibge_rodovias.geojson
+campos:
+- nome: type
+  tipo: str
+  significado: Tipo GeoJSON.
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_cables.geojson#type
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_cables.geojson#snapshot_date
+- nome: source
+  tipo: str
+  significado: Origem do dado exibida como atribuição.
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_cables.geojson#source
+- nome: features
+  tipo: list
+  significado: Geometrias da camada com as propriedades de cada elemento.
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_cables.geojson#features
+- nome: type
+  tipo: str
+  significado: Tipo GeoJSON.
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_landing_points.geojson#type
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_landing_points.geojson#snapshot_date
+- nome: source
+  tipo: str
+  significado: Origem do dado exibida como atribuição.
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_landing_points.geojson#source
+- nome: features
+  tipo: list
+  significado: Geometrias da camada com as propriedades de cada elemento.
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_landing_points.geojson#features
+- nome: type
+  tipo: str
+  significado: Tipo GeoJSON.
+  publicado_em:
+  - mapas_infraestrutura → maps/itu_transmission.geojson#type
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - mapas_infraestrutura → maps/itu_transmission.geojson#snapshot_date
+- nome: source
+  tipo: str
+  significado: Origem do dado exibida como atribuição.
+  publicado_em:
+  - mapas_infraestrutura → maps/itu_transmission.geojson#source
+- nome: features
+  tipo: list
+  significado: Geometrias da camada com as propriedades de cada elemento.
+  publicado_em:
+  - mapas_infraestrutura → maps/itu_transmission.geojson#features
+- nome: type
+  tipo: str
+  significado: Tipo GeoJSON.
+  publicado_em:
+  - mapas_infraestrutura → maps/power_transmission_lines.geojson#type
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - mapas_infraestrutura → maps/power_transmission_lines.geojson#snapshot_date
+- nome: source
+  tipo: str
+  significado: Origem do dado exibida como atribuição.
+  publicado_em:
+  - mapas_infraestrutura → maps/power_transmission_lines.geojson#source
+- nome: features
+  tipo: list
+  significado: Geometrias da camada com as propriedades de cada elemento.
+  publicado_em:
+  - mapas_infraestrutura → maps/power_transmission_lines.geojson#features
+- nome: type
+  tipo: str
+  significado: Tipo GeoJSON.
+  publicado_em:
+  - mapas_infraestrutura → maps/ibge_rodovias.geojson#type
+- nome: snapshot_date
+  tipo: str
+  significado: Data do snapshot (AAAA-MM-DD) a que o arquivo pertence.
+  publicado_em:
+  - mapas_infraestrutura → maps/ibge_rodovias.geojson#snapshot_date
+- nome: source
+  tipo: str
+  significado: Origem do dado exibida como atribuição.
+  publicado_em:
+  - mapas_infraestrutura → maps/ibge_rodovias.geojson#source
+- nome: features
+  tipo: list
+  significado: Geometrias da camada com as propriedades de cada elemento.
+  publicado_em:
+  - mapas_infraestrutura → maps/ibge_rodovias.geojson#features
+- nome: attribution
+  tipo: str
+  significado: Atribuição obrigatória à TeleGeography (CC BY-SA).
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_cables.geojson#attribution
+- nome: attribution
+  tipo: str
+  significado: Atribuição obrigatória à TeleGeography (CC BY-SA).
+  publicado_em:
+  - mapas_infraestrutura → maps/submarine_landing_points.geojson#attribution
+limites: Atribuição obrigatória (TeleGeography CC BY-SA); camadas não indicam fibra em linhas elétricas
+  nem rodovias.

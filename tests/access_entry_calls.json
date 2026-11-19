@@ -1,0 +1,86 @@
+{
+ "degradaveis": {
+  "/": [
+   "/api/v1/acessos/divergencias",
+   "/api/v1/map/pix",
+   "/api/v1/query/acessos_municipio",
+   "/api/v1/query/asns",
+   "/api/v1/query/eventos",
+   "/api/v1/query/ixps",
+   "/api/v1/query/operadoras"
+  ],
+  "/ixps": [
+   "/api/v1/map/asns",
+   "/api/v1/map/prefixes"
+  ],
+  "/visao-geral": [
+   "/api/v1/asns/${asn}"
+  ]
+ },
+ "paginas": {
+  "/": [
+   "/api/v1/brasil/indicadores",
+   "/api/v1/snapshots",
+   "/api/v1/snapshots/${date}"
+  ],
+  "/ases": [
+   "/api/v1/asns",
+   "/api/v1/bgp-stability/summary",
+   "/api/v1/snapshots"
+  ],
+  "/dados": [],
+  "/estados": [
+   "/api/v1/snapshots",
+   "/api/v1/ufs"
+  ],
+  "/fontes": [
+   "/api/v1/snapshots",
+   "/api/v1/snapshots/${date}"
+  ],
+  "/grupos": [
+   "/api/v1/asns",
+   "/api/v1/grupos",
+   "/api/v1/grupos/${grupoId}/prefixos-geo",
+   "/api/v1/snapshots"
+  ],
+  "/ixps": [
+   "/api/v1/asns",
+   "/api/v1/asns/ix-presence",
+   "/api/v1/external-ixps",
+   "/api/v1/ixps",
+   "/api/v1/ixps/estimated-users",
+   "/api/v1/snapshots",
+   "/api/v1/snapshots/${date}"
+  ],
+  "/operadoras": [
+   "/api/v1/acessos/municipio/${ibge}?servico=movel",
+   "/api/v1/acessos/municipio/${ibge}",
+   "/api/v1/acessos/municipios?servico=movel",
+   "/api/v1/acessos/municipios",
+   "/api/v1/acessos/operadoras?servico=movel",
+   "/api/v1/asns",
+   "/api/v1/outorgas",
+   "/api/v1/outorgas/map",
+   "/api/v1/outorgas/stats",
+   "/api/v1/snapshots"
+  ],
+  "/sobre": [
+   "/api/v1/asns",
+   "/api/v1/snapshots"
+  ],
+  "/visao-geral": [
+   "/api/v1/asns",
+   "/api/v1/hilbert/v4",
+   "/api/v1/hilbert/v4/detail",
+   "/api/v1/hilbert/v6",
+   "/api/v1/ixps",
+   "/api/v1/ixps/${code}/hilbert/v4/detail",
+   "/api/v1/map/asns-overview",
+   "/api/v1/scms/stats",
+   "/api/v1/snapshots",
+   "/api/v1/snapshots/${date}"
+  ],
+  "/acessibilidade": [],
+  "/mapa-do-site": []
+ }
+}

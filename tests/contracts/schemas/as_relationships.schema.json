@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "as_relationships.json.gz (1.2.10, ARC v1)",
+  "type": "object",
+  "required": ["snapshot_date", "generated_at", "algoritmo", "entradas", "clique", "diagnostico", "resumo", "relacoes"],
+  "properties": {
+    "snapshot_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "generated_at": {"type": "string"},
+    "algoritmo": {"type": "string", "pattern": "^ARC v\\d+$"},
+    "entradas": {
+      "type": "object",
+      "required": ["route_servers", "coletores", "aspa_objetos", "caida_as_of"],
+      "properties": {
+        "route_servers": {"type": "boolean"},
+        "coletores": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}}},
+        "aspa_objetos": {"type": "integer"},
+        "caida_as_of": {"type": ["string", "null"]},
+        "elos_so_com_asn_brasileiro": {"type": "boolean"}
+      }
+    },
+    "clique": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "integer"}}},
+    "diagnostico": {"type": "object"},
+    "resumo": {"type": "object", "additionalProperties": {"type": "integer"}},
+    "relacoes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["a", "b", "tipo", "p", "nivel", "afi", "evid", "n_vps", "n_ptt", "visto_em"],
+        "properties": {
+          "a": {"type": "integer"},
+          "b": {"type": "integer"},
+          "tipo": {"enum": ["p2c", "p2p", "s2s", "sem_classificacao"]},
+          "p": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+          "nivel": {"enum": ["declarado", "confirmado", "provavel", "possivel", "sem_classificacao"]},
+          "afi": {"type": "array", "items": {"enum": ["v4", "v6"]}, "minItems": 1},
+          "evid": {"type": "object"},
+          "n_vps": {"type": "integer", "minimum": 0},
+          "n_ptt": {"type": "integer", "minimum": 0},
+          "visto_em": {"type": "string"},
+          "afi_divergente": {"type": "boolean"},
+          "estrato": {"enum": ["ambos", "so_caida", "so_tripla", "conflito", "sem_evidencia"]},
+          "p_calibrada": {"type": ["number", "null"], "exclusiveMinimum": 0, "maximum": 1}
+        }
+      }
+    }
+  }
+}

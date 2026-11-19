@@ -1,0 +1,96 @@
+{
+ "api": {
+  "version": "2.0.0",
+  "cache_status": {
+   "cached_at": "2026-11-06T19:52:42.962910179Z",
+   "orig_ttl": 0
+  },
+  "result_from_cache": false,
+  "ttl": "2026-11-06T19:57:42Z"
+ },
+ "pagination": {
+  "page": 0,
+  "page_size": 250,
+  "total_pages": 1,
+  "total_results": 2
+ },
+ "filtered": null,
+ "imported": [
+  {
+   "neighbor_id": "AS64496_203_0_113_10",
+   "network": "203.0.113.0/24",
+   "interface": "eth0",
+   "gateway": "203.0.113.10",
+   "metric": 100,
+   "bgp": {
+    "origin": "IGP",
+    "as_path": [
+     64498
+    ],
+    "next_hop": "203.0.113.10",
+    "communities": [
+     [
+      65001,
+      64496
+     ]
+    ],
+    "large_communities": [
+     [
+      26162,
+      300,
+      1
+     ]
+    ],
+    "ext_communities": [],
+    "local_pref": 100,
+    "med": 0
+   },
+   "age": 1,
+   "type": [
+    "BGP",
+    "univ"
+   ],
+   "primary": true,
+   "learnt_from": "203.0.113.10",
+   "details": null
+  },
+  {
+   "neighbor_id": "AS64496_203_0_113_10",
+   "network": "203.0.113.64/26",
+   "interface": "eth0",
+   "gateway": "203.0.113.10",
+   "metric": 100,
+   "bgp": {
+    "origin": "IGP",
+    "as_path": [
+     64498
+    ],
+    "next_hop": "203.0.113.10",
+    "communities": [
+     [
+      65001,
+      64496
+     ]
+    ],
+    "large_communities": [
+     [
+      26162,
+      300,
+      2
+     ]
+    ],
+    "ext_communities": [],
+    "local_pref": 100,
+    "med": 0
+   },
+   "age": 1,
+   "type": [
+    "BGP",
+    "univ"
+   ],
+   "primary": true,
+   "learnt_from": "203.0.113.10",
+   "details": null
+  }
+ ]
+}

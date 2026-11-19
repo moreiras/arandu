@@ -1,0 +1,58 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: transito
+nome: Trânsito por UF e cone de clientes (inferido)
+descricao: Para cada UF, os provedores inferidos (ARC v2, nível provável ou superior) dos ASNs do Brasil com sede nela, com a participação de cada um e a concentração
+  (HHI, top 1 e top 3, fração de provedores estrangeiros); para cada ASN com cliente inferido, o cone de clientes (todos, do Brasil, usuários estimados e UFs). Tudo é inferência
+  sobre relações inferidas; a UF é a da sede da organização.
+modulo: products.transito.build
+entradas:
+- product: as_relationships
+- source: registro_br
+- source: caida_as2org
+- product: asn_docs
+chaves_de_juncao:
+- asn
+- uf
+saidas:
+  publicado:
+  - transito/ufs.json.gz
+  - transito/asns.json.gz
+campos:
+- nome: ufs[uf].asns_br / asns_com_provedor / pct_com_provedor
+  tipo: int / int / float
+  significado: ASNs do Brasil com sede na UF, quantos têm ao menos um provedor inferido (nível provável ou superior) e a fração.
+  tratamento: UF = sede da organização (geo_org do ASN), não onde o trânsito é entregue; provedor = relação p2c inferida pelo ARC v2.
+  publicado_em:
+  - transito → transito/ufs.json.gz#ufs
+- nome: ufs[uf].hhi_clientes / top1_share / top3_share
+  tipo: int / float / float
+  significado: Concentração da participação de cada provedor nos pares (ASN da UF, provedor), com HHI de 0 a 10.000, maior provedor e três maiores.
+  tratamento: Mede quem os ASNs têm como provedor inferido, não volume de tráfego nem contratos.
+  publicado_em:
+  - transito → transito/ufs.json.gz#ufs
+- nome: ufs[uf].provedores[]
+  tipo: list
+  significado: Os 20 maiores provedores da UF (ASN, nome, se é brasileiro, clientes e usuários estimados na UF, e a participação).
+  tratamento: Usuários são estimativa APNIC e se repetem entre ASNs da mesma operadora, e share_usuarios é rotulado como estimativa.
+  publicado_em:
+  - transito → transito/ufs.json.gz#ufs
+- nome: asns[asn].cone_asns / cone_br / cone_usuarios / cone_ufs / clientes_diretos
+  tipo: int
+  significado: Cone de clientes do ASN pelas relações p2c firmes (busca em largura, segura com ciclos), sem o próprio ASN e os irmãos (mesmo CNPJ raiz ou organização do CAIDA).
+  tratamento: Só existem elos com ao menos um ASN brasileiro; o cone de um ASN estrangeiro só conta o que tem ligação com o Brasil.
+  publicado_em:
+  - transito → transito/asns.json.gz#asns
+- nome: cobertura / limites / fonte
+  tipo: dict
+  significado: ASNs do Brasil com provedor, elos p2c usados, algoritmo e data das relações, limites e as coletas dos coletores.
+  publicado_em:
+  - transito → transito/ufs.json.gz#cobertura
+  - transito → transito/ufs.json.gz#limites
+  - transito → transito/ufs.json.gz#fonte
+- nome: snapshot_date / generated_at
+  tipo: str
+  significado: Data do snapshot e instante UTC de geração.
+  publicado_em:
+  - transito → transito/ufs.json.gz#snapshot_date
+  - transito → transito/ufs.json.gz#generated_at
+limites: Inferência sobre inferência. O cone ignora elos de nível possível e as relações complexas; a concentração é sobre quem é provedor, não sobre o tráfego.

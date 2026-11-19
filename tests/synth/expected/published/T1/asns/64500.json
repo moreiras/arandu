@@ -1,0 +1,219 @@
+{
+ "alerts": [
+  {
+   "category": "presenca",
+   "desde_versao": 2,
+   "detail": "O AS aparenta depender de um único upstream (IPv6 e IPv4) na tabela global — risco de resiliência.",
+   "id": "single_homed",
+   "refs": {
+    "upstream_v4": 4200000000,
+    "upstream_v6": 4200000000
+   },
+   "severity": "aviso",
+   "title": "Conectividade single-homed"
+  },
+  {
+   "category": "roteamento",
+   "desde_versao": 1,
+   "detail": "O AS tem presença em IPv4 mas nenhum prefixo IPv6 alocado nem anunciado. IPv6 é requisito de boas práticas para novas redes.",
+   "id": "sem_ipv6",
+   "refs": {},
+   "severity": "aviso",
+   "title": "Sem IPv6"
+  },
+  {
+   "category": "rpki",
+   "desde_versao": 1,
+   "detail": "O AS possui ROAs no RPKI mas não publicou nenhum objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os upstreams autorizados e permite validação de AS_PATH — sua ausência não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
+   "id": "sem_aspa",
+   "refs": {},
+   "severity": "aviso",
+   "title": "Sem ASPA"
+  },
+  {
+   "category": "presenca",
+   "desde_versao": 1,
+   "detail": "O cadastro no PeeringDB não informa um as-set no IRR. Sem objeto IRR, peers e provedores não conseguem montar filtros de prefixo automaticamente.",
+   "id": "sem_irr_as_set",
+   "refs": {},
+   "severity": "info",
+   "title": "Sem AS-SET no IRR"
+  }
+ ],
+ "announced_ipv4_addresses": 1024,
+ "announced_ipv6_48s": null,
+ "apnic_users": 15391,
+ "apnic_users_pct_cc": 0.7695,
+ "apnic_v6_pct_as": 0.0,
+ "apnic_v6_users": 0,
+ "asn": 64500,
+ "cnpj": "90000005000107",
+ "downstreams": [],
+ "downstreams_global_v4": [],
+ "downstreams_global_v6": [],
+ "downstreams_v4": [],
+ "downstreams_v6": [],
+ "external_ixps": [],
+ "geo_org": {
+  "city": "Curumim do Sul",
+  "cnpj": "90000005000107",
+  "geo_confidence": "city_centroid",
+  "geo_source": "nominatim",
+  "lat": -30.05,
+  "lon": -51.2,
+  "municipio": "Curumim do Sul",
+  "name": "Provedor 05 Telecom Ltda",
+  "uf": "RS"
+ },
+ "geo_prefixes_v4": {
+  "198.18.12.0/22": {
+   "city": "Curumim do Sul",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -30.05,
+   "lon": -51.2,
+   "uf": "RS"
+  }
+ },
+ "geo_prefixes_v6": {},
+ "global_prefixes_v4": [
+  "198.18.12.0/22"
+ ],
+ "global_prefixes_v4_count": 1,
+ "global_prefixes_v6": [],
+ "global_prefixes_v6_count": 0,
+ "has_ipv6": false,
+ "is_br": true,
+ "is_multihomed_v4": false,
+ "is_multihomed_v6": false,
+ "ixp_member_codes": [
+  "za"
+ ],
+ "ixp_presence": {
+  "za": {
+   "v4": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "198.18.12.0/22"
+    ]
+   },
+   "v6": {
+    "direct": true,
+    "origin": true,
+    "prefixes": []
+   }
+  }
+ },
+ "ixps_direct": [
+  "za"
+ ],
+ "ixps_origin": [
+  "za"
+ ],
+ "name": "Provedor 05 Telecom Ltda",
+ "path_node_meta": {
+  "4200000000": {
+   "is_br": true,
+   "name": "Trânsito Nacional 1 S.A.",
+   "space_v4": 6,
+   "space_v6": 1
+  }
+ },
+ "pdb": {
+  "asn": 64500,
+  "info_type": "Cable/DSL/ISP",
+  "name": "Provedor 05 Telecom Ltda",
+  "policy_general": "Open"
+ },
+ "pdb_registered": true,
+ "rir_prefixes_v4": [
+  "198.18.12.0/22"
+ ],
+ "rir_prefixes_v4_count": 1,
+ "rir_prefixes_v6": [],
+ "rir_prefixes_v6_count": 0,
+ "roa_list": [
+  {
+   "asn": 64500,
+   "maxLength": 22,
+   "prefix": "198.18.12.0/22",
+   "ta": "lacnic"
+  }
+ ],
+ "rpki_validation": {
+  "198.18.12.0/22": "valid"
+ },
+ "sici": {
+  "acessos": 5152,
+  "acessos_compartilhados": true,
+  "acessos_internet": 5152,
+  "asns": [
+   64500,
+   64501
+  ],
+  "capacidade_internet_mbps": 618240.0,
+  "capacidade_mbps": 618240.0,
+  "cnpj": "90000005000107",
+  "divergencia_apnic_anatel": {
+   "classificacao": "nao_comparavel",
+   "motivo": "acessos_compartilhados"
+  },
+  "empresa": "Provedor 05 Telecom Ltda",
+  "grupo": "OUTROS",
+  "meio_predominante": "Fibra",
+  "mes_referencia": "2026-08",
+  "municipios": 1,
+  "pf": 4636,
+  "pj": 516,
+  "por_faixa": {
+   "> 34Mbps": 5152
+  },
+  "por_meio": {
+   "Fibra": 5152
+  },
+  "por_produto": {
+   "INTERNET": 5152
+  },
+  "por_tecnologia": {
+   "FTTH": 5152
+  },
+  "porte": "Pequeno Porte",
+  "serie": [
+   [
+    "2026-07",
+    4997,
+    4496,
+    500
+   ],
+   [
+    "2026-08",
+    5152,
+    4636,
+    516
+   ]
+  ],
+  "tecnologia_predominante": "FTTH",
+  "velocidade_media_mbps": 120.0,
+  "velocidade_mediana_mbps": 120.0
+ },
+ "single_upstream_v4": 4200000000,
+ "single_upstream_v6": 4200000000,
+ "snapshot_date": "2026-09-20",
+ "upstreams": [
+  4200000000
+ ],
+ "upstreams_global_v4": [
+  4200000000
+ ],
+ "upstreams_global_v6": [
+  4200000000
+ ],
+ "upstreams_v4": [
+  4200000000
+ ],
+ "upstreams_v6": [],
+ "users_per_ip": 15.03,
+ "users_per_v6_48": null
+}

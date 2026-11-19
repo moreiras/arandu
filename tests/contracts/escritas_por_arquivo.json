@@ -1,0 +1,264 @@
+{
+ "asns/index.json": {
+  "arquivos": 1,
+  "max_escritas": 2,
+  "distribuicao": {
+   "2": 1
+  }
+ },
+ "asns/names.json": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "asns/{n}.json": {
+  "arquivos": 60,
+  "max_escritas": 4,
+  "distribuicao": {
+   "1": 24,
+   "2": 1,
+   "3": 29,
+   "4": 6
+  }
+ },
+ "cdns.json": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "external-ixps/index.json": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "external-ixps/zx.json": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "grupos_societarios.json.gz": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "hilbert_v{n}.json": {
+  "arquivos": 2,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 2
+  }
+ },
+ "ixps/_aggregate.json": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "ixps/index.json": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "ixps/za.json": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "ixps/zb.json": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "ixps/zc.json": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "manifest.json": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "manifest.json.tmp": {
+  "arquivos": 1,
+  "max_escritas": 2,
+  "distribuicao": {
+   "2": 1
+  }
+ },
+ "maps/asns.geojson": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "maps/global_prefixes.geojson": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "maps/ibge_rodovias.geojson": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "maps/itu_transmission.geojson": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "maps/power_transmission_lines.geojson": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "maps/prefixes.geojson": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "maps/scms.geojson": {
+  "arquivos": 1,
+  "max_escritas": 2,
+  "distribuicao": {
+   "2": 1
+  }
+ },
+ "maps/seacs.geojson": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "maps/smps.geojson": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "maps/stfcs.geojson": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "maps/submarine_cables.geojson": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "maps/submarine_landing_points.geojson": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "scm.json.gz": {
+  "arquivos": 1,
+  "max_escritas": 2,
+  "distribuicao": {
+   "2": 1
+  }
+ },
+ "seac.json.gz": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "sici.json.gz": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "sici_movel.json.gz": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "sici_movel_municipios.json.gz": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "sici_municipios.json.gz": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "smp.json.gz": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "snapshot_detail.json.tmp": {
+  "arquivos": 1,
+  "max_escritas": 2,
+  "distribuicao": {
+   "2": 1
+  }
+ },
+ "stfc.json.gz": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ },
+ "summary.json": {
+  "arquivos": 1,
+  "max_escritas": 1,
+  "distribuicao": {
+   "1": 1
+  }
+ }
+}

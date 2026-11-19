@@ -1,0 +1,11 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: rpki_collector
+nome: VRPs e ASPA (Routinator avulso)
+ordem: 34
+modulo: sources.rpki_collector.collect
+fontes:
+- rpki_collector
+produtos:
+- rpki
+politica_falha: opcional
+descricao: 'Lê data/cache/rpki/vrps.json, gravado por scripts/rpki-avulso.sh antes do worker. Precisa vir antes do índice de ASNs (que nasce com has_rpki), da análise BGP e de saude_asn6b: todos usam os VRPs (achado do replay, 1.1.5.4).'

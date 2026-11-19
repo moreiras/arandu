@@ -1,0 +1,6 @@
+﻿Ano;Mês;Grupo Econômico;Empresa;CNPJ;Porte da Prestadora;UF;Município;Código IBGE Município;Código Nacional;Modalidade de Cobrança;Tecnologia Geração;Tipo de Pessoa;Tipo de Produto;Acessos
+2026;6;OUTROS;TRANSATEL BRASIL LTDA;51042993000103;Pequeno Porte;SP;São Paulo;3550308;11;Pós-pago;4G;Pessoa Física;VOZ+DADOS;863
+2026;6;OUTROS;TRANSATEL BRASIL LTDA;51042993000103;Pequeno Porte;RS;São Paulo;3550308;11;Pós-pago;4G;Pessoa Jurídica;M2M;153023
+2026;7;OUTROS;TRANSATEL BRASIL LTDA;51042993000103;Pequeno Porte;SP;São Paulo;3550308;11;Pós-pago;4G;Pessoa Física;VOZ+DADOS;873
+2026;7;OUTROS;TRANSATEL BRASIL LTDA;51042993000103;Pequeno Porte;MG;São Paulo;3550308;11;Pós-pago;4G;Pessoa Jurídica;M2M;160921
+2026;7;OUTROS;Infra Ficticia;11111111000191;Pequeno Porte;SP;São Paulo;3550308;11;Pós-pago;4G;Pessoa Jurídica;PONTO_DE_SERVICO;7

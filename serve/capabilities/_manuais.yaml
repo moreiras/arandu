@@ -1,0 +1,371 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Rotas da API escritas à mão (não nascem de capacidade declarada) e como cobrem o MCP.
+# Cada rota GET não deprecated tem de estar aqui ou em serve/capabilities/<entidade>.yaml: `mcp:` (tool, ou query:<collection>) ou `sem_mcp:`
+# (justificativa). A interface é detectada no código do frontend; `sem_ui:` justifica a ausência.
+# A matriz gerada fica em docs/cobertura.md (python3 scripts/gen_cobertura.py).
+- http: GET /acessos/divergencias
+  mcp: operadora_divergencia
+  sem_ui: "sem tela própria hoje; atende o MCP e clientes externos"
+- http: GET /acessos/divergencias/scm
+  sem_mcp: "variante com parâmetros próprios (k_pf, k_pj, min_razao) de uma análise de hipótese; operadora_divergencia cobre a razão usuários APNIC ÷ acessos por AS"
+- http: GET /acessos/municipio/{ibge}
+  mcp: municipio_banda_larga
+- http: GET /acessos/municipios
+  mcp: query:acessos_municipio
+- http: GET /acessos/municipios/mapa
+  sem_mcp: "blob de visualização (GeoJSON); fora do MCP"
+- http: GET /acessos/operadora/{cnpj}
+  mcp: operadora_acessos
+- http: GET /acessos/operadora/{cnpj}/contacts
+  sem_mcp: "contatos nunca saem pelo MCP (privacidade); a tool de perfil traz só contacts_available"
+- http: GET /acessos/operadoras
+  mcp: operadora_ranking
+- http: GET /acessos/stats
+  mcp: historico_acessos
+- http: GET /analytics/operators/reach
+  mcp: operadora_alcance
+  sem_ui: "sem tela própria hoje; atende o MCP e clientes externos"
+- http: GET /asns
+  mcp: asn_lista
+- http: GET /asns/economic-groups
+  sem_mcp: "ASNs do mesmo CNPJ: asn_detalhe traz same_cnpj_asns por AS; o ranking de CNPJs com vários ASNs sai de query(collection=asns, group_by=cnpj)"
+- http: GET /asns/ix-presence
+  mcp: asn_ix_presence
+- http: GET /asns/names
+  mcp: asn_names
+- http: GET /asns/{asn}
+  mcp: asn_detalhe
+- http: GET /asns/{asn}/acessos
+  mcp: operadora_acessos
+- http: GET /asns/{asn}/acessos/municipios
+  sem_mcp: "operadora_acessos(asn=) traz os 25 maiores municípios (top_municipios); a lista completa sai de query(collection=acessos_municipio) filtrando asns contains <asn>"
+- http: GET /asns/{asn}/contacts
+  sem_mcp: "contatos nunca saem pelo MCP (privacidade)"
+- http: GET /asns/{asn}/geo
+  mcp: viz
+- http: GET /asns/{asn}/ixp-peers
+  mcp: asn_rede
+- http: GET /asns/{asn}/paths
+  mcp: asn_rede
+- http: GET /busca
+  sem_mcp: "busca da barra do site, agrupada por tipo. O MCP já resolve por nome com asn_lista(q), operadora_resolver e municipio_resolver, e está em 54 de 56 tools; uma tool de busca geral entra na revisão do MCP (nome de domínio a definir)"
+- http: GET /bgp-stability
+  sem_mcp: "documento completo de dezenas de MB; o MCP serve recortes por rota_estabilidade (asn=, modo=visao_geral|resumo|historico)"
+- http: GET /bgp-stability-deep
+  sem_mcp: "documento completo de dezenas de MB; o MCP serve recortes por rota_estabilidade (asn=, modo=visao_geral|resumo|historico)"
+- http: GET /bgp-stability/asn/{asn}
+  mcp: rota_estabilidade
+- http: GET /bgp-stability/history
+  mcp: rota_estabilidade
+- http: GET /bgp-stability/overview
+  mcp: rota_estabilidade
+- http: GET /bgp-stability/summary
+  mcp: rota_estabilidade
+  sem_ui: "a interface usa /bgp-stability/overview e /bgp-stability/history; o resumo atende clientes externos"
+- http: GET /cdns/presence
+  mcp: cdn_presenca
+- http: GET /external-ixps
+  mcp: ixp_externo
+- http: GET /external-ixps/{code}
+  mcp: ixp_externo
+- http: GET /grupos
+  mcp: query:socios
+- http: GET /grupos/empresa/{cnpj}
+  mcp: operadora_grupo
+- http: GET /grupos/{grupo_id}
+  mcp: grupo_perfil
+- http: GET /grupos/{grupo_id}/prefixos-geo
+  sem_mcp: "blob de visualização (GeoJSON); fora do MCP"
+- http: GET /hilbert/v4
+  mcp: viz
+- http: GET /hilbert/v4/detail
+  mcp: viz
+- http: GET /hilbert/v6
+  mcp: viz
+- http: GET /ixp-compare/members
+  sem_mcp: "a comparação sai de query(collection=asns) com ixps_direct contains X e ncontains Y (álgebra de conjuntos, ver as instruções) ou de ixp_participantes de cada PTT"
+- http: GET /ixps
+  mcp: ixp_lista
+- http: GET /ixps/estimated-users
+  mcp: ixp_usuarios
+- http: GET /ixps/{code}
+  mcp: ixp_detalhe
+- http: GET /ixps/{code}/assinantes
+  mcp: ixp_assinantes
+- http: GET /ixps/{code}/estimated-users
+  mcp: ixp_usuarios
+- http: GET /ixps/{code}/geo
+  mcp: viz
+- http: GET /ixps/{code}/hilbert/v4
+  mcp: viz
+- http: GET /ixps/{code}/hilbert/v4/detail
+  mcp: viz
+- http: GET /ixps/{code}/hilbert/v6
+  mcp: viz
+- http: GET /ixps/{code}/members
+  mcp: ixp_participantes
+- http: GET /ixps/{code}/nearby
+  mcp: ixp_proximos
+  sem_ui: "a interface usa /ixps/{code}/potential; a rota atende o MCP e clientes externos"
+- http: GET /ixps/{code}/peers
+  mcp: ixp_participantes
+- http: GET /ixps/{code}/potential
+  mcp: ixp_potencial
+- http: GET /map/asns
+  mcp: viz
+- http: GET /map/asns-overview
+  mcp: viz
+- http: GET /map/erbs
+  mcp: query:erbs_municipio
+- http: GET /map/layers
+  sem_mcp: "lista de camadas do mapa da interface; fora do MCP"
+- http: GET /map/pix
+  mcp: viz
+- http: GET /map/power-transmission-lines
+  mcp: infra_proximos
+- http: GET /map/prefixes
+  mcp: viz
+- http: GET /map/rodovias
+  mcp: infra_proximos
+- http: GET /map/submarine-cables
+  mcp: infra_proximos
+- http: GET /map/submarine-landing-points
+  mcp: infra_proximos
+- http: GET /map/terrestrial-links
+  mcp: infra_proximos
+- http: GET /municipios/{ibge}
+  mcp: municipio_detalhe
+- http: GET /operadoras/{cnpj}
+  mcp: operadora_detalhe
+- http: GET /outorgas
+  mcp: outorga_lista
+- http: GET /outorgas/map
+  sem_mcp: "blob de visualização (GeoJSON); fora do MCP"
+- http: GET /outorgas/stats
+  sem_mcp: "totais por serviço saem de outorga_lista (campo total, com servico=) e a quebra por UF, de query(collection=scms|smps|stfcs|seacs, group_by=uf)"
+- http: GET /outorgas/{cnpj}
+  mcp: outorga_detalhe
+- http: GET /prefixes
+  mcp: rota_prefixos
+- http: GET /prefixes/lookup
+  mcp: rota_prefixo
+- http: GET /prefixes/{prefix}
+  mcp: rota_prefixo
+- http: GET /resolve/operator
+  mcp: operadora_resolver
+  sem_ui: "sem tela própria hoje; atende o MCP"
+- http: GET /resolve/place
+  mcp: municipio_resolver
+- http: GET /routing-analysis
+  mcp: rota_analise
+- http: GET /rpki/summary
+  mcp: rota_rpki
+- http: GET /schema
+  mcp: describe_schema
+- http: GET /snapshots
+  mcp: historico_snapshots
+- http: GET /snapshots/{date_str}
+  mcp: historico_snapshots
+- http: GET /ufs
+  mcp: uf_detalhe
+- http: GET /ufs/{uf}
+  mcp: uf_detalhe
+- http: GET /changes
+  mcp: historico_mudancas
+- http: GET /changes/summary
+  mcp: historico_mudancas
+- http: GET /history/asns/{asn}
+  mcp: historico_serie
+  sem_ui: "a linha do tempo da página lê o bloco historico do perfil (include=historico), não esta rota"
+- http: GET /history/ixps/{code}
+  mcp: historico_serie
+  sem_ui: "a linha do tempo da página lê o bloco historico do perfil (include=historico), não esta rota"
+- http: GET /history/operadoras/{cnpj}
+  mcp: historico_serie
+  sem_ui: "a linha do tempo da página lê o bloco historico do perfil (include=historico), não esta rota"
+- http: GET /history/uf/{uf}
+  mcp: historico_serie
+  sem_ui: "a linha do tempo da página lê o bloco historico do perfil (include=historico), não esta rota"
+- http: GET /snapshots/diff
+  mcp: historico_mudancas
+- http: GET /feed/mudancas.atom
+  sem_mcp: "feed de assinatura (Atom) para leitores; o MCP tem historico_mudancas"
+- http: GET /ranking/operadoras
+  mcp: query:indicadores_operadora
+- http: GET /ranking/municipios
+  sem_mcp: "o ranking por município atendido sai de query:acessos_municipio; o HHI e a variação por município vêm de municipio_banda_larga (bloco indicadores)"
+- http: GET /omissao-sici
+  mcp: query:omissao_sici
+- http: GET /territorio/mapa
+  sem_mcp: "blob de visualização ({ibge: valor} de todos os municípios para o mapa coroplético); o MCP já tem query(collection=municipios) e municipio_detalhe, que trazem os mesmos indicadores com filtro"
+- http: GET /territorio/municipio/{ibge}/semelhantes
+  sem_mcp: "comparação de apresentação (municípios do mesmo porte); o MCP já tem query(collection=municipios), que filtra e ordena por domicílios, penetração e fibra"
+- http: GET /qualidade/mapa
+  sem_mcp: "blob de visualização ({ibge: valor} de todos os municípios para o mapa); o MCP já tem query(collection=qualidade_uf) e o resumo do RQUAL, e a média entre prestadoras não é uma medida da Anatel"
+- http: GET /mercado/grupos
+  sem_mcp: "resumo de apresentação do Panorama de mercado; o MCP já tem query(collection=municipios) e operadoras, e o HHI por grupo é uma inferência que a interface rotula"
+- http: GET /territorio/rede
+  sem_mcp: "resumo de apresentação por UF (estimativas e inferências com cobertura); o MCP já tem query(collection=municipios) e as tools de segurança de roteamento e de trânsito"
+- http: GET /cdns/alcance
+  sem_mcp: "estimativa de apresentação por CDN e UF; o MCP já tem cdn_presence e operator_reach, e o alcance por UF é uma conta sobre usuários estimados da APNIC que a interface rotula"
+- http: GET /asns/{asn}/interconexao
+  mcp: asn_interconexao
+- http: GET /territorio/ranking
+  mcp: query:municipios
+- http: GET /regiao
+  sem_mcp: "agregado de um conjunto de municípios para a página de município (raio); o MCP tem asn_ix_presence, ixp_nearby e get_asn para o mesmo tipo de pergunta por ASN ou PTT"
+- http: GET /brasil/indicadores
+  sem_mcp: "resumo de apresentação da home e do Panorama técnico (agregados do país); o MCP tem query(collection=asns) com os usuários do APNIC por ASN, query(collection=seguranca_asn) e prontidao_agregado com os mesmos agregados, rota_rpki com a publicação de ROA/ASPA e rota_analise com a análise da tabela"
+- http: GET /seguranca/resumo
+  mcp: query:seguranca_asn
+- http: GET /prontidao/resumo
+  mcp: query:prontidao_agregado
+- http: GET /prontidao/asns
+  mcp: query:prontidao_asn
+  sem_ui: "a lista de ASes usa a coluna de /asns?include=prontidao; a rota fica desligada até a aprovação da metodologia"
+- http: GET /ixps/{code}/route-servers
+  mcp: query:rs_sessoes
+  sem_ui: "a página usa o mesmo bloco pelo ?include=route_servers do perfil"
+- http: GET /asns/{asn}/route-servers
+  mcp: query:rs_sessoes
+  sem_ui: "a página usa o mesmo bloco pelo ?include=route_servers do perfil"
+- http: GET /ranking/route-servers
+  mcp: query:rs_sessoes
+- http: GET /ixps/{code}/rejeicoes
+  mcp: ixp_rejeicoes
+  sem_ui: "a página usa o mesmo bloco pelo ?include=rejeicoes do perfil"
+- http: GET /asns/{asn}/politica
+  mcp: asn_politica
+  sem_ui: "a página usa o mesmo bloco pelo ?include=politica_rs do perfil"
+- http: GET /communities
+  mcp: ixp_communities
+- http: GET /cetic/tabelas
+  mcp: query:cetic_indicadores
+- http: GET /cetic/indicadores
+  mcp: query:cetic_indicadores
+- http: GET /cetic/estimativas
+  mcp: query:cetic_estimativas_uf
+- http: GET /cetic/estimativas/uf/{uf}
+  mcp: query:cetic_estimativas_uf
+  sem_ui: "a página de UF usa o mesmo bloco pelo ?include=cetic do perfil"
+- http: GET /mercado/demanda-oferta
+  mcp: query:demanda_oferta
+- http: GET /erbs/resumo
+  mcp: query:erbs_municipio
+  sem_ui: "o bloco de cada UF e de cada operadora usa o mesmo dado pelo ?include=erbs dos perfis"
+- http: GET /erbs/municipios
+  mcp: query:erbs_municipio
+- http: GET /fust/resumo
+  mcp: query:fust_municipio
+- http: GET /multas/resumo
+  mcp: query:multas_empresa
+- http: GET /multas/empresas
+  mcp: query:multas_empresa
+- http: GET /espectro/faixas
+  mcp: query:faixas_espectro
+- http: GET /espectro/resumo
+  mcp: query:faixas_espectro
+- http: GET /satelites/resumo
+  mcp: query:satelites_direitos
+- http: GET /satelites/direitos
+  mcp: query:satelites_direitos
+- http: GET /fust/municipios
+  mcp: query:fust_municipio
+- http: GET /ipv4/transferencias
+  mcp: query:transferencias_ipv4
+- http: GET /ipv4/transferencias/resumo
+  mcp: query:transferencias_ipv4
+- http: GET /ipv4/recuperacao
+  mcp: query:recuperacao_ipv4
+- http: GET /ipv4/blocos/{prefix}/ciclo-de-vida
+  mcp: query:eventos_bloco
+- http: GET /ipv4/espaco
+  mcp: query:espaco_ipv4
+- http: GET /ipv4/uso-por-terceiros
+  mcp: query:uso_por_terceiros_ipv4
+- http: GET /ipv4/asns/{asn}
+  mcp: query:uso_por_terceiros_ipv4
+- http: GET /ipv4/subasignacoes
+  mcp: query:subasignacoes_ipv4
+- http: GET /asns/{asn}/organizacao
+  mcp: query:organizacoes_asn
+  sem_ui: "a página usa o mesmo bloco pelo ?include=organizacao do perfil"
+- http: GET /asns/{asn}/abuso
+  mcp: query:organizacoes_asn
+  sem_ui: "a página usa o mesmo bloco pelo ?include=abuso do perfil"
+- http: GET /transito/ufs
+  mcp: query:transito_uf
+  sem_ui: "a página da UF usa o bloco pelo ?include=transito do perfil; a lista das 27 UFs só existe na API e no MCP"
+- http: GET /transito/ufs/{uf}
+  mcp: query:transito_uf
+  sem_ui: "a página da UF usa o detalhe pelo mesmo endpoint dentro do bloco de trânsito; o MCP traz as linhas pela coleção"
+- http: GET /asns/{asn}/transito
+  mcp: query:transito_asn
+  sem_ui: "a página usa o mesmo bloco pelo ?include=transito do perfil"
+- http: GET /qualidade/resumo
+  mcp: query:qualidade_uf
+- http: GET /qualidade/prestadoras
+  mcp: query:qualidade_uf
+- http: GET /qualidade/serie
+  mcp: query:qualidade_uf
+- http: GET /qualidade/municipios/{ibge}
+  sem_mcp: "o RQUAL por município (322 mil itens) não cabe numa coleção do /query; o MCP cobre o RQUAL por UF e prestadora em query(collection=qualidade_uf), e o detalhe municipal fica na API e na interface"
+  sem_ui: "a página do município usa o mesmo dado pelo ?include=qualidade do perfil"
+- http: GET /reclamacoes/resumo
+  mcp: query:reclamacoes_marca
+- http: GET /reclamacoes/marcas
+  mcp: query:reclamacoes_marca
+- http: GET /reclamacoes/municipios/{ibge}
+  sem_mcp: "reclamações por município e marca (milhões de linhas) ficam fora do /query; o MCP cobre as reclamações por marca, serviço e ano em query(collection=reclamacoes_marca), e o detalhe municipal fica na API e na interface"
+  sem_ui: "a página do município usa o mesmo dado pelo ?include=reclamacoes do perfil"
+- http: GET /facilities
+  mcp: facility_lista
+- http: GET /facilities/{fac_id}
+  mcp: facility_detalhe
+- http: GET /ixps/{code}/facilities
+  mcp: facility_lista
+- http: GET /ixps/{code}/portas
+  mcp: ixp_portas
+- http: GET /asns/{asn}/facilities
+  mcp: facility_lista
+  sem_ui: "a página usa o mesmo bloco pelo ?include=facilities do perfil"
+- http: GET /asns/{asn}/peering
+  mcp: asn_peering
+  sem_ui: "a página usa o mesmo bloco pelo ?include=peering do perfil"
+- http: GET /consumidor/resumo
+  mcp: query:consumidor_marca
+- http: GET /consumidor/marcas
+  mcp: query:consumidor_marca
+- http: GET /consumidor/municipios/{ibge}
+  sem_mcp: "reclamações por município e empresa ficam fora do /query; o MCP cobre as reclamações por empresa e mês em query(collection=consumidor_marca), e o detalhe municipal fica na API e na interface"
+  sem_ui: "a página do município usa o mesmo dado pelo ?include=consumidor do perfil"
+- http: GET /asns/{asn}/radar
+  mcp: asn_radar
+  sem_ui: "a página usa o mesmo bloco pelo ?include=radar do perfil"
+- http: GET /radar/ufs/{uf}
+  mcp: uf_radar
+  sem_ui: "a página da UF usa o mesmo bloco pelo ?include=radar do perfil"
+- http: GET /asns/{asn}/exposicao
+  mcp: asn_exposicao
+  sem_ui: "a página usa o mesmo bloco pelo ?include=exposicao do perfil"
+- http: GET /exposicao/ufs/{uf}
+  mcp: asn_exposicao
+  sem_ui: "a página da UF usa o mesmo bloco pelo ?include=exposicao do perfil"
+- http: GET /asns/{asn}/bloqueios
+  mcp: asn_bloqueios
+  sem_ui: "a página usa o mesmo bloco pelo ?include=bloqueios do perfil"
+- http: GET /empresas/mercado
+  sem_mcp: "séries pequenas de entradas e baixas por ano e UF, já na interface; o MCP não ganha nada novo antes de uma coleção de empresas por CNPJ (pendente), e a pergunta mais comum (quem tem filial onde) é por operadora"
+- http: GET /empresas/operadoras/{cnpj}
+  sem_mcp: "o cadastro por CNPJ cabe melhor numa coleção do /query (empresas_operadora), que fica como evolução do passo; por ora a API e a interface cobrem a presença física da operadora"
+- http: GET /contratos/operadoras/{cnpj}
+  mcp: operadora_contratos
+- http: GET /contratos/municipios/{ibge}
+  sem_mcp: "o teto de tools do MCP e a leitura parcial do rodízio (município sem contratação nas leituras não é município sem contratação) deixam o detalhe municipal na API e na interface; o MCP cobre o contrato por operadora"
+- http: GET /contratos/resumo
+  sem_mcp: "cobertura do rodízio e totais por ano, UF e esfera, sem ranking de fornecedor; a tool operadora_contratos já traz a cobertura em cada resposta"
+  sem_ui: "a página própria de Contratos públicos fica para depois da primeira rodada completa do rodízio: com o rodízio ainda cobrindo parte do universo, os totais nacionais enganam mais do que informam; os blocos da operadora e do município já mostram a cobertura"
+- http: GET /financiamento/operadoras/{cnpj}
+  mcp: operadora_financiamento
+- http: GET /mercado/maiores
+  sem_mcp: "resumo de apresentação (posição mês a mês e treemap); o MCP já tem top_operators e access_history, que dão os mesmos números por operadora, e o agrupamento por grupo é uma inferência que a interface rotula"

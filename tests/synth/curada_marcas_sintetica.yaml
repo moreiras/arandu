@@ -1,0 +1,12 @@
+# Tabela curada SINTÉTICA: liga as marcas do RQUAL e das reclamações sintéticas às operadoras do mundo sintético (CNPJs inventados; ver tests/synth/qualidade.py).
+# Os testes de produto trocam `core.marcas.CAMINHO_CURADA` por este arquivo; a tabela real é config/curada_marcas_operadoras.yaml.
+versao: 1
+curada_em: 2026-11-06
+fonte_da_curadoria: dataset sintético
+marcas:
+  - {marca: ALFA, raizes: ["90000007"], base: "sintético: Provedor 07 Telecom Ltda"}
+  - {marca: BETA, raizes: ["90000202"], base: "sintético: Provedor Sem ASN 3 Ltda"}
+  - {marca: GAMA, raizes: ["90000103"], base: "sintético: Trânsito Nacional 4 S.A."}
+aliases_consumidor_gov:
+  - {nome: "Alfa Fibra - Marca A", marca: ALFA, base: "sintético: o Consumidor.gov.br chama a ALFA de Alfa Fibra - Marca A"}
+  - {nome: "Beta Net", marca: BETA, base: "sintético: nome da BETA no Consumidor.gov.br"}

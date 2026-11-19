@@ -1,0 +1,10 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: telegeography_cables
+nome: Cabos submarinos (TeleGeography)
+ordem: 14
+modulo: sources.telegeography_cables.collect
+fontes:
+- telegeography_cables
+politica_falha: usar_ultima_valida
+descricao: ''
+reaproveita: normalized/{date}/summary/telegeography_cables.json.gz

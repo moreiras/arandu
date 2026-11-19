@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: socios_grupos
+nome: Cruzamento de quadro societário
+ordem: 33
+modulo: sources.socios_grupos.enrich
+fontes:
+- socios_grupos
+politica_falha: opcional
+descricao: ''

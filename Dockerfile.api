@@ -1,0 +1,51 @@
+# Pinado por digest para builds reproduzíveis. Atualizar com: docker pull python:3.12-slim
+FROM python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONNOUSERSITE=1
+
+WORKDIR /app
+
+# A imagem-base congela os pacotes do Debian do dia em que foi gerada: as correções de segurança publicadas depois entram aqui
+# (o job `sbom (imagens)` da CI reprova se ficarem para trás).
+RUN apt-get update && apt-get upgrade -y --no-install-recommends && rm -rf /var/lib/apt/lists/*
+
+# Instala dependências Python primeiro (camada de cache separada). O lock traz as transitivas e o hash de cada arquivo:
+# a mesma versão do código instala sempre os mesmos pacotes (regravar com scripts/travar-dependencias.sh).
+COPY requirements.lock .
+RUN pip install --no-cache-dir --require-hashes -r requirements.lock
+
+# Copia o código-fonte
+# ARG CACHEBUST força invalidação de cache quando necessário:
+#   docker compose build --build-arg CACHEBUST=$(date +%s) api
+ARG CACHEBUST=1
+COPY collector/ collector/
+COPY enrich/    enrich/
+COPY sources/   sources/
+COPY analysis/  analysis/
+COPY products/  products/
+COPY publish/   publish/
+COPY api/       api/
+COPY mcp_server/ mcp_server/
+COPY config/    config/
+COPY scripts/   scripts/
+COPY arandu/    arandu/
+COPY core/      core/
+COPY catalog/   catalog/
+COPY serve/     serve/
+COPY VERSION    VERSION
+
+# Usuário não-root disponível para serviços que não precisam escrever em /data.
+# Serviços com /data:rw (api, worker) rodam como root para evitar conflito de
+# permissões no host; mcp usa /data:ro e pode usar este usuário via compose user:.
+RUN useradd -r -u 1001 -g root -s /sbin/nologin -M appuser
+
+# A API escuta nesta porta; o worker não expõe porta
+EXPOSE 8000 8001
+
+# Comando padrão: sobe a API
+# Para o worker: docker compose run worker python -m sources.lg_ixbr.collect
+# API (8000) + gate de acesso (8001, processo leve separado; ver api/gate_app.py).
+# O gate roda em loop (se cair, volta em 1 s); a API fica como PID 1 via exec.
+CMD ["sh", "-c", "(while true; do uvicorn api.gate_app:app --host 0.0.0.0 --port 8001 --log-level warning; sleep 1; done) & exec uvicorn api.main:app --host 0.0.0.0 --port 8000"]

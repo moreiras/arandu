@@ -1,0 +1,31 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: asn_ixp_paths
+nome: Caminhos de IXP por ASN (fragmento ixp_paths)
+ordem: -56
+modulo: products.passos
+args:
+- --passo
+- asn_ixp_paths
+- --date
+- '{date}'
+parcial:
+- asn_docs
+depois_de:
+- anatel_sici
+- apnic_pop
+- asn_names
+- cnpj_geo
+- fulltable_routeviews
+- lacnic_delegated
+- bgp_ixp
+- metricas_ixp_asn
+- peeringdb_intl_geo
+- peeringdb_ixps
+- peeringdb_networks
+- prefix_geo
+- rdap
+- registro_br
+politica_falha: critica
+replay: true
+descricao: 'Passo do build do snapshot: Caminhos de IXP por ASN (fragmento ixp_paths). Roda sozinho; lê
+  o que os anteriores deixaram em published/ e build/intermediarios/.'

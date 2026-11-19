@@ -1,0 +1,55 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: caida_as2org
+nome: Organização por ASN (CAIDA AS-to-Organization, via AS Rank)
+tipo: bruta
+ativa: true
+modulo: sources.caida_as2org.collect
+publicavel: true
+descricao: Organização (nome, país e número de ASNs membros) de cada ASN do Brasil, pela API GraphQL pública do CAIDA AS Rank, que usa o mapeamento as2org
+  do CAIDA. Consulta em lotes de 150 ASNs (≈ 62 requisições para ~9,2 mil ASNs). O arquivo trimestral `publicdata.caida.org/datasets/as-organizations/` NÃO é usado
+  porque o robots.txt do host tem `Disallow=/`.
+origem:
+  url: https://api.asrank.caida.org/v2/graphql
+  formato: 'JSON (GraphQL, asns(asns) com edges.node.organization: orgId, orgName, country, members)'
+  licenca: dados públicos do CAIDA (Acceptable Use Agreement for Publicly Accessible Datasets), atribuição obrigatória
+  uso_comercial: nao_verificado
+  termos: https://www.caida.org/about/legal/aua/public_aua/
+  nota: 'Public AUA lido em 2026-11-06: licença limitada de copiar, modificar e usar; sem cláusula de uso não comercial; exige citar "The CAIDA UCSD AS Rank" e "The CAIDA AS Organizations
+    Dataset" e comunicar a publicação ao CAIDA (data-info@caida.org). A API do AS Rank não tem robots.txt (500). Coletor com User-Agent identificado, uma requisição por vez e pausa de 1 s.
+    A organização do AS Rank usa orgId próprio e pode agrupar filiais sob uma "Parent".'
+cadencia:
+  fonte_atualiza: trimestral
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 120d
+politica_falha: opcional
+saidas:
+  normalizado:
+  - summary/caida_as2org.json.gz
+chaves:
+- asn
+campos:
+- nome: asns[asn].org_id
+  tipo: str
+  significado: Identificador da organização no AS Rank (hash); ASNs com o mesmo valor pertencem à mesma organização.
+  tratamento: Inferência do CAIDA a partir do WHOIS.
+- nome: asns[asn].org_nome
+  tipo: str
+  significado: Nome da organização como registrado (pode ser o de uma 'Parent').
+  tratamento: Dado do registro, não nome fantasia; rotulado como do CAIDA.
+- nome: asns[asn].org_pais
+  tipo: str
+  significado: País da organização (ISO 3166-1 alfa-2).
+- nome: asns[asn].membros_total
+  tipo: int
+  significado: Número de ASNs da organização no mundo.
+limites: A lista de ASNs vem do caida_asrank (ASNs do Brasil vistos na tabela de rotas); ASN fora do AS Rank não tem organização. Leva ≈ 3 minutos.
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/caida_as2org/
+pendencias:
+- Comunicar ao CAIDA (data-info@caida.org) o uso, como pede o Public AUA.
+- Uso comercial não verificado.
+etapa:
+  tentativas: 3
+  espera_s: 60

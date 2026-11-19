@@ -1,0 +1,57 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ipv4_uso
+nome: 'Espaço IPv4 sem uso e hipóteses de uso por terceiros'
+descricao: 'Classe de cada bloco IPv4 do Brasil pela tabela de origens do snapshot, duração observada sem anúncio e sinais de uso por terceiros (S1 a S4). Não anunciado não é sem uso; sinal é hipótese, nunca aluguel.'
+modulo: products.ipv4_uso.build
+entradas:
+- source: ipv4_delegated
+- source: ipv4_listas
+chaves_de_juncao:
+- prefixo
+- asn
+saidas:
+  publicado:
+  - ipv4/ips_sem_uso.json.gz
+  - ipv4/uso_por_terceiros.json.gz
+campos:
+- nome: ips_sem_uso.resumo / duracao
+  tipo: dict
+  significado: Blocos e endereços por classe e por UF, maiores titulares sem anúncio e as tabelas de origem anteriores consultadas para a duração.
+  tratamento: INFERIDO da tabela de origens do snapshot. A duração só conta as tabelas de origem distintas que temos (a tabela é semanal).
+  publicado_em:
+  - ipv4_uso → ipv4/ips_sem_uso.json.gz#resumo
+  - ipv4_uso → ipv4/ips_sem_uso.json.gz#duracao
+- nome: ips_sem_uso.blocos[] / colunas
+  tipo: lista
+  significado: 'Blocos não anunciados, parciais, com ROA sem anúncio ou em recuperação: início, endereços, classe, % anunciado, titular (ASN e organização), UF, tabelas de origem sem anúncio, desde quando e ano de registro.'
+  publicado_em:
+  - ipv4_uso → ipv4/ips_sem_uso.json.gz#blocos
+  - ipv4_uso → ipv4/ips_sem_uso.json.gz#colunas
+- nome: uso_por_terceiros.itens[]
+  tipo: lista
+  significado: Blocos com ao menos um sinal (S1 a S4), com titular, origens, ROAs, sinais com confiança e evidência e a confiança do bloco.
+  tratamento: HIPÓTESE de uso por terceiros, com os falsos positivos de cada sinal; dois ou mais sinais sobem a confiança um nível.
+  publicado_em:
+  - ipv4_uso → ipv4/uso_por_terceiros.json.gz#itens
+- nome: uso_por_terceiros.sinais / por_sinal / por_confianca / rotulo / blocos_avaliados / total
+  tipo: dict
+  significado: Catálogo dos sinais S1 a S7 (o que é, falsos positivos, ou por que não foi avaliado) e as contagens.
+  publicado_em:
+  - ipv4_uso → ipv4/uso_por_terceiros.json.gz#sinais
+  - ipv4_uso → ipv4/uso_por_terceiros.json.gz#por_sinal
+  - ipv4_uso → ipv4/uso_por_terceiros.json.gz#por_confianca
+  - ipv4_uso → ipv4/uso_por_terceiros.json.gz#rotulo
+  - ipv4_uso → ipv4/uso_por_terceiros.json.gz#blocos_avaliados
+  - ipv4_uso → ipv4/uso_por_terceiros.json.gz#total
+- nome: snapshot_date / generated_at / natureza / fonte / limites / ultima_foto
+  tipo: str
+  significado: Metadados, rótulo de natureza (inferido), fonte, limites e a data da última foto do delegated.
+  publicado_em:
+  - ipv4_uso → ipv4/ips_sem_uso.json.gz#natureza
+  - ipv4_uso → ipv4/ips_sem_uso.json.gz#fonte
+  - ipv4_uso → ipv4/ips_sem_uso.json.gz#limites
+  - ipv4_uso → ipv4/ips_sem_uso.json.gz#ultima_foto
+  - ipv4_uso → ipv4/uso_por_terceiros.json.gz#natureza
+  - ipv4_uso → ipv4/uso_por_terceiros.json.gz#fonte
+  - ipv4_uso → ipv4/uso_por_terceiros.json.gz#limites
+  - ipv4_uso → ipv4/uso_por_terceiros.json.gz#ultima_foto

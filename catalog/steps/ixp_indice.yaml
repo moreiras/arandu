@@ -1,0 +1,24 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ixp_indice
+nome: Índice de IXPs (ixps/index.json)
+ordem: -51
+modulo: products.passos
+args:
+- --passo
+- ixp_indice
+- --date
+- '{date}'
+parcial:
+- ixp_docs
+depois_de:
+- fulltable_routeviews
+- ixbr_api
+- lacnic_delegated
+- bgp_ixp
+- metricas_ixp_asn
+- peeringdb_ixps
+- registro_br
+politica_falha: critica
+replay: true
+descricao: 'Passo do build do snapshot: Índice de IXPs (ixps/index.json). Roda sozinho; lê o que os anteriores
+  deixaram em published/ e build/intermediarios/.'

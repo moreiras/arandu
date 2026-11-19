@@ -1,0 +1,47 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: seguranca_asn
+nome: Segurança de roteamento por ASN, parte A
+descricao: Sinais de segurança de roteamento por ASN do Brasil (validação RPKI e DNSSEC medidas pelo APNIC, rank e cone do CAIDA,
+  prefixos em espaço bogon) e agregados por UF e faixa de porte. Medições e fatos de terceiros, com fonte e data; sem veredito.
+modulo: products.seguranca.build
+entradas:
+- source: apnic_irov
+- source: apnic_dnssec
+- source: caida_asrank
+- source: bogons
+chaves_de_juncao:
+- asn
+- uf
+saidas:
+  publicado:
+  - seguranca/asns.json.gz
+campos:
+- nome: asns[asn].rov / dnssec
+  tipo: dict
+  significado: Percentual medido pelo APNIC (validates_pct; DNSSEC também parcial_pct) e o tamanho da amostra.
+  tratamento: Medição por amostragem, não declaração da rede; alto = valida; ASN com poucas amostras fica fora dos agregados.
+  publicado_em:
+  - seguranca_asn → seguranca/asns.json.gz#asns
+- nome: asns[asn].asrank
+  tipo: dict
+  significado: Rank, grau e cone de clientes segundo o CAIDA AS Rank.
+  tratamento: Inferência do CAIDA; rotulada como estimada.
+  publicado_em:
+  - seguranca_asn → seguranca/asns.json.gz#asns
+- nome: asns[asn].prefixos_em_bogon / n_prefixos_bogon / asn_reservado
+  tipo: list / int / str
+  significado: Prefixos originados pelo ASN dentro de espaço reservado (IANA) ou não alocado (Team Cymru, na data da lista) e ASN em faixa reservada.
+  tratamento: Fato verificável contra as listas citadas; bloco recém-alocado pode aparecer como não alocado por horas.
+  publicado_em:
+  - seguranca_asn → seguranca/asns.json.gz#asns
+- nome: por_uf / por_faixa_porte / brasil
+  tipo: dict
+  significado: Contagem de ASNs, mediana e média ponderada de ROV e DNSSEC e distribuição em faixas neutras (até 10, 10 a 90, acima de 90), por UF e por porte (usuários estimados do APNIC; a faixa de acessos declarados ao SICI do CNPJ fica em `faixa_acessos_sici` de cada ASN).
+  tratamento: Só ASNs com pelo menos 100 amostras; não é ranking de empresas.
+  publicado_em:
+  - seguranca_asn → seguranca/asns.json.gz#por_uf
+- nome: fontes / parametros / limites
+  tipo: dict
+  significado: Fonte, data e janela de cada sinal, parâmetros do cálculo e as limitações.
+  publicado_em:
+  - seguranca_asn → seguranca/asns.json.gz#fontes

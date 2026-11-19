@@ -1,0 +1,50 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: exposicao
+nome: Exposição de serviços por ASN e UF (contagens do Shodan, atribuição obrigatória)
+descricao: Para cada ASN do Brasil já lido, os serviços que o Shodan observou (total, portas mais vistas, serviços em portas de risco por classe e, se o plano tiver a faceta, as CVEs mais vistas), com a data da leitura;
+  por UF, agregado derivado dos ASNs. Cobertura declarada; ausência de leitura não é zero; sem ranking; nunca lista de IPs. Contagem observada pelo Shodan não é prova de vulnerabilidade.
+modulo: products.exposicao.build
+entradas:
+- source: shodan_exposicao
+- product: asn_docs
+chaves_de_juncao:
+- asn
+saidas:
+  publicado:
+  - exposicao/asns.json.gz
+campos:
+- nome: asns[asn]
+  tipo: dict
+  significado: '`lido_em`, `servicos_observados`, `portas_mais_vistas`, `risco` (serviços de risco, % dos observados e totais por classe com as portas) e `vulnerabilidades` (CVEs mais vistas, ou "não disponível no plano").'
+  tratamento: Só ASNs lidos pelo rodízio; sem leitura = ausente (não zero). `sem_servico_observado` = o Shodan não viu serviço. Banners, não hosts únicos.
+  publicado_em:
+  - exposicao → exposicao/asns.json.gz#asns
+- nome: por_uf
+  tipo: dict
+  significado: Por UF, ASNs do cadastro, com leitura e com serviços, serviços observados, serviços de risco (total, % e por classe e serviço).
+  tratamento: DERIVADO dos ASNs pelo mapeamento ASN → UF do projeto, só com os ASNs lidos (a cobertura vai junto); sem CVEs.
+  publicado_em:
+  - exposicao → exposicao/asns.json.gz#por_uf
+- nome: cobertura / plano / classes
+  tipo: dict
+  significado: ASNs do Brasil no snapshot, com leitura e com serviços, datas da leitura mais antiga e mais recente; facetas do plano; classes de risco e portas (definição do projeto).
+  tratamento: Declarados para não confundir ausência de leitura com ausência de exposição.
+  publicado_em:
+  - exposicao → exposicao/asns.json.gz#cobertura
+  - exposicao → exposicao/asns.json.gz#plano
+  - exposicao → exposicao/asns.json.gz#classes
+- nome: fonte / licenca / aviso / limites / coletado_em
+  tipo: dict
+  significado: Fonte, atribuição ao Shodan, avisos, limites e instante da coleta.
+  publicado_em:
+  - exposicao → exposicao/asns.json.gz#fonte
+  - exposicao → exposicao/asns.json.gz#licenca
+  - exposicao → exposicao/asns.json.gz#aviso
+  - exposicao → exposicao/asns.json.gz#limites
+  - exposicao → exposicao/asns.json.gz#coletado_em
+- nome: snapshot_date / generated_at
+  tipo: str
+  significado: Data do snapshot e instante da geração.
+  publicado_em:
+  - exposicao → exposicao/asns.json.gz#snapshot_date
+  - exposicao → exposicao/asns.json.gz#generated_at

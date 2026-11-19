@@ -1,0 +1,17 @@
+2.3|lacnic|20260918|97248|19870101|20260918|-0300
+lacnic|*|ipv4|*|20801|summary
+lacnic|*|ipv6|*|59948|summary
+lacnic|*|asn|*|16499|summary
+lacnic|GT|ipv4|2.152.0.0|1024|20260714|allocated|71316
+lacnic|GT|ipv4|2.152.4.0|512|20260714|allocated|71316
+lacnic|BR|ipv4|24.152.0.0|1024|20200310|allocated|276392
+lacnic|BR|ipv4|24.152.4.0|1024|20200312|allocated|344795
+lacnic|BR|ipv4|24.152.8.0|1024|20200309|allocated|301675
+lacnic|MX|asn|278|1|19890331|allocated|31986
+lacnic|AR|asn|676|1|19900523|allocated|65335
+lacnic|BR|asn|1251|1|19991112|allocated|99087
+lacnic|MX|asn|1292|1|19910524|allocated|66696
+lacnic|BR|asn|1916|1|19991116|allocated|130343
+lacnic|BR|asn|2715|1|20000216|allocated|119100
+lacnic|BR|asn|2716|1|20081128|allocated|112244
+lacnic|BR|asn|4230|1|19991116|allocated|240200

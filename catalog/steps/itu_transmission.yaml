@@ -1,0 +1,10 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: itu_transmission
+nome: Enlaces terrestres (ITU BBmaps)
+ordem: 13
+modulo: sources.itu_transmission.collect
+fontes:
+- itu_transmission
+politica_falha: usar_ultima_valida
+descricao: ''
+reaproveita: normalized/{date}/summary/itu_transmission.json.gz

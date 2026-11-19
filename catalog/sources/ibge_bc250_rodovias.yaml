@@ -1,0 +1,50 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ibge_bc250_rodovias
+nome: Malha rodoviária (IBGE BC250)
+tipo: bruta
+ativa: true
+modulo: sources.ibge_bc250_rodovias.collect
+publicavel: true
+descricao: Trechos rodoviários (camada rod_trecho_rodoviario_l) da Base Cartográfica Contínua 1:250.000
+  do IBGE, lidos do ZIP por HTTP Range (47 MB de 761 MB).
+origem:
+  url: https://geoftp.ibge.gov.br/cartas_e_mapas/bases_cartograficas_continuas/bc250/versao2025/shapefiles/bc_250_shapefiles_2026_03_03.zip
+  formato: zip/shapefile (SIRGAS 2000)
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: Política de dados abertos do IBGE não pôde ser lida (HTTP 403 em 2026-10-13).
+cadencia:
+  fonte_atualiza: irregular
+  coleta: mensal
+  coleta_atual: semanal
+  frescor_maximo: 400d
+politica_falha: opcional
+saidas:
+  normalizado:
+  - summary/ibge_rodovias.json.gz
+chaves:
+- ponto
+campos:
+- nome: features[].geometry
+  tipo: GeoJSON
+  significado: Traçado do trecho rodoviário.
+  publicado_em:
+  - mapas_infraestrutura → maps/ibge_rodovias.geojson
+- nome: features[].properties.sigla
+  tipo: str
+  significado: 'Sigla da rodovia (ex.: BR-101).'
+  publicado_em:
+  - mapas_infraestrutura → maps/ibge_rodovias.geojson
+- nome: features[].properties.jurisdicao / revestimen
+  tipo: str
+  significado: Jurisdição e revestimento do trecho.
+  tratamento: 49% 'Desconhecida' em jurisdição (limitação da origem).
+  publicado_em:
+  - mapas_infraestrutura → maps/ibge_rodovias.geojson
+limites: 'Muda a cada ~2 anos; não indica fibra nem dutos, só a malha. URL traz a versão (bc_250_shapefiles_2026_03_03.zip):
+  nova versão exige atualização do código.'
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/ibge_bc250/
+pendencias:
+- Licença/termos de uso do IBGE (política de dados abertos).

@@ -1,0 +1,2751 @@
+{
+ "_doc": "T4 — contrato da API real sobre o dataset sintético.",
+ "operacoes": {
+  "GET /api/v1/acessos-movel/municipio/{ibge}": {
+   "chaves": [
+    "acessos",
+    "hhi",
+    "ibge",
+    "mes_referencia",
+    "nome",
+    "operadores",
+    "operadores_count",
+    "pf",
+    "pj",
+    "share_maior",
+    "snapshot_date",
+    "uf"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos-movel/municipios": {
+   "chaves": [
+    "items",
+    "mes_referencia",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos-movel/operadora/{cnpj}": {
+   "chaves": [
+    "asns",
+    "cnpj",
+    "contacts_available",
+    "outorgas_smp",
+    "rede",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos-movel/operadora/{cnpj}/contacts": {
+   "chaves": [
+    "cnpj",
+    "contacts",
+    "cota"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos-movel/operadoras": {
+   "chaves": [
+    "items",
+    "limit",
+    "mes_referencia",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos-movel/stats": {
+   "chaves": [
+    "acessos_m2m",
+    "acessos_pf",
+    "acessos_pj",
+    "cobertura_declaracao",
+    "distrib_modalidade",
+    "fonte",
+    "matched_acessos",
+    "matched_cnpjs",
+    "mes_referencia",
+    "meses_disponiveis",
+    "municipios_atendidos",
+    "operadoras_ativas",
+    "por_geracao",
+    "por_modalidade",
+    "serie_total",
+    "snapshot_date",
+    "top_operadoras",
+    "total_acessos",
+    "total_cnpjs"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos/divergencias": {
+   "chaves": [
+    "distribuicao",
+    "items",
+    "mes_referencia",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos/divergencias/scm": {
+   "chaves": [
+    "items",
+    "k_pf",
+    "k_pj",
+    "mes_referencia",
+    "min_razao",
+    "sem_acessos",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos/municipio/{ibge}": {
+   "chaves": [
+    "acessos",
+    "capacidade_mbps",
+    "fibra",
+    "fibra_pct",
+    "hhi",
+    "ibge",
+    "mes_referencia",
+    "nome",
+    "operadores",
+    "operadores_count",
+    "pf",
+    "pj",
+    "share_maior",
+    "snapshot_date",
+    "uf"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos/municipios": {
+   "chaves": [
+    "items",
+    "mes_referencia",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos/municipios/mapa": {
+   "chaves": [
+    "mes_referencia",
+    "municipios",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos/operadora/{cnpj}": {
+   "chaves": [
+    "acessos",
+    "acessos_compartilhados",
+    "acessos_internet",
+    "asns",
+    "capacidade_internet_mbps",
+    "capacidade_mbps",
+    "cnpj",
+    "contacts_available",
+    "empresa",
+    "grupo",
+    "grupo_cnpjs",
+    "meio_predominante",
+    "mes_referencia",
+    "municipios",
+    "municipios_detalhe",
+    "outorgas_scm",
+    "pf",
+    "pj",
+    "por_faixa",
+    "por_meio",
+    "por_produto",
+    "por_tecnologia",
+    "porte",
+    "rede",
+    "serie",
+    "snapshot_date",
+    "tecnologia_predominante",
+    "uf",
+    "velocidade_media_mbps",
+    "velocidade_mediana_mbps"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos/operadora/{cnpj}/contacts": {
+   "chaves": [
+    "cnpj",
+    "contacts",
+    "cota"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos/operadoras": {
+   "chaves": [
+    "items",
+    "limit",
+    "mes_referencia",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/acessos/stats": {
+   "chaves": [
+    "acessos_pf",
+    "acessos_pj",
+    "cobertura_declaracao",
+    "distrib_velocidade",
+    "fonte",
+    "matched_acessos",
+    "matched_cnpjs",
+    "mes_referencia",
+    "meses_disponiveis",
+    "municipios_atendidos",
+    "operadoras_ativas",
+    "por_meio",
+    "por_tecnologia",
+    "por_uf",
+    "serie_total",
+    "snapshot_date",
+    "top_operadoras",
+    "top_operadoras_por_asn",
+    "total_acessos",
+    "total_cnpjs"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/analytics/ixps/{code}/nearby": {
+   "chaves": [
+    "asns",
+    "ixp",
+    "pix_points",
+    "radius_km",
+    "snapshot_date",
+    "summary"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/analytics/operators/reach": {
+   "chaves": [
+    "eyeball_asns",
+    "method",
+    "operator_asns",
+    "per_ptt",
+    "ptt_count",
+    "ptts",
+    "reach_users_dedup",
+    "reach_users_sum_per_ptt",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns": {
+   "chaves": [
+    "items",
+    "limit",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/economic-groups": {
+   "chaves": [
+    "groups",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/ix-presence": {
+   "chaves": [
+    "asns",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/names": {
+   "chaves": [
+    "names",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}": {
+   "chaves": [
+    "alerts",
+    "alt_names",
+    "announced_ipv4_addresses",
+    "announced_ipv6_48s",
+    "apnic_users",
+    "apnic_users_pct_cc",
+    "apnic_v6_pct_as",
+    "apnic_v6_users",
+    "asn",
+    "aspa_customers",
+    "aspa_providers",
+    "cnpj",
+    "contacts_available",
+    "downstreams",
+    "downstreams_global_v4",
+    "downstreams_global_v6",
+    "downstreams_v4",
+    "downstreams_v6",
+    "external_ixps",
+    "generated_at",
+    "global_prefixes_v4",
+    "global_prefixes_v4_count",
+    "global_prefixes_v6",
+    "global_prefixes_v6_count",
+    "has_ipv6",
+    "has_scm",
+    "has_seac",
+    "has_smp",
+    "has_stfc",
+    "is_br",
+    "is_multihomed_v4",
+    "is_multihomed_v6",
+    "ixp_member_codes",
+    "ixp_presence",
+    "ixps_direct",
+    "ixps_origin",
+    "name",
+    "path_node_meta",
+    "pdb",
+    "pdb_registered",
+    "relacoes",
+    "rir_prefixes_v4",
+    "rir_prefixes_v4_count",
+    "rir_prefixes_v6",
+    "rir_prefixes_v6_count",
+    "roa_list",
+    "rpki_validation",
+    "same_cnpj_asns",
+    "scm",
+    "seac",
+    "single_upstream_v4",
+    "single_upstream_v6",
+    "smp",
+    "snapshot_date",
+    "stfc",
+    "upstreams",
+    "upstreams_global_v4",
+    "upstreams_global_v6",
+    "upstreams_v4",
+    "upstreams_v6",
+    "users_per_ip",
+    "users_per_v6_48"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/abuso": {
+   "chaves": [
+    "coletado_em",
+    "feodo_c2",
+    "feodo_c2_online",
+    "feodo_malware",
+    "feodo_total_mundo",
+    "fonte",
+    "limites",
+    "registrado",
+    "snapshot_date",
+    "urlhaus"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/acessos": {
+   "chaves": [
+    "acessos",
+    "acessos_compartilhados",
+    "acessos_internet",
+    "asn",
+    "asns",
+    "capacidade_internet_mbps",
+    "capacidade_mbps",
+    "cnpj",
+    "divergencia_apnic_anatel",
+    "empresa",
+    "grupo",
+    "meio_predominante",
+    "mes_referencia",
+    "municipios",
+    "pf",
+    "pj",
+    "por_faixa",
+    "por_meio",
+    "por_produto",
+    "por_tecnologia",
+    "porte",
+    "serie",
+    "snapshot_date",
+    "tecnologia_predominante",
+    "uf",
+    "velocidade_media_mbps",
+    "velocidade_mediana_mbps"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/acessos/municipios": {
+   "chaves": [
+    "acessos_compartilhados",
+    "asn",
+    "cnpj",
+    "items",
+    "mes_referencia",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/bloqueios": {
+   "chaves": [
+    "aviso",
+    "coletado_em",
+    "fonte",
+    "janela",
+    "licenca",
+    "limites",
+    "minimo_medicoes",
+    "snapshot_date",
+    "testes"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/contacts": {
+   "chaves": [
+    "asn",
+    "contacts",
+    "cota",
+    "rdap",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/exposicao": {
+   "chaves": [
+    "asn",
+    "aviso",
+    "classes_de_risco",
+    "cobertura",
+    "coletado_em",
+    "fonte",
+    "licenca",
+    "lido_em",
+    "limites",
+    "plano",
+    "portas_mais_vistas",
+    "risco",
+    "servicos_observados",
+    "snapshot_date",
+    "vulnerabilidades"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/facilities": {
+   "chaves": [
+    "asn",
+    "coletado_em",
+    "fonte",
+    "items",
+    "limites",
+    "nota",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/geo": {
+   "chaves": [
+    "asn",
+    "features",
+    "layer",
+    "layer_description",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/interconexao": {
+   "chaves": [
+    "asn",
+    "carregadores_disponiveis",
+    "limites",
+    "origem_sem_direto",
+    "rejeicoes",
+    "resumo",
+    "sessoes",
+    "snapshot_date",
+    "uf_sede",
+    "usuarios_estimados"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/ixp-peers": {
+   "chaves": [
+    "asn",
+    "peers",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/organizacao": {
+   "chaves": [
+    "coletado_em",
+    "fonte",
+    "irmaos_br",
+    "limites",
+    "membros_total",
+    "org_id",
+    "org_nome",
+    "org_pais",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/paths": {
+   "chaves": [
+    "asn",
+    "ixp_paths",
+    "path_node_meta",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/peering": {
+   "chaves": [
+    "asn",
+    "atualizado",
+    "cadastro",
+    "coletado_em",
+    "criado",
+    "escopo",
+    "fonte",
+    "instalacoes_atualizadas",
+    "instalacoes_br_observadas",
+    "instalacoes_declaradas",
+    "ipv6",
+    "ixps_declarados",
+    "limites",
+    "looking_glass",
+    "multicast",
+    "nunca_via_route_server",
+    "portas_atualizadas",
+    "portas_externas",
+    "route_server",
+    "snapshot_date",
+    "unicast"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/politica": {
+   "chaves": [
+    "asn",
+    "coletado_nivel2",
+    "coletado_nivel3",
+    "evidencia_rs",
+    "fonte",
+    "ixps",
+    "limites",
+    "nome",
+    "parametros",
+    "snapshot_date",
+    "versao_alice"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/radar": {
+   "chaves": [
+    "asn",
+    "aviso",
+    "bgp",
+    "bgp_janela",
+    "cobertura",
+    "coletado_em",
+    "fonte",
+    "ipv6",
+    "janela_ipv6",
+    "licenca",
+    "limites",
+    "quedas",
+    "snapshot_date",
+    "trafego_pct_do_brasil",
+    "velocidade"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/route-servers": {
+   "chaves": [
+    "coletado_em",
+    "fonte",
+    "ixps",
+    "limites",
+    "parametros",
+    "snapshot_date",
+    "total",
+    "versao_alice"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/asns/{asn}/transito": {
+   "chaves": [
+    "detail"
+   ],
+   "status": 404,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/bgp-stability": {
+   "chaves": [
+    "detail"
+   ],
+   "status": 404,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/bgp-stability-deep": {
+   "chaves": [
+    "detail"
+   ],
+   "status": 404,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/bgp-stability/asn/{asn}": {
+   "chaves": [
+    "detail"
+   ],
+   "status": 404,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/bgp-stability/history": {
+   "chaves": [
+    "weeks"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/bgp-stability/overview": {
+   "chaves": [
+    "detail"
+   ],
+   "status": 404,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/bgp-stability/summary": {
+   "chaves": [
+    "detail"
+   ],
+   "status": 404,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/brasil/indicadores": {
+   "chaves": [
+    "asns",
+    "dnssec",
+    "ipv6",
+    "prontidao",
+    "rov",
+    "rpki",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/busca": {
+   "chaves": [
+    "grupos",
+    "q",
+    "reconhecido",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/cdns/alcance": {
+   "chaves": [
+    "cdns",
+    "limites",
+    "snapshot_date",
+    "usuarios_br_com_uf"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/cdns/presence": {
+   "chaves": [
+    "cdns",
+    "external_columns",
+    "ixbr_columns",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/cetic/estimativas": {
+   "chaves": [
+    "aviso",
+    "coletado_em",
+    "edicao",
+    "fonte",
+    "indicadores",
+    "items",
+    "licenca",
+    "metodo",
+    "natureza",
+    "pagina",
+    "pesquisa",
+    "snapshot_date",
+    "total",
+    "validacao"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/cetic/estimativas/uf/{uf}": {
+   "chaves": [
+    "aviso",
+    "coletado_em",
+    "comparacao",
+    "edicao",
+    "estimativas",
+    "fonte",
+    "indicadores",
+    "licenca",
+    "metodo",
+    "natureza",
+    "pagina",
+    "pesquisa",
+    "regiao",
+    "snapshot_date",
+    "uf",
+    "validacao"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/cetic/indicadores": {
+   "chaves": [
+    "aviso",
+    "coletado_em",
+    "edicao",
+    "filtros",
+    "fonte",
+    "items",
+    "licenca",
+    "pagina",
+    "pesquisa",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/cetic/tabelas": {
+   "chaves": [
+    "aviso",
+    "coletado_em",
+    "edicao",
+    "fonte",
+    "items",
+    "licenca",
+    "pagina",
+    "pesquisa",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/changes": {
+   "chaves": [
+    "items",
+    "limit",
+    "offset",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/changes/summary": {
+   "chaves": [
+    "por_data",
+    "por_tipo",
+    "snapshots_com_historico",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/communities": {
+   "chaves": [
+    "coletado_nivel2",
+    "coletado_nivel3",
+    "filtros",
+    "fonte",
+    "items",
+    "limites",
+    "parametros",
+    "por_classe",
+    "snapshot_date",
+    "total",
+    "versao_alice"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/consumidor/marcas": {
+   "chaves": [
+    "fonte",
+    "items",
+    "janela",
+    "limit",
+    "limites",
+    "minimos",
+    "natureza",
+    "nomes",
+    "offset",
+    "ordem",
+    "snapshot_date",
+    "total",
+    "uf",
+    "url_fonte"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/consumidor/municipios/{ibge}": {
+   "chaves": [
+    "fonte",
+    "ibge",
+    "itens",
+    "janela",
+    "limites",
+    "minimos",
+    "natureza",
+    "nome",
+    "populacao",
+    "snapshot_date",
+    "total",
+    "uf",
+    "url_fonte"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/consumidor/resumo": {
+   "chaves": [
+    "casamento",
+    "cidades",
+    "fonte",
+    "janela",
+    "leitura",
+    "limites",
+    "minimos",
+    "natureza",
+    "setor_por_mes",
+    "snapshot_date",
+    "url_fonte"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/contratos/municipios/{ibge}": {
+   "chaves": [
+    "aviso",
+    "cobertura",
+    "coletado_em",
+    "contratacoes",
+    "criterio_municipio",
+    "fonte",
+    "fornecedores",
+    "ibge",
+    "itens",
+    "licenca",
+    "limites",
+    "municipio",
+    "natureza",
+    "snapshot_date",
+    "uf",
+    "valor"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/contratos/operadoras/{cnpj}": {
+   "chaves": [
+    "aviso",
+    "cnpj_consultado",
+    "cobertura",
+    "coletado_em",
+    "contratacoes",
+    "contratacoes_detalhadas",
+    "desde",
+    "faixa",
+    "fonte",
+    "idade_dias",
+    "incompleto",
+    "itens",
+    "itens_cancelados",
+    "licenca",
+    "lida_em",
+    "limites",
+    "natureza",
+    "nome",
+    "orgaos",
+    "orgaos_principais",
+    "por_ano",
+    "por_esfera",
+    "por_uf",
+    "primeiro_resultado",
+    "raiz",
+    "recentes",
+    "resultado",
+    "snapshot_date",
+    "ultimo_resultado",
+    "valor_homologado"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/contratos/resumo": {
+   "chaves": [
+    "aviso",
+    "cobertura",
+    "coletado_em",
+    "fonte",
+    "licenca",
+    "limites",
+    "natureza",
+    "por_ano",
+    "por_esfera",
+    "por_uf",
+    "snapshot_date",
+    "valor_homologado"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/empresas/mercado": {
+   "chaves": [
+    "ativas_por_porte",
+    "ativas_por_uf",
+    "baixas_por_ano",
+    "dump_reference",
+    "entradas_por_ano",
+    "fonte",
+    "limites",
+    "mes_referencia_sici",
+    "natureza",
+    "resumo",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/empresas/operadoras/{cnpj}": {
+   "chaves": [
+    "capital_social",
+    "dump_reference",
+    "estabelecimentos",
+    "fonte",
+    "limites",
+    "matriz",
+    "mei",
+    "mes_referencia_sici",
+    "natureza",
+    "natureza_juridica",
+    "nome_fantasia",
+    "porte",
+    "presenca",
+    "raiz",
+    "razao_social",
+    "resumo_presenca",
+    "simples",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/erbs/municipios": {
+   "chaves": [
+    "data_arquivo",
+    "fonte",
+    "geracao",
+    "items",
+    "limit",
+    "limites",
+    "natureza",
+    "offset",
+    "ordem",
+    "snapshot_date",
+    "total",
+    "uf"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/erbs/resumo": {
+   "chaves": [
+    "brasil",
+    "casamento",
+    "data_arquivo",
+    "fonte",
+    "limites",
+    "natureza",
+    "operadoras",
+    "snapshot_date",
+    "ufs"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/espectro/faixas": {
+   "chaves": [
+    "ate",
+    "carater",
+    "data_arquivo",
+    "de",
+    "fonte",
+    "items",
+    "limit",
+    "limites",
+    "natureza",
+    "offset",
+    "referencias",
+    "servico",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/espectro/resumo": {
+   "chaves": [
+    "data_arquivo",
+    "fonte",
+    "limites",
+    "natureza",
+    "referencias",
+    "resumo",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/exposicao/ufs/{uf}": {
+   "chaves": [
+    "asns_com_leitura",
+    "asns_com_servicos_observados",
+    "asns_do_cadastro",
+    "aviso",
+    "classes",
+    "classes_de_risco",
+    "cobertura",
+    "coletado_em",
+    "derivado",
+    "fonte",
+    "licenca",
+    "limites",
+    "pct_de_servicos_de_risco",
+    "plano",
+    "servicos_de_risco",
+    "servicos_de_risco_por_servico",
+    "servicos_observados",
+    "snapshot_date",
+    "uf"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/external-ixps": {
+   "chaves": [
+    "count",
+    "ixps",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/external-ixps/{code}": {
+   "chaves": [
+    "br_member_count",
+    "city",
+    "code",
+    "country",
+    "last_updated",
+    "member_count",
+    "members",
+    "name",
+    "pdb_ix_id"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/facilities": {
+   "chaves": [
+    "cobertura",
+    "coletado_em",
+    "escopo",
+    "filtros",
+    "fonte",
+    "items",
+    "limites",
+    "ordem",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/facilities/{fac_id}": {
+   "chaves": [
+    "atualizado",
+    "cadastro",
+    "campus",
+    "campus_id",
+    "carriers",
+    "carriers_declarados",
+    "cidade",
+    "coletado_em",
+    "criado",
+    "escopo",
+    "fonte",
+    "id",
+    "ixps",
+    "ixps_declarados",
+    "lat",
+    "limites",
+    "lon",
+    "n_redes",
+    "n_redes_br",
+    "nome",
+    "org_id",
+    "org_nome",
+    "pais",
+    "propriedade",
+    "redes",
+    "redes_declaradas",
+    "redes_nota",
+    "redes_total",
+    "site",
+    "snapshot_date",
+    "uf"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/feed/mudancas.atom": {
+   "status": 200
+  },
+  "GET /api/v1/financiamento/operadoras/{cnpj}": {
+   "chaves": [
+    "financiamento",
+    "fontes",
+    "limites",
+    "natureza",
+    "raiz",
+    "sancoes",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/fust/municipios": {
+   "chaves": [
+    "data_arquivo",
+    "fonte",
+    "items",
+    "limit",
+    "limites",
+    "natureza",
+    "offset",
+    "ordem",
+    "programa",
+    "snapshot_date",
+    "total",
+    "uf"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/fust/resumo": {
+   "chaves": [
+    "brasil",
+    "casamento",
+    "data_arquivo",
+    "editais",
+    "fonte",
+    "limites",
+    "natureza",
+    "programas",
+    "snapshot_date",
+    "ufs"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/grupos": {
+   "chaves": [
+    "grupos",
+    "snapshot_date",
+    "total",
+    "total_grupos",
+    "total_individuais"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/grupos/empresa/{cnpj}": {
+   "chaves": [
+    "cnpj",
+    "grupo_id",
+    "mesmo_grupo",
+    "relacionadas_parcial",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/grupos/{grupo_id}": {
+   "chaves": [
+    "asns",
+    "assinantes",
+    "classificacao",
+    "cnpjs",
+    "contratos",
+    "credito_publico",
+    "empresas",
+    "grupo_id",
+    "limites",
+    "municipios",
+    "sancoes",
+    "snapshot_date",
+    "tamanho",
+    "usuarios_apnic",
+    "visibilidade_bgp"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/grupos/{grupo_id}/prefixos-geo": {
+   "chaves": [
+    "features",
+    "grupo_id",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/hilbert/v4": {
+   "chaves": [
+    "global_all",
+    "global_br",
+    "ixp_all",
+    "rir_br",
+    "rir_br_visible"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/hilbert/v4/detail": {
+   "chaves": [],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/hilbert/v6": {
+   "chaves": [
+    "afrinic",
+    "apnic",
+    "arin",
+    "lacnic",
+    "legacy",
+    "ripe"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/history/asns/{asn}": {
+   "chaves": [
+    "asn",
+    "metrics",
+    "snapshots",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/history/ixps/{code}": {
+   "chaves": [
+    "ixp",
+    "snapshots",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/history/operadoras/{cnpj}": {
+   "chaves": [
+    "cnpj",
+    "snapshots",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/history/uf/{uf}": {
+   "chaves": [
+    "snapshots",
+    "total",
+    "uf"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ipv4/asns/{asn}": {
+   "chaves": [
+    "asn",
+    "aviso",
+    "blocos",
+    "enderecos",
+    "fonte",
+    "limites",
+    "nao_plenamente_anunciados",
+    "natureza",
+    "sinais_como_origem",
+    "sinais_como_titular",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ipv4/blocos/{prefix}/ciclo-de-vida": {
+   "chaves": [
+    "atual",
+    "aviso",
+    "bloco",
+    "espaco",
+    "fonte",
+    "limites",
+    "linha_do_tempo",
+    "natureza",
+    "sinais_de_terceiros",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ipv4/espaco": {
+   "chaves": [
+    "duracao",
+    "filtros",
+    "fonte",
+    "items",
+    "limit",
+    "limites",
+    "natureza",
+    "offset",
+    "resumo",
+    "snapshot_date",
+    "total",
+    "ultima_foto"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ipv4/recuperacao": {
+   "chaves": [
+    "em_recuperacao",
+    "eventos_por_mes",
+    "fonte",
+    "limites",
+    "natureza",
+    "recuperados",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ipv4/subasignacoes": {
+   "chaves": [
+    "aguardando",
+    "ativa",
+    "aviso",
+    "esquema_hipotetico",
+    "eventos",
+    "filtros",
+    "fonte",
+    "indicador_terceiros",
+    "items",
+    "limit",
+    "limites",
+    "natureza",
+    "offset",
+    "politica",
+    "snapshot_date",
+    "total",
+    "validacoes",
+    "vigia"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ipv4/transferencias": {
+   "chaves": [
+    "filtros",
+    "fonte",
+    "items",
+    "limit",
+    "limites",
+    "natureza",
+    "offset",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ipv4/transferencias/resumo": {
+   "chaves": [
+    "blocos",
+    "casamento",
+    "concentracao",
+    "defasagem",
+    "enderecos",
+    "fonte",
+    "limites",
+    "maior_operacao",
+    "natureza",
+    "operacoes",
+    "periodo",
+    "por_ano",
+    "por_tamanho",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ipv4/uso-por-terceiros": {
+   "chaves": [
+    "blocos_avaliados",
+    "filtros",
+    "fonte",
+    "items",
+    "limit",
+    "limites",
+    "natureza",
+    "offset",
+    "por_confianca",
+    "por_sinal",
+    "rotulo",
+    "sinais",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixp-compare/members": {
+   "chaves": [
+    "count",
+    "ixps",
+    "participants",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps": {
+   "chaves": [
+    "count",
+    "ixps",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/estimated-users": {
+   "chaves": [
+    "afi",
+    "ixps",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}": {
+   "chaves": [
+    "asn_members",
+    "generated_at",
+    "ixbr_members_count",
+    "ixp",
+    "name",
+    "snapshot_date",
+    "uf",
+    "v4",
+    "v6"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/assinantes": {
+   "chaves": [
+    "asns",
+    "assinantes_diretos",
+    "assinantes_total",
+    "mes_referencia",
+    "municipios_diretos",
+    "municipios_totais",
+    "peers"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/estimated-users": {
+   "chaves": [
+    "afi",
+    "contributing_asns",
+    "estimated_users",
+    "ixp",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/facilities": {
+   "chaves": [
+    "coletado_em",
+    "fonte",
+    "items",
+    "limites",
+    "ptt",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/geo": {
+   "chaves": [
+    "features",
+    "ixp_code",
+    "ixp_pix",
+    "layer",
+    "layer_description",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/hilbert/v4": {
+   "chaves": [
+    "all"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/hilbert/v4/detail": {
+   "chaves": [
+    "all"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/hilbert/v6": {
+   "chaves": [
+    "all"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/members": {
+   "chaves": [
+    "ixp",
+    "snapshot_date",
+    "v4",
+    "v6"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/nearby": {
+   "chaves": [
+    "asns",
+    "ixp",
+    "pix_points",
+    "radius_km",
+    "snapshot_date",
+    "summary"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/peers": {
+   "chaves": [
+    "afi",
+    "peers"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/portas": {
+   "chaves": [
+    "capacidade_mbps",
+    "cidade",
+    "coletado_em",
+    "fonte",
+    "ixp",
+    "limites",
+    "maior_mbps",
+    "mediana_mbps",
+    "membros",
+    "nome",
+    "pais",
+    "pdb_ix_id",
+    "por_velocidade",
+    "portas",
+    "portas_com_velocidade",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/potential": {
+   "chaves": [
+    "estimated_users_total",
+    "ixp",
+    "nearby_asn_count",
+    "snapshot_date",
+    "v4_prefixes_24",
+    "v6_prefixes_48"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/rejeicoes": {
+   "chaves": [
+    "coletado_nivel2",
+    "coletado_nivel3",
+    "fonte",
+    "ixp",
+    "limites",
+    "nome",
+    "parametros",
+    "politica",
+    "rejeicoes",
+    "snapshot_date",
+    "versao_alice"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/route-servers": {
+   "chaves": [
+    "coletado_em",
+    "fonte",
+    "limites",
+    "membros",
+    "membros_listados",
+    "membros_total",
+    "nome",
+    "parametros",
+    "resumo",
+    "rs",
+    "snapshot_date",
+    "versao_alice"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/asns": {
+   "chaves": [
+    "features",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/asns-overview": {
+   "chaves": [
+    "features",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/erbs": {
+   "chaves": [
+    "features",
+    "geracao",
+    "limites",
+    "natureza",
+    "passo_graus",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/layers": {
+   "chaves": [
+    "camadas",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/pix": {
+   "chaves": [
+    "features",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/power-transmission-lines": {
+   "chaves": [
+    "features",
+    "snapshot_date",
+    "source",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/prefixes": {
+   "chaves": [
+    "features",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/rodovias": {
+   "chaves": [
+    "features",
+    "snapshot_date",
+    "source",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/scms": {
+   "chaves": [
+    "features",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/seacs": {
+   "chaves": [
+    "features",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/smps": {
+   "chaves": [
+    "features",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/stfcs": {
+   "chaves": [
+    "features",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/submarine-cables": {
+   "chaves": [
+    "attribution",
+    "features",
+    "snapshot_date",
+    "source",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/submarine-landing-points": {
+   "chaves": [
+    "attribution",
+    "features",
+    "snapshot_date",
+    "source",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/map/terrestrial-links": {
+   "chaves": [
+    "features",
+    "snapshot_date",
+    "source",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/mercado/demanda-oferta": {
+   "chaves": [
+    "brasil",
+    "fonte",
+    "formulas",
+    "intervalo",
+    "limites",
+    "mes_referencia_sici",
+    "natureza",
+    "pnad_ano",
+    "regioes",
+    "snapshot_date",
+    "tic_edicao",
+    "ufs"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/mercado/grupos": {
+   "chaves": [
+    "faixas",
+    "fonte",
+    "limites",
+    "mes_referencia",
+    "natureza",
+    "resumo",
+    "snapshot_date",
+    "ufs"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/mercado/maiores": {
+   "chaves": [
+    "aviso",
+    "demais",
+    "mes_referencia",
+    "meses",
+    "natureza",
+    "operadoras",
+    "snapshot_date",
+    "total_acessos",
+    "unidades"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/multas/empresas": {
+   "chaves": [
+    "data_arquivo",
+    "fonte",
+    "grupo",
+    "items",
+    "limit",
+    "limites",
+    "natureza",
+    "offset",
+    "ordem",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/multas/resumo": {
+   "chaves": [
+    "brasil",
+    "data_arquivo",
+    "fonte",
+    "leitura",
+    "limites",
+    "natureza",
+    "por_ano",
+    "por_grupo",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/municipios/{ibge}": {
+   "chaves": [
+    "centroide",
+    "fixo",
+    "ibge",
+    "movel",
+    "nome",
+    "ptts_proximos",
+    "snapshot_date",
+    "uf"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/omissao-sici": {
+   "chaves": [
+    "criterio",
+    "escopo",
+    "fonte",
+    "items",
+    "mes_referencia",
+    "metodologia",
+    "parametros",
+    "por_uf",
+    "snapshot_date",
+    "tipo",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/operadoras/{cnpj}": {
+   "chaves": [
+    "cnpj",
+    "rede",
+    "scm",
+    "seac",
+    "smp",
+    "snapshot_date",
+    "stfc"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/outorgas": {
+   "chaves": [
+    "items",
+    "limit",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/outorgas/map": {
+   "chaves": [
+    "detail"
+   ],
+   "status": 422,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/outorgas/stats": {
+   "chaves": [
+    "SCM",
+    "SMP",
+    "STFC",
+    "SeAC"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/outorgas/{cnpj}": {
+   "chaves": [
+    "cnpj",
+    "servicos",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/prefixes": {
+   "chaves": [
+    "items",
+    "limit",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/prefixes/lookup": {
+   "chaves": [
+    "consulta",
+    "ip_version",
+    "origin_asn",
+    "prefix",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/prefixes/{prefix}": {
+   "chaves": [
+    "country",
+    "geo_confidence",
+    "geo_org",
+    "geo_source",
+    "ip_version",
+    "origin_asn",
+    "prefix",
+    "snapshot_date",
+    "uf"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/prontidao/asns": {
+   "chaves": [
+    "filtros",
+    "fontes",
+    "items",
+    "limit",
+    "limites",
+    "natureza",
+    "page",
+    "pages",
+    "regras",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/prontidao/resumo": {
+   "chaves": [
+    "agregado",
+    "escopo",
+    "fontes",
+    "limites",
+    "manrs",
+    "natureza",
+    "por_faixa_porte",
+    "por_uf",
+    "regras",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/qualidade/mapa": {
+   "chaves": [
+    "data_arquivo",
+    "faixas",
+    "faixas_rotulos",
+    "fonte",
+    "indicador",
+    "limites",
+    "natureza",
+    "normalizacao",
+    "prestadoras",
+    "referencias",
+    "servico",
+    "snapshot_date",
+    "total",
+    "unidade",
+    "url_fonte",
+    "valores"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/qualidade/municipios/{ibge}": {
+   "chaves": [
+    "data_arquivo",
+    "fonte",
+    "ibge",
+    "indicadores",
+    "limites",
+    "natureza",
+    "nome",
+    "prestadoras",
+    "snapshot_date",
+    "uf",
+    "url_fonte"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/qualidade/prestadoras": {
+   "chaves": [
+    "data_arquivo",
+    "fonte",
+    "indicador",
+    "items",
+    "limites",
+    "natureza",
+    "ordem",
+    "periodo",
+    "snapshot_date",
+    "total",
+    "uf",
+    "url_fonte"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/qualidade/resumo": {
+   "chaves": [
+    "casamento",
+    "data_arquivo",
+    "fonte",
+    "indicadores",
+    "leitura",
+    "limites",
+    "natureza",
+    "nomes",
+    "prestadoras",
+    "snapshot_date",
+    "url_fonte"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/qualidade/serie": {
+   "chaves": [
+    "data_arquivo",
+    "fonte",
+    "granularidade",
+    "indicador",
+    "items",
+    "limites",
+    "natureza",
+    "snapshot_date",
+    "total",
+    "uf",
+    "url_fonte"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/radar/ufs/{uf}": {
+   "chaves": [
+    "asns",
+    "asns_com_ipv6",
+    "asns_no_ponderado",
+    "aviso",
+    "bgp",
+    "bgp_janela",
+    "cobertura",
+    "coletado_em",
+    "derivado",
+    "fonte",
+    "ipv6_mediana_pct",
+    "ipv6_ponderado_pelo_trafego_pct",
+    "janela_ipv6",
+    "licenca",
+    "limites",
+    "quedas",
+    "snapshot_date",
+    "uf"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ranking/municipios": {
+   "chaves": [
+    "criterio",
+    "escopo",
+    "fonte",
+    "items",
+    "mes_referencia",
+    "metodologia",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ranking/operadoras": {
+   "chaves": [
+    "criterio",
+    "escopo",
+    "fonte",
+    "items",
+    "mes_referencia",
+    "metodologia",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ranking/route-servers": {
+   "chaves": [
+    "coletado_em",
+    "criterio",
+    "escopo",
+    "filtros",
+    "fonte",
+    "items",
+    "limites",
+    "parametros",
+    "snapshot_date",
+    "total",
+    "versao_alice"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/reclamacoes/marcas": {
+   "chaves": [
+    "ano",
+    "data_arquivo",
+    "fonte",
+    "items",
+    "limit",
+    "limites",
+    "natureza",
+    "nomes",
+    "offset",
+    "ordem",
+    "servico",
+    "snapshot_date",
+    "total",
+    "url_fonte"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/reclamacoes/municipios/{ibge}": {
+   "chaves": [
+    "anos",
+    "data_arquivo",
+    "fonte",
+    "ibge",
+    "limites",
+    "natureza",
+    "nome",
+    "populacao",
+    "snapshot_date",
+    "uf",
+    "url_fonte"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/reclamacoes/resumo": {
+   "chaves": [
+    "assuntos_ano",
+    "casamento",
+    "data_arquivo",
+    "fonte",
+    "leitura",
+    "limites",
+    "natureza",
+    "por_ano_servico",
+    "snapshot_date",
+    "taxas",
+    "uf",
+    "url_fonte"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/regiao": {
+   "chaves": [
+    "asns",
+    "carregadores",
+    "carregadores_total",
+    "fontes",
+    "ibges",
+    "indiretos_sem_carregador",
+    "limites",
+    "municipios_com_dados",
+    "natureza",
+    "participacao_ptts",
+    "prontidao",
+    "provedores",
+    "provedores_total",
+    "ptts_nomes",
+    "snapshot_date",
+    "transito",
+    "transito_total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/resolve/operator": {
+   "chaves": [
+    "asns",
+    "aviso",
+    "base",
+    "cdn_matches",
+    "metodo",
+    "nomes",
+    "query",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/resolve/place": {
+   "chaves": [
+    "lat",
+    "lon",
+    "n",
+    "place",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/routing-analysis": {
+   "chaves": [
+    "detail"
+   ],
+   "status": 404,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/rpki/summary": {
+   "chaves": [
+    "br_asns_total",
+    "br_asns_with_aspa",
+    "br_asns_with_aspa_of_roa",
+    "br_asns_with_roa",
+    "br_space_v4_roa_24",
+    "br_space_v4_total_24",
+    "br_space_v6_roa_48",
+    "br_space_v6_total_48",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/satelites/direitos": {
+   "chaves": [
+    "data_arquivo",
+    "fonte",
+    "items",
+    "limit",
+    "limites",
+    "natureza",
+    "offset",
+    "operadora",
+    "snapshot_date",
+    "status",
+    "tipo",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/satelites/resumo": {
+   "chaves": [
+    "data_arquivo",
+    "fonte",
+    "limites",
+    "natureza",
+    "ngeo",
+    "operando",
+    "resumo",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/schema": {
+   "chaves": [
+    "aggregate_functions",
+    "collections",
+    "operator_guide",
+    "operators",
+    "recipes"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/scms": {
+   "chaves": [
+    "items",
+    "limit",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/scms/stats": {
+   "chaves": [
+    "as_with_scm",
+    "as_without_scm",
+    "by_uf",
+    "cnpjs_with_asn",
+    "geolocated",
+    "matched_asns",
+    "snapshot_date",
+    "top_municipios",
+    "total",
+    "total_asns_br",
+    "uf_breakdown",
+    "unique_cnpjs"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/scms/{cnpj}": {
+   "chaves": [
+    "cnpj",
+    "outorgas",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/seacs": {
+   "chaves": [
+    "items",
+    "limit",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/seacs/stats": {
+   "chaves": [
+    "by_uf",
+    "cnpjs_with_asn",
+    "geolocated",
+    "matched_asns",
+    "snapshot_date",
+    "total",
+    "uf_breakdown",
+    "unique_cnpjs"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/seacs/{cnpj}": {
+   "chaves": [
+    "cnpj",
+    "outorgas",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/seguranca/resumo": {
+   "chaves": [
+    "agregado",
+    "escopo",
+    "fontes",
+    "limites",
+    "manrs",
+    "parametros",
+    "por_faixa_porte",
+    "por_uf",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/smps": {
+   "chaves": [
+    "items",
+    "limit",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/smps/stats": {
+   "chaves": [
+    "by_uf",
+    "cnpjs_with_asn",
+    "geolocated",
+    "matched_asns",
+    "rede_virtual",
+    "snapshot_date",
+    "total",
+    "uf_breakdown",
+    "unique_cnpjs"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/smps/{cnpj}": {
+   "chaves": [
+    "cnpj",
+    "outorgas",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/snapshots": {
+   "chaves": [
+    "count",
+    "latest",
+    "snapshots"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/snapshots/diff": {
+   "chaves": [
+    "a",
+    "b",
+    "eventos",
+    "nota",
+    "totais"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/snapshots/{date_str}": {
+   "chaves": [
+    "date",
+    "manifest",
+    "summary"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/stfcs": {
+   "chaves": [
+    "items",
+    "limit",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/stfcs/stats": {
+   "chaves": [
+    "by_uf",
+    "cnpjs_with_asn",
+    "geolocated",
+    "matched_asns",
+    "snapshot_date",
+    "total",
+    "uf_breakdown",
+    "unique_cnpjs"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/stfcs/{cnpj}": {
+   "chaves": [
+    "cnpj",
+    "outorgas",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/territorio/mapa": {
+   "chaves": [
+    "ano_projecao_domicilios",
+    "censo_ano",
+    "estimativa_ano",
+    "fonte",
+    "formulas",
+    "indicador",
+    "limites",
+    "mes_referencia_sici",
+    "normalizacao",
+    "pnad_ano",
+    "rotulo",
+    "snapshot_date",
+    "total",
+    "valores"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/territorio/municipio/{ibge}/semelhantes": {
+   "chaves": [
+    "ano_projecao_domicilios",
+    "censo_ano",
+    "criterio",
+    "estimativa_ano",
+    "fonte",
+    "formulas",
+    "ibge",
+    "items",
+    "limites",
+    "mes_referencia_sici",
+    "municipio",
+    "pnad_ano",
+    "posicao",
+    "snapshot_date",
+    "total_do_porte"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/territorio/ranking": {
+   "chaves": [
+    "ano_projecao_domicilios",
+    "censo_ano",
+    "criterio",
+    "escopo",
+    "estimativa_ano",
+    "filtros",
+    "fonte",
+    "formulas",
+    "items",
+    "limites",
+    "mes_referencia_sici",
+    "pnad_ano",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/territorio/rede": {
+   "chaves": [
+    "fontes",
+    "ipv6",
+    "limites",
+    "natureza",
+    "rov",
+    "snapshot_date",
+    "transito"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/transito/ufs": {
+   "chaves": [
+    "detail"
+   ],
+   "status": 404,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/transito/ufs/{uf}": {
+   "chaves": [
+    "detail"
+   ],
+   "status": 404,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ufs": {
+   "chaves": [
+    "items",
+    "mes_referencia",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ufs/{uf}": {
+   "chaves": [
+    "ixps",
+    "mes_referencia",
+    "municipios",
+    "operadoras",
+    "snapshot_date",
+    "totais",
+    "uf"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /health": {
+   "chaves": [
+    "latest_snapshot",
+    "snapshots_available",
+    "status",
+    "version"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "POST /api/v1/map/query": {
+   "chaves": [
+    "features",
+    "matched_asns",
+    "snapshot_date",
+    "type"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "POST /api/v1/query/{collection}": {
+   "chaves": [
+    "collection",
+    "items",
+    "limit",
+    "mode",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  }
+ }
+}

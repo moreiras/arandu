@@ -1,0 +1,20 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: cetic
+nome: Pesquisas TIC do Cetic.br, tabelas oficiais
+ordem: -69
+modulo: products.passos
+args:
+- --passo
+- cetic
+- --date
+- '{date}'
+parcial:
+- cetic
+depois_de:
+- cetic_tic_domicilios_tabelas
+- cetic_tic_provedores_tabelas
+- cetic_tic_domicilios_microdados
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: publica as tabelas oficiais da TIC Domicílios e da TIC Provedores, em formato longo, lidas do normalizado, e as estimativas por UF dos microdados da TIC Domicílios, com a validação contra as tabelas.
+  Roda sozinho; pesquisa sem normalizado fica sem artefato.'

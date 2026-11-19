@@ -1,0 +1,6 @@
+{"data": {"asns": {"edges": [
+  {"node": {"asn": "64497", "organization": {"orgId": "aaaaaaaa01", "orgName": "Provedor Exemplo Ltda", "country": {"iso": "BR"}, "members": {"asns": {"totalCount": 2}}}}},
+  {"node": {"asn": "64499", "organization": {"orgId": "aaaaaaaa01", "orgName": "Provedor Exemplo Ltda", "country": {"iso": "BR"}, "members": {"asns": {"totalCount": 2}}}}},
+  {"node": {"asn": "64500", "organization": {"orgId": "bbbbbbbb02", "orgName": " Rede Exemplo S.A. ", "country": {"iso": "BR"}, "members": {"asns": {"totalCount": 1}}}}},
+  {"node": {"asn": "64501", "organization": null}}
+]}}}

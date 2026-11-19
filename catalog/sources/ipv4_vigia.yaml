@@ -1,0 +1,39 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ipv4_vigia
+nome: Vigia dos diretórios de numeração (Registro.br e LACNIC)
+tipo: bruta
+ativa: true
+modulo: sources.ipv4_vigia.collect
+publicavel: false
+exposicao: nenhuma
+descricao: 'Varre diariamente as listagens de ftp.registro.br/pub/{numeracao, origin, geoip, geofeed} e ftp.lacnic.net/pub/stats/lacnic{, transfers, critical_infra} e o cabeçalho dos arquivos-chave, e alerta
+  quando surge um padrão de arquivo novo, um arquivo sem data novo ou uma mudança de formato. É o que detecta a bitácora pública da política LAC-2025-5 (aluguel de IPv4) no dia em que for publicada
+  e qualquer mudança nas listas que o Arandurapé lê. Não publica dado: grava a varredura e os alertas em data/ops/vigia/ipv4/.'
+origem:
+  url: https://ftp.registro.br/pub/ e https://ftp.lacnic.net/pub/stats/lacnic/
+  formato: índice HTML do Apache e as primeiras linhas dos arquivos
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: Só listagens e 4 KB de cabeçalho por arquivo (15 requisições por dia, com pausa e User-Agent identificado).
+cadencia:
+  fonte_atualiza: diaria
+  coleta: diaria
+  coleta_atual: diaria
+  frescor_maximo: 3d
+politica_falha: opcional
+saidas: {}
+chaves: []
+campos:
+- nome: alertas[]
+  tipo: lista
+  significado: 'Novidades desde a varredura anterior: `padrao_novo`, `arquivo_novo`, `padrao_removido`, `cabecalho_mudou`, `diretorio_novo`.'
+  tratamento: Alerta não é falha da coleta; vai para o log (aviso) e para o arquivo da varredura. Arquivo diário com data nova não é novidade.
+limites: Só vê o que a listagem do Apache mostra; formato novo dentro de um arquivo já conhecido só aparece se mudar o cabeçalho (comentários e número de colunas).
+pendencias:
+- Termos de uso dos diretórios não declarados; a coleta é só de listagens e cabeçalhos (15 requisições por dia).
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/ipv4_listas/
+etapa:
+  tentativas: 2
+  espera_s: 60

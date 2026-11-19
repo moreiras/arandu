@@ -1,0 +1,81 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: siasg_contratos
+nome: Compras.gov.br (PNCP, Lei 14.133) — resultados de itens por fornecedor de telecom, em rodízio
+tipo: bruta
+ativa: true
+modulo: sources.siasg_contratos.collect
+publicavel: true
+descricao: 'Resultados de itens de contratações da Lei 14.133 publicados no PNCP e espelhados na API de dados abertos do Compras.gov.br, uma consulta por CNPJ de matriz do universo de telecom (outorgas, SICI e CNAE 61 da Receita) e
+  período, em rodízio de dias: faixa A (declara acessos no SICI) relida a cada 7 dias, faixa B (o resto das outorgas) a cada 56 e faixa C (CNAE 61 como atividade principal, estabelecimento ativo, sem outorga nem SICI; ~44 mil raízes) a cada 112. A primeira leitura de cada raiz é só a janela mais recente (360 dias; a API recusa período maior que 365) e o histórico até a Lei 14.133 entra depois, uma janela mais antiga por visita, com o orçamento que sobra, da faixa A para a C. Por item: contratação, unidade e UF do órgão, CNPJ do órgão, quantidade, valor
+  total homologado, situação (Informado ou Cancelado) e data do resultado. Em segundo plano, o detalhe de cada contratação (órgão, esfera, município, modalidade, objeto resumido) e a tabela de unidades de compra (UASG) com o município do órgão.
+  Só fornecedor pessoa jurídica; nada de pessoa física, servidor ou representante.'
+origem:
+  url: https://dadosabertos.compras.gov.br/modulo-contratacoes/3_consultarResultadoItensContratacoes_PNCP_14133
+  formato: 'JSON (API Spring; `resultado`, `totalRegistros`, `totalPaginas`); sem chave. `niFornecedor` aceita só o CNPJ de 14 dígitos (a raiz de 8 devolve zero), `dataResultadoPncpInicial/Final` são obrigatórias, páginas de até 500 itens.
+    Detalhe da contratação em `1.1_consultarContratacoes_PNCP_14133_Id` e unidades em `modulo-uasg/1_consultarUasg` (22.249 unidades ativas em 2026-11-10).'
+  licenca: 'Dados abertos pela Lei 12.527/2011 (LAI) e pela Lei 14.133/2021 (art. 174, PNCP); sem licença nominal publicada. Decisão do mantenedor (2026-11-10)'
+  uso_comercial: permitido
+  termos: https://www.gov.br/compras/pt-br/cidadao/compras-publicas-dados-abertos
+  nota: 'Decisão do mantenedor (2026-11-10): nenhuma política acessível nas páginas do portal; informação pública é regra e sigilo é exceção (LAI), então os dados são tratados como abertos, com crédito à fonte; não é parecer jurídico. Antes, termos não lidos: a página de dados abertos do Compras responde "Conteúdo Restrito" a acesso sem autenticação e o `/termos-de-uso` dela dá 404; o rodapé do gov.br/compras declara CC BY-ND 3.0 para o
+    conteúdo do SITE, o que não é a licença dos dados. A publicidade dos contratos vem da Lei 14.133 (art. 174, PNCP) e da LAI (Lei 12.527/2011); o crédito à fonte vale. Sondas de 2026-11-10 (~75 GET, User-Agent identificado,
+    pausa de 1,2 s): sem chave, sem desafio, sem cabeçalho de limite de taxa; a latência varia de 0,3 a 28 s por página de 500 itens. Coletor com pausa de 1,1 s entre requisições, uma por vez; HTTP 403, 429 repetido ou resposta
+    que não é JSON encerram a rodada na hora (código 3), sem contornar.'
+cadencia:
+  fonte_atualiza: continua
+  coleta: diaria
+  coleta_atual: diaria
+  frescor_maximo: 10d
+politica_falha: opcional
+entradas:
+- anatel_scm
+- anatel_smp
+- anatel_stfc
+- anatel_seac
+- anatel_sici
+- anatel_sici_movel
+- receita_cnpj
+saidas:
+  normalizado:
+  - summary/siasg_contratos.json.gz
+chaves:
+- cnpj
+- ibge
+campos:
+- nome: fornecedores[raiz].itens[]
+  tipo: lista
+  significado: 'Resultados de itens do CNPJ de matriz da raiz: chave do item, contratação (número de controle do PNCP), unidade e UF do órgão, CNPJ do órgão, quantidade, valor total homologado (R$), situação e data do resultado.'
+  tratamento: Mesclados pela chave do item a cada leitura (janela incremental de 45 dias de sobreposição); só fornecedor com CNPJ de 14 dígitos. Filial não é consultada.
+  publicado_em:
+  - contratos → contratos/operadoras.json.gz#operadoras
+- nome: fornecedores[raiz].lida_em / herdado / incompleto
+  tipo: dict
+  significado: Data da leitura da raiz, se esta rodada só herdou a leitura anterior e se o limite de páginas cortou a leitura.
+  tratamento: Cada raiz leva a data da sua leitura; o produto publica a idade e a cobertura. Raiz sem leitura não aparece como zero.
+  publicado_em:
+  - contratos → contratos/operadoras.json.gz#cobertura
+- nome: compras[numero]
+  tipo: dict
+  significado: 'Detalhe da contratação: órgão (razão social e CNPJ), esfera (federal, estadual, municipal, distrital, como informado no PNCP), UF, município do órgão (nome e código IBGE), modalidade e objeto resumido (300 caracteres).'
+  tratamento: Um GET por contratação, em ordem de valor, dentro do orçamento da rodada; o que ainda não foi enriquecido fica sem esses campos (o produto declara a cobertura).
+  publicado_em:
+  - contratos → contratos/operadoras.json.gz#operadoras
+- nome: uasg[codigo]
+  tipo: dict
+  significado: Unidade de compra ativa (UASG) com nome, UF, município (nome e IBGE) e CNPJ do órgão.
+  tratamento: Tabela renovada a cada 30 dias (45 páginas); dá o município do órgão comprador para todo item, sem GET por contratação.
+  publicado_em:
+  - contratos → contratos/municipios.json.gz#municipios
+- nome: faixas / ultima_execucao
+  tipo: dict
+  significado: Faixa (A, B ou C) de cada raiz do universo e a medição da última rodada (fornecedores lidos, requisições, segundos, motivo da parada, raízes sem leitura).
+  publicado_em:
+  - contratos → contratos/operadoras.json.gz#cobertura
+limites: Resultado de item publicado no PNCP não é contrato assinado nem pagamento. Só a Lei 14.133 (o legado pré-2021 do SIASG fica de fora); a API recusa período maior que 365 dias, então a consulta é fatiada em janelas de 360 dias e a primeira leitura de cada raiz volta 3 janelas (~3 anos); universo = outorgas e SICI (20.879 raízes) mais a faixa C, CNAE 61 principal ativo (~44 mil), não o recorte da Receita com CNAE 61 em qualquer posição (584.906); só a matriz de cada raiz (filial não); só órgão que publica no PNCP; o município é o do órgão
+  comprador, não o do local de entrega.
+retencao:
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/siasg_contratos/
+etapa:
+  tentativas: 1
+  espera_s: 0
+pendencias: []

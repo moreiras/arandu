@@ -1,0 +1,55 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: curada_bgp_communities
+nome: Communities BGP de operadores (config/bgp_communities.yaml)
+tipo: curada
+ativa: true
+arquivo: config/bgp_communities.yaml
+publicavel: true
+descricao: Tabela de communities BGP (≈ 15 mil linhas) de operadores brasileiros com ASN, valor, tipo,
+  categoria e descrição, usada para interpretar rotas.
+origem:
+  formato: YAML mantido à mão em config/
+  licenca: Curadoria do projeto (dados factuais; fontes citadas)
+  uso_comercial: nao_verificado
+  nota: 'Fontes citadas no arquivo: docs.ix.br (política de communities v4.3 e tabela v2.1, 2024-08-14)
+    e wiki do Brasil Peering Forum (Lista de Communities BGP); gerado em 2026-06-28.'
+cadencia:
+  fonte_atualiza: irregular
+  coleta: sob_demanda
+  coleta_atual: semanal
+  frescor_maximo: 400d
+politica_falha: opcional
+saidas: {}
+chaves:
+- asn
+campos:
+- nome: communities[].asn / operator
+  tipo: int|str
+  significado: ASN e nome do operador que define a community.
+  publicado_em:
+  - routing_analysis → routing_analysis.json
+- nome: communities[].community
+  tipo: str
+  significado: Valor (standard AAAA:NNN, extended ou large).
+  publicado_em:
+  - routing_analysis → routing_analysis.json
+- nome: communities[].type / category
+  tipo: str
+  significado: Tipo (standard/extended/large) e categoria funcional (local_preference, blackhole…).
+  publicado_em:
+  - routing_analysis → routing_analysis.json
+- nome: communities[].description
+  tipo: str
+  significado: Descrição do efeito, em texto livre.
+  tratamento: Reproduz documentação de terceiros.
+  publicado_em:
+  - routing_analysis → routing_analysis.json
+- nome: communities[].source
+  tipo: str
+  significado: 'Origem da linha (ex.: bpf_wiki).'
+  tratamento: Proveniência por linha.
+limites: Transcrição de documentação de operadores e de uma wiki; pode estar desatualizada e conter erros.
+retencao:
+  normalizado: git
+pendencias:
+- Licença da wiki do Brasil Peering Forum e dos PDFs do IX.br para republicação das descrições.

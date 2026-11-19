@@ -1,0 +1,1949 @@
+{
+ "_doc": "T5 — contrato do servidor MCP sobre o dataset sintético.",
+ "aliases": {
+  "access_divergence": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "classificacao",
+    "date",
+    "limit"
+   ]
+  },
+  "access_history": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "cnpj",
+    "date",
+    "meses",
+    "servico"
+   ]
+  },
+  "all_ixp_estimated_users": {
+   "obrigatorios": [],
+   "parametros": [
+    "date"
+   ]
+  },
+  "asn_geo": {
+   "obrigatorios": [
+    "asn"
+   ],
+   "parametros": [
+    "asn",
+    "date",
+    "full",
+    "layer"
+   ]
+  },
+  "asn_ix_presence": {
+   "obrigatorios": [],
+   "parametros": [
+    "date"
+   ]
+  },
+  "asn_names": {
+   "obrigatorios": [],
+   "parametros": [
+    "date"
+   ]
+  },
+  "bgp_stability": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "date",
+    "limit",
+    "modo",
+    "weeks"
+   ]
+  },
+  "cdn_presence": {
+   "obrigatorios": [],
+   "parametros": [
+    "date"
+   ]
+  },
+  "economic_group": {
+   "obrigatorios": [],
+   "parametros": [
+    "cnpj",
+    "date",
+    "grupo_id",
+    "limit"
+   ]
+  },
+  "geo_coords": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "date",
+    "ixp"
+   ]
+  },
+  "get_asn": {
+   "obrigatorios": [
+    "asn"
+   ],
+   "parametros": [
+    "asn",
+    "date"
+   ]
+  },
+  "get_asn_ixp_peers": {
+   "obrigatorios": [
+    "asn"
+   ],
+   "parametros": [
+    "asn",
+    "date"
+   ]
+  },
+  "get_asn_paths": {
+   "obrigatorios": [
+    "asn"
+   ],
+   "parametros": [
+    "asn",
+    "date"
+   ]
+  },
+  "get_asns": {
+   "obrigatorios": [
+    "asns"
+   ],
+   "parametros": [
+    "asns",
+    "date",
+    "fields"
+   ]
+  },
+  "get_external_ixp": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "br_only",
+    "code",
+    "date"
+   ]
+  },
+  "get_ixp": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date"
+   ]
+  },
+  "get_municipio": {
+   "obrigatorios": [
+    "ibge"
+   ],
+   "parametros": [
+    "blocos",
+    "date",
+    "ibge"
+   ]
+  },
+  "get_operator": {
+   "obrigatorios": [
+    "cnpj"
+   ],
+   "parametros": [
+    "blocos",
+    "cnpj",
+    "date"
+   ]
+  },
+  "get_outorgas": {
+   "obrigatorios": [
+    "cnpj"
+   ],
+   "parametros": [
+    "cnpj",
+    "date",
+    "servico"
+   ]
+  },
+  "get_prefix": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "ip",
+    "prefix"
+   ]
+  },
+  "get_scm": {
+   "obrigatorios": [
+    "cnpj"
+   ],
+   "parametros": [
+    "cnpj",
+    "date"
+   ]
+  },
+  "get_snapshot": {
+   "obrigatorios": [],
+   "parametros": [
+    "date"
+   ]
+  },
+  "get_uf": {
+   "obrigatorios": [],
+   "parametros": [
+    "blocos",
+    "date",
+    "uf"
+   ]
+  },
+  "hilbert_v4": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "full"
+   ]
+  },
+  "hilbert_v4_detail": {
+   "obrigatorios": [
+    "slash8"
+   ],
+   "parametros": [
+    "date",
+    "full",
+    "layer",
+    "slash8"
+   ]
+  },
+  "hilbert_v6": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "full"
+   ]
+  },
+  "infra_nearby": {
+   "obrigatorios": [
+    "lat",
+    "lon"
+   ],
+   "parametros": [
+    "camadas",
+    "date",
+    "lat",
+    "limit",
+    "lon",
+    "raio_km"
+   ]
+  },
+  "ixp_estimated_users": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date"
+   ]
+  },
+  "ixp_geo": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date",
+    "full",
+    "layer"
+   ]
+  },
+  "ixp_hilbert_v4": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date",
+    "full",
+    "peer"
+   ]
+  },
+  "ixp_hilbert_v4_detail": {
+   "obrigatorios": [
+    "code",
+    "slash8"
+   ],
+   "parametros": [
+    "code",
+    "date",
+    "full",
+    "peer",
+    "slash8"
+   ]
+  },
+  "ixp_hilbert_v6": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date",
+    "full",
+    "peer"
+   ]
+  },
+  "ixp_members": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date"
+   ]
+  },
+  "ixp_nearby": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date",
+    "limit",
+    "radius_km"
+   ]
+  },
+  "ixp_peers": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "afi",
+    "code",
+    "date"
+   ]
+  },
+  "ixp_potential": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date"
+   ]
+  },
+  "list_asns": {
+   "obrigatorios": [],
+   "parametros": [
+    "br_only",
+    "date",
+    "ipv6_only",
+    "limit",
+    "page",
+    "q",
+    "sort_by",
+    "sort_desc"
+   ]
+  },
+  "list_external_ixps": {
+   "obrigatorios": [],
+   "parametros": [
+    "country",
+    "date"
+   ]
+  },
+  "list_ixps": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "status",
+    "uf"
+   ]
+  },
+  "list_outorgas": {
+   "obrigatorios": [],
+   "parametros": [
+    "ativo",
+    "com_asn",
+    "date",
+    "limit",
+    "min_acessos",
+    "municipio",
+    "page",
+    "porte",
+    "q",
+    "servico",
+    "sort_by",
+    "sort_desc",
+    "todos",
+    "uf"
+   ]
+  },
+  "list_prefixes": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "ip_version",
+    "limit",
+    "origin_asn",
+    "page",
+    "uf"
+   ]
+  },
+  "list_scms": {
+   "obrigatorios": [],
+   "parametros": [
+    "com_asn",
+    "date",
+    "limit",
+    "page",
+    "q",
+    "situacao",
+    "uf"
+   ]
+  },
+  "list_snapshots": {
+   "obrigatorios": [],
+   "parametros": []
+  },
+  "map_asns": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "full",
+    "uf"
+   ]
+  },
+  "map_asns_overview": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "full"
+   ]
+  },
+  "map_pix": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "full"
+   ]
+  },
+  "map_prefixes": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "full",
+    "uf"
+   ]
+  },
+  "municipality_broadband": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "ibge",
+    "limit",
+    "municipio",
+    "servico",
+    "uf"
+   ]
+  },
+  "operator_accesses": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "cnpj",
+    "date",
+    "servico"
+   ]
+  },
+  "operator_reach": {
+   "obrigatorios": [
+    "asns"
+   ],
+   "parametros": [
+    "asns",
+    "date"
+   ]
+  },
+  "resolve_operator": {
+   "obrigatorios": [
+    "name"
+   ],
+   "parametros": [
+    "date",
+    "name"
+   ]
+  },
+  "resolve_place": {
+   "obrigatorios": [
+    "place"
+   ],
+   "parametros": [
+    "date",
+    "place"
+   ]
+  },
+  "routing_analysis": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "limit",
+    "offset",
+    "secao"
+   ]
+  },
+  "rpki_prefix": {
+   "obrigatorios": [
+    "prefix"
+   ],
+   "parametros": [
+    "asn",
+    "date",
+    "prefix"
+   ]
+  },
+  "rpki_summary": {
+   "obrigatorios": [],
+   "parametros": [
+    "date"
+   ]
+  },
+  "top_operators": {
+   "obrigatorios": [],
+   "parametros": [
+    "com_asn",
+    "date",
+    "ibge",
+    "limit",
+    "metric",
+    "min_acessos",
+    "servico",
+    "uf"
+   ]
+  }
+ },
+ "chamadas": {
+  "asn_bloqueios": {
+   "chaves": [
+    "aviso",
+    "coletado_em",
+    "fonte",
+    "janela",
+    "licenca",
+    "limites",
+    "minimo_medicoes",
+    "snapshot_date",
+    "testes"
+   ],
+   "tipo": "objeto"
+  },
+  "asn_detalhe": {
+   "chaves": [
+    "alerts",
+    "alt_names",
+    "announced_ipv4_addresses",
+    "announced_ipv6_48s",
+    "apnic_users",
+    "apnic_users_pct_cc",
+    "apnic_v6_pct_as",
+    "apnic_v6_users",
+    "asn",
+    "aspa_providers",
+    "cnpj",
+    "contacts_available",
+    "downstreams",
+    "downstreams_global_v4",
+    "downstreams_global_v6",
+    "downstreams_v4",
+    "downstreams_v6",
+    "external_ixps",
+    "generated_at",
+    "geo_org",
+    "global_prefixes_v4",
+    "global_prefixes_v4_count",
+    "global_prefixes_v6",
+    "global_prefixes_v6_count",
+    "has_ipv6",
+    "has_scm",
+    "has_seac",
+    "has_smp",
+    "has_stfc",
+    "is_br",
+    "is_multihomed_v4",
+    "is_multihomed_v6",
+    "ixp_member_codes",
+    "ixp_presence",
+    "ixps_direct",
+    "ixps_origin",
+    "name",
+    "path_node_meta",
+    "pdb",
+    "pdb_registered",
+    "rir_prefixes_v4",
+    "rir_prefixes_v4_count",
+    "rir_prefixes_v6",
+    "rir_prefixes_v6_count",
+    "roa_list",
+    "rpki_validation",
+    "same_cnpj_asns",
+    "scm",
+    "sici",
+    "single_upstream_v4",
+    "single_upstream_v6",
+    "snapshot_date",
+    "stfc",
+    "upstreams",
+    "upstreams_global_v4",
+    "upstreams_global_v6",
+    "upstreams_v4",
+    "upstreams_v6",
+    "users_per_ip",
+    "users_per_v6_48"
+   ],
+   "tipo": "objeto"
+  },
+  "asn_exposicao": {
+   "chaves": [
+    "asn",
+    "aviso",
+    "classes_de_risco",
+    "cobertura",
+    "coletado_em",
+    "fonte",
+    "licenca",
+    "lido_em",
+    "limites",
+    "plano",
+    "portas_mais_vistas",
+    "risco",
+    "servicos_observados",
+    "snapshot_date",
+    "vulnerabilidades"
+   ],
+   "tipo": "objeto"
+  },
+  "asn_interconexao": {
+   "chaves": [
+    "asn",
+    "carregadores_disponiveis",
+    "limites",
+    "origem_sem_direto",
+    "rejeicoes",
+    "resumo",
+    "sessoes",
+    "snapshot_date",
+    "uf_sede",
+    "usuarios_estimados"
+   ],
+   "tipo": "objeto"
+  },
+  "asn_lista": {
+   "chaves": [
+    "items",
+    "limit",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "tipo": "objeto"
+  },
+  "asn_lote": {
+   "chaves": [
+    "asns",
+    "count",
+    "not_found",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "asn_peering": {
+   "chaves": [
+    "asn",
+    "atualizado",
+    "cadastro",
+    "coletado_em",
+    "criado",
+    "escopo",
+    "fonte",
+    "instalacoes_atualizadas",
+    "instalacoes_br_observadas",
+    "instalacoes_declaradas",
+    "ipv6",
+    "ixps_declarados",
+    "limites",
+    "looking_glass",
+    "multicast",
+    "nunca_via_route_server",
+    "portas_atualizadas",
+    "portas_externas",
+    "route_server",
+    "snapshot_date",
+    "unicast"
+   ],
+   "tipo": "objeto"
+  },
+  "asn_politica": {
+   "chaves": [
+    "asn",
+    "coletado_nivel2",
+    "coletado_nivel3",
+    "evidencia_rs",
+    "fonte",
+    "ixps",
+    "limites",
+    "nome",
+    "parametros",
+    "snapshot_date",
+    "versao_alice"
+   ],
+   "tipo": "objeto"
+  },
+  "asn_radar": {
+   "chaves": [
+    "asn",
+    "aviso",
+    "bgp",
+    "bgp_janela",
+    "cobertura",
+    "coletado_em",
+    "fonte",
+    "ipv6",
+    "janela_ipv6",
+    "licenca",
+    "limites",
+    "quedas",
+    "snapshot_date",
+    "trafego_pct_do_brasil",
+    "velocidade"
+   ],
+   "tipo": "objeto"
+  },
+  "asn_rede": {
+   "chaves": [
+    "asn",
+    "ixp_paths",
+    "path_node_meta",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "cdn_presenca": {
+   "chaves": [
+    "cdns",
+    "external_columns",
+    "ixbr_columns",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "describe_schema": {
+   "chaves": [
+    "_nota",
+    "collections",
+    "ferramenta_detalhe",
+    "sintaxe"
+   ],
+   "tipo": "objeto"
+  },
+  "facility_detalhe": {
+   "chaves": [
+    "atualizado",
+    "cadastro",
+    "campus",
+    "campus_id",
+    "carriers",
+    "carriers_declarados",
+    "cidade",
+    "coletado_em",
+    "criado",
+    "escopo",
+    "fonte",
+    "id",
+    "ixps",
+    "ixps_declarados",
+    "lat",
+    "limites",
+    "lon",
+    "n_redes",
+    "n_redes_br",
+    "nome",
+    "org_id",
+    "org_nome",
+    "pais",
+    "propriedade",
+    "redes",
+    "redes_declaradas",
+    "redes_nota",
+    "redes_total",
+    "site",
+    "snapshot_date",
+    "uf"
+   ],
+   "tipo": "objeto"
+  },
+  "facility_lista": {
+   "chaves": [
+    "cobertura",
+    "coletado_em",
+    "escopo",
+    "filtros",
+    "fonte",
+    "items",
+    "limites",
+    "ordem",
+    "snapshot_date",
+    "total"
+   ],
+   "tipo": "objeto"
+  },
+  "geo_localizar": {
+   "chaves": [
+    "asn",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "grupo_perfil": {
+   "chaves": [
+    "asns",
+    "assinantes",
+    "classificacao",
+    "cnpjs",
+    "contratos",
+    "credito_publico",
+    "empresas",
+    "grupo_id",
+    "limites",
+    "mercado_fixo",
+    "municipios",
+    "regulatorio",
+    "relacoes",
+    "sancoes",
+    "snapshot_date",
+    "tamanho",
+    "tecnico",
+    "usuarios_apnic",
+    "visibilidade_bgp"
+   ],
+   "tipo": "objeto"
+  },
+  "historico_acessos": {
+   "chaves": [
+    "cnpj",
+    "mes_referencia",
+    "meses_disponiveis",
+    "serie",
+    "servico",
+    "snapshot_date",
+    "variacao_12m",
+    "variacao_1m",
+    "variacao_6m"
+   ],
+   "tipo": "objeto"
+  },
+  "historico_mudancas": {
+   "chaves": [
+    "items",
+    "limit",
+    "offset",
+    "total"
+   ],
+   "tipo": "objeto"
+  },
+  "historico_serie": {
+   "chaves": [
+    "snapshots",
+    "total",
+    "uf"
+   ],
+   "tipo": "objeto"
+  },
+  "historico_snapshots": {
+   "chaves": [
+    "count",
+    "latest",
+    "snapshot_date",
+    "snapshots"
+   ],
+   "tipo": "objeto"
+  },
+  "infra_proximos": {
+   "chaves": [
+    "camadas",
+    "indisponiveis",
+    "ponto",
+    "raio_km",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "ixp_assinantes": {
+   "chaves": [
+    "asns",
+    "asns_total",
+    "assinantes_diretos",
+    "assinantes_total",
+    "code",
+    "mes_referencia",
+    "municipios_diretos",
+    "municipios_diretos_total",
+    "municipios_totais",
+    "municipios_totais_total",
+    "peers_top",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "ixp_communities": {
+   "chaves": [
+    "asns_total",
+    "classe",
+    "coletado_nivel2",
+    "coletado_nivel3",
+    "community",
+    "estado_rpki",
+    "fonte",
+    "forma",
+    "ixps",
+    "limites",
+    "parametros",
+    "rotas_total",
+    "rotulo",
+    "snapshot_date",
+    "versao_alice"
+   ],
+   "tipo": "objeto"
+  },
+  "ixp_detalhe": {
+   "chaves": [
+    "asn_members",
+    "generated_at",
+    "ixbr_members_count",
+    "ixp",
+    "name",
+    "snapshot_date",
+    "uf",
+    "v4",
+    "v6"
+   ],
+   "tipo": "objeto"
+  },
+  "ixp_externo": {
+   "chaves": [
+    "br_member_count",
+    "city",
+    "code",
+    "country",
+    "last_updated",
+    "member_count",
+    "members",
+    "name",
+    "pdb_ix_id",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "ixp_lista": {
+   "chaves": [
+    "count",
+    "ixps",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "ixp_participantes": {
+   "chaves": [
+    "afi",
+    "ixp",
+    "peers",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "ixp_portas": {
+   "chaves": [
+    "capacidade_mbps",
+    "cidade",
+    "coletado_em",
+    "fonte",
+    "ixp",
+    "limites",
+    "maior_mbps",
+    "mediana_mbps",
+    "membros",
+    "nome",
+    "pais",
+    "pdb_ix_id",
+    "por_velocidade",
+    "portas",
+    "portas_com_velocidade",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "ixp_potencial": {
+   "chaves": [
+    "estimated_users_total",
+    "ixp",
+    "nearby_asn_count",
+    "snapshot_date",
+    "v4_prefixes_24",
+    "v6_prefixes_48"
+   ],
+   "tipo": "objeto"
+  },
+  "ixp_proximos": {
+   "chaves": [
+    "asns",
+    "ixp",
+    "pix_points",
+    "radius_km",
+    "snapshot_date",
+    "summary"
+   ],
+   "tipo": "objeto"
+  },
+  "ixp_rejeicoes": {
+   "chaves": [
+    "coletado_nivel2",
+    "coletado_nivel3",
+    "fonte",
+    "ixp",
+    "limites",
+    "nome",
+    "parametros",
+    "politica",
+    "rejeicoes",
+    "snapshot_date",
+    "versao_alice"
+   ],
+   "tipo": "objeto"
+  },
+  "ixp_usuarios": {
+   "chaves": [
+    "afi",
+    "ixps",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "municipio_banda_larga": {
+   "chaves": [
+    "acessos",
+    "capacidade_mbps",
+    "fibra",
+    "fibra_pct",
+    "hhi",
+    "ibge",
+    "mes_referencia",
+    "nome",
+    "operadores",
+    "operadores_count",
+    "pf",
+    "pj",
+    "servico",
+    "share_maior",
+    "snapshot_date",
+    "uf"
+   ],
+   "tipo": "objeto"
+  },
+  "municipio_detalhe": {
+   "chaves": [
+    "centroide",
+    "fixo",
+    "ibge",
+    "movel",
+    "nome",
+    "ptts_proximos",
+    "snapshot_date",
+    "uf"
+   ],
+   "tipo": "objeto"
+  },
+  "municipio_resolver": {
+   "chaves": [
+    "lat",
+    "lon",
+    "n",
+    "place",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "operadora_acessos": {
+   "chaves": [
+    "acessos",
+    "acessos_compartilhados",
+    "acessos_internet",
+    "asns",
+    "capacidade_internet_mbps",
+    "capacidade_mbps",
+    "cnpj",
+    "empresa",
+    "grupo",
+    "meio_predominante",
+    "mes_referencia",
+    "municipios",
+    "pf",
+    "pj",
+    "por_faixa",
+    "por_meio",
+    "por_produto",
+    "por_tecnologia",
+    "porte",
+    "serie",
+    "servico",
+    "snapshot_date",
+    "tecnologia_predominante",
+    "top_municipios",
+    "uf",
+    "velocidade_media_mbps",
+    "velocidade_mediana_mbps"
+   ],
+   "tipo": "objeto"
+  },
+  "operadora_alcance": {
+   "chaves": [
+    "eyeball_asns",
+    "method",
+    "operator_asns",
+    "per_ptt",
+    "ptt_count",
+    "ptts",
+    "reach_users_dedup",
+    "reach_users_sum_per_ptt",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "operadora_contratos": {
+   "chaves": [
+    "aviso",
+    "cnpj_consultado",
+    "cobertura",
+    "coletado_em",
+    "contratacoes",
+    "contratacoes_detalhadas",
+    "desde",
+    "faixa",
+    "fonte",
+    "idade_dias",
+    "incompleto",
+    "itens",
+    "itens_cancelados",
+    "licenca",
+    "lida_em",
+    "limites",
+    "natureza",
+    "nome",
+    "orgaos",
+    "orgaos_principais",
+    "por_ano",
+    "por_esfera",
+    "por_uf",
+    "primeiro_resultado",
+    "raiz",
+    "recentes",
+    "resultado",
+    "snapshot_date",
+    "ultimo_resultado",
+    "valor_homologado"
+   ],
+   "tipo": "objeto"
+  },
+  "operadora_detalhe": {
+   "chaves": [
+    "cnpj",
+    "rede",
+    "scm",
+    "seac",
+    "smp",
+    "snapshot_date",
+    "stfc"
+   ],
+   "tipo": "objeto"
+  },
+  "operadora_divergencia": {
+   "chaves": [
+    "distribuicao",
+    "items",
+    "mes_referencia",
+    "snapshot_date",
+    "total"
+   ],
+   "tipo": "objeto"
+  },
+  "operadora_financiamento": {
+   "chaves": [
+    "financiamento",
+    "fontes",
+    "limites",
+    "natureza",
+    "raiz",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "operadora_grupo": {
+   "chaves": [
+    "assinantes",
+    "classificacao",
+    "cnpjs",
+    "cnpjs_total",
+    "grupo_id",
+    "municipios",
+    "municipios_total",
+    "relacionadas",
+    "snapshot_date",
+    "tamanho",
+    "usuarios_apnic",
+    "visibilidade_bgp"
+   ],
+   "tipo": "objeto"
+  },
+  "operadora_ranking": {
+   "chaves": [
+    "items",
+    "mes_referencia",
+    "metric",
+    "servico",
+    "snapshot_date",
+    "total"
+   ],
+   "tipo": "objeto"
+  },
+  "operadora_resolver": {
+   "chaves": [
+    "asns",
+    "aviso",
+    "base",
+    "cdn_matches",
+    "metodo",
+    "nomes",
+    "query",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "operadora_sancoes": {
+   "chaves": [
+    "fontes",
+    "limites",
+    "natureza",
+    "raiz",
+    "sancoes",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "outorga_detalhe": {
+   "chaves": [
+    "cnpj",
+    "servicos",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "outorga_lista": {
+   "chaves": [
+    "items",
+    "limit",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "tipo": "objeto"
+  },
+  "query": {
+   "chaves": [
+    "collection",
+    "items",
+    "limit",
+    "mode",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "tipo": "objeto"
+  },
+  "rota_analise": {
+   "tipo": "texto"
+  },
+  "rota_estabilidade": {
+   "tipo": "texto"
+  },
+  "rota_prefixo": {
+   "chaves": [
+    "country",
+    "geo_confidence",
+    "geo_org",
+    "geo_source",
+    "ip_version",
+    "origin_asn",
+    "prefix",
+    "snapshot_date",
+    "uf"
+   ],
+   "tipo": "objeto"
+  },
+  "rota_prefixos": {
+   "chaves": [
+    "items",
+    "limit",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "tipo": "objeto"
+  },
+  "rota_rpki": {
+   "chaves": [
+    "br_asns_total",
+    "br_asns_with_aspa",
+    "br_asns_with_aspa_of_roa",
+    "br_asns_with_roa",
+    "br_space_v4_roa_24",
+    "br_space_v4_total_24",
+    "br_space_v6_roa_48",
+    "br_space_v6_total_48",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
+  "uf_detalhe": {
+   "chaves": [
+    "items",
+    "mes_referencia",
+    "snapshot_date",
+    "total"
+   ],
+   "tipo": "objeto"
+  },
+  "uf_radar": {
+   "chaves": [
+    "asns",
+    "asns_com_ipv6",
+    "asns_no_ponderado",
+    "aviso",
+    "bgp",
+    "bgp_janela",
+    "cobertura",
+    "coletado_em",
+    "derivado",
+    "fonte",
+    "ipv6_mediana_pct",
+    "ipv6_ponderado_pelo_trafego_pct",
+    "janela_ipv6",
+    "licenca",
+    "limites",
+    "quedas",
+    "snapshot_date",
+    "uf"
+   ],
+   "tipo": "objeto"
+  },
+  "viz": {
+   "chaves": [
+    "_note",
+    "global_all",
+    "global_br",
+    "ixp_all",
+    "rir_br",
+    "rir_br_visible",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  }
+ },
+ "prompts": [
+  "arandurape",
+  "diagnostico_de_as",
+  "grupo_economico_oculto",
+  "mercado_de_municipio",
+  "potencial_de_ptt"
+ ],
+ "resources": [
+  "arandurape://changes/latest",
+  "arandurape://glossario",
+  "arandurape://overview",
+  "arandurape://recipes",
+  "arandurape://schema",
+  "arandurape://seguranca/manrs",
+  "arandurape://summary",
+  "arandurape://tendencias"
+ ],
+ "templates": [
+  "arandurape://asn/{n}",
+  "arandurape://ixp/{code}",
+  "arandurape://municipio/{ibge}",
+  "arandurape://operadora/{cnpj}",
+  "arandurape://uf/{uf}"
+ ],
+ "tools": {
+  "asn_bloqueios": {
+   "obrigatorios": [
+    "asn"
+   ],
+   "parametros": [
+    "asn",
+    "date"
+   ]
+  },
+  "asn_detalhe": {
+   "obrigatorios": [
+    "asn"
+   ],
+   "parametros": [
+    "asn",
+    "date"
+   ]
+  },
+  "asn_exposicao": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "date",
+    "uf"
+   ]
+  },
+  "asn_interconexao": {
+   "obrigatorios": [
+    "asn"
+   ],
+   "parametros": [
+    "asn",
+    "date"
+   ]
+  },
+  "asn_lista": {
+   "obrigatorios": [],
+   "parametros": [
+    "br_only",
+    "date",
+    "ipv6_only",
+    "limit",
+    "page",
+    "q",
+    "sort_by",
+    "sort_desc"
+   ]
+  },
+  "asn_lote": {
+   "obrigatorios": [
+    "asns"
+   ],
+   "parametros": [
+    "asns",
+    "date",
+    "fields"
+   ]
+  },
+  "asn_peering": {
+   "obrigatorios": [
+    "asn"
+   ],
+   "parametros": [
+    "asn",
+    "date"
+   ]
+  },
+  "asn_politica": {
+   "obrigatorios": [
+    "asn"
+   ],
+   "parametros": [
+    "asn",
+    "date",
+    "ixp"
+   ]
+  },
+  "asn_radar": {
+   "obrigatorios": [
+    "asn"
+   ],
+   "parametros": [
+    "asn",
+    "date"
+   ]
+  },
+  "asn_rede": {
+   "obrigatorios": [
+    "asn"
+   ],
+   "parametros": [
+    "asn",
+    "date",
+    "visao"
+   ]
+  },
+  "cdn_presenca": {
+   "obrigatorios": [],
+   "parametros": [
+    "date"
+   ]
+  },
+  "describe_schema": {
+   "obrigatorios": [],
+   "parametros": [
+    "collection"
+   ]
+  },
+  "facility_detalhe": {
+   "obrigatorios": [
+    "id"
+   ],
+   "parametros": [
+    "date",
+    "id"
+   ]
+  },
+  "facility_lista": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "cadastro",
+    "date",
+    "limit",
+    "ordem",
+    "pais",
+    "ptt",
+    "q",
+    "uf"
+   ]
+  },
+  "geo_localizar": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "date",
+    "ixp"
+   ]
+  },
+  "grupo_perfil": {
+   "obrigatorios": [
+    "grupo_id"
+   ],
+   "parametros": [
+    "blocos",
+    "date",
+    "grupo_id"
+   ]
+  },
+  "historico_acessos": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "cnpj",
+    "date",
+    "meses",
+    "servico"
+   ]
+  },
+  "historico_mudancas": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "ate",
+    "comparar",
+    "de",
+    "estado",
+    "limit",
+    "resumo",
+    "tipo",
+    "uf"
+   ]
+  },
+  "historico_serie": {
+   "obrigatorios": [
+    "escopo"
+   ],
+   "parametros": [
+    "ate",
+    "de",
+    "escopo",
+    "metrica",
+    "metrics"
+   ]
+  },
+  "historico_snapshots": {
+   "obrigatorios": [],
+   "parametros": [
+    "date"
+   ]
+  },
+  "infra_proximos": {
+   "obrigatorios": [
+    "lat",
+    "lon"
+   ],
+   "parametros": [
+    "camadas",
+    "date",
+    "lat",
+    "limit",
+    "lon",
+    "raio_km"
+   ]
+  },
+  "ixp_assinantes": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date",
+    "limit"
+   ]
+  },
+  "ixp_communities": {
+   "obrigatorios": [],
+   "parametros": [
+    "classe",
+    "community",
+    "date",
+    "ixp",
+    "limit",
+    "q"
+   ]
+  },
+  "ixp_detalhe": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date"
+   ]
+  },
+  "ixp_externo": {
+   "obrigatorios": [],
+   "parametros": [
+    "br_only",
+    "code",
+    "country",
+    "date"
+   ]
+  },
+  "ixp_lista": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "status",
+    "uf"
+   ]
+  },
+  "ixp_participantes": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "afi",
+    "code",
+    "date",
+    "visao"
+   ]
+  },
+  "ixp_portas": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date"
+   ]
+  },
+  "ixp_potencial": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date"
+   ]
+  },
+  "ixp_proximos": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date",
+    "limit",
+    "radius_km"
+   ]
+  },
+  "ixp_rejeicoes": {
+   "obrigatorios": [
+    "code"
+   ],
+   "parametros": [
+    "code",
+    "date",
+    "limit",
+    "motivo"
+   ]
+  },
+  "ixp_usuarios": {
+   "obrigatorios": [],
+   "parametros": [
+    "code",
+    "date"
+   ]
+  },
+  "municipio_banda_larga": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "ibge",
+    "limit",
+    "municipio",
+    "servico",
+    "uf"
+   ]
+  },
+  "municipio_detalhe": {
+   "obrigatorios": [
+    "ibge"
+   ],
+   "parametros": [
+    "blocos",
+    "date",
+    "ibge"
+   ]
+  },
+  "municipio_resolver": {
+   "obrigatorios": [
+    "place"
+   ],
+   "parametros": [
+    "date",
+    "place"
+   ]
+  },
+  "operadora_acessos": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "cnpj",
+    "date",
+    "servico"
+   ]
+  },
+  "operadora_alcance": {
+   "obrigatorios": [
+    "asns"
+   ],
+   "parametros": [
+    "asns",
+    "date"
+   ]
+  },
+  "operadora_contratos": {
+   "obrigatorios": [
+    "cnpj"
+   ],
+   "parametros": [
+    "cnpj",
+    "date"
+   ]
+  },
+  "operadora_detalhe": {
+   "obrigatorios": [
+    "cnpj"
+   ],
+   "parametros": [
+    "blocos",
+    "cnpj",
+    "date"
+   ]
+  },
+  "operadora_divergencia": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "classificacao",
+    "date",
+    "limit"
+   ]
+  },
+  "operadora_financiamento": {
+   "obrigatorios": [
+    "cnpj"
+   ],
+   "parametros": [
+    "cnpj",
+    "date"
+   ]
+  },
+  "operadora_grupo": {
+   "obrigatorios": [],
+   "parametros": [
+    "cnpj",
+    "date",
+    "grupo_id",
+    "limit"
+   ]
+  },
+  "operadora_ranking": {
+   "obrigatorios": [],
+   "parametros": [
+    "com_asn",
+    "date",
+    "ibge",
+    "limit",
+    "metric",
+    "min_acessos",
+    "servico",
+    "uf"
+   ]
+  },
+  "operadora_resolver": {
+   "obrigatorios": [
+    "name"
+   ],
+   "parametros": [
+    "date",
+    "name"
+   ]
+  },
+  "operadora_sancoes": {
+   "obrigatorios": [
+    "cnpj"
+   ],
+   "parametros": [
+    "cnpj",
+    "date"
+   ]
+  },
+  "outorga_detalhe": {
+   "obrigatorios": [
+    "cnpj"
+   ],
+   "parametros": [
+    "cnpj",
+    "date",
+    "servico"
+   ]
+  },
+  "outorga_lista": {
+   "obrigatorios": [],
+   "parametros": [
+    "ativo",
+    "com_asn",
+    "date",
+    "limit",
+    "min_acessos",
+    "municipio",
+    "page",
+    "porte",
+    "q",
+    "servico",
+    "sort_by",
+    "sort_desc",
+    "todos",
+    "uf"
+   ]
+  },
+  "query": {
+   "obrigatorios": [
+    "collection"
+   ],
+   "parametros": [
+    "aggregate",
+    "collection",
+    "date",
+    "filter",
+    "group_by",
+    "limit",
+    "near",
+    "page",
+    "select",
+    "sort"
+   ]
+  },
+  "rota_analise": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "limit",
+    "offset",
+    "secao"
+   ]
+  },
+  "rota_estabilidade": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "date",
+    "limit",
+    "modo",
+    "weeks"
+   ]
+  },
+  "rota_prefixo": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "ip",
+    "prefix"
+   ]
+  },
+  "rota_prefixos": {
+   "obrigatorios": [],
+   "parametros": [
+    "date",
+    "ip_version",
+    "limit",
+    "origin_asn",
+    "page",
+    "uf"
+   ]
+  },
+  "rota_rpki": {
+   "obrigatorios": [],
+   "parametros": [
+    "asn",
+    "date",
+    "prefix"
+   ]
+  },
+  "uf_detalhe": {
+   "obrigatorios": [],
+   "parametros": [
+    "blocos",
+    "date",
+    "uf"
+   ]
+  },
+  "uf_radar": {
+   "obrigatorios": [
+    "uf"
+   ],
+   "parametros": [
+    "date",
+    "uf"
+   ]
+  },
+  "viz": {
+   "obrigatorios": [
+    "kind"
+   ],
+   "parametros": [
+    "asn",
+    "code",
+    "date",
+    "full",
+    "kind",
+    "layer",
+    "peer",
+    "slash8",
+    "uf"
+   ]
+  }
+ }
+}

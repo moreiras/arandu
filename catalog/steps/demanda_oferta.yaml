@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: demanda_oferta
+nome: Demanda × oferta de banda larga fixa
+ordem: -71
+modulo: products.passos
+args:
+- --passo
+- demanda_oferta
+- --date
+- '{date}'
+parcial:
+- demanda_oferta
+depois_de:
+- penetracao
+- cetic
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: cruza as estimativas da TIC Domicílios (banda larga fixa por UF, com erro-padrão), os domicílios projetados do IBGE e os acessos fixos de pessoa física do SICI, e publica a razão oferta ÷ demanda e o mercado não visto, com intervalo. Roda sozinho; lê o que a penetração e o cetic deixaram em published/.'

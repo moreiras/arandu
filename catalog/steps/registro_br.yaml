@@ -1,0 +1,11 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: registro_br
+nome: Prefixos alocados ao BR (Registro.br)
+ordem: 3
+modulo: sources.registro_br.collect
+fontes:
+- registro_br
+tentativas: 3
+espera_s: 60
+politica_falha: critica
+descricao: ''

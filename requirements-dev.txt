@@ -1,0 +1,12 @@
+# Dependências de desenvolvimento e testes (além de requirements.txt). Depois de mudar: bash scripts/travar-dependencias.sh
+# Instalar (produção + dev, com as transitivas e hashes): pip install --require-hashes -r requirements-dev.lock
+pytest==9.1.1
+pytest-asyncio==1.4.0
+pytest-cov==7.1.0
+respx==0.23.1
+hypothesis==6.168.5
+jsonschema==4.26.0
+schemathesis==4.30.1
+import-linter==2.0
+# Auditoria das dependências fixadas contra a base de vulnerabilidades (S-07 da análise de segurança de 2026-11-12; etapa do scripts/ci.sh)
+pip-audit==2.10.1

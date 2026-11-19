@@ -1,0 +1,20 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: penetracao
+nome: Penetração de banda larga fixa e mercado não visto
+ordem: -66
+modulo: products.passos
+args:
+- --passo
+- penetracao
+- --date
+- '{date}'
+parcial:
+- penetracao
+depois_de:
+- ibge_censo_pnad
+- sici
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: acessos fixos do SICI sobre os domicílios do Censo 2022 e o mercado não visto
+  (domicílios com internet pela PNAD menos acessos de pessoa física). Roda sozinho; lê o que os anteriores deixaram em
+  published/ e os arquivos normalizados do IBGE.'

@@ -1,0 +1,34 @@
+<html>
+<head>
+        <title>Customers per AS Measurements</title>
+    <script type='text/javascript' src='https://www.gstatic.com/charts/loader.js'></script>
+    <script type='text/javascript'>
+     google.charts.load('current', {packages: ['table']});
+     google.charts.setOnLoadCallback(drawTable);
+    function drawTable() {
+      var table = new google.visualization.arrayToDataTable([
+        ['Rank', 'ASN', 'AS Name', 'CC', 'Users (est.)', 'Value (GDP x Users)', '% of country (Users)', '% of Internet (Users)', 'V6 Users (est)', '% of AS', '% of country V6 total', '%of internet V6 total', 'Samples'],
+        [1,"AS28573","AS28573 - Claro NXT Telecomunicacoes Ltda","<a href=\"/cgi-bin/v6pop?c=BR\">BR</a>",19776373,167110351850,12.05,0.4739,16249239,82.16,16.86,0.89,8228184],
+        [2,"AS26599","AS26599 - TELEFONICA BRASIL S.A","<a href=\"/cgi-bin/v6pop?c=BR\">BR</a>",12939374,109337710300,7.88,0.3101,11224569,86.75,11.65,0.62,5383573],
+        [3,"AS27699","AS27699 - TELEFONICA BRASIL S.A","<a href=\"/cgi-bin/v6pop?c=BR\">BR</a>",5275914,44581473300,3.21,0.1264,3874642,73.44,4.02,0.21,2195104],
+        [4,"AS26615","AS26615 - TIM S/A","<a href=\"/cgi-bin/v6pop?c=BR\">BR</a>",5247757,44343546650,3.20,0.1258,4743904,90.40,4.92,0.26,2183389],
+        [5,"AS22085","AS22085 - Claro S/A","<a href=\"/cgi-bin/v6pop?c=BR\">BR</a>",4228102,35727461900,2.58,0.1013,3916547,92.63,4.06,0.21,1759150],
+        [6,"AS7738","AS7738 - V tal","<a href=\"/cgi-bin/v6pop?c=BR\">BR</a>",4217976,35641897200,2.57,0.1011,3389536,80.36,3.52,0.19,1754937],
+    ]);
+        var options = {
+          'allowHtml' : 'true'
+          };
+
+        var astable = new google.visualization.Table(document.getElementById('table_div'));
+        astable.draw(table, options);
+
+    };
+    </script>
+
+ </head>
+  <body>
+    <h1>Visible ASNs: Customer Populations (Est.)</h1>
+                    <div id="table_div"></div>
+<hr><p>/v6pop</p>
+  </body>
+</html>

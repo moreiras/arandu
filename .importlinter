@@ -1,0 +1,62 @@
+# Regras de camada do Arandurapé (passo 1.2.9). Rodar: `lint-imports` (o scripts/ci.sh roda).
+# Direção: core ← sources ← products ← publish/arandu; serviço (api, mcp_server) só enxerga core.
+# O enriquecimento sob demanda do documento de ASN chega à API por referência (core/plugins.py), não por import.
+[importlinter]
+root_packages =
+    core
+    sources
+    products
+    publish
+    api
+    mcp_server
+    arandu
+include_external_packages = False
+
+[importlinter:contract:sources-nao-importa-products]
+name = sources não importa products
+type = forbidden
+source_modules =
+    sources
+forbidden_modules =
+    products
+
+[importlinter:contract:products-nao-importa-servico]
+name = products não importa a camada de serviço (api, mcp_server) nem publish
+type = forbidden
+source_modules =
+    products
+forbidden_modules =
+    api
+    mcp_server
+    publish
+
+[importlinter:contract:servico-nao-importa-sources]
+name = api e mcp_server não importam sources
+type = forbidden
+source_modules =
+    api
+    mcp_server
+forbidden_modules =
+    sources
+
+[importlinter:contract:servico-nao-importa-products]
+name = api e mcp_server não importam products
+type = forbidden
+source_modules =
+    api
+    mcp_server
+forbidden_modules =
+    products
+
+[importlinter:contract:core-nao-importa-camadas-acima]
+name = core não importa as camadas acima
+type = forbidden
+source_modules =
+    core
+forbidden_modules =
+    sources
+    products
+    publish
+    api
+    mcp_server
+    arandu

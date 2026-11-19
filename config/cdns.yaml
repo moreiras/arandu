@@ -1,0 +1,256 @@
+# CDNs e grandes provedores de conteúdo
+# Cada entrada é agregada: presença em um IXP é marcada se QUALQUER dos ASNs aparecer lá.
+# Fonte: pesquisa manual + PeeringDB
+# `categorias`: a primeira é a principal (CDN, Cloud, Streaming, Social, Games, Segurança); classificação editorial do projeto,
+# não declarada pelas empresas. Vai para published/{data}/cdns.json (campo opcional na leitura).
+
+cdns:
+  - name: Cloudflare
+    categorias: [CDN, Segurança]
+    asns: [13335]
+
+  - name: Google / YouTube
+    categorias: [Cloud, Streaming]
+    aka: GGC
+    asns: [15169, 36040, 43515, 36561, 19527, 139070, 396982]
+
+  - name: Akamai
+    categorias: [CDN]
+    asns: [20940, 16625]
+
+  - name: Meta / Facebook
+    categorias: [Social, Streaming]
+    asns: [32934]
+
+  - name: Microsoft / Azure
+    categorias: [Cloud, Streaming]
+    asns: [8075, 8068, 8069]
+
+  - name: Amazon / AWS
+    categorias: [Cloud, Streaming]
+    asns: [16509]
+
+  - name: Netflix
+    categorias: [Streaming]
+    aka: OCA
+    asns: [2906]
+
+  - name: Fastly
+    categorias: [CDN]
+    asns: [54113]
+
+  - name: Apple
+    categorias: [Streaming, Social]
+    asns: [714, 6185]
+
+  - name: Twitch / Amazon IVS
+    categorias: [Streaming, Games]
+    asns: [46489]
+
+  - name: ByteDance / TikTok
+    categorias: [Social, Streaming]
+    asns: [396986]
+
+  - name: Tencent
+    categorias: [Social, Games, Streaming]
+    asns: [132203, 132591, 139341]
+
+  - name: EdgeUno
+    categorias: [CDN]
+    asns: [7195, 64124, 51095, 27740]
+
+  - name: Globo / GloboCDN
+    categorias: [Streaming]
+    asns: [28604]
+
+  - name: CDN77
+    categorias: [CDN]
+    asns: [60068, 211612]
+
+  - name: IBM Cloud / SoftLayer
+    categorias: [Cloud]
+    asns: [36351, 13884]
+
+  - name: Alibaba Cloud CDN
+    categorias: [Cloud]
+    asns: [24429]
+
+  - name: X / Twitter
+    categorias: [Social, Streaming]
+    asns: [13414, 63179]
+
+  - name: Riot Games
+    categorias: [Games]
+    asns: [6507]
+
+  - name: Valve / Steam
+    categorias: [Games, CDN]
+    asns: [32590]
+
+  - name: Yandex
+    categorias: [Cloud, Social]
+    asns: [13238]
+
+  - name: Gcore
+    categorias: [CDN, Cloud]
+    asns: [199524]
+
+  - name: Edgecast / Edgio
+    categorias: [CDN]
+    asns: [15133]
+
+  - name: Qwilt
+    categorias: [Streaming, CDN]
+    asns: [20253]
+
+  - name: Yahoo / Oath
+    categorias: [Streaming, Social]
+    asns: [10310]
+
+  - name: CDNetworks
+    categorias: [CDN]
+    asns: [36408, 204720]
+
+  - name: Bunny.net
+    categorias: [CDN]
+    asns: [200325]
+
+  - name: i3D.net / Ubisoft
+    categorias: [Games, CDN]
+    asns: [49544]
+
+  - name: Imperva / Incapsula
+    categorias: [Segurança, CDN]
+    asns: [19551]
+
+  - name: Huawei Cloud CDN
+    categorias: [Cloud]
+    asns: [136907, 55990]
+
+  - name: Azion
+    categorias: [CDN, Segurança]
+    asns: [52580, 271253]
+
+  - name: UPX
+    categorias: [CDN, Segurança]
+    asns: [52863, 400282]
+
+  - name: CacheFly
+    categorias: [CDN]
+    asns: [30081]
+
+  - name: GoCache
+    categorias: [CDN]
+    asns: [266444, 263080]
+
+  - name: CentralServer
+    categorias: [CDN]
+    asns: [262790]
+
+  - name: SingularCDN
+    categorias: [CDN]
+    asns: [266390]
+
+  - name: Epic Games
+    categorias: [Games]
+    asns: [4356]
+
+  - name: Sucuri
+    categorias: [Segurança, CDN]
+    asns: [30148]
+
+  - name: Baidu Cloud
+    categorias: [Cloud]
+    asns: [38365, 55967]
+
+  - name: Disney Streaming
+    categorias: [Streaming]
+    aka: Disney+
+    asns: [23344]
+
+  - name: Roblox
+    categorias: [Games]
+    asns: [22697]
+
+  - name: Zscaler
+    categorias: [Segurança]
+    asns: [22616, 62044]
+
+  - name: MainStreaming
+    categorias: [CDN, Streaming]
+    asns: [51185]
+
+  - name: Max / HBO Max
+    categorias: [Streaming]
+    aka: Warner Bros. Discovery
+    asns: [43500]
+
+  - name: WordPress.com
+    categorias: [CDN, Social]
+    aka: Automattic
+    asns: [2635]
+
+  - name: Zoom
+    categorias: [Streaming]
+    asns: [30103]
+
+  - name: CDNTV
+    categorias: [CDN, Streaming]
+    asns: [268843]
+
+  - name: Huge Networks
+    categorias: [CDN]
+    aka: Grupo YAX
+    asns: [264409]
+
+  - name: Sage Networks
+    categorias: [CDN]
+    asns: [273478]
+
+  - name: CORIX
+    categorias: [CDN]
+    asns: [999]
+
+  - name: OpenCDN
+    categorias: [CDN]
+    asns: [61580]
+
+  - name: EdgeNext
+    categorias: [CDN]
+    asns: [139057]
+
+  - name: Telegram
+    categorias: [Social]
+    asns: [59930]
+
+  - name: Wikimedia
+    categorias: [CDN]
+    asns: [14907]
+
+  - name: PlayStation / Sony
+    categorias: [Games]
+    asns: [33353]
+
+  - name: Garena
+    categorias: [Games]
+    asns: [135377]
+
+  - name: Oracle Cloud
+    categorias: [Cloud]
+    asns: [31898]
+
+  - name: TIVIT
+    categorias: [Cloud]
+    asns: [16735]
+
+  - name: Cisco Umbrella
+    categorias: [Segurança]
+    asns: [36692]
+
+  - name: Netskope
+    categorias: [Segurança]
+    asns: [55256]
+
+  - name: Nexusguard
+    categorias: [Segurança]
+    asns: [45474]

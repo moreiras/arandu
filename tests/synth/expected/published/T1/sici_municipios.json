@@ -1,0 +1,562 @@
+{
+ "mes_referencia": "2026-08",
+ "municipios": {
+  "9900001": {
+   "acessos": 34854,
+   "capacidade_mbps": 4182480.0,
+   "fibra": 27882,
+   "fibra_pct": 80.0,
+   "hhi": 4871,
+   "ibge": "9900001",
+   "nome": "Arandurápolis",
+   "operadores": [
+    {
+     "acessos": 21540,
+     "asns": [
+      65544
+     ],
+     "cnpj": "90000025000188",
+     "empresa": "Provedor 25 Telecom Ltda",
+     "share": 61.8
+    },
+    {
+     "acessos": 11238,
+     "asns": [
+      64508
+     ],
+     "cnpj": "90000013000153",
+     "empresa": "Provedor 13 Telecom Ltda",
+     "share": 32.24
+    },
+    {
+     "acessos": 876,
+     "asns": [
+      64496
+     ],
+     "cnpj": "90000001000129",
+     "empresa": "Provedor 01 Telecom Ltda",
+     "share": 2.51
+    },
+    {
+     "acessos": 600,
+     "asns": [
+      4200000000
+     ],
+     "cnpj": "90000100000100",
+     "empresa": "Trânsito Nacional 1 S.A.",
+     "share": 1.72
+    },
+    {
+     "acessos": 600,
+     "asns": [
+      4200000003
+     ],
+     "cnpj": "90000103000144",
+     "empresa": "Trânsito Nacional 4 S.A.",
+     "share": 1.72
+    }
+   ],
+   "operadores_count": 5,
+   "pf": 31368,
+   "pj": 3486,
+   "share_maior": 61.8,
+   "uf": "SP"
+  },
+  "9900002": {
+   "acessos": 36849,
+   "capacidade_mbps": 4421880.0,
+   "fibra": 29478,
+   "fibra_pct": 80.0,
+   "hhi": 4791,
+   "ibge": "9900002",
+   "nome": "Tupãnópolis",
+   "operadores": [
+    {
+     "acessos": 22397,
+     "asns": [
+      65545
+     ],
+     "cnpj": "90000026000122",
+     "empresa": "Provedor 26 Telecom Ltda",
+     "share": 60.78
+    },
+    {
+     "acessos": 12055,
+     "asns": [
+      64509
+     ],
+     "cnpj": "90000014000106",
+     "empresa": "Provedor 14 Telecom Ltda",
+     "share": 32.71
+    },
+    {
+     "acessos": 1797,
+     "asns": [
+      64497
+     ],
+     "cnpj": "90000002000173",
+     "empresa": "Provedor 02 Telecom Ltda",
+     "share": 4.88
+    },
+    {
+     "acessos": 600,
+     "asns": [
+      4200000001
+     ],
+     "cnpj": "90000101000155",
+     "empresa": "Trânsito Nacional 2 S.A.",
+     "share": 1.63
+    }
+   ],
+   "operadores_count": 4,
+   "pf": 33163,
+   "pj": 3686,
+   "share_maior": 60.78,
+   "uf": "RJ"
+  },
+  "9900003": {
+   "acessos": 26438,
+   "capacidade_mbps": 3172560.0,
+   "fibra": 21150,
+   "fibra_pct": 80.0,
+   "hhi": 7772,
+   "ibge": "9900003",
+   "nome": "Guaraniópolis",
+   "operadores": [
+    {
+     "acessos": 23143,
+     "asns": [
+      65546
+     ],
+     "cnpj": "90000027000177",
+     "empresa": "Provedor 27 Telecom Ltda",
+     "share": 87.54
+    },
+    {
+     "acessos": 2695,
+     "asns": [
+      64498
+     ],
+     "cnpj": "90000003000118",
+     "empresa": "Provedor 03 Telecom Ltda",
+     "share": 10.19
+    },
+    {
+     "acessos": 600,
+     "asns": [
+      4200000002
+     ],
+     "cnpj": "90000102000108",
+     "empresa": "Trânsito Nacional 3 S.A.",
+     "share": 2.27
+    }
+   ],
+   "operadores_count": 3,
+   "pf": 23793,
+   "pj": 2645,
+   "share_maior": 87.54,
+   "uf": "PR"
+  },
+  "9900004": {
+   "acessos": 41990,
+   "capacidade_mbps": 5038800.0,
+   "fibra": 33591,
+   "fibra_pct": 80.0,
+   "hhi": 4439,
+   "ibge": "9900004",
+   "nome": "Itapuãzinho",
+   "operadores": [
+    {
+     "acessos": 24101,
+     "asns": [
+      65547
+     ],
+     "cnpj": "90000028000111",
+     "empresa": "Provedor 28 Telecom Ltda",
+     "share": 57.4
+    },
+    {
+     "acessos": 13744,
+     "asns": [
+      64511
+     ],
+     "cnpj": "90000016000197",
+     "empresa": "Provedor 16 Telecom Ltda",
+     "share": 32.73
+    },
+    {
+     "acessos": 3545,
+     "asns": [
+      64499
+     ],
+     "cnpj": "90000004000162",
+     "empresa": "Provedor 04 Telecom Ltda",
+     "share": 8.44
+    },
+    {
+     "acessos": 600,
+     "asns": [],
+     "cnpj": "90000200000137",
+     "empresa": "Provedor Sem ASN 1 Ltda",
+     "share": 1.43
+    }
+   ],
+   "operadores_count": 4,
+   "pf": 37789,
+   "pj": 4201,
+   "share_maior": 57.4,
+   "uf": "SP"
+  },
+  "9900005": {
+   "acessos": 45259,
+   "capacidade_mbps": 5431080.0,
+   "fibra": 36206,
+   "fibra_pct": 80.0,
+   "hhi": 4203,
+   "ibge": "9900005",
+   "nome": "Curumim do Sul",
+   "operadores": [
+    {
+     "acessos": 24922,
+     "asns": [
+      65548
+     ],
+     "cnpj": "90000029000166",
+     "empresa": "Provedor 29 Telecom Ltda",
+     "share": 55.07
+    },
+    {
+     "acessos": 14585,
+     "asns": [
+      65536
+     ],
+     "cnpj": "90000017000131",
+     "empresa": "Provedor 17 Telecom Ltda",
+     "share": 32.23
+    },
+    {
+     "acessos": 5152,
+     "asns": [
+      64500,
+      64501
+     ],
+     "cnpj": "90000005000107",
+     "empresa": "Provedor 05 Telecom Ltda",
+     "share": 11.38
+    },
+    {
+     "acessos": 600,
+     "asns": [],
+     "cnpj": "90000201000181",
+     "empresa": "Provedor Sem ASN 2 Ltda",
+     "share": 1.33
+    }
+   ],
+   "operadores_count": 4,
+   "pf": 40731,
+   "pj": 4528,
+   "share_maior": 55.07,
+   "uf": "RS"
+  },
+  "9900006": {
+   "acessos": 41852,
+   "capacidade_mbps": 5022240.0,
+   "fibra": 33481,
+   "fibra_pct": 80.0,
+   "hhi": 5159,
+   "ibge": "9900006",
+   "nome": "Ybyrapé",
+   "operadores": [
+    {
+     "acessos": 25753,
+     "asns": [
+      65549
+     ],
+     "cnpj": "90000030000190",
+     "empresa": "Provedor 30 Telecom Ltda",
+     "share": 61.53
+    },
+    {
+     "acessos": 15499,
+     "asns": [
+      65537
+     ],
+     "cnpj": "90000018000186",
+     "empresa": "Provedor 18 Telecom Ltda",
+     "share": 37.03
+    },
+    {
+     "acessos": 600,
+     "asns": [],
+     "cnpj": "90000202000126",
+     "empresa": "Provedor Sem ASN 3 Ltda",
+     "share": 1.43
+    }
+   ],
+   "operadores_count": 3,
+   "pf": 37666,
+   "pj": 4186,
+   "share_maior": 61.53,
+   "uf": "MG"
+  },
+  "9900007": {
+   "acessos": 49602,
+   "capacidade_mbps": 5952240.0,
+   "fibra": 39680,
+   "fibra_pct": 80.0,
+   "hhi": 4120,
+   "ibge": "9900007",
+   "nome": "Mbaracayú Novo",
+   "operadores": [
+    {
+     "acessos": 26676,
+     "asns": [
+      65550
+     ],
+     "cnpj": "90000031000135",
+     "empresa": "Provedor 31 Telecom Ltda",
+     "share": 53.78
+    },
+    {
+     "acessos": 16289,
+     "asns": [
+      65538
+     ],
+     "cnpj": "90000019000120",
+     "empresa": "Provedor 19 Telecom Ltda",
+     "share": 32.84
+    },
+    {
+     "acessos": 6037,
+     "asns": [
+      64502
+     ],
+     "cnpj": "90000007000104",
+     "empresa": "Provedor 07 Telecom Ltda",
+     "share": 12.17
+    },
+    {
+     "acessos": 600,
+     "asns": [],
+     "cnpj": "90000203000170",
+     "empresa": "Provedor Sem ASN 4 Ltda",
+     "share": 1.21
+    }
+   ],
+   "operadores_count": 4,
+   "pf": 44641,
+   "pj": 4961,
+   "share_maior": 53.78,
+   "uf": "PR"
+  },
+  "9900008": {
+   "acessos": 52292,
+   "capacidade_mbps": 6275040.0,
+   "fibra": 41833,
+   "fibra_pct": 80.0,
+   "hhi": 4040,
+   "ibge": "9900008",
+   "nome": "Tabajara do Norte",
+   "operadores": [
+    {
+     "acessos": 27545,
+     "asns": [
+      65551
+     ],
+     "cnpj": "90000032000180",
+     "empresa": "Provedor 32 Telecom Ltda",
+     "share": 52.68
+    },
+    {
+     "acessos": 17273,
+     "asns": [
+      65539
+     ],
+     "cnpj": "90000020000155",
+     "empresa": "Provedor 20 Telecom Ltda",
+     "share": 33.03
+    },
+    {
+     "acessos": 6874,
+     "asns": [
+      64503
+     ],
+     "cnpj": "90000008000140",
+     "empresa": "Provedor 08 Telecom Ltda",
+     "share": 13.15
+    },
+    {
+     "acessos": 600,
+     "asns": [],
+     "cnpj": "90000204000115",
+     "empresa": "Provedor Sem ASN 5 Ltda",
+     "share": 1.15
+    }
+   ],
+   "operadores_count": 4,
+   "pf": 47061,
+   "pj": 5231,
+   "share_maior": 52.68,
+   "uf": "AM"
+  },
+  "9900009": {
+   "acessos": 19722,
+   "capacidade_mbps": 2366640.0,
+   "fibra": 15777,
+   "fibra_pct": 80.0,
+   "hhi": 8479,
+   "ibge": "9900009",
+   "nome": "Potiguara",
+   "operadores": [
+    {
+     "acessos": 18122,
+     "asns": [
+      65540
+     ],
+     "cnpj": "90000021000108",
+     "empresa": "Provedor 21 Telecom Ltda",
+     "share": 91.89
+    },
+    {
+     "acessos": 1000,
+     "asns": [
+      64504
+     ],
+     "cnpj": "90000009000195",
+     "empresa": "Provedor 09 Telecom Ltda",
+     "share": 5.07
+    },
+    {
+     "acessos": 600,
+     "asns": [],
+     "cnpj": "90000205000160",
+     "empresa": "Provedor Sem ASN 6 Ltda",
+     "share": 3.04
+    }
+   ],
+   "operadores_count": 3,
+   "pf": 17749,
+   "pj": 1973,
+   "share_maior": 91.89,
+   "uf": "RN"
+  },
+  "9900010": {
+   "acessos": 24514,
+   "capacidade_mbps": 2941680.0,
+   "fibra": 19611,
+   "fibra_pct": 80.0,
+   "hhi": 6376,
+   "ibge": "9900010",
+   "nome": "Caeté Velho",
+   "operadores": [
+    {
+     "acessos": 18914,
+     "asns": [
+      65541
+     ],
+     "cnpj": "90000022000144",
+     "empresa": "Provedor 22 Telecom Ltda",
+     "share": 77.16
+    },
+    {
+     "acessos": 5000,
+     "asns": [
+      64505
+     ],
+     "cnpj": "90000010000110",
+     "empresa": "Provedor 10 Telecom Ltda",
+     "share": 20.4
+    },
+    {
+     "acessos": 600,
+     "asns": [],
+     "cnpj": "90000206000104",
+     "empresa": "Provedor Sem ASN 7 Ltda",
+     "share": 2.45
+    }
+   ],
+   "operadores_count": 3,
+   "pf": 22062,
+   "pj": 2452,
+   "share_maior": 77.16,
+   "uf": "BA"
+  },
+  "9900011": {
+   "acessos": 29871,
+   "capacidade_mbps": 3584520.0,
+   "fibra": 23896,
+   "fibra_pct": 80.0,
+   "hhi": 5398,
+   "ibge": "9900011",
+   "nome": "Jaguarão de Cima",
+   "operadores": [
+    {
+     "acessos": 19777,
+     "asns": [
+      65542
+     ],
+     "cnpj": "90000023000199",
+     "empresa": "Provedor 23 Telecom Ltda",
+     "share": 66.21
+    },
+    {
+     "acessos": 9494,
+     "asns": [
+      64506
+     ],
+     "cnpj": "90000011000164",
+     "empresa": "Provedor 11 Telecom Ltda",
+     "share": 31.78
+    },
+    {
+     "acessos": 600,
+     "asns": [],
+     "cnpj": "90000207000159",
+     "empresa": "Provedor Sem ASN 8 Ltda",
+     "share": 2.01
+    }
+   ],
+   "operadores_count": 3,
+   "pf": 26883,
+   "pj": 2988,
+   "share_maior": 66.21,
+   "uf": "RS"
+  },
+  "9900012": {
+   "acessos": 31014,
+   "capacidade_mbps": 3721680.0,
+   "fibra": 24811,
+   "fibra_pct": 80.0,
+   "hhi": 5552,
+   "ibge": "9900012",
+   "nome": "Pindorama Alta",
+   "operadores": [
+    {
+     "acessos": 20660,
+     "asns": [
+      65543
+     ],
+     "cnpj": "90000024000133",
+     "empresa": "Provedor 24 Telecom Ltda",
+     "share": 66.62
+    },
+    {
+     "acessos": 10354,
+     "asns": [
+      64507
+     ],
+     "cnpj": "90000012000109",
+     "empresa": "Provedor 12 Telecom Ltda",
+     "share": 33.38
+    }
+   ],
+   "operadores_count": 2,
+   "pf": 27912,
+   "pj": 3102,
+   "share_maior": 66.62,
+   "uf": "GO"
+  }
+ },
+ "snapshot_date": "2026-09-20",
+ "total": 12
+}

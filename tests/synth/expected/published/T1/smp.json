@@ -1,0 +1,266 @@
+{
+ "by_cnpj": {
+  "90000103000144": [
+   {
+    "asns": [
+     4200000003
+    ],
+    "bairro": "Centro",
+    "cep": "99000000",
+    "cnpj": "90000103000144",
+    "codigo_ibge": "9900001",
+    "complemento": "",
+    "data_outorga": "10/01/2015",
+    "email": "contato0@example.org",
+    "geo_confidence": "city_centroid",
+    "geo_source": "nominatim",
+    "lat": -23.6,
+    "logradouro": "Rua do Exemplo 1",
+    "lon": -46.7,
+    "municipio": "Arandurápolis",
+    "nome_fantasia": "Trânsito Nacional 4 S.A.",
+    "num_servico": "010 - SERVIÇO MOVEL PESSOAL",
+    "numero": "100",
+    "razao_social": "Trânsito Nacional 4 S.A.",
+    "situacao": "",
+    "telefone": "(11) 90000-0000",
+    "uf": "SP"
+   }
+  ],
+  "90000200000137": [
+   {
+    "asns": [],
+    "bairro": "Centro",
+    "cep": "99000001",
+    "cnpj": "90000200000137",
+    "codigo_ibge": "9900004",
+    "complemento": "",
+    "data_outorga": "11/02/2016",
+    "email": "contato1@example.org",
+    "geo_confidence": "city_centroid",
+    "geo_source": "nominatim",
+    "lat": -22.9,
+    "logradouro": "Rua do Exemplo 2",
+    "lon": -47.1,
+    "municipio": "Itapuãzinho",
+    "nome_fantasia": "SemASN1",
+    "num_servico": "010 - SERVIÇO MOVEL PESSOAL",
+    "numero": "101",
+    "razao_social": "Provedor Sem ASN 1 Ltda",
+    "situacao": "",
+    "telefone": "(11) 90001-0000",
+    "uf": "SP"
+   }
+  ],
+  "90000201000181": [
+   {
+    "asns": [],
+    "bairro": "Centro",
+    "cep": "99000002",
+    "cnpj": "90000201000181",
+    "codigo_ibge": "9900005",
+    "complemento": "",
+    "data_outorga": "12/03/2017",
+    "email": "contato2@example.org",
+    "geo_confidence": "city_centroid",
+    "geo_source": "nominatim",
+    "lat": -30.05,
+    "logradouro": "Rua do Exemplo 3",
+    "lon": -51.2,
+    "municipio": "Curumim do Sul",
+    "nome_fantasia": "SemASN2",
+    "num_servico": "010 - SERVIÇO MOVEL PESSOAL",
+    "numero": "102",
+    "razao_social": "Provedor Sem ASN 2 Ltda",
+    "situacao": "",
+    "telefone": "(11) 90002-0000",
+    "uf": "RS"
+   }
+  ]
+ },
+ "cnpj_to_asns": {
+  "90000001000129": [
+   64496
+  ],
+  "90000002000173": [
+   64497
+  ],
+  "90000003000118": [
+   64498
+  ],
+  "90000004000162": [
+   64499
+  ],
+  "90000005000107": [
+   64500,
+   64501
+  ],
+  "90000007000104": [
+   64502
+  ],
+  "90000008000140": [
+   64503
+  ],
+  "90000009000195": [
+   64504
+  ],
+  "90000010000110": [
+   64505
+  ],
+  "90000011000164": [
+   64506
+  ],
+  "90000012000109": [
+   64507
+  ],
+  "90000013000153": [
+   64508
+  ],
+  "90000014000106": [
+   64509
+  ],
+  "90000015000142": [
+   64510
+  ],
+  "90000016000197": [
+   64511
+  ],
+  "90000017000131": [
+   65536
+  ],
+  "90000018000186": [
+   65537
+  ],
+  "90000019000120": [
+   65538
+  ],
+  "90000020000155": [
+   65539
+  ],
+  "90000021000108": [
+   65540
+  ],
+  "90000022000144": [
+   65541
+  ],
+  "90000023000199": [
+   65542
+  ],
+  "90000024000133": [
+   65543
+  ],
+  "90000025000188": [
+   65544
+  ],
+  "90000026000122": [
+   65545
+  ],
+  "90000027000177": [
+   65546
+  ],
+  "90000028000111": [
+   65547
+  ],
+  "90000029000166": [
+   65548
+  ],
+  "90000030000190": [
+   65549
+  ],
+  "90000031000135": [
+   65550
+  ],
+  "90000032000180": [
+   65551
+  ],
+  "90000100000100": [
+   4200000000
+  ],
+  "90000101000155": [
+   4200000001
+  ],
+  "90000102000108": [
+   4200000002
+  ],
+  "90000103000144": [
+   4200000003
+  ]
+ },
+ "matched_asns": 1,
+ "smps": [
+  {
+   "asns": [
+    4200000003
+   ],
+   "bairro": "Centro",
+   "cep": "99000000",
+   "cnpj": "90000103000144",
+   "codigo_ibge": "9900001",
+   "complemento": "",
+   "data_outorga": "10/01/2015",
+   "email": "contato0@example.org",
+   "geo_confidence": "city_centroid",
+   "geo_source": "nominatim",
+   "lat": -23.6,
+   "logradouro": "Rua do Exemplo 1",
+   "lon": -46.7,
+   "municipio": "Arandurápolis",
+   "nome_fantasia": "Trânsito Nacional 4 S.A.",
+   "num_servico": "010 - SERVIÇO MOVEL PESSOAL",
+   "numero": "100",
+   "razao_social": "Trânsito Nacional 4 S.A.",
+   "situacao": "",
+   "telefone": "(11) 90000-0000",
+   "uf": "SP"
+  },
+  {
+   "asns": [],
+   "bairro": "Centro",
+   "cep": "99000001",
+   "cnpj": "90000200000137",
+   "codigo_ibge": "9900004",
+   "complemento": "",
+   "data_outorga": "11/02/2016",
+   "email": "contato1@example.org",
+   "geo_confidence": "city_centroid",
+   "geo_source": "nominatim",
+   "lat": -22.9,
+   "logradouro": "Rua do Exemplo 2",
+   "lon": -47.1,
+   "municipio": "Itapuãzinho",
+   "nome_fantasia": "SemASN1",
+   "num_servico": "010 - SERVIÇO MOVEL PESSOAL",
+   "numero": "101",
+   "razao_social": "Provedor Sem ASN 1 Ltda",
+   "situacao": "",
+   "telefone": "(11) 90001-0000",
+   "uf": "SP"
+  },
+  {
+   "asns": [],
+   "bairro": "Centro",
+   "cep": "99000002",
+   "cnpj": "90000201000181",
+   "codigo_ibge": "9900005",
+   "complemento": "",
+   "data_outorga": "12/03/2017",
+   "email": "contato2@example.org",
+   "geo_confidence": "city_centroid",
+   "geo_source": "nominatim",
+   "lat": -30.05,
+   "logradouro": "Rua do Exemplo 3",
+   "lon": -51.2,
+   "municipio": "Curumim do Sul",
+   "nome_fantasia": "SemASN2",
+   "num_servico": "010 - SERVIÇO MOVEL PESSOAL",
+   "numero": "102",
+   "razao_social": "Provedor Sem ASN 2 Ltda",
+   "situacao": "",
+   "telefone": "(11) 90002-0000",
+   "uf": "RS"
+  }
+ ],
+ "snapshot_date": "2026-09-20",
+ "total": 3,
+ "unique_cnpjs": 3
+}

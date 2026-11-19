@@ -1,0 +1,33 @@
+{
+ "objectClassName": "autnum",
+ "handle": "AS64496",
+ "startAutnum": 64496,
+ "endAutnum": 64496,
+ "name": "AS-EXEMPLO-UM",
+ "type": "DIRECT ALLOCATION",
+ "country": "BR",
+ "entities": [
+  {
+   "objectClassName": "entity",
+   "handle": "EXE001",
+   "roles": ["registrant"],
+   "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["kind", {}, "text", "org"], ["fn", {}, "text", "Exemplo Telecom Ficticia Ltda"], ["adr", {}, "text", ["", "", "Rua Ficticia 1", "Cidade Ficticia", "SP", "00000-000", "BR"]]]],
+   "legalRepresentative": "Pessoa Ficticia",
+   "entities": [
+    {
+     "objectClassName": "entity",
+     "handle": "ADM001",
+     "roles": ["administrative"],
+     "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["kind", {}, "text", "individual"], ["fn", {}, "text", "Contato Ficticio Um"], ["email", {}, "text", "admin@example.net"], ["adr", {}, "text", ["", "", "", "", "", "", "BR"]]]]
+    }
+   ]
+  },
+  {
+   "objectClassName": "entity",
+   "handle": "ABU001",
+   "roles": ["abuse"],
+   "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["kind", {}, "text", "individual"], ["fn", {}, "text", "Abuso Ficticio Um"], ["email", {}, "text", "abuse@example.net"]]]
+  }
+ ],
+ "events": [{"eventAction": "registration", "eventDate": "2000-01-01T00:00:00-03:00"}]
+}

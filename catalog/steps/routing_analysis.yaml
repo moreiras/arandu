@@ -1,0 +1,15 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: routing_analysis
+nome: Análise de roteamento BGP do Brasil
+ordem: 36
+modulo: products.routing_analysis.build
+produtos:
+- routing_analysis
+depois_de:
+- asn_indice
+- snapshot_completo
+- rpki_collector
+politica_falha: opcional
+replay: true
+replay_se_publicado: routing_analysis.json
+descricao: Usa asns/index.json já publicado (etapa asn_indice).

@@ -1,0 +1,1254 @@
+{
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     -46.7,
+     -23.6
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64496,
+    "city": "Arandurápolis",
+    "cnpj": "90000001000129",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 01 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.25,
+     -22.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64497,
+    "city": "Tupãnópolis",
+    "cnpj": "90000002000173",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 02 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "RJ"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -49.3,
+     -25.45
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64498,
+    "city": "Guaraniópolis",
+    "cnpj": "90000003000118",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 03 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -47.1,
+     -22.9
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64499,
+    "city": "Itapuãzinho",
+    "cnpj": "90000004000162",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 04 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -51.2,
+     -30.05
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64500,
+    "city": "Curumim do Sul",
+    "cnpj": "90000005000107",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 05 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "RS"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -51.2,
+     -30.05
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64501,
+    "city": "Ybyrapé",
+    "cnpj": "90000005000107",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 06 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "MG"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -53.45,
+     -24.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64502,
+    "city": "Mbaracayú Novo",
+    "cnpj": "90000007000104",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 07 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -60.0,
+     -3.15
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64503,
+    "city": "Tabajara do Norte",
+    "cnpj": "90000008000140",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 08 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "AM"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -35.2,
+     -5.8
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64504,
+    "city": "Potiguara",
+    "cnpj": "90000009000195",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 09 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "RN"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -38.5,
+     -12.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64505,
+    "city": "Caeté Velho",
+    "cnpj": "90000010000110",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 10 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "BA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -53.35,
+     -32.55
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64506,
+    "city": "Jaguarão de Cima",
+    "cnpj": "90000011000164",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 11 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "RS"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -49.25,
+     -16.7
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64507,
+    "city": "Pindorama Alta",
+    "cnpj": "90000012000109",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 12 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "GO"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -46.7,
+     -23.6
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64508,
+    "city": "Arandurápolis",
+    "cnpj": "90000013000153",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 13 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.25,
+     -22.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64509,
+    "city": "Tupãnópolis",
+    "cnpj": "90000014000106",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 14 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "RJ"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -49.3,
+     -25.45
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64510,
+    "city": "Guaraniópolis",
+    "cnpj": "90000015000142",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 15 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -47.1,
+     -22.9
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 64511,
+    "city": "Itapuãzinho",
+    "cnpj": "90000016000197",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 16 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -51.2,
+     -30.05
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65536,
+    "city": "Curumim do Sul",
+    "cnpj": "90000017000131",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 17 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "RS"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.95,
+     -19.9
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65537,
+    "city": "Ybyrapé",
+    "cnpj": "90000018000186",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 18 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "MG"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -53.45,
+     -24.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65538,
+    "city": "Mbaracayú Novo",
+    "cnpj": "90000019000120",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 19 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -60.0,
+     -3.15
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65539,
+    "city": "Tabajara do Norte",
+    "cnpj": "90000020000155",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 20 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "AM"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -35.2,
+     -5.8
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65540,
+    "city": "Potiguara",
+    "cnpj": "90000021000108",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 21 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "RN"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -38.5,
+     -12.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65541,
+    "city": "Caeté Velho",
+    "cnpj": "90000022000144",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 22 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "BA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -53.35,
+     -32.55
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65542,
+    "city": "Jaguarão de Cima",
+    "cnpj": "90000023000199",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 23 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "RS"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -49.25,
+     -16.7
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65543,
+    "city": "Pindorama Alta",
+    "cnpj": "90000024000133",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 24 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "GO"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -46.7,
+     -23.6
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65544,
+    "city": "Arandurápolis",
+    "cnpj": "90000025000188",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 25 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.25,
+     -22.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65545,
+    "city": "Tupãnópolis",
+    "cnpj": "90000026000122",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 26 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "RJ"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -49.3,
+     -25.45
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65546,
+    "city": "Guaraniópolis",
+    "cnpj": "90000027000177",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 27 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -47.1,
+     -22.9
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65547,
+    "city": "Itapuãzinho",
+    "cnpj": "90000028000111",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 28 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -51.2,
+     -30.05
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65548,
+    "city": "Curumim do Sul",
+    "cnpj": "90000029000166",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 29 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "RS"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.95,
+     -19.9
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65549,
+    "city": "Ybyrapé",
+    "cnpj": "90000030000190",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 30 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "MG"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -53.45,
+     -24.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65550,
+    "city": "Mbaracayú Novo",
+    "cnpj": "90000031000135",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 31 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -60.0,
+     -3.15
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 65551,
+    "city": "Tabajara do Norte",
+    "cnpj": "90000032000180",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Provedor 32 Telecom Ltda",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "AM"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -46.7,
+     -23.6
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000000,
+    "city": "Arandurápolis",
+    "cnpj": "90000100000100",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Trânsito Nacional 1 S.A.",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -43.25,
+     -22.95
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000001,
+    "city": "Tupãnópolis",
+    "cnpj": "90000101000155",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Trânsito Nacional 2 S.A.",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "RJ"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -49.3,
+     -25.45
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000002,
+    "city": "Guaraniópolis",
+    "cnpj": "90000102000108",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Trânsito Nacional 3 S.A.",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "PR"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -46.7,
+     -23.6
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000003,
+    "city": "Arandurápolis",
+    "cnpj": "90000103000144",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "scm/nominatim",
+    "name": "Trânsito Nacional 4 S.A.",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "SP"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000100,
+    "city": "Nova Exemplo",
+    "country": "US",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 1 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000101,
+    "city": "Nova Exemplo",
+    "country": "DE",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 2 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000102,
+    "city": "Nova Exemplo",
+    "country": "AR",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 3 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000103,
+    "city": "Nova Exemplo",
+    "country": "US",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 4 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000104,
+    "city": "Nova Exemplo",
+    "country": "DE",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 5 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000105,
+    "city": "Nova Exemplo",
+    "country": "AR",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 6 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000106,
+    "city": "Nova Exemplo",
+    "country": "US",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 7 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000107,
+    "city": "Nova Exemplo",
+    "country": "DE",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 8 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000108,
+    "city": "Nova Exemplo",
+    "country": "AR",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 9 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000109,
+    "city": "Nova Exemplo",
+    "country": "US",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 10 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000110,
+    "city": "Nova Exemplo",
+    "country": "DE",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 11 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000111,
+    "city": "Nova Exemplo",
+    "country": "AR",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 12 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000112,
+    "city": "Nova Exemplo",
+    "country": "US",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 13 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000113,
+    "city": "Nova Exemplo",
+    "country": "DE",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 14 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000114,
+    "city": "Nova Exemplo",
+    "country": "AR",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 15 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000115,
+    "city": "Nova Exemplo",
+    "country": "US",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 16 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000116,
+    "city": "Nova Exemplo",
+    "country": "DE",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 17 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000117,
+    "city": "Nova Exemplo",
+    "country": "AR",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 18 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000118,
+    "city": "Nova Exemplo",
+    "country": "US",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 19 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000119,
+    "city": "Nova Exemplo",
+    "country": "DE",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 20 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000120,
+    "city": "Nova Exemplo",
+    "country": "AR",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 21 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000121,
+    "city": "Nova Exemplo",
+    "country": "US",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 22 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000122,
+    "city": "Nova Exemplo",
+    "country": "DE",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 23 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     -74.0,
+     40.0
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000123,
+    "city": "Nova Exemplo",
+    "country": "AR",
+    "geo_confidence": "org_coords",
+    "geo_source": "peeringdb",
+    "name": "Foreign Net 24 Inc",
+    "uf": ""
+   },
+   "type": "Feature"
+  }
+ ],
+ "snapshot_date": "2026-09-20",
+ "type": "FeatureCollection"
+}

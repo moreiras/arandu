@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: bloqueios
+nome: Bloqueios e interferência medidos pelo OONI, por ASN
+ordem: -89
+modulo: products.passos
+args:
+- --passo
+- bloqueios
+- --date
+- '{date}'
+parcial:
+- bloqueios
+depois_de:
+- ooni_bloqueios
+- asn_indice
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: janela de medições do OONI agregadas por ASN × teste, só célula com 10 ou mais medições. Roda sozinho; lê o normalizado da fonte `ooni_bloqueios` (a coleta vem ativa por decisão do mantenedor, `OONI_ATIVO=0` a desliga; sem o normalizado o passo não gera nada).'

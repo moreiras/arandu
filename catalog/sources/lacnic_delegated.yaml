@@ -1,0 +1,58 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: lacnic_delegated
+nome: ASNs delegados ao Brasil (LACNIC delegated-extended)
+tipo: bruta
+ativa: true
+modulo: sources.lacnic_delegated.collect
+publicavel: true
+descricao: Arquivo de estatísticas de delegação do LACNIC, filtrado para ASNs com country=BR (status allocated/assigned).
+  Fonte autoritativa de 'quais ASNs são brasileiros'.
+origem:
+  url: https://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-extended-latest
+  formato: texto delimitado por | (RIR Statistics Exchange Format)
+  licenca: nao_verificado
+  uso_comercial: nao_verificado
+  nota: README do diretório (2026-10-13) não declara termos; formato descrito em RIR-Statistics-Exchange-Format.txt.
+    Arquivo público do LACNIC.
+cadencia:
+  fonte_atualiza: diaria
+  coleta: semanal
+  coleta_atual: diaria
+  frescor_maximo: 8d
+politica_falha: critica
+saidas:
+  bruto:
+  - summary/delegated-lacnic-extended-{as_of}.txt.gz
+  - summary/delegated-lacnic-extended-{as_of}.txt
+  normalizado:
+  - summary/lacnic_delegated.json.gz
+chaves:
+- asn
+- pais
+campos:
+- nome: br_asns
+  tipo: list[int]
+  significado: ASNs com country=BR e status allocated ou assigned no LACNIC.
+  tratamento: '''assigned'' incluído para capturar transferências.'
+  publicado_em:
+  - asn_docs → asns/{asn}.json#is_br
+- nome: total_br_asns
+  tipo: int
+  significado: Quantidade de ASNs brasileiros.
+  tratamento: Base do universo de consulta do peeringdb_networks.
+- nome: source_sha256
+  tipo: str
+  significado: SHA-256 do arquivo bruto.
+limites: Reflete a delegação inicial/RIR; ASN transferido a outra economia pode demorar a refletir. Não
+  inclui transferências inter-RIR detalhadas.
+retencao:
+  bruto: 90 dias (alvo)
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/lacnic_delegated/
+pendencias:
+- Termos de uso das estatísticas do LACNIC não localizados.
+armazem:
+  incluir:
+  - raw:summary/delegated-lacnic-extended-{as_of}.txt.gz
+  - normalized:summary/lacnic_delegated.json.gz
+  manter_versoes: 365

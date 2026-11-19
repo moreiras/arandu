@@ -1,0 +1,74 @@
+{
+ "announced_ipv4_addresses": 256,
+ "announced_ipv6_48s": 1,
+ "apnic_users": null,
+ "apnic_users_pct_cc": null,
+ "apnic_v6_pct_as": null,
+ "apnic_v6_users": null,
+ "asn": 4200000100,
+ "cnpj": "",
+ "downstreams": [],
+ "downstreams_global_v4": [],
+ "downstreams_global_v6": [],
+ "downstreams_v4": [],
+ "downstreams_v6": [],
+ "external_ixps": [
+  "zx"
+ ],
+ "geo_org": null,
+ "geo_prefixes_v4": {},
+ "geo_prefixes_v6": {},
+ "global_prefixes_v4": [
+  "100.64.0.0/24"
+ ],
+ "global_prefixes_v4_count": 1,
+ "global_prefixes_v6": [
+  "2001:db8:8000::/48"
+ ],
+ "global_prefixes_v6_count": 1,
+ "has_ipv6": true,
+ "is_br": false,
+ "is_multihomed_v4": false,
+ "is_multihomed_v6": false,
+ "ixp_presence": {
+  "za": {
+   "v4": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "100.64.0.0/24"
+    ]
+   },
+   "v6": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "2001:db8:7::/48"
+    ]
+   }
+  }
+ },
+ "ixps_direct": [
+  "za"
+ ],
+ "ixps_origin": [
+  "za"
+ ],
+ "name": "Foreign Net 1 Inc, US",
+ "pdb": null,
+ "pdb_registered": false,
+ "rir_prefixes_v4": [],
+ "rir_prefixes_v4_count": 0,
+ "rir_prefixes_v6": [],
+ "rir_prefixes_v6_count": 0,
+ "single_upstream_v4": null,
+ "single_upstream_v6": null,
+ "snapshot_date": "2026-09-20",
+ "upstreams": [],
+ "upstreams_global_v4": [],
+ "upstreams_global_v6": [],
+ "upstreams_v4": [],
+ "upstreams_v6": [],
+ "users_per_ip": null,
+ "users_per_v6_48": null
+}

@@ -1,0 +1,11 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: transito
+nome: Trânsito por UF e cone de clientes (inferido)
+ordem: 51
+modulo: products.transito.build
+produtos:
+- transito
+depois_de:
+- as_relationships
+politica_falha: opcional
+descricao: Lê as relações inferidas (ARC v2) e publica a concentração do trânsito por UF e o cone de clientes por ASN. Roda sozinho, depois de as_relationships.

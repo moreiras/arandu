@@ -1,0 +1,11 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: global_prefix_geo
+nome: Geolocalização de prefixos globais dos IXPs
+ordem: 31
+modulo: sources.global_prefix_geo.enrich
+fontes:
+- global_prefix_geo
+depois_de:
+- bgp_ixp
+politica_falha: opcional
+descricao: Lê normalized/{ixp}/ produzidos pela etapa bgp_ixp (dependência de um produto, por isso explícita).

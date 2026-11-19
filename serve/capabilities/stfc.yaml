@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Capacidade declarada: daqui nascem as rotas REST (api/capacidades.py), o contrato e a matriz API × MCP × UI.
+entidade: stfc
+rotulo: STFC
+plural: STFCs
+nome_longo: Serviço Telefônico Fixo Comutado
+servico: stfc
+tag: stfc
+privacidade: sem_contatos
+descricao_llm: >
+  Outorgas de STFC pela API REST; no MCP, ver outorgas.
+operacoes:
+  - id: lista
+    tipo: lista_outorgas
+    http: GET /stfcs
+    funcao: list_stfcs
+    sem_mcp: "coberto por outorga_lista e outorga_detalhe"
+    summary: "Listar outorgas STFC (Serviço Telefônico Fixo Comutado)"
+    descricao: |
+      Lista as outorgas de STFC coletadas da Anatel, opcionalmente
+      filtradas por UF, município ou busca textual, com indicação de cruzamento com ASN do
+      Registro.br por CNPJ.
+
+      Universo maior que SMP: ~1.700 CNPJs, incluindo pequenos provedores de VoIP/telefonia fixa. Campos de contato (`telefone`, `email`) não são
+      servidos neste endpoint.
+    filtros:
+      - uf
+      - municipio
+      - q
+      - com_asn
+    ordena_por: [asns, cnpj, data_outorga, municipio, razao_social, uf]
+  - id: stats
+    tipo: stats_outorgas
+    http: GET /stfcs/stats
+    funcao: stfc_stats
+    sem_mcp: "coberto por outorga_lista e outorga_detalhe"
+    summary: "Estatísticas das outorgas STFC"
+  - id: por_cnpj
+    tipo: por_cnpj
+    http: GET /stfcs/{cnpj}
+    funcao: get_stfc
+    sem_mcp: "coberto por outorga_lista e outorga_detalhe"
+    summary: "Outorgas STFC de um CNPJ"

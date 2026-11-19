@@ -1,0 +1,216 @@
+{
+ "alerts": [
+  {
+   "category": "geo",
+   "desde_versao": 1,
+   "detail": "O AS está a menos de 80 km de 1 PTT(s) do IX.br onde não participa. Participar pode reduzir custo de trânsito e latência.",
+   "id": "ptt_proximo_sem_participar",
+   "refs": {
+    "ixps": [
+     {
+      "code": "zc",
+      "dist_km": 0.0,
+      "name": "Guaraniópolis"
+     }
+    ]
+   },
+   "severity": "aviso",
+   "title": "PTT próximo sem participação"
+  },
+  {
+   "category": "presenca",
+   "desde_versao": 2,
+   "detail": "O AS aparenta depender de um único upstream (IPv6 e IPv4) na tabela global — risco de resiliência.",
+   "id": "single_homed",
+   "refs": {
+    "upstream_v4": 4200000002,
+    "upstream_v6": 4200000002
+   },
+   "severity": "aviso",
+   "title": "Conectividade single-homed"
+  },
+  {
+   "category": "roteamento",
+   "desde_versao": 1,
+   "detail": "O AS tem presença em IPv4 mas nenhum prefixo IPv6 alocado nem anunciado. IPv6 é requisito de boas práticas para novas redes.",
+   "id": "sem_ipv6",
+   "refs": {},
+   "severity": "aviso",
+   "title": "Sem IPv6"
+  },
+  {
+   "category": "rpki",
+   "desde_versao": 1,
+   "detail": "O AS possui ROAs no RPKI mas não publicou nenhum objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os upstreams autorizados e permite validação de AS_PATH — sua ausência não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
+   "id": "sem_aspa",
+   "refs": {},
+   "severity": "aviso",
+   "title": "Sem ASPA"
+  },
+  {
+   "category": "presenca",
+   "desde_versao": 1,
+   "detail": "O cadastro no PeeringDB não informa um as-set no IRR. Sem objeto IRR, peers e provedores não conseguem montar filtros de prefixo automaticamente.",
+   "id": "sem_irr_as_set",
+   "refs": {},
+   "severity": "info",
+   "title": "Sem AS-SET no IRR"
+  }
+ ],
+ "announced_ipv4_addresses": 2304,
+ "announced_ipv6_48s": null,
+ "apnic_users": 45403,
+ "apnic_users_pct_cc": 2.2702,
+ "apnic_v6_pct_as": 0.0,
+ "apnic_v6_users": 0,
+ "asn": 64510,
+ "cnpj": "90000015000142",
+ "downstreams": [],
+ "downstreams_global_v4": [],
+ "downstreams_global_v6": [],
+ "downstreams_v4": [],
+ "downstreams_v6": [],
+ "external_ixps": [],
+ "geo_org": {
+  "city": "Guaraniópolis",
+  "cnpj": "90000015000142",
+  "geo_confidence": "city_centroid",
+  "geo_source": "nominatim",
+  "lat": -25.45,
+  "lon": -49.3,
+  "municipio": "Guaraniópolis",
+  "name": "Provedor 15 Telecom Ltda",
+  "uf": "PR"
+ },
+ "geo_prefixes_v4": {
+  "198.18.64.0/21": {
+   "city": "Guaraniópolis",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -25.45,
+   "lon": -49.3,
+   "uf": "PR"
+  },
+  "198.18.72.0/24": {
+   "city": "Guaraniópolis",
+   "country": "BR",
+   "geo_confidence": "city_centroid",
+   "geo_source": "geolite2-2026-09",
+   "lat": -25.45,
+   "lon": -49.3,
+   "uf": "PR"
+  }
+ },
+ "geo_prefixes_v6": {},
+ "global_prefixes_v4": [
+  "198.18.64.0/21",
+  "198.18.72.0/24"
+ ],
+ "global_prefixes_v4_count": 2,
+ "global_prefixes_v6": [],
+ "global_prefixes_v6_count": 0,
+ "has_ipv6": false,
+ "is_br": true,
+ "is_multihomed_v4": false,
+ "is_multihomed_v6": false,
+ "ixp_member_codes": [
+  "za",
+  "zb"
+ ],
+ "ixp_presence": {
+  "za": {
+   "v4": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "198.18.64.0/21",
+     "198.18.72.0/24"
+    ]
+   },
+   "v6": {
+    "direct": true,
+    "origin": true,
+    "prefixes": []
+   }
+  },
+  "zb": {
+   "v4": {
+    "direct": true,
+    "origin": true,
+    "prefixes": [
+     "198.18.64.0/21",
+     "198.18.72.0/24"
+    ]
+   },
+   "v6": {
+    "direct": true,
+    "origin": true,
+    "prefixes": []
+   }
+  }
+ },
+ "ixps_direct": [
+  "za",
+  "zb"
+ ],
+ "ixps_origin": [
+  "za",
+  "zb"
+ ],
+ "name": "Provedor 15 Telecom Ltda",
+ "path_node_meta": {
+  "4200000002": {
+   "is_br": true,
+   "name": "Trânsito Nacional 3 S.A.",
+   "space_v4": 6,
+   "space_v6": 1
+  }
+ },
+ "pdb": {
+  "asn": 64510,
+  "info_type": "Cable/DSL/ISP",
+  "name": "Provedor 15 Telecom Ltda",
+  "policy_general": "Open"
+ },
+ "pdb_registered": true,
+ "rir_prefixes_v4": [
+  "198.18.64.0/21",
+  "198.18.72.0/24"
+ ],
+ "rir_prefixes_v4_count": 2,
+ "rir_prefixes_v6": [],
+ "rir_prefixes_v6_count": 0,
+ "roa_list": [
+  {
+   "asn": 64510,
+   "maxLength": 21,
+   "prefix": "198.18.64.0/21",
+   "ta": "lacnic"
+  },
+  {
+   "asn": 64510,
+   "maxLength": 24,
+   "prefix": "198.18.72.0/24",
+   "ta": "lacnic"
+  }
+ ],
+ "rpki_validation": {
+  "198.18.64.0/21": "valid",
+  "198.18.72.0/24": "valid"
+ },
+ "single_upstream_v4": 4200000002,
+ "single_upstream_v6": 4200000002,
+ "snapshot_date": "2026-09-20",
+ "upstreams": [],
+ "upstreams_global_v4": [
+  4200000002
+ ],
+ "upstreams_global_v6": [
+  4200000002
+ ],
+ "upstreams_v4": [],
+ "upstreams_v6": [],
+ "users_per_ip": 19.71,
+ "users_per_v6_48": null
+}

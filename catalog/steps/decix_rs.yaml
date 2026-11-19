@@ -1,0 +1,21 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: decix_rs
+nome: DE-CIX Rio e São Paulo nos route servers
+ordem: -48
+modulo: products.passos
+args:
+- --passo
+- decix_rs
+- --date
+- '{date}'
+parcial:
+- decix_rs
+depois_de:
+- decix_alice
+- ixp_externos
+- ixp_indice
+- metricas_ixp_asn
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: cruza as sessões e as rotas lidas nos route servers do DE-CIX (decix_alice) com os documentos do IX.br da mesma cidade e com os membros do PeeringDB
+  (external-ixps), e publica por PTT (decix-sp, decix-rj) os ASNs diretos (sessão no route server), os originadores (piso), os membros e a comparação por cidade. Sem o normalizado do `decix_alice` (ou com bloqueio registrado) não gera nada.'

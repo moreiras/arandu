@@ -1,0 +1,24 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: qualidade
+nome: Qualidade (RQUAL) e reclamações da Anatel
+ordem: -80
+modulo: products.passos
+args:
+- --passo
+- qualidade
+- --date
+- '{date}'
+parcial:
+- qualidade
+depois_de:
+- anatel_rqual
+- anatel_reclamacoes
+- ibge_censo_pnad
+- sici
+- sici_movel
+- outorgas_scm
+- outorgas_demais
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: consolida o RQUAL (série nacional e por UF, último resultado por município) e as reclamações da Anatel (por marca, serviço, UF, município e assunto), liga prestadoras e
+  marcas ao CNPJ pela tabela curada `config/curada_marcas_operadoras.yaml` (mais o nome fantasia único das outorgas, rotulado) e calcula a taxa de reclamações por mil acessos só onde há volume. Sem ranking.'

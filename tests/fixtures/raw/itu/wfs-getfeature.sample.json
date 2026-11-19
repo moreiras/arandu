@@ -1,0 +1,112 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "id": "trx_geocatalogue.0",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.1059432,
+      -24.69888211
+     ],
+     [
+      26.08307843,
+      -25.54262411
+     ]
+    ]
+   },
+   "properties": {
+    "uid": 1000,
+    "type_inf": "Fibre Operational",
+    "status": "Operational"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "trx_geocatalogue.1",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      25.56846471,
+      -25.64997945
+     ],
+     [
+      26.08307843,
+      -25.54262411
+     ]
+    ]
+   },
+   "properties": {
+    "uid": 1001,
+    "type_inf": "Fibre Operational",
+    "status": "Operational"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "trx_geocatalogue.2",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      28.33065901,
+      -26.54035653
+     ],
+     [
+      30.99466971,
+      -26.21320945
+     ]
+    ]
+   },
+   "properties": {
+    "uid": 1002,
+    "type_inf": "Fibre Operational",
+    "status": "Operational"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "trx_geocatalogue.3",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.08857919,
+      -25.54638779
+     ],
+     [
+      28.22016771,
+      -25.73131945
+     ]
+    ]
+   },
+   "properties": {
+    "uid": 1003,
+    "type_inf": "Fibre Operational",
+    "status": "Operational"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "trx_geocatalogue.99",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -47.9,
+     -15.8
+    ]
+   },
+   "properties": {
+    "uid": 1099,
+    "type_inf": "Node",
+    "status": "Operational"
+   }
+  }
+ ],
+ "totalFeatures": 5,
+ "numberMatched": 5,
+ "numberReturned": 5
+}

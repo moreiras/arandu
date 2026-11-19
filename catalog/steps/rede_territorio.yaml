@@ -1,0 +1,17 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: rede_territorio
+nome: Rede no território (IPv6, ROV e trânsito)
+ordem: -47
+modulo: products.rede_territorio.build
+produtos:
+- rede_territorio
+depois_de:
+- regiao
+- seguranca_asn
+- sici
+- asn_indice
+politica_falha: opcional
+replay: true
+replay_se_publicado: territorio/rede_territorio.json.gz
+descricao: 'Passo do build do snapshot: cruza o SICI (acessos por município e CNPJ) com a adoção de IPv6 e os usuários dos ASNs (APNIC), o ROV medido pela APNIC e os provedores de trânsito inferidos,
+  e publica o IPv6 estimado por município, os usuários atrás de ROV por UF e a dependência de trânsito. Estimativas e inferências, com a suposição e a cobertura à vista.'

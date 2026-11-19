@@ -1,0 +1,65 @@
+{
+ "reject_reasons": {
+  "26162": {
+   "100": {
+    "0": "Invalid on Registro.br"
+   },
+   "300": {
+    "0": "Invalid on RPKI"
+   }
+  }
+ },
+ "noexport": {},
+ "noexport_reasons": {
+  "65000": {
+   "0": {
+    "*": "No export to AS$2"
+   }
+  }
+ },
+ "reject_candidates": {},
+ "rpki": {
+  "enabled": true,
+  "valid": [
+   [
+    "26162",
+    "300",
+    "1"
+   ]
+  ],
+  "unknown": [
+   [
+    "26162",
+    "300",
+    "2"
+   ]
+  ],
+  "not_checked": [
+   [
+    "26162",
+    "300",
+    "3"
+   ]
+  ],
+  "invalid": [
+   [
+    "26162",
+    "300",
+    "0"
+   ]
+  ]
+ },
+ "bgp_communities": {
+  "26162": {
+   "*": "Prefix being announced by AS$1"
+  }
+ },
+ "bgp_blackhole_communities": {
+  "26162": {
+   "666": "Confirmed blackhole"
+  }
+ },
+ "neighbors_columns": {
+  "asn": "ASN"
+ }
+}

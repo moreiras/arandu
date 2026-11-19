@@ -1,0 +1,195 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+"""T0 — scripts operacionais: cronometragem de etapas e relatório de disco."""
+import json
+import subprocess
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def _bash(script: str, **env) -> subprocess.CompletedProcess:
+    import os
+    return subprocess.run(["bash", "-c", script], cwd=ROOT, capture_output=True, text=True,
+                          env={**os.environ, **env}, timeout=60)
+
+
+def _records(path: Path) -> list[dict]:
+    return [json.loads(l) for l in path.read_text().splitlines()]
+
+
+def test_step_registra_sucesso_e_devolve_zero(tmp_path):
+    f = tmp_path / "runs" / "d.jsonl"
+    r = _bash('source scripts/lib-steps.sh; step lg_ixbr true; echo rc=$?', OPS_RUNS_FILE=str(f))
+    assert "rc=0" in r.stdout
+    rec = _records(f)[0]
+    assert rec["step"] == "lg_ixbr" and rec["exit"] == 0 and rec["status"] == "ok"
+    assert rec["duration_s"] >= 0 and rec["start"].endswith("Z") and rec["end"].endswith("Z")
+
+
+def test_step_preserva_codigo_de_saida_da_falha(tmp_path):
+    f = tmp_path / "d.jsonl"
+    r = _bash('source scripts/lib-steps.sh; step ixbr_api bash -c "exit 7"; echo rc=$?', OPS_RUNS_FILE=str(f))
+    assert "rc=7" in r.stdout
+    rec = _records(f)[0]
+    assert rec["exit"] == 7 and rec["status"] == "falha"
+
+
+def test_step_extrai_modulo_do_python_dash_m(tmp_path):
+    f = tmp_path / "d.jsonl"
+    _bash('source scripts/lib-steps.sh; step lg_ixbr echo python -m sources.lg_ixbr.collect --date 2026-01-01',
+          OPS_RUNS_FILE=str(f))
+    assert _records(f)[0]["module"] == "sources.lg_ixbr.collect"
+
+
+def test_step_sanitiza_rotulo_para_json(tmp_path):
+    f = tmp_path / "d.jsonl"
+    _bash('source scripts/lib-steps.sh; step \'a"b c\' true', OPS_RUNS_FILE=str(f))
+    assert _records(f)[0]["step"] == 'a_b_c'
+
+
+def test_step_nao_falha_sem_arquivo_de_registro():
+    r = _bash('unset OPS_RUNS_FILE; source scripts/lib-steps.sh; step X true; echo rc=$?')
+    assert "rc=0" in r.stdout
+
+
+def test_step_nao_falha_se_diretorio_nao_gravavel(tmp_path):
+    ro = tmp_path / "ro"
+    ro.mkdir()
+    ro.chmod(0o500)
+    try:
+        r = _bash('source scripts/lib-steps.sh; step X true; echo rc=$?', OPS_RUNS_FILE=str(ro / "sub" / "d.jsonl"))
+        assert "rc=0" in r.stdout
+    finally:
+        ro.chmod(0o700)
+
+
+def test_step_funciona_em_if_e_com_ou(tmp_path):
+    f = tmp_path / "d.jsonl"
+    r = _bash('source scripts/lib-steps.sh; if step A false; then echo sim; else echo nao; fi; step B false || echo caiu',
+              OPS_RUNS_FILE=str(f))
+    assert "nao" in r.stdout and "caiu" in r.stdout
+    assert [x["step"] for x in _records(f)] == ["A", "B"]
+
+
+def test_disk_report_gera_json_com_tipos_datas_df_e_inodes(tmp_path):
+    data = tmp_path / "data"
+    (data / "raw" / "2026-09-20").mkdir(parents=True)
+    (data / "raw" / "2026-09-20" / "a.txt").write_text("x" * 5000)
+    (data / "published" / "2026-09-20").mkdir(parents=True)
+    (data / "raw" / "geolite2").mkdir()
+    (data / "raw" / "geolite2" / "b.mmdb").write_text("y" * 5000)
+    (data / "raw" / "21-06-2026").mkdir()
+    (data / "tiles").mkdir()
+    r = subprocess.run(["bash", "scripts/disk-report.sh", "--date", "2026-10-11", "--data-dir", str(data)],
+                       cwd=ROOT, capture_output=True, text=True, timeout=60)
+    assert r.returncode == 0, r.stderr
+    doc = json.loads((data / "ops" / "disk" / "2026-10-11.json").read_text())
+    assert doc["date"] == "2026-10-11" and doc["unit"] == "KiB"
+    assert set(doc["by_type"]) >= {"raw", "published", "tiles"}
+    assert doc["by_date"]["raw"]["2026-09-20"] >= 4
+    # pastas que não são data (por fonte/cache) não entram em by_date
+    assert set(doc["by_date"]["raw"]) == {"2026-09-20"}
+    assert set(doc["outros"]["raw"]) == {"geolite2", "21-06-2026"}
+    assert doc["df"]["size_kb"] > 0 and 0 <= doc["df"]["use_pct"] <= 100
+    # overlayfs/btrfs (containers, CI) não reportam inodes: total 0 e use_pct nulo — o relatório não pode quebrar
+    ino = doc["inodes"]
+    assert ino["total"] > 0 or (ino["total"] == 0 and ino["use_pct"] is None)
+
+
+def test_disk_report_falha_se_data_dir_nao_existe(tmp_path):
+    r = subprocess.run(["bash", "scripts/disk-report.sh", "--data-dir", str(tmp_path / "nao")],
+                       cwd=ROOT, capture_output=True, text=True, timeout=60)
+    assert r.returncode == 1
+
+
+def test_disk_report_rejeita_argumento_desconhecido():
+    r = subprocess.run(["bash", "scripts/disk-report.sh", "--bobagem"], cwd=ROOT, capture_output=True, text=True, timeout=60)
+    assert r.returncode == 2
+
+
+def test_restart_safe_tem_sintaxe_valida_e_verificacao_pos_implantacao_nao_bloqueante():
+    assert subprocess.run(["bash", "-n", "restart-safe.sh"], cwd=ROOT).returncode == 0
+    text = (ROOT / "restart-safe.sh").read_text()
+    i = text.index("5c — Verificação pós-implantação")
+    bloco = text[i:text.index("# 6. LIMPEZA", i)]
+    assert "post-deploy-check.sh" in bloco
+    assert "rollback" not in bloco.lower().replace("nunca aborta nem dispara rollback", "").replace("rollback automático continua", "")
+
+
+def test_rpki_vem_antes_da_publicacao_da_analise_bgp_e_da_saude_dos_asns():
+    """O RPKI vem antes do BGP: depois dele, todas as rotas do routing_analysis sairiam 'not_found'. E vem antes do índice de
+    ASNs, que nasce com has_rpki (1 escrita)."""
+    from core.catalog.loader import load_catalog, ordem_de_execucao
+
+    ordem = ordem_de_execucao(load_catalog(ROOT / "catalog"))
+    assert ordem.index("rpki_collector") < ordem.index("asn_indice") < ordem.index("routing_analysis") < ordem.index("saude_asn")
+
+
+def test_restart_safe_aquecimento_com_freio_de_memoria_e_sem_post_warmup_por_padrao():
+    """Com 7 GiB a API toma OOM (exit 137) no meio dos /potential do aquecimento."""
+    text = (ROOT / "restart-safe.sh").read_text()
+    i = text.index('header "5b — Pré-aquecimento de cache"')
+    bloco = text[i:text.index("# 5c. VERIFICAÇÃO PÓS-IMPLANTAÇÃO", i)]
+    assert 'RESTART_SAFE_POST_WARMUP:-0' in bloco          # POST /warmup só se pedido
+    assert "cgroup_mem_pct" in bloco and "WARM_MEM_MAX_PCT" in bloco and "WARM_PAUSE" in bloco
+    assert "interrompido por segurança" in bloco
+    # nunca aborta nem faz rollback por causa do aquecimento
+    assert "rollback" not in bloco.lower()
+
+
+def test_compose_prod_limite_da_api_e_de_9g():
+    import re
+
+    text = (ROOT / "docker-compose.prod.yml").read_text()
+    m = re.search(r"memory:\s*(\d+)G", text.split("api:", 1)[1])
+    assert m and int(m.group(1)) == 9
+
+
+# ── scripts/arandu-exclusivo.sh: coleta manual e pipeline não rodam juntos ─────────────────────────────────────────────────────────
+
+_FLOCK = pytest.mark.skipif(__import__("shutil").which("flock") is None, reason="flock (util-linux) não existe neste host")
+
+
+@_FLOCK
+def test_exclusivo_roda_o_comando_e_devolve_a_saida_dele(tmp_path):
+    lock = tmp_path / "run.lock"
+    r = _bash('bash scripts/arandu-exclusivo.sh -- bash -c "echo feito; exit 3"', ARANDU_LOCK=str(lock))
+    assert "feito" in r.stdout and r.returncode == 3 and "lock obtido" in r.stderr
+
+
+@_FLOCK
+def test_exclusivo_desiste_com_75_se_o_pipeline_segura_o_lock(tmp_path):
+    lock = tmp_path / "run.lock"
+    # o pipeline do cron: `flock -n LOCK comando` segurando o lock enquanto o wrapper tenta
+    r = _bash(f'flock -n {lock} sleep 5 & sleep 0.5; bash scripts/arandu-exclusivo.sh -- echo nao-deve-rodar; echo rc=$?; wait',
+              ARANDU_LOCK=str(lock))
+    assert "nao-deve-rodar" not in r.stdout and "rc=75" in r.stdout and "outra execução" in r.stderr
+
+
+@_FLOCK
+def test_exclusivo_com_esperar_aguarda_o_lock_soltar(tmp_path):
+    lock = tmp_path / "run.lock"
+    r = _bash(f'flock -n {lock} sleep 1 & sleep 0.3; bash scripts/arandu-exclusivo.sh --esperar 10 -- echo rodou; echo rc=$?; wait',
+              ARANDU_LOCK=str(lock))
+    assert "rodou" in r.stdout and "rc=0" in r.stdout
+
+
+@_FLOCK
+def test_exclusivo_exige_comando_e_espera_numerica(tmp_path):
+    lock = tmp_path / "run.lock"
+    assert _bash("bash scripts/arandu-exclusivo.sh", ARANDU_LOCK=str(lock)).returncode == 2
+    assert _bash("bash scripts/arandu-exclusivo.sh --esperar x -- true", ARANDU_LOCK=str(lock)).returncode == 2
+
+
+def test_compose_poe_teto_de_memoria_no_worker_e_na_api_sem_swap_extra():
+    import yaml
+    c = yaml.safe_load((ROOT / "docker-compose.exemplo.yml").read_text())["services"]
+    for nome in ("api", "worker"):
+        s = c[nome]
+        assert "memory" in s["deploy"]["resources"]["limits"], nome
+        assert "memswap_limit" in s, f"{nome}: sem memswap_limit, o teto vale só para a RAM e o excedente vai para o swap do host"
+    assert "WORKER_MEM_LIMIT" in c["worker"]["deploy"]["resources"]["limits"]["memory"]
+    # o swap da API não pode ser ligado ao `memory`: os overrides de produção (9G) e .no-nginx (3G) trocam `memory` e o Docker exige memswap >= memory
+    assert "API_MEMSWAP_LIMIT" in c["api"]["memswap_limit"] and "API_MEM_LIMIT" not in c["api"]["memswap_limit"]

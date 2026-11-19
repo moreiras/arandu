@@ -1,0 +1,61 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: seac_geo
+nome: Geolocalização das outorgas SEAC (Nominatim)
+tipo: derivada
+ativa: true
+modulo: sources.seac_geo.enrich
+publicavel: true
+descricao: Geocodifica o endereço da sede de cada outorga SEAC (endereço completo → CEP → município) com
+  cache persistente em geo_cache/seac.json.gz, adicionando lat/lon e rótulo de confiança.
+origem:
+  url: https://nominatim.openstreetmap.org/search
+  formato: JSON (geocodificação)
+  licenca: ODbL 1.0 (dados OpenStreetMap)
+  uso_comercial: restrito
+  termos: https://operations.osmfoundation.org/policies/nominatim/
+  nota: 'Política de uso do Nominatim público (verificada em 2026-10-13): máximo absoluto de 1 req/s,
+    User-Agent identificado, atribuição visível; dados sob ODbL com share-alike (extrações pequenas tendem
+    a ser uso justo). O código aceita NOMINATIM_URL para instância própria (padrão de localhost:8088).'
+cadencia:
+  fonte_atualiza: continua
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: opcional
+entradas:
+- anatel_seac
+saidas:
+  normalizado:
+  - summary/anatel_seac_geo.json.gz
+  - ../geo_cache/seac.json.gz
+chaves:
+- cnpj
+- ponto
+- ibge
+campos:
+- nome: lat / lon
+  tipo: float
+  significado: Coordenadas geocodificadas do endereço da sede.
+  tratamento: Posição do endereço (ou centroide), não da área de cobertura.
+  publicado_em:
+  - outorgas → maps/seacs.geojson
+- nome: geo_confidence
+  tipo: str
+  significado: 'Confiança da geocodificação: exact_address, cep_centroid, city_centroid ou unknown.'
+  tratamento: Rótulo do método; não é erro em metros.
+- nome: geo_source
+  tipo: str
+  significado: Origem da coordenada (nominatim ou cache).
+  publicado_em:
+  - outorgas → maps/seacs.geojson
+- nome: geolocated / cached / unknown
+  tipo: int
+  significado: 'Contagens do lote: geocodificados, vindos do cache e sem resultado.'
+limites: 'Geocodificação best-effort por texto de endereço: endereços ambíguos caem em centroide de CEP/município;
+  ''unknown'' não entra no mapa.'
+retencao:
+  normalizado: 52 semanas; cache permanente
+fixture: tests/fixtures/raw/nominatim/
+pendencias:
+- Confirmar atribuição OSM/ODbL na interface e se o resultado geocodificado publicado é obra derivada
+  com share-alike; avaliar instância própria do Nominatim.

@@ -1,0 +1,11 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: lg_ixbr
+nome: Looking Glasses dos IXPs do IX.br
+ordem: 1
+modulo: sources.lg_ixbr.collect
+fontes:
+- lg_ixbr
+tentativas: 2
+espera_s: 120
+politica_falha: critica
+descricao: ''

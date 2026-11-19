@@ -1,0 +1,23 @@
+# Políticas de retenção do `arandu gc`. O perfil vale por ambiente: `ARANDU_RETENCAO=<perfil>` ou `--perfil`.
+# O código impõe pisos que nenhuma política desliga (ver arandu/retencao.py): as N datas mais recentes de cada camada,
+# as datas `protegidas`, versões do armazém ainda referenciadas por um `published` e a última versão de cada fonte.
+perfil_padrao: desenvolvimento
+perfis:
+  # ambientes de teste e de desenvolvimento: cadência e retenção ditadas pelo que ajuda a desenvolver e a investigar.
+  desenvolvimento:
+    descricao: published indefinido; raw e normalized só das 2 datas mais recentes
+    published: {tudo: true}
+    normalized: {datas: 2}
+    raw: {datas: 2}
+    build: {datas: 2}               # fragmentos do compose (build/<data>/fragments)
+    armazem: {versoes: 4}
+    protegidas: ['2026-10-11']      # replay (scripts/replay.py)
+  # Proposta a fechar na implantação de produção (valores da visão geral; published ainda sem decisão de cadência).
+  producao:
+    descricao: 12 semanas de snapshots completos + 1 por mês; normalized 52 semanas; raw 4 datas
+    published: {semanas: 12, um_por_mes: true}
+    normalized: {semanas: 52}
+    raw: {datas: 4}
+    build: {datas: 2}
+    armazem: {versoes: 4}
+    protegidas: []

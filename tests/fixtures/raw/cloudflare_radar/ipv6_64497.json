@@ -1,0 +1,14 @@
+{
+ "success": true,
+ "errors": [],
+ "result": {
+  "summary_0": {
+   "IPv4": "100.0",
+   "IPv6": "0.0"
+  },
+  "meta": {
+   "normalization": "PERCENTAGE",
+   "lastUpdated": "2026-11-09T14:15:00Z"
+  }
+ }
+}

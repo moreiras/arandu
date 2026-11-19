@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: ipv4_subasig
+nome: Sub-asignações de IPv4 (aluguel regulado)
+ordem: -75
+modulo: products.passos
+args:
+- --passo
+- ipv4_subasig
+- --date
+- '{date}'
+parcial:
+- ipv4_subasig
+depois_de:
+- ipv4_uso
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: publica o estado das sub-asignações (política LAC-2025-5). Sem a bitácora oficial sai com `ativa: false`, o aviso "aguardando a publicação oficial" e o estado do vigia de diretórios;
+  com a fonte ativada, cada registro recebe as validações da política e o indicador de anúncios de terceiros com e sem registro oficial.'

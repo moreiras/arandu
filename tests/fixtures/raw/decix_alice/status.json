@@ -1,0 +1,96 @@
+{
+ "version": "6.2.0",
+ "neighbors": {
+  "total_neighbors": 99
+ },
+ "routes": {
+  "total_routes": {
+   "filtered": 0,
+   "imported": 0
+  },
+  "route_servers": [
+   {
+    "name": "rs1.rio.de-cix.net (IPv4)",
+    "routes": {
+     "filtered": 10,
+     "imported": 1000
+    },
+    "state": "READY",
+    "updated_at": "2026-11-10T11:00:00.5Z"
+   },
+   {
+    "name": "rs1.rio.de-cix.net (IPv6)",
+    "routes": {
+     "filtered": 10,
+     "imported": 1000
+    },
+    "state": "READY",
+    "updated_at": "2026-11-10T11:00:00.5Z"
+   },
+   {
+    "name": "rs2.rio.de-cix.net (IPv4)",
+    "routes": {
+     "filtered": 10,
+     "imported": 1000
+    },
+    "state": "READY",
+    "updated_at": "2026-11-10T11:00:00.5Z"
+   },
+   {
+    "name": "rs2.rio.de-cix.net (IPv6)",
+    "routes": {
+     "filtered": 10,
+     "imported": 1000
+    },
+    "state": "READY",
+    "updated_at": "2026-11-10T11:00:00.5Z"
+   },
+   {
+    "name": "rs1.sao.de-cix.net (IPv4)",
+    "routes": {
+     "filtered": 10,
+     "imported": 1000
+    },
+    "state": "BUSY",
+    "updated_at": "2026-11-10T11:00:00.5Z"
+   },
+   {
+    "name": "rs1.sao.de-cix.net (IPv6)",
+    "routes": {
+     "filtered": 10,
+     "imported": 1000
+    },
+    "state": "BUSY",
+    "updated_at": "2026-11-10T11:00:00.5Z"
+   },
+   {
+    "name": "rs2.sao.de-cix.net (IPv4)",
+    "routes": {
+     "filtered": 10,
+     "imported": 1000
+    },
+    "state": "READY",
+    "updated_at": "2026-11-10T11:00:00.5Z"
+   },
+   {
+    "name": "rs2.sao.de-cix.net (IPv6)",
+    "routes": {
+     "filtered": 10,
+     "imported": 1000
+    },
+    "state": "READY",
+    "updated_at": "2026-11-10T11:00:00.5Z"
+   },
+   {
+    "name": "rs1.fra.de-cix.net (IPv4)",
+    "routes": {
+     "filtered": 1,
+     "imported": 5
+    },
+    "state": "READY",
+    "updated_at": "2026-11-10T11:00:00Z"
+   }
+  ]
+ },
+ "postgres": null
+}

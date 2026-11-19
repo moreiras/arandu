@@ -1,0 +1,9 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: peeringdb_intl_geo
+nome: Geolocalização de ASNs internacionais
+ordem: 23
+modulo: sources.peeringdb_intl_geo.enrich
+fontes:
+- peeringdb_intl_geo
+politica_falha: opcional
+descricao: ''

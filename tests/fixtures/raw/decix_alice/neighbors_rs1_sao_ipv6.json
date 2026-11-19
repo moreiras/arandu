@@ -1,0 +1,12 @@
+{
+ "api": {
+  "version": "6.2.0",
+  "cache_status": {
+   "cached_at": "2026-11-10T11:30:00.123456789Z",
+   "orig_ttl": 0
+  },
+  "result_from_cache": true,
+  "ttl": "2026-11-10T11:31:00Z"
+ },
+ "neighbors": []
+}

@@ -1,0 +1,7 @@
+# last updated 1793465701 (Sat Oct 31 16:55:01 2026 GMT)
+# Know your network!  Please rigorously test all filters!
+0.0.0.0/8
+10.0.0.0/8
+100.64.0.0/10
+198.18.0.0/15
+5.0.0.0/16

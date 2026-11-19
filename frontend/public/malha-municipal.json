@@ -1,0 +1,21 @@
+{
+ "fonte": "IBGE, Malha Municipal 2024",
+ "atribuicao": "Fonte: IBGE",
+ "url": "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_Municipios_2024.zip",
+ "sha256_origem": "bb78a8dc60a8320231f6eda79a8c89f68f0e22f0d81608dc051ee505fc72a1e5",
+ "municipios": 5571,
+ "zoom_maximo": 7,
+ "camadas": [
+  "municipios",
+  "ufs"
+ ],
+ "gerado_em": "2026-11-11",
+ "tiles": 197,
+ "bytes": 2434288,
+ "bounds": {
+  "w": -75.93750000000001,
+  "s": -34.30714385628804,
+  "e": -28.125000000000014,
+  "n": 5.615985819155353
+ }
+}

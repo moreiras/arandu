@@ -1,0 +1,367 @@
+{
+ "asns": {
+  "64496": {
+   "lido_em": "2026-09-20",
+   "portas_mais_vistas": [
+    {
+     "n": 220,
+     "porta": 80
+    },
+    {
+     "n": 120,
+     "porta": 443
+    },
+    {
+     "n": 40,
+     "porta": 23
+    },
+    {
+     "n": 9,
+     "porta": 7547
+    },
+    {
+     "n": 3,
+     "porta": 22
+    }
+   ],
+   "risco": {
+    "classes": {
+     "acesso_remoto": {
+      "servicos": [
+       {
+        "n": 40,
+        "porta": 23,
+        "servico": "Telnet"
+       },
+       {
+        "n": 2,
+        "porta": 3389,
+        "servico": "RDP"
+       }
+      ],
+      "total": 42
+     },
+     "gestao_de_equipamento": {
+      "servicos": [
+       {
+        "n": 9,
+        "porta": 7547,
+        "servico": "TR-069 (CWMP)"
+       }
+      ],
+      "total": 9
+     }
+    },
+    "pct_dos_servicos_observados": 12.75,
+    "servicos_de_risco": 51
+   },
+   "servicos_observados": 400,
+   "vulnerabilidades": {
+    "cves_mais_vistas": [
+     {
+      "cve": "CVE-2099-0001",
+      "n": 12
+     },
+     {
+      "cve": "CVE-2099-0002",
+      "n": 5
+     }
+    ],
+    "disponivel": true
+   }
+  },
+  "64497": {
+   "lido_em": "2026-09-20",
+   "sem_servico_observado": true,
+   "servicos_observados": 0
+  },
+  "64498": {
+   "lido_em": "2026-09-20",
+   "portas_mais_vistas": [
+    {
+     "n": 40,
+     "porta": 443
+    },
+    {
+     "n": 20,
+     "porta": 80
+    }
+   ],
+   "risco": {
+    "classes": {},
+    "pct_dos_servicos_observados": 0.0,
+    "servicos_de_risco": 0
+   },
+   "servicos_observados": 60,
+   "vulnerabilidades": {
+    "cves_mais_vistas": [],
+    "disponivel": true
+   }
+  }
+ },
+ "aviso": "Contagem de serviços observados pelo Shodan na data da leitura de cada ASN; NÃO é prova de vulnerabilidade, nem inventário da rede, nem estado atual. Serviço observado é um banner, não um IP único: um host com duas portas conta duas vezes. Uma porta de risco aberta (Telnet, RDP, gestão de roteador, banco de dados) indica exposição à Internet; não diz se há falha nem se o acesso é possível. ASN sem leitura ainda não foi consultado (isso não quer dizer zero), e zero serviço observado quer dizer que o Shodan não viu serviço.",
+ "classes": {
+  "acesso_remoto": {
+   "portas": [
+    {
+     "porta": 23,
+     "servico": "Telnet"
+    },
+    {
+     "porta": 3389,
+     "servico": "RDP"
+    },
+    {
+     "porta": 5900,
+     "servico": "VNC"
+    }
+   ],
+   "rotulo": "Acesso remoto"
+  },
+  "banco_de_dados": {
+   "portas": [
+    {
+     "porta": 1433,
+     "servico": "SQL Server"
+    },
+    {
+     "porta": 1521,
+     "servico": "Oracle"
+    },
+    {
+     "porta": 3306,
+     "servico": "MySQL"
+    },
+    {
+     "porta": 5432,
+     "servico": "PostgreSQL"
+    },
+    {
+     "porta": 6379,
+     "servico": "Redis"
+    },
+    {
+     "porta": 9200,
+     "servico": "Elasticsearch"
+    },
+    {
+     "porta": 11211,
+     "servico": "Memcached"
+    },
+    {
+     "porta": 27017,
+     "servico": "MongoDB"
+    }
+   ],
+   "rotulo": "Banco de dados"
+  },
+  "compartilhamento": {
+   "portas": [
+    {
+     "porta": 21,
+     "servico": "FTP"
+    },
+    {
+     "porta": 445,
+     "servico": "SMB"
+    }
+   ],
+   "rotulo": "Compartilhamento de arquivos"
+  },
+  "gestao_de_equipamento": {
+   "portas": [
+    {
+     "porta": 161,
+     "servico": "SNMP"
+    },
+    {
+     "porta": 7547,
+     "servico": "TR-069 (CWMP)"
+    },
+    {
+     "porta": 8291,
+     "servico": "Winbox (MikroTik)"
+    },
+    {
+     "porta": 8728,
+     "servico": "API MikroTik"
+    }
+   ],
+   "rotulo": "Gestão de roteador/CPE"
+  }
+ },
+ "cobertura": {
+  "asns_com_leitura": 3,
+  "asns_com_servicos_observados": 2,
+  "asns_do_brasil_no_snapshot": 36,
+  "leitura_mais_antiga": "2026-09-20",
+  "leitura_mais_recente": "2026-09-20"
+ },
+ "coletado_em": "2026-09-20T00:00:00+00:00",
+ "fonte": {
+  "api": "https://api.shodan.io/shodan/host/count",
+  "atribuicao": "sintético (Shodan)",
+  "licenca": "Shodan (sintético)",
+  "nome": "Shodan",
+  "url": "https://www.shodan.io"
+ },
+ "licenca": "Shodan (sintético)",
+ "limites": "Rodízio: cada ASN tem a sua data de leitura. O Shodan cobre só o que varreu, com atraso e viés (portas padrão, IPs que respondem). A classe de risco por porta é definição do projeto (`classes`), não do Shodan; SNMP e outras portas UDP vêm do que o Shodan indexou. CVEs: só se o plano da conta tem a faceta (`plano.facetas.vuln`); o Shodan as infere pelo banner (versão), o que não prova a falha. UF é agregado derivado do cadastro dos ASNs (ASN multi-UF conta na UF do cadastro), sem CVEs. Sem ranking de ASN.",
+ "plano": {
+  "facetas": {
+   "port": "ok",
+   "vuln": "ok"
+  }
+ },
+ "por_uf": {
+  "AM": {
+   "asns_com_leitura": 0,
+   "asns_com_servicos_observados": 0,
+   "asns_do_cadastro": 3,
+   "classes": {
+    "acesso_remoto": 0,
+    "banco_de_dados": 0,
+    "compartilhamento": 0,
+    "gestao_de_equipamento": 0
+   },
+   "derivado": true,
+   "pct_de_servicos_de_risco": null,
+   "servicos_de_risco": 0,
+   "servicos_de_risco_por_servico": {},
+   "servicos_observados": 0
+  },
+  "BA": {
+   "asns_com_leitura": 0,
+   "asns_com_servicos_observados": 0,
+   "asns_do_cadastro": 2,
+   "classes": {
+    "acesso_remoto": 0,
+    "banco_de_dados": 0,
+    "compartilhamento": 0,
+    "gestao_de_equipamento": 0
+   },
+   "derivado": true,
+   "pct_de_servicos_de_risco": null,
+   "servicos_de_risco": 0,
+   "servicos_de_risco_por_servico": {},
+   "servicos_observados": 0
+  },
+  "GO": {
+   "asns_com_leitura": 0,
+   "asns_com_servicos_observados": 0,
+   "asns_do_cadastro": 2,
+   "classes": {
+    "acesso_remoto": 0,
+    "banco_de_dados": 0,
+    "compartilhamento": 0,
+    "gestao_de_equipamento": 0
+   },
+   "derivado": true,
+   "pct_de_servicos_de_risco": null,
+   "servicos_de_risco": 0,
+   "servicos_de_risco_por_servico": {},
+   "servicos_observados": 0
+  },
+  "MG": {
+   "asns_com_leitura": 0,
+   "asns_com_servicos_observados": 0,
+   "asns_do_cadastro": 3,
+   "classes": {
+    "acesso_remoto": 0,
+    "banco_de_dados": 0,
+    "compartilhamento": 0,
+    "gestao_de_equipamento": 0
+   },
+   "derivado": true,
+   "pct_de_servicos_de_risco": null,
+   "servicos_de_risco": 0,
+   "servicos_de_risco_por_servico": {},
+   "servicos_observados": 0
+  },
+  "PR": {
+   "asns_com_leitura": 1,
+   "asns_com_servicos_observados": 1,
+   "asns_do_cadastro": 7,
+   "classes": {
+    "acesso_remoto": 0,
+    "banco_de_dados": 0,
+    "compartilhamento": 0,
+    "gestao_de_equipamento": 0
+   },
+   "derivado": true,
+   "pct_de_servicos_de_risco": 0.0,
+   "servicos_de_risco": 0,
+   "servicos_de_risco_por_servico": {},
+   "servicos_observados": 60
+  },
+  "RJ": {
+   "asns_com_leitura": 1,
+   "asns_com_servicos_observados": 0,
+   "asns_do_cadastro": 4,
+   "classes": {
+    "acesso_remoto": 0,
+    "banco_de_dados": 0,
+    "compartilhamento": 0,
+    "gestao_de_equipamento": 0
+   },
+   "derivado": true,
+   "pct_de_servicos_de_risco": null,
+   "servicos_de_risco": 0,
+   "servicos_de_risco_por_servico": {},
+   "servicos_observados": 0
+  },
+  "RN": {
+   "asns_com_leitura": 0,
+   "asns_com_servicos_observados": 0,
+   "asns_do_cadastro": 2,
+   "classes": {
+    "acesso_remoto": 0,
+    "banco_de_dados": 0,
+    "compartilhamento": 0,
+    "gestao_de_equipamento": 0
+   },
+   "derivado": true,
+   "pct_de_servicos_de_risco": null,
+   "servicos_de_risco": 0,
+   "servicos_de_risco_por_servico": {},
+   "servicos_observados": 0
+  },
+  "RS": {
+   "asns_com_leitura": 0,
+   "asns_com_servicos_observados": 0,
+   "asns_do_cadastro": 5,
+   "classes": {
+    "acesso_remoto": 0,
+    "banco_de_dados": 0,
+    "compartilhamento": 0,
+    "gestao_de_equipamento": 0
+   },
+   "derivado": true,
+   "pct_de_servicos_de_risco": null,
+   "servicos_de_risco": 0,
+   "servicos_de_risco_por_servico": {},
+   "servicos_observados": 0
+  },
+  "SP": {
+   "asns_com_leitura": 1,
+   "asns_com_servicos_observados": 1,
+   "asns_do_cadastro": 8,
+   "classes": {
+    "acesso_remoto": 42,
+    "banco_de_dados": 0,
+    "compartilhamento": 0,
+    "gestao_de_equipamento": 9
+   },
+   "derivado": true,
+   "pct_de_servicos_de_risco": 12.75,
+   "servicos_de_risco": 51,
+   "servicos_de_risco_por_servico": {
+    "RDP": 2,
+    "TR-069 (CWMP)": 9,
+    "Telnet": 40
+   },
+   "servicos_observados": 400
+  }
+ },
+ "snapshot_date": "2026-09-20"
+}

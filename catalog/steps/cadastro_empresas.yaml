@@ -1,0 +1,23 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: cadastro_empresas
+nome: Cadastro das empresas de telecom (Receita Federal) cruzado com o SICI
+ordem: -90
+modulo: products.passos
+args:
+- --passo
+- cadastro_empresas
+- --date
+- '{date}'
+parcial:
+- cadastro_empresas
+depois_de:
+- receita_cnpj
+- anatel_scm
+- anatel_smp
+- anatel_stfc
+- anatel_seac
+- sici
+- sici_movel
+politica_falha: opcional
+replay: true
+descricao: 'Passo do build do snapshot: cruza o cadastro de telecom da Receita (estabelecimentos, empresas, Simples) com o SICI, por operadora (matriz, estabelecimentos por situação, porte, Simples e MEI, e a presença física por município: onde há estabelecimento ativo × onde a empresa declara acessos) e por mercado (entradas e baixas de empresas de telecom por ano e UF, empresas ativas por UF e porte). Sem e-mail, telefone, rua nem CEP; empresário individual sem razão social nem nome fantasia. O `cnpj_geo` (BrasilAPI) segue como está por um ciclo.'

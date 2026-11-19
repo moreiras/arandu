@@ -1,0 +1,35 @@
+==============================================
+=           IX.br de Sao Paulo/SP            =
+=            Contact:  eng@ix.br             =
+=              +55 11 5509-3550              =
+=                                            =
+=                                            =
+=          Looking Glass Server              =
+=   All connections and keystrokes logged    =
+==============================================
+lg.sp.ix.br> terminal length 0
+lg.sp.ix.br> show ip bgp
+BGP table version is 192358807, local router ID is 187.16.221.252, vrf id 0
+Default local pref 100, local AS 263044
+Status codes:  s suppressed, d damped, h history, u unsorted, * valid, > best, = multipath,
+               i internal, r RIB-failure, S Stale, R Removed
+Nexthop codes: @NNN nexthop's vrf id, < announce-nh-self
+Origin codes:  i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ *>  1.0.128.0/17     187.16.221.197        3186             0 6939 38040 38040 38040 38040 23969 i
+ *=                   187.16.221.197        3186             0 6939 38040 38040 38040 38040 23969 i
+ *>  1.0.128.0/18     187.16.221.197        3186             0 6939 38040 38040 38040 38040 23969 i
+ *=                   187.16.221.197        3186             0 6939 38040 38040 38040 38040 23969 i
+ *>  1.0.128.0/19     187.16.221.197        3186             0 6939 38040 38040 38040 38040 23969 i
+ *=                   187.16.221.197        3186             0 6939 38040 38040 38040 38040 23969 i
+ *>  1.0.128.0/24     187.16.221.197        3186             0 6939 4651 4651 23969 i
+ *=                   187.16.221.197        3186             0 6939 4651 4651 23969 i
+ *>  1.0.129.0/24     187.16.221.197        3186             0 6939 4651 4651 23969 i
+ *=                   187.16.221.197        3186             0 6939 4651 4651 23969 i
+ *>  1.0.130.0/23     187.16.221.197        3186             0 6939 4651 4651 23969 i
+ *=                   187.16.221.197        3186             0 6939 4651 4651 23969 i
+
+Displayed 218320 routes and 830930 total paths
+lg.sp.ix.br> 

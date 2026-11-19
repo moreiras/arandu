@@ -1,0 +1,72 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: peeringdb_ixps
+nome: IXPs e membros (PeeringDB netixlan)
+tipo: bruta
+ativa: true
+modulo: sources.peeringdb_ixps.collect
+publicavel: true
+descricao: Para os IXPs externos configurados e para os 40 IXPs do IX.br, consulta /api/netixlan do PeeringDB
+  e lista os ASNs presentes em cada um; cruza o cadastro do PeeringDB com o do IX.br.
+origem:
+  url: https://www.peeringdb.com/api/netixlan?ixlan_id={id}
+  formato: JSON (API REST)
+  licenca: PeeringDB AUP
+  uso_comercial: restrito
+  termos: https://www.peeringdb.com/aup
+  nota: 'PeeringDB AUP (https://www.peeringdb.com/aup, verificado em 2026-10-13): fora de ''finalidades
+    operacionais de Internet'' aprovadas, nenhuma parte dos dados pode ser reproduzida ou repassada em
+    massa sem autorização; o uso excluído inclui ''listas de marketing, mapeamento demográfico ou qualquer
+    outra aplicação comercial''.'
+cadencia:
+  fonte_atualiza: continua
+  coleta: diaria
+  coleta_atual: semanal
+  frescor_maximo: 8d
+politica_falha: critica
+entradas:
+- curada_peeringdb_ixps
+saidas:
+  bruto:
+  - summary/peeringdb-ixps-{as_of}.json
+  normalizado:
+  - summary/peeringdb_ixps.json.gz
+chaves:
+- ixp
+- asn
+campos:
+- nome: external_ixps[code].name/city/country
+  tipo: str
+  significado: Nome, cidade e país do IXP externo (da configuração, não da API).
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json
+- nome: external_ixps[code].pdb_ix_id
+  tipo: int
+  significado: Identificador do IX no PeeringDB.
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json#pdb_ix_id
+- nome: external_ixps[code].members[]
+  tipo: list[dict]
+  significado: Membros do IXP externo (asn, velocidade da porta).
+  tratamento: Marca is_br pelo universo LACNIC-BR. O nome do membro vem de asn_names na publicação (o `name` do netixlan é o nome do PTT; se um snapshot o tiver gravado como nome do membro, a API o corrige na leitura).
+  publicado_em:
+  - ixp_docs → external-ixps/{ixp}.json#members
+- nome: ixbr_ixps[code].asns
+  tipo: list[int]
+  significado: ASNs que declaram presença no IXP do IX.br no PeeringDB.
+  tratamento: Comparado ao Route Server e ao cadastro do IX.br; diferença = membro sem cadastro PDB.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#ixp_member_codes
+- nome: per_asn[asn].external / ixbr
+  tipo: list[str]
+  significado: Códigos de IXPs externos e do IX.br em que o ASN declara presença.
+  publicado_em:
+  - asn_docs → asns/{asn}.json#external_ixps
+limites: Presença autodeclarada no PeeringDB; ausência não significa que a rede não esteja no IXP. Limite
+  de 250 req/h sem chave de API (1000 com PEERINGDB_API_KEY); resposta 429 espera 65 s.
+retencao:
+  bruto: 4 versões
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/peeringdb/
+pendencias:
+- Uso comercial e redistribuição de dados do PeeringDB dependem de autorização do PeeringDB (AUP); confirmar
+  com o PeeringDB e o jurídico.

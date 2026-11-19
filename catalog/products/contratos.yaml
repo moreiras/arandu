@@ -1,0 +1,79 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: contratos
+nome: Contratos públicos de operadoras (PNCP, Lei 14.133)
+descricao: 'Por operadora (raiz de CNPJ), os resultados de itens de contratação publicados no PNCP (Compras.gov.br): contratações, valor homologado (sem itens cancelados), órgãos, série por ano, UF e esfera e as contratações mais recentes, com a data da leitura de cada raiz; por município do órgão comprador, as operadoras que lhe venderam; e o resumo nacional. Cobertura do rodízio declarada; ausência não é zero; sem ranking de fornecedor. Resultado publicado não é contrato assinado nem pagamento.'
+modulo: products.contratos.build
+entradas:
+- source: siasg_contratos
+- source: receita_cnpj
+chaves_de_juncao:
+- cnpj
+- ibge
+saidas:
+  publicado:
+  - contratos/operadoras.json.gz
+  - contratos/municipios.json.gz
+  - contratos/resumo.json.gz
+campos:
+- nome: operadoras[raiz]
+  tipo: dict
+  significado: 'Leitura da raiz (`lida_em`, `idade_dias`, `faixa`, `cnpj_consultado`) e, havendo resultado, itens, itens cancelados, contratações, órgãos, valor homologado, primeiro e último resultado, séries por ano, UF e esfera, órgãos principais e as 20 contratações mais recentes.'
+  tratamento: 'Valor homologado sem os itens cancelados. `resultado = sem_resultado_na_consulta` quando a raiz foi lida e o PNCP não devolveu item (com a data), diferente de raiz sem leitura, que não aparece. Esfera, município e objeto só das contratações detalhadas.'
+  publicado_em:
+  - contratos → contratos/operadoras.json.gz#operadoras
+- nome: municipios[ibge]
+  tipo: dict
+  significado: Município do ÓRGÃO COMPRADOR (detalhe da contratação ou unidade de compra da tabela UASG), com contratações, itens, valor e as 20 operadoras de maior valor registrado no município.
+  tratamento: Não é o local de entrega do serviço nem prova de que a operadora atende o município. Ordem por valor registrado numa leitura incompleta (rodízio); não é ranking de mercado.
+  publicado_em:
+  - contratos → contratos/municipios.json.gz#municipios
+- nome: cobertura / por_ano / por_uf / por_esfera
+  tipo: dict
+  significado: Cobertura do rodízio (raízes no universo, lidas, com resultado, sem leitura, datas da leitura mais antiga e mais recente, contratações detalhadas e com município) e os totais nacionais por ano, UF e esfera.
+  tratamento: Soma só do que foi lido; raiz sem leitura não entra como zero. Sem ranking de fornecedor.
+  publicado_em:
+  - contratos → contratos/resumo.json.gz#cobertura
+  - contratos → contratos/resumo.json.gz#por_ano
+  - contratos → contratos/resumo.json.gz#por_uf
+  - contratos → contratos/resumo.json.gz#por_esfera
+- nome: fonte / licenca / aviso / limites / coletado_em / natureza
+  tipo: dict
+  significado: Fonte (Compras.gov.br, espelho do PNCP), licença (`nao_verificado`), avisos e limites, instante da coleta e a natureza do dado (fato publicado), repetidos nos três arquivos.
+  publicado_em:
+  - contratos → contratos/operadoras.json.gz#fonte
+  - contratos → contratos/operadoras.json.gz#licenca
+  - contratos → contratos/operadoras.json.gz#aviso
+  - contratos → contratos/operadoras.json.gz#limites
+  - contratos → contratos/operadoras.json.gz#coletado_em
+  - contratos → contratos/operadoras.json.gz#natureza
+  - contratos → contratos/municipios.json.gz#fonte
+  - contratos → contratos/municipios.json.gz#licenca
+  - contratos → contratos/municipios.json.gz#aviso
+  - contratos → contratos/municipios.json.gz#limites
+  - contratos → contratos/municipios.json.gz#coletado_em
+  - contratos → contratos/municipios.json.gz#natureza
+  - contratos → contratos/resumo.json.gz#fonte
+  - contratos → contratos/resumo.json.gz#licenca
+  - contratos → contratos/resumo.json.gz#aviso
+  - contratos → contratos/resumo.json.gz#limites
+  - contratos → contratos/resumo.json.gz#coletado_em
+  - contratos → contratos/resumo.json.gz#natureza
+- nome: cobertura / criterio_municipio / valor_homologado
+  tipo: dict
+  significado: A cobertura do rodízio repetida em operadoras e municípios, o critério do município (do órgão comprador) e o valor homologado nacional (sem itens cancelados) do resumo.
+  publicado_em:
+  - contratos → contratos/operadoras.json.gz#cobertura
+  - contratos → contratos/municipios.json.gz#cobertura
+  - contratos → contratos/municipios.json.gz#criterio_municipio
+  - contratos → contratos/resumo.json.gz#valor_homologado
+- nome: snapshot_date / generated_at
+  tipo: str
+  significado: Data do snapshot e instante da geração.
+  publicado_em:
+  - contratos → contratos/operadoras.json.gz#snapshot_date
+  - contratos → contratos/operadoras.json.gz#generated_at
+  - contratos → contratos/municipios.json.gz#snapshot_date
+  - contratos → contratos/municipios.json.gz#generated_at
+  - contratos → contratos/resumo.json.gz#snapshot_date
+  - contratos → contratos/resumo.json.gz#generated_at
+limites: Só a Lei 14.133 (o legado do SIASG fica de fora); só a matriz de cada raiz; só órgão que publica no PNCP; rodízio com idade declarada; município do órgão, não da entrega; esfera como informada no PNCP.

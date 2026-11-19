@@ -1,0 +1,76 @@
+{
+ "ixp": "zc",
+ "name": "Guaraniópolis",
+ "snapshot_date": "2026-09-20",
+ "uf": "PR",
+ "v4": {
+  "asn_direct": [
+   65536,
+   65537,
+   65538,
+   65539,
+   65540,
+   65541,
+   65542,
+   65543,
+   4200000003,
+   4200000106,
+   4200000107
+  ],
+  "asn_direct_count": 11,
+  "asn_origin_count": 14,
+  "asn_stub": [
+   65536,
+   65537,
+   65538,
+   65539,
+   65540,
+   65541,
+   65542,
+   65543,
+   4200000106,
+   4200000107
+  ],
+  "asn_stub_count": 10,
+  "br_asns_direct": [
+   65536,
+   65537,
+   65538,
+   65539,
+   65540,
+   65541,
+   65542,
+   65543,
+   4200000003
+  ],
+  "br_asns_direct_count": 9,
+  "br_asns_direct_pct": 25.0,
+  "br_asns_origin": [
+   64499,
+   64503,
+   64507,
+   65536,
+   65537,
+   65538,
+   65539,
+   65540,
+   65541,
+   65542,
+   65543,
+   4200000003
+  ],
+  "br_asns_origin_count": 12,
+  "br_asns_origin_pct": 33.33,
+  "br_prefix_coverage_pct": 27.0968,
+  "br_prefix_covered_space": 10752,
+  "br_prefix_declared_space": 39680,
+  "ft_space": 49152,
+  "ixp_space": 11520,
+  "ixp_vs_fulltable_space_pct": 23.4375,
+  "total_routes": 22,
+  "unique_prefixes": 22
+ },
+ "v6": {
+  "status": "missing"
+ }
+}

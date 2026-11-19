@@ -1,0 +1,50 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: manrs_participantes
+nome: MANRS — participantes do programa de operadores de rede
+tipo: bruta
+ativa: true
+modulo: sources.manrs_participantes.collect
+publicavel: false
+exposicao: nenhuma
+descricao: Tabela pública de participantes do programa de operadores de rede do MANRS (organização, data de aprovação, países, ASNs e situação das ações). Só guardada, comprimida; serve para calcular agregados
+  (participação por UF e porte e comparação de prontidão). O registro por organização ou ASN nunca é publicado.
+origem:
+  url: https://manrs.org/netops/participants/
+  formato: HTML (`<table id="participant-table">`); o botão "CSV" da página é gerado no navegador a partir da mesma tabela
+  licenca: MANRS/GCA, termos de serviço (cláusula 2)
+  uso_comercial: restrito
+  termos: https://manrs.org/terms-of-service/
+  nota: 'Termos lidos em 2026-11-03: dados de outras redes só podem ser divulgados de forma agregada, sem identificá-las e sem dado pessoal; uso apenas não comercial, sem revenda nem sublicença;
+    atribuição obrigatória em toda publicação ("Provided by the MANRS with support from the Global Cyber Alliance"); proibido sugerir endosso do MANRS ou da GCA. O robots.txt permite (search=yes, use=reference).
+    A API do Observatório (observatory.manrs.org/api/v2) lista participantes só com chave; a chave não foi pedida.'
+cadencia:
+  fonte_atualiza: semanal
+  coleta: semanal
+  coleta_atual: semanal
+  frescor_maximo: 21d
+politica_falha: opcional
+saidas:
+  bruto:
+  - summary/manrs-participantes-AAAA-MM-DD.html.gz
+  normalizado:
+  - summary/manrs_participantes.json.gz
+chaves:
+- asn
+campos:
+- nome: participantes[]
+  tipo: lista
+  significado: Uma entrada por organização participante, com `org`, `aprovado`, `areas`, `asns` e as ações (`filtragem`, `anti_spoofing`, `coordenacao`, `roteamento`) como a tabela as mostra (marca de ação atendida ou pontuação em %).
+  tratamento: 'Nunca sai de data/normalized: só `products.manrs.build` lê, e só publica agregados com mínimo de 5 ASNs participantes por recorte.'
+- nome: medido_em
+  tipo: str
+  significado: Data da última medição do Observatório, informada na legenda da tabela.
+limites: A lista é o que as organizações declaram ao se juntar; a tabela do site muda sem aviso (cláusula 2.5). Falha alto se vier com menos de 500 organizações ou 100 com área BR.
+retencao:
+  bruto: 4 versões
+  normalizado: 52 semanas
+fixture: tests/fixtures/raw/manrs_participantes/
+pendencias:
+- Pedir a chave da API do Observatório; se sair, trocar só o coletor.
+etapa:
+  tentativas: 3
+  espera_s: 600
