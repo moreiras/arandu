@@ -29,7 +29,7 @@ slowapi==0.1.9
 pyyaml==6.0.2
 
 # Logs estruturados
-structlog==25.3.0
+structlog==26.1.0
 
 # Parsing e dados
 mrtparse==2.2.0
