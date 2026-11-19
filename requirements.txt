@@ -11,7 +11,7 @@ cachetools==5.5.0
 
 # Servidor MCP (Model Context Protocol) — expõe o snapshot a LLMs.
 # mcp 1.30.0 (S-07, análise de segurança de 2026-11-12): corrige a CVE-2026-59951 (sessões do Streamable HTTP que nunca expiravam).
-mcp==1.30.0
+mcp==2.3.0
 
 # HTTP
 httpx==0.28.1
