@@ -7,7 +7,7 @@ uvicorn[standard]==0.34.2
 pydantic==2.11.5
 
 # Cache LRU em memória (byte-cache do snapshot latest)
-cachetools==5.5.0
+cachetools==8.0.0
 
 # Servidor MCP (Model Context Protocol) — expõe o snapshot a LLMs.
 # mcp 1.30.0 (S-07, análise de segurança de 2026-11-12): corrige a CVE-2026-59951 (sessões do Streamable HTTP que nunca expiravam).
