@@ -1,0 +1,19 @@
+# Vigia de saúde do Arandurapé com Docker rootless: a mesma unidade de docker/systemd/arandurape-vigia.service, no systemd do usuário do
+# serviço (dono do daemon rootless). scripts/instalar.sh a instala sozinho quando detecta o rootless. À mão, como o usuário do serviço:
+#   cp docker/systemd/user/arandurape-vigia.{service,timer} ~/.config/systemd/user/   (ajuste WorkingDirectory)
+#   systemctl --user daemon-reload && systemctl --user enable --now arandurape-vigia.timer
+# Requer `loginctl enable-linger <usuário>`: sem ele o systemd do usuário, o daemon e o vigia param quando a última sessão fecha.
+[Unit]
+Description=Vigia de saúde do Arandurapé (reinício com recuo de contêiner unhealthy; Docker rootless)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+# Ajuste: diretório do projeto (%h é o home do usuário).
+WorkingDirectory=%h/arandu
+# O systemd do usuário não herda o DOCKER_HOST da sessão; %t é o XDG_RUNTIME_DIR (/run/user/<uid>), onde fica o socket do rootless.
+Environment=DOCKER_HOST=unix://%t/docker.sock
+ExecStart=/usr/bin/env bash scripts/vigia-saude.sh
+# Opcional: comando de alerta que recebe a mensagem no stdin (ex.: envio de e-mail pelo relay do host).
+# Environment=VIGIA_ALERTA_CMD=...

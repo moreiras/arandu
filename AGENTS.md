@@ -24,7 +24,7 @@ com o porquê de cada uma, estão no [guia do desenvolvedor](guia-do-desenvolved
 2. **Versão por integração:** ao integrar uma mudança em `main`, bump de `VERSION` + nota em `CHANGELOG.md` e tag `vX.Y.Z` no commit
    do merge.
 3. **Agente não faz push nem implantação** sem pedido explícito de quem mantém o serviço. Nunca `docker compose up` de um serviço
-   isolado num ambiente com nginx: ele resolve o host `api` na subida e derruba o serviço. Implantação é `sudo bash restart-safe.sh`.
+   isolado num ambiente com nginx: ele resolve o host `api` na subida e derruba o serviço. Implantação é `sudo bash restart-safe.sh` (com Docker rootless, `bash restart-safe.sh` como o usuário do serviço).
 4. **Node/npm não são necessários na máquina**: tudo do frontend via Docker (seção 5).
 5. **Não cite números de memória**; meça. Relate com fidelidade o que foi testado, o que falhou e o que ficou pendente.
 6. Antes de apagar ou sobrescrever, olhe o alvo. Nada de copiar `data/` (dezenas de GB). Em logs grandes use `tail -c`, nunca `cat`.
@@ -145,7 +145,8 @@ explicitamente em vez de omitir.
 - Arquivos de `data/auth/` criados por outro usuário ficam só-leitura para o contêiner da API (`cap_drop: ALL`): o SQLite responde
   "readonly database" e `/auth/me` dá 500. Não use `chmod a+rw`: `sudo bash scripts/preparar-dados-api-sem-root.sh` entrega `auth/`,
   `ops/usage`, `ops/uso_conta` e `cache/br11` ao UID 1001 com 0770/0660; com `API_USER=1001:0` e `API_DATA_MODE=ro` a API roda sem
-  root e com `data/` só leitura.
+  root e com `data/` só leitura. Com Docker rootless o UID 1001 do contêiner é outro no host (subuid): `chown 1001` no host entrega os
+  dados a outra conta; rode o script sem sudo, que ele faz o `chown` de dentro de um contêiner.
 - `GET /query/global_prefixes` lê `maps/global_prefixes.col` (tabela colunar por `mmap`, `core/colunar.py`); snapshot sem o arquivo
   cai no GeoJSON (~8 s). Para os já publicados: `python -m products.mapas_prefixos.colunar --date AAAA-MM-DD`.
 - Coleta diária (`ARANDU_MODO=due`): fonte dentro da cadência é restaurada do armazém **com a data de origem no nome**. Quem lê o

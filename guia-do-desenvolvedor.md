@@ -463,7 +463,7 @@ bash scripts/arandu-weekly.sh
 ### Implantação
 
 ```bash
-sudo bash restart-safe.sh
+sudo bash restart-safe.sh       # com Docker rootless: bash restart-safe.sh, como o usuário do serviço
 ```
 
 O `restart-safe.sh` reconstrói e recria `api`, `mcp` e `frontend` juntos, verifica a saúde e volta à imagem anterior (`:previous`)

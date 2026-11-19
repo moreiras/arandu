@@ -61,6 +61,10 @@ publicação; sem ele, o cron faz isso. Por padrão exige 80 GB livres em disco 
 serviço atrás de um proxy de borda, com o firewall do host aceitando só esse proxy, e mantenha cópia de segurança cifrada, fora do
 servidor, de `data/auth`, `data/published`, `data/sources` e do `.env`.
 
+Com **Docker rootless** (recomendado), rode o instalador e o `restart-safe.sh` como o usuário dono do daemon, sem sudo: os dois
+detectam o modo. O instalador acerta as permissões de `data/` de dentro de um contêiner, passa o `DOCKER_HOST` ao cron e instala o
+vigia no systemd do usuário. Veja a seção 9 do [recomendacoes-deployment.md](recomendacoes-deployment.md).
+
 **O `docker-compose.yml` é local.** O repositório traz o `docker-compose.exemplo.yml`; o instalador o copia para `docker-compose.yml`
 (fora do git) na primeira execução, e é essa cópia que os scripts usam. Edite a cópia se a sua instalação precisar (portas, tetos de
 memória, volumes). Sem o instalador, copie à mão: `cp docker-compose.exemplo.yml docker-compose.yml`. Ao atualizar o repositório,

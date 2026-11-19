@@ -10,7 +10,8 @@
 # Use após qualquer atualização de código para garantir que tudo vai a produção.
 #
 # Uso:
-#   sudo bash restart-safe.sh
+#   sudo bash restart-safe.sh      # Docker com root
+#   bash restart-safe.sh           # Docker rootless: como o usuário do serviço (dono do daemon), sem sudo
 #
 # O que faz:
 #   1. Salva tags atuais como :previous (ponto de rollback)
@@ -237,8 +238,16 @@ echo ""
 
 header "1 — Pré-requisitos"
 
-[[ "$(id -u)" -ne 0 ]] && die "Execute com sudo ou como root."
-ok "Executando como root"
+# shellcheck source=scripts/lib-docker.sh
+source "$REPO_DIR/scripts/lib-docker.sh"
+# Com Docker rootless o daemon pertence ao usuário do serviço: com sudo, o cliente procuraria o daemon do root, que não existe.
+if docker_rootless; then
+    [[ "$(id -u)" -eq 0 ]] && die "Docker rootless: rode como o usuário do serviço, sem sudo."
+    ok "Docker rootless, usuário $(id -un)"
+else
+    [[ "$(id -u)" -ne 0 ]] && die "Execute com sudo ou como root (ou, com Docker rootless, como o usuário do serviço)."
+    ok "Executando como root"
+fi
 
 cd "$REPO_DIR" || die "Não foi possível entrar em $REPO_DIR"
 [[ -f "docker-compose.yml" ]] || die "docker-compose.yml não encontrado: copie o exemplo (cp docker-compose.exemplo.yml docker-compose.yml) e edite se preciso."

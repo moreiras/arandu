@@ -30,6 +30,7 @@ Arquivos usados na construção das imagens e na operação do host. `Dockerfile
 |---|---|
 | `systemd/arandurape-vigia.service` | Roda `scripts/vigia-saude.sh`, que reinicia com recuo o serviço que o Docker marcou como `unhealthy`. |
 | `systemd/arandurape-vigia.timer` | Dispara o vigia a cada minuto, 2 min depois do boot. Instalados por `scripts/instalar.sh`. |
+| `systemd/user/arandurape-vigia.{service,timer}` | Os mesmos, para Docker rootless: vão para o systemd do usuário do serviço, com o `DOCKER_HOST` do socket dele. |
 
 ## Compose (na raiz)
 

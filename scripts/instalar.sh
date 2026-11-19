@@ -13,6 +13,8 @@
 #   bash scripts/instalar.sh [--simular] [--coletar] [--sem-cron] [--sem-vigia]
 #
 # Rode como o usuário do serviço (no grupo docker), na raiz do clone. Pede sudo só para as permissões de data/ e para o systemd.
+# Com Docker rootless (detectado sozinho, scripts/lib-docker.sh) rode como o dono do daemon e nada pede sudo: as permissões de data/
+# são acertadas de dentro de um contêiner depois do build, o cron recebe o DOCKER_HOST e o vigia vai para o systemd do usuário.
 # Idempotente: pode rodar de novo depois de ajustar o .env. Na primeira vez cria o .env e para (código 3) para você preencher.
 # --simular  mostra o que faria, sem mudar nada (as conferências rodam).
 # Variáveis: INSTALAR_DISCO_MIN_GB (padrão 80), INSTALAR_ESPERA_S (espera pela saúde, padrão 360), INSTALAR_HORA_PIPELINE (padrão 12, UTC).
@@ -87,6 +89,20 @@ for c in docker python3 curl flock crontab; do command -v "$c" >/dev/null || die
 docker info >/dev/null 2>&1 || die "este usuário não fala com o Docker (daemon parado ou usuário fora do grupo docker)"
 docker compose version >/dev/null 2>&1 || die "falta o Docker Compose v2 (plugin 'docker compose')"
 ok "Docker $(docker version --format '{{.Server.Version}}' 2>/dev/null), Compose $(docker compose version --short 2>/dev/null)"
+# shellcheck source=lib-docker.sh
+source "$REPO_DIR/scripts/lib-docker.sh"
+ROOTLESS=false
+if docker_rootless; then
+    ROOTLESS=true
+    ok "Docker rootless (daemon do usuário $(id -un), $(docker_host_atual))"
+    # Sem a delegação dos controladores ao systemd do usuário, os tetos de memória, CPU e pids do compose são ignorados.
+    if docker info 2>&1 | grep -qiE 'WARNING: No (memory|cpu|pids|cpuset|io)'; then
+        aviso "o Docker rootless não aplica parte dos limites (docker info avisa); delegue os controladores: Delegate=cpu cpuset io memory pids em /etc/systemd/system/user@.service.d/delegate.conf"
+    fi
+    if command -v loginctl >/dev/null && ! loginctl show-user "$(id -un)" -p Linger 2>/dev/null | grep -q 'Linger=yes'; then
+        aviso "linger desligado: o daemon e os contêineres param quando a última sessão de $(id -un) fecha (sudo loginctl enable-linger $(id -un))"
+    fi
+fi
 livre=$(( $(df -Pk "$REPO_DIR" | awk 'NR==2 {print $4}') / 1024 / 1024 ))
 if [[ -d data/published && -n "$(ls -A data/published 2>/dev/null)" ]]; then
     ok "data/ já tem snapshots; ${livre} GiB livres"
@@ -95,8 +111,9 @@ elif (( livre < DISCO_MIN_GB )); then
 else
     ok "${livre} GiB livres"
 fi
-# Sem userland-proxy=false o docker-proxy troca o IP de origem IPv6 pelo gateway da bridge (docker/nginx-real-ip.inc).
-if ! grep -qE '"userland-proxy"[[:space:]]*:[[:space:]]*false' /etc/docker/daemon.json 2>/dev/null; then
+# Sem userland-proxy=false o docker-proxy troca o IP de origem IPv6 pelo gateway da bridge (docker/nginx-real-ip.inc). Não se aplica ao
+# rootless, que não usa o daemon.json do sistema.
+if ! $ROOTLESS && ! grep -qE '"userland-proxy"[[:space:]]*:[[:space:]]*false' /etc/docker/daemon.json 2>/dev/null; then
     aviso "/etc/docker/daemon.json sem \"userland-proxy\": false: cliente IPv6 que chegue direto ao contêiner aparece com o IP da bridge (atrás de túnel ou de proxy no host não importa)"
 fi
 
@@ -173,7 +190,11 @@ ok "compose: $COMPOSE"
 # ── 3. data/ ──────────────────────────────────────────────────────────────
 etapa "3/7 Dados (data/)"
 faz mkdir -p data/published data/raw data/normalized data/sources data/auth data/ops logs
-if [[ -n "$(env_valor API_USER)" ]]; then
+PREPARAR_DEPOIS_DO_BUILD=false
+if [[ -n "$(env_valor API_USER)" ]] && $ROOTLESS; then
+    echo "  (rootless) permissões da API sem root: de dentro de um contêiner da imagem da API, logo depois do build (etapa 4)"
+    PREPARAR_DEPOIS_DO_BUILD=true
+elif [[ -n "$(env_valor API_USER)" ]]; then
     echo "  (sudo) permissões da API sem root em data/auth, data/ops/usage, data/ops/uso_conta, data/cache/br11"
     faz sudo bash scripts/preparar-dados-api-sem-root.sh
 else
@@ -185,6 +206,9 @@ faz bash scripts/fetch-basemap-fonts.sh data
 # ── 4. Imagens e serviços ─────────────────────────────────────────────────
 etapa "4/7 Imagens e serviços"
 faz $COMPOSE build api frontend
+if $PREPARAR_DEPOIS_DO_BUILD; then
+    faz bash scripts/preparar-dados-api-sem-root.sh || die "falha ao preparar as permissões de data/ para a API sem root"
+fi
 faz $COMPOSE up -d
 if ! $SIMULAR; then
     # Não há serviço Routinator: o RPKI roda avulso no pipeline; a primeira execução, com o cache frio, é longa.
@@ -206,9 +230,16 @@ fi
 etapa "5/7 Agendamento (cron do usuário $(id -un))"
 API_CONTAINER=$($COMPOSE ps --format '{{.Name}}' api 2>/dev/null | head -1)
 MARCA="# arandu (scripts/instalar.sh)"
+# O cron não herda o DOCKER_HOST da sessão: no rootless, sem ele o docker do cron procura o daemon do root e o pipeline não roda.
+CRON_ENV=""
+if $ROOTLESS; then
+    DH="$(docker_host_atual)"
+    [[ -n "$DH" ]] || DH="unix:///run/user/$(id -u)/docker.sock"
+    CRON_ENV="DOCKER_HOST=$DH "
+fi
 LINHAS="$MARCA: pipeline diário (coleta pela cadência de cada fonte; snapshot semanal) e manutenção das contas (exclusão em 30 dias)
-0 $HORA * * * cd $REPO_DIR && ARANDU_MODO=due MEM_SAMPLE_API_CONTAINER=${API_CONTAINER:-api} flock -n /tmp/arandurape-run.lock bash scripts/arandu-weekly.sh >> $REPO_DIR/logs/arandu.log 2>&1
-20 4 * * * cd $REPO_DIR && $COMPOSE exec -T api python -m api.auth.manutencao >> $REPO_DIR/logs/manutencao.log 2>&1"
+0 $HORA * * * cd $REPO_DIR && ${CRON_ENV}ARANDU_MODO=due MEM_SAMPLE_API_CONTAINER=${API_CONTAINER:-api} flock -n /tmp/arandurape-run.lock bash scripts/arandu-weekly.sh >> $REPO_DIR/logs/arandu.log 2>&1
+20 4 * * * cd $REPO_DIR && ${CRON_ENV}$COMPOSE exec -T api python -m api.auth.manutencao >> $REPO_DIR/logs/manutencao.log 2>&1"
 if ! $CRON; then
     echo "  (--sem-cron) linhas que entrariam:"; echo "$LINHAS" | sed 's/^/    /'
 elif crontab -l 2>/dev/null | grep -qF "$MARCA"; then
@@ -226,7 +257,26 @@ fi
 # ── 6. Vigia de saúde ─────────────────────────────────────────────────────
 etapa "6/7 Vigia de saúde (systemd)"
 if ! $VIGIA; then
-    echo "  (--sem-vigia) instalação manual: docker/systemd/arandurape-vigia.service"
+    echo "  (--sem-vigia) instalação manual: docker/systemd/arandurape-vigia.service (rootless: docker/systemd/user/)"
+elif $ROOTLESS; then
+    # O daemon rootless vive no systemd do usuário; a unidade de sistema dependeria de um docker.service que não existe.
+    DIR_USER="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
+    if systemctl --user is-active --quiet arandurape-vigia.timer 2>/dev/null; then
+        ok "arandurape-vigia.timer (systemd do usuário) já ativo"
+    else
+        unidade="$(mktemp)"
+        sed -E "s|^WorkingDirectory=.*|WorkingDirectory=$REPO_DIR|" docker/systemd/user/arandurape-vigia.service > "$unidade"
+        echo "  instala o serviço e o timer em $DIR_USER (systemd do usuário $(id -un))"
+        faz mkdir -p "$DIR_USER"
+        faz install -m 644 "$unidade" "$DIR_USER/arandurape-vigia.service"
+        faz install -m 644 docker/systemd/user/arandurape-vigia.timer "$DIR_USER/arandurape-vigia.timer"
+        faz systemctl --user daemon-reload
+        faz systemctl --user enable --now arandurape-vigia.timer
+        rm -f "$unidade"
+        grep -qE '^TELEGRAM_BOT_KEY=.+' .env && grep -qE '^TELEGRAM_CHAT_ID=.+' .env \
+            || aviso "sem TELEGRAM_BOT_KEY/TELEGRAM_CHAT_ID no .env: o vigia e o pipeline não mandam alertas"
+        aviso "a verificação externa (scripts/vigia-externo.sh) roda no cron de outra máquina; é sua"
+    fi
 elif systemctl is-active --quiet arandurape-vigia.timer 2>/dev/null; then
     ok "arandurape-vigia.timer já ativo"
 else

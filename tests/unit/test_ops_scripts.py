@@ -193,3 +193,80 @@ def test_compose_poe_teto_de_memoria_no_worker_e_na_api_sem_swap_extra():
     assert "WORKER_MEM_LIMIT" in c["worker"]["deploy"]["resources"]["limits"]["memory"]
     # o swap da API não pode ser ligado ao `memory`: os overrides de produção (9G) e .no-nginx (3G) trocam `memory` e o Docker exige memswap >= memory
     assert "API_MEMSWAP_LIMIT" in c["api"]["memswap_limit"] and "API_MEM_LIMIT" not in c["api"]["memswap_limit"]
+
+
+# ── Docker rootless: os scripts de implantação funcionam com o daemon com root e com o rootless ──────────────────────────────────────
+
+def _preparar_isolado(tmp_path: Path) -> Path:
+    """Cópia do preparar-dados e da lib num repositório falso: o script acha data/ pelo próprio caminho."""
+    import shutil
+    (tmp_path / "scripts").mkdir()
+    for nome in ("preparar-dados-api-sem-root.sh", "lib-docker.sh"):
+        shutil.copy(ROOT / "scripts" / nome, tmp_path / "scripts" / nome)
+    (tmp_path / "data" / "published").mkdir(parents=True)
+    return tmp_path / "scripts" / "preparar-dados-api-sem-root.sh"
+
+
+def test_lib_docker_respeita_o_modo_forcado():
+    assert _bash("source scripts/lib-docker.sh; docker_rootless && echo sim", ARANDU_DOCKER_ROOTLESS="1").stdout.strip() == "sim"
+    assert _bash("source scripts/lib-docker.sh; docker_rootless || echo nao", ARANDU_DOCKER_ROOTLESS="0").stdout.strip() == "nao"
+    assert _bash("source scripts/lib-docker.sh; docker_host_atual",
+                 DOCKER_HOST="unix:///run/user/1002/docker.sock").stdout.strip() == "unix:///run/user/1002/docker.sock"
+
+
+@pytest.mark.skipif(__import__("os").geteuid() == 0, reason="o teste roda como usuário comum")
+def test_preparar_no_rootless_faz_o_chown_dentro_de_um_conteiner_sem_sudo(tmp_path):
+    # No rootless o UID 1001 do contêiner é outro UID no host: o chown tem de rodar lá dentro, e o script não pode pedir sudo.
+    script = _preparar_isolado(tmp_path)
+    r = subprocess.run(["bash", str(script), "--dry-run"], capture_output=True, text=True, timeout=30,
+                       env={**__import__("os").environ, "ARANDU_DOCKER_ROOTLESS": "1"})
+    assert r.returncode == 0, r.stderr
+    assert "docker run --rm --network none --user 0:0 --entrypoint sh" in r.stdout
+    assert f"-v {tmp_path / 'data'}:/data arandurape-api:latest" in r.stdout
+    assert 'chown -R "$u:0"' in r.stdout and "sh 1001 /data" in r.stdout
+    assert "rode com sudo" not in r.stderr
+
+
+@pytest.mark.skipif(__import__("os").geteuid() == 0, reason="o teste roda como usuário comum")
+def test_preparar_com_docker_com_root_continua_exigindo_sudo(tmp_path):
+    script = _preparar_isolado(tmp_path)
+    r = subprocess.run(["bash", str(script), "--dry-run"], capture_output=True, text=True, timeout=30,
+                       env={**__import__("os").environ, "ARANDU_DOCKER_ROOTLESS": "0"})
+    assert r.returncode == 1 and "rode com sudo" in r.stderr
+
+
+def test_preparar_rejeita_uid_nao_numerico(tmp_path):
+    script = _preparar_isolado(tmp_path)
+    r = subprocess.run(["bash", str(script), "--uid", "1001;x"], capture_output=True, text=True, timeout=30)
+    assert r.returncode == 2
+
+
+def test_instalar_no_rootless_nao_pede_sudo_e_passa_o_docker_host_ao_cron():
+    text = (ROOT / "scripts" / "instalar.sh").read_text()
+    assert 'source "$REPO_DIR/scripts/lib-docker.sh"' in text
+    # permissões de data/ só depois do build (o chown roda num contêiner da imagem da API) e antes de subir os serviços
+    i_build, i_prep, i_up = (text.index("faz $COMPOSE build api frontend"),
+                             text.index("faz bash scripts/preparar-dados-api-sem-root.sh"), text.index("faz $COMPOSE up -d"))
+    assert i_build < i_prep < i_up
+    # as duas linhas do cron levam o DOCKER_HOST (o cron não o herda da sessão)
+    assert "&& ${CRON_ENV}ARANDU_MODO=due" in text and "&& ${CRON_ENV}$COMPOSE exec -T api" in text
+    # vigia no systemd do usuário, sem sudo
+    bloco = text[text.index("elif $ROOTLESS; then"):text.index("elif systemctl is-active")]
+    assert "systemctl --user enable --now arandurape-vigia.timer" in bloco and "sudo" not in bloco
+
+
+def test_restart_safe_aceita_rootless_sem_sudo_e_mantem_a_exigencia_de_root_no_docker_com_root():
+    text = (ROOT / "restart-safe.sh").read_text()
+    assert 'source "$REPO_DIR/scripts/lib-docker.sh"' in text
+    ramo = text[text.index("if docker_rootless; then"):text.index('ok "Executando como root"')]
+    assert 'die "Docker rootless: rode como o usuário do serviço, sem sudo."' in ramo
+    assert "Execute com sudo ou como root" in ramo
+
+
+def test_vigia_de_usuario_aponta_para_o_socket_rootless_e_tem_o_mesmo_timer():
+    svc = (ROOT / "docker" / "systemd" / "user" / "arandurape-vigia.service").read_text()
+    assert "Environment=DOCKER_HOST=unix://%t/docker.sock" in svc
+    assert not any(l.startswith("User=") for l in svc.splitlines())
+    assert "ExecStart=/usr/bin/env bash scripts/vigia-saude.sh" in svc
+    corpo = lambda p: [l for l in p.read_text().splitlines() if not l.startswith("#")]
+    assert corpo(ROOT / "docker" / "systemd" / "user" / "arandurape-vigia.timer") == corpo(ROOT / "docker" / "systemd" / "arandurape-vigia.timer")

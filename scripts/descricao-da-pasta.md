@@ -16,6 +16,7 @@ um traz o uso e as variáveis.
 | `rpki-avulso.sh` | Roda o Routinator avulso (perfil `rpki`), grava `data/cache/rpki/vrps.json` e termina; a etapa `rpki_collector` só lê o arquivo. |
 | `host-steps.sh` | Etapas de host do pipeline (aquecimento da API, mapa de fundo, relatório de disco), que dependem do `docker compose` no host. |
 | `lib-steps.sh` | Cronometragem das etapas do pipeline (para ser carregado com `source`). |
+| `lib-docker.sh` | Detecta o Docker rootless e o endereço do daemon do usuário (para ser carregado com `source`; usado por `instalar.sh`, `restart-safe.sh` e `preparar-dados-api-sem-root.sh`). |
 | `vigia-saude.sh` | Reinicia, com recuo, o serviço que o Docker marcou como `unhealthy` (timer do systemd em `docker/systemd/`). |
 | `vigia-externo.sh` | Verificação de ponta a ponta pela URL pública: frontend, API e MCP, cada um com o seu critério. |
 | `alerta-telegram.sh` | Envia ao chat configurado a mensagem lida da entrada padrão (só falhas), com intervalo mínimo entre repetições. |
