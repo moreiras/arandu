@@ -340,6 +340,10 @@ async def limitar_corpo_da_consulta(request: Request, call_next):
     return await call_next(request)
 
 
+# Rotas com `?date=` cuja resposta depende também do código (não só de `published/{data}/`): nunca `immutable`.
+_SAIDA_DEPENDE_DO_CODIGO = frozenset({"/api/v1/busca"})
+
+
 @app.middleware("http")
 async def add_cache_headers(request: Request, call_next):
     path = request.url.path
@@ -385,6 +389,10 @@ async def add_cache_headers(request: Request, call_next):
         if getattr(request.state, "cache_imutavel", False):
             # Camada endereçada por hash do conteúdo (`?v=`): a URL identifica os bytes.
             response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        elif path in _SAIDA_DEPENDE_DO_CODIGO:
+            # A resposta não é função só do snapshot: o índice da busca muda com o código (a razão social entrou na 2.0.19). Com
+            # `immutable` o navegador guardaria por um ano o "nada encontrado" de uma versão anterior.
+            response.headers["Cache-Control"] = "public, max-age=300"
         elif date and date in _existing_snapshot_dates(request.app):
             # Snapshot publicado é imutável (D-: published/{data}/ nunca muda) e o
             # front sempre envia a data. Campo novo numa rota que já existe NÃO muda

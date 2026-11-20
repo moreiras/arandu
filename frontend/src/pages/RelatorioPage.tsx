@@ -15,6 +15,7 @@ import { sinteseOperadora } from '../features/operadora/sintese'
 import { sinteseMunicipio } from '../features/municipio/sintese'
 import type { GrupoDetalhe } from '../types/api'
 import { SITE } from '../lib/site'
+import { asnValido, cnpjValido } from '../lib/identificadores'
 
 interface Relatorio { titulo: string; subtitulo?: string; frases: Array<{ id: string; texto: string; selo: Selo }>; quadro: Comparacao; fontes: string[]; snapshot: string | null; caminho: string }
 const COR_SELO = { fato: 'bg-fato-600', inferido: 'bg-inferido-600', estimado: 'bg-estimado-600' } as const
@@ -66,7 +67,9 @@ export function RelatorioPage() {
   const { tipo: t, id = '' } = useParams()
   const tipo = (TIPOS as readonly string[]).includes(t ?? '') ? (t as Tipo) : null
   const date = useActiveDate()
-  const q = useQuery({ queryKey: ['relatorio', tipo, id, date], enabled: !!tipo && !!id, queryFn: () => carregar(tipo!, id, date ?? undefined), staleTime: 10 * 60 * 1000, retry: false })
+  // identificador que a API recusaria (400/422, registrados no console) cai direto em "sem dado"
+  const idValido = tipo === 'operadora' ? cnpjValido(id) : tipo === 'asn' ? asnValido(id) : !!id
+  const q = useQuery({ queryKey: ['relatorio', tipo, id, date], enabled: !!tipo && idValido, queryFn: () => carregar(tipo!, id, date ?? undefined), staleTime: 10 * 60 * 1000, retry: false })
   if (!tipo) return <p className="text-sm text-gray-500">Relatório disponível para AS, operadora, município e grupo.</p>
   if (q.isLoading) return <div className="h-64 bg-gray-50 rounded animate-pulse" />
   const r = q.data

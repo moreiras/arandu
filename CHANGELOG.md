@@ -1,5 +1,17 @@
 # Notas de versão
 
+## v2.0.22
+
+Correções da terceira varredura do site, em 20/11/2026, sobre a 2.0.21.
+- **A busca não sai mais `immutable`.** Com `?date=` de snapshot publicado, `/busca` era guardada por um ano no navegador, no nginx e na
+  borda, mas o índice muda com o código: quem buscou "Núcleo de Informação" antes da 2.0.19 continuava a ver "nada encontrado", embora a
+  API já achasse os ASes do NIC.br. A rota passa a `public, max-age=300` (`_SAIDA_DEPENDE_DO_CODIGO` em `api/main.py`). O front acrescenta
+  `esquema=2` à URL da busca, o que descarta o que já estava guardado.
+- `esquema` passa a ser parâmetro global no middleware de parâmetros desconhecidos, junto com `date`, `v` e `opcional`. Antes, o
+  `esquema` de `/brasil/indicadores` era registrado como desconhecido e daria 400 com `API_PARAMETROS_DESCONHECIDOS=rejeitar`.
+- Identificadores inválidos não chegam mais à API com erro: `/instalacao/{id}` valida o id e pede `?opcional=1` (204 no lugar de 404).
+  `/relatorio/operadora/{cnpj}` e `/relatorio/asn/{asn}` validam o identificador antes da chamada, que dava 400 ou 422.
+
 ## v2.0.21
 
 Teto de memória na API e no MCP, pré-carga do MCP e tetos dos contêineres (trabalho medido num ambiente de teste em 18/11/2026 que

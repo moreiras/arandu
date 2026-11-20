@@ -8,6 +8,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchFacility } from '../services/api'
 import { useActiveDate } from '../hooks/useSnapshot'
+import { idInstalacaoValido } from '../lib/identificadores'
 import { AtribuicaoPeeringDb, PttRotulo, SeloCadastro, dataCurta, localDe, n } from '../features/instalacoes/comum'
 import { MapaInstalacoes } from '../features/instalacoes/MapaInstalacoes'
 
@@ -19,7 +20,7 @@ export function FacilityPage() {
   const { id = '' } = useParams<{ id: string }>()
   const date = useActiveDate()
   const [soBr, setSoBr] = useState(false)
-  const { data: f, isLoading, isError } = useQuery({ queryKey: ['facility', id, date], queryFn: () => fetchFacility(id, date ?? undefined), enabled: !!id, staleTime: Infinity, gcTime: Infinity, retry: false })
+  const { data: f, isLoading, isError } = useQuery({ queryKey: ['facility', id, date], queryFn: () => fetchFacility(id, date ?? undefined), enabled: idInstalacaoValido(id), staleTime: Infinity, gcTime: Infinity, retry: false })
 
   if (isLoading) return <div className="text-sm text-gray-400">Carregando…</div>
   if (isError || !f) {

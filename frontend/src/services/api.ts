@@ -319,8 +319,15 @@ export function fetchIXPPerfil(code: string, date?: string): Promise<IxpPerfil> 
 export interface ItemBusca { tipo: string; titulo: string; detalhe: string; url: string; selo: string | null; motivo: string }
 export interface GrupoBusca { tipo: string; rotulo: string; total: number; itens: ItemBusca[] }
 export interface RespostaBusca { q: string; reconhecido: string[]; grupos: GrupoBusca[]; snapshot_date: string }
+/**
+ * Muda a URL da busca quando o índice muda de forma visível. Até a 2.0.21 a busca com `date` saía `immutable`, e o navegador guardava
+ * por um ano o resultado da versão em que foi feita (o "nada encontrado" de antes da razão social). A API já não manda `immutable` nela;
+ * este número só descarta o que ficou guardado. A API ignora o parâmetro.
+ */
+const ESQUEMA_BUSCA = 2
+
 export function fetchBusca(q: string, opts: { limite?: number; date?: string } = {}): Promise<RespostaBusca> {
-  return get('/api/v1/busca', { q, ...opts })
+  return get('/api/v1/busca', { q, ...opts, esquema: ESQUEMA_BUSCA })
 }
 
 export function fetchASNs(opts: {
@@ -1387,7 +1394,7 @@ export function fetchFacilities(opts: { date?: string; pais?: string; uf?: strin
   return get('/api/v1/facilities', opts)
 }
 export function fetchFacility(id: number | string, date?: string): Promise<FacilityDetalhe> {
-  return get(`/api/v1/facilities/${id}`, { date })
+  return get(`/api/v1/facilities/${id}`, { date, opcional: true })
 }
 export function fetchIxpFacilities(code: string, date?: string): Promise<FacilitiesPtt> {
   return get(`/api/v1/ixps/${code}/facilities`, { date, opcional: true })

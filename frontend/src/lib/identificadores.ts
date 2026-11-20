@@ -17,3 +17,13 @@ export function asnValido(asn: string | number | undefined | null): boolean {
 export function codigoPttValido(code: string | undefined | null): boolean {
   return /^[a-z0-9][a-z0-9-]{0,63}$/.test(code ?? '')
 }
+
+/** CNPJ: 14 dígitos, com ou sem formatação. A mesma regra da API, que tira o que não é dígito antes de conferir. */
+export function cnpjValido(cnpj: string | undefined | null): boolean {
+  return (cnpj ?? '').replace(/\D/g, '').length === 14
+}
+
+/** Identificador de instalação (`fac_id` do PeeringDB): inteiro positivo. */
+export function idInstalacaoValido(id: string | number | undefined | null): boolean {
+  return /^[1-9][0-9]{0,9}$/.test(String(id ?? ''))
+}

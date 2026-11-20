@@ -7,7 +7,7 @@
 
 A chave do cache (nginx e Cloudflare) inclui a query string inteira, e a API ignora parâmetros que não conhece: `?x=<aleatório>` faz toda
 requisição passar pelo cache e chegar à API. Este middleware compara os parâmetros com os que a rota declara (mais os globais: `date`, `v`,
-`opcional`) e, conforme `API_PARAMETROS_DESCONHECIDOS`:
+`opcional`, `esquema`) e, conforme `API_PARAMETROS_DESCONHECIDOS`:
 - `registrar` (padrão): anota no log (`parametro_desconhecido`, com a rota e os nomes, nunca os valores) e segue;
 - `rejeitar`: responde 400 barato, antes de qualquer cálculo;
 - `off`: nada.
@@ -24,7 +24,8 @@ from urllib.parse import parse_qsl
 import structlog
 
 _log = structlog.get_logger("arandurape.parametros")
-GLOBAIS = frozenset({"date", "v", "opcional"})
+# `esquema`: o front o muda para trocar a URL quando a resposta de uma rota mudou sem a data mudar (ver `fetchBrasilIndicadores`); a API o ignora.
+GLOBAIS = frozenset({"date", "v", "opcional", "esquema"})
 
 
 def _modo() -> str:

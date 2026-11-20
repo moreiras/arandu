@@ -288,6 +288,14 @@ def test_data_existente_e_imutavel_e_inexistente_nao(api, ctx):
     assert "immutable" not in r.headers.get("cache-control", "")
 
 
+def test_busca_com_data_nao_e_imutavel(api):
+    """O índice da busca muda com o código, não só com o snapshot: com `immutable` o navegador guardaria o resultado de uma versão antiga por um ano."""
+    existente = api.get("/health").json()["latest_snapshot"]
+    r = api.get("/api/v1/busca", params={"q": "rede", "date": existente, "esquema": "2"}, headers=ALLOWED)
+    assert r.status_code == 200
+    assert r.headers["cache-control"] == "public, max-age=300"
+
+
 def test_etag_sem_data_e_304(api):
     """Sem `date` a resposta resolve o latest: ETag derivado do latest+versão, 304 em If-None-Match."""
     r = api.get("/api/v1/ixps", headers=ALLOWED)
