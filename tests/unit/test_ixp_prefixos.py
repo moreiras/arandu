@@ -85,6 +85,16 @@ def test_api_le_o_arquivo_sem_consultar_a_base(tmp_path, monkeypatch):
     assert sum(f["properties"]["block_count"] for f in filtrado["features"]) == 1
 
 
+def test_summary_do_normalized_nao_e_ptt(tmp_path, monkeypatch):
+    _dados(tmp_path)
+    resumo = tmp_path / "normalized" / D / "summary"
+    resumo.mkdir()
+    (resumo / "routes-v4.json.gz").write_bytes((tmp_path / "normalized" / D / "xx" / "routes-v4.json.gz").read_bytes())
+    _maxmind(monkeypatch, _Reader())
+    assert ixp_prefixos.publicar(tmp_path, D, structlog.get_logger()) == 2
+    assert ixp_geo.caminho(tmp_path, D, "summary", "v4").exists() is False
+
+
 def test_sem_force_nao_sobrescreve_e_codigo_invalido_nao_vira_caminho(tmp_path, monkeypatch):
     _dados(tmp_path)
     _maxmind(monkeypatch, _Reader())

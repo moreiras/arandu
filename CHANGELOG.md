@@ -1,5 +1,11 @@
 # Notas de versão
 
+## v2.0.7
+
+- `products.mapas_prefixos.ixp_prefixos` deixa de tratar `normalized/{data}/summary` como PTT: lá ficam as rotas de todos os PTTs
+  juntos (1,2 milhão de prefixos IPv4 em 2026-11-15), o que custava ~46 s por data e gerava `summary-v4|v6.json.gz` que nenhuma
+  rota lê.
+
 ## v2.0.6
 
 - Camadas de prefixos dos PTTs no mapa (`/ixps/{code}/geo?layer=prefixes_v4|prefixes_v6`) pré-calculadas pelo passo `mapas_geo`

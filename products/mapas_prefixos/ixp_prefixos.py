@@ -24,12 +24,12 @@ from core.jsonio import carregar_json_gz
 
 
 def _ptts(base: Path, date_str: str) -> list[str]:
-    """PTTs da data com rotas ou conjunto de prefixos no normalized."""
+    """PTTs da data com rotas ou conjunto de prefixos no normalized. `summary` tem as rotas de todos juntos e não é PTT."""
     norm = normalized_path(base, date_str)
     if not norm.is_dir():
         return []
     return sorted(d.name for d in norm.iterdir()
-                  if d.is_dir() and codigo_valido(d.name)
+                  if d.is_dir() and codigo_valido(d.name) and d.name != "summary"
                   and any((d / f"{n}-{afi}.json.gz").exists() for n in ("routes", "prefix-set") for afi in ixp_geo.FAMILIAS))
 
 
