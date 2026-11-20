@@ -1,5 +1,11 @@
 # Notas de versão
 
+## v2.0.13
+
+- Pipeline diário às 04:00 UTC (1h em Brasília) em vez de 12:00 UTC (9h): a coleta e a publicação pesam na API e no disco e
+  ficavam no começo do horário de uso. Padrão de `INSTALAR_HORA_PIPELINE` no `instalar.sh` e exemplos do cron; quem já instalou
+  ajusta a linha no `crontab -e`.
+
 ## v2.0.12
 
 - `/security.txt` redirecionava para `http://<host>:8080/.well-known/security.txt`: atrás do túnel o nginx escuta em 8080 e em HTTP,

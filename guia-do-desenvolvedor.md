@@ -457,7 +457,7 @@ módulo direto no host.
 bash scripts/arandu-weekly.sh
 
 # Cron (o scripts/instalar.sh instala esta linha, com o horário escolhido):
-0 12 * * *  cd /opt/arandurape && ARANDU_MODO=due flock -n /tmp/arandurape-run.lock bash scripts/arandu-weekly.sh >> logs/arandu.log 2>&1
+0 4 * * *  cd /opt/arandurape && ARANDU_MODO=due flock -n /tmp/arandurape-run.lock bash scripts/arandu-weekly.sh >> logs/arandu.log 2>&1
 ```
 
 ### Implantação

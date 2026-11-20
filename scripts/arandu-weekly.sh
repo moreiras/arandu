@@ -6,7 +6,7 @@
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 # Pipeline pelo executor `arandu` (o que o cron chama).
 #
-#   0 12 * * *  cd /caminho/do/repo && flock -n /tmp/arandurape-run.lock bash scripts/arandu-weekly.sh >> logs/arandu.log 2>&1
+#   0 4 * * *  cd /caminho/do/repo && flock -n /tmp/arandurape-run.lock bash scripts/arandu-weekly.sh >> logs/arandu.log 2>&1
 #
 # Coleta ou produto feito à mão no mesmo host NÃO pode rodar ao lado dele (memória): use scripts/arandu-exclusivo.sh, que pega este mesmo lock.
 #

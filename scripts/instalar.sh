@@ -17,7 +17,7 @@
 # são acertadas de dentro de um contêiner depois do build, o cron recebe o DOCKER_HOST e o vigia vai para o systemd do usuário.
 # Idempotente: pode rodar de novo depois de ajustar o .env. Na primeira vez cria o .env e para (código 3) para você preencher.
 # --simular  mostra o que faria, sem mudar nada (as conferências rodam).
-# Variáveis: INSTALAR_DISCO_MIN_GB (padrão 80), INSTALAR_ESPERA_S (espera pela saúde, padrão 360), INSTALAR_HORA_PIPELINE (padrão 12, UTC).
+# Variáveis: INSTALAR_DISCO_MIN_GB (padrão 80), INSTALAR_ESPERA_S (espera pela saúde, padrão 360), INSTALAR_HORA_PIPELINE (padrão 4, UTC = 1h em Brasília: fora do horário de uso do site).
 # Fora do alcance deste script: proxy de borda (Cloudflare), origem escondida atrás dele, firewall e backup (ver o resumo no fim).
 set -uo pipefail
 
@@ -38,7 +38,7 @@ done
 # ~57 GiB de data/ num ambiente com 10 snapshots e o basemap da América do Sul (2026-11-17); folga para a coleta e o build dos tiles.
 DISCO_MIN_GB="${INSTALAR_DISCO_MIN_GB:-80}"
 ESPERA_S="${INSTALAR_ESPERA_S:-360}"
-HORA="${INSTALAR_HORA_PIPELINE:-12}"
+HORA="${INSTALAR_HORA_PIPELINE:-4}"
 
 ok()    { echo "  [ok]    $*"; }
 aviso() { echo "  [aviso] $*"; AVISOS=$((AVISOS + 1)); }
