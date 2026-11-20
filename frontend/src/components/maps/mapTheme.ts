@@ -54,13 +54,13 @@ export const MAP_COLORS = {
   sici: '#dc2626', // red-600
 
   // Infraestrutura física de fundo (ITU + TeleGeography).
-  // Violeta para o que é só contexto (terrestre, e cabos submarinos que não tocam o
-  // Brasil); azul destaca os cabos que conectam o Brasil. Os cabos ficam um tom acima
-  // (400) do enlace terrestre (300) para se lerem sobre o mar do mapa de fundo.
+  // Violeta claro para o enlace terrestre; nos cabos submarinos, azul-marinho destaca os que
+  // conectam o Brasil e cinza 70% deixa os demais como contexto. Marinho é blue-950, e não o
+  // blue-900 de asMember, para não se confundir com os membros de um PTT.
   terrestrialLink: '#c4b5fd', // violet-300
-  submarineCableOther: '#a78bfa', // violet-400 — cabos submarinos sem landing point no Brasil
+  submarineCableOther: '#4d4d4d', // cinza 70% — cabos submarinos sem landing point no Brasil
   erbs: '#0d9488', // teal-600 — células de estações do SMP licenciadas
-  submarineCableBr: '#38bdf8', // sky-400 — cabos com landing point no Brasil
+  submarineCableBr: '#172554', // blue-950 (azul-marinho) — cabos com landing point no Brasil
 
   // Linhas de transmissão de alta tensão (SIGEL/ANEEL).
   // Violeta mais saturado que terrestrialLink (violet-300) para não se confundir

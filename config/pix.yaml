@@ -421,13 +421,19 @@ pix:
     lat: -21.18948
     lon: -47.79174
   # PeeringDB fac 17477, no IX.br Ribeirão Preto desde 2026-08-24; fonte sem coordenadas (ix.br/adesao e PeeringDB, 2026-11-20).
+  # Coordenada aproximada: a rua no OSM (Nominatim, 2026-11-20), sem o número; a rua tem ~0,3 km.
   - name: '[PIX NICNET]'
     address: Rua Cesário Motta, 231 - Centro, Cravinhos - SP
     cep: '14140000'
+    lat: -21.34164
+    lon: -47.731842
   # PeeringDB fac 17478, no IX.br Ribeirão Preto desde 2026-08-24; fonte sem coordenadas (ix.br/adesao e PeeringDB, 2026-11-20).
+  # Coordenada aproximada: a rua no OSM (Nominatim, 2026-11-20), sem o número; a rua tem ~0,75 km.
   - name: '[PIX CLIENT.CO]'
     address: Rua Francisca Paula de Jesus, 864 - Jd Florestan Fernandes, Ribeirão Preto - SP
     cep: '14079313'
+    lat: -21.134333
+    lon: -47.745061
   ria:
   - name: '[PIX Brasil TecPar]'
     address: Rua Dr. Bozano, 1293 - Centro, 97015-004 - Santa Maria - RS

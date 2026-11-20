@@ -1,5 +1,12 @@
 # Notas de versão
 
+## v2.0.9
+
+- `config/pix.yaml`: coordenadas aproximadas para os PIX NICNET (Cravinhos) e CLIENT.CO (Ribeirão Preto), que o IX.br e o PeeringDB
+  publicam sem coordenadas: a rua do endereço no OpenStreetMap (sem o número; ruas de ~0,3 e ~0,75 km). Sem lat/lon o PIX não
+  aparecia no mapa.
+- Mapa: cabos submarinos que tocam o Brasil em azul-marinho (blue-950) e os demais em cinza 70% (`#4d4d4d`).
+
 ## v2.0.8
 
 - `/.well-known/security.txt` (RFC 9116), gerado pela API: `Contact` com o novo `SITE_CONTATO_SEGURANCA` (padrão `SITE_CONTATO`),
