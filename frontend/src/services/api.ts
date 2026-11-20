@@ -312,7 +312,7 @@ export type IxpPerfil = IXPDocument & {
   portas?: PortasIxp | null
 }
 export function fetchIXPPerfil(code: string, date?: string): Promise<IxpPerfil> {
-  return get(`/api/v1/ixps/${code}`, { date, include: 'membros,usuarios_estimados,potencial,assinantes,indice,totais,historico,route_servers,rejeicoes,facilities,portas' })
+  return get(`/api/v1/ixps/${code}`, { date, include: 'membros,usuarios_estimados,potencial,assinantes,indice,totais,historico,route_servers,rejeicoes,facilities,portas', opcional: true })
 }
 
 /** Um acerto da busca universal. `url` é o caminho da página no site. */
@@ -378,7 +378,7 @@ export type AsnPerfil = ASNDocument & {
   peering?: PeeringAsn | null
 }
 export function fetchASNPerfil(asn: number | string, date?: string): Promise<AsnPerfil> {
-  return get(`/api/v1/asns/${asn}`, { date, include: 'paths,ixp_peers,estabilidade,historico,seguranca,prontidao,route_servers,politica_rs,organizacao,abuso,bloqueios,radar,exposicao,facilities,peering,transito,referencias' })
+  return get(`/api/v1/asns/${asn}`, { date, include: 'paths,ixp_peers,estabilidade,historico,seguranca,prontidao,route_servers,politica_rs,organizacao,abuso,bloqueios,radar,exposicao,facilities,peering,transito,referencias', opcional: true })
 }
 
 export function fetchASNContacts(asn: number | string, date?: string): Promise<ASNContactsResponse> {
@@ -510,7 +510,7 @@ export function fetchExternalIXPs(date?: string, country?: string): Promise<Exte
 }
 
 export function fetchExternalIXP(code: string, date?: string, br_only?: boolean): Promise<ExternalIXPDocument> {
-  return get(`/api/v1/external-ixps/${code}`, { date, br_only })
+  return get(`/api/v1/external-ixps/${code}`, { date, br_only, opcional: true })
 }
 
 export function fetchIXPCompareMembers(ixps: string[], date?: string): Promise<IXPCompareMembersResponse> {
@@ -825,7 +825,7 @@ export interface GrupoPrefixosGeoResponse {
 }
 
 export function fetchGrupo(grupoId: string, date?: string): Promise<GrupoDetalhe> {
-  return get(`/api/v1/grupos/${encodeURIComponent(grupoId)}`, { date })
+  return get(`/api/v1/grupos/${encodeURIComponent(grupoId)}`, { date, opcional: true })
 }
 
 /** Um bloco extra do grupo: `mercado` → `mercado_fixo`, `regulatorio`, `tecnico`. Cada aba busca o seu quando abre. */

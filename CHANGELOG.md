@@ -1,5 +1,25 @@
 # Notas de versão
 
+## v2.0.19
+
+Correções da varredura anônima e logada de 20/11/2026.
+
+- **Cache na borda das rotas medidas:** a Cloudflare guardava respostas `metered` com `?date=` (`public, immutable`) e as entregava a
+  quem já tinha esgotado o orçamento anônimo. Rota `metered` sai agora com `Cloudflare-CDN-Cache-Control: no-store`; navegador e nginx
+  (que fica depois do gate) seguem guardando. Exceção declarada em `access_policy._BORDA_PATTERNS`: camadas de mapa e agregados
+  globais ou por PTT (`/map/*`, mapas de acessos, território e qualidade, `/ixps/{code}/geo` e `hilbert`, `/bgp-stability`,
+  `/bgp-stability/history`, `/bgp-stability/overview`, `/routing-analysis`), pesados (até 23 MB e 60 s medidos) e com poucas URLs;
+  aceita-se entregá-los mesmo com o orçamento esgotado. `X-Anon-Limit-Reached: false` deixou de sair (só o `true` tem efeito).
+- `/grupo/:id`, `/municipios` e a versão antiga de `/visao-geral` passam pelo `ProtectedRoute`; `/grupo/:id` mostra o painel de login
+  em vez de "Grupo não encontrado" quando o motivo é o limite. Teste reprova rota `metered` do SPA sem `<P>`.
+- React Query não repete 4xx nem erro de política (cada repetição era outra linha vermelha no console).
+- Identificador inválido não chama a API (`/asn/abc`, ASN fora de 1–4294967295, código de PTT fora do formato); perfil de AS, PTT, PTT
+  externo e grupo pedem `?opcional=1` (204 em vez de 404). O pré-aquecimento dos perfis acompanha a URL nova.
+- `/visao-geral` deixa de ser página de entrada: é alias de `/panorama/tecnico`, que é `metered`.
+- O relógio anônimo para no limite (cada `/auth/me` seguia somando tempo de quem só via o painel de login).
+- `/ases`: ASN, nome e CNPJ ordenam em ordem crescente no primeiro clique; as páginas que exigem login levam cadeado. Busca: AS também
+  pela razão social e nome fantasia da Receita (o nome do Registro.br vem abreviado).
+
 ## v2.0.18
 
 - A aba "Grupos econômicos" do Panorama de mercado listava CNPJs com vários ASNs: uma só empresa que separa serviços, regiões ou redes

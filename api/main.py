@@ -339,7 +339,11 @@ async def add_cache_headers(request: Request, call_next):
     path = request.url.path
     # o que é `login` para o anônimo (lista expandida, histórico) só chega a quem tem login ou
     # allowlist; com `public`/`immutable` o cache do nginx (sem identidade na chave) o entregaria a anônimos se o gate falhasse aberto.
-    e_login = path.startswith("/api/v1/") and _politica.classify(request.method, path, request.query_params, recent_dates(request)).cls == _politica.LOGIN
+    classe = _politica.classify(request.method, path, request.query_params, recent_dates(request)).cls if path.startswith("/api/v1/") else None
+    e_login = classe == _politica.LOGIN
+    # `metered` fora da lista de borda: a Cloudflare não passa pelo gate e entregaria a resposta a quem esgotou o orçamento.
+    # `Cloudflare-CDN-Cache-Control` vale só para a borda; navegador e nginx (depois do gate) seguem o `Cache-Control`.
+    sem_borda = classe == _politica.METERED and not _politica.cache_na_borda(path)
     cacheable_get = (
         request.method == "GET"
         and path.startswith("/api/v1/")
@@ -358,8 +362,11 @@ async def add_cache_headers(request: Request, call_next):
                 return Response(status_code=304, headers={
                     "ETag": etag,
                     "Cache-Control": "public, max-age=60, stale-while-revalidate=30",
+                    **({"Cloudflare-CDN-Cache-Control": "no-store"} if sem_borda else {}),
                 })
     response = await call_next(request)
+    if sem_borda:
+        response.headers["Cloudflare-CDN-Cache-Control"] = "no-store"
     # Contatos: resposta autenticada e sensível — nunca cachear (browser/CDN/proxy).
     if path.endswith("/contacts"):
         response.headers["Cache-Control"] = "private, no-store"
@@ -455,10 +462,8 @@ async def anon_session_guard(request: Request, call_next):
     if decision is not None:
         request.state.access_tier = decision.tier  # lido pelo log de uso (api/usage_log.py)
     if decision is None or not decision.blocked:
-        response = await call_next(request)
-        if decision is not None and decision.tier == "anon":
-            response.headers["X-Anon-Limit-Reached"] = "false"
-        return response
+        # Só o "true" (no 403 abaixo) tem efeito no front; um "false" numa resposta pública ficaria guardado em cache.
+        return await call_next(request)
 
     if decision.kind == BLOCK_LOGIN:
         return JSONResponse(

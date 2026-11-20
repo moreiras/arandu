@@ -258,8 +258,8 @@ async def prewarm_top_asns(app, date_str: str, limit: int = 1000) -> None:
 # parâmetros (`date`, `include`, `opcional`) e a vírgula codificada como o navegador (`%2C`), para cair na mesma chave do cache.
 # `tests/unit/test_prewarm_perfis.py` confere estas listas contra o frontend.
 PERFIS_DA_INTERFACE = {
-    "ptt": ("/api/v1/ixps/{id}", "membros,usuarios_estimados,potencial,assinantes,indice,totais,historico,route_servers,rejeicoes,facilities,portas", False),
-    "asn": ("/api/v1/asns/{id}", "paths,ixp_peers,estabilidade,historico,seguranca,prontidao,route_servers,politica_rs,organizacao,abuso,bloqueios,radar,exposicao,facilities,peering,transito,referencias", False),
+    "ptt": ("/api/v1/ixps/{id}", "membros,usuarios_estimados,potencial,assinantes,indice,totais,historico,route_servers,rejeicoes,facilities,portas", True),
+    "asn": ("/api/v1/asns/{id}", "paths,ixp_peers,estabilidade,historico,seguranca,prontidao,route_servers,politica_rs,organizacao,abuso,bloqueios,radar,exposicao,facilities,peering,transito,referencias", True),
     "operadora": ("/api/v1/operadoras/{id}", "historico,indicadores,erbs,multas,prontidao,qualidade,reclamacoes,consumidor,mercado_grupos", True),
     "municipio": ("/api/v1/municipios/{id}", "indicadores,territorio,erbs,fust,qualidade,reclamacoes,consumidor,serie_mercado,mercado_grupos,rede_territorio", True),
     "uf": ("/api/v1/ufs/{id}", "historico,territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio", False),

@@ -3,6 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
+import { asnValido, codigoPttValido } from '../../lib/identificadores'
 import { useMemo } from 'react'
 import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -46,7 +47,7 @@ export function useAsnPerfil(asn: number | string | undefined) {
       if (paths) qc.setQueryData(chaves.asnPaths(asn, date), paths)
       return perfil
     },
-    enabled: !!asn && !!date,
+    enabled: !!asn && !!date && asnValido(asn),
     ...IMUTAVEL,
   })
 }
@@ -70,7 +71,7 @@ export function useIxpPerfil(code: string | undefined) {
       if (assinantes) qc.setQueryData(['ixp-assinantes', code, date], assinantes)
       return perfil
     },
-    enabled: !!code && !!date,
+    enabled: !!code && !!date && codigoPttValido(code),
     ...IMUTAVEL,
   })
 }

@@ -137,6 +137,15 @@ def montar(store: Any, date_str: str) -> list[dict[str, Any]]:
         if g and g != "OUTROS":
             grupos_sici[g] = grupos_sici.get(g, 0) + int(o.get("acessos") or 0)
 
+    # Razão social e nome fantasia da Receita pelo CNPJ do AS (coleção `asns`): o nome no Registro.br vem abreviado
+    # ("Núcleo de Inf. e Coord. do Ponto BR") e não casava com o nome por extenso.
+    try:
+        for r in store.query_table(date_str, "asns") or []:
+            if r.get("asn") is not None:
+                nomes_do_asn.setdefault(int(r["asn"]), []).extend(x for x in (r.get("razao_social"), r.get("nome_fantasia")) if x)
+    except Exception:  # snapshot sem a coleção: a busca segue com os nomes do índice
+        pass
+
     for a in store.asn_index(date_str) or []:
         n = a.get("asn")
         if n is None:

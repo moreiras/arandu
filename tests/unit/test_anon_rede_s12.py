@@ -30,3 +30,18 @@ def test_teto_de_sessoes_novas_por_rede(tmp_path, monkeypatch):
     assert sid == "" and esgotado and not cookie
     assert a.resolve_and_touch(tmp_path, cfg, None, None, rede="r2")[0]                   # outra rede segue criando
     assert a.resolve_and_touch(tmp_path, cfg, criadas[0][0], None, rede="r1")[0] == criadas[0][0]   # sessão existente segue valendo
+
+
+def test_relogio_para_no_limite(tmp_path, monkeypatch):
+    """Depois do limite o tempo não segue somando (cada /auth/me de quem só vê o painel de login somava)."""
+    monkeypatch.setattr(a, "_criacoes", {})
+    cfg = a.load_anon_config()
+    sid = a.resolve_and_touch(tmp_path, cfg, None, None, rede="r1")[0]
+    with a._connect(tmp_path) as conn:
+        conn.execute("UPDATE anon_sessions SET active_seconds = ?, last_heartbeat_at = '2000-01-01T00:00:00+00:00' WHERE session_id = ?",
+                     (cfg.limit_seconds - 5, sid))
+    _, seg, esgotado, _ = a.resolve_and_touch(tmp_path, cfg, sid, None, rede="r1")
+    assert esgotado and seg == cfg.limit_seconds
+    with a._connect(tmp_path) as conn:
+        conn.execute("UPDATE anon_sessions SET last_heartbeat_at = '2000-01-01T00:00:00+00:00' WHERE session_id = ?", (sid,))
+    assert a.resolve_and_touch(tmp_path, cfg, sid, None, rede="r1")[1] == cfg.limit_seconds

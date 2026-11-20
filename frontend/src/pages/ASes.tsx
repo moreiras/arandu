@@ -405,6 +405,9 @@ function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stabi
 
 // ─── Main page ───────────────────────────────────────────────────────────────
 
+/** Colunas cujo primeiro clique ordena em ordem crescente. */
+const CRESCENTE_PRIMEIRO = new Set<SortField>(['asn', 'name', 'cnpj'])
+
 export function ASes() {
   const date = useActiveDate()
   const secao = useSearchParams()[0].get('secao')
@@ -420,7 +423,8 @@ export function ASes() {
       setSortDesc((d) => !d)
     } else {
       setSortBy(field)
-      setSortDesc(true)
+      // identificador e texto começam em ordem crescente (A→Z); métricas, da maior para a menor
+      setSortDesc(!CRESCENTE_PRIMEIRO.has(field))
     }
     setPage(1)
   }
@@ -574,7 +578,8 @@ export function ASes() {
                         : 'border-gray-300 text-gray-600 hover:bg-gray-50'
                     }`}
                   >
-                    {p}
+                    {p}{!user && p > 1 && <span aria-hidden="true"> 🔒</span>}
+                    {!user && p > 1 && <span className="sr-only"> (exige login)</span>}
                   </button>
                 )
               })}

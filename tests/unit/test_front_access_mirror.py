@@ -48,3 +48,19 @@ def test_preview_limit_do_front_e_o_do_servidor():
     server = getattr(access_policy, "PREVIEW_LIMIT", None)
     assert server is not None, "access_policy.PREVIEW_LIMIT não existe"
     assert int(m.group(1)) == server
+
+
+def test_rota_medida_do_spa_passa_pelo_protectedroute():
+    """Toda rota do SPA que o espelho classifica como `metered` passa pelo `<P>` (ProtectedRoute): sem ele, com o orçamento anônimo
+    esgotado, a página chama a API e recebe 403 (`/grupo/:id` mostrava "não encontrado"). Redirecionamentos não renderizam nada."""
+    main = (ROOT / "frontend" / "src" / "main.tsx").read_text(encoding="utf-8")
+    abertas, login = _set("OPEN_EXACT"), _set("LOGIN_EXACT")
+    sem_porta = []
+    for caminho, elemento in re.findall(r'<Route\s+path="([^"]+)"\s+element=\{(.*?)\}\s*/>', main):
+        pagina = "/" + re.sub(r":[^/]+|\*", "x", caminho)
+        if pagina in abertas or pagina in login:
+            continue
+        if "<P>" in elemento or "Navigate" in elemento or "Redireciona" in elemento:
+            continue
+        sem_porta.append(caminho)
+    assert sem_porta == [], f"rotas metered sem <P> em main.tsx: {sem_porta}"

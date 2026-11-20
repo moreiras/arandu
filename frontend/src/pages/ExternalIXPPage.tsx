@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useAppStore } from '../store/app'
 import { fetchExternalIXP, fetchIxpFacilities, fetchIxpPortas } from '../services/api'
+import { codigoPttValido } from '../lib/identificadores'
 import { InstalacoesPtt } from '../features/ptt/blocks/InstalacoesBloco'
 import { useAsnNomes } from '../hooks/useAsnName'
 import type { ExternalIXPMember } from '../types/api'
@@ -28,13 +29,14 @@ export function ExternalIXPPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['external-ixp', code, activeDate],
     queryFn: () => fetchExternalIXP(code, activeDate ?? undefined),
-    enabled: !!code,
+    enabled: codigoPttValido(code),
+    retry: false,
     staleTime: Infinity, gcTime: Infinity,
   })
 
   // Instalações e portas do PeeringDB: opcionais (204 não existe aqui; 404 = sem dado), então um erro só esconde o bloco
-  const { data: instalacoes } = useQuery({ queryKey: ['ixp-facilities', code, activeDate], queryFn: () => fetchIxpFacilities(code, activeDate ?? undefined), enabled: !!code, staleTime: Infinity, gcTime: Infinity, retry: false })
-  const { data: portas } = useQuery({ queryKey: ['ixp-portas', code, activeDate], queryFn: () => fetchIxpPortas(code, activeDate ?? undefined), enabled: !!code, staleTime: Infinity, gcTime: Infinity, retry: false })
+  const { data: instalacoes } = useQuery({ queryKey: ['ixp-facilities', code, activeDate], queryFn: () => fetchIxpFacilities(code, activeDate ?? undefined), enabled: !!data, staleTime: Infinity, gcTime: Infinity, retry: false })
+  const { data: portas } = useQuery({ queryKey: ['ixp-portas', code, activeDate], queryFn: () => fetchIxpPortas(code, activeDate ?? undefined), enabled: !!data, staleTime: Infinity, gcTime: Infinity, retry: false })
 
   // Membros visíveis (filtros aplicados) e os nomes só dos 500 que a tabela mostra (não o dicionário inteiro)
   const members: ExternalIXPMember[] = useMemo(() => (data?.members ?? []).filter(m => {

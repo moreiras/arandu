@@ -279,7 +279,8 @@ def resolve_and_touch(
             if delta > ceiling:
                 delta = ceiling
             if area == AREA_METERED and delta.total_seconds() > 0:
-                active_seconds += int(delta.total_seconds())
+                # para no limite: depois dele cada /auth/me seguia somando tempo de quem só vê o painel de login
+                active_seconds = min(active_seconds + int(delta.total_seconds()), max(active_seconds, cfg.limit_seconds))
             expires_at = (now + ttl).isoformat()
             conn.execute(
                 "UPDATE anon_sessions SET active_seconds = ?, last_heartbeat_at = ?, "

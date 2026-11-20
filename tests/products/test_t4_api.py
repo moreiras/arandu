@@ -1795,3 +1795,22 @@ def test_brasil_indicadores_e_aberto_e_soma_o_apnic_dos_asns_br(api):
     if v["usuarios"]:
         assert v["pct_usuarios_ipv6"] == round(100 * v["usuarios_ipv6"] / v["usuarios"], 1)
     assert "APNIC" in v["fonte"] and v["nota"]
+
+
+def test_rota_medida_nao_fica_na_borda_exceto_mapas_e_agregados(api, ctx):
+    """A borda (Cloudflare) não passa pelo gate: o que ela guarda vai para quem esgotou o orçamento. Rota `metered` sai com
+    `Cloudflare-CDN-Cache-Control: no-store`, salvo as camadas de mapa e agregados da lista `_BORDA_PATTERNS`; rota aberta não leva o
+    cabeçalho. Nenhuma resposta 200 carrega `X-Anon-Limit-Reached` (só o 403 do limite), para não ir parar em cache público."""
+    d = ctx["date"]
+    entidade = api.get(f"/api/v1/asns/{ctx['asn']}", params={"date": d})
+    assert entidade.status_code == 200
+    assert entidade.headers["cache-control"] == "public, max-age=31536000, immutable"
+    assert entidade.headers.get("cloudflare-cdn-cache-control") == "no-store"
+    assert "x-anon-limit-reached" not in entidade.headers
+    mapa = api.get("/api/v1/map/pix", params={"date": d})
+    assert mapa.status_code == 200 and "cloudflare-cdn-cache-control" not in mapa.headers
+    aberta = api.get("/api/v1/ixps", params={"date": d})
+    assert aberta.status_code == 200 and "cloudflare-cdn-cache-control" not in aberta.headers
+    from api.auth import access_policy as ap
+    assert ap.cache_na_borda("/api/v1/bgp-stability/history") and ap.cache_na_borda("/ixps/sp/geo")
+    assert not any(ap.cache_na_borda(p) for p in ("/api/v1/asns/1", "/api/v1/ixps/sp", "/api/v1/grupos/g", "/api/v1/query/asns"))

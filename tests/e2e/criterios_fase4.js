@@ -28,7 +28,7 @@ const molde = (u) => new URL(u).pathname.replace(/\/api\/v1/, '').replace(/\/\d{
     asn: `/asn/${asn}`, ptt: `/ixp/${ixps[0].code}`, operadora: `/operadora/${scms[0].cnpj}`, municipio: `/municipio/${mun[0].codigo_ibge || mun[0].ibge}`,
     uf: `/uf/${ixps[0].uf}`, cdncap: cdns.length ? `/cdncap/${slug(cdns[0].name)}` : null,
   }
-  const entrada = new Set(['home', 'ases', 'dados', 'estados', 'fontes', 'grupos', 'ixps', 'operadoras', 'sobre', 'visao_geral'])
+  const entrada = new Set(['home', 'ases', 'dados', 'estados', 'fontes', 'grupos', 'ixps', 'operadoras', 'sobre'])
   const por = {}
   for (const nome of Object.keys(pages)) por[nome] = { visitas: [] }
   for (let v = 0; v < VISITAS; v++) {

@@ -161,3 +161,23 @@ def test_cache_guarda_no_maximo_duas_datas(api, ex):
             busca._CACHE.pop(next(iter(busca._CACHE)))
     assert len(busca._CACHE) == 2
     busca._CACHE.clear()
+
+
+
+class _StoreMinima:
+    """Só o que `busca.montar` lê; o resto vazio."""
+    def asn_index(self, d):
+        return [{"asn": 64500, "name": "Núcleo de Inf. e Coord. do Exemplo", "is_br": True}]
+
+    def query_table(self, d, colecao):
+        return [{"asn": 64500, "razao_social": "NUCLEO DE INFORMACAO E COORDENACAO DO EXEMPLO", "nome_fantasia": "EXEMPLO"}]
+
+    def __getattr__(self, nome):
+        return lambda *a, **k: None
+
+
+def test_as_acha_se_pela_razao_social_da_receita():
+    """O nome no Registro.br vem abreviado ("Núcleo de Inf. e Coord."); a razão social da Receita (coleção `asns`) também é chave."""
+    idx = busca.Indice(busca.montar(_StoreMinima(), "2026-01-01"))
+    assert "/asn/64500" in _urls(idx.buscar("Núcleo de Informação", 10))
+    assert "/asn/64500" in _urls(idx.buscar("exemplo", 10))

@@ -95,6 +95,25 @@ _PAGED_METERED_PATTERNS: Sequence[str] = (r"/acessos/divergencias", r"/acessos/d
 # ── Login: contatos e o que é de alto valor ──────────────────────────────────
 _LOGIN_PATTERNS: Sequence[str] = (r"/.*/contacts",)
 
+# ── Cache na borda (Cloudflare) para rotas `metered` ─────────────────────────
+# A borda não passa pelo gate: o que ela guarda é entregue a quem já esgotou o orçamento. Rota `metered` sai com
+# `Cloudflare-CDN-Cache-Control: no-store` (o navegador e o nginx, que fica depois do gate, continuam guardando), exceto estas:
+# camadas de mapa e agregados globais ou por PTT, pesados (até dezenas de MB e de segundos) e com poucas URLs por snapshot.
+# Aceita-se que sejam entregues mesmo com o orçamento esgotado. Detalhe de entidade enumerável (AS, operadora, município, grupo,
+# prefixo) e `/query/*` nunca entram: é o que um script percorre.
+_BORDA_PATTERNS: Sequence[str] = (
+    r"/map/[^/]+",
+    r"/acessos/municipios/mapa",
+    r"/territorio/mapa",
+    r"/qualidade/mapa",
+    r"/ixps/[^/]+/geo",
+    r"/ixps/[^/]+/hilbert/v[46]",
+    r"/bgp-stability",
+    r"/bgp-stability/history",
+    r"/bgp-stability/overview",
+    r"/routing-analysis",
+)
+
 # Rotas que não carregam snapshot (não se aplica a regra de histórico).
 _NO_HISTORY_PATTERNS: Sequence[str] = (r"/snapshots", r"/schema")
 
@@ -108,11 +127,18 @@ _PAGED = _compile(_PAGED_PATTERNS)
 _PAGED_METERED = _compile(_PAGED_METERED_PATTERNS)
 _LOGIN = _compile(_LOGIN_PATTERNS)
 _NO_HISTORY = _compile(_NO_HISTORY_PATTERNS)
+_BORDA = _compile(_BORDA_PATTERNS)
 _HISTORICO = _compile((r"/history/.+", r"/changes", r"/changes/summary", r"/snapshots/diff"))
 
 
 def _matches(patterns: Sequence[re.Pattern], path: str) -> bool:
     return any(p.match(path) for p in patterns)
+
+
+def cache_na_borda(path: str) -> bool:
+    """Rota `metered` que a borda (Cloudflare) pode guardar: `path` com ou sem o prefixo `/api/v1`."""
+    rel = path[len("/api/v1"):] if path.startswith("/api/v1/") else path
+    return _matches(_BORDA, rel)
 
 
 _INTEIRO = re.compile(r"^[0-9]{1,9}$")

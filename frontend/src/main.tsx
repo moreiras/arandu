@@ -97,7 +97,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="panorama/tecnico" element={<P><PanoramaTecnico /></P>} />
                 <Route path="panorama/mercado" element={<P><PanoramaMercado /></P>} />
                 <Route path="panorama/ipv6" element={<P><PanoramaIpv6 /></P>} />
-                <Route path="visao-geral" element={<AliasPanorama de="visao-geral" antiga={<Dashboard />} />} />
+                <Route path="visao-geral" element={<AliasPanorama de="visao-geral" antiga={<P><Dashboard /></P>} />} />
                 <Route path="fontes" element={<FontesPage />} />
                 <Route path="dados" element={<DadosPage />} />
                 <Route path="sobre" element={<Sobre />} />
@@ -106,8 +106,8 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="acessibilidade" element={<Acessibilidade />} />
                 <Route path="mapa-do-site" element={<MapaDoSite />} />
                 <Route path="perfil" element={<Perfil />} />
-                <Route path="municipios" element={<MunicipiosPage />} />
-                <Route path="grupo/:id" element={<GrupoPage />} />
+                <Route path="municipios" element={<P><MunicipiosPage /></P>} />
+                <Route path="grupo/:id" element={<P><GrupoPage /></P>} />
                 <Route path="relatorio/:tipo/:id" element={<P><RelatorioPage /></P>} />
                 <Route path="ixps" element={<IXPs />} />
                 <Route path="ases" element={<ASes />} />

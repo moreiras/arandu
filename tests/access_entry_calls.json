@@ -15,9 +15,6 @@
   "/ixps": [
    "/api/v1/map/asns",
    "/api/v1/map/prefixes"
-  ],
-  "/visao-geral": [
-   "/api/v1/asns/${asn}"
   ]
  },
  "paginas": {
@@ -70,18 +67,6 @@
   "/sobre": [
    "/api/v1/asns",
    "/api/v1/snapshots"
-  ],
-  "/visao-geral": [
-   "/api/v1/asns",
-   "/api/v1/hilbert/v4",
-   "/api/v1/hilbert/v4/detail",
-   "/api/v1/hilbert/v6",
-   "/api/v1/ixps",
-   "/api/v1/ixps/${code}/hilbert/v4/detail",
-   "/api/v1/map/asns-overview",
-   "/api/v1/scms/stats",
-   "/api/v1/snapshots",
-   "/api/v1/snapshots/${date}"
   ],
   "/acessibilidade": [],
   "/mapa-do-site": []

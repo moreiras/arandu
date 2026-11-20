@@ -9,7 +9,7 @@
 export type RouteAccess = 'open' | 'metered' | 'login'
 
 const OPEN_EXACT = new Set([
-  '/', '/visao-geral', '/login', '/sobre', '/privacidade', '/uso-aceitavel', '/acessibilidade', '/mapa-do-site', '/dados', '/fontes', '/estados',
+  '/', '/login', '/sobre', '/privacidade', '/uso-aceitavel', '/acessibilidade', '/mapa-do-site', '/dados', '/fontes', '/estados',
   '/ixps', '/ases', '/operadoras', '/scms', '/smps', '/stfcs', '/seacs', '/grupos',
 ])
 
