@@ -255,6 +255,15 @@ def test_instalar_no_rootless_nao_pede_sudo_e_passa_o_docker_host_ao_cron():
     assert "systemctl --user enable --now arandurape-vigia.timer" in bloco and "sudo" not in bloco
 
 
+def test_restart_safe_aquece_as_camadas_de_prefixos_dos_ptts_maiores():
+    """Sem o arquivo pré-calculado a camada de prefixos do SP leva mais de 100 s na primeira chamada (524 na Cloudflare)."""
+    text = (ROOT / "restart-safe.sh").read_text()
+    i = text.index('header "5b — Pré-aquecimento de cache"')
+    bloco = text[i:text.index("# 5c. VERIFICAÇÃO PÓS-IMPLANTAÇÃO", i)]
+    assert "WARM_IXP_GEO:-sp rj" in bloco
+    assert "/ixps/$c/geo?layer=$layer&date=$SNAP" in bloco and "prefixes_v6 prefixes_v4" in bloco
+
+
 def test_restart_safe_aceita_rootless_sem_sudo_e_mantem_a_exigencia_de_root_no_docker_com_root():
     text = (ROOT / "restart-safe.sh").read_text()
     assert 'source "$REPO_DIR/scripts/lib-docker.sh"' in text

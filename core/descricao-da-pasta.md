@@ -19,6 +19,7 @@ regras de camada estão em `.importlinter` e a ligação por referência entre c
 | `chaves_registro.py` | Nomes das contagens do Registro.br no resumo, no manifesto e no detalhe do snapshot: `registro_br_*` e, ao lado, `m3_*` (nome mantido por compatibilidade); a API completa o par que faltar. |
 | `jsonio.py` | Leitura tolerante de JSON dos artefatos de build (ausente ou ilegível devolve o padrão). |
 | `colunar.py` | Tabela colunar de um arquivo só, lida por `mmap`, para coleções grandes (`maps/global_prefixes.col`). |
+| `ixp_geo.py` | Camada de prefixos de um PTT no mapa (rotas do LG geolocalizadas e agregadas por cidade): calculada pelo pipeline em `maps/ixp_prefixes/` e lida pela API, que só calcula na hora se o arquivo faltar. |
 | `plugins.py` | Ligação por referência entre camadas: a camada de serviço não importa `products`. |
 | `capacidades.py` | Capacidades declaradas em `serve/capabilities/<entidade>.yaml`: o que cada entidade oferece, escrito uma vez. |
 | `cobertura.py` | Matriz de cobertura API × MCP × interface: toda rota de dados existe, ou tem justificativa, no MCP e na interface (`docs/cobertura.md`). |

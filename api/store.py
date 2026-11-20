@@ -108,6 +108,7 @@ except ImportError:
 from core.common import codigo_valido, published_path
 from core.cpf import mascarar_cpf_em, pode_ter_cpf
 from core.geoip import extrair_geo
+from core.ixp_geo import first_ip, slash20_blocks
 
 _log = logging.getLogger("arandurape")
 
@@ -119,25 +120,8 @@ _strip_scm_contacts = outorgas_store.strip_contacts      # nome histórico; vale
 # Helpers de geolocalização
 # ---------------------------------------------------------------------------
 
-def _slash20_blocks(prefix_str: str) -> list[str]:
-    """
-    Dado um prefixo IPv4, retorna a lista de sub-blocos /20 que o cobrem.
-    Prefixos >= /20 retornam seu próprio /20 pai (1 elemento).
-    Prefixos /8–/19 são expandidos em sub-blocos /20 (/8 → 4096 blocos no máximo).
-    Prefixos < /8 são ignorados — nunca ocorrem em tabelas BGP de IXP.
-    """
-    net = ip_network(prefix_str, strict=False)
-    if net.prefixlen >= 20:
-        # Bloco /20 pai que contém este prefixo
-        addr_int = int(net.network_address) & (0xFFFFFFFF ^ ((1 << 12) - 1))
-        return [str(ip_network((addr_int, 20), strict=False))]
-    if net.prefixlen < 8:
-        return []  # nunca em anúncios BGP de IXP
-    return [str(s) for s in net.subnets(new_prefix=20)]
-
-
-def _first_ip(prefix_str: str) -> str:
-    return str(ip_network(prefix_str, strict=False).network_address)
+_slash20_blocks = slash20_blocks      # nomes antigos; o cálculo mora em core.ixp_geo (o pipeline também o usa)
+_first_ip = first_ip
 
 
 # Raio (km) para considerar um AS "próximo" de um PTT na seção "Potencial".

@@ -439,6 +439,22 @@ urllib.request.urlopen(req, timeout=180)
     done
     ok "proxy_cache do nginx pré-aquecido: $WARM_OK/$WARM_TOTAL endpoints (snapshot $SNAP)"
 
+    # Camadas de prefixos dos PTTs maiores no mapa: vêm prontas do pipeline (maps/ixp_prefixes/); sem o arquivo (snapshot
+    # antigo) a API calcula na hora, e no SP isso passa do limite de 100 s da Cloudflare. Padrão: os seis maiores em rotas.
+    GEO_TOTAL=0
+    GEO_OK=0
+    for c in ${WARM_IXP_GEO:-sp rj ce pr df rs}; do
+        for layer in prefixes_v6 prefixes_v4; do
+            GEO_TOTAL=$((GEO_TOTAL + 1))
+            if $COMPOSE_BASE exec -T frontend \
+                wget -q -T 300 -O /dev/null --header="Accept-Encoding: gzip" \
+                "http://localhost:8080/api/v1/ixps/$c/geo?layer=$layer&date=$SNAP" >> "$LOG_FILE" 2>&1; then
+                GEO_OK=$((GEO_OK + 1))
+            fi
+        done
+    done
+    ok "Camadas de prefixos dos PTTs pré-aquecidas: $GEO_OK/$GEO_TOTAL (snapshot $SNAP)"
+
     # Aquece /potential de cada IXP (calculado por código, não coberto pelos 9 genéricos)
     IXP_CODES=$($COMPOSE_BASE exec -T api python3 -c "
 import urllib.request, json

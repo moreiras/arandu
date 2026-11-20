@@ -1,5 +1,17 @@
 # Notas de versão
 
+## v2.0.6
+
+- Camadas de prefixos dos PTTs no mapa (`/ixps/{code}/geo?layer=prefixes_v4|prefixes_v6`) pré-calculadas pelo passo `mapas_geo`
+  em `published/{data}/maps/ixp_prefixes/{ptt}-{v4|v6}.json.gz`. Na API o cálculo levava mais de 2 min no IPv4 do SP (85 s no
+  IPv6) na primeira chamada depois de cada reinício: a Cloudflare corta em 100 s (524) e o GIL atrasava as demais rotas. A API lê
+  o arquivo e só calcula quando ele falta ou quando o Mapa Explorer filtra por AS no caminho. O cálculo saiu de
+  `api/services/geolocalizacao.py` para `core/ixp_geo.py`, usado pelos dois lados; no pipeline a geolocalização de cada bloco é
+  compartilhada entre os PTTs da data.
+- Snapshots já publicados (aditivo, fora do manifesto, como o `.col`):
+  `python -m products.mapas_prefixos.ixp_prefixos --date AAAA-MM-DD [--ixp sp] [--force]`.
+- `restart-safe.sh` aquece as camadas de prefixos dos PTTs maiores (`WARM_IXP_GEO`, padrão `sp rj ce pr df rs`).
+
 ## v2.0.5
 
 - Chave de MCP com o prefixo da instância: `<SITE_MCP_ESQUEMA>_mcp_<id>_<segredo>` (ex.: `obint_mcp_…`), antes fixo em `arandu_mcp_`. A

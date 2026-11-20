@@ -18,6 +18,7 @@ from typing import Optional
 
 from api import store as _store_mod        # `_maxminddb`/`_yaml` lidos em tempo de chamada (os testes os substituem)
 from api.geo import haversine_km
+from core import ixp_geo
 from core.common import codigo_valido
 from api.store import _MMDB_UNINIT, _SafeLRU, _extract_geo, _first_ip, _log, _normalize_city, _slash20_blocks
 
@@ -251,27 +252,7 @@ class GeolocalizacaoService:
         except KeyError:
             pass
 
-        path = self._norm_dir(date_str, code) / f"routes-{afi}.json.gz"
-        data = self._read_json_gz(path)
-        result: list[dict] = []
-        if data:
-            for route in data.get("routes", []):
-                prefix = route.get("prefix")
-                aspath = route.get("aspath") or []
-                if not prefix or not aspath:
-                    continue
-                deduped: list[int] = []
-                for a in aspath:
-                    if not deduped or deduped[-1] != a:
-                        deduped.append(a)
-                if not deduped:
-                    continue
-                result.append({
-                    "prefix": prefix,
-                    "origin_asn": deduped[-1],
-                    "peer_asn": deduped[0],
-                    "aspath_set": frozenset(deduped),
-                })
+        result = ixp_geo.rotas(self._read_json_gz(self._norm_dir(date_str, code) / f"routes-{afi}.json.gz"))
         self._origin_paths[cache_key] = result  # type: ignore[assignment]
         return result
 
@@ -307,82 +288,22 @@ class GeolocalizacaoService:
         - origin_asns: lista dos ASes que originam prefixos nesta cidade (até 20)
         - peer_asns:   lista dos ASes que anunciam diretamente ao route server (até 20)
 
-        Fallback para prefix-set se as rotas não existirem (sem info de AS).
+        Fallback para prefix-set se as rotas não existirem (sem info de AS). Sem filtro de AS, lê a camada pré-calculada
+        (`maps/ixp_prefixes/`, `core.ixp_geo`) e só calcula quando ela falta.
         """
+        if not exclude_asns and not include_asns:
+            pronto = ixp_geo.ler(self.base, date_str, code, afi)        # pré-calculado pelo pipeline (`mapas_geo`)
+            if pronto is not None:
+                return pronto
         reader = self._mmdb_reader()
         if reader is None:
             return {"type": "FeatureCollection", "features": []}
-
         routes = self._ixp_routes_parsed(date_str, code, afi)
-
-        # prefix → {origin_asns, peer_asns} acumulados por todas as rotas que passam
-        prefix_info: dict[str, dict] = {}
         if routes:
-            for r in routes:
-                if exclude_asns and r["aspath_set"] & exclude_asns:
-                    continue
-                if include_asns and not include_asns.issubset(r["aspath_set"]):
-                    continue
-                p = r["prefix"]
-                if p not in prefix_info:
-                    prefix_info[p] = {"origin_asns": set(), "peer_asns": set()}
-                prefix_info[p]["origin_asns"].add(r["origin_asn"])
-                if r["peer_asn"] != r["origin_asn"]:
-                    prefix_info[p]["peer_asns"].add(r["peer_asn"])
+            prefix_info = ixp_geo.prefixos_das_rotas(routes, exclude_asns, include_asns)
         else:
-            # Fallback: prefix-set sem info de AS
-            for pfx in self._load_ixp_prefix_set(date_str, code, afi):
-                prefix_info[pfx] = {"origin_asns": set(), "peer_asns": set()}
-
-        if not prefix_info:
-            return {"type": "FeatureCollection", "features": []}
-
-        # Geolocalize e agrega por cidade, acumulando os AS sets
-        city_agg: dict[tuple, dict] = {}
-        for prefix, info in prefix_info.items():
-            try:
-                blocks: list[str] = _slash20_blocks(prefix) if afi == "v4" else [prefix]
-            except ValueError:
-                continue
-            for block in blocks:
-                try:
-                    record = reader.get(_first_ip(block))
-                except Exception:
-                    continue
-                geo = _extract_geo(record)
-                if geo is None:
-                    continue
-                key = (round(geo["lat"], 2), round(geo["lon"], 2))
-                if key not in city_agg:
-                    city_agg[key] = {
-                        "lat": geo["lat"], "lon": geo["lon"],
-                        "city": geo["city"], "uf": geo["uf"], "country": geo["country"],
-                        "block_count": 0,
-                        "origin_asns": set(),
-                        "peer_asns": set(),
-                    }
-                city_agg[key]["block_count"] += 1
-                city_agg[key]["origin_asns"].update(info["origin_asns"])
-                city_agg[key]["peer_asns"].update(info["peer_asns"])
-
-        block_unit = "/20" if afi == "v4" else "prefix"
-        features = []
-        for agg in city_agg.values():
-            props: dict = {
-                "city": agg["city"], "uf": agg["uf"], "country": agg["country"],
-                "block_count": agg["block_count"], "block_unit": block_unit,
-                "geo_confidence": "city_centroid",
-            }
-            if agg["origin_asns"]:
-                props["origin_asns"] = sorted(agg["origin_asns"])[:20]
-            if agg["peer_asns"]:
-                props["peer_asns"] = sorted(agg["peer_asns"])[:20]
-            features.append({
-                "type": "Feature",
-                "geometry": {"type": "Point", "coordinates": [agg["lon"], agg["lat"]]},
-                "properties": props,
-            })
-        return {"type": "FeatureCollection", "features": features}
+            prefix_info = {p: {"origin_asns": set(), "peer_asns": set()} for p in self._load_ixp_prefix_set(date_str, code, afi)}
+        return ixp_geo.geolocalizar(prefix_info, reader, afi)
 
     def _load_origin_prefixes(self, date_str: str, ixp_code: str, afi: str) -> dict:
         """Carrega e cacheia normalized/{date}/{ixp_code}/origin-prefixes-{afi}.json.gz."""

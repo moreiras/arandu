@@ -59,7 +59,7 @@ Convenção: `build.py` é o ponto de entrada (`python -m products.<pasta>.build
 | `financiamento_sancoes/` | `financiamento_sancoes` | Crédito público (BNDES) e sanções (CEIS e CNEP) por operadora. |
 | `contratos/` | `contratos` | Contratos públicos de operadoras (PNCP). |
 | `cetic/` | `cetic` | Tabelas oficiais das pesquisas TIC do Cetic.br em formato longo. |
-| `mapas_prefixos/` | `mapas_prefixos` | GeoJSON de prefixos e ASNs e curvas de Hilbert do espaço IP; tabela colunar dos prefixos globais. |
+| `mapas_prefixos/` | `mapas_prefixos` | GeoJSON de prefixos e ASNs e curvas de Hilbert do espaço IP; tabela colunar dos prefixos globais; camadas de prefixos de cada PTT (`maps/ixp_prefixes/`, `ixp_prefixos.py`, que também preenche snapshots já publicados). |
 | `mapas_infraestrutura/` | `mapas_infraestrutura` | Camadas de infraestrutura: cabos submarinos, enlaces, linhas de transmissão e rodovias. |
 | `history/` | `history` | Camada de histórico (`data/history/`): séries por entidade e log de eventos derivados dos snapshots. |
 | `snapshot/` | `snapshot` | Resumo e detalhe pré-calculado do snapshot; o manifesto é a última etapa, em `publish/`. |

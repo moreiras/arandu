@@ -128,6 +128,11 @@
    "tipo": "conteudo",
    "caminhos_regex": "^/registro_br_(asns|prefixes_v[46]|declared_space_v[46])$",
    "motivo": "Campos `registro_br_*`: os mesmos números dos `m3_*`, com o nome atual (core/chaves_registro.py). Resumo publicado antes deles só tem os `m3_*`; a API completa os dois nomes na leitura."
+  },
+  {
+   "arquivo": "maps/ixp_prefixes/*",
+   "tipo": "so_original",
+   "motivo": "As camadas de prefixos dos PTTs dependem da base de geolocalização em raw/dbip/ (sem data), que o replay não leva ao diretório de trabalho; sem ela o passo mapas_geo não as grava."
   }
  ]
 }

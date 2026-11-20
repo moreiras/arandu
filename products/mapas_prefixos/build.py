@@ -588,7 +588,10 @@ def executar_hilbert(base: Path, date_str: str, log) -> dict:
 
 
 def executar_mapas(base: Path, date_str: str, log) -> dict:
-    """Produto `mapas_prefixos`, parte 2: `maps/prefixes.geojson`, `global_prefixes.geojson` e `asns.geojson`."""
+    """Produto `mapas_prefixos`, parte 2: `maps/prefixes.geojson`, `global_prefixes.geojson`, `asns.geojson` e `maps/ixp_prefixes/`."""
+    from products.mapas_prefixos import ixp_prefixos
     log.info("building geojson maps")
     c = build_geojson_maps(base, date_str, log)
-    return {"geo_asns": c["asns"], "geo_prefixes": c["prefixes"], "geo_global_prefixes": c.get("global_prefixes", 0)}
+    n_ixp = ixp_prefixos.publicar(base, date_str, log)            # camadas de prefixos dos PTTs: na API, o SP passa de 2 min
+    return {"geo_asns": c["asns"], "geo_prefixes": c["prefixes"], "geo_global_prefixes": c.get("global_prefixes", 0),
+            "geo_ixp_prefixes": n_ixp}

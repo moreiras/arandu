@@ -149,6 +149,9 @@ explicitamente em vez de omitir.
   dados a outra conta; rode o script sem sudo, que ele faz o `chown` de dentro de um contêiner.
 - `GET /query/global_prefixes` lê `maps/global_prefixes.col` (tabela colunar por `mmap`, `core/colunar.py`); snapshot sem o arquivo
   cai no GeoJSON (~8 s). Para os já publicados: `python -m products.mapas_prefixos.colunar --date AAAA-MM-DD`.
+- `GET /ixps/{code}/geo?layer=prefixes_v4|v6` lê `maps/ixp_prefixes/{ptt}-{afi}.json.gz` (passo `mapas_geo`); sem o arquivo calcula
+  na hora, e no SP isso passa dos 100 s da Cloudflare (524). Para os já publicados, no worker com `scripts/arandu-exclusivo.sh`:
+  `python -m products.mapas_prefixos.ixp_prefixos --date AAAA-MM-DD` (precisa do `normalized/` da data e da base em `raw/dbip/`).
 - Coleta diária (`ARANDU_MODO=due`): fonte dentro da cadência é restaurada do armazém **com a data de origem no nome**. Quem lê o
   bruto do LG usa `core.common.raw_bgp_ixp`, não monta o nome com a data do snapshot; sem isso o snapshot sai com todos os PTTs
   `missing` e a execução consta como `ok`.
