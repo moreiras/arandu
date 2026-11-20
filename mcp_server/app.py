@@ -32,12 +32,23 @@ Dividido em módulos para ficar abaixo de 800 linhas: o contexto comum está em 
 # ruff: noqa: E402, F401
 from __future__ import annotations
 
+import functools
+import inspect
+
 from api.store import Store
 from core.common import data_dir
 from mcp_server.contexto import _resolve, mcp          # reexportados: testes e ferramentas leem `mcp_server.app.mcp`
 
 # Uma única Store por processo — cache lazy de snapshot, seguro para leitura concorrente. As tools a leem daqui (`contexto._store`).
 _store = Store(data_dir())
+
+# Teto de memória (api/memoria.py, como na API): a data mais recente e `MCP_DATAS_EXTRAS` outras ficam em memória (o compose põe 0:
+# só a mais recente); a data antiga é servida e expurgada ao fim da tool; perto do teto tudo é expurgado. `MCP_MEMORIA=0` desliga.
+from api.memoria import GuardaMemoria, ligado as _memoria_ligada  # noqa: E402
+
+_guarda = GuardaMemoria(_store, lambda: _store.resolve_date(None), prefixo="MCP") if _memoria_ligada("MCP") else None
+if _guarda is not None:
+    _guarda.iniciar_thread()
 
 # A ordem de importação é a ordem de registro das tools (e do `tools/list`)
 from mcp_server import tools_entidades, tools_visualizacao, tools_consulta
@@ -106,9 +117,46 @@ app.add_middleware(ChaveMiddleware)
 # Prévia sem chave: antes da instrumentação, para o log de uso também registrar o pedido recusado.
 from mcp_server import previa  # noqa: E402
 
+# Pré-carga (mcp_server/precarga.py): as funções originais das tools, antes da prévia e do log de uso, numa thread de fundo
+from mcp_server import precarga  # noqa: E402
+
+_funcoes_originais = {nome: tool.fn for nome, tool in mcp._tool_manager._tools.items()}
 previa.aplicar(mcp, lambda: _store.list_snapshots()[-2:])
+
+
+def _com_guarda(servidor, guarda) -> int:
+    """Cada tool roda dentro de `guarda.usando(date)`: a data antiga fica protegida do expurgo durante a tool e é expurgada depois dela
+    (o `?date=` do middleware da API, aqui pelo argumento). As de histórico leem várias datas sem `date`: a passada seguinte as limpa."""
+    n = 0
+    for tool in servidor._tool_manager._tools.values():
+        fn = tool.fn
+        if getattr(fn, "_guarda", False):
+            continue
+
+        if inspect.iscoroutinefunction(fn):
+            @functools.wraps(fn)
+            async def envoltorio(*a, __fn=fn, **kw):
+                with guarda.usando(kw.get("date")):
+                    return await __fn(*a, **kw)
+        else:
+            @functools.wraps(fn)
+            def envoltorio(*a, __fn=fn, **kw):
+                with guarda.usando(kw.get("date")):
+                    return __fn(*a, **kw)
+        envoltorio._guarda = True                               # type: ignore[attr-defined]
+        for attr in ("_previa", "_usage_logged"):
+            if getattr(fn, attr, False):
+                setattr(envoltorio, attr, True)
+        tool.fn = envoltorio
+        n += 1
+    return n
+
+
+if _guarda is not None:
+    _com_guarda(mcp, _guarda)
 instrument_mcp_tools(mcp, data_dir)
 app.add_middleware(UsageLogMiddleware, data_dir=data_dir, src="mcp")
+precarga.iniciar(_funcoes_originais, _store)
 
 
 if __name__ == "__main__":

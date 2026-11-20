@@ -25,12 +25,10 @@ services:
       resources:
         limits:
           cpus: "1"
-          # 9G: com 7 GiB a API morre por OOM (exit 137) durante o
-          # aquecimento do restart-safe; o pico medido nos deploys foi 6,9 GiB e o regime
-          # 4 a 5,9 GiB, com 60 a 73% do espaço das arenas do pymalloc livre mas retido (fragmentação do alocador).
-          # 9 GiB deixa margem sem tirar a do host (16 GiB, sem swap: API 9 + worker 2 + demais ~0,4; o Routinator roda avulso antes do worker).
-          # Subir daqui só depois de medir o pico do worker (data/ops/mem/). O limite é teto, não reserva.
-          memory: 9G
+          # 6G (era 9G): a guarda de memória (api/memoria.py) expurga datas antigas a 80% e tudo a 90% do teto, e o aquecimento fica em
+          # ~4,2 GiB. Os 9G vinham de um OOM a 7 GiB, antes da guarda, quando os caches por data não tinham expurgo. Somas dos tetos:
+          # ver o comentário de memswap_limit em docker-compose.exemplo.yml.
+          memory: ${API_MEM_LIMIT:-6g}
     logging:
       driver: json-file
       options:
@@ -47,9 +45,8 @@ services:
       resources:
         limits:
           cpus: "1"
-          # Carrega os mesmos índices pesados do snapshot que a API (sob demanda,
-          # ao primeiro uso de cada tool). 2G cobre o índice de ASNs + estruturas.
-          memory: 2G
+          # Carrega os mesmos dados do snapshot que a API: 4,4 GiB com todas as tools numa data (medido em 2026-11-18). Ver docker-compose.yml.
+          memory: ${MCP_MEM_LIMIT:-5g}
     logging:
       driver: json-file
       options:
@@ -67,7 +64,7 @@ services:
       resources:
         limits:
           cpus: "1"
-          memory: 1G
+          memory: ${WORKER_MEM_LIMIT:-3g}   # pico medido 2,4 GiB (data/ops/mem/, rodada semanal de 2026-11-13); nunca junto com o Routinator
     profiles: ["worker"]
     logging:
       driver: json-file
@@ -81,7 +78,7 @@ services:
       resources:
         limits:
           cpus: "0.25"
-          memory: 64M
+          memory: 512M
     logging:
       driver: json-file
       options:

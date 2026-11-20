@@ -48,6 +48,11 @@ services:
       - ANON_HEARTBEAT_CEILING_MULTIPLIER=${ANON_HEARTBEAT_CEILING_MULTIPLIER:-3}
       - ANON_SESSION_TTL_HOURS=${ANON_SESSION_TTL_HOURS:-24}
       - ANON_INACTIVITY_TIMEOUT_SECONDS=${ANON_INACTIVITY_TIMEOUT_SECONDS:-45}
+      # Teto de memória (api/memoria.py): vazio = padrão do código (ligado; 1 data além da mais recente; alívio 80%, crítico 90%)
+      - API_MEMORIA=${API_MEMORIA:-}
+      - API_DATAS_EXTRAS=${API_DATAS_EXTRAS:-}
+      - API_MEMORIA_ALIVIO_PCT=${API_MEMORIA_ALIVIO_PCT:-}
+      - API_MEMORIA_CRITICO_PCT=${API_MEMORIA_CRITICO_PCT:-}
       - ANON_API_CLIENT_COST_SECONDS=${ANON_API_CLIENT_COST_SECONDS:-3}   # custo por pedido medido sem sessão válida, na conta do IP
       - ACCESS_POLICY_MODE=${ACCESS_POLICY_MODE:-shadow}
     networks:
@@ -59,14 +64,14 @@ services:
     read_only: true
     tmpfs:
       - /tmp
-    # RAM + swap da API. O padrão (16g) não restringe nada e vale para qualquer host que use docker-compose.prod.yml ou .no-nginx.yml, que trocam
-    # `memory` e exigem memswap >= memory. Num host de teste com swap pequeno, defina API_MEMSWAP_LIMIT igual a API_MEM_LIMIT (ver .env.example):
-    # estourar o teto mata a API (o restart a sobe de novo) em vez de deixar o host arrastando em swap.
-    memswap_limit: ${API_MEMSWAP_LIMIT:-16g}
+    # Tetos de memória (medidos num host de 16 GiB): API 6g, MCP 5g, worker e Routinator 3g (nunca juntos: mesmo lock do pipeline),
+    # frontend 512m. RAM + swap = RAM em todos: estourar o teto mata só aquele contêiner (o restart o sobe de novo) em vez de deixar o host
+    # arrastando em swap; um swapfile no host fica para o resto do sistema. A guarda (api/memoria.py) age a 80% e 90% do teto, antes do OOM.
+    memswap_limit: ${API_MEMSWAP_LIMIT:-${API_MEM_LIMIT:-6g}}
     deploy:
       resources:
         limits:
-          memory: ${API_MEM_LIMIT:-2g}   # ambientes de teste com dados completos podem precisar de mais (ver .env.example)
+          memory: ${API_MEM_LIMIT:-6g}
           cpus: '${API_CPUS:-2.0}'
           pids: 200
     healthcheck:
@@ -96,6 +101,12 @@ services:
       - MCP_KEY_ATIVA=${MCP_KEY_ATIVA:-0}
       - MCP_COTA_DIARIA=${MCP_COTA_DIARIA:-1000}
       - MCP_API_URL=http://api:8000
+      # Teto de memória e pré-carga do MCP (api/memoria.py, mcp_server/precarga.py; ver .env.example)
+      - MCP_MEMORIA=${MCP_MEMORIA:-}
+      - MCP_DATAS_EXTRAS=${MCP_DATAS_EXTRAS:-0}
+      - MCP_MEMORIA_ALIVIO_PCT=${MCP_MEMORIA_ALIVIO_PCT:-}
+      - MCP_MEMORIA_CRITICO_PCT=${MCP_MEMORIA_CRITICO_PCT:-}
+      - MCP_PRECARGA=${MCP_PRECARGA:-}
       - MCP_HOSTS_EXTRAS=${MCP_HOSTS_EXTRAS:-}     # hosts além de localhost e do host do SITE_URL (ex.: IP de um ambiente de teste); sem isso, 421
       - ALLOWED_IPS=${ALLOWED_IPS:-}               # IP na allowlist tem o MCP completo, como no site (sem ela, só chave ou prévia)
       # Identidade do site: vazio = padrão de core/site.py (Arandurapé, http://localhost)
@@ -118,10 +129,13 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+    # 5g: com todas as tools sobre o snapshot de 2026-11-13 o MCP chegou a 4,4 GiB numa data e a 6 GiB em duas (medido num ambiente de teste em 2026-11-18). Com
+    # MCP_DATAS_EXTRAS=0 só a data mais recente fica; a antiga é servida e expurgada ao fim da tool.
+    memswap_limit: ${MCP_MEM_LIMIT:-5g}
     deploy:
       resources:
         limits:
-          memory: 1g
+          memory: ${MCP_MEM_LIMIT:-5g}
           cpus: '1.0'
           pids: 100
     depends_on:
@@ -133,7 +147,7 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 60s
+      start_period: 300s   # a pré-carga (mcp_server/precarga.py) segura o GIL por alguns minutos na subida
 
   worker:
     build:
@@ -225,6 +239,7 @@ services:
     tmpfs:
       - /var/run
       - /tmp
+    memswap_limit: 512m
     deploy:
       resources:
         limits:
@@ -264,11 +279,11 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    memswap_limit: ${ROUTINATOR_MEM_LIMIT:-1536m}
+    memswap_limit: ${ROUTINATOR_MEM_LIMIT:-3g}
     deploy:
       resources:
         limits:
-          memory: ${ROUTINATOR_MEM_LIMIT:-1536m}
+          memory: ${ROUTINATOR_MEM_LIMIT:-3g}
           cpus: '${ROUTINATOR_CPUS:-1.0}'
           pids: 100
     logging:

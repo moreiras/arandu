@@ -1,5 +1,28 @@
 # Notas de versão
 
+## v2.0.21
+
+Teto de memória na API e no MCP, pré-carga do MCP e tetos dos contêineres (trabalho medido num ambiente de teste em 18/11/2026 que
+ficou fora do recorte público). Os caches do `Store` eram dicionários por data sem expurgo: a API sobe a ~4,2 GiB e chegou a 5,2 GiB
+de 6 GiB depois de 4 h em produção; consultar a fundo uma data antiga somava ~1,7 GiB que nunca voltava, e duas levavam ao OOM.
+- `api/memoria.py`: ficam em memória a data mais recente e as `*_DATAS_EXTRAS` consultadas por último (API: 1, a anterior, usada nas
+  comparações; MCP: 0). A data antiga é **sempre servida**: protegida do expurgo enquanto a consulta roda e expurgada ao fim dela. Os
+  caches são achados por introspecção (mapeamentos do `Store`, dos serviços e repositórios dele, e os de nome "cache" nos módulos
+  `api.*`) e a data sai da chave; as semanas da série de estabilidade BGP das datas residentes ficam.
+- Guarda (a cada 5 s e depois de cada consulta a data não residente): memória anônima do cgroup acima de 80% do teto expurga tudo menos a
+  data mais recente; acima de 90%, tudo, relido sob demanda. Nada recebe 503. `API_MEMORIA=0` / `MCP_MEMORIA=0` desligam; estado da API
+  em `/api/v1/internal/diag` (`memoria`).
+- MCP: a guarda roda numa thread e cada tool executa dentro de `usando(date)`. Pré-carga (`mcp_server/precarga.py`, `MCP_PRECARGA`,
+  ligada): percorre as tools da data mais recente ao subir **e a cada snapshot novo**, com as funções originais, fora do log de uso e da
+  prévia, com pausa curta entre chamadas para não prender o GIL; `start_period` do healthcheck do MCP passa a 300 s. Teste: os nomes
+  chamados existem entre as tools registradas (um nome ausente seria pulado em silêncio).
+- Medido com a guarda (ambiente de teste): API com teto de 6 GiB e três datas antigas a fundo terminou em 79% do teto; MCP com teto de
+  5 GiB chegou a 91% com uma data antiga, a guarda expurgou tudo e a varredura seguiu em ~1,8 GiB, sem OOM. Data antiga não residente
+  relê o disco a cada consulta (1.029 s contra 308 s para a mesma bateria). Restam ~2 GiB que não saem com o expurgo, a investigar.
+- Tetos padrão nos três compose (exemplo, `.prod.yml`, `.no-nginx.yml`): API 6g, MCP 5g (era 1g fixo), worker 3g, Routinator 3g (nunca
+  junto com o worker), frontend 512m, swap igual ao teto. `.prod.yml` e `.no-nginx.yml` tinham tetos fixos que sobrescreviam o base (API
+  9G e 3G, MCP 2G, worker 1G e 2G, frontend 64M). Quem define `WORKER_MEM_LIMIT` ou `ROUTINATOR_MEM_LIMIT` no `.env` segue com o seu valor.
+
 ## v2.0.20
 
 Duas correções do RPKI que ficaram fora do recorte público.

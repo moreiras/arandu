@@ -25,6 +25,13 @@ os.environ["VIGIA_ALERTA_CMD"] = ""
 os.environ["ALERTA_ENV"] = "/nonexistent/arandurape-alerta.env"
 for _v in ("TELEGRAM_BOT_KEY", "TELEGRAM_CHAT_ID"):
     os.environ.pop(_v, None)
+# Guarda de memória (api/memoria.py) desligada: a tarefa de fundo expurgaria caches no meio dos testes que os inspecionam. test_memoria.py
+# a exercita diretamente.
+os.environ.setdefault("API_MEMORIA", "0")
+os.environ.setdefault("MCP_MEMORIA", "0")
+# Pré-carga do MCP (mcp_server/precarga.py) desligada: rodaria em thread sobre o Store do import, que os testes trocam pelo sintético.
+os.environ.setdefault("MCP_PRECARGA", "0")
+os.environ.setdefault("MCP_PRECARGA_PAUSA_S", "0")
 
 
 def pytest_addoption(parser):

@@ -40,9 +40,9 @@ services:
       resources:
         limits:
           cpus: "1"
-          # 3G: dicts parseados do latest (índice de ASNs ~38 MB → centenas de MB
-          # em objetos Python) + byte-cache em memória do latest (~25-45 MB gzipado).
-          memory: 3G
+          # Tetos iguais aos do docker-compose.exemplo.yml (API 6g, MCP 5g, worker 3g, frontend 512m; eram 3G, 2G, 2G e 64M
+          # fixos aqui, abaixo do que a API e o MCP aquecidos ocupam). As variáveis do .env valem nos três arquivos.
+          memory: ${API_MEM_LIMIT:-6g}
     logging:
       driver: json-file
       options:
@@ -60,7 +60,7 @@ services:
       resources:
         limits:
           cpus: "1"
-          memory: 2G
+          memory: ${MCP_MEM_LIMIT:-5g}
     logging:
       driver: json-file
       options:
@@ -81,7 +81,7 @@ services:
       resources:
         limits:
           cpus: "1"
-          memory: 2G
+          memory: ${WORKER_MEM_LIMIT:-3g}
     logging:
       driver: json-file
       options:
@@ -101,7 +101,7 @@ services:
       resources:
         limits:
           cpus: "0.25"
-          memory: 64M
+          memory: 512M
     logging:
       driver: json-file
       options:

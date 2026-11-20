@@ -66,6 +66,7 @@ from api.cache import (
     prewarm_top_asns,
 )
 from api import heap
+from api.memoria import GuardaMemoria, ligado as memoria_ligada
 from api.schemas import HealthResponse
 from api.store import Store
 from api.usage_log import UsageLogMiddleware
@@ -183,6 +184,11 @@ async def lifespan(app: FastAPI):
         max_bytes=int(os.environ.get("LATEST_CACHE_MAX_BYTES", DEFAULT_MAX_BYTES)),
         max_entry_bytes=int(os.environ.get("LATEST_CACHE_MAX_ENTRY_BYTES", DEFAULT_MAX_ENTRY_BYTES)),
     )
+    # Teto de memória (api/memoria.py): datas residentes e guarda perto do limite do contêiner. Sem isto, cada data antiga
+    # consultada somava ~1,7 GB que nunca voltava (medido num ambiente de teste em 2026-11-18) e duas levavam a API ao OOM.
+    app.state.guarda_memoria = GuardaMemoria(store, app.state.latest_cache.current_latest) if memoria_ligada() else None
+    if app.state.guarda_memoria is not None:
+        asyncio.create_task(app.state.guarda_memoria.laco())
     app.state.auth_config = init_auth_config(_data_dir)
     app.state.anon_config = load_anon_config()
     try:
@@ -448,6 +454,18 @@ async def avisar_rotas_descontinuadas(request: Request, call_next):
 
 
 @app.middleware("http")
+async def guarda_de_memoria(request: Request, call_next):
+    """Datas residentes (api/memoria.py): a data antiga de `?date=` fica protegida do expurgo enquanto a requisição roda e, ao fim,
+    a guarda expurga o que ficou fora da política. Nada é recusado: perto do teto a guarda expurga tudo, não devolve 503."""
+    guarda = getattr(request.app.state, "guarda_memoria", None)
+    data = request.query_params.get("date")
+    if guarda is None or not data:
+        return await call_next(request)
+    with guarda.usando(data):
+        return await call_next(request)
+
+
+@app.middleware("http")
 async def anon_session_guard(request: Request, call_next):
     """Bloqueia requisições de sessão anônima que já atingiram o limite de tempo.
 
@@ -593,7 +611,10 @@ def internal_diag(request: Request, deep: int = Query(0, ge=0, le=1), sample: in
     is_token_ok = bool(_INTERNAL_TOKEN) and secrets.compare_digest(token_hdr, _INTERNAL_TOKEN)
     if not is_loopback and not is_token_ok:
         raise HTTPException(403, "Acesso restrito")
-    return collect(request.app.state.store, getattr(request.app.state, "latest_cache", None), bool(deep), sample)
+    out = collect(request.app.state.store, getattr(request.app.state, "latest_cache", None), bool(deep), sample)
+    guarda = getattr(request.app.state, "guarda_memoria", None)
+    out["memoria"] = guarda.estado() if guarda is not None else {"ligado": False}
+    return out
 
 
 @app.post(

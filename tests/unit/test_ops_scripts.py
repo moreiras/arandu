@@ -139,12 +139,23 @@ def test_restart_safe_aquecimento_com_freio_de_memoria_e_sem_post_warmup_por_pad
     assert "rollback" not in bloco.lower()
 
 
-def test_compose_prod_limite_da_api_e_de_9g():
-    import re
+# Tetos de memória: os overlays usam as mesmas variáveis e padrões do docker-compose.exemplo.yml, para que o swap (ligado ao teto) nunca
+# fique abaixo do `memory` (o Docker recusa) e a produção não volte a um teto fixo diferente.
+_TETOS = {"api": ("API_MEM_LIMIT", "6g"), "mcp": ("MCP_MEM_LIMIT", "5g"), "worker": ("WORKER_MEM_LIMIT", "3g")}
 
-    text = (ROOT / "docker-compose.prod.yml").read_text()
-    m = re.search(r"memory:\s*(\d+)G", text.split("api:", 1)[1])
-    assert m and int(m.group(1)) == 9
+
+@pytest.mark.parametrize("arquivo", ["docker-compose.exemplo.yml", "docker-compose.prod.yml", "docker-compose.no-nginx.yml"])
+def test_compose_tetos_de_memoria_iguais_nos_tres_arquivos(arquivo):
+    import yaml
+
+    class _Carregador(yaml.SafeLoader):
+        pass
+    _Carregador.add_constructor("!reset", lambda carregador, no: None)      # tag do compose (.no-nginx.yml: `ports: !reset []`)
+    c = yaml.load((ROOT / arquivo).read_text(), Loader=_Carregador)["services"]
+    for nome, (var, padrao) in _TETOS.items():
+        mem = str(c[nome]["deploy"]["resources"]["limits"]["memory"])
+        assert mem == f"${{{var}:-{padrao}}}", (arquivo, nome, mem)
+    assert str(c["frontend"]["deploy"]["resources"]["limits"]["memory"]).lower() == "512m"
 
 
 # ── scripts/arandu-exclusivo.sh: coleta manual e pipeline não rodam juntos ─────────────────────────────────────────────────────────
@@ -191,8 +202,10 @@ def test_compose_poe_teto_de_memoria_no_worker_e_na_api_sem_swap_extra():
         assert "memory" in s["deploy"]["resources"]["limits"], nome
         assert "memswap_limit" in s, f"{nome}: sem memswap_limit, o teto vale só para a RAM e o excedente vai para o swap do host"
     assert "WORKER_MEM_LIMIT" in c["worker"]["deploy"]["resources"]["limits"]["memory"]
-    # o swap da API não pode ser ligado ao `memory`: os overrides de produção (9G) e .no-nginx (3G) trocam `memory` e o Docker exige memswap >= memory
-    assert "API_MEMSWAP_LIMIT" in c["api"]["memswap_limit"] and "API_MEM_LIMIT" not in c["api"]["memswap_limit"]
+    # swap igual ao teto em todos (o excedente não vai para o swap do host); o da API pode ser trocado à parte, e segue o teto por padrão
+    assert c["api"]["memswap_limit"] == "${API_MEMSWAP_LIMIT:-${API_MEM_LIMIT:-6g}}"
+    assert c["mcp"]["memswap_limit"] == "${MCP_MEM_LIMIT:-5g}" and c["frontend"]["memswap_limit"] == "512m"
+    assert c["rpki"]["memswap_limit"] == c["rpki"]["deploy"]["resources"]["limits"]["memory"] == "${ROUTINATOR_MEM_LIMIT:-3g}"
 
 
 def test_compose_nao_cria_rede_alem_da_arandurape_e_rpki_usa_o_bridge_padrao():
