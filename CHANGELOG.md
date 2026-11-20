@@ -5,6 +5,7 @@
 - Chave de MCP com o prefixo da instância: `<SITE_MCP_ESQUEMA>_mcp_<id>_<segredo>` (ex.: `obint_mcp_…`), antes fixo em `arandu_mcp_`. A
   verificação aceita qualquer esquema no formato, porque quem autentica é o id com o HMAC do segredo: as chaves já emitidas
   (`arandu_mcp_…`) continuam válidas. Formato e prefixo ficam em `core/site.py`, usados pela API, pelo servidor MCP e pelo perfil.
+- Mapa: cabos submarinos um tom mais escuros (sky-400 para os que tocam o Brasil, violet-400 para os demais).
 
 ## v2.0.4
 
