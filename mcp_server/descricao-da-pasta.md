@@ -12,7 +12,7 @@ saem pelo MCP.
 | Arquivo | Papel |
 |---|---|
 | `app.py` | Aplicação: monta o servidor, registra as tools, resources e prompts e aplica as descrições curtas de `descricoes.py`. |
-| `contexto.py` | Contexto comum: o objeto `mcp`, o `Store` do processo, a resolução de data e os auxiliares das tools de visualização. |
+| `contexto.py` | Contexto comum: o objeto `mcp` (toda tool anotada como só leitura, `SO_LEITURA`), o `Store` do processo, a resolução de data e os auxiliares das tools de visualização. |
 | `chave.py` | Autenticação por chave de MCP (nível *user*), verificada pela API. |
 | `previa.py` | Prévia sem chave, equivalente à do site sem login. |
 | `entrada.py` | Entrada e saída das tools: aceita as formas que os modelos mandam de fato (texto "null", listas como texto, UF no nome) e nunca falha em silêncio. |

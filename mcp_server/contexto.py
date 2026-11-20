@@ -15,6 +15,7 @@ from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
+from mcp.types import ToolAnnotations
 
 from mcp_server.instrucoes import _INSTRUCTIONS
 from core.site import SITE
@@ -75,12 +76,21 @@ def _ptts_do_snapshot() -> Optional[dict[str, str]]:
         return None
 
 
+# Toda tool só consulta o snapshot: nada escreve, repetir dá o mesmo resultado e nada sai do serviço. Os clientes que pedem confirmação
+# antes de uma tool sem `readOnlyHint` (ou a tratam como ação de escrita) deixam de pedir.
+SO_LEITURA = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
+
+
 class _Servidor(FastMCP):
-    """FastMCP que não lista os aliases obsoletos (`ocultas`), mas continua atendendo a chamada por esses nomes."""
+    """FastMCP que não lista os aliases obsoletos (`ocultas`), mas continua atendendo a chamada por esses nomes, e que anota toda tool
+    como só leitura (`SO_LEITURA`), inclusive as registradas por `add_tool` (aliases e tools geradas das capacidades)."""
 
     def __init__(self, *a, **kw):
         self.ocultas: set[str] = set()
         super().__init__(*a, **kw)
+
+    def add_tool(self, fn, *a, annotations: Optional[ToolAnnotations] = None, **kw):
+        return super().add_tool(fn, *a, annotations=annotations or SO_LEITURA, **kw)
 
     async def list_tools(self):
         return [t for t in await super().list_tools() if t.name not in self.ocultas]

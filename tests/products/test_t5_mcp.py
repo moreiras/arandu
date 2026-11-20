@@ -612,3 +612,15 @@ def test_toda_tool_visivel_tem_descricao_curta_e_toda_collection_esta_nas_instru
     assert agrupadas == set(SCHEMA), (sorted(set(SCHEMA) - agrupadas), sorted(agrupadas - set(SCHEMA)))
     for codigo in ("ce", "vix", "mao"):
         assert f"{codigo}=" in srv.mcp.instructions
+
+
+def test_toda_tool_e_anotada_como_so_leitura(srv):
+    """`readOnlyHint` em todas, inclusive aliases ocultos e as geradas das capacidades: nenhuma tool escreve."""
+    todas = srv.mcp._tool_manager.list_tools()
+    assert todas
+    sem = [t.name for t in todas if not (t.annotations and t.annotations.readOnlyHint is True
+                                         and t.annotations.idempotentHint is True and t.annotations.openWorldHint is False)]
+    assert sem == [], sem
+    visiveis = run(srv.mcp.list_tools())
+    assert all(t.annotations and t.annotations.readOnlyHint for t in visiveis)
+

@@ -1,5 +1,12 @@
 # Notas de versão
 
+## v2.0.10
+
+- MCP: toda tool anotada como só leitura (`readOnlyHint: true`, `destructiveHint: false`, `idempotentHint: true`,
+  `openWorldHint: false`, anotações de tool da especificação do MCP). Antes nenhuma tinha anotação, e clientes que pedem confirmação
+  antes de uma tool sem `readOnlyHint`, ou a tratam como ação de escrita, pediam a cada chamada. Fica no servidor (`add_tool` de
+  `mcp_server/contexto.py`): vale para as tools decoradas, os aliases e as geradas das capacidades. Teste em T5.
+
 ## v2.0.9
 
 - `config/pix.yaml`: coordenadas aproximadas para os PIX NICNET (Cravinhos) e CLIENT.CO (Ribeirão Preto), que o IX.br e o PeeringDB
