@@ -145,6 +145,10 @@ export function Privacidade() {
           necessárias para autenticar sua identidade, conforme suas próprias políticas de
           privacidade.
         </p>
+        <p className="text-sm text-gray-600 leading-relaxed">
+          A Cloudflare, que entrega o site, mede visitas e desempenho das páginas com o Cloudflare Web
+          Analytics, que não usa cookies.
+        </p>
       </section>
 
       <section className="space-y-3">

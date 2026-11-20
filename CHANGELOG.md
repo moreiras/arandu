@@ -1,5 +1,10 @@
 # Notas de versão
 
+## v2.0.16
+
+- CSP libera o beacon do Cloudflare Web Analytics (`static.cloudflareinsights.com` em `script-src`, `cloudflareinsights.com` em
+  `connect-src`), que a borda injeta e o navegador bloqueava com erro no console. A política de privacidade (seção 4) cita a medição.
+
 ## v2.0.15
 
 - Página inicial: com o tempo de uso anônimo das páginas avançadas esgotado, os blocos opcionais (destaques, cartões de resposta,
