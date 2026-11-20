@@ -93,7 +93,7 @@ def llms() -> str:
     paginas = ", ".join(f"[{i['rotulo']}]({b}{i['caminho']})" for i in paginas_publicas()["menu"])
     return f"""# {SITE.titulo}
 
-> Mapa da Internet brasileira em snapshots semanais e imutáveis: BGP do IX.br e da tabela global, Registro.br/LACNIC, PeeringDB, RPKI, APNIC e dados abertos da Anatel (outorgas e acessos do SICI). Feito com o software livre {SITE.software} (AGPL-3.0-or-later).
+> {SITE.nome_extenso} em snapshots semanais e imutáveis: BGP do IX.br e da tabela global, Registro.br/LACNIC, PeeringDB, RPKI, APNIC e dados abertos da Anatel (outorgas e acessos do SICI). Feito com o software livre {SITE.software} (AGPL-3.0-or-later).
 
 Todo número tem fonte e data: o snapshot (data da coleta) e, quando a fonte tem calendário próprio (SICI), o mês de referência. Dados inferidos ou estimados são rotulados como tal. Contatos e dados de pessoa física não são públicos.
 

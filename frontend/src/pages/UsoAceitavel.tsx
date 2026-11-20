@@ -64,7 +64,7 @@ export function UsoAceitavel() {
           O uso acima dos limites recebe resposta de limite (HTTP 429), sem suspensão. Violação desta política pode levar à{' '}
           <strong>revogação da chave e do acesso à conta</strong>, sem aviso prévio quando houver risco para o serviço ou
           para terceiros. Para contestar ou tirar dúvidas:{' '}
-          <a href="mailto:lgpd@internetbitabit.com.br" className="text-primario-600 hover:underline">lgpd@internetbitabit.com.br</a>.
+          <a href={`mailto:${SITE.contatoPrivacidade}`} className="text-primario-600 hover:underline">{SITE.contatoPrivacidade}</a>.
         </p>
       </section>
     </div>

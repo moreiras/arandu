@@ -22,6 +22,8 @@ export const SITE = {
   mcp: valor('VITE_SITE_MCP_ESQUEMA', 'arandurape'),
   /** E-mail de contato para correções e dúvidas (aparece na página Sobre). */
   contato: valor('VITE_SITE_CONTATO', 'arandurape@internetbitabit.com.br'),
+  /** E-mail do controlador para privacidade e direitos do titular (Privacidade, Uso aceitável). */
+  contatoPrivacidade: valor('VITE_SITE_CONTATO_PRIVACIDADE', 'lgpd@internetbitabit.com.br'),
 }
 
 /** "Arandurapé — Mapa da Internet brasileira". */

@@ -1,5 +1,15 @@
 # Notas de versão
 
+## v2.0.2
+
+Contatos e descrição do site configuráveis pelo `.env`, como o nome.
+
+- `SITE_CONTATO_PRIVACIDADE` (novo): e-mail do controlador mostrado na Privacidade (3 lugares) e no Uso aceitável, antes fixo no
+  código; padrão `lgpd@internetbitabit.com.br`. Repassado no `docker-compose.exemplo.yml` (api, mcp, worker e build do frontend) e no
+  `Dockerfile.frontend`. **Quem já tem um `docker-compose.yml` local precisa acrescentar as mesmas linhas.**
+- A descrição do `index.html` (`description` e `og:description`) e o `llms.txt` usam `SITE_NOME_EXTENSO` em vez do texto fixo.
+- Teste: nenhum e-mail fixo no frontend fora dos padrões de `lib/site.ts`.
+
 ## v2.0.1
 
 Implantação com **Docker rootless**. Os scripts detectam o modo do daemon e funcionam nos dois casos; com Docker com root o

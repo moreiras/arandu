@@ -13,8 +13,8 @@ export function Privacidade() {
         <h2 className="text-base font-semibold text-gray-800">1. Quem trata seus dados</h2>
         <p className="text-sm text-gray-600 leading-relaxed">
           O {SITE.nome} é operado pela <strong>Internet Bit a Bit</strong> (
-          <a href="mailto:lgpd@internetbitabit.com.br" className="text-primario-600 hover:underline">
-            lgpd@internetbitabit.com.br
+          <a href={`mailto:${SITE.contatoPrivacidade}`} className="text-primario-600 hover:underline">
+            {SITE.contatoPrivacidade}
           </a>
           ), responsável pelo tratamento dos dados pessoais coletados neste site.
         </p>
@@ -174,8 +174,8 @@ export function Privacidade() {
         </ul>
         <p className="text-sm text-gray-600 leading-relaxed mt-2">
           Para exercer qualquer um desses direitos, envie um e-mail para{' '}
-          <a href="mailto:lgpd@internetbitabit.com.br" className="text-primario-600 hover:underline">
-            lgpd@internetbitabit.com.br
+          <a href={`mailto:${SITE.contatoPrivacidade}`} className="text-primario-600 hover:underline">
+            {SITE.contatoPrivacidade}
           </a>
           .
         </p>
@@ -185,8 +185,8 @@ export function Privacidade() {
         <h2 className="text-base font-semibold text-gray-800">7. Contato</h2>
         <p className="text-sm text-gray-600 leading-relaxed">
           Para dúvidas sobre esta política ou sobre o tratamento dos seus dados:{' '}
-          <a href="mailto:lgpd@internetbitabit.com.br" className="text-primario-600 hover:underline">
-            lgpd@internetbitabit.com.br
+          <a href={`mailto:${SITE.contatoPrivacidade}`} className="text-primario-600 hover:underline">
+            {SITE.contatoPrivacidade}
           </a>
         </p>
       </section>

@@ -65,6 +65,14 @@ def test_internet_bit_a_bit_so_nas_paginas_institucionais():
     assert _achados(r"Bit a Bit|internetbitabit", lambda rel, l: rel in paginas) == []
 
 
+def test_emails_de_contato_vem_do_env():
+    """Endereço de e-mail só como padrão em `lib/site.ts` (`SITE_CONTATO`, `SITE_CONTATO_PRIVACIDADE`); as páginas usam `SITE.contato*`."""
+    assert _achados(r"[\w.+-]+@[\w-]+\.[\w.-]+", lambda rel, l: rel == "lib/site.ts") == []
+    html = (ROOT / "frontend" / "index.html").read_text(encoding="utf-8")
+    assert "@" not in re.sub(r"<script.*?</script>", "", html, flags=re.S)
+    assert "Mapa da Internet brasileira" not in html, "a descrição usa %VITE_SITE_NOME_EXTENSO%"
+
+
 # O nome padrão é o do software ("Arandurapé"), que também é o marcador trocado por `com_identidade`: com o padrão a troca não se vê.
 # Por isso o OpenAPI e o inventário do MCP são conferidos num processo à parte, com outra identidade no ambiente (o `SITE` é lido na
 # importação).
