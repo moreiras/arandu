@@ -263,6 +263,15 @@ def test_restart_safe_aceita_rootless_sem_sudo_e_mantem_a_exigencia_de_root_no_d
     assert "Execute com sudo ou como root" in ramo
 
 
+def test_restart_safe_constroi_pelo_compose_para_levar_a_identidade_do_env():
+    """`docker build` puro não recebe os build args do .env: o frontend sairia com o nome e os contatos padrão."""
+    text = (ROOT / "restart-safe.sh").read_text()
+    codigo = "\n".join(l for l in text.splitlines() if not l.lstrip().startswith("#"))
+    assert "docker build" not in codigo
+    assert '$COMPOSE_BASE build --no-cache "$servico"' in codigo
+    assert 'build_image "arandurape-frontend" frontend' in codigo and 'build_image "arandurape-api"      api' in codigo
+
+
 def test_vigia_de_usuario_aponta_para_o_socket_rootless_e_tem_o_mesmo_timer():
     svc = (ROOT / "docker" / "systemd" / "user" / "arandurape-vigia.service").read_text()
     assert "Environment=DOCKER_HOST=unix://%t/docker.sock" in svc

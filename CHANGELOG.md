@@ -1,5 +1,11 @@
 # Notas de versão
 
+## v2.0.3
+
+- `restart-safe.sh` reconstrói as imagens pelo compose (`docker compose build --no-cache api|frontend`) em vez de `docker build`.
+  Sem o compose, os build args do `.env` não chegavam ao frontend e a cada implantação a interface voltava ao nome, à descrição e
+  aos contatos padrão (`SITE_*`). Teste novo em `tests/unit/test_ops_scripts.py`.
+
 ## v2.0.2
 
 Contatos e descrição do site configuráveis pelo `.env`, como o nome.

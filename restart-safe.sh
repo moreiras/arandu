@@ -187,15 +187,17 @@ rollback() {
     exit 1
 }
 
-# Reconstrói uma imagem sem cache. Em caso de falha, imprime os erros reais do
+# Reconstrói sem cache a imagem de um serviço do compose. Em caso de falha, imprime os erros reais do
 # build (ex.: tsc --noEmit, vite, pip) no console — não só um ponteiro pro log.
+# Pelo compose, e não com `docker build`: é ele que repassa os build args do .env (SITE_* do frontend, compilados no bundle);
+# sem eles a imagem sai com a identidade padrão.
 # Retorna 0 em sucesso, 1 em falha.
 build_image() {
-    local name="$1" dockerfile="$2"
+    local name="$1" servico="$2"
     local out; out="$(mktemp)"
 
-    log "Construindo ${name} (sem cache)..."
-    if docker build --no-cache -f "$dockerfile" -t "${name}:latest" . > "$out" 2>&1; then
+    log "Construindo ${name} (serviço ${servico}, sem cache)..."
+    if $COMPOSE_BASE build --no-cache "$servico" > "$out" 2>&1; then
         cat "$out" >> "$LOG_FILE"
         rm -f "$out"
         ok "${name}:latest construída"
@@ -282,8 +284,8 @@ header "3 — Rebuild sem cache"
 
 # O build do frontend roda `tsc --noEmit && vite build` (gate de tipagem estrita):
 # erros de tipo abortam o build aqui, antes de qualquer troca de container.
-build_image "arandurape-api"      "Dockerfile.api"      || exit 1
-build_image "arandurape-frontend" "Dockerfile.frontend" || exit 1
+build_image "arandurape-api"      api      || exit 1     # a mesma imagem serve mcp e worker
+build_image "arandurape-frontend" frontend || exit 1
 
 # ============================================================
 # 4. PARAR E RECRIAR CONTAINERS
