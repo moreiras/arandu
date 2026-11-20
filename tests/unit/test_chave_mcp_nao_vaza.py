@@ -5,7 +5,7 @@
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 """Privacidade da chave de MCP: nenhum arquivo versionado (contratos, fixtures, docs, código) contém uma chave de MCP real.
 
-O padrão é `arandu_mcp_<8>_<52+>` em base32. Os testes que precisam de uma chave a montam em memória ou usam o valor de mentira de `tests/unit/test_mcp_chave.py`
+O padrão é `<esquema>_mcp_<8>_<52+>` em base32. Os testes que precisam de uma chave a montam em memória ou usam o valor de mentira de `tests/unit/test_mcp_chave.py`
 (montado por concatenação, para o texto do arquivo não casar com o padrão).
 """
 import re
@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 
 RAIZ = Path(__file__).resolve().parents[2]
-PADRAO = re.compile(rb"arandu_mcp_[A-Z2-7]{8}_[A-Z2-7]{40,}")
+PADRAO = re.compile(rb"[a-z0-9-]+_mcp_[A-Z2-7]{8}_[A-Z2-7]{40,}")
 ISENTOS: set[str] = set()
 
 

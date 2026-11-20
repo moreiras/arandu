@@ -68,13 +68,31 @@ def test_jwt_antigo_sem_cid_resolve_pelo_email(tmp_path):
 
 def test_chave_tem_formato_e_valida_so_enquanto_ativa(tmp_path):
     chave, meta = chaves_mcp.gerar(tmp_path, "conta-1", "meu cliente")
-    assert chave.startswith("arandu_mcp_" + meta["id"] + "_") and len(chave.split("_")[-1]) >= 52     # 256 bits em base32
+    from core.site import prefixo_chave_mcp
+    assert chave.startswith(prefixo_chave_mcp() + meta["id"] + "_") and len(chave.split("_")[-1]) >= 52     # 256 bits em base32
     assert chaves_mcp.verificar(tmp_path, chave) == "conta-1"
     assert chaves_mcp.verificar(tmp_path, chave + "A") is None
     assert chaves_mcp.verificar(tmp_path, "arandu_mcp_XXXXXXXX_" + chave.split("_")[-1]) is None
     assert chaves_mcp.verificar(tmp_path, "qualquer") is None and chaves_mcp.verificar(tmp_path, "") is None
     assert chaves_mcp.revogar(tmp_path, "conta-1") is True
     assert chaves_mcp.verificar(tmp_path, chave) is None
+
+
+
+def test_prefixo_segue_o_esquema_do_site_e_chave_antiga_continua_valida(tmp_path, monkeypatch):
+    """O prefixo vem de SITE_MCP_ESQUEMA; quem autentica é id + segredo, então mudar o esquema não derruba as chaves emitidas."""
+    from core import site
+    from core.site import FORMATO_CHAVE_MCP, carregar, prefixo_chave_mcp
+    assert prefixo_chave_mcp(carregar({"SITE_MCP_ESQUEMA": "obint"})) == "obint_mcp_"
+    assert prefixo_chave_mcp(carregar({"SITE_MCP_ESQUEMA": "OBINT Brasil"})) == "obint-brasil_mcp_"
+    monkeypatch.setattr(site, "SITE", carregar({"SITE_MCP_ESQUEMA": "obint"}))
+    chave, meta = chaves_mcp.gerar(tmp_path, "conta-2")
+    assert chave.startswith("obint_mcp_" + meta["id"] + "_")
+    segredo = chave.split("_")[-1]
+    for prefixo in ("arandu_mcp_", "arandurape_mcp_", "obint_mcp_"):             # chaves emitidas antes da troca do esquema
+        assert chaves_mcp.verificar(tmp_path, f"{prefixo}{meta['id']}_{segredo}") == "conta-2"
+    assert chaves_mcp.verificar(tmp_path, f"OBINT_mcp_{meta['id']}_{segredo}") is None   # fora do formato
+    assert not FORMATO_CHAVE_MCP.fullmatch("_mcp_" + meta["id"] + "_" + segredo)
 
 
 def test_rotacao_revoga_a_anterior_e_so_ha_uma_ativa(tmp_path):

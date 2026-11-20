@@ -3,7 +3,7 @@
 # Este arquivo faz parte do Arandurape.
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-"""Autenticação do MCP por chave: `Authorization: Bearer arandu_mcp_…` → nível *user*.
+"""Autenticação do MCP por chave: `Authorization: Bearer <esquema>_mcp_…` → nível *user*.
 
 O MCP roda num contêiner somente leitura e não guarda hash nem pepper: pergunta à API (`/internal/mcp-chave/verificar`, token interno) e guarda o
 resultado em memória por 30 s (válida) ou 5 s (inválida), por `sha256(chave)` — nunca a chave. Sem chave, o MCP atende como anônimo (como antes).
@@ -27,8 +27,9 @@ from typing import Optional
 import httpx
 import structlog
 
+from core.site import FORMATO_CHAVE_MCP
+
 _log = structlog.get_logger(__name__)
-PREFIXO = "arandu_mcp_"
 TTL_VALIDA_S = 30.0
 TTL_INVALIDA_S = 5.0
 MAX_CACHE = 1000
@@ -144,7 +145,7 @@ class ChaveMiddleware:
         if not auth:
             return await self.app(scope, receive, send)                 # anônimo
         chave = auth[7:].strip() if auth[:7].lower() == "bearer " else ""
-        if not chave.startswith(PREFIXO) or len(chave) > 200:
+        if len(chave) > 200 or not FORMATO_CHAVE_MCP.fullmatch(chave):
             return await _resposta(send, 401, "Chave de MCP inválida ou revogada.", {"WWW-Authenticate": 'Bearer realm="mcp"'})
         h = hashlib.sha256(chave.encode()).hexdigest()
         achou, conta = self._do_cache(h)

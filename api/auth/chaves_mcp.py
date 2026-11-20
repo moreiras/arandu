@@ -3,7 +3,7 @@
 # Este arquivo faz parte do Arandurape.
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-"""Chave de MCP: `arandu_mcp_<id>_<segredo>`, 256 bits, guardada só como HMAC-SHA-256 com pepper do ambiente.
+"""Chave de MCP: `<esquema>_mcp_<id>_<segredo>` (esquema de `SITE_MCP_ESQUEMA`), 256 bits, guardada só como HMAC-SHA-256 com pepper do ambiente.
 
 O `id` (8 caracteres) não é secreto: acha a linha sem varrer a tabela e aparece no perfil. O hash e o pepper existem só na API; o MCP pergunta à API
 (`/internal/mcp-chave/verificar`). A chave nunca é registrada, nem o hash. Uma chave ativa por conta; gerar outra revoga a anterior na mesma transação.
@@ -22,7 +22,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator, Optional
 
-PREFIXO = "arandu_mcp_"
+from core.site import FORMATO_CHAVE_MCP, prefixo_chave_mcp
+
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS chaves (
     id TEXT PRIMARY KEY,
@@ -93,12 +94,13 @@ def gerar(data_path: Path, conta_id: str, rotulo: Optional[str] = None) -> tuple
         except Exception:
             con.execute("ROLLBACK")
             raise
-    return f"{PREFIXO}{kid}_{segredo}", {"id": kid, "criada_em": agora, "rotulo": rotulo}
+    return f"{prefixo_chave_mcp()}{kid}_{segredo}", {"id": kid, "criada_em": agora, "rotulo": rotulo}
 
 
 def verificar(data_path: Path, chave: str) -> Optional[str]:
     """`conta_id` se a chave é válida e ativa; `None` caso contrário. Tempo constante: sempre calcula o HMAC e compara com `compare_digest`."""
-    kid, _, segredo = chave[len(PREFIXO):].partition("_") if chave.startswith(PREFIXO) else ("", "", "")
+    m = FORMATO_CHAVE_MCP.fullmatch(chave or "")
+    kid, segredo = (m.group(2), m.group(3)) if m else ("", "")
     calculado = _hash(segredo or "x")
     with _db(data_path) as con:
         r = con.execute("SELECT * FROM chaves WHERE id=?", (kid,)).fetchone() if kid and segredo else None

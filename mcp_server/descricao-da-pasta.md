@@ -4,7 +4,7 @@
 
 Expõe os snapshots publicados a assistentes de IA (Streamable HTTP, porta 8001, `/mcp`). Usa o mesmo `Store` e os mesmos serviços
 da API (`api/`): não há lógica de dados própria aqui, só a forma das tools. Sem chave o MCP entrega a mesma prévia que o site sem
-login; com a chave da conta (`Authorization: Bearer arandu_mcp_…`), o nível de usuário. Contatos e dados de pessoa física nunca
+login; com a chave da conta (`Authorization: Bearer <esquema>_mcp_…`), o nível de usuário. Contatos e dados de pessoa física nunca
 saem pelo MCP.
 
 ## Arquivos

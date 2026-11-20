@@ -58,7 +58,7 @@ arquivos e os serviços guardam em memória, por data, o que cada assunto precis
 | `contas.py` | Cadastro de contas com `conta_id` estável, sessão revogável e exclusão com prazo. |
 | `sessao.py` | Valida o JWT contra o cadastro de contas (conta ativa, "sair de todos os dispositivos"). |
 | `perfil.py` | Perfil da conta: dados mínimos, uso, chave de MCP, "sair de todos os dispositivos" e pedido de exclusão (30 dias). |
-| `chaves_mcp.py` | Chave de MCP (`arandu_mcp_<id>_<segredo>`, 256 bits), guardada só como HMAC-SHA-256 com pepper do ambiente. |
+| `chaves_mcp.py` | Chave de MCP (`<esquema>_mcp_<id>_<segredo>`, esquema de `SITE_MCP_ESQUEMA`, 256 bits), guardada só como HMAC-SHA-256 com pepper do ambiente. |
 | `tentativas.py` | Limite de tentativas inválidas de chave de MCP, em memória. |
 | `internas.py` | Rotas internas, só para o contêiner do MCP: verificar a chave e enviar eventos de uso por conta. |
 | `manutencao.py` | Manutenção diária (`python -m api.auth.manutencao`): apaga contas com exclusão pedida há 30 dias ou mais e aplica a retenção do uso por conta. |

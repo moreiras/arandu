@@ -53,7 +53,8 @@ def test_gerar_usar_rotacionar_e_revogar(ctx, caplog):
         r = api.post("/auth/perfil/chave-mcp", json={"rotulo": "meu cliente"}, headers=ACAO)
     assert r.status_code == 200 and r.headers["cache-control"] == "no-store"
     chave = r.json()["chave"]
-    assert chave.startswith("arandu_mcp_")
+    from core.site import prefixo_chave_mcp
+    assert chave.startswith(prefixo_chave_mcp())
     v = api.post("/internal/mcp-chave/verificar", json={"chave": chave, "cliente": "c1"}, headers={"X-Internal-Token": TOKEN_INTERNO})
     assert v.json() == {"valida": True, "conta_id": conta.conta_id}
     perfil = api.get("/auth/perfil").json()

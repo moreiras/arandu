@@ -57,6 +57,18 @@ def carregar(env: dict | None = None) -> Site:
 SITE = carregar()
 
 
+#: Chave de MCP: `<esquema>_mcp_<id>_<segredo>` (id de 8 e segredo de 52 caracteres em base32). O esquema é só um rótulo legível, que
+#: diz ao usuário de qual instância é a chave; quem autentica é o id com o HMAC do segredo. Por isso a verificação aceita qualquer
+#: esquema: mudar `SITE_MCP_ESQUEMA` não invalida as chaves já emitidas (inclusive as antigas `arandu_mcp_…`).
+FORMATO_CHAVE_MCP = re.compile(r"([a-z0-9][a-z0-9-]{0,30})_mcp_([A-Z2-7]{8})_([A-Z2-7]{40,})")
+
+
+def prefixo_chave_mcp(site: Site | None = None) -> str:
+    """Prefixo das chaves novas: `obint_mcp_` com `SITE_MCP_ESQUEMA=obint`."""
+    esquema = re.sub(r"[^a-z0-9-]", "-", (site or SITE).mcp_esquema.lower()).strip("-")[:31] or "mcp"
+    return f"{esquema}_mcp_"
+
+
 def user_agent(site: Site | None = None) -> str:
     """User-Agent identificado das coletas: `arandurape/<VERSION> (+<SITE_URL>)`. O contato é a instância que coleta, por isso
     vem do `.env`: em produção `SITE_URL` precisa apontar para o endereço público."""

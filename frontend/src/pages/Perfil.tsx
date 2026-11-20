@@ -50,7 +50,7 @@ function ChaveMcp({ perfil }: { perfil: NonNullable<ReturnType<typeof usePerfil>
       )}
       {k.ativa && !nova && (
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-          <dt className="text-gray-500">Chave ativa</dt><dd className="font-mono text-xs">arandu_mcp_{k.ativa.id}_…</dd>
+          <dt className="text-gray-500">Chave ativa</dt><dd className="font-mono text-xs">{SITE.mcp.toLowerCase()}_mcp_{k.ativa.id}_…</dd>
           {k.ativa.rotulo && <><dt className="text-gray-500">Rótulo</dt><dd>{k.ativa.rotulo}</dd></>}
           <dt className="text-gray-500">Criada em</dt><dd>{dataBr(k.ativa.criada_em.slice(0, 10))}</dd>
           <dt className="text-gray-500">Último uso</dt><dd>{k.ativa.ultimo_uso_dia ? dataBr(k.ativa.ultimo_uso_dia) : 'ainda não usada'}</dd>
