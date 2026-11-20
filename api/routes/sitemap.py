@@ -3,7 +3,7 @@
 # Este arquivo faz parte do Arandurape.
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-"""Sitemaps, `robots.txt` e `llms.txt` com o domínio do `.env` (`SITE_URL`, `core/site.py`).
+"""Sitemaps, `robots.txt`, `llms.txt` e `security.txt` com o domínio e os contatos do `.env` (`SITE_URL`, `SITE_CONTATO_SEGURANCA`, `core/site.py`).
 
 - `/sitemap.xml`: índice (`sitemapindex`) dos três abaixo;
 - `/sitemap-paginas.xml`: as páginas do menu e as fixas (`config/paginas_publicas.json`, gerado por `scripts/gen_sitemap.py`);
@@ -11,10 +11,15 @@
 - `/sitemap-entidades.xml`: ASNs brasileiros, PTTs do IX.br e externos, operadoras com acessos, grupos societários com mais de
   uma empresa e datacenters do Brasil, do snapshot mais recente.
 
-Ficam fora de `/api/` (que o robots.txt proíbe) e do OpenAPI; o nginx do frontend encaminha estes caminhos para cá."""
+Política para robôs (`robots.txt`): páginas liberadas para busca e para uso na resposta de IA, sem treino (`Content-Signal`, proposta
+da Cloudflare, e os robôs de treino conhecidos barrados pelo nome). A API e o MCP ficam para os agentes que buscam a pedido de uma
+pessoa: o site é renderizado no navegador e, sem JavaScript, a página chega vazia.
+
+Ficam fora de `/api/` e do OpenAPI; o nginx do frontend encaminha estes caminhos para cá."""
 from __future__ import annotations
 
 import json
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
 from xml.sax.saxutils import escape
@@ -84,8 +89,31 @@ def sitemap_entidades(request: Request) -> Response:
     return _xml(_urlset(caminhos(store, date_str) if date_str else []))
 
 
+# Treino de modelos: barrados pelo nome (o `Content-Signal` sozinho é só declaração). Ficam de fora os de busca (OAI-SearchBot,
+# Claude-SearchBot) e o Google-Extended, que no Gemini vale também para o uso na resposta.
+ROBOS_DE_TREINO = ("GPTBot", "ClaudeBot", "CCBot", "Applebot-Extended", "meta-externalagent", "Bytespider")
+# Agentes que buscam a pedido de uma pessoa, no momento da resposta: podem consultar a API e o MCP.
+AGENTES_DO_USUARIO = ("ChatGPT-User", "Claude-User", "Perplexity-User", "MistralAI-User")
+SINAL = "Content-Signal: search=yes, ai-input=yes, ai-train=no"
+_PRIVADO = "Disallow: /auth/\nDisallow: /login\nDisallow: /meta/\n"
+
+
 def robots() -> str:
-    return f"User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /auth/\nDisallow: /login\nDisallow: /meta/\n\nSitemap: {SITE.url}/sitemap.xml\n"
+    treino = "".join(f"User-agent: {r}\n" for r in ROBOS_DE_TREINO)
+    agentes = "".join(f"User-agent: {r}\n" for r in AGENTES_DO_USUARIO)
+    return (f"# Busca e uso na resposta de IA: sim; treino de modelos: não. Para dados, use a API ou o MCP: {SITE.url}/llms.txt\n\n"
+            f"User-agent: *\n{SINAL}\nAllow: /\nAllow: /api/v1/openapi.json\nAllow: /api/v1/docs\nDisallow: /api/\n{_PRIVADO}\n"
+            f"# Agentes que buscam a pedido de uma pessoa: as páginas vêm vazias sem JavaScript; a API e o MCP têm os dados.\n"
+            f"{agentes}{SINAL}\nAllow: /\n{_PRIVADO}\n"
+            f"# Treino de modelos\n{treino}Disallow: /\n\n"
+            f"Sitemap: {SITE.url}/sitemap.xml\n")
+
+
+def security_txt() -> str:
+    """RFC 9116. `Expires` (obrigatório) a 180 dias de cada resposta: nunca vence enquanto o site responde."""
+    expira = (datetime.now(timezone.utc) + timedelta(days=180)).strftime("%Y-%m-%dT00:00:00Z")
+    return (f"Contact: mailto:{SITE.contato_seguranca}\nExpires: {expira}\nPreferred-Languages: pt, en\n"
+            f"Canonical: {SITE.url}/.well-known/security.txt\n")
 
 
 def llms() -> str:
@@ -103,6 +131,14 @@ Todo número tem fonte e data: o snapshot (data da coleta) e, quando a fonte tem
 - [OpenAPI]({b}/api/v1/openapi.json) e [Swagger UI]({b}/api/v1/docs).
 - Servidor MCP (Streamable HTTP): {b}/mcp
 
+## Para agentes de IA
+- As páginas são montadas no navegador: sem JavaScript chegam vazias. Os dados estão no MCP e na API.
+- MCP (Streamable HTTP): {b}/mcp. Sem chave, uma prévia como a do site sem login (listas curtas, os dois snapshots mais recentes);
+  com chave (gratuita, criada no perfil), sem esses cortes. Comece por `describe_schema`.
+- API REST: {b}/api/v1/ (OpenAPI em {b}/api/v1/openapi.json), anônima com os mesmos limites.
+- Cite a data do snapshot de cada número. Uso na resposta, sim; treino de modelos, não; coleta extensiva da base é proibida
+  ([Uso aceitável]({b}/uso-aceitavel)). Contatos e dados de pessoa física não são servidos.
+
 ## Páginas
 - [Home]({b}/): perguntas prontas respondidas com o snapshot mais recente.
 - {paginas}.
@@ -117,6 +153,11 @@ Todo número tem fonte e data: o snapshot (data da coleta) e, quando a fonte tem
 @router.get("/robots.txt", include_in_schema=False)
 def robots_txt() -> Response:
     return Response(robots(), media_type="text/plain; charset=utf-8", headers=_CACHE)
+
+
+@router.get("/.well-known/security.txt", include_in_schema=False)
+def security_txt_rota() -> Response:
+    return Response(security_txt(), media_type="text/plain; charset=utf-8", headers=_CACHE)
 
 
 @router.get("/llms.txt", include_in_schema=False)

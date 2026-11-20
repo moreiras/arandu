@@ -3,7 +3,7 @@
 # Este arquivo faz parte do Arandurape.
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-"""Identidade pública do site: nome, URL, esquema de URI do MCP, prefixo dos arquivos baixados e endereço do código-fonte.
+"""Identidade pública do site: nome, URL, esquema de URI do MCP, prefixo dos arquivos baixados, endereço do código-fonte e contatos.
 
 Fonte única no Python; os valores vêm do ambiente (`.env`), com os padrões abaixo. O frontend recebe os mesmos valores na compilação
 (`VITE_SITE_*`, ver `Dockerfile.frontend`). Nomes internos (pastas, módulos, cookies, chaves de armazenamento) não dependem disto.
@@ -23,6 +23,9 @@ PADROES = {
     "SITE_SOFTWARE": "Arandurapé",
     # Onde está o código-fonte que esta instância roda (AGPL §13): quem modifica e serve o software aponta para o próprio código.
     "SITE_CODIGO_FONTE": "https://github.com/moreiras/arandu",
+    # Contato geral (o mesmo padrão de `frontend/src/lib/site.ts`); o de segurança (`security.txt`, RFC 9116) cai no geral se vazio.
+    "SITE_CONTATO": "arandurape@internetbitabit.com.br",
+    "SITE_CONTATO_SEGURANCA": "",
 }
 
 
@@ -35,6 +38,8 @@ class Site:
     prefixo_arquivos: str
     software: str
     codigo_fonte: str = PADROES["SITE_CODIGO_FONTE"]
+    contato: str = PADROES["SITE_CONTATO"]
+    contato_seguranca: str = PADROES["SITE_CONTATO"]
 
     @property
     def titulo(self) -> str:
@@ -51,7 +56,8 @@ def carregar(env: dict | None = None) -> Site:
     v = {k: (e.get(k) or "").strip() or padrao for k, padrao in PADROES.items()}
     return Site(nome=v["SITE_NOME"], nome_extenso=v["SITE_NOME_EXTENSO"], url=v["SITE_URL"].rstrip("/"),
                 mcp_esquema=v["SITE_MCP_ESQUEMA"].removesuffix("://"), prefixo_arquivos=v["SITE_PREFIXO_ARQUIVOS"], software=v["SITE_SOFTWARE"],
-                codigo_fonte=v["SITE_CODIGO_FONTE"].rstrip("/"))
+                codigo_fonte=v["SITE_CODIGO_FONTE"].rstrip("/"), contato=v["SITE_CONTATO"],
+                contato_seguranca=v["SITE_CONTATO_SEGURANCA"] or v["SITE_CONTATO"])
 
 
 SITE = carregar()

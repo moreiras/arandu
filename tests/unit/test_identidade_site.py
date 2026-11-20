@@ -121,6 +121,9 @@ def test_valores_vem_do_ambiente_com_padroes():
     assert com_identidade("ver arandurape://glossario do Arandurapé", outro) == "ver tst://glossario do Teste"
     assert set(PADROES) >= {"SITE_NOME", "SITE_NOME_EXTENSO", "SITE_URL", "SITE_MCP_ESQUEMA", "SITE_PREFIXO_ARQUIVOS", "SITE_SOFTWARE",
                             "SITE_CODIGO_FONTE"}
+    # contato de segurança (security.txt) cai no geral quando vazio
+    assert carregar({"SITE_CONTATO": "a@exemplo.test"}).contato_seguranca == "a@exemplo.test"
+    assert carregar({"SITE_CONTATO": "a@exemplo.test", "SITE_CONTATO_SEGURANCA": "abuse@exemplo.test"}).contato_seguranca == "abuse@exemplo.test"
     # AGPL §13: a instância oferece o código que roda; quem modifica aponta para o próprio repositório
     assert padrao.codigo_fonte.startswith("https://")
     assert carregar({"SITE_CODIGO_FONTE": "https://git.exemplo.test/fork/"}).codigo_fonte == "https://git.exemplo.test/fork"

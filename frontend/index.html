@@ -16,6 +16,11 @@
     <link rel="alternate" type="application/atom+xml" title="%VITE_SITE_NOME% — O que mudou" href="/api/v1/feed/mudancas.atom" />
   </head>
   <body>
+    <noscript>
+      <p>%VITE_SITE_NOME% precisa de JavaScript. Os dados também estão no servidor MCP (<a href="/mcp">/mcp</a>) e na API
+        (<a href="/api/v1/docs">/api/v1/docs</a>); instruções para agentes em <a href="/llms.txt">/llms.txt</a> e uso em
+        <a href="/dados">/dados</a>.</p>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

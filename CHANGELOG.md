@@ -1,5 +1,18 @@
 # Notas de versão
 
+## v2.0.8
+
+- `/.well-known/security.txt` (RFC 9116), gerado pela API: `Contact` com o novo `SITE_CONTATO_SEGURANCA` (padrão `SITE_CONTATO`),
+  `Expires` a 180 dias de cada resposta, `Preferred-Languages` e `Canonical`. `/security.txt` redireciona para lá; o resto de
+  `/.well-known/` passa a dar 404 (antes o SPA respondia 200 com o HTML). Quem tem `docker-compose.yml` local acrescenta
+  `SITE_CONTATO_SEGURANCA` ao ambiente da api, como no exemplo.
+- `robots.txt`: busca e uso na resposta de IA liberados, treino não (`Content-Signal: search=yes, ai-input=yes, ai-train=no`, proposta
+  da Cloudflare; os robôs de treino conhecidos barrados pelo nome). Os agentes que buscam a pedido de uma pessoa (ChatGPT-User,
+  Claude-User, Perplexity-User, MistralAI-User) podem consultar a API e o MCP; os demais robôs seguem fora de `/api/`, exceto o
+  OpenAPI e o Swagger.
+- `llms.txt` com uma seção para agentes de IA (MCP e API anônimos com prévia, citar a data do snapshot, sem treino) e `<noscript>`
+  no `index.html` apontando para eles: sem JavaScript as páginas chegavam vazias.
+
 ## v2.0.7
 
 - `products.mapas_prefixos.ixp_prefixos` deixa de tratar `normalized/{data}/summary` como PTT: lá ficam as rotas de todos os PTTs
