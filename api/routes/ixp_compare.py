@@ -40,7 +40,9 @@ def _parse_ixp_key(key: str) -> tuple[str, str]:
 Recebe de 2 a 4 IXPs via `ixps=ixbr:sp,ixbr:rj,ext:megaix-miami` e devolve, por
 ASN participante (união de todos os IXPs pedidos, sem duplicar), nome, CNPJ e
 blocos IPv6/IPv4 do Registro.br, além de `member_of` — em quais dos IXPs
-pedidos aquele ASN está presente. É a base para os diagramas de Venn/UpSet e a
+pedidos aquele ASN está presente — e `has_detail` — se o ASN tem documento no
+snapshot (`GET /asns/{asn}`); o cadastro do IX.br inclui ASNs privados e ASNs
+sem registro no Registro.br/LACNIC, que não têm página. É a base para os diagramas de Venn/UpSet e a
 exportação em CSV da página de comparação.
 
 **Requer autenticação** quando algum dos IXPs é externo — lista de membros
@@ -92,6 +94,7 @@ def ixp_compare_members(
             "ipv4_prefixes": detail.get("rir_prefixes_v4", []) if detail else [],
             "ipv6_prefixes": detail.get("rir_prefixes_v6", []) if detail else [],
             "member_of": member_of,
+            "has_detail": detail is not None,
         })
 
     return {

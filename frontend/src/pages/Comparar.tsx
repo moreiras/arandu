@@ -232,6 +232,11 @@ function CompararPtts({ inicial = [] }: { inicial?: string[] }) {
 
       {allFilled && compareData && (
         <div className="space-y-6">
+          <p className="text-xs text-gray-500">
+            Participantes pelo cadastro de cada PTT (IX.br: dashboard.ix.br; externos: PeeringDB), snapshot de {compareData.snapshot_date}.
+            O cadastro inclui quem troca tráfego só por acordos bilaterais, sem sessão com os route servers; a página de cada AS
+            mostra a presença observada no BGP, que pode ser diferente.
+          </p>
           {/* Venn (≤3) */}
           {sels.length <= 3 && (
             <div>

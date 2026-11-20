@@ -1,5 +1,14 @@
 # Notas de versão
 
+## v2.0.14
+
+- Comparação de PTTs: o AS65000 (privado) e o AS270382 (sem registro no snapshot) vinham com link para `/asn/{asn}`, que dava 404.
+  O cadastro do IX.br (dashboard.ix.br) traz ASNs privados e ASNs sem documento; `GET /ixp-compare/members` ganhou `has_detail` e a
+  tabela só cria o link quando a página existe, indicando a faixa (RFC 6996, 5398, 6793, 7300, 7607) ou "sem registro no snapshot".
+- A página explica a fonte dos conjuntos: o cadastro de cada PTT, que inclui quem só troca tráfego bilateral, enquanto a página do AS
+  mostra a presença observada no BGP.
+- Tabela de participantes com blocos IPv6 antes de IPv4, como o CSV.
+
 ## v2.0.13
 
 - Pipeline diário às 04:00 UTC (1h em Brasília) em vez de 12:00 UTC (9h): a coleta e a publicação pesam na API e no disco e

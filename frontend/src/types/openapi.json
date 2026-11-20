@@ -10016,7 +10016,7 @@
   },
   "/api/v1/ixp-compare/members": {
    "get": {
-    "description": "Recebe de 2 a 4 IXPs via `ixps=ixbr:sp,ixbr:rj,ext:megaix-miami` e devolve, por\nASN participante (união de todos os IXPs pedidos, sem duplicar), nome, CNPJ e\nblocos IPv6/IPv4 do Registro.br, além de `member_of` — em quais dos IXPs\npedidos aquele ASN está presente. É a base para os diagramas de Venn/UpSet e a\nexportação em CSV da página de comparação.\n\n**Requer autenticação** quando algum dos IXPs é externo — lista de membros\nPeeringDB é dado redistribuído, mesma regra de `GET /external-ixps/{code}`.",
+    "description": "Recebe de 2 a 4 IXPs via `ixps=ixbr:sp,ixbr:rj,ext:megaix-miami` e devolve, por\nASN participante (união de todos os IXPs pedidos, sem duplicar), nome, CNPJ e\nblocos IPv6/IPv4 do Registro.br, além de `member_of` — em quais dos IXPs\npedidos aquele ASN está presente — e `has_detail` — se o ASN tem documento no\nsnapshot (`GET /asns/{asn}`); o cadastro do IX.br inclui ASNs privados e ASNs\nsem registro no Registro.br/LACNIC, que não têm página. É a base para os diagramas de Venn/UpSet e a\nexportação em CSV da página de comparação.\n\n**Requer autenticação** quando algum dos IXPs é externo — lista de membros\nPeeringDB é dado redistribuído, mesma regra de `GET /external-ixps/{code}`.",
     "operationId": "ixp_compare_members_api_v1_ixp_compare_members_get",
     "parameters": [
      {

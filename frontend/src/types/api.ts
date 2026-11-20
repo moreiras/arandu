@@ -601,6 +601,8 @@ export interface IXPCompareParticipant {
   ipv4_prefixes: string[]
   ipv6_prefixes: string[]
   member_of: string[]
+  /** Tem documento no snapshot (`/asn/{asn}` abre). Ausente em respostas antigas: trate como true. */
+  has_detail?: boolean
 }
 
 export interface IXPCompareMembersResponse {

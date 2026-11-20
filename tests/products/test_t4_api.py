@@ -1708,6 +1708,18 @@ def test_comparacao_de_ixps_recusa_codigo_com_traversal(api):
         assert r.status_code == 400, (ruim, r.status_code)
 
 
+def test_comparacao_de_ixps_diz_quais_asns_tem_pagina(api, ctx):
+    """O cadastro do IX.br traz ASNs sem documento no snapshot (privados, como o AS65000, ou sem registro no RIR); o link para
+    `/asn/{asn}` dava 404. `has_detail` diz se a página existe."""
+    r = api.get("/api/v1/ixp-compare/members", params={"ixps": ctx["codes"]}, headers=ALLOWED)
+    assert r.status_code == 200
+    ps = r.json()["participants"]
+    assert ps and all(isinstance(p["has_detail"], bool) for p in ps)
+    for p in ps[:5] + [p for p in ps if not p["has_detail"]][:5]:
+        doc = api.get(f"/api/v1/asns/{p['asn']}", headers=ALLOWED)
+        assert (doc.status_code == 200) == p["has_detail"], (p["asn"], doc.status_code)
+
+
 def test_rotas_da_fase6_com_identificador_hostil_nao_dao_5xx(api):
     """Travessia de caminho nas rotas de grupo e de mudanças: `grupo_id` é chave de busca e `?ixp=` de `/changes` é filtro por igualdade; nenhum vira caminho."""
     for ruim in ("..%2f..%2fraw", "grp_..", "a\\b", "x" * 80):

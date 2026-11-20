@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom'
 import type { IXPCompareParticipant } from '../../types/api'
 import { SET_COLORS } from './MetricasAfi'
 import { nomeArquivo } from '../../lib/site'
+import { asnEspecial } from '../../lib/asnEspecial'
 
 /** Chave canônica de uma combinação: índices ordenados, separados por vírgula. */
 export function comboKey(indices: number[]): string {
@@ -183,6 +184,19 @@ export function UpSetPlot({
 
 // ── Tabela de participantes exportável em CSV ───────────────────────────────
 
+/** O cadastro do IX.br traz ASNs sem página no snapshot (privados ou sem registro no RIR): sem link, com o motivo. */
+function CelulaAsn({ p }: { p: IXPCompareParticipant }) {
+  const especial = asnEspecial(p.asn)
+  if (!especial && p.has_detail !== false) {
+    return <Link to={`/asn/${p.asn}`} className="text-primario-600 hover:underline">AS{p.asn}</Link>
+  }
+  return (
+    <span className="text-gray-600">
+      AS{p.asn} <span className="font-sans text-gray-500">({especial ?? 'sem registro no snapshot'})</span>
+    </span>
+  )
+}
+
 export function ParticipantsTable({
   participants,
   labelByKey,
@@ -230,8 +244,8 @@ export function ParticipantsTable({
               <th className="px-2 py-1.5 text-left font-medium">ASN</th>
               <th className="px-2 py-1.5 text-left font-medium">Nome</th>
               <th className="px-2 py-1.5 text-left font-medium">CNPJ</th>
-              <th className="px-2 py-1.5 text-left font-medium">Blocos IPv4</th>
               <th className="px-2 py-1.5 text-left font-medium">Blocos IPv6</th>
+              <th className="px-2 py-1.5 text-left font-medium">Blocos IPv4</th>
               <th className="px-2 py-1.5 text-left font-medium">IXPs</th>
             </tr>
           </thead>
@@ -242,15 +256,15 @@ export function ParticipantsTable({
             {participants.map(p => (
               <tr key={p.asn} className="hover:bg-gray-50">
                 <td className="px-2 py-1.5 font-mono">
-                  <Link to={`/asn/${p.asn}`} className="text-primario-600 hover:underline">AS{p.asn}</Link>
+                  <CelulaAsn p={p} />
                 </td>
-                <td className="px-2 py-1.5 max-w-[220px] truncate" title={p.name ?? ''}>{p.name ?? '—'}</td>
+                <td className="px-2 py-1.5 max-w-[220px] truncate" title={p.name ?? ''}>{p.name || '—'}</td>
                 <td className="px-2 py-1.5 font-mono">{p.cnpj ?? '—'}</td>
-                <td className="px-2 py-1.5 max-w-[200px] truncate" title={p.ipv4_prefixes.join(' ')}>
-                  {p.ipv4_prefixes.length ? p.ipv4_prefixes.join(', ') : '—'}
-                </td>
                 <td className="px-2 py-1.5 max-w-[200px] truncate" title={p.ipv6_prefixes.join(' ')}>
                   {p.ipv6_prefixes.length ? p.ipv6_prefixes.join(', ') : '—'}
+                </td>
+                <td className="px-2 py-1.5 max-w-[200px] truncate" title={p.ipv4_prefixes.join(' ')}>
+                  {p.ipv4_prefixes.length ? p.ipv4_prefixes.join(', ') : '—'}
                 </td>
                 <td className="px-2 py-1.5">
                   {p.member_of.map(k => labelByKey[k] ?? k).join(', ')}
