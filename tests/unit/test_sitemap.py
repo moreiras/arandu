@@ -117,6 +117,8 @@ def test_nginx_serve_o_security_txt_e_404_no_resto_do_well_known():
     conf = (ROOT / "docker" / "nginx-frontend.conf").read_text(encoding="utf-8")
     assert "location = /.well-known/security.txt" in conf and "location ^~ /.well-known/ { return 404; }" in conf
     assert "location = /security.txt { return 301 /.well-known/security.txt; }" in conf
+    # redirecionamento relativo no server: o absoluto sairia com a porta e o esquema internos (http://<host>:8080/…)
+    assert "\n    absolute_redirect off;\n" in conf
 
 
 def test_catalogo_publico_cobre_todas_as_fontes():

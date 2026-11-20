@@ -1,5 +1,11 @@
 # Notas de versão
 
+## v2.0.12
+
+- `/security.txt` redirecionava para `http://<host>:8080/.well-known/security.txt`: atrás do túnel o nginx escuta em 8080 e em HTTP,
+  e o `return 301` absoluto levava a porta e o esquema internos. `absolute_redirect off` no `server` do nginx do frontend: vale também
+  para os redirecionamentos que o nginx gera sozinho.
+
 ## v2.0.11
 
 - Mapa Explorer: as camadas "Prefixos IPv4/IPv6 do PTT" (`prefixos_ix_v4|v6`) e o recorte `near_ix` davam 500 desde a 2.0.0
