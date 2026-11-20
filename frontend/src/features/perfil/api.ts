@@ -25,7 +25,8 @@ async function chamar<T>(caminho: string, metodo = 'GET', corpo?: unknown): Prom
   return r.json()
 }
 
-export const usePerfil = () => useQuery<PerfilConta>({ queryKey: ['perfil'], queryFn: () => chamar<PerfilConta>(''), retry: false, staleTime: 30_000 })
+/** `logado`: só consulta com sessão de conta; sem ela a rota responde 401, que o navegador registra no console. */
+export const usePerfil = (logado = true) => useQuery<PerfilConta>({ queryKey: ['perfil'], queryFn: () => chamar<PerfilConta>(''), enabled: logado, retry: false, staleTime: 30_000 })
 
 export function useAcoesPerfil() {
   const qc = useQueryClient()

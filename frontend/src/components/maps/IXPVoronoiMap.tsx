@@ -33,6 +33,7 @@ import { feature as topoFeature, neighbors as topoNeighbors } from 'topojson-cli
 import type { Topology, GeometryCollection } from 'topojson-specification'
 import { IXP_COORDS } from './ixpCoords'
 import type { IXPIndexEntry } from '../../types/api'
+import { useOrcamentoAvancado } from '../../auth/AuthContext'
 import { fetchMapAsns, fetchMapPrefixes, fetchIXPresence, type IXPresenceResponse } from '../../services/api'
 import { STATE_OUTLINE_PAINT, MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM, bearingInicial, createBaseMapStyle, addStandardControls } from './mapTheme'
 
@@ -391,16 +392,21 @@ export function IXPVoronoiMap({ ixps, date, height = 460 }: Props) {
   })
 
   // Dados de geolocalização e presença (compartilhados/cacheados com outras páginas).
+  // map/asns e map/prefixes são `metered` (bloco degradável de /ixps): com o orçamento anônimo esgotado não chama (daria 403).
+  const orcamento = useOrcamentoAvancado()
+  const avancadoLiberado = orcamento.pronto && !orcamento.esgotado
   const { data: asnGeo } = useQuery({
     queryKey: ['map-asns', date],
     queryFn: () => fetchMapAsns(date ?? undefined) as unknown as Promise<{ features: GeoFeature[] }>,
     staleTime: Infinity, gcTime: Infinity,
+    enabled: avancadoLiberado,
     retry: false,
   })
   const { data: prefixGeo } = useQuery({
     queryKey: ['map-prefixes', date],
     queryFn: () => fetchMapPrefixes(date ?? undefined) as unknown as Promise<{ features: GeoFeature[] }>,
     staleTime: Infinity, gcTime: Infinity,
+    enabled: avancadoLiberado,
     retry: false,
   })
   const { data: presence } = useQuery({

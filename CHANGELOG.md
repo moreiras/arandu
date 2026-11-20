@@ -1,5 +1,11 @@
 # Notas de versão
 
+## v2.0.17
+
+- Zero erros de console na varredura de obint.com.br (≈220 páginas, abas clicadas, visitante anônimo): `/perfil` sem login chamava
+  `/auth/perfil` e recebia 401; agora só consulta com sessão de conta.
+- Mapa de `/ixps`: `map/asns` e `map/prefixes` (bloco degradável) não são chamados com o orçamento anônimo esgotado, como na home.
+
 ## v2.0.16
 
 - CSP libera o beacon do Cloudflare Web Analytics (`static.cloudflareinsights.com` em `script-src`, `cloudflareinsights.com` em

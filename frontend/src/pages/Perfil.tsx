@@ -74,7 +74,7 @@ function ChaveMcp({ perfil }: { perfil: NonNullable<ReturnType<typeof usePerfil>
 /** `/perfil` — dados mínimos da conta, uso, chave de MCP, "sair de todos os dispositivos" e pedido de exclusão (30 dias). */
 export function Perfil() {
   const { user, loading } = useAuth()
-  const q = usePerfil()
+  const q = usePerfil(!loading && !!user)
   const { sairDeTodos, excluir } = useAcoesPerfil()
   if (loading) return <p className="text-sm text-gray-400" role="status">Carregando…</p>
   if (!user || q.isError) return (
