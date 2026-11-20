@@ -16,17 +16,25 @@
 # com o disco disputado; em SSD bem menos): o padrão passa a RPKI_TIMEOUT_FRIO_S (14400 s). O que já foi baixado fica no volume
 # rpki_cache, então uma execução interrompida não se perde toda.
 #
+# Validação antes de trocar o arquivo: o Routinator sai 0 e entrega JSON bem formado mesmo quando um repositório inteiro
+# falhou. Em 2026-11-19 o snapshot RRDP do RIPE NCC caiu com "Connection reset by peer" e o arquivo saiu sem nenhum ROA do RIPE
+# (659 mil ROAs em vez de 1,04 milhão); publicado, todo prefixo coberto só pelo RIPE apareceria como "sem ROA". O arquivo novo é
+# recusado (o anterior fica) se faltar ROA de alguma TA de RPKI_TAS (padrão: as cinco RIRs) ou se o total cair abaixo de
+# RPKI_MIN_FRACAO (0,9) do arquivo anterior. --aceitar pula as duas conferências (queda legítima, conferida à mão).
+#
 # RPKI_DESTINO troca o diretório de saída (testes; o coletor lê RPKI_JSON).
-# Saída: 0 = arquivo novo gravado; 1 = falha ou timeout (arquivo anterior preservado).
+# Saída: 0 = arquivo novo gravado; 1 = falha, timeout ou saída recusada (arquivo anterior preservado).
 set -uo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_DIR"
 
 TIMEOUT_S=""
+ACEITAR=0
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --timeout) TIMEOUT_S="$2"; shift 2 ;;
-        -h|--help) sed -n '7,20p' "${BASH_SOURCE[0]}"; exit 0 ;;
+        --aceitar) ACEITAR=1; shift ;;
+        -h|--help) sed -n '7,26p' "${BASH_SOURCE[0]}"; exit 0 ;;
         *) echo "argumento desconhecido: $1" >&2; exit 2 ;;
     esac
 done
@@ -67,17 +75,30 @@ if [[ $RC -ne 0 ]]; then
     [[ $RC -eq 124 ]] && log "ERRO: timeout em ${DUR}s (o cache baixado até aqui fica no volume)" || log "ERRO: Routinator saiu com código $RC em ${DUR}s"
     exit 1
 fi
-if ! python3 - "$TMP" <<'EOF'
-import json, sys
+if ! RPKI_ACEITAR="$ACEITAR" python3 - "$TMP" "$DESTINO/vrps.json" <<'EOF'
+import collections, json, os, sys
 d = json.load(open(sys.argv[1]))
 roas = d.get("roas") or []
 if not roas:
     sys.exit("sem roas")
-print(f"{len(roas)} ROAs, {len(d.get('aspas') or [])} ASPAs")
+por_ta = collections.Counter(r.get("ta") for r in roas)
+print(f"{len(roas)} ROAs, {len(d.get('aspas') or [])} ASPAs; por TA: " + ", ".join(f"{t} {n}" for t, n in sorted(por_ta.items())))
+if os.environ.get("RPKI_ACEITAR") == "1":
+    sys.exit(0)
+faltam = [t for t in os.environ.get("RPKI_TAS", "afrinic apnic arin lacnic ripe").split() if not por_ta.get(t)]
+if faltam:
+    sys.exit(f"sem ROA de: {' '.join(faltam)} (o repositório falhou?)")
+try:
+    antes = len(json.load(open(sys.argv[2])).get("roas") or [])
+except (OSError, ValueError):
+    antes = 0
+frac = float(os.environ.get("RPKI_MIN_FRACAO", "0.9"))
+if antes and len(roas) < frac * antes:
+    sys.exit(f"{len(roas)} ROAs, menos de {frac:.0%} dos {antes} do arquivo anterior")
 EOF
 then
     rm -f "$TMP"
-    log "ERRO: saída do Routinator inválida ou vazia (${DUR}s)"
+    log "ERRO: saída do Routinator inválida ou recusada (${DUR}s); arquivo anterior preservado (--aceitar se a queda for legítima)"
     exit 1
 fi
 mv -f "$TMP" "$DESTINO/vrps.json"

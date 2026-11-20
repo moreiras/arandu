@@ -111,7 +111,7 @@ services:
 
 networks:
   arandurape:
-    # Herdado do base — bridge interno (api ↔ frontend; o worker e o rpki avulso também)
+    # Herdado do base — bridge interno (api ↔ frontend; o worker também; o rpki avulso usa o bridge padrão)
 
   web:
     external: true

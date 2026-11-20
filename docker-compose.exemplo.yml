@@ -255,9 +255,11 @@ services:
     command: vrps --format json
     volumes:
       - rpki_cache:/home/routinator/.rpki-cache
-    # Rede própria: processa objetos RPKI de terceiros e só precisa da Internet, não da API, do gate nem do MCP.
-    networks:
-      - rpki
+    # Bridge padrão do Docker (docker0), fora da rede da API, do gate e do MCP: processa objetos RPKI de terceiros e só precisa da
+    # Internet. Não crie rede própria: uma rede nova pega a próxima /16 livre do pool do Docker (172.16.0.0/12) e, se ela cobrir a rede
+    # de quem administra o host (uma VPN de administração, por exemplo), o host para de responder a ela. Com Docker rootless as redes
+    # ficam no namespace do usuário e não colidem, mas o compose vale para os dois modos.
+    network_mode: bridge
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -279,8 +281,6 @@ services:
 
 networks:
   arandurape:
-    driver: bridge
-  rpki:
     driver: bridge
 
 volumes:

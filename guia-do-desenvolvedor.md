@@ -472,7 +472,7 @@ isolado num ambiente com nginx, porque ele resolve o host `api` na partida e der
 
 ### RPKI
 
-Não há serviço Routinator permanente. `scripts/rpki-avulso.sh` roda `routinator vrps` (perfil `rpki` do compose, rede própria) antes
+Não há serviço Routinator permanente. `scripts/rpki-avulso.sh` roda `routinator vrps` (perfil `rpki` do compose, no bridge padrão do Docker, sem rede própria) antes
 do worker, dentro do lock do pipeline, grava `data/cache/rpki/vrps.json` e o contêiner termina; a etapa `rpki_collector` só lê o
 arquivo (recusa arquivo com mais de `RPKI_MAX_IDADE_H`, padrão 12 h). O cache RPKI fica no volume `rpki_cache`; sem ele a primeira
 execução é longa (timeout `RPKI_TIMEOUT_FRIO_S`, padrão 4 h; a morno `RPKI_TIMEOUT_S`, 45 min). A imagem é fixada por tag e digest

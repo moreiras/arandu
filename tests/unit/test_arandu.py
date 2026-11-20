@@ -467,7 +467,7 @@ def test_arandu_weekly_roda_o_rpki_avulso_antes_do_worker_e_segue_se_ele_falha(t
     assert "Routinator avulso falhou" in r.stdout and not (tmp_path / "rpki" / "vrps.json").exists()
 
 
-def _rpki_avulso(tmp_path, saida_json, rc=0):
+def _rpki_avulso(tmp_path, saida_json, rc=0, aceitar=False):
     import subprocess
 
     bin_ = tmp_path / "bin"
@@ -477,11 +477,35 @@ def _rpki_avulso(tmp_path, saida_json, rc=0):
         f'#!/usr/bin/env bash\ncase "$*" in *"--profile rpki run"*) cat {tmp_path / "saida.json"}; exit {rc};; esac\nexit 0\n')
     (bin_ / "docker").chmod(0o755)
     env = {**os.environ, "PATH": f"{bin_}:{os.environ['PATH']}", "RPKI_DESTINO": str(tmp_path / "rpki")}
-    return subprocess.run(["bash", str(ROOT / "scripts" / "rpki-avulso.sh")], env=env, capture_output=True, text=True, timeout=60)
+    args = ["bash", str(ROOT / "scripts" / "rpki-avulso.sh")] + (["--aceitar"] if aceitar else [])
+    return subprocess.run(args, env=env, capture_output=True, text=True, timeout=60)
+
+
+_TAS = ("afrinic", "apnic", "arin", "lacnic", "ripe")
+
+
+def _vrps(n_por_ta=1, tas=_TAS, asn="AS1"):
+    roas = [{"asn": asn, "prefix": "10.0.0.0/8", "maxLength": 8, "ta": t} for t in tas for _ in range(n_por_ta)]
+    return json.dumps({"metadata": {}, "roas": roas, "aspas": []})
+
+
+def test_rpki_avulso_recusa_saida_sem_uma_ta_ou_com_queda_grande(tmp_path):
+    # 2026-11-19: o snapshot RRDP do RIPE falhou e o Routinator entregou um JSON válido sem nenhum ROA do RIPE.
+    destino = tmp_path / "rpki" / "vrps.json"
+    assert _rpki_avulso(tmp_path, _vrps(n_por_ta=10)).returncode == 0
+    r = _rpki_avulso(tmp_path, _vrps(n_por_ta=12, tas=_TAS[:4], asn="AS2"))
+    assert r.returncode == 1 and "sem ROA de: ripe" in r.stdout + r.stderr
+    r = _rpki_avulso(tmp_path, _vrps(n_por_ta=8, asn="AS3"))   # 40 de 50: abaixo de 90%
+    assert r.returncode == 1 and "menos de 90%" in r.stdout + r.stderr
+    d = json.loads(destino.read_text())
+    assert d["roas"][0]["asn"] == "AS1" and len(d["roas"]) == 50
+    assert _rpki_avulso(tmp_path, _vrps(n_por_ta=9, asn="AS4")).returncode == 0   # 45 de 50: dentro
+    assert _rpki_avulso(tmp_path, _vrps(n_por_ta=1, tas=_TAS[:4], asn="AS5"), aceitar=True).returncode == 0
+    assert json.loads(destino.read_text())["roas"][0]["asn"] == "AS5"
 
 
 def test_rpki_avulso_grava_o_json_e_preserva_o_anterior_quando_falha(tmp_path):
-    ok = json.dumps({"metadata": {}, "roas": [{"asn": "AS1", "prefix": "10.0.0.0/8", "maxLength": 8, "ta": "lacnic"}], "aspas": []})
+    ok = _vrps()
     r = _rpki_avulso(tmp_path, ok)
     destino = tmp_path / "rpki" / "vrps.json"
     assert r.returncode == 0 and json.loads(destino.read_text())["roas"][0]["asn"] == "AS1"

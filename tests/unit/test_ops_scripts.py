@@ -195,6 +195,16 @@ def test_compose_poe_teto_de_memoria_no_worker_e_na_api_sem_swap_extra():
     assert "API_MEMSWAP_LIMIT" in c["api"]["memswap_limit"] and "API_MEM_LIMIT" not in c["api"]["memswap_limit"]
 
 
+def test_compose_nao_cria_rede_alem_da_arandurape_e_rpki_usa_o_bridge_padrao():
+    # Cada rede nova pega a próxima /16 livre de 172.16.0.0/12; uma delas cobriu a VPN de administração de um host e o tirou do ar.
+    # Rede nova só com sub-rede decidida e registrada (recomendacoes-deployment.md).
+    import yaml
+    c = yaml.safe_load((ROOT / "docker-compose.exemplo.yml").read_text())
+    assert set(c["networks"]) == {"arandurape"}
+    assert c["services"]["rpki"].get("network_mode") == "bridge"
+    assert "networks" not in c["services"]["rpki"]
+
+
 # ── Docker rootless: os scripts de implantação funcionam com o daemon com root e com o rootless ──────────────────────────────────────
 
 def _preparar_isolado(tmp_path: Path) -> Path:

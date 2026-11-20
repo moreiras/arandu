@@ -1,5 +1,17 @@
 # Notas de versão
 
+## v2.0.20
+
+Duas correções do RPKI que ficaram fora do recorte público.
+- **`scripts/rpki-avulso.sh` recusa saída incompleta.** Em 19/11/2026 o snapshot RRDP do RIPE NCC caiu com "Connection reset by peer"; o
+  Routinator saiu 0 com JSON válido e 659 mil ROAs em vez de 1,04 milhão, e o script, que só exigia algum ROA, trocou o arquivo bom.
+  Publicado, todo prefixo coberto só pelo RIPE apareceria como "sem ROA". Agora exige ROA de cada TA de `RPKI_TAS` (padrão: as cinco
+  RIRs) e ao menos `RPKI_MIN_FRACAO` (0,9) dos ROAs do arquivo anterior; senão preserva o anterior e sai 1 (a etapa RPKI falha e o alerta
+  avisa). `--aceitar` pula as conferências numa queda legítima, conferida à mão.
+- **Routinator no bridge padrão do Docker**, sem a rede `rpki` própria: uma rede nova pega a próxima /16 livre do pool do Docker, e uma
+  delas cobriu a VPN de administração de um host, que ficou inalcançável a cada subida do Docker. Teste: o compose de exemplo só define
+  a rede `arandurape`. Quem já tem a rede: `docker network rm <projeto>_rpki` depois de atualizar a cópia local do compose.
+
 ## v2.0.19
 
 Correções da varredura anônima e logada de 20/11/2026.
