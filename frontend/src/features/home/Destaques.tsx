@@ -11,19 +11,21 @@ import type { FonteEntrada } from '../../components/entidade'
 import { useActiveDate } from '../../hooks/useSnapshot'
 import { cartaoDe, consultaDoDestaque, DESTAQUES, type Destaque } from './regrasDestaques'
 import { SITE } from '../../lib/site'
+import { useOrcamentoAvancado } from '../../auth/AuthContext'
 
 interface Resposta { total?: number; items?: unknown[] }
 
 function UmDestaque({ d, fontes }: { d: Destaque; fontes?: FonteEntrada[] | null }) {
   const date = useActiveDate()
   const c = consultaDoDestaque(d)
+  const { pronto, esgotado } = useOrcamentoAvancado()
   const q = useQuery({
     queryKey: ['destaque', d.id, date],
     queryFn: (): Promise<Resposta> => (c.tipo === 'query' ? queryColecao<Resposta>(c.colecao, c.corpo, date ?? undefined) : fetchCaminho<Resposta>(c.caminho, { ...c.params, date: date ?? undefined })),
-    enabled: !!date, staleTime: Infinity, gcTime: Infinity, retry: false,
+    enabled: !!date && pronto && !esgotado, staleTime: Infinity, gcTime: Infinity, retry: false,
   })
   const total = q.data ? (q.data.total ?? q.data.items?.length ?? 0) : null
-  const bloqueado = q.error instanceof AccessError
+  const bloqueado = esgotado || q.error instanceof AccessError
   return (
     <li className="rounded-lg border border-gray-200 border-l-4 border-l-primario-500 bg-primario-50/50 p-4 flex flex-col" data-testid="destaque">
       <p className="text-sm text-gray-700">

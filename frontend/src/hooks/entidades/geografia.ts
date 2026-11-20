@@ -9,6 +9,7 @@ import { fetchMapPix } from '../../services/api'
 import type { LonLat, PontoNomeado } from '../../lib/geo'
 import { useActiveDate } from '../useSnapshot'
 import { IMUTAVEL } from './chaves'
+import { ERRO_ORCAMENTO_ESGOTADO, useOrcamentoAvancado } from '../../auth/AuthContext'
 
 const CENTROIDS_URL = '/municipios-centroides.json'
 
@@ -24,7 +25,8 @@ export function useCentroides() {
 /** PIX dos PTTs (pontos de troca físicos) com coordenadas, um por (PTT, local); base para "PTT mais próximo". */
 export function usePtts(): { ptts: PontoNomeado[]; carregando: boolean; erro: unknown } {
   const date = useActiveDate()
-  const q = useQuery({ queryKey: ['map-pix', date], queryFn: () => fetchMapPix(date ?? undefined), enabled: !!date, ...IMUTAVEL, retry: false })
+  const { pronto, esgotado } = useOrcamentoAvancado()
+  const q = useQuery({ queryKey: ['map-pix', date], queryFn: () => fetchMapPix(date ?? undefined), enabled: !!date && pronto && !esgotado, ...IMUTAVEL, retry: false })
   const ptts = useMemo(() => {
     const vistos = new Set<string>()
     const lista: PontoNomeado[] = []
@@ -39,5 +41,5 @@ export function usePtts(): { ptts: PontoNomeado[]; carregando: boolean; erro: un
     }
     return lista
   }, [q.data])
-  return { ptts, carregando: q.isLoading, erro: q.error }
+  return { ptts, carregando: q.isLoading, erro: esgotado ? ERRO_ORCAMENTO_ESGOTADO : q.error }
 }

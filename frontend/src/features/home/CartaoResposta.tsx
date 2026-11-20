@@ -11,6 +11,7 @@ import { useActiveDate } from '../../hooks/useSnapshot'
 import { formatarCnpj, rotulosRepetidos } from '../../lib/marca'
 import { formatarValor, linkDaLinha, type Cartao } from './cartoes'
 import { useCartaoDerivado, type EstadoCartao } from './derivados'
+import { ERRO_ORCAMENTO_ESGOTADO, useOrcamentoAvancado } from '../../auth/AuthContext'
 
 interface Resposta { items?: Array<Record<string, unknown>>; total?: number }
 
@@ -18,6 +19,7 @@ interface Resposta { items?: Array<Record<string, unknown>>; total?: number }
 export function CartaoResposta({ cartao, fontes }: { cartao: Cartao; fontes?: FonteEntrada[] | null }) {
   const date = useActiveDate()
   const c = cartao.consulta
+  const { pronto, esgotado } = useOrcamentoAvancado()
   const q = useQuery({
     queryKey: ['cartao', cartao.id, date],
     queryFn: (): Promise<Resposta> => (c.tipo === 'query'
@@ -25,10 +27,10 @@ export function CartaoResposta({ cartao, fontes }: { cartao: Cartao; fontes?: Fo
       : c.tipo === 'get'
         ? fetchCaminho<Resposta>(c.caminho, { ...c.params, date: date ?? undefined })
         : Promise.reject(new Error('cartão derivado'))),
-    enabled: !!date && c.tipo !== 'derivado', staleTime: Infinity, gcTime: Infinity, retry: false,
+    enabled: !!date && c.tipo !== 'derivado' && pronto && !esgotado, staleTime: Infinity, gcTime: Infinity, retry: false,
   })
   const dados = q.data ? { items: q.data.items ?? [], total: q.data.total ?? (q.data.items ?? []).length } : undefined
-  return <CartaoVisual cartao={cartao} fontes={fontes} estado={{ dados, carregando: q.isLoading, erro: q.error }} />
+  return <CartaoVisual cartao={cartao} fontes={fontes} estado={{ dados, carregando: q.isLoading, erro: esgotado ? ERRO_ORCAMENTO_ESGOTADO : q.error }} />
 }
 
 /** Cartão cuja resposta o navegador monta a partir de mais de uma fonte (distância até o PTT, cruzamento de coleções). */

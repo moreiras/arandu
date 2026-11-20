@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, Dispatch, SetStateAction, ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, Dispatch, SetStateAction, ReactNode } from 'react'
 import { useLocation } from 'react-router-dom'
-import { fetchAuthMe, postHeartbeat, onAnonLimitReached, onLoginRequired, setCurrentArea } from '../services/api'
+import { AccessError, fetchAuthMe, postHeartbeat, onAnonLimitReached, onLoginRequired, setCurrentArea } from '../services/api'
 import type { AnonInfo } from '../services/api'
 import { routeAccess } from './accessPolicy'
 
@@ -149,11 +149,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useAnonHeartbeat(state, setState)
 
+  const esgotado = !state.loading && !state.user && !!state.anon?.limitReached
+  const orcamento = useMemo(() => ({ pronto: !state.loading, esgotado }), [state.loading, esgotado])
+
   return (
     <AuthContext.Provider value={{ ...state, loginPrompt, requireLogin, closeLoginPrompt }}>
-      {children}
+      <OrcamentoContext.Provider value={orcamento}>{children}</OrcamentoContext.Provider>
     </AuthContext.Provider>
   )
 }
 
 export const useAuth = () => useContext(AuthContext)
+
+/** Orçamento anônimo das páginas avançadas, para blocos `degradaveis` de páginas de entrada (`tests/access_entry_calls.json`).
+ *  `pronto`: /auth/me já respondeu; `esgotado`: a sessão anônima não pode mais chamar rotas `metered`. O bloco espera `pronto`
+ *  e não chama a API quando `esgotado`: a resposta seria 403, que o navegador registra no console mesmo tratada. Fora do
+ *  AuthProvider (testes de componente) o padrão é liberado. */
+const OrcamentoContext = createContext({ pronto: true, esgotado: false })
+export const useOrcamentoAvancado = () => useContext(OrcamentoContext)
+
+/** O que o bloco mostra quando não chamou a API por orçamento esgotado: o mesmo aviso de um 403 `anon_limit_reached`. */
+export const ERRO_ORCAMENTO_ESGOTADO = new AccessError('limit', 'O tempo de uso das páginas avançadas sem login acabou.')

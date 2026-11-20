@@ -7,6 +7,7 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { queryColecao } from '../../services/api'
 import { maisProximos, type LonLat, type PontoNomeado } from '../../lib/geo'
+import { ERRO_ORCAMENTO_ESGOTADO, useOrcamentoAvancado } from '../../auth/AuthContext'
 import { useCentroides, usePtts } from '../../hooks/entidades'
 import { useActiveDate } from '../../hooks/useSnapshot'
 import { CARTOES, type Cartao } from './cartoes'
@@ -55,15 +56,17 @@ export function useCartaoDerivado(id: string): EstadoCartao {
   const date = useActiveDate()
   const [q1, q2] = consultas(id)
   const longe = id === 'longe-de-ptt'
+  const { pronto, esgotado } = useOrcamentoAvancado()
+  const liberado = pronto && !esgotado
   const centroides = useCentroides()
   const { ptts, carregando: carregandoPtts, erro: erroPtts } = usePtts()
   const grupos = useQuery({
-    queryKey: ['cartao-derivado', id, 'a', date], enabled: !!date && !!q1, staleTime: Infinity, gcTime: Infinity, retry: false,
+    queryKey: ['cartao-derivado', id, 'a', date], enabled: !!date && !!q1 && liberado, staleTime: Infinity, gcTime: Infinity, retry: false,
     queryFn: () => queryColecao<{ groups?: GrupoMunicipio[]; items?: AsnComUsuarios[] }>(q1.colecao, q1.corpo, date ?? undefined),
   })
   const cnpjs = useMemo(() => [...new Set((grupos.data?.items ?? []).map((a) => a.cnpj))], [grupos.data])
   const semSici = useQuery({
-    queryKey: ['cartao-derivado', id, 'b', date, cnpjs.length], enabled: !longe && !!date && !!q2 && cnpjs.length > 0, staleTime: Infinity, gcTime: Infinity, retry: false,
+    queryKey: ['cartao-derivado', id, 'b', date, cnpjs.length], enabled: !longe && !!date && !!q2 && cnpjs.length > 0 && liberado, staleTime: Infinity, gcTime: Infinity, retry: false,
     queryFn: () => queryColecao<{ items?: Array<{ cnpj: string; razao_social?: string }> }>(
       q2.colecao, JSON.parse(JSON.stringify(q2.corpo).replace('"$cnpjs"', JSON.stringify(cnpjs))), date ?? undefined),
   })
@@ -72,5 +75,5 @@ export function useCartaoDerivado(id: string): EstadoCartao {
     return grupos.data?.items && semSici.data ? montarSemSici(grupos.data.items, semSici.data.items ?? []) : undefined
   }, [longe, grupos.data, semSici.data, centroides.data, ptts])
   const carregando = grupos.isLoading || (longe ? centroides.isLoading || carregandoPtts : semSici.isLoading)
-  return { dados, carregando, erro: grupos.error ?? semSici.error ?? centroides.error ?? (longe ? erroPtts : null) }
+  return { dados, carregando, erro: esgotado ? ERRO_ORCAMENTO_ESGOTADO : grupos.error ?? semSici.error ?? centroides.error ?? (longe ? erroPtts : null) }
 }

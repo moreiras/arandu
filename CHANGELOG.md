@@ -1,5 +1,11 @@
 # Notas de versão
 
+## v2.0.15
+
+- Página inicial: com o tempo de uso anônimo das páginas avançadas esgotado, os blocos opcionais (destaques, cartões de resposta,
+  "o que mudou", PTT mais próximo) chamavam assim mesmo `/query/*` e `/map/pix` e recebiam 403, que o navegador registra no console
+  mesmo tratado. Agora esperam o `/auth/me` e, com o orçamento esgotado, não chamam a API e mostram o mesmo aviso de login.
+
 ## v2.0.14
 
 - Comparação de PTTs: o AS65000 (privado) e o AS270382 (sem registro no snapshot) vinham com link para `/asn/{asn}`, que dava 404.

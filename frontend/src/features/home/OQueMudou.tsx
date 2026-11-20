@@ -9,21 +9,23 @@ import { AccessError, queryColecao } from '../../services/api'
 import { formatarData } from '../../lib/datas'
 import { useActiveDate } from '../../hooks/useSnapshot'
 import { CARTOES } from './cartoes'
+import { useOrcamentoAvancado } from '../../auth/AuthContext'
 
 interface Evento { asn?: number; uf?: string; data?: string }
 
 /** "O que mudou" em uma linha: os ASes brasileiros novos confirmados na tabela de roteamento (1 linha) e o caminho para tudo o que mudou. */
 export function OQueMudou() {
   const date = useActiveDate()
+  const { pronto, esgotado } = useOrcamentoAvancado()
   const c = CARTOES.find((x) => x.id === 'o-que-mudou')?.consulta
   const q = useQuery({
     queryKey: ['o-que-mudou-home', date],
     queryFn: () => queryColecao<{ items?: Evento[]; total?: number }>('eventos', { ...((c && c.tipo === 'query' ? c.corpo : {}) as Record<string, unknown>), limit: 1 }, date ?? undefined),
-    enabled: !!date && c?.tipo === 'query', staleTime: Infinity, gcTime: Infinity, retry: false,
+    enabled: !!date && c?.tipo === 'query' && pronto && !esgotado, staleTime: Infinity, gcTime: Infinity, retry: false,
   })
   const total = q.data?.total
   const ultimo = q.data?.items?.[0]
-  const sem = q.error instanceof AccessError
+  const sem = esgotado || q.error instanceof AccessError
   return (
     <p className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-4 py-3" data-testid="o-que-mudou">
       <span className="font-medium text-gray-900">O que mudou: </span>
