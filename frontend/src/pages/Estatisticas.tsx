@@ -8,7 +8,7 @@ import { BandaLargaFixaSection } from '../components/stats/BandaLargaFixaSection
 import { BandaLargaMovelSection } from '../components/stats/BandaLargaMovelSection'
 import { TelefoniaFixaSection } from '../components/stats/TelefoniaFixaSection'
 import { TvPorAssinaturaSection } from '../components/stats/TvPorAssinaturaSection'
-import { EconomicGroupsTable } from '../components/stats/EconomicGroupsTable'
+import { OrganizacoesVariosAsns } from '../components/stats/OrganizacoesVariosAsns'
 
 export function Estatisticas() {
   const date = useActiveDate()
@@ -49,7 +49,7 @@ export function Estatisticas() {
       <StatsOverview summary={snapshotDetails?.summary ?? null} date={date ?? undefined} />
 
       {/* Grupos econômicos — CNPJs com múltiplos ASNs */}
-      <EconomicGroupsTable date={date ?? undefined} />
+      <OrganizacoesVariosAsns date={date ?? undefined} />
 
       <h2 className="text-sm font-semibold uppercase tracking-widest text-aviso-600 border-t border-gray-100 pt-8">
         Cobertura no IX.br (por IXP)

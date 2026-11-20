@@ -2154,7 +2154,7 @@
    "url": "http://localhost/fontes"
   },
   "title": "Arandurapé",
-  "version": "2.0.13"
+  "version": "2.0.17"
  },
  "openapi": "3.1.0",
  "paths": {
@@ -3986,9 +3986,77 @@
     ]
    }
   },
+  "/api/v1/asns/by-organization": {
+   "get": {
+    "description": "Agrupa os ASNs brasileiros pelo CNPJ da organização (Registro.br) e retorna as\norganizações com **mais de um ASN**, ordenadas pelo número de ASNs (e usuários APNIC\ncomo desempate). Para cada uma inclui os ASNs com nome, usuários estimados,\nblocos IPv6/IPv4 (full table), RPKI/ASPA e participação em IXes.\n\nÉ uma única pessoa jurídica com vários ASNs (separação de serviços, regiões,\nincorporações etc.), **não** um grupo econômico: grupos de empresas ligadas por\nsócios ou controle estão em `GET /grupos`. A lista sai em `groups` (nome mantido\npor compatibilidade). Substitui `GET /asns/economic-groups`, que segue como alias.",
+    "operationId": "asns_por_organizacao_api_v1_asns_by_organization_get",
+    "parameters": [
+     {
+      "description": "Data do snapshot (YYYY-MM-DD).",
+      "in": "query",
+      "name": "date",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Data do snapshot (YYYY-MM-DD).",
+       "title": "Date"
+      }
+     },
+     {
+      "description": "Número de organizações a retornar.",
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 30,
+       "description": "Número de organizações a retornar.",
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Asns Por Organizacao Api V1 Asns By Organization Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Organizações com vários ASNs (mesmo CNPJ)",
+    "tags": [
+     "asns"
+    ]
+   }
+  },
   "/api/v1/asns/economic-groups": {
    "get": {
-    "description": "Agrupa os ASNs brasileiros por CNPJ da organização (Registro.br) e retorna os\ngrupos com **mais de um ASN**, ordenados pelo número de ASNs (e usuários APNIC\ncomo desempate). Para cada grupo inclui os ASNs com nome, usuários estimados,\nblocos IPv6/IPv4 (full table), RPKI/ASPA e participação em IXes.",
+    "description": "Nome antigo de `GET /asns/by-organization` (mesma resposta): os itens são organizações com vários ASNs, não grupos econômicos.",
     "operationId": "economic_groups_api_v1_asns_economic_groups_get",
     "parameters": [
      {
@@ -4010,13 +4078,13 @@
       }
      },
      {
-      "description": "Número de grupos a retornar.",
+      "description": "Número de organizações a retornar.",
       "in": "query",
       "name": "limit",
       "required": false,
       "schema": {
        "default": 30,
-       "description": "Número de grupos a retornar.",
+       "description": "Número de organizações a retornar.",
        "maximum": 200,
        "minimum": 1,
        "title": "Limit",
@@ -4048,7 +4116,7 @@
       "description": "Validation Error"
      }
     },
-    "summary": "Grupos econômicos — CNPJs com múltiplos ASNs",
+    "summary": "Alias de /asns/by-organization",
     "tags": [
      "asns"
     ]

@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { fetchEconomicGroups } from '../../services/api'
-import type { EconomicGroup, EconomicGroupsResponse } from '../../types/api'
+import { AccessError, fetchAsnsPorOrganizacao } from '../../services/api'
+import { useOrcamentoAvancado } from '../../auth/AuthContext'
+import type { OrganizacaoVariosAsns, AsnsPorOrganizacaoResponse } from '../../types/api'
 
 const SECTION_COLOR = '#0e7490'
 
@@ -25,7 +26,7 @@ function YesNo({ v }: { v: boolean | null }) {
     : <span className="inline-block px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-400">não</span>
 }
 
-function GroupRow({ group, rank }: { group: EconomicGroup; rank: number }) {
+function LinhaOrganizacao({ group, rank }: { group: OrganizacaoVariosAsns; rank: number }) {
   const [open, setOpen] = useState(false)
   return (
     <>
@@ -99,30 +100,47 @@ function GroupRow({ group, rank }: { group: EconomicGroup; rank: number }) {
   )
 }
 
-export function EconomicGroupsTable({ date }: { date?: string }) {
-  const { data, isError } = useQuery<EconomicGroupsResponse>({
-    queryKey: ['economic-groups', date],
-    queryFn: () => fetchEconomicGroups(date, 50),
+/**
+ * Organizações (mesmo CNPJ no Registro.br) com mais de um ASN. Não é grupo econômico: é uma só pessoa jurídica que separa serviços, regiões ou
+ * redes incorporadas em ASNs diferentes; grupos de empresas estão em /grupos. Bloco degradável de /ases (rota `metered`): com o orçamento anônimo
+ * esgotado não chama a API e avisa. `ancorar`: rola até a seção (redirecionamento da antiga aba "Grupos econômicos" do Panorama de mercado).
+ */
+export function OrganizacoesVariosAsns({ date, ancorar = false }: { date?: string; ancorar?: boolean }) {
+  const { pronto, esgotado } = useOrcamentoAvancado()
+  const { data, isError, error } = useQuery<AsnsPorOrganizacaoResponse>({
+    queryKey: ['asns-por-organizacao', date],
+    queryFn: () => fetchAsnsPorOrganizacao(date, 50),
+    enabled: pronto && !esgotado,
     staleTime: 10 * 60 * 1000,
+    retry: false,
   })
+  const secao = useRef<HTMLElement>(null)
+  useEffect(() => { if (ancorar && data) secao.current?.scrollIntoView({ block: 'start' }) }, [ancorar, data])
+  const bloqueado = esgotado || error instanceof AccessError
 
-  if (isError || !data || data.groups.length === 0) return null
+  if (!bloqueado && (isError || !data || data.groups.length === 0)) return null
 
   return (
-    <section className="space-y-3">
-      <h2 className="text-sm font-semibold uppercase tracking-widest border-t border-gray-100 pt-8" style={{ color: SECTION_COLOR }}>
-        Entidades com múltiplos ASN
+    <section ref={secao} id="organizacoes" className="space-y-3 scroll-mt-4" aria-labelledby="organizacoes-titulo">
+      <h2 id="organizacoes-titulo" className="text-sm font-semibold uppercase tracking-widest border-t border-gray-100 pt-8" style={{ color: SECTION_COLOR }}>
+        Organizações com vários ASNs
       </h2>
       <p className="text-xs text-gray-500">
-        Organizações (CNPJ do Registro.br) que operam 2 ou mais ASNs — as 50 maiores por número de ASNs.
-        Clique numa linha para ver os ASNs do grupo.
+        Mesmo CNPJ no Registro.br com dois ou mais ASNs; as 50 primeiras por número de ASNs. Os motivos variam (separação de serviços,
+        regiões, redes incorporadas) e não indicam grupo econômico: empresas ligadas por sócios ou controle estão
+        em <Link to="/grupos" className="text-primario-600 hover:underline">Grupos econômicos</Link>. Clique numa linha para ver os ASNs.
       </p>
+      {bloqueado ? (
+        <p className="text-sm text-aviso-700 bg-aviso-50 border border-aviso-200 rounded px-3 py-2" role="status">
+          Esta lista usa páginas avançadas e o tempo de uso sem login acabou. Entre para ver.
+        </p>
+      ) : data && (
       <div className="overflow-x-auto lg:overflow-x-clip rounded-lg border border-gray-200 bg-white">
         <table className="w-full table-fixed text-xs min-w-[680px]">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200 text-gray-500">
               <th className="px-3 py-1.5 text-right font-medium w-8">#</th>
-              <th className="px-3 py-1.5 text-left font-medium">Grupo (CNPJ)</th>
+              <th className="px-3 py-1.5 text-left font-medium">Organização (CNPJ)</th>
               <th className="px-3 py-1.5 text-right font-medium w-20">ASNs</th>
               <th className="px-3 py-1.5 text-right font-medium w-28">Usuários</th>
               <th className="px-3 py-1.5 text-right font-medium w-24">Blocos v6</th>
@@ -130,10 +148,11 @@ export function EconomicGroupsTable({ date }: { date?: string }) {
             </tr>
           </thead>
           <tbody>
-            {data.groups.map((g, i) => <GroupRow key={g.cnpj} group={g} rank={i + 1} />)}
+            {data.groups.map((g, i) => <LinhaOrganizacao key={g.cnpj} group={g} rank={i + 1} />)}
           </tbody>
         </table>
       </div>
+      )}
     </section>
   )
 }

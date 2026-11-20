@@ -341,19 +341,24 @@ def asn_ix_presence(
 
 
 @router.get(
-    "/asns/economic-groups",
-    summary="Grupos econômicos — CNPJs com múltiplos ASNs",
+    "/asns/by-organization",
+    summary="Organizações com vários ASNs (mesmo CNPJ)",
     description="""
-Agrupa os ASNs brasileiros por CNPJ da organização (Registro.br) e retorna os
-grupos com **mais de um ASN**, ordenados pelo número de ASNs (e usuários APNIC
-como desempate). Para cada grupo inclui os ASNs com nome, usuários estimados,
+Agrupa os ASNs brasileiros pelo CNPJ da organização (Registro.br) e retorna as
+organizações com **mais de um ASN**, ordenadas pelo número de ASNs (e usuários APNIC
+como desempate). Para cada uma inclui os ASNs com nome, usuários estimados,
 blocos IPv6/IPv4 (full table), RPKI/ASPA e participação em IXes.
+
+É uma única pessoa jurídica com vários ASNs (separação de serviços, regiões,
+incorporações etc.), **não** um grupo econômico: grupos de empresas ligadas por
+sócios ou controle estão em `GET /grupos`. A lista sai em `groups` (nome mantido
+por compatibilidade). Substitui `GET /asns/economic-groups`, que segue como alias.
 """,
 )
-def economic_groups(
+def asns_por_organizacao(
     request: Request,
     date: Optional[str] = Query(None, description="Data do snapshot (YYYY-MM-DD)."),
-    limit: int = Query(30, ge=1, le=200, description="Número de grupos a retornar."),
+    limit: int = Query(30, ge=1, le=200, description="Número de organizações a retornar."),
 ) -> dict:
     store: Store = request.app.state.store
     date_str = store.resolve_date(date)
@@ -404,6 +409,19 @@ def economic_groups(
     items.sort(key=lambda g: (-g["asn_count"], -g["total_apnic_users"]))
 
     return {"snapshot_date": date_str, "total": len(items), "groups": items[:limit]}
+
+
+@router.get(
+    "/asns/economic-groups",
+    summary="Alias de /asns/by-organization",
+    description="Nome antigo de `GET /asns/by-organization` (mesma resposta): os itens são organizações com vários ASNs, não grupos econômicos.",
+)
+def economic_groups(
+    request: Request,
+    date: Optional[str] = Query(None, description="Data do snapshot (YYYY-MM-DD)."),
+    limit: int = Query(30, ge=1, le=200, description="Número de organizações a retornar."),
+) -> dict:
+    return asns_por_organizacao(request, date, limit)
 
 
 def documento_asn(store: Store, date_str: str, asn: int) -> Optional[dict]:

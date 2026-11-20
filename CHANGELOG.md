@@ -1,5 +1,13 @@
 # Notas de versão
 
+## v2.0.18
+
+- A aba "Grupos econômicos" do Panorama de mercado listava CNPJs com vários ASNs: uma só empresa que separa serviços, regiões ou redes
+  incorporadas, não um grupo econômico (esses estão em `/grupos`). Virou a seção "Organizações com vários ASNs" no fim de `/ases`;
+  `/panorama/mercado?aba=grupos` redireciona para `/ases?secao=organizacoes`.
+- API: `GET /asns/by-organization` substitui `GET /asns/economic-groups`, que segue como alias (`Deprecation` + `Link`). Mesma resposta.
+- Em `/ases` a seção é um bloco degradável (rota `metered`): com o orçamento anônimo esgotado não chama a API e avisa.
+
 ## v2.0.17
 
 - Zero erros de console na varredura de obint.com.br (≈220 páginas, abas clicadas, visitante anônimo): `/perfil` sem login chamava

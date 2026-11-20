@@ -5,6 +5,7 @@
  "/api/v1/acessos/operadoras",
  "/api/v1/analytics/ixps/{code}/nearby",
  "/api/v1/analytics/operators/reach",
+ "/api/v1/asns/by-organization",
  "/api/v1/asns/economic-groups",
  "/api/v1/asns/names",
  "/api/v1/asns/{asn}",

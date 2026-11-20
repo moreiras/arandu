@@ -11,7 +11,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { server } from '../../test/server'
 import { useAppStore } from '../../store/app'
 import { VisibilidadeGlobal } from './AbaFamilia'
-import { ABAS_MERCADO } from '../../pages/PanoramaMercado'
+import { ABA_GRUPOS_MOVIDA, ABAS_MERCADO, PanoramaMercado } from '../../pages/PanoramaMercado'
 import { ABAS_TECNICO, ALIASES_TECNICO } from '../../pages/PanoramaTecnico'
 import { AliasPanorama } from './AliasPanorama'
 import { ALIAS, DESTINOS, PAGINAS_DE_DETALHE } from './destinos'
@@ -134,5 +134,24 @@ describe('aba IPv6 do Panorama técnico', () => {
     expect(container).toHaveTextContent('76,3% dos 1.000 visíveis')
     expect(container).toHaveTextContent('88,6%')
     expect(container).not.toHaveTextContent('97,1%')
+  })
+})
+
+describe('organizações com vários ASNs', () => {
+  it('a antiga aba "Grupos econômicos" do Panorama de mercado leva a /ases e não é mais aba de mercado', () => {
+    expect(ABAS_MERCADO.map((a) => a.id)).not.toContain('grupos')
+    function Onde() { const l = useLocation(); return <p data-testid="onde">{l.pathname + l.search}</p> }
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter initialEntries={['/panorama/mercado?aba=grupos']}>
+          <Routes>
+            <Route path="/panorama/mercado" element={<PanoramaMercado />} />
+            <Route path="/ases" element={<Onde />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+    expect(screen.getByTestId('onde')).toHaveTextContent(ABA_GRUPOS_MOVIDA)
+    expect(ABA_GRUPOS_MOVIDA).toBe('/ases?secao=organizacoes')
   })
 })

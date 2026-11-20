@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchASNs } from '../services/api'
 import { useActiveDate } from '../hooks/useSnapshot'
@@ -9,6 +9,7 @@ type StabilitySummary = { epppd: number | null; epppd_v4: number | null; epppd_v
 import { useAuth } from '../auth/AuthContext'
 import { PREVIEW_LIMIT } from '../auth/accessPolicy'
 import { Dica } from '../components/ui/Dica'
+import { OrganizacoesVariosAsns } from '../components/stats/OrganizacoesVariosAsns'
 
 // ─── Column definitions ───────────────────────────────────────────────────────
 
@@ -406,6 +407,7 @@ function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stabi
 
 export function ASes() {
   const date = useActiveDate()
+  const secao = useSearchParams()[0].get('secao')
   const [page, setPage] = useState(1)
   // 100 linhas por página, com seletor para quem está logado (acima de 100 exige login).
   const [tamanho, setTamanho] = useState(100)
@@ -587,6 +589,8 @@ export function ASes() {
           </div>
         )}
       </div>
+
+      <OrganizacoesVariosAsns date={date ?? undefined} ancorar={secao === 'organizacoes'} />
     </div>
   )
 }

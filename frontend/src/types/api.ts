@@ -1327,7 +1327,7 @@ export interface SCMStats {
   top_municipios: Array<{ municipio: string; uf: string; count: number }>
 }
 
-export interface EconomicGroupAsn {
+export interface AsnDaOrganizacao {
   asn: number
   name: string
   apnic_users: number | null
@@ -1342,7 +1342,7 @@ export interface EconomicGroupAsn {
   ixps_direct_count: number
 }
 
-export interface EconomicGroup {
+export interface OrganizacaoVariosAsns {
   cnpj: string
   razao_social: string
   nome_fantasia: string
@@ -1351,13 +1351,13 @@ export interface EconomicGroup {
   total_apnic_users: number
   total_v4_blocks: number
   total_v6_blocks: number
-  asns: EconomicGroupAsn[]
+  asns: AsnDaOrganizacao[]
 }
 
-export interface EconomicGroupsResponse {
+export interface AsnsPorOrganizacaoResponse {
   snapshot_date: string
   total: number
-  groups: EconomicGroup[]
+  groups: OrganizacaoVariosAsns[]
 }
 
 export interface SCMDetailResponse {

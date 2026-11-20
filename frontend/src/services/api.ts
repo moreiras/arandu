@@ -28,7 +28,7 @@ import type { BrasilIndicadores,
   RpkiSummary,
   PaginatedOutorgas,
   SCMStats,
-  EconomicGroupsResponse,
+  AsnsPorOrganizacaoResponse,
   SiciStats,
   SiciAcessos,
   SiciAsnMunicipios,
@@ -728,8 +728,8 @@ export function fetchMapQuery(body: MapQueryBody, date?: string, signal?: AbortS
   return post('/api/v1/map/query', body, date ? { date } : undefined, signal)
 }
 
-export function fetchEconomicGroups(date?: string, limit = 30): Promise<EconomicGroupsResponse> {
-  return get('/api/v1/asns/economic-groups', { date, limit })
+export function fetchAsnsPorOrganizacao(date?: string, limit = 30): Promise<AsnsPorOrganizacaoResponse> {
+  return get('/api/v1/asns/by-organization', { date, limit })
 }
 
 export function fetchASNGeo(

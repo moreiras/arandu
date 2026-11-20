@@ -12,7 +12,7 @@
 /** `para` é uma aba de panorama ou, quando o bloco já tinha uma página de detalhe, essa página (`PAGINAS_DE_DETALHE`). */
 export interface Destino { de: 'visao-geral' | 'estatisticas'; bloco: string; para: string }
 
-export const PAGINAS_DE_DETALHE = ['/ixps']
+export const PAGINAS_DE_DETALHE = ['/ixps', '/ases']
 
 export const DESTINOS: Destino[] = [
   { de: 'visao-geral', bloco: 'Saúde do snapshot, KPIs e painel de estatísticas', para: '/panorama/tecnico' },
@@ -21,7 +21,7 @@ export const DESTINOS: Destino[] = [
   { de: 'visao-geral', bloco: 'Espaço IPv4 (curva de Hilbert /16)', para: '/panorama/tecnico?aba=ipv4' },
   { de: 'visao-geral', bloco: 'Tabela de referência (tabela global × IX.br)', para: '/ixps' },
   { de: 'estatisticas', bloco: 'Visão geral: AS, IPv6, IPv4, Registro.br, UF e macrorregião', para: '/panorama/tecnico' },
-  { de: 'estatisticas', bloco: 'Grupos econômicos (CNPJs com vários ASNs)', para: '/panorama/mercado?aba=grupos' },
+  { de: 'estatisticas', bloco: 'Organizações com vários ASNs (mesmo CNPJ; antes "Grupos econômicos")', para: '/ases?secao=organizacoes' },
   { de: 'estatisticas', bloco: 'Cobertura IPv4 no IX.br (prefixos BR e full table)', para: '/panorama/tecnico?aba=ipv4' },
   { de: 'estatisticas', bloco: 'Cobertura IPv6 no IX.br (prefixos BR e full table)', para: '/panorama/tecnico?aba=ipv6' },
   { de: 'estatisticas', bloco: 'ASNs diretos, originadores e originadores BR por PTT', para: '/panorama/tecnico?aba=interconexao' },

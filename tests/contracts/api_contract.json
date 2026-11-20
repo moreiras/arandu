@@ -277,6 +277,15 @@
    "status": 200,
    "tipo": "objeto"
   },
+  "GET /api/v1/asns/by-organization": {
+   "chaves": [
+    "groups",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
   "GET /api/v1/asns/economic-groups": {
    "chaves": [
     "groups",

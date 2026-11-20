@@ -9,6 +9,9 @@
    "/api/v1/query/ixps",
    "/api/v1/query/operadoras"
   ],
+  "/ases": [
+   "/api/v1/asns/by-organization"
+  ],
   "/ixps": [
    "/api/v1/map/asns",
    "/api/v1/map/prefixes"

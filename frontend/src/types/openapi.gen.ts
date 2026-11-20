@@ -402,6 +402,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/asns/by-organization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Organizações com vários ASNs (mesmo CNPJ)
+         * @description Agrupa os ASNs brasileiros pelo CNPJ da organização (Registro.br) e retorna as
+         *     organizações com **mais de um ASN**, ordenadas pelo número de ASNs (e usuários APNIC
+         *     como desempate). Para cada uma inclui os ASNs com nome, usuários estimados,
+         *     blocos IPv6/IPv4 (full table), RPKI/ASPA e participação em IXes.
+         *
+         *     É uma única pessoa jurídica com vários ASNs (separação de serviços, regiões,
+         *     incorporações etc.), **não** um grupo econômico: grupos de empresas ligadas por
+         *     sócios ou controle estão em `GET /grupos`. A lista sai em `groups` (nome mantido
+         *     por compatibilidade). Substitui `GET /asns/economic-groups`, que segue como alias.
+         */
+        get: operations["asns_por_organizacao_api_v1_asns_by_organization_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/asns/economic-groups": {
         parameters: {
             query?: never;
@@ -410,11 +438,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Grupos econômicos — CNPJs com múltiplos ASNs
-         * @description Agrupa os ASNs brasileiros por CNPJ da organização (Registro.br) e retorna os
-         *     grupos com **mais de um ASN**, ordenados pelo número de ASNs (e usuários APNIC
-         *     como desempate). Para cada grupo inclui os ASNs com nome, usuários estimados,
-         *     blocos IPv6/IPv4 (full table), RPKI/ASPA e participação em IXes.
+         * Alias de /asns/by-organization
+         * @description Nome antigo de `GET /asns/by-organization` (mesma resposta): os itens são organizações com vários ASNs, não grupos econômicos.
          */
         get: operations["economic_groups_api_v1_asns_economic_groups_get"];
         put?: never;
@@ -6193,12 +6218,48 @@ export interface operations {
             };
         };
     };
+    asns_por_organizacao_api_v1_asns_by_organization_get: {
+        parameters: {
+            query?: {
+                /** @description Data do snapshot (YYYY-MM-DD). */
+                date?: string | null;
+                /** @description Número de organizações a retornar. */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     economic_groups_api_v1_asns_economic_groups_get: {
         parameters: {
             query?: {
                 /** @description Data do snapshot (YYYY-MM-DD). */
                 date?: string | null;
-                /** @description Número de grupos a retornar. */
+                /** @description Número de organizações a retornar. */
                 limit?: number;
             };
             header?: never;

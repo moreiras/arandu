@@ -32,6 +32,8 @@ _ALIASES: list[tuple[re.Pattern, str]] = [(re.compile(rf"^{p}$"), s) for p, s in
     (r"/acessos-movel/municipio/(?P<ibge>[^/]+)", "/acessos/municipio/{ibge}?servico=movel"),
     # PTT: o detalhamento por AS mora junto do PTT
     (r"/analytics/ixps/(?P<code>[^/]+)/nearby", "/ixps/{code}/nearby"),
+    # mesmo CNPJ com vários ASNs não é grupo econômico (esse está em /grupos)
+    (r"/asns/economic-groups", "/asns/by-organization"),
 ]]
 
 
