@@ -52,11 +52,6 @@ pix:
   - name: '[PIX PRONTONET]'
     address: Rua Belo Horizonte, 8 - Galpão 01 - Levilândia, Ananindeua - PA - 67015-623
     cep: '67015623'
-  - name: '[PIX / FAEPA]'
-    address: Travessa Doutor Moraes, 21, 8 andar, Bélem - PA - 66035-080
-    cep: '66035080'
-    lat: -1.457976
-    lon: -48.488011
   - name: '[PIX AMPLITUDE]'
     address: Travessa dos Tupinambás, 261 - Batista Campos, Bélem - PA - 66033-815
     cep: '66033815'
@@ -189,6 +184,12 @@ pix:
     cep: '79022340'
     lat: -20.446965
     lon: -54.592537
+  # PeeringDB fac 17660, no IX.br Campo Grande desde 2026-10-22; a página de adesão ainda não lista (ix.br/adesao e PeeringDB, 2026-11-20).
+  - name: '[PIX BR.Digital]'
+    address: Av. Noroeste, 627, Campo Grande - MS
+    cep: '79008520'
+    lat: -20.459741
+    lon: -54.62644
   cpv:
   - name: '[PIX ANID]'
     address: Rua João A. Filho s/n, Quarenta - Campina Grande - PB, Coordenadas:,
@@ -419,6 +420,14 @@ pix:
     cep: '14091240'
     lat: -21.18948
     lon: -47.79174
+  # PeeringDB fac 17477, no IX.br Ribeirão Preto desde 2026-08-24; fonte sem coordenadas (ix.br/adesao e PeeringDB, 2026-11-20).
+  - name: '[PIX NICNET]'
+    address: Rua Cesário Motta, 231 - Centro, Cravinhos - SP
+    cep: '14140000'
+  # PeeringDB fac 17478, no IX.br Ribeirão Preto desde 2026-08-24; fonte sem coordenadas (ix.br/adesao e PeeringDB, 2026-11-20).
+  - name: '[PIX CLIENT.CO]'
+    address: Rua Francisca Paula de Jesus, 864 - Jd Florestan Fernandes, Ribeirão Preto - SP
+    cep: '14079313'
   ria:
   - name: '[PIX Brasil TecPar]'
     address: Rua Dr. Bozano, 1293 - Centro, 97015-004 - Santa Maria - RS
@@ -486,6 +495,7 @@ pix:
     lat: -22.909152
     lon: -43.201254
   - name: '[PIX SAMM]'
+    address: Internexa Brasil (Teleporto), Av. Presidente Vargas, 3131 - 5. andar, Sala 501 - Cidade Nova, Rio de Janeiro - RJ
     cep: '20210030'
     lat: -22.909152
     lon: -43.201254
@@ -499,6 +509,18 @@ pix:
     cep: '20211280'
     lat: -22.914804
     lon: -43.196892
+  # BR.Digital tem dois PIX no Rio: RJO1 (Teleporto, acima) e RJO3 (BR IDC RJ, São Cristóvão), PeeringDB fac 12446 (ix.br/adesao e PeeringDB, 2026-11-20).
+  - name: '[PIX BR.Digital RJO3]'
+    address: Rua Figueira de Melo, 232 - São Cristóvão, Rio de Janeiro - RJ
+    cep: '20941001'
+    lat: -22.904367
+    lon: -43.214564
+  # PeeringDB fac 17251, no IX.br Rio desde 2026-10-14 (ix.br/adesao e PeeringDB, 2026-11-20).
+  - name: '[PIX TAKODA]'
+    address: Estrada dos Bandeirantes, 10916 - Vargem Pequena, Rio de Janeiro - RJ
+    cep: '22783111'
+    lat: -22.983145
+    lon: -43.431313
   ro:
   - name: '[PIX SETIC]'
     address: Avenida Faquar, 2986 - Complexo Rio Madeira, Edifício Rio Cautário, 6o.
@@ -530,11 +552,6 @@ pix:
     cep: '90035003'
     lat: -30.041948
     lon: -51.207516
-  - name: '[PIX SYGO]'
-    address: Av. Getúlio Vargas, 1020, 90150-002 - Porto Alegre, RS
-    cep: '90150002'
-    lat: -30.051096
-    lon: -51.221801
   - name: '[PIX BR.Digital]'
     address: Rua General Câmara, 156/3o andar, 90010-230 - Porto Alegre, RS
     cep: '90010230'
@@ -558,12 +575,6 @@ pix:
     cep: '95320000'
     lat: -28.800732
     lon: -51.599323
-  - name: '[PIX NEXFIBRA]'
-    address: Av. Independência, 1275 - Moinhos de Vento, 90035-074 - Porto Alegre,
-      RS
-    cep: '90035074'
-    lat: -30.031465
-    lon: -51.222354
   - name: '[PIX NOSSA TELECOM]'
     address: R. Furriel Luíz Antônio de Vargas, 250 - Bela Vista, 90470-130 - Porto
       Alegre, RS
@@ -600,7 +611,8 @@ pix:
     cep: '90480003'
     lat: -30.027591
     lon: -51.182481
-  - name: '[PIX Giganetsul]'
+  # Antes [PIX Giganetsul]; mesmo endereço (ix.br/adesao e PeeringDB, 2026-11-20).
+  - name: '[PIX GNS Fibra]'
     address: Rua Fátima, 457 - Maria Regina, 94828-750 - Alvorada, RS
     cep: '94828750'
     lat: -29.991596
@@ -622,8 +634,9 @@ pix:
     lat: -27.587675
     lon: -48.500485
   - name: '[PIX BR.Digital]'
-    address: Av. Patrício de Andrade, 1286, Bairro Capoeiras - Florianópolis - SC,
-      CEP 88085-150
+    address: Av. Patrício Caldeira de Andrada, 1286 - Capoeiras, Florianópolis - SC, CEP 88085-150
+    lat: -27.600777
+    lon: -48.593791
     cep: '88085150'
   - name: '[PIX IFSC-SJ]'
     address: Rua José Lino Kretzer, 608 - Praia Comprida, São José - SC, CEP 88103-902
@@ -734,13 +747,6 @@ pix:
     cep: 04795100
     lat: -23.659899
     lon: -46.706963
-  - name: '[PIX GVT]'
-    address: Rua Júlio Diniz, 190, 04547-090 - São Paulo - SP
-    cep: 04547090
-    lat: -23.599036
-    lon: -46.684751
-  - name: '[PIX VERO]'
-    address: Av. Brig. Faria Lima, 1912 6F, São Paulo - SP
   - name: '[PIX BR.Digital]'
     address: Rua Cenno Sbrighi, 27 - Barra Funda, 05036-010 - São Paulo - SP
     cep: '05036010'
@@ -824,7 +830,8 @@ pix:
     cep: '77001020'
     lat: -10.182036
     lon: -48.337472
-  - name: '[PIX ZAP TELECOM]'
+  # Antes [PIX ZAP TELECOM]; mesmo endereço (ix.br/adesao e PeeringDB, 2026-11-20).
+  - name: '[PIX TMKNET]'
     address: 501 Sul Av. Teotônio Segurado Cj. 01 Lt. 03 8o Andar Sala 810 - Executive
       Center, 77016-002 -  Palmas - TO
     cep: '77016002'
@@ -887,7 +894,8 @@ pix:
     address: Rodovia Celso Garcia Cid - PR 445 Km 380 - Campus Universitário, Londrina
       - PR
     cep: '86055900'
-  - name: '[PIX PERSIS TELECOM]'
+  # Antes [PIX PERSIS TELECOM]; mesmo endereço (ix.br/adesao e PeeringDB, 2026-11-20).
+  - name: '[PIX IRED TELECOM]'
     address: Av. Jules Verne, 1111 - Pq Industrial Cacique, Londrina - PR
     cep: '86072450'
     lat: -23.283382
@@ -914,11 +922,6 @@ pix:
     cep: '80040310'
     lat: -25.41749
     lon: -49.245359
-  - name: '[PIX CELEPAR]'
-    address: R. Mateus Leme, 1561, Bom Retiro, Curitiba - PR
-    cep: '80530010'
-    lat: -25.419046
-    lon: -49.271091
   - name: '[PIX BR.Digital]'
     address: Rua Professor Rubens Elke Braga, 107, Bairro Parolin, Curitiba - PR
     cep: '80220320'
