@@ -189,8 +189,8 @@ export const INITIAL: MapState = {
     roads_federal: false,
     roads_estadual: false,
     erbs: false,
-    submarine: false,
-    terrestrial: false,
+    submarine: true,      // infraestrutura de fundo aberta junto com os PIX
+    terrestrial: true,
     power: false,
   },
   colorBy: 'solid',

@@ -1,5 +1,14 @@
 # Notas de versão
 
+## v2.0.11
+
+- Mapa Explorer: as camadas "Prefixos IPv4/IPv6 do PTT" (`prefixos_ix_v4|v6`) e o recorte `near_ix` davam 500 desde a 2.0.0
+  (`'Store' object has no attribute '_ixp_geo_prefixes'`): o serviço do mapa pedia ao `Store` dois métodos do serviço de
+  geolocalização que não eram delegados. O teste de vazamento do T4 pulava respostas que não eram 200 e não via; teste novo exige 200.
+- Mapa Explorer abre com cabos submarinos e enlaces terrestres ligados, como os PIX.
+- Cabos submarinos: `#3A5FCD` para os que tocam o Brasil e `#607B8B` para os demais (o marinho e o cinza 70% da 2.0.9 ficaram
+  pesados e parecidos).
+
 ## v2.0.10
 
 - MCP: toda tool anotada como só leitura (`readOnlyHint: true`, `destructiveHint: false`, `idempotentHint: true`,

@@ -58,6 +58,8 @@ describe('camadas do mapa Explorar', () => {
     for (const l of m.camadas.filter(c => c.id.startsWith('explorer-'))) expect(l.layout?.visibility, l.id).toBe('none')
     expect(MAPLIBRE_LAYERS.map(l => l.id).sort()).toEqual(ids.filter(i => i.startsWith('explorer-')).sort())
     expect(INITIAL.on.pix).toBe(true)
+    // infraestrutura de fundo aberta junto com os PIX
+    expect([INITIAL.on.submarine, INITIAL.on.terrestrial]).toEqual([true, true])
   })
 
   it('cada camada lê da fonte da sua consulta', () => {
@@ -94,7 +96,7 @@ describe('interações do mapa Explorar', () => {
 
   it('infra do estilo base só mostra balão com a camada ligada (lida na hora, sem recriar o mapa)', () => {
     const m = mapaFalso()
-    let ligadas = { ...INITIAL.on }
+    let ligadas = { ...INITIAL.on, submarine: false }
     ligarInteracoes(m as never, { navegar: vi.fn(), camadasLigadas: () => ligadas, colorBy: () => 'solid' })
     m.dispara('mouseenter', 'infra-submarine-cables', ev({ name: 'Monet' }))
     expect(chamadas.popups[0].html).toBe('')                                      // desligada: nada

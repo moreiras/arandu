@@ -986,7 +986,7 @@ delegar(Store, "_perfis", "asns_por_uf", "municipio_centroide", "outorgas_do_cnp
 delegar(Store, "_operadoras", "_display_name_for_cnpj", "_load_socios_grupos", "acessos_movel_municipio_index", "acessos_municipio_index", "cnpj_asns_index", "empresas_relacionadas", "grupo_prefixos_geo", "grupos_societarios_overview", "operadora_index", "operadora_movel_index", "outorgas_flags_for_cnpj", "peeringdb_contacts_for_asn", "rdap_contatos_for_asn", "socios_grupos_index")
 delegar(Store, "_asns", "announced_starts", "asn_coords", "asn_ixp_peers", "asn_names", "asn_paths", "bgp_stability_por_asn", "bgp_stability_resumo", "nomes_asns", "origin_by_prefix")
 delegar(Store, "_mapas", "_pix_features", "asns_overview_map", "geo_map", "geo_map_prefixos_agregado", "geo_map_arquivo", "geo_map_filtrado", "map_query", "pix_map")
-delegar(Store, "_geolocalizacao", "_ixp_city_coords", "_load_ixp_members", "_load_ixp_prefix_set", "_load_origin_prefixes", "asn_geo", "ixp_geo")
+delegar(Store, "_geolocalizacao", "_ixp_city_coords", "_ixp_geo_prefixes", "_ixp_origin_asns_from_routes", "_load_ixp_members", "_load_ixp_prefix_set", "_load_origin_prefixes", "asn_geo", "ixp_geo")
 delegar(Store, "_hilbert", "_norm_dir", "_prefixes_to_density16", "_read_json_gz", "_space24", "_space48", "asn_member_ixps", "hilbert_v4", "hilbert_v4_detail", "hilbert_v6", "ixp_origin_paths")
 delegar(Store, "_ixps", "ixp_assinantes", "ixp_hilbert_v4", "ixp_hilbert_v4_detail", "ixp_hilbert_v6", "ixp_peers_stats")
 delegar(Store, "_bgp", "aquecer_estabilidade", "bgp_stability", "bgp_stability_asn", "bgp_stability_datas_semanais", "bgp_stability_deep", "bgp_stability_historico_resumo", "bgp_stability_history", "bgp_stability_visao_geral")

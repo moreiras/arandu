@@ -96,6 +96,17 @@ def test_lookup_por_ip_e_so_consulta_de_roteamento(api):
     assert set(r.json()) == {"prefix", "ip_version", "origin_asn", "snapshot_date", "consulta"}
 
 
+def test_mapa_explorer_responde_as_camadas_do_ptt_e_o_near_ix(api):  # noqa: F811
+    """As camadas de prefixos do PTT e o `near_ix` chamam o serviço de geolocalização pelo `Store`: sem a delegação davam 500
+    (o teste de vazamento abaixo pula o que não é 200 e não via)."""
+    corpos = [{"layers": [c], "ix_code": "sp"} for c in ("prefixos_ix_v4", "prefixos_ix_v6")]
+    corpos += [{"layers": ["prefixos_ix_v4"], "ix_code": "sp", "ix_exclude_asns": [64500]},
+               {"layers": ["asns_geo"], "near_ix": {"code": "sp", "afi": "v4", "exclude_asns": [64500]}}]
+    for corpo in corpos:
+        r = api.post("/api/v1/map/query", json=corpo, headers=ALLOWED)
+        assert r.status_code == 200, (corpo, r.status_code, r.text[:300])
+
+
 def test_camadas_explicitas_de_asn_ptt_e_mapa_tambem_nao_geolocalizam_prefixo(api, ctx):  # noqa: F811
     """As camadas pedem argumentos que a requisição padrão não usa; o vazamento delas passaria despercebido."""
     pedidos = []
