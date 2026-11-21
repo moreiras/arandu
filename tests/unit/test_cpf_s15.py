@@ -71,6 +71,18 @@ def test_api_serve_o_publicado_sem_mascarar_na_leitura(tmp_path):
     assert Store(tmp_path).asn_detail("2026-11-13", 65000)["name"] == "FULANO ***456789**"
 
 
+def test_razao_social_lida_de_normalized_sai_mascarada(tmp_path):
+    """`normalized/` não passa pela máscara da publicação; o `geo_orgs.json.gz` leva a razão social para o perfil do AS (`alt_names`)."""
+    from api.store import Store
+    (tmp_path / "published" / "2026-11-13").mkdir(parents=True)
+    (tmp_path / "published" / "2026-11-13" / "manifest.json").write_text("{}")
+    norm = tmp_path / "normalized" / "2026-11-13" / "summary"
+    norm.mkdir(parents=True)
+    with gzip.open(norm / "geo_orgs.json.gz", "wt") as f:
+        json.dump({"orgs": {"65000": {"razao_social": f"FULANO {CPF}", "cnpj": "12345678000199"}}}, f)
+    assert Store(tmp_path)._load_geo_orgs("2026-11-13")[65000]["razao_social"] == "FULANO ***456789**"
+
+
 def test_mascarar_snapshot_regrava_so_o_que_muda_no_mesmo_formato(tmp_path):
     pub = tmp_path / "2026-11-13"
     (pub / "asns").mkdir(parents=True)

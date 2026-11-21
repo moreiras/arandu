@@ -2,6 +2,14 @@
 
 ## v2.0.32
 
+Correção da 2.0.31: a razão social lida de `normalized/` volta a sair com o CPF mascarado.
+- A API lê `normalized/<data>/summary/geo_orgs.json.gz`, que não passa pela máscara da publicação, e a 2.0.31 tinha tirado a máscara
+  dessa leitura também: o nome alternativo do AS (`alt_names`, da razão social da Receita) saía com o CPF de empresário individual ou MEI
+  em 9 perfis de AS na produção (varredura de 2026-11-21). A máscara volta nessa leitura (um arquivo por data, guardado em memória);
+  as demais leituras de `normalized/` só usam coordenadas, prefixos ou contatos (estes, só com login).
+
+## v2.0.32
+
 Tabelas ordenáveis por coluna em todo o site e rótulos da home conforme o que é contado.
 - **Home:** "ASes brasileiros na tabela de roteamento" contava os ASes alocados ao Brasil (delegated do LACNIC, via Registro.br),
   apareçam ou não na tabela global: passa a "ASes brasileiros alocados". "ASes BR que anunciam IPv6" contava também IPv6 só alocado:

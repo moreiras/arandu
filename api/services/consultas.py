@@ -18,6 +18,7 @@ from typing import Optional
 from cachetools import LRUCache
 
 from api.services import decix_rs as _decix_rs
+from core.cpf import mascarar_cpf_em
 
 
 class ConsultasService:
@@ -50,7 +51,9 @@ class ConsultasService:
         if date_str in self._geo_orgs_cache:
             return self._geo_orgs_cache[date_str]
         path = self.base / "normalized" / date_str / "summary" / "geo_orgs.json.gz"
-        data = self._read_json_gz(path) or {}
+        # normalized/ não passa pela máscara da publicação (core.cpf.mascarar_snapshot): a razão social de EI/MEI traz o CPF inteiro e vai
+        # para a resposta (nome alternativo do AS, perfis). Um arquivo por data, guardado em memória.
+        data = mascarar_cpf_em(self._read_json_gz(path) or {})
         orgs = data.get("orgs", {}) if isinstance(data, dict) else {}
         out: dict[int, dict] = {}
         for key, org in orgs.items():
