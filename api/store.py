@@ -106,7 +106,6 @@ except ImportError:
     _yaml = None  # type: ignore[assignment]
 
 from core.common import codigo_valido, published_path
-from core.cpf import mascarar_cpf_em, pode_ter_cpf
 from core.geoip import extrair_geo
 from core.ixp_geo import first_ip, slash20_blocks
 
@@ -378,7 +377,7 @@ class Store:
             doc = json.loads(dados)
         except Exception:
             return None
-        return mascarar_cpf_em(doc) if pode_ter_cpf(dados) else doc      # CPF embutido na razão social de EI/MEI
+        return doc
 
     # -------------------------------------------------------------------------
     # Nível de snapshot

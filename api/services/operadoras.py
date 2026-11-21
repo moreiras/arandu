@@ -15,7 +15,7 @@ import json
 from typing import Optional
 
 from api.store import _log, _strip_scm_contacts
-from core.cpf import mascarar_cpf_em, sem_socios_pessoa_fisica
+from core.cpf import sem_socios_pessoa_fisica
 
 
 class OperadorasService:
@@ -198,7 +198,7 @@ class OperadorasService:
             else:
                 try:
                     with gzip.open(path, "rt", encoding="utf-8") as f:
-                        self._socios_grupos_cache[date_str] = sem_socios_pessoa_fisica(mascarar_cpf_em(json.load(f)))      # snapshot publicado com o CPF ainda embutido no nome
+                        self._socios_grupos_cache[date_str] = sem_socios_pessoa_fisica(json.load(f))      # snapshots antigos ainda trazem sócio pessoa física
                 except Exception:
                     _log.warning("failed to load grupos_societarios.json.gz for %s", date_str)
                     self._socios_grupos_cache[date_str] = None

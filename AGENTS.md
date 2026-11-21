@@ -41,12 +41,13 @@ Resumo do que mais quebra (o completo está nas diretrizes do guia):
 - **Honestidade semântica:** inferido, estimado e hipótese são rotulados; todo número exibido tem fonte e data.
 - **Política editorial:** só dados e comparações, sem juízo de valor, causa ou intenção ("sem declaração", não "omitiu"); ranking
   nominal só com dado medido ou declarado e regra visível; a revisão humana é da metodologia, não de cada resultado.
-- **Privacidade:** contatos (PeeringDB, RDAP) e dados de pessoa física **não** vão para rota pública. No MCP, contatos só pelas tools
-  `asn_contatos` e `operadora_contatos`, com chave, cobradas pela API (`POST /internal/contatos`) na mesma cota da conta no site. O log de uso
-  (`api/usage_log.py`, `data/ops/usage/`) **nunca** grava IP, cookie, e-mail nem querystring; se mudar o que ele registra, atualize a
-  seção 2.2 de `/privacidade`. O registro por conta (`api/uso_conta.py`, `data/ops/uso_conta/`) usa `conta_id` (nunca e-mail nem IP)
-  e segue a seção 2.3 de `/privacidade`: detalhe 90 dias, agregados 12 meses; a exclusão de conta é sempre em 30 dias
-  (`python -m api.auth.manutencao`, diário). A chave de MCP nunca aparece em log, resposta pública, contrato nem fixture
+- **Privacidade:** contatos (PeeringDB, RDAP) e dados de pessoa física **não** vão para rota pública. O CPF embutido na razão social de
+  EI/MEI é mascarado na publicação (`core.cpf.mascarar_snapshot`), não na leitura: a API serve o arquivo publicado. No MCP, contatos só
+  pelas tools `asn_contatos` e `operadora_contatos`, com chave, cobradas pela API (`POST /internal/contatos`) na mesma cota da conta no
+  site. O log de uso (`api/usage_log.py`, `data/ops/usage/`) **nunca** grava IP, cookie, e-mail nem querystring; se mudar o que ele
+  registra, atualize a seção 2.2 de `/privacidade`. O registro por conta (`api/uso_conta.py`, `data/ops/uso_conta/`) usa `conta_id`
+  (nunca e-mail nem IP) e segue a seção 2.3 de `/privacidade`: detalhe 90 dias, agregados 12 meses; a exclusão de conta é sempre em 30
+  dias (`python -m api.auth.manutencao`, diário). A chave de MCP nunca aparece em log, resposta pública, contrato nem fixture
   (`tests/unit/test_chave_mcp_nao_vaza.py`).
 - **Versão:** a fonte única é o arquivo `VERSION` (lido por `core.common.app_version()`); não escreva número de versão em outro lugar.
 - **API:** rota pesada precisa de cache/memoização e, se devolve MBs, de uma rota-resumo para listas. O GIL faz uma rota pesada

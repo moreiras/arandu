@@ -76,7 +76,8 @@ contratos, cenários plantados e regras de negócio).
 ### Privacidade e licenças
 
 - Contatos (PeeringDB, RDAP, e-mail e telefone de cadastro) e dados de pessoa física **não vão** para rota pública nem para o
-  MCP; CPF e nome de pessoa física são descartados ou mascarados na leitura.
+  MCP; CPF e nome de pessoa física são descartados ou mascarados: o CPF embutido na razão social de EI/MEI, na publicação
+  (`core.cpf.mascarar_snapshot`, no fechamento do snapshot), e o sócio pessoa física, no pipeline e na leitura.
 - **Contatos só com conta e com cota** (`api/contatos_cota.py`): custo por ASN revelado, janelas por conta, por rede e global,
   suspensão automática de quem bate no teto repetidamente, nunca cacheáveis. A meta é que montar a lista inteira pelo site seja bem
   mais lento do que consultar as fontes diretamente. Do PeeringDB, só POCs de visibilidade `Public`: o login do site é uma classe só

@@ -19,7 +19,6 @@ from typing import Callable, Optional
 
 from api.repos.base import ArtifactRepo
 from core.outorgas import SERVICOS as _REGISTRO
-from core.cpf import mascarar_cpf_em
 
 _log = logging.getLogger("arandurape")
 
@@ -116,7 +115,7 @@ class OutorgasPublicadas(ArtifactRepo):
                 self._geo[key] = None
             else:
                 try:
-                    self._geo[key] = mascarar_cpf_em(json.loads(path.read_bytes()))      # razão social de EI/MEI traz o CPF
+                    self._geo[key] = json.loads(path.read_bytes())
                 except Exception:
                     _log.warning("failed to load %s for %s", self.mapa, date_str)
                     self._geo[key] = None

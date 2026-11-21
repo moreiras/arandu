@@ -20,7 +20,6 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 from core import layout
-from core.cpf import mascarar_cpf_em
 
 _log = logging.getLogger("arandurape")
 
@@ -64,7 +63,7 @@ class ArtifactRepo:
             return None
         if self._validar is not None:
             self._validar(arquivo, doc)
-        return mascarar_cpf_em(doc)          # CPF embutido na razão social de EI/MEI, também nos snapshots já publicados
+        return doc
 
     def invalidar(self, date_str: str, arquivo: Optional[str] = None) -> None:
         """Esquece a data (ou só um arquivo dela): a próxima leitura vai ao disco, inclusive se antes era `None`."""

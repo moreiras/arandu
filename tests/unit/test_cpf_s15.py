@@ -6,10 +6,11 @@
 """o CPF que a Receita e a Anatel publicam na razão social de EI/MEI sai mascarado."""
 import gzip
 import json
+from pathlib import Path
 
 import pytest
 
-from core.cpf import cpf_valido, mascarar_cpf, mascarar_cpf_em, pode_ter_cpf
+from core.cpf import cpf_valido, mascarar_cpf, mascarar_cpf_em, mascarar_snapshot, pode_ter_cpf
 
 
 def _cpf(base9: str) -> str:
@@ -54,7 +55,8 @@ def test_pre_filtro_em_bytes():
     assert pode_ter_cpf(f'{{"razao_social": "F {CPF}"}}'.encode()) and not pode_ter_cpf(b'{"cnpj": "12345678000195", "asn": 263276}')
 
 
-def test_repositorio_e_store_servem_mascarado(tmp_path):
+def test_api_serve_o_publicado_sem_mascarar_na_leitura(tmp_path):
+    """A máscara é da publicação (`mascarar_snapshot`); a API serve o arquivo como está, sem percorrer o documento a cada leitura."""
     from api.repos.base import ArtifactRepo
     from api.store import Store
     pub = tmp_path / "published" / "2026-11-13"
@@ -63,8 +65,84 @@ def test_repositorio_e_store_servem_mascarado(tmp_path):
     with gzip.open(pub / "scm.json.gz", "wt") as f:
         json.dump({"scms": [{"razao_social": f"FULANO {CPF}"}]}, f)
     (pub / "asns" / "65000.json").write_text(json.dumps({"asn": 65000, "name": f"FULANO {CPF}"}))
+    assert ArtifactRepo(lambda d: tmp_path / "published" / d).ler("2026-11-13", "scm.json.gz")["scms"][0]["razao_social"] == f"FULANO {CPF}"
+    mascarar_snapshot(pub)
     assert ArtifactRepo(lambda d: tmp_path / "published" / d).ler("2026-11-13", "scm.json.gz")["scms"][0]["razao_social"] == "FULANO ***456789**"
     assert Store(tmp_path).asn_detail("2026-11-13", 65000)["name"] == "FULANO ***456789**"
+
+
+def test_mascarar_snapshot_regrava_so_o_que_muda_no_mesmo_formato(tmp_path):
+    pub = tmp_path / "2026-11-13"
+    (pub / "asns").mkdir(parents=True)
+    (pub / "maps").mkdir()
+    (pub / "manifest.json").write_text(json.dumps({"x": f"FULANO {CPF}"}))                     # o manifesto nunca é tocado
+    (pub / "asns" / "1.json").write_text(json.dumps({"asn": 1, "name": f"FULANA {CPF}"}, ensure_ascii=False, indent=2) + "\n")
+    (pub / "asns" / "2.json").write_text(json.dumps({"asn": 2, "name": "SEM CPF"}))
+    (pub / "asns" / "3.json").write_text(json.dumps({"asn": 3, "fistel": CPF}))              # 11 dígitos fora de campo de nome
+    (pub / "maps" / "scms.geojson").write_text(json.dumps({"features": [{"properties": {"razao_social": f"X {CPF}"}}]},
+                                                          separators=(",", ":")))
+    with gzip.open(pub / "scm.json.gz", "wt") as f:
+        json.dump({"scms": [{"razao_social": f"FULANO {CPF}"}]}, f)
+    antes = {p: p.stat().st_mtime_ns for p in pub.rglob("*") if p.is_file()}
+    assert mascarar_snapshot(pub, gravar=False).keys() == {"asns/1.json", "maps/scms.geojson", "scm.json.gz"}
+    assert {p: p.stat().st_mtime_ns for p in pub.rglob("*") if p.is_file()} == antes           # simulação não grava
+    copias = tmp_path / "originais"
+    alterados = mascarar_snapshot(pub, copia_em=copias)
+    assert alterados.keys() == {"asns/1.json", "maps/scms.geojson", "scm.json.gz"}
+    from core.integridade import sha256_arquivo
+    assert all(alterados[r] == sha256_arquivo(pub / r) for r in alterados)
+    um = (pub / "asns" / "1.json").read_text()
+    assert um == json.dumps({"asn": 1, "name": "FULANA ***456789**"}, ensure_ascii=False, indent=2) + "\n"
+    assert (pub / "maps" / "scms.geojson").read_text() == '{"features":[{"properties":{"razao_social":"X ***456789**"}}]}'
+    assert CPF in (copias / "asns" / "1.json").read_text()
+    assert CPF in (pub / "manifest.json").read_text() and CPF in (pub / "asns" / "3.json").read_text()
+    assert mascarar_snapshot(pub) == {}                                                       # idempotente
+
+
+def test_mascarar_snapshot_no_zip_do_formato_compactado(tmp_path):
+    import zipfile
+    pub = tmp_path / "2026-07-05"
+    pub.mkdir()
+    with zipfile.ZipFile(pub / "asns.zip", "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("1.json", json.dumps({"asn": 1, "name": f"FULANO {CPF}"}))
+        z.writestr("2.json", json.dumps({"asn": 2, "name": "OUTRO"}))
+    alterados = mascarar_snapshot(pub)
+    assert list(alterados) == ["asns/1.json"]                                                 # como nos checksums do manifesto
+    with zipfile.ZipFile(pub / "asns.zip") as z:
+        assert json.loads(z.read("1.json"))["name"] == "FULANO ***456789**" and json.loads(z.read("2.json"))["name"] == "OUTRO"
+        assert z.getinfo("1.json").compress_type == zipfile.ZIP_DEFLATED
+
+
+def test_fechamento_do_snapshot_mascara_antes_dos_checksums(tmp_path):
+    from publish.coleta_checks import refresh_manifest
+    pub = tmp_path / "published" / "2026-11-13"
+    (pub / "asns").mkdir(parents=True)
+    (pub / "manifest.json").write_text(json.dumps({"date": "2026-11-13"}))
+    (pub / "asns" / "1.json").write_text(json.dumps({"asn": 1, "name": f"FULANO {CPF}"}))
+    man = refresh_manifest(tmp_path, "2026-11-13", checksums=True)
+    from core.integridade import sha256_arquivo
+    assert "***456789**" in (pub / "asns" / "1.json").read_text()
+    assert man["checksums"]["asns/1.json"] == sha256_arquivo(pub / "asns" / "1.json")
+
+
+def test_script_corrige_os_publicados_e_o_manifesto(tmp_path):
+    import importlib.util
+    pub = tmp_path / "data" / "published" / "2026-11-13"
+    (pub / "asns").mkdir(parents=True)
+    (pub / "asns" / "1.json").write_text(json.dumps({"asn": 1, "name": f"FULANO {CPF}"}))
+    from core.integridade import sha256_arquivo
+    (pub / "manifest.json").write_text(json.dumps({"checksums": {"asns/1.json": sha256_arquivo(pub / "asns" / "1.json")}}))
+    spec = importlib.util.spec_from_file_location("mascarar", Path(__file__).resolve().parents[2] / "scripts" / "mascarar_cpf_publicados.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert mod.main([str(tmp_path / "data")]) == 0                                            # simulação
+    assert CPF in (pub / "asns" / "1.json").read_text()
+    assert mod.main([str(tmp_path / "data"), "--aplicar", "--copias", str(tmp_path / "orig")]) == 0
+    man = json.loads((pub / "manifest.json").read_text())
+    assert man["checksums"]["asns/1.json"] == sha256_arquivo(pub / "asns" / "1.json") and len(man["correcoes"]) == 1
+    assert CPF in (tmp_path / "orig" / "2026-11-13" / "asns" / "1.json").read_text()
+    assert mod.main([str(tmp_path / "data"), "--aplicar"]) == 0                               # idempotente: nenhuma correção nova
+    assert len(json.loads((pub / "manifest.json").read_text())["correcoes"]) == 1
 
 
 def test_campo_de_nome_pelo_padrao_da_chave():

@@ -1,5 +1,20 @@
 # Notas de versão
 
+## v2.0.31
+
+CPF embutido na razão social de empresário individual e MEI mascarado na publicação, não mais na leitura da API.
+- `core.cpf.mascarar_snapshot` mascara os campos de nome de todos os artefatos do snapshot (JSON, GeoJSON, `.json.gz` e as entradas do
+  `asns.zip` do formato compactado) no fechamento do snapshot (`publish/coleta_checks.refresh_manifest`, antes dos checksums), regravando
+  só o que muda e no mesmo formato. Idempotente.
+- A API deixa de percorrer cada documento lido atrás de CPF (`Store`, repositórios, mapas de outorgas, Hilbert, consultas). No perfil da
+  produção de 2026-11-21 isso custava cerca de 280 s de CPU em 80 perfis: o `bgp_stability.json` (40 a 47 MB, com nomes de titular)
+  passava inteiro pela máscara em cada uma das 6 semanas da série. O sócio pessoa física dos grupos societários continua retirado na
+  leitura (`sem_socios_pessoa_fisica`), como antes.
+- **Snapshots já publicados:** `scripts/mascarar_cpf_publicados.py DATA_DIR [--aplicar]` aplica a máscara uma vez (simula sem
+  `--aplicar`), guarda os originais, atualiza os checksums dos caminhos alterados e registra em `correcoes` no manifesto. **Precisa rodar
+  na implantação desta versão**, antes de reiniciar a API: sem ele, os snapshots antigos passam a servir o CPF sem máscara. Na cópia de
+  2026-11-15 e 2026-11-08: 47 e 37 arquivos, cerca de 50 s por snapshot.
+
 ## v2.0.30
 
 Guarda de memória (`api/memoria.py`) que não disputa a CPU com os pedidos nem derruba a API perto do teto.

@@ -176,8 +176,14 @@ def refresh_manifest(base: Path, date_str: str, log=None, checksums: bool = Fals
     _acrescentar_fontes(base, date_str, manifest, log)
     _acrescentar_regras(manifest)
     if checksums:
+        from core.cpf import mascarar_snapshot
         from core.integridade import calcular_checksums
 
+        # CPF embutido na razão social de empresário individual e MEI: mascarado no que é publicado, antes dos checksums (a API serve
+        # o arquivo como está, sem mascarar na leitura)
+        mascarados = mascarar_snapshot(path.parent)
+        if log and mascarados:
+            log.info("cpf mascarado", arquivos=len(mascarados))
         manifest["checksums"] = calcular_checksums(path.parent)
     tmp = path.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -18,7 +18,6 @@ from typing import Optional
 
 from core import layout
 from core.common import codigo_valido
-from core.cpf import mascarar_cpf_em
 
 
 class HilbertService:
@@ -141,7 +140,7 @@ class HilbertService:
         if existe:                                     # em fluxo: não segura o documento descomprimido duas vezes
             try:
                 with gzip.open(path, "rt", encoding="utf-8") as f:
-                    return mascarar_cpf_em(json.load(f))           # nomes de titulares (EI/MEI) com CPF
+                    return json.load(f)
             except Exception:
                 return None
         dados = layout.ler_bytes_de_caminho(path)      # snapshot compactado (layout 2): o membro vem do ZIP

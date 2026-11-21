@@ -20,7 +20,6 @@ from fastapi.responses import FileResponse, Response
 from api import query as q
 from api.ratelimit import limiter, LIMIT_HEAVY
 from api.store import Store
-from core.cpf import mascarar_cpf_em
 
 router = APIRouter()
 
@@ -275,7 +274,7 @@ def map_scms(
 
     try:
         import json as _json
-        geojson = mascarar_cpf_em(_json.loads(path.read_bytes()))      # razão social de EI/MEI traz o CPF
+        geojson = _json.loads(path.read_bytes())
     except Exception:
         raise HTTPException(500, "Erro ao carregar mapa de SCMs")
 
@@ -328,7 +327,7 @@ def map_smps(
 
     try:
         import json as _json
-        geojson = mascarar_cpf_em(_json.loads(path.read_bytes()))      # razão social de EI/MEI traz o CPF
+        geojson = _json.loads(path.read_bytes())
     except Exception:
         raise HTTPException(500, "Erro ao carregar mapa de SMPs")
 
@@ -380,7 +379,7 @@ def map_stfcs(
 
     try:
         import json as _json
-        geojson = mascarar_cpf_em(_json.loads(path.read_bytes()))      # razão social de EI/MEI traz o CPF
+        geojson = _json.loads(path.read_bytes())
     except Exception:
         raise HTTPException(500, "Erro ao carregar mapa de STFCs")
 
@@ -431,7 +430,7 @@ def map_seacs(
 
     try:
         import json as _json
-        geojson = mascarar_cpf_em(_json.loads(path.read_bytes()))      # razão social de EI/MEI traz o CPF
+        geojson = _json.loads(path.read_bytes())
     except Exception:
         raise HTTPException(500, "Erro ao carregar mapa de SEACs")
 
