@@ -1,5 +1,15 @@
 # Notas de versão
 
+## v2.0.27
+
+CI e dependências.
+- **Nenhum commit com `Co-Authored-By`** (`tests/unit/test_sem_coautor.py`): percorre o histórico inteiro (o job `python` passa a fazer o
+  checkout com `fetch-depth: 0`). A única exceção é o commit da 2.0.1 (`bc4e351`), já publicado com a linha.
+- Actions atualizadas (fixadas por SHA, conferido contra a tag): checkout 7.0.1, setup-python 7.1.0, setup-node 7.1.0, upload-artifact
+  7.0.2. As anteriores usavam Node.js 20, que o GitHub está descontinuando nos runners.
+- `dependabot.yml`: mensal, sem versões maiores (migração é feita à mão) e sem trocar o Python da imagem (só correções e digest); no npm,
+  até 5 PRs abertos. Os 21 PRs da primeira execução foram fechados.
+
 ## v2.0.26
 
 **A série histórica dos perfis não chega mais a anônimos pelo cache.** O bloco `historico` dos perfis de AS, PTT, operadora e UF mudava

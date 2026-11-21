@@ -1,29 +1,45 @@
 # Atualizações de dependências (versões e digests). Cada PR passa pela CI como qualquer outra mudança; nada é integrado sozinho.
-# Mudança de versão maior chega em PR próprio, fora dos grupos, para ser revisada à parte.
+# Mensal e só versões menores e correções: versão maior (e a troca do Python ou do Node das imagens) é migração, feita à mão quando houver
+# motivo. Na primeira execução vieram 21 PRs de uma vez, quase todos de versão maior e reprovados na CI. Os alertas de vulnerabilidade
+# continuam chegando pela aba Security do GitHub.
 version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       actions: { update-types: [minor, patch] }
 
   # Dockerfile.api e Dockerfile.frontend. No frontend, ao trocar a imagem do nginx confira NGINX_VERSION (o build falha se a base
-  # trouxer um nginx mais novo que ela).
+  # trouxer um nginx mais novo que ela). O Python da imagem é o da CI (tests/unit/test_ci_config.py): só correções e digest.
   - package-ecosystem: docker
     directory: /
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "python"
+        update-types: ["version-update:semver-minor"]
     groups:
       imagens: { update-types: [minor, patch] }
 
   - package-ecosystem: docker
     directory: /docker
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: npm
     directory: /frontend
-    schedule: { interval: weekly }
-    open-pull-requests-limit: 10
+    schedule: { interval: monthly }
+    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       npm-producao: { dependency-type: production, update-types: [minor, patch] }
       npm-dev: { dependency-type: development, update-types: [minor, patch] }
@@ -32,6 +48,9 @@ updates:
   # (tests/unit/test_lock_dependencias.py reprova enquanto não forem).
   - package-ecosystem: pip
     directory: /
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       pip: { update-types: [minor, patch] }
