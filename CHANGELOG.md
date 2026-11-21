@@ -2,6 +2,15 @@
 
 ## v2.0.25
 
+Configuração de memória que não chegava aos contêineres. O `docker-compose.prod.yml` só vale com `PROD_OVERRIDES=true`, e era só ele que
+repassava `MALLOC_ARENA_MAX` e os tamanhos de cache: no servidor, a API e o MCP rodavam sem limite de arenas do glibc e a API com os
+tamanhos padrão do código, embora o `.env` definisse outros.
+- `docker-compose.exemplo.yml`: `MALLOC_ARENA_MAX` (padrão 2) na API e no MCP; `LATEST_CACHE_MAX_BYTES`, `LATEST_CACHE_MAX_ENTRY_BYTES` e
+  `STORE_*_LRU` na API, com os padrões do código. Teste em `tests/unit/test_ops_scripts.py`.
+- `.env.example` documenta as variáveis.
+
+## v2.0.25
+
 O que o usuário vê fala do site, não do software. O Arandurapé é o software; a instância tem nome, contato e marca próprios.
 - **Marca da instância fora do repositório.** O símbolo do cabeçalho e da tela de login e os ícones da aba (`favicon.svg`, `favicon.ico`)
   vêm de `instancia/marca/` (ignorada pelo git, só o README é versionado), copiada sobre `frontend/public/` no `Dockerfile.frontend`.

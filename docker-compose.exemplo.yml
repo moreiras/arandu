@@ -55,6 +55,15 @@ services:
       - API_MEMORIA_CRITICO_PCT=${API_MEMORIA_CRITICO_PCT:-}
       - ANON_API_CLIENT_COST_SECONDS=${ANON_API_CLIENT_COST_SECONDS:-3}   # custo por pedido medido sem sessão válida, na conta do IP
       - ACCESS_POLICY_MODE=${ACCESS_POLICY_MODE:-shadow}
+      # glibc: uma arena de malloc por thread fragmenta e não devolve ao SO; com o GIL, 2 arenas não custam vazão
+      - MALLOC_ARENA_MAX=${MALLOC_ARENA_MAX:-2}
+      # Byte-cache das respostas do latest (soma dos corpos, em bytes) e teto por entrada (api/cache.py)
+      - LATEST_CACHE_MAX_BYTES=${LATEST_CACHE_MAX_BYTES:-629145600}
+      - LATEST_CACHE_MAX_ENTRY_BYTES=${LATEST_CACHE_MAX_ENTRY_BYTES:-16777216}
+      # LRUs do Store (nº de entradas). _origin_paths é o mais pesado (AS-paths de um IXP inteiro por entrada)
+      - STORE_ORIGIN_PATHS_LRU=${STORE_ORIGIN_PATHS_LRU:-24}
+      - STORE_IXP_PEERS_LRU=${STORE_IXP_PEERS_LRU:-24}
+      - STORE_MAP_RECORTE_LRU=${STORE_MAP_RECORTE_LRU:-32}
     networks:
       - arandurape
     security_opt:
@@ -107,6 +116,7 @@ services:
       - MCP_MEMORIA_ALIVIO_PCT=${MCP_MEMORIA_ALIVIO_PCT:-}
       - MCP_MEMORIA_CRITICO_PCT=${MCP_MEMORIA_CRITICO_PCT:-}
       - MCP_PRECARGA=${MCP_PRECARGA:-}
+      - MALLOC_ARENA_MAX=${MALLOC_ARENA_MAX:-2}
       - MCP_HOSTS_EXTRAS=${MCP_HOSTS_EXTRAS:-}     # hosts além de localhost e do host do SITE_URL (ex.: IP de um ambiente de teste); sem isso, 421
       - ALLOWED_IPS=${ALLOWED_IPS:-}               # IP na allowlist tem o MCP completo, como no site (sem ela, só chave ou prévia)
       # Identidade do site: vazio = padrão de core/site.py (Arandurapé, http://localhost)

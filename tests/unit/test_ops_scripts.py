@@ -158,6 +158,16 @@ def test_compose_tetos_de_memoria_iguais_nos_tres_arquivos(arquivo):
     assert str(c["frontend"]["deploy"]["resources"]["limits"]["memory"]).lower() == "512m"
 
 
+def test_compose_exemplo_repassa_caches_e_arenas_a_api_e_ao_mcp():
+    """O `.prod.yml` só vale com PROD_OVERRIDES=true: os tamanhos de cache e o MALLOC_ARENA_MAX do `.env` ficavam fora da API sem ele."""
+    import yaml
+    c = yaml.safe_load((ROOT / "docker-compose.exemplo.yml").read_text())["services"]
+    nomes = lambda s: {str(e).split("=", 1)[0] for e in c[s]["environment"]}       # noqa: E731
+    assert {"MALLOC_ARENA_MAX", "LATEST_CACHE_MAX_BYTES", "LATEST_CACHE_MAX_ENTRY_BYTES", "STORE_ORIGIN_PATHS_LRU", "STORE_IXP_PEERS_LRU",
+            "STORE_MAP_RECORTE_LRU"} <= nomes("api")
+    assert "MALLOC_ARENA_MAX" in nomes("mcp")
+
+
 # ── scripts/arandu-exclusivo.sh: coleta manual e pipeline não rodam juntos ─────────────────────────────────────────────────────────
 
 _FLOCK = pytest.mark.skipif(__import__("shutil").which("flock") is None, reason="flock (util-linux) não existe neste host")
