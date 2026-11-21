@@ -360,6 +360,22 @@ def test_parametro_absurdo_vira_422_e_nao_500(api):
     assert r.status_code == 422
 
 
+def test_divergencias_scm_ordena_a_lista_inteira_antes_do_corte(api):
+    """A versão reduzida (limit pequeno) ordenada por outra coluna traz o primeiro da lista inteira, não reordena o top N."""
+    base = {"min_razao": 1, "limit": 2000}
+    todos = api.get("/api/v1/acessos/divergencias/scm", params=base, headers=ALLOWED).json()["items"]
+    assert len(todos) >= 2
+    for campo in ("razao", "esperado", "acessos_pf", "asn"):
+        for asc in (False, True):
+            cheios = [r[campo] for r in todos if r.get(campo) is not None]
+            if not cheios:
+                continue
+            r = api.get("/api/v1/acessos/divergencias/scm", params={**base, "limit": 1, "ordem": campo, "asc": asc}, headers=ALLOWED)
+            assert r.status_code == 200
+            assert r.json()["items"][0][campo] == (min(cheios) if asc else max(cheios))
+    assert api.get("/api/v1/acessos/divergencias/scm", params={"ordem": "nada"}, headers=ALLOWED).status_code == 422
+
+
 def test_rota_interna_de_diagnostico_e_restrita_e_fora_do_openapi(api, monkeypatch):
     import api.main as main
 

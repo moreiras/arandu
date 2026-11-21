@@ -167,7 +167,7 @@ export interface paths {
          *
          *     O universo são os CNPJs com outorga SCM e um único ASN — por isso operadoras que não
          *     declaram acessos aparecem com `esperado = 0` (e `razao = null`). Ordenado por usuários
-         *     APNIC, decrescente. ASNs com menos de 100 usuários estimados ficam de fora. Acessos móveis (SMP)
+         *     APNIC, decrescente, ou pela coluna de `ordem` (sempre sobre a lista inteira, antes do `limit`). ASNs com menos de 100 usuários estimados ficam de fora. Acessos móveis (SMP)
          *     não entram no cálculo, embora o APNIC conte usuários móveis que saem pelo AS.
          *
          *     Como no endpoint geral, a divergência é **hipótese a investigar**, não erro de fonte.
@@ -5787,6 +5787,10 @@ export interface operations {
                 k_pj?: number;
                 /** @description Razão mínima APNIC / esperado. */
                 min_razao?: number;
+                /** @description Coluna da ordem, aplicada à lista inteira antes do `limit`: apnic_users, razao, esperado, acessos_pf, acessos_pj, asn, name. */
+                ordem?: string;
+                /** @description Ordem crescente; vazios sempre no fim. */
+                asc?: boolean;
             };
             header?: never;
             path?: never;

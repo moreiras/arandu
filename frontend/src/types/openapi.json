@@ -2154,7 +2154,7 @@
    "url": "http://localhost/fontes"
   },
   "title": "Arandurapé",
-  "version": "2.0.28"
+  "version": "2.0.31"
  },
  "openapi": "3.1.0",
  "paths": {
@@ -2806,7 +2806,7 @@
   },
   "/api/v1/acessos/divergencias/scm": {
    "get": {
-    "description": "Variante da divergência que estima quantos usuários os acessos de banda larga fixa (SCM)\ndeclarados ao SICI explicariam:\n\n    esperado = k_pf × acessos PF (B2C) + k_pj × acessos PJ (B2B)\n\ne lista os ASNs cujos usuários estimados pelo APNIC chegam a `min_razao` × o esperado\n(esperado 0 sempre entra). `k_pf` reflete\npessoas por domicílio; `k_pj` é uma estimativa folgada de usuários por empresa.\n\nO universo são os CNPJs com outorga SCM e um único ASN — por isso operadoras que não\ndeclaram acessos aparecem com `esperado = 0` (e `razao = null`). Ordenado por usuários\nAPNIC, decrescente. ASNs com menos de 100 usuários estimados ficam de fora. Acessos móveis (SMP)\nnão entram no cálculo, embora o APNIC conte usuários móveis que saem pelo AS.\n\nComo no endpoint geral, a divergência é **hipótese a investigar**, não erro de fonte.",
+    "description": "Variante da divergência que estima quantos usuários os acessos de banda larga fixa (SCM)\ndeclarados ao SICI explicariam:\n\n    esperado = k_pf × acessos PF (B2C) + k_pj × acessos PJ (B2B)\n\ne lista os ASNs cujos usuários estimados pelo APNIC chegam a `min_razao` × o esperado\n(esperado 0 sempre entra). `k_pf` reflete\npessoas por domicílio; `k_pj` é uma estimativa folgada de usuários por empresa.\n\nO universo são os CNPJs com outorga SCM e um único ASN — por isso operadoras que não\ndeclaram acessos aparecem com `esperado = 0` (e `razao = null`). Ordenado por usuários\nAPNIC, decrescente, ou pela coluna de `ordem` (sempre sobre a lista inteira, antes do `limit`). ASNs com menos de 100 usuários estimados ficam de fora. Acessos móveis (SMP)\nnão entram no cálculo, embora o APNIC conte usuários móveis que saem pelo AS.\n\nComo no endpoint geral, a divergência é **hipótese a investigar**, não erro de fonte.",
     "operationId": "acessos_divergencias_scm_api_v1_acessos_divergencias_scm_get",
     "parameters": [
      {
@@ -2877,6 +2877,30 @@
        "minimum": 1,
        "title": "Min Razao",
        "type": "number"
+      }
+     },
+     {
+      "description": "Coluna da ordem, aplicada à lista inteira antes do `limit`: apnic_users, razao, esperado, acessos_pf, acessos_pj, asn, name.",
+      "in": "query",
+      "name": "ordem",
+      "required": false,
+      "schema": {
+       "default": "apnic_users",
+       "description": "Coluna da ordem, aplicada à lista inteira antes do `limit`: apnic_users, razao, esperado, acessos_pf, acessos_pj, asn, name.",
+       "title": "Ordem",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Ordem crescente; vazios sempre no fim.",
+      "in": "query",
+      "name": "asc",
+      "required": false,
+      "schema": {
+       "default": false,
+       "description": "Ordem crescente; vazios sempre no fim.",
+       "title": "Asc",
+       "type": "boolean"
       }
      }
     ],

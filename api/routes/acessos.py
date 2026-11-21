@@ -579,6 +579,18 @@ def acessos_divergencias(
     }
 
 
+_ORDENS_DIV_SCM = ("apnic_users", "razao", "esperado", "acessos_pf", "acessos_pj", "asn", "name")
+
+
+def _ordenar_div_scm(rows: list[dict], campo: str, asc: bool) -> list[dict]:
+    """Ordena a lista inteira (o corte vem depois); vazios no fim nos dois sentidos, para a versão reduzida mostrar quem lidera."""
+    texto = campo == "name"
+    cheios = [r for r in rows if r.get(campo) not in (None, "")]
+    vazios = [r for r in rows if r.get(campo) in (None, "")]
+    cheios.sort(key=lambda r: str(r[campo]).casefold() if texto else r[campo], reverse=not asc)
+    return cheios + vazios
+
+
 @router.get(
     "/acessos/divergencias/scm",
     summary="Usuários estimados (APNIC) acima do esperado pelos acessos SCM declarados",
@@ -594,7 +606,7 @@ pessoas por domicílio; `k_pj` é uma estimativa folgada de usuários por empres
 
 O universo são os CNPJs com outorga SCM e um único ASN — por isso operadoras que não
 declaram acessos aparecem com `esperado = 0` (e `razao = null`). Ordenado por usuários
-APNIC, decrescente. ASNs com menos de 100 usuários estimados ficam de fora. Acessos móveis (SMP)
+APNIC, decrescente, ou pela coluna de `ordem` (sempre sobre a lista inteira, antes do `limit`). ASNs com menos de 100 usuários estimados ficam de fora. Acessos móveis (SMP)
 não entram no cálculo, embora o APNIC conte usuários móveis que saem pelo AS.
 
 Como no endpoint geral, a divergência é **hipótese a investigar**, não erro de fonte.
@@ -607,6 +619,9 @@ def acessos_divergencias_scm(
     k_pf: float = Query(5, ge=0, le=1000, description="Usuários esperados por acesso PF (B2C)."),
     k_pj: float = Query(30, ge=0, le=100000, description="Usuários esperados por acesso PJ (B2B)."),
     min_razao: float = Query(10, ge=1, le=1000000, description="Razão mínima APNIC / esperado."),
+    ordem: str = Query("apnic_users", description="Coluna da ordem, aplicada à lista inteira antes do `limit`: "
+                       + ", ".join(_ORDENS_DIV_SCM) + "."),
+    asc: bool = Query(False, description="Ordem crescente; vazios sempre no fim."),
 ) -> dict:
     store: Store = request.app.state.store
     date_str = store.resolve_date(date)
@@ -615,6 +630,10 @@ def acessos_divergencias_scm(
     meta = _meta(store, date_str)
 
     rows = store.sici_divergencias_scm(date_str, k_pf=k_pf, k_pj=k_pj, min_razao=min_razao)
+    if ordem not in _ORDENS_DIV_SCM:
+        raise HTTPException(422, f"ordem deve ser uma de: {', '.join(_ORDENS_DIV_SCM)}")
+    if ordem != "apnic_users" or asc:
+        rows = _ordenar_div_scm(rows, ordem, asc)
     return {
         "snapshot_date": date_str,
         "mes_referencia": meta["mes_referencia"],

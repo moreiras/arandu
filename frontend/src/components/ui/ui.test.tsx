@@ -83,3 +83,19 @@ describe('FichaEntidade', () => {
     expect(screen.getByTestId('kpi')).toHaveTextContent('12')
   })
 })
+
+describe('ThOrdenavel', () => {
+  it('botão com aria-sort e seta; sem onOrdenar é um th comum', async () => {
+    const { ThOrdenavel } = await import('.')
+    const cliques: string[] = []
+    const { rerender } = render(<table><thead><tr><ThOrdenavel campo="n" ordem={null} onOrdenar={(c) => cliques.push(c)}>Total</ThOrdenavel></tr></thead></table>)
+    const th = screen.getByRole('columnheader')
+    expect(th).toHaveAttribute('aria-sort', 'none')
+    fireEvent.click(within(th).getByRole('button', { name: /Total/ }))
+    expect(cliques).toEqual(['n'])
+    rerender(<table><thead><tr><ThOrdenavel campo="n" ordem={{ campo: 'n', dir: 'desc' }} onOrdenar={() => {}}>Total</ThOrdenavel></tr></thead></table>)
+    expect(screen.getByRole('columnheader')).toHaveAttribute('aria-sort', 'descending')
+    rerender(<table><thead><tr><ThOrdenavel campo="n" ordem={null}>Total</ThOrdenavel></tr></thead></table>)
+    expect(screen.queryByRole('button')).toBeNull()
+  })
+})

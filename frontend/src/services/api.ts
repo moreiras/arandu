@@ -935,7 +935,7 @@ export function fetchAcessosMunicipiosMapa(date?: string): Promise<SiciMunicipio
 }
 
 export function fetchDivergenciasSCM(opts: {
-  date?: string; limit?: number
+  date?: string; limit?: number; ordem?: string; asc?: boolean
 }): Promise<SiciDivergenciasSCMResponse> {
   return get('/api/v1/acessos/divergencias/scm', opts)
 }

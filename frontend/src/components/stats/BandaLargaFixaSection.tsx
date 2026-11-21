@@ -13,6 +13,8 @@ import type { SiciSeriePoint, SCMStats, SiciStats } from '../../types/api'
 import { useAuth } from '../../auth/AuthContext'
 import { corLegivel } from '../../lib/contraste'
 import { VerDados } from '../ui/VerDados'
+import { ThOrdenavel } from '../ui/ThOrdenavel'
+import { alternarOrdem, type Ordem } from '../../lib/ordenacao'
 
 const SECTION_COLOR = '#7c3aed'
 const COLOR_WITH_ASN = '#60a5fa'
@@ -29,17 +31,21 @@ const DIVERGENCIAS_EXPANDIDO = 1000
 
 function DivergenciasSCM({ date }: { date?: string }) {
   const [expanded, setExpanded] = useState(false)
+  // A versão reduzida traz só as primeiras linhas: a ordem vai ao servidor para o corte sair da lista inteira.
+  const [ordem, setOrdem] = useState<Ordem>({ campo: 'apnic_users', dir: 'desc' })
   const { requireLogin } = useAuth()
   const limit = expanded ? DIVERGENCIAS_EXPANDIDO : DIVERGENCIAS_INICIAL
+  const padrao = ordem.campo === 'apnic_users' && ordem.dir === 'desc'
   const { data: divs, isFetching } = useQuery({
-    queryKey: ['acessos-divergencias-scm', date, limit],
-    queryFn: () => fetchDivergenciasSCM({ date, limit }),
+    queryKey: ['acessos-divergencias-scm', date, limit, ordem.campo, ordem.dir],
+    queryFn: () => fetchDivergenciasSCM({ date, limit, ...(padrao ? {} : { ordem: ordem.campo, asc: ordem.dir === 'asc' }) }),
     placeholderData: prev => prev,
     retry: false,
     staleTime: 10 * 60 * 1000,
   })
 
   if (!divs || divs.items.length === 0) return null
+  const th = (campo: string, primeiro: 'asc' | 'desc' = 'desc') => ({ campo, ordem, onOrdenar: (c: string) => setOrdem((o) => alternarOrdem(o, c, primeiro)) })
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -49,23 +55,23 @@ function DivergenciasSCM({ date }: { date?: string }) {
           Operadoras com outorga SCM e um único ASN cujos usuários estimados pelo APNIC chegam a
           {' '}{fmt(divs.min_razao)}× o esperado pelos acessos de banda larga fixa declarados ao SICI ({divs.mes_referencia}):
           {' '}<b>esperado = {fmt(divs.k_pf)} × B2C + {fmt(divs.k_pj)} × B2B</b> — pessoas por
-          domicílio e uma estimativa folgada de usuários por empresa. Ordenado por usuários APNIC.
+          domicílio e uma estimativa folgada de usuários por empresa. Ordenado por usuários APNIC; o cabeçalho reordena a lista inteira.
           Acessos móveis não entram na conta, embora o APNIC os observe. É ponto de partida para
           investigar, não erro comprovado de nenhuma das fontes.
           {' '}{fmt(divs.total)} ASNs nessa situação, {fmt(divs.sem_acessos)} deles sem nenhum acesso declarado.
         </p>
       </div>
-      <table className="w-full text-sm">
+      <table className="w-full text-sm" aria-label="Maiores divergências entre APNIC e Anatel">
         <thead>
-          <tr className="text-left text-xs text-gray-400 bg-gray-50 border-b border-gray-100">
-            <th className="px-4 py-1.5 w-10 text-right">#</th>
-            <th className="px-4 py-1.5 w-24">AS</th>
-            <th className="px-4 py-1.5">Nome</th>
-            <th className="px-4 py-1.5 w-24 text-right">B2C</th>
-            <th className="px-4 py-1.5 w-24 text-right">B2B</th>
-            <th className="px-4 py-1.5 w-28 text-right">Esperado</th>
-            <th className="px-4 py-1.5 w-28 text-right">APNIC</th>
-            <th className="px-4 py-1.5 w-20 text-right">Razão</th>
+          <tr className="text-left text-xs text-gray-500 bg-gray-50 border-b border-gray-100">
+            <th scope="col" className="px-4 py-1.5 w-10 text-right">#</th>
+            <ThOrdenavel {...th('asn', 'asc')} className="px-4 py-1.5 w-24">AS</ThOrdenavel>
+            <ThOrdenavel {...th('name', 'asc')} className="px-4 py-1.5">Nome</ThOrdenavel>
+            <ThOrdenavel {...th('acessos_pf')} alinhar="right" className="px-4 py-1.5 w-24">B2C</ThOrdenavel>
+            <ThOrdenavel {...th('acessos_pj')} alinhar="right" className="px-4 py-1.5 w-24">B2B</ThOrdenavel>
+            <ThOrdenavel {...th('esperado')} alinhar="right" className="px-4 py-1.5 w-28">Esperado</ThOrdenavel>
+            <ThOrdenavel {...th('apnic_users')} alinhar="right" className="px-4 py-1.5 w-28">APNIC</ThOrdenavel>
+            <ThOrdenavel {...th('razao')} alinhar="right" className="px-4 py-1.5 w-20">Razão</ThOrdenavel>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
@@ -100,8 +106,8 @@ function DivergenciasSCM({ date }: { date?: string }) {
             {isFetching
               ? 'Carregando…'
               : expanded
-                ? `Mostrar apenas os ${DIVERGENCIAS_INICIAL} maiores`
-                : `Mostrar os ${fmt(Math.min(DIVERGENCIAS_EXPANDIDO, divs.total))} maiores`}
+                ? `Mostrar apenas os ${DIVERGENCIAS_INICIAL} primeiros`
+                : `Mostrar os ${fmt(Math.min(DIVERGENCIAS_EXPANDIDO, divs.total))} primeiros`}
           </button>
         </div>
       )}
