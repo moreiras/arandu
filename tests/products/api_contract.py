@@ -4,6 +4,7 @@
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 """T4 — monta uma requisição válida para cada operação da API sobre o dataset sintético."""
+import json
 import re
 
 from core.capacidades import carregar_todas
@@ -133,4 +134,7 @@ def request_for(path: str, method: str, ctx: dict):
         url = re.sub(r"{" + name + r"(:[^}]*)?}", str(ctx[key]), url)
     query = {k: (v.format(**ctx) if isinstance(v, str) else v) for k, v in QUERY.get(path, {}).items()}
     body = BODY[path][1] if path in BODY else None
+    if method.upper() == "GET" and path == "/api/v1/query/{collection}":      # o mesmo corpo, na URL
+        query["corpo"] = json.dumps(body)
+        body = None
     return url, query, body

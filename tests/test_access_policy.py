@@ -44,6 +44,24 @@ def test_post_de_consulta_e_medido():
     assert c("/api/v1/query/asns", method="POST") == METERED
 
 
+def test_get_de_consulta_classifica_pelo_corpo():
+    """`GET /query/{coleção}?corpo=` vai para o cache do nginx e da API (chave = URL): o que o corpo pede além da prévia é `login`
+    para a URL inteira, senão a resposta completa de quem tem login seria entregue a anônimos."""
+    def c(corpo, colecao="operadoras", date=None):
+        q = {"corpo": json.dumps(corpo)} | ({"date": date} if date else {})
+        return classify("GET", f"/api/v1/query/{colecao}", q, ["2026-11-08", "2026-11-15"]).cls
+    assert c({"select": ["empresa"], "limit": 5}) == METERED
+    assert c({"limit": PREVIEW_LIMIT}) == METERED
+    assert c({"limit": PREVIEW_LIMIT + 1}) == LOGIN
+    assert c({"page": 2}) == LOGIN and c({"offset": 10}) == LOGIN
+    assert c({"limit": True}) == METERED                                       # booleano não é número
+    assert c({"limit": 1}, "eventos", "2026-11-15") == METERED                  # histórico a partir de um snapshot atual
+    assert c({"limit": 1}, "eventos") == LOGIN                                   # sem início: a série inteira
+    assert c({"limit": 1, "de": "2026-10-01"}, "eventos", "2026-11-15") == LOGIN
+    assert classify("GET", "/api/v1/query/operadoras", {"corpo": "não é json"}, None).cls == METERED   # a rota responde 400
+    assert c({"limit": 5}, date="2026-10-04") == LOGIN                          # snapshot antigo, como nas outras rotas
+
+
 @pytest.mark.parametrize("path", [
     "/api/v1/asns/3356/contacts", "/api/v1/acessos/operadora/123/contacts",
     "/api/v1/acessos-movel/operadora/123/contacts",

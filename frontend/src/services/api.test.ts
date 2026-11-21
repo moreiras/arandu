@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   AccessError, fetchASN, fetchASNContacts, fetchASNs, fetchIXP, fetchSnapshots, onAnonLimitReached,
-  onLoginRequired, setCurrentArea,
+  onLoginRequired, queryColecao, setCurrentArea,
 } from './api'
 import { fixtures, seenHeaders, server } from '../test/server'
 import { http, HttpResponse } from 'msw'
@@ -122,5 +122,28 @@ describe('API ocupada (503 busy): espera e tenta de novo', () => {
     server.use(http.get('*/api/v1/asns/:asn', () => { chamadas += 1; return new HttpResponse('falhou', { status: 503 }) }))
     await expect(fetchASN(64496)).rejects.toThrow(/HTTP 503/)
     expect(chamadas).toBe(1)
+  })
+})
+
+
+describe('consulta genérica (queryColecao)', () => {
+  it('vai por GET com o corpo na URL (cacheável) e por POST quando o corpo não cabe nela', async () => {
+    const vistos: Array<{ metodo: string; corpo: string | null }> = []
+    server.use(
+      http.get('*/api/v1/query/operadoras', ({ request }) => {
+        vistos.push({ metodo: 'GET', corpo: new URL(request.url).searchParams.get('corpo') })
+        return HttpResponse.json({ items: [], total: 0 })
+      }),
+      http.post('*/api/v1/query/operadoras', async ({ request }) => {
+        vistos.push({ metodo: 'POST', corpo: JSON.stringify(await request.json()) })
+        return HttpResponse.json({ items: [], total: 0 })
+      }),
+    )
+    const corpo = { select: ['empresa'], limit: 5 }
+    await queryColecao('operadoras', corpo, '2026-11-15')
+    expect(vistos[0]).toEqual({ metodo: 'GET', corpo: JSON.stringify(corpo) })
+    const grande = { filter: { field: 'cnpj', op: 'in', value: Array.from({ length: 800 }, (_, i) => String(10000000000000 + i)) } }
+    await queryColecao('operadoras', grande, '2026-11-15')
+    expect(vistos[1].metodo).toBe('POST')
   })
 })

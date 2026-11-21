@@ -605,6 +605,7 @@ export function Sobre() {
           <div className="text-gray-500 pt-1"># Query genérica</div>
           <div><span className="text-ok-400">GET</span> /api/v1/schema</div>
           <div><span className="text-primario-400">POST</span> /api/v1/query/{'{collection}'}</div>
+          <div><span className="text-ok-400">GET</span> /api/v1/query/{'{collection}'}?corpo={'{JSON}'}</div>
           <div className="text-gray-500 pt-1"># Infra</div>
           <div><span className="text-ok-400">GET</span> /health</div>
         </div>

@@ -3677,7 +3677,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Consulta genérica por GET (o mesmo motor, cacheável)
+         * @description O mesmo motor e as mesmas regras de `POST /query/{collection}`, com o corpo da consulta em `corpo` (JSON, codificado na URL). Por ser GET,
+         *     a resposta entra no cache do navegador, do nginx e da API: com `date` de snapshot publicado sai `immutable`. É o que o site usa nas
+         *     perguntas prontas da página inicial, que todos os visitantes repetem. Corpo grande demais para uma URL vai pelo POST.
+         *
+         *     Exemplo: `GET /api/v1/query/operadoras?date=2026-11-15&corpo={"select":["empresa","acessos"],"sort":[{"field":"acessos","dir":"desc"}],"limit":5}`
+         */
+        get: operations["get_query_api_v1_query__collection__get"];
         put?: never;
         /**
          * Consulta genérica (filtro/seleção/ordenação/agregação)
@@ -11151,6 +11159,44 @@ export interface operations {
             };
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_query_api_v1_query__collection__get: {
+        parameters: {
+            query?: {
+                /** @description Corpo da consulta em JSON (o mesmo do POST). */
+                corpo?: string;
+                /** @description Data do snapshot (YYYY-MM-DD). */
+                date?: string | null;
+            };
+            header?: never;
+            path: {
+                collection: string;
+            };
             cookie?: never;
         };
         requestBody?: never;

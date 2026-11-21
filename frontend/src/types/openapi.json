@@ -2154,7 +2154,7 @@
    "url": "http://localhost/fontes"
   },
   "title": "Arandurapé",
-  "version": "2.0.31"
+  "version": "2.0.32"
  },
  "openapi": "3.1.0",
  "paths": {
@@ -14868,6 +14868,80 @@
    }
   },
   "/api/v1/query/{collection}": {
+   "get": {
+    "description": "O mesmo motor e as mesmas regras de `POST /query/{collection}`, com o corpo da consulta em `corpo` (JSON, codificado na URL). Por ser GET,\na resposta entra no cache do navegador, do nginx e da API: com `date` de snapshot publicado sai `immutable`. É o que o site usa nas\nperguntas prontas da página inicial, que todos os visitantes repetem. Corpo grande demais para uma URL vai pelo POST.\n\nExemplo: `GET /api/v1/query/operadoras?date=2026-11-15&corpo={\"select\":[\"empresa\",\"acessos\"],\"sort\":[{\"field\":\"acessos\",\"dir\":\"desc\"}],\"limit\":5}`",
+    "operationId": "get_query_api_v1_query__collection__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "collection",
+      "required": true,
+      "schema": {
+       "title": "Collection",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Corpo da consulta em JSON (o mesmo do POST).",
+      "in": "query",
+      "name": "corpo",
+      "required": false,
+      "schema": {
+       "default": "{}",
+       "description": "Corpo da consulta em JSON (o mesmo do POST).",
+       "maxLength": 8192,
+       "title": "Corpo",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Data do snapshot (YYYY-MM-DD).",
+      "in": "query",
+      "name": "date",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Data do snapshot (YYYY-MM-DD).",
+       "title": "Date"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Get Query Api V1 Query  Collection  Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Consulta genérica por GET (o mesmo motor, cacheável)",
+    "tags": [
+     "query"
+    ]
+   },
    "post": {
     "description": "Primitiva de consulta sobre as tabelas em memória do snapshot. Componível:\nfiltros and/or/not, seleção, ordenação, paginação **e** agregação (group_by + aggregate).\n\n**Operadores:** `eq ne gt gte lt lte in nin contains ncontains exists`\n(`contains` = substring em strings ou pertinência em arrays; dot-path suportado, ex.:\n`v4.br_prefix_coverage_pct`).\n\n**Modo lista** → `items`. **Modo agregação** (com `group_by`/`aggregate`) → `groups`.\n\nVeja os campos por collection em `GET /schema`. Collections: `asns`, `ixps`,\n`external_ixps`, `cdns`, `prefixes`.\n\nÁlgebra de conjuntos na mesma collection sai de graça via filtro composto — ex.:\nASes diretos no SP mas não no RJ: `ixps_direct contains \"sp\" AND ncontains \"rj\"`.",
     "operationId": "post_query_api_v1_query__collection__post",

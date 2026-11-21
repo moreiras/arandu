@@ -45,7 +45,7 @@ beforeEach(() => {
       { uf: 'SP', ptts: 3, municipios: 600, acessos: 9e6, fibra_pct: 70, asns: 900, usuarios: 3e7, municipios_sem_ptt: 30, domicilios: 1.6e7, penetracao: 0.8 },
       { uf: 'AM', ptts: 0, municipios: 60, acessos: 4e5, fibra_pct: 30, asns: 20, usuarios: 1e6, municipios_sem_ptt: 40, domicilios: 1e6, penetracao: 0.4 },
     ] })),
-    http.post('*/api/v1/query/:colecao', () => HttpResponse.json({ items: [{ asn: 64500, uf: 'PR', data: '2026-10-31' }], total: 37 })),
+    http.get('*/api/v1/query/:colecao', () => HttpResponse.json({ items: [{ asn: 64500, uf: 'PR', data: '2026-10-31' }], total: 37 })),
     http.get('*/api/v1/acessos/divergencias', () => HttpResponse.json({ items: [{ asn: 1 }], total: 3 })),
   )
 })

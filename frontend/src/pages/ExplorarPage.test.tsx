@@ -40,8 +40,8 @@ beforeEach(() => {
   useAppStore.setState({ activeDate: null, latestSnapshot: '2026-09-20' })
   server.use(
     http.get('*/api/v1/schema', () => HttpResponse.json(schema)),
-    http.post('*/api/v1/query/:colecao', async ({ params, request }) => {
-      const corpo = await request.json() as any
+    http.get('*/api/v1/query/:colecao', ({ params, request }) => {
+      const corpo = JSON.parse(new URL(request.url).searchParams.get('corpo') || '{}') as any
       corpos.push({ colecao: String(params.colecao), corpo })
       if (corpo.aggregate) return HttpResponse.json({ mode: 'aggregate', matched: 10, groups: [{ key: { meio: 'Fibra' }, count: 7 }, { key: { meio: 'Rádio' }, count: 3 }], snapshot_date: '2026-09-20' })
       return HttpResponse.json({ mode: 'list', total: 2, page: 1, pages: 1, snapshot_date: '2026-09-20', items: [{ cnpj: '11111111000111', empresa: 'Fibra Vix', acessos: 12345 }, { cnpj: '22222222000122', empresa: 'Rede Sul', acessos: 800 }] })
@@ -110,7 +110,7 @@ describe('/explorar', () => {
   })
 
   it('erro 400 da API aparece com o detalhe, sem o ruído técnico', async () => {
-    server.use(http.post('*/api/v1/query/:colecao', () => HttpResponse.json({ detail: "campo 'fantasma' não existe" }, { status: 400 })))
+    server.use(http.get('*/api/v1/query/:colecao', () => HttpResponse.json({ detail: "campo 'fantasma' não existe" }, { status: 400 })))
     const e = estadoInicial('ixps')
     montar(`/explorar?${paraUrl(e)}`)
     expect(await screen.findByRole('alert')).toHaveTextContent("A consulta não pôde ser executada: campo 'fantasma' não existe")

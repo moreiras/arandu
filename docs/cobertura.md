@@ -4,7 +4,7 @@ Gerado por `python3 scripts/gen_cobertura.py` a partir do OpenAPI, do MCP, do fr
 Não edite à mão. Rota nova precisa de uma entrada em `serve/capabilities/_manuais.yaml` (ou de uma capacidade declarada); lacuna
 sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rotas que os substituem.
 
-- Rotas de dados (GET, não deprecated): **167**; com tool no MCP: **137**; consumidas pela interface: **135**.
+- Rotas de dados (GET, não deprecated): **168**; com tool no MCP: **138**; consumidas pela interface: **136**.
 - Pendências marcadas (`pendente:`): **0**; lacunas sem justificativa: **0**.
 - Tools do MCP geradas de capacidade declarada: **2** de 58.
 
@@ -150,6 +150,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /qualidade/prestadoras` | `query:qualidade_uf` | ✔ |  |
 | `GET /qualidade/resumo` | `query:qualidade_uf` | ✔ |  |
 | `GET /qualidade/serie` | `query:qualidade_uf` | ✔ |  |
+| `GET /query/{collection}` | `query` | ✔ |  |
 | `GET /radar/ufs/{uf}` | `uf_radar` | — | UI: a página da UF usa o mesmo bloco pelo ?include=radar do perfil |
 | `GET /ranking/municipios` | — | ✔ | MCP: o ranking por município atendido sai de query:acessos_municipio; o HHI e a variação por município vêm de municipio_banda_larga (bloco indicadores) |
 | `GET /ranking/operadoras` | `query:indicadores_operadora` | ✔ |  |

@@ -30,6 +30,8 @@ LOGIN = "login"
 
 # Prévia de lista para anônimo: 1ª página, até este nº de linhas.
 PREVIEW_LIMIT = 100
+# coleções da consulta genérica que são histórico: sem login, só a partir dos snapshots atuais (aqui e em api/auth/previa.py)
+COLECOES_HISTORICO = frozenset({"eventos", "series_asn"})
 
 _API = "/api/v1"
 
@@ -154,6 +156,20 @@ def _int(value: Optional[str], default: int) -> Optional[int]:
     return int(value) if _INTEIRO.match(value) else None
 
 
+def _e_int(v) -> bool:
+    return isinstance(v, int) and not isinstance(v, bool)
+
+
+def _corpo_json(texto: Optional[str]) -> Optional[dict]:
+    """O corpo de `GET /query/{coleção}?corpo=`; None se não for um objeto JSON (a rota responde 400)."""
+    import json
+    try:
+        doc = json.loads(texto or "")
+    except ValueError:
+        return None
+    return doc if isinstance(doc, dict) else None
+
+
 def classify(
     method: str,
     path: str,
@@ -203,6 +219,20 @@ def classify(
             date = query.get("date")
         if date and date not in recent_dates:
             return Classification(LOGIN, "historico")
+
+    # Consulta genérica por GET (`/query/{coleção}?corpo=<JSON>`): a resposta vai para o cache do nginx e da API, cuja chave é a URL. O que
+    # o corpo pede além da prévia (lista maior, outra página, `offset`, histórico fora dos snapshots atuais) é `login` para a URL inteira,
+    # e não só para o anônimo: senão a resposta completa de quem tem login ficaria guardada e seria entregue a anônimos.
+    if method.upper() == "GET" and rel.startswith("/query/") and query.get("corpo"):
+        corpo = _corpo_json(query.get("corpo"))
+        if corpo is not None:
+            lim, pag, off = corpo.get("limit"), corpo.get("page"), corpo.get("offset")
+            if (_e_int(lim) and lim > PREVIEW_LIMIT) or (_e_int(pag) and pag > 1) or (_e_int(off) and off > 0):
+                return Classification(LOGIN, "lista-expandida")
+            if recent_dates and rel.split("/")[2] in COLECOES_HISTORICO:
+                inicio = corpo.get("de") or query.get("date")
+                if not (isinstance(inicio, str) and inicio >= min(recent_dates)):
+                    return Classification(LOGIN, "historico")
 
     # Lote de ASNs: `GET /asns?asns=…` devolve documentos completos, que em `/asns/{asn}` são avançados.
     # Sem isto a prévia aberta da lista serviria 100 documentos por pedido a quem não tem orçamento.

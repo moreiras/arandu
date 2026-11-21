@@ -2181,6 +2181,20 @@
    "status": 200,
    "tipo": "objeto"
   },
+  "GET /api/v1/query/{collection}": {
+   "chaves": [
+    "collection",
+    "items",
+    "limit",
+    "mode",
+    "page",
+    "pages",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
   "GET /api/v1/radar/ufs/{uf}": {
    "chaves": [
     "asns",

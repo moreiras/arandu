@@ -151,6 +151,8 @@
   mcp: rota_prefixo
 - http: GET /prefixes/{prefix}
   mcp: rota_prefixo
+- http: GET /query/{collection}
+  mcp: query
 - http: GET /resolve/operator
   mcp: operadora_resolver
   sem_ui: "sem tela própria hoje; atende o MCP"

@@ -1877,3 +1877,24 @@ def test_rota_medida_nao_fica_na_borda_exceto_mapas_e_agregados(api, ctx):
     from api.auth import access_policy as ap
     assert ap.cache_na_borda("/api/v1/bgp-stability/history") and ap.cache_na_borda("/ixps/sp/geo")
     assert not any(ap.cache_na_borda(p) for p in ("/api/v1/asns/1", "/api/v1/ixps/sp", "/api/v1/grupos/g", "/api/v1/query/asns"))
+
+
+def test_consulta_por_get_e_a_mesma_do_post_e_cacheavel(api):
+    """`GET /query/{coleção}?corpo=`: o mesmo motor e as mesmas regras do POST, mas cacheável (as perguntas da página inicial)."""
+    data = api.get("/health").json()["latest_snapshot"]
+    corpo = {"select": ["asn", "name"], "sort": [{"field": "asn", "dir": "asc"}], "limit": 3}
+    p = api.post("/api/v1/query/asns", params={"date": data}, json=corpo, headers=ANON)
+    g = api.get("/api/v1/query/asns", params={"date": data, "corpo": json.dumps(corpo)}, headers=ANON)
+    assert p.status_code == g.status_code == 200 and p.json() == g.json()
+    assert g.headers["cache-control"] == "public, max-age=31536000, immutable"
+    assert api.get("/api/v1/query/asns", params={"corpo": "{nao json"}, headers=ANON).status_code == 400
+    assert api.get("/api/v1/query/asns", params={"corpo": "[1, 2]"}, headers=ANON).status_code == 400
+
+
+def test_consulta_por_get_alem_da_previa_nao_depende_de_quem_pede(api):
+    """Lista além da prévia por GET: 401 ao anônimo e `private, no-store` a quem tem acesso (o nginx guarda por URL)."""
+    params = {"corpo": json.dumps({"select": ["asn"], "limit": 150})}
+    negado = api.get("/api/v1/query/asns", params=params, headers=ANON)
+    assert negado.status_code == 401 and negado.json().get("login_required") is True
+    r = api.get("/api/v1/query/asns", params=params, headers=ALLOWED)
+    assert r.status_code == 200 and r.headers["cache-control"] == "private, no-store"

@@ -22,7 +22,7 @@ let chamadas = 0
 const montar = (limitReached: boolean) => {
   server.use(
     http.get('*/auth/me', () => HttpResponse.json(anon(limitReached))),
-    http.post('*/api/v1/query/eventos', () => { chamadas += 1; return HttpResponse.json({ items: [], total: 3 }) }),
+    http.get('*/api/v1/query/eventos', () => { chamadas += 1; return HttpResponse.json({ items: [], total: 3 }) }),
   )
   return render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>

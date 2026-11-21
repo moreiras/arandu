@@ -217,6 +217,7 @@ async function failure(res: Response): Promise<never> {
 async function get<T>(
   path: string,
   params?: Record<string, string | number | boolean | undefined>,
+  signal?: AbortSignal,
 ): Promise<T> {
   const url = new URL(BASE + path, window.location.href)
   if (params) {
@@ -224,7 +225,7 @@ async function get<T>(
       if (v !== undefined) url.searchParams.set(k, String(v))
     }
   }
-  const res = await fetchComEspera(url.toString(), { credentials: 'include', headers: baseHeaders() })
+  const res = await fetchComEspera(url.toString(), { credentials: 'include', headers: baseHeaders(), signal })
   checkAnonLimitHeader(res)
   if (!res.ok) return failure(res)
   // `opcional`: a API responde 204 em vez de 404 (sem erro no console do navegador); para quem chama continua sendo "HTTP 404".
@@ -732,9 +733,21 @@ export function fetchCaminho<T = unknown>(caminho: string, params?: Record<strin
   return get(caminho, params)
 }
 
-/** Consulta genérica de uma collection (mesmo motor do MCP): filtro, agregação, ordenação e paginação — ver `GET /api/v1/schema`. */
+/** Corpo maior que isto (codificado na URL) vai pelo POST: o nginx aceita linhas de requisição de ~8 KB. */
+export const MAX_CORPO_NA_URL = 6000
+
+/**
+ * Consulta genérica de uma collection (mesmo motor do MCP): filtro, agregação, ordenação e paginação — ver `GET /api/v1/schema`.
+ * Vai por GET (`?corpo=<JSON>`), que o navegador, o nginx e a API guardam: as perguntas prontas da página inicial são as mesmas para todo
+ * visitante e, por POST, eram recalculadas a cada visita (no teste de carga de 2026-11-21, os travamentos na chegada de visitantes novos).
+ * Corpo grande demais para uma URL vai pelo POST.
+ */
 export function queryColecao<T = unknown>(collection: string, body: Record<string, unknown>, date?: string, signal?: AbortSignal): Promise<T> {
-  return post(`/api/v1/query/${collection}`, body, date ? { date } : undefined, signal)
+  const corpo = JSON.stringify(body)
+  if (encodeURIComponent(corpo).length > MAX_CORPO_NA_URL) {
+    return post(`/api/v1/query/${collection}`, body, date ? { date } : undefined, signal)
+  }
+  return get(`/api/v1/query/${collection}`, { corpo, date }, signal)
 }
 
 export function fetchMapQuery(body: MapQueryBody, date?: string, signal?: AbortSignal): Promise<MapQueryResponse> {

@@ -11,10 +11,9 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from api.auth.access_policy import PREVIEW_LIMIT
+from api.auth.access_policy import COLECOES_HISTORICO, PREVIEW_LIMIT
 
 HISTORICO = frozenset({"historico_serie", "historico_mudancas", "historico_acessos"})
-COLECOES_HISTORICO = frozenset({"eventos", "series_asn"})
 COMO_TER_CHAVE = ("Sem chave de MCP o acesso é uma prévia, como no site sem login. Para mais, entre no site, gere a chave em /perfil e configure o "
                   "cliente com o cabeçalho `Authorization: Bearer <chave>`.")
 

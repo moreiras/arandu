@@ -1,5 +1,18 @@
 # Notas de versão
 
+## v2.0.33
+
+Consulta genérica também por GET, cacheável: as perguntas prontas da página inicial deixam de recalcular a cada visita.
+- `GET /api/v1/query/{collection}?corpo=<JSON>&date=`: o mesmo motor, os mesmos limites (custo 3 no orçamento, `LIMIT_QUERY`) e a
+  mesma prévia anônima do `POST`. Com `date` de snapshot publicado sai `immutable`, e o nginx e o cache de respostas da API a guardam.
+  Continua `metered` e fora do cache da Cloudflare, como o POST: a borda não passa pelo gate. O POST continua para corpos grandes.
+- O site passa a consultar por GET (`queryColecao`, `frontend/src/services/api.ts`), com recurso ao POST acima de 6.000 caracteres na
+  URL. Na página inicial eram quatro POST por visitante novo, de cerca de 0,45 s de CPU cada, e no teste de carga de 2026-11-21 eles
+  concentraram os travamentos de 12 a 32 s na chegada de visitantes novos (656 pedidos, 2,7 s em média no servidor).
+- **Política de acesso:** a URL guardada não pode depender de quem pede. O `classify` lê o `corpo` do GET: `limit` acima da prévia,
+  `page` > 1, `offset` e histórico fora dos snapshots atuais (`COLECOES_HISTORICO`, agora definido em `access_policy`) tornam a URL inteira
+  `login` (401 ao anônimo e `private, no-store` a quem tem acesso), como nas demais rotas.
+
 ## v2.0.32
 
 Correção da 2.0.31: a razão social lida de `normalized/` volta a sair com o CPF mascarado.

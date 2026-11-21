@@ -12,6 +12,7 @@ Mesmo motor usado pelo servidor MCP.
 """
 from __future__ import annotations
 
+import json
 import logging
 from typing import Optional
 
@@ -107,15 +108,51 @@ def post_query(
     body: dict = Body(default_factory=dict, examples=[_EXAMPLE]),
     date: Optional[str] = Query(None, description="Data do snapshot (YYYY-MM-DD)."),
 ) -> dict:
+    return _consultar(request, collection, body or {}, date)
+
+
+# A linha da requisição passa pelo nginx (~8 KB); corpo maior vai pelo POST (até `_MAX_CORPO_QUERY`, api/main.py). O site manda até
+# MAX_CORPO_NA_URL (frontend/src/services/api.ts) por GET.
+_MAX_CORPO_GET = 8 * 1024
+
+
+@router.get(
+    "/query/{collection}",
+    summary="Consulta genérica por GET (o mesmo motor, cacheável)",
+    description="""
+O mesmo motor e as mesmas regras de `POST /query/{collection}`, com o corpo da consulta em `corpo` (JSON, codificado na URL). Por ser GET,
+a resposta entra no cache do navegador, do nginx e da API: com `date` de snapshot publicado sai `immutable`. É o que o site usa nas
+perguntas prontas da página inicial, que todos os visitantes repetem. Corpo grande demais para uma URL vai pelo POST.
+
+Exemplo: `GET /api/v1/query/operadoras?date=2026-11-15&corpo={"select":["empresa","acessos"],"sort":[{"field":"acessos","dir":"desc"}],"limit":5}`
+""",
+)
+@limiter.limit(LIMIT_QUERY)
+def get_query(
+    collection: str,
+    request: Request,
+    corpo: str = Query("{}", max_length=_MAX_CORPO_GET, description="Corpo da consulta em JSON (o mesmo do POST)."),
+    date: Optional[str] = Query(None, description="Data do snapshot (YYYY-MM-DD)."),
+) -> dict:
+    try:
+        body = json.loads(corpo or "{}")
+    except ValueError:
+        raise HTTPException(400, "corpo: JSON inválido")
+    if not isinstance(body, dict):
+        raise HTTPException(400, "corpo: deve ser um objeto JSON")
+    return _consultar(request, collection, body, date)
+
+
+def _consultar(request: Request, collection: str, body: dict, date: Optional[str]):
     store: Store = request.app.state.store
     date_str = store.resolve_date(date)
     if date_str is None:
         raise HTTPException(404, "Nenhum snapshot disponível")
-    bloqueio = _previa_anonima(request, collection, body or {}, date)
+    bloqueio = _previa_anonima(request, collection, body, date)
     if bloqueio is not None:
         return bloqueio
     try:
-        return store.query(date_str, collection, body or {})
+        return store.query(date_str, collection, body)
     except q.QueryError as exc:
         raise HTTPException(400, str(exc))
 
