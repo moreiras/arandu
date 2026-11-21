@@ -2,12 +2,12 @@
 # requirements.lock, regravado por `bash scripts/travar-dependencias.sh` depois de qualquer mudança aqui.
 
 # API
-fastapi==0.138.1
-uvicorn[standard]==0.34.2
-pydantic==2.11.5
+fastapi==0.163.2
+uvicorn[standard]==0.54.0
+pydantic==2.14.3
 
 # Cache LRU em memória (byte-cache do snapshot latest)
-cachetools==5.5.0
+cachetools==5.5.2
 
 # Servidor MCP (Model Context Protocol) — expõe o snapshot a LLMs.
 # mcp 1.30.0 (S-07, análise de segurança de 2026-11-12): corrige a CVE-2026-59951 (sessões do Streamable HTTP que nunca expiravam).
@@ -23,16 +23,16 @@ brotli==1.2.1
 PyJWT==2.15.1
 
 # Rate limiting (anti-abuso) — middleware estilo slowapi por IP/rota
-slowapi==0.1.9
+slowapi==0.1.10
 
 # YAML
-pyyaml==6.0.2
+pyyaml==6.0.3
 
 # Logs estruturados
-structlog==25.3.0
+structlog==25.5.0
 
 # Parsing e dados
 mrtparse==2.2.0
 
 # Geolocalização
-maxminddb==2.6.3
+maxminddb==2.8.2
