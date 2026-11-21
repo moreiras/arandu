@@ -122,7 +122,7 @@ def municipio_perfil(
 
 
 _BLOCOS_OPERADORA = {"scm", "smp", "stfc", "seac"}
-_INCLUDES_PERFIL = {"historico", "indicadores", "territorio", "cetic", "erbs", "fust", "multas", "prontidao", "qualidade", "reclamacoes", "consumidor", "transito", "radar", "exposicao", "mercado_grupos", "rede_territorio"}
+_INCLUDES_PERFIL = {"historico", "historico_completo", "indicadores", "territorio", "cetic", "erbs", "fust", "multas", "prontidao", "qualidade", "reclamacoes", "consumidor", "transito", "radar", "exposicao", "mercado_grupos", "rede_territorio"}
 _ENVELOPE = ("snapshot_date", "cnpj")
 
 
@@ -158,7 +158,7 @@ def operadora_perfil(
     date: Optional[str] = Query(None),
     blocos: Optional[str] = Query(None, description="Serviços a incluir, separados por vírgula: scm, smp, stfc, seac."),
     fields: Optional[str] = Query(None, description="Campos do primeiro nível a manter, separados por vírgula."),
-    include: Optional[str] = Query(None, description="Extras: `historico` = série e eventos recentes (o anônimo vê só as datas atuais); `indicadores` = share, HHI, variações e declaração ao SICI; `territorio` = população, domicílios, penetração e mercado não visto; `erbs` = estações do SMP licenciadas da operadora. `multas` = multas constituídas da Anatel contra a empresa (raiz do CNPJ), por serviço. `qualidade` = RQUAL das prestadoras ligadas ao CNPJ e `reclamacoes` = reclamações das marcas ligadas ao CNPJ, com a ligação rotulada. `consumidor` = reclamações finalizadas das empresas do Consumidor.gov.br ligadas ao CNPJ, com série mensal e assuntos."),
+    include: Optional[str] = Query(None, description="Extras: `historico` = série e eventos dos 2 snapshots atuais; `historico_completo` = a série inteira (exige login); `indicadores` = share, HHI, variações e declaração ao SICI; `territorio` = população, domicílios, penetração e mercado não visto; `erbs` = estações do SMP licenciadas da operadora. `multas` = multas constituídas da Anatel contra a empresa (raiz do CNPJ), por serviço. `qualidade` = RQUAL das prestadoras ligadas ao CNPJ e `reclamacoes` = reclamações das marcas ligadas ao CNPJ, com a ligação rotulada. `consumidor` = reclamações finalizadas das empresas do Consumidor.gov.br ligadas ao CNPJ, com série mensal e assuntos."),
 ) -> dict:
     store: Store = request.app.state.store
     date_str = store.resolve_date(date)
@@ -177,9 +177,9 @@ def operadora_perfil(
         if not multas:
             raise
         return _projetar({"snapshot_date": date_str, "cnpj": digitos, "multas": multas}, fields)
-    if extras and "historico" in extras:
-        from api.routes.historico import bloco_historico
-        perfil["historico"] = bloco_historico(request, "operadora", perfil["cnpj"])
+    from api.routes.historico import bloco_historico, pede_historico
+    if (completo := pede_historico(extras)) is not None:
+        perfil["historico"] = bloco_historico(request, "operadora", perfil["cnpj"], completo)
     if extras and "mercado_grupos" in extras:
         from api.services.sici_indicadores import bloco_sobreposicao_operadora
         perfil["mercado_grupos"] = bloco_sobreposicao_operadora(store.mercado_grupos(date_str), perfil["cnpj"])
@@ -282,7 +282,7 @@ def uf_perfil(
     date: Optional[str] = Query(None),
     blocos: Optional[str] = Query(None, description="Seções a incluir, separadas por vírgula: ptts, municipios, operadoras."),
     fields: Optional[str] = Query(None, description="Campos do primeiro nível a manter, separados por vírgula."),
-    include: Optional[str] = Query(None, description="Extras: `historico` = série e eventos recentes (o anônimo vê só as datas atuais); `indicadores` = share, HHI, variações e declaração ao SICI; `territorio` = população, domicílios, penetração e mercado não visto; `cetic` = estimativas da TIC Domicílios para a UF, do Arandurapé, com erro-padrão, e `demanda_oferta` = banda larga fixa declarada pelas famílias × acessos do SICI; `erbs` = estações do SMP licenciadas. `fust` = compromissos do FUST na UF. `qualidade` = RQUAL por prestadora (último ano) e `reclamacoes` = reclamações por ano e serviço na UF. `consumidor` = empresas com reclamações finalizadas na UF no Consumidor.gov.br. `transito` = concentração dos provedores de trânsito inferidos dos ASNs com sede na UF. `radar` = agregado derivado do Cloudflare Radar (IPv6, tráfego e BGP) dos ASNs da UF. `exposicao` = agregado derivado de serviços expostos observados pelo Shodan nos ASNs da UF lidos."),
+    include: Optional[str] = Query(None, description="Extras: `historico` = série e eventos dos 2 snapshots atuais; `historico_completo` = a série inteira (exige login); `indicadores` = share, HHI, variações e declaração ao SICI; `territorio` = população, domicílios, penetração e mercado não visto; `cetic` = estimativas da TIC Domicílios para a UF, do Arandurapé, com erro-padrão, e `demanda_oferta` = banda larga fixa declarada pelas famílias × acessos do SICI; `erbs` = estações do SMP licenciadas. `fust` = compromissos do FUST na UF. `qualidade` = RQUAL por prestadora (último ano) e `reclamacoes` = reclamações por ano e serviço na UF. `consumidor` = empresas com reclamações finalizadas na UF no Consumidor.gov.br. `transito` = concentração dos provedores de trânsito inferidos dos ASNs com sede na UF. `radar` = agregado derivado do Cloudflare Radar (IPv6, tráfego e BGP) dos ASNs da UF. `exposicao` = agregado derivado de serviços expostos observados pelo Shodan nos ASNs da UF lidos."),
 ) -> dict:
     store: Store = request.app.state.store
     date_str = store.resolve_date(date)
@@ -293,9 +293,9 @@ def uf_perfil(
         raise HTTPException(404, f"UF '{uf}' desconhecida.")
     extras = _blocos(include, _INCLUDES_PERFIL)
     perfil = store.perfil_uf(date_str, sigla, _blocos(blocos, _BLOCOS_UF))
-    if extras and "historico" in extras:
-        from api.routes.historico import bloco_historico
-        perfil = {**perfil, "historico": bloco_historico(request, "uf", sigla)}
+    from api.routes.historico import bloco_historico, pede_historico
+    if (completo := pede_historico(extras)) is not None:
+        perfil = {**perfil, "historico": bloco_historico(request, "uf", sigla, completo)}
     if extras and "rede_territorio" in extras:
         from api.services.rede_territorio import bloco_uf as rede_uf
         perfil = {**perfil, "rede_territorio": rede_uf(store.rede_territorio_doc(date_str), sigla)}

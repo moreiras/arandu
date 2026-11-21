@@ -9,18 +9,18 @@
  */
 export const chaves = {
   asn: (asn: number | string | undefined, date: string | null) => ['asn', asn, date] as const,
-  asnPerfil: (asn: number | string | undefined, date: string | null) => ['asn-perfil', asn, date] as const,
-  ixpPerfil: (code: string | undefined, date: string | null) => ['ixp-perfil', code, date] as const,
+  asnPerfil: (asn: number | string | undefined, date: string | null, historicoCompleto = false) => ['asn-perfil', asn, date, historicoCompleto] as const,
+  ixpPerfil: (code: string | undefined, date: string | null, historicoCompleto = false) => ['ixp-perfil', code, date, historicoCompleto] as const,
   asnPaths: (asn: number | string | undefined, date: string | null) => ['asn-paths', asn, date] as const,
   ixp: (code: string | undefined, date: string | null) => ['ixp', code, date] as const,
   ixps: (date: string | null) => ['ixps', date] as const,
   operadora: (cnpj: string | undefined, date: string | null) => ['operadora', cnpj, date] as const,
   operadoraMovel: (cnpj: string | undefined, date: string | null) => ['operadora-movel', cnpj, date] as const,
-  operadoraPerfil: (cnpj: string | undefined, date: string | null) => ['operadora-perfil', cnpj, date] as const,
+  operadoraPerfil: (cnpj: string | undefined, date: string | null, historicoCompleto = false) => ['operadora-perfil', cnpj, date, historicoCompleto] as const,
   municipioPerfil: (ibge: string | undefined, date: string | null) => ['municipio-perfil', ibge, date] as const,
   municipio: (ibge: string | undefined, date: string | null) => ['municipio-acessos', ibge, date] as const,
   municipioMovel: (ibge: string | undefined, date: string | null) => ['municipio-acessos-movel', ibge, date] as const,
-  uf: (uf: string | undefined, date: string | null) => ['uf-perfil', uf, date] as const,
+  uf: (uf: string | undefined, date: string | null, historicoCompleto = false) => ['uf-perfil', uf, date, historicoCompleto] as const,
   ufs: (date: string | null) => ['ufs-resumo', date] as const,
   gruposSocietarios: (date: string | null) => ['grupos-societarios', date] as const,
   /** Mesma chave do Dashboard, IXPs, Estatísticas e Comparar: o detalhe do snapshot (com `manifest.sources`) é buscado uma vez e compartilhado. */

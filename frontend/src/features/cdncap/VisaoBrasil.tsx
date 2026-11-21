@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQueries } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
+import { useHistoricoCompleto } from '../../hooks/entidades/entidades'
 import { fetchAlcanceCdns, fetchAsnCdnBrasil, type AsnCdnBrasil } from '../../services/api'
 import { CartogramaIndicador } from '../estados/CartogramaIndicador'
 
@@ -67,7 +68,8 @@ export function VisaoBrasil(props: Props) {
 }
 
 function VisaoBrasilAberta({ asns, ixbr, ixpNames, date, nome }: Props) {
-  const qs = useQueries({ queries: asns.map((a) => ({ queryKey: ['cdn-br', a, date], queryFn: () => fetchAsnCdnBrasil(a, date ?? undefined), staleTime: 10 * 60 * 1000 })) })
+  const completo = useHistoricoCompleto()
+  const qs = useQueries({ queries: asns.map((a) => ({ queryKey: ['cdn-br', a, date, completo], queryFn: () => fetchAsnCdnBrasil(a, date ?? undefined, completo), staleTime: 10 * 60 * 1000 })) })
   const docs = qs.map((q) => q.data).filter((d): d is AsnCdnBrasil => !!d)
   const { linhas, serie } = useMemo(() => agregarCdnBrasil(docs, ixbr), [docs.length, ixbr.join(',')])   // eslint-disable-line react-hooks/exhaustive-deps
   if (qs.some((q) => q.isLoading) && docs.length === 0) return <div className="h-24 bg-gray-50 rounded animate-pulse" />

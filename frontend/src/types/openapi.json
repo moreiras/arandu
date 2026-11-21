@@ -2154,7 +2154,7 @@
    "url": "http://localhost/fontes"
   },
   "title": "Arandurapé",
-  "version": "2.0.17"
+  "version": "2.0.25"
  },
  "openapi": "3.1.0",
  "paths": {
@@ -4326,7 +4326,7 @@
       }
      },
      {
-      "description": "Perfil consolidado: blocos extras, separados por vírgula — `referencias` (posição por usuários estimados e medianas dos ASes BR), `paths` (o corpo de `/asns/{asn}/paths`), `ixp_peers` (as linhas deste AS nos PTTs diretos, o `peers` de `/asns/{asn}/ixp-peers`) `estabilidade` (o corpo de `/bgp-stability/asn/{asn}`, 6 semanas) `historico` (série e eventos recentes do AS; o anônimo vê só as datas atuais), `seguranca` (ROV, DNSSEC, AS Rank e bogons) e `route_servers` (as sessões do AS nos route servers do IX.br) e `politica_rs` (rejeições e política por communities nos route servers, o corpo de `/asns/{asn}/politica`). `organizacao` (organização do CAIDA/AS Rank por ASN, o corpo de `/asns/{asn}/organizacao`) e `abuso` (contagem agregada do Feodo Tracker, o corpo de `/asns/{asn}/abuso`), `facilities` (instalações do Brasil do PeeringDB onde o AS declara estar, `/asns/{asn}/facilities`) e `peering` (atributos de peering autodeclarados no PeeringDB e portas nos PTTs externos, `/asns/{asn}/peering`). Cada um vem como chave de mesmo nome; sem `include` a resposta é a de sempre.",
+      "description": "Perfil consolidado: blocos extras, separados por vírgula — `referencias` (posição por usuários estimados e medianas dos ASes BR), `paths` (o corpo de `/asns/{asn}/paths`), `ixp_peers` (as linhas deste AS nos PTTs diretos, o `peers` de `/asns/{asn}/ixp-peers`) `estabilidade` (o corpo de `/bgp-stability/asn/{asn}`, 6 semanas) `historico` (série e eventos recentes do AS dos 2 snapshots atuais; `historico_completo` traz a série inteira e exige login), `seguranca` (ROV, DNSSEC, AS Rank e bogons) e `route_servers` (as sessões do AS nos route servers do IX.br) e `politica_rs` (rejeições e política por communities nos route servers, o corpo de `/asns/{asn}/politica`). `organizacao` (organização do CAIDA/AS Rank por ASN, o corpo de `/asns/{asn}/organizacao`) e `abuso` (contagem agregada do Feodo Tracker, o corpo de `/asns/{asn}/abuso`), `facilities` (instalações do Brasil do PeeringDB onde o AS declara estar, `/asns/{asn}/facilities`) e `peering` (atributos de peering autodeclarados no PeeringDB e portas nos PTTs externos, `/asns/{asn}/peering`). Cada um vem como chave de mesmo nome; sem `include` a resposta é a de sempre.",
       "in": "query",
       "name": "include",
       "required": false,
@@ -4339,7 +4339,7 @@
          "type": "null"
         }
        ],
-       "description": "Perfil consolidado: blocos extras, separados por vírgula — `referencias` (posição por usuários estimados e medianas dos ASes BR), `paths` (o corpo de `/asns/{asn}/paths`), `ixp_peers` (as linhas deste AS nos PTTs diretos, o `peers` de `/asns/{asn}/ixp-peers`) `estabilidade` (o corpo de `/bgp-stability/asn/{asn}`, 6 semanas) `historico` (série e eventos recentes do AS; o anônimo vê só as datas atuais), `seguranca` (ROV, DNSSEC, AS Rank e bogons) e `route_servers` (as sessões do AS nos route servers do IX.br) e `politica_rs` (rejeições e política por communities nos route servers, o corpo de `/asns/{asn}/politica`). `organizacao` (organização do CAIDA/AS Rank por ASN, o corpo de `/asns/{asn}/organizacao`) e `abuso` (contagem agregada do Feodo Tracker, o corpo de `/asns/{asn}/abuso`), `facilities` (instalações do Brasil do PeeringDB onde o AS declara estar, `/asns/{asn}/facilities`) e `peering` (atributos de peering autodeclarados no PeeringDB e portas nos PTTs externos, `/asns/{asn}/peering`). Cada um vem como chave de mesmo nome; sem `include` a resposta é a de sempre.",
+       "description": "Perfil consolidado: blocos extras, separados por vírgula — `referencias` (posição por usuários estimados e medianas dos ASes BR), `paths` (o corpo de `/asns/{asn}/paths`), `ixp_peers` (as linhas deste AS nos PTTs diretos, o `peers` de `/asns/{asn}/ixp-peers`) `estabilidade` (o corpo de `/bgp-stability/asn/{asn}`, 6 semanas) `historico` (série e eventos recentes do AS dos 2 snapshots atuais; `historico_completo` traz a série inteira e exige login), `seguranca` (ROV, DNSSEC, AS Rank e bogons) e `route_servers` (as sessões do AS nos route servers do IX.br) e `politica_rs` (rejeições e política por communities nos route servers, o corpo de `/asns/{asn}/politica`). `organizacao` (organização do CAIDA/AS Rank por ASN, o corpo de `/asns/{asn}/organizacao`) e `abuso` (contagem agregada do Feodo Tracker, o corpo de `/asns/{asn}/abuso`), `facilities` (instalações do Brasil do PeeringDB onde o AS declara estar, `/asns/{asn}/facilities`) e `peering` (atributos de peering autodeclarados no PeeringDB e portas nos PTTs externos, `/asns/{asn}/peering`). Cada um vem como chave de mesmo nome; sem `include` a resposta é a de sempre.",
        "title": "Include"
       }
      }
@@ -10334,7 +10334,7 @@
       }
      },
      {
-      "description": "Perfil consolidado: blocos extras, separados por vírgula — `membros` (o corpo de `/ixps/{code}/members?nomes=true`, com nome também dos membros cadastrados sem par direto), `usuarios_estimados` (`/estimated-users`), `potencial` (`/potential`) e `assinantes` (`/assinantes`), `indice` (a linha deste PTT em `/ixps`, com as uniões de ASNs) `historico` (série e eventos recentes do PTT; o anônimo vê só as datas atuais) e `route_servers` (as sessões dos membros nos route servers do IX.br, `/ixps/{code}/route-servers`), `rejeicoes` (rotas rejeitadas e política nos route servers, `/ixps/{code}/rejeicoes`, 25 ASNs), `facilities` (instalações do PeeringDB onde o PTT tem presença), `portas` (portas de PTT externo; sempre `null` no IX.br) e `totais` (`total_asns_br`, `total_asns_global` e `br_apnic_users_total` do `summary` do snapshot). Cada um vem como chave de mesmo nome (`null` se o PTT não tem o dado). Os pares v6 e v4 ficam em `/ixps/{code}/peers`.",
+      "description": "Perfil consolidado: blocos extras, separados por vírgula — `membros` (o corpo de `/ixps/{code}/members?nomes=true`, com nome também dos membros cadastrados sem par direto), `usuarios_estimados` (`/estimated-users`), `potencial` (`/potential`) e `assinantes` (`/assinantes`), `indice` (a linha deste PTT em `/ixps`, com as uniões de ASNs) `historico` (série e eventos recentes do PTT dos 2 snapshots atuais; `historico_completo` traz a série inteira e exige login) e `route_servers` (as sessões dos membros nos route servers do IX.br, `/ixps/{code}/route-servers`), `rejeicoes` (rotas rejeitadas e política nos route servers, `/ixps/{code}/rejeicoes`, 25 ASNs), `facilities` (instalações do PeeringDB onde o PTT tem presença), `portas` (portas de PTT externo; sempre `null` no IX.br) e `totais` (`total_asns_br`, `total_asns_global` e `br_apnic_users_total` do `summary` do snapshot). Cada um vem como chave de mesmo nome (`null` se o PTT não tem o dado). Os pares v6 e v4 ficam em `/ixps/{code}/peers`.",
       "in": "query",
       "name": "include",
       "required": false,
@@ -10347,7 +10347,7 @@
          "type": "null"
         }
        ],
-       "description": "Perfil consolidado: blocos extras, separados por vírgula — `membros` (o corpo de `/ixps/{code}/members?nomes=true`, com nome também dos membros cadastrados sem par direto), `usuarios_estimados` (`/estimated-users`), `potencial` (`/potential`) e `assinantes` (`/assinantes`), `indice` (a linha deste PTT em `/ixps`, com as uniões de ASNs) `historico` (série e eventos recentes do PTT; o anônimo vê só as datas atuais) e `route_servers` (as sessões dos membros nos route servers do IX.br, `/ixps/{code}/route-servers`), `rejeicoes` (rotas rejeitadas e política nos route servers, `/ixps/{code}/rejeicoes`, 25 ASNs), `facilities` (instalações do PeeringDB onde o PTT tem presença), `portas` (portas de PTT externo; sempre `null` no IX.br) e `totais` (`total_asns_br`, `total_asns_global` e `br_apnic_users_total` do `summary` do snapshot). Cada um vem como chave de mesmo nome (`null` se o PTT não tem o dado). Os pares v6 e v4 ficam em `/ixps/{code}/peers`.",
+       "description": "Perfil consolidado: blocos extras, separados por vírgula — `membros` (o corpo de `/ixps/{code}/members?nomes=true`, com nome também dos membros cadastrados sem par direto), `usuarios_estimados` (`/estimated-users`), `potencial` (`/potential`) e `assinantes` (`/assinantes`), `indice` (a linha deste PTT em `/ixps`, com as uniões de ASNs) `historico` (série e eventos recentes do PTT dos 2 snapshots atuais; `historico_completo` traz a série inteira e exige login) e `route_servers` (as sessões dos membros nos route servers do IX.br, `/ixps/{code}/route-servers`), `rejeicoes` (rotas rejeitadas e política nos route servers, `/ixps/{code}/rejeicoes`, 25 ASNs), `facilities` (instalações do PeeringDB onde o PTT tem presença), `portas` (portas de PTT externo; sempre `null` no IX.br) e `totais` (`total_asns_br`, `total_asns_global` e `br_apnic_users_total` do `summary` do snapshot). Cada um vem como chave de mesmo nome (`null` se o PTT não tem o dado). Os pares v6 e v4 ficam em `/ixps/{code}/peers`.",
        "title": "Include"
       }
      }
@@ -13379,7 +13379,7 @@
       }
      },
      {
-      "description": "Extras: `historico` = série e eventos recentes (o anônimo vê só as datas atuais); `indicadores` = share, HHI, variações e declaração ao SICI; `territorio` = população, domicílios, penetração e mercado não visto; `erbs` = estações do SMP licenciadas da operadora. `multas` = multas constituídas da Anatel contra a empresa (raiz do CNPJ), por serviço. `qualidade` = RQUAL das prestadoras ligadas ao CNPJ e `reclamacoes` = reclamações das marcas ligadas ao CNPJ, com a ligação rotulada. `consumidor` = reclamações finalizadas das empresas do Consumidor.gov.br ligadas ao CNPJ, com série mensal e assuntos.",
+      "description": "Extras: `historico` = série e eventos dos 2 snapshots atuais; `historico_completo` = a série inteira (exige login); `indicadores` = share, HHI, variações e declaração ao SICI; `territorio` = população, domicílios, penetração e mercado não visto; `erbs` = estações do SMP licenciadas da operadora. `multas` = multas constituídas da Anatel contra a empresa (raiz do CNPJ), por serviço. `qualidade` = RQUAL das prestadoras ligadas ao CNPJ e `reclamacoes` = reclamações das marcas ligadas ao CNPJ, com a ligação rotulada. `consumidor` = reclamações finalizadas das empresas do Consumidor.gov.br ligadas ao CNPJ, com série mensal e assuntos.",
       "in": "query",
       "name": "include",
       "required": false,
@@ -13392,7 +13392,7 @@
          "type": "null"
         }
        ],
-       "description": "Extras: `historico` = série e eventos recentes (o anônimo vê só as datas atuais); `indicadores` = share, HHI, variações e declaração ao SICI; `territorio` = população, domicílios, penetração e mercado não visto; `erbs` = estações do SMP licenciadas da operadora. `multas` = multas constituídas da Anatel contra a empresa (raiz do CNPJ), por serviço. `qualidade` = RQUAL das prestadoras ligadas ao CNPJ e `reclamacoes` = reclamações das marcas ligadas ao CNPJ, com a ligação rotulada. `consumidor` = reclamações finalizadas das empresas do Consumidor.gov.br ligadas ao CNPJ, com série mensal e assuntos.",
+       "description": "Extras: `historico` = série e eventos dos 2 snapshots atuais; `historico_completo` = a série inteira (exige login); `indicadores` = share, HHI, variações e declaração ao SICI; `territorio` = população, domicílios, penetração e mercado não visto; `erbs` = estações do SMP licenciadas da operadora. `multas` = multas constituídas da Anatel contra a empresa (raiz do CNPJ), por serviço. `qualidade` = RQUAL das prestadoras ligadas ao CNPJ e `reclamacoes` = reclamações das marcas ligadas ao CNPJ, com a ligação rotulada. `consumidor` = reclamações finalizadas das empresas do Consumidor.gov.br ligadas ao CNPJ, com série mensal e assuntos.",
        "title": "Include"
       }
      }
@@ -18102,7 +18102,7 @@
       }
      },
      {
-      "description": "Extras: `historico` = série e eventos recentes (o anônimo vê só as datas atuais); `indicadores` = share, HHI, variações e declaração ao SICI; `territorio` = população, domicílios, penetração e mercado não visto; `cetic` = estimativas da TIC Domicílios para a UF, do Arandurapé, com erro-padrão, e `demanda_oferta` = banda larga fixa declarada pelas famílias × acessos do SICI; `erbs` = estações do SMP licenciadas. `fust` = compromissos do FUST na UF. `qualidade` = RQUAL por prestadora (último ano) e `reclamacoes` = reclamações por ano e serviço na UF. `consumidor` = empresas com reclamações finalizadas na UF no Consumidor.gov.br. `transito` = concentração dos provedores de trânsito inferidos dos ASNs com sede na UF. `radar` = agregado derivado do Cloudflare Radar (IPv6, tráfego e BGP) dos ASNs da UF. `exposicao` = agregado derivado de serviços expostos observados pelo Shodan nos ASNs da UF lidos.",
+      "description": "Extras: `historico` = série e eventos dos 2 snapshots atuais; `historico_completo` = a série inteira (exige login); `indicadores` = share, HHI, variações e declaração ao SICI; `territorio` = população, domicílios, penetração e mercado não visto; `cetic` = estimativas da TIC Domicílios para a UF, do Arandurapé, com erro-padrão, e `demanda_oferta` = banda larga fixa declarada pelas famílias × acessos do SICI; `erbs` = estações do SMP licenciadas. `fust` = compromissos do FUST na UF. `qualidade` = RQUAL por prestadora (último ano) e `reclamacoes` = reclamações por ano e serviço na UF. `consumidor` = empresas com reclamações finalizadas na UF no Consumidor.gov.br. `transito` = concentração dos provedores de trânsito inferidos dos ASNs com sede na UF. `radar` = agregado derivado do Cloudflare Radar (IPv6, tráfego e BGP) dos ASNs da UF. `exposicao` = agregado derivado de serviços expostos observados pelo Shodan nos ASNs da UF lidos.",
       "in": "query",
       "name": "include",
       "required": false,
@@ -18115,7 +18115,7 @@
          "type": "null"
         }
        ],
-       "description": "Extras: `historico` = série e eventos recentes (o anônimo vê só as datas atuais); `indicadores` = share, HHI, variações e declaração ao SICI; `territorio` = população, domicílios, penetração e mercado não visto; `cetic` = estimativas da TIC Domicílios para a UF, do Arandurapé, com erro-padrão, e `demanda_oferta` = banda larga fixa declarada pelas famílias × acessos do SICI; `erbs` = estações do SMP licenciadas. `fust` = compromissos do FUST na UF. `qualidade` = RQUAL por prestadora (último ano) e `reclamacoes` = reclamações por ano e serviço na UF. `consumidor` = empresas com reclamações finalizadas na UF no Consumidor.gov.br. `transito` = concentração dos provedores de trânsito inferidos dos ASNs com sede na UF. `radar` = agregado derivado do Cloudflare Radar (IPv6, tráfego e BGP) dos ASNs da UF. `exposicao` = agregado derivado de serviços expostos observados pelo Shodan nos ASNs da UF lidos.",
+       "description": "Extras: `historico` = série e eventos dos 2 snapshots atuais; `historico_completo` = a série inteira (exige login); `indicadores` = share, HHI, variações e declaração ao SICI; `territorio` = população, domicílios, penetração e mercado não visto; `cetic` = estimativas da TIC Domicílios para a UF, do Arandurapé, com erro-padrão, e `demanda_oferta` = banda larga fixa declarada pelas famílias × acessos do SICI; `erbs` = estações do SMP licenciadas. `fust` = compromissos do FUST na UF. `qualidade` = RQUAL por prestadora (último ano) e `reclamacoes` = reclamações por ano e serviço na UF. `consumidor` = empresas com reclamações finalizadas na UF no Consumidor.gov.br. `transito` = concentração dos provedores de trânsito inferidos dos ASNs com sede na UF. `radar` = agregado derivado do Cloudflare Radar (IPv6, tráfego e BGP) dos ASNs da UF. `exposicao` = agregado derivado de serviços expostos observados pelo Shodan nos ASNs da UF lidos.",
        "title": "Include"
       }
      }

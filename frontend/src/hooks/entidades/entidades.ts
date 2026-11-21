@@ -12,10 +12,19 @@ import {
   fetchCadastroMercadoUf, fetchCadastroOperadora, fetchContratosMunicipio, fetchContratosOperadora, fetchFinanciamentoOperadora, fetchGrupo, fetchGrupoBloco, fetchGrupoMercado, fetchOperadoraPerfil, fetchRegiao, fetchSnapshot, fetchUfPerfil, fetchUfs,
 } from '../../services/api'
 import { useActiveDate } from '../useSnapshot'
+import { useAuth } from '../../auth/AuthContext'
 import { IMUTAVEL, chaves } from './chaves'
 import type { FonteEntrada } from '../../components/entidade'
 import type { LonLat } from '../../lib/geo'
 import type { OperadoraDetalhe, OperadoraMovelDetalhe, SEACDetailResponse, STFCDetailResponse } from '../../types/api'
+
+/**
+ * Série histórica inteira nos perfis só com login (ou IP na allowlist, que o `/auth/me` devolve como usuário): é outra URL
+ * (`include=historico_completo`), na chave do cache. Não espera o `/auth/me`: quem está logado pode pedir uma vez a versão curta antes.
+ */
+export function useHistoricoCompleto(): boolean {
+  return !!useAuth().user
+}
 
 /**
  * Hooks por entidade. Escondem a origem do dado: se a rota de um perfil mudar, só o corpo do hook muda e as páginas ficam como estão. Todos usam a data ativa (`useActiveDate`) e esperam ela existir.
@@ -38,10 +47,11 @@ export function useIxp(code: string | undefined) {
 export function useAsnPerfil(asn: number | string | undefined) {
   const date = useActiveDate()
   const qc = useQueryClient()
+  const completo = useHistoricoCompleto()
   return useQuery({
-    queryKey: chaves.asnPerfil(asn, date),
+    queryKey: chaves.asnPerfil(asn, date, completo),
     queryFn: async () => {
-      const perfil = await fetchASNPerfil(asn!, date ?? undefined)
+      const perfil = await fetchASNPerfil(asn!, date ?? undefined, completo)
       const { paths, ixp_peers: _p, estabilidade: _e, ...doc } = perfil
       qc.setQueryData(chaves.asn(asn, date), doc)
       if (paths) qc.setQueryData(chaves.asnPaths(asn, date), paths)
@@ -60,10 +70,11 @@ export function useAsnPerfil(asn: number | string | undefined) {
 export function useIxpPerfil(code: string | undefined) {
   const date = useActiveDate()
   const qc = useQueryClient()
+  const completo = useHistoricoCompleto()
   return useQuery({
-    queryKey: chaves.ixpPerfil(code, date),
+    queryKey: chaves.ixpPerfil(code, date, completo),
     queryFn: async () => {
-      const perfil = await fetchIXPPerfil(code!, date ?? undefined)
+      const perfil = await fetchIXPPerfil(code!, date ?? undefined, completo)
       const { membros: _m, usuarios_estimados, potencial, assinantes, indice: _i, totais: _t, ...doc } = perfil
       qc.setQueryData(chaves.ixp(code, date), doc)
       if (usuarios_estimados) qc.setQueryData(['ixp-est-users', code, date], usuarios_estimados)
@@ -83,9 +94,10 @@ export function useIxpPerfil(code: string | undefined) {
  */
 export function useOperadoraPerfil(cnpj: string | undefined) {
   const date = useActiveDate()
+  const completo = useHistoricoCompleto()
   const q = useQuery({
-    queryKey: chaves.operadoraPerfil(cnpj, date),
-    queryFn: async () => (await fetchOperadoraPerfil(cnpj!, date ?? undefined)) ?? null,
+    queryKey: chaves.operadoraPerfil(cnpj, date, completo),
+    queryFn: async () => (await fetchOperadoraPerfil(cnpj!, date ?? undefined, completo)) ?? null,
     enabled: !!cnpj && !!date,
     ...IMUTAVEL,
     retry: false,
@@ -252,9 +264,10 @@ export function useRegiao(ibges: string[]) {
 export function useUfPerfil(uf: string | undefined) {
   const date = useActiveDate()
   const sigla = uf?.toUpperCase()
+  const completo = useHistoricoCompleto()
   return useQuery({
-    queryKey: chaves.uf(sigla, date),
-    queryFn: () => fetchUfPerfil(sigla!, date ?? undefined),
+    queryKey: chaves.uf(sigla, date, completo),
+    queryFn: () => fetchUfPerfil(sigla!, date ?? undefined, completo),
     enabled: !!sigla && sigla.length === 2 && !!date,
     ...IMUTAVEL,
     retry: false,

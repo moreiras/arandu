@@ -88,7 +88,7 @@ _SORT_FIELDS = {
 
 _SORT_BGP = {"epppd", "epppd_v4", "epppd_v6"}
 _INCLUDES = {"bgp_stability", "paths", "prontidao"}
-_INCLUDES_UM = {"bloqueios", "paths", "ixp_peers", "estabilidade", "historico", "seguranca", "prontidao", "route_servers", "politica_rs", "organizacao", "abuso", "facilities", "peering", "transito", "referencias", "radar", "exposicao"}      # GET /asns/{asn}?include=: o perfil consolidado da página do ASN
+_INCLUDES_UM = {"bloqueios", "paths", "ixp_peers", "estabilidade", "historico", "historico_completo", "seguranca", "prontidao", "route_servers", "politica_rs", "organizacao", "abuso", "facilities", "peering", "transito", "referencias", "radar", "exposicao"}      # GET /asns/{asn}?include=: o perfil consolidado da página do ASN
 _LOTE_MAX = 100
 _NOMES_LOTE_MAX = 500
 
@@ -535,7 +535,7 @@ def get_asn(
         examples=["2026-06-06"],
     ),
     fields: Optional[str] = Query(None, description="Projeção: campos do primeiro nível a manter, separados por vírgula (`asn` sempre fica)."),
-    include: Optional[str] = Query(None, description="Perfil consolidado: blocos extras, separados por vírgula — `referencias` (posição por usuários estimados e medianas dos ASes BR), `paths` (o corpo de `/asns/{asn}/paths`), `ixp_peers` (as linhas deste AS nos PTTs diretos, o `peers` de `/asns/{asn}/ixp-peers`) `estabilidade` (o corpo de `/bgp-stability/asn/{asn}`, 6 semanas) `historico` (série e eventos recentes do AS; o anônimo vê só as datas atuais), `seguranca` (ROV, DNSSEC, AS Rank e bogons) e `route_servers` (as sessões do AS nos route servers do IX.br) e `politica_rs` (rejeições e política por communities nos route servers, o corpo de `/asns/{asn}/politica`). `organizacao` (organização do CAIDA/AS Rank por ASN, o corpo de `/asns/{asn}/organizacao`) e `abuso` (contagem agregada do Feodo Tracker, o corpo de `/asns/{asn}/abuso`), `facilities` (instalações do Brasil do PeeringDB onde o AS declara estar, `/asns/{asn}/facilities`) e `peering` (atributos de peering autodeclarados no PeeringDB e portas nos PTTs externos, `/asns/{asn}/peering`). Cada um vem como chave de mesmo nome; sem `include` a resposta é a de sempre."),
+    include: Optional[str] = Query(None, description="Perfil consolidado: blocos extras, separados por vírgula — `referencias` (posição por usuários estimados e medianas dos ASes BR), `paths` (o corpo de `/asns/{asn}/paths`), `ixp_peers` (as linhas deste AS nos PTTs diretos, o `peers` de `/asns/{asn}/ixp-peers`) `estabilidade` (o corpo de `/bgp-stability/asn/{asn}`, 6 semanas) `historico` (série e eventos recentes do AS dos 2 snapshots atuais; `historico_completo` traz a série inteira e exige login), `seguranca` (ROV, DNSSEC, AS Rank e bogons) e `route_servers` (as sessões do AS nos route servers do IX.br) e `politica_rs` (rejeições e política por communities nos route servers, o corpo de `/asns/{asn}/politica`). `organizacao` (organização do CAIDA/AS Rank por ASN, o corpo de `/asns/{asn}/organizacao`) e `abuso` (contagem agregada do Feodo Tracker, o corpo de `/asns/{asn}/abuso`), `facilities` (instalações do Brasil do PeeringDB onde o AS declara estar, `/asns/{asn}/facilities`) e `peering` (atributos de peering autodeclarados no PeeringDB e portas nos PTTs externos, `/asns/{asn}/peering`). Cada um vem como chave de mesmo nome; sem `include` a resposta é a de sempre."),
 ) -> dict:
     store: Store = request.app.state.store
     date_str = store.resolve_date(date)
@@ -557,9 +557,9 @@ def get_asn(
         out["ixp_peers"] = (store.asn_ixp_peers(date_str, asn) or {}).get("peers", {})
     if "estabilidade" in extras:
         out["estabilidade"] = store.bgp_stability_asn(date_str, asn, 6)
-    if "historico" in extras:
-        from api.routes.historico import bloco_historico
-        out["historico"] = bloco_historico(request, "asn", str(asn))
+    from api.routes.historico import bloco_historico, pede_historico
+    if (completo := pede_historico(extras)) is not None:
+        out["historico"] = bloco_historico(request, "asn", str(asn), completo)
     if "seguranca" in extras:
         from api.services.seguranca import bloco_asn
         out["seguranca"] = bloco_asn(store.seguranca_doc(date_str), asn)

@@ -24,7 +24,7 @@ router = APIRouter()
 # Campos grandes separados para o endpoint /members — não incluídos no doc principal
 _MEMBER_LIST_FIELDS = frozenset({"asn_direct", "asn_stub", "br_asns_direct", "br_asns_origin"})
 # GET /ixps/{code}?include=: o perfil consolidado da página do PTT
-_INCLUDES_PTT = frozenset({"membros", "usuarios_estimados", "potencial", "assinantes", "indice", "totais", "historico", "route_servers", "rejeicoes", "facilities", "portas"})
+_INCLUDES_PTT = frozenset({"membros", "usuarios_estimados", "potencial", "assinantes", "indice", "totais", "historico", "historico_completo", "route_servers", "rejeicoes", "facilities", "portas"})
 
 
 def _membros(store: Store, date_str: str, code: str, doc: dict, nomes: bool, extras: Optional[set] = None) -> dict:
@@ -141,7 +141,7 @@ def get_ixp(
         description="Data do snapshot (YYYY-MM-DD). Omita para usar o mais recente.",
         examples=["2026-06-06"],
     ),
-    include: Optional[str] = Query(None, description="Perfil consolidado: blocos extras, separados por vírgula — `membros` (o corpo de `/ixps/{code}/members?nomes=true`, com nome também dos membros cadastrados sem par direto), `usuarios_estimados` (`/estimated-users`), `potencial` (`/potential`) e `assinantes` (`/assinantes`), `indice` (a linha deste PTT em `/ixps`, com as uniões de ASNs) `historico` (série e eventos recentes do PTT; o anônimo vê só as datas atuais) e `route_servers` (as sessões dos membros nos route servers do IX.br, `/ixps/{code}/route-servers`), `rejeicoes` (rotas rejeitadas e política nos route servers, `/ixps/{code}/rejeicoes`, 25 ASNs), `facilities` (instalações do PeeringDB onde o PTT tem presença), `portas` (portas de PTT externo; sempre `null` no IX.br) e `totais` (`total_asns_br`, `total_asns_global` e `br_apnic_users_total` do `summary` do snapshot). Cada um vem como chave de mesmo nome (`null` se o PTT não tem o dado). Os pares v6 e v4 ficam em `/ixps/{code}/peers`."),
+    include: Optional[str] = Query(None, description="Perfil consolidado: blocos extras, separados por vírgula — `membros` (o corpo de `/ixps/{code}/members?nomes=true`, com nome também dos membros cadastrados sem par direto), `usuarios_estimados` (`/estimated-users`), `potencial` (`/potential`) e `assinantes` (`/assinantes`), `indice` (a linha deste PTT em `/ixps`, com as uniões de ASNs) `historico` (série e eventos recentes do PTT dos 2 snapshots atuais; `historico_completo` traz a série inteira e exige login) e `route_servers` (as sessões dos membros nos route servers do IX.br, `/ixps/{code}/route-servers`), `rejeicoes` (rotas rejeitadas e política nos route servers, `/ixps/{code}/rejeicoes`, 25 ASNs), `facilities` (instalações do PeeringDB onde o PTT tem presença), `portas` (portas de PTT externo; sempre `null` no IX.br) e `totais` (`total_asns_br`, `total_asns_global` e `br_apnic_users_total` do `summary` do snapshot). Cada um vem como chave de mesmo nome (`null` se o PTT não tem o dado). Os pares v6 e v4 ficam em `/ixps/{code}/peers`."),
 ) -> dict:
     store: Store = request.app.state.store
     date_str = store.resolve_date(date)
@@ -178,9 +178,9 @@ def get_ixp(
         slim["potencial"] = store.ixp_potential(date_str, code)
     if "assinantes" in extras:
         slim["assinantes"] = store.ixp_assinantes(date_str, code)
-    if "historico" in extras:
-        from api.routes.historico import bloco_historico
-        slim["historico"] = bloco_historico(request, "ixp", code)
+    from api.routes.historico import bloco_historico, pede_historico
+    if (completo := pede_historico(extras)) is not None:
+        slim["historico"] = bloco_historico(request, "ixp", code, completo)
     if "route_servers" in extras:
         from api.services.route_servers import bloco_ixp
         slim["route_servers"] = bloco_ixp(store.route_servers_ixps_doc(date_str), code)

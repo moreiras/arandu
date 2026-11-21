@@ -11,6 +11,7 @@ import { http, HttpResponse } from 'msw'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { server, fixtures } from '../../test/server'
 import { useAppStore } from '../../store/app'
+import { AuthProvider } from '../../auth/AuthContext'
 import { chaves, useAsn, useFontes, useGrupo, useIxp, useOperadoraPerfil, useUfPerfil } from '.'
 
 const DATA = '2026-09-20'
@@ -96,5 +97,31 @@ describe('hooks por entidade', () => {
     const b = renderHook(() => useFontes(), { wrapper })
     await waitFor(() => expect(qc.getQueryState(chaves.snapshot(DATA))?.status).toBe('success'))
     expect(b.result.current.fontes).toBeUndefined()
+  })
+
+  it('perfil pede a série histórica inteira só com login (outra URL, que a API reserva a quem entrou)', async () => {
+    const pedidos: string[] = []
+    const montar = (autenticado: boolean) => {
+      server.use(
+        http.get('*/auth/me', () => HttpResponse.json(autenticado
+          ? { authenticated: true, email: 'a@exemplo.test', name: 'A', provider: 'google' }
+          : { authenticated: false, anon: { active_seconds: 0, limit_seconds: 600, limit_reached: false, heartbeat_interval_seconds: 60, inactivity_timeout_seconds: 120 } })),
+        http.get('*/api/v1/ufs/:uf', ({ request }) => { pedidos.push(new URL(request.url).searchParams.get('include') ?? ''); return HttpResponse.json({ snapshot_date: DATA, uf: 'SP', totais: {} }) }),
+      )
+      qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+      const comAuth = ({ children }: { children: ReactNode }) => (
+        <QueryClientProvider client={qc}><MemoryRouter><AuthProvider>{children}</AuthProvider></MemoryRouter></QueryClientProvider>
+      )
+      return renderHook(() => useUfPerfil('sp'), { wrapper: comAuth })
+    }
+    const anon = montar(false)
+    await waitFor(() => expect(anon.result.current.isSuccess).toBe(true))
+    expect(pedidos[pedidos.length - 1]?.split(',')).toContain('historico')
+    expect(pedidos.join()).not.toContain('historico_completo')
+    anon.unmount()
+    pedidos.length = 0
+    const logado = montar(true)
+    await waitFor(() => expect(pedidos.some((i) => i.split(',').includes('historico_completo'))).toBe(true))
+    logado.unmount()
   })
 })

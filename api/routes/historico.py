@@ -147,12 +147,21 @@ def diferenca(request: Request, a: str = Query(..., description="Data A (AAAA-MM
     return _ok(request, h.diferenca, a, b)
 
 
-def bloco_historico(request: Request, escopo: str, chave: str) -> Optional[dict]:
-    """O bloco `historico` dos perfis consolidados (`?include=historico`). O anônimo vê só as datas atuais: a série inteira exige login
-    (api/auth/access_policy.py); sem informação de acesso (modo `off`, testes) vale como logado."""
+def bloco_historico(request: Request, escopo: str, chave: str, completo: bool) -> Optional[dict]:
+    """O bloco `historico` dos perfis consolidados: `include=historico` traz as datas atuais (`completo=False`) e `include=historico_completo`
+    a série inteira, que a política de acesso reserva a quem tem login (api/auth/access_policy.py). A resposta depende só da URL, nunca de
+    quem pede: o nginx e o cache da API guardam por URL, e um bloco que mudasse com o nível de acesso vazava a série a anônimos."""
     store = request.app.state.store
-    completo = getattr(request.state, "access_tier", None) != "anon"
     return h.perfil(_repo(request), escopo, chave, completo, list(store.list_snapshots())[-2:])
+
+
+def pede_historico(extras) -> Optional[bool]:
+    """None se o `include` não pede histórico; senão, se pede a série completa."""
+    if not extras:
+        return None
+    if "historico_completo" in extras:
+        return True
+    return False if "historico" in extras else None
 
 
 @router.get(

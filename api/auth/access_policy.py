@@ -176,6 +176,11 @@ def classify(
     if _matches(_LOGIN, rel):
         return Classification(LOGIN, "contatos")
 
+    # Perfil com a série histórica inteira (`include=historico_completo`): exige login. `include=historico` traz só as datas atuais, a
+    # mesma resposta para todos; o bloco não depende de quem pede, então a URL pode ser guardada pelo nginx e pelo cache da API.
+    if "historico_completo" in {p.strip() for p in (query.get("include") or "").split(",")}:
+        return Classification(LOGIN, "historico")
+
     # Histórico (séries e eventos): a consulta precisa começar num snapshot atual; sem `from` ou com `from` mais antigo é a
     # série inteira, que exige login. `/snapshots/diff` compara duas datas, ambas atuais. Antes da regra de `/snapshots/{data}`, que o capturaria.
     if _matches(_HISTORICO, rel):

@@ -664,9 +664,10 @@ def test_perfis_consolidados_trazem_o_bloco_historico(api, ctx):
     """`include=historico` nos perfis de ASN, PTT, operadora e UF; sem ele a resposta é a de sempre."""
     from tests.synth.world import T0, T1
 
-    p = api.get("/api/v1/asns/64503", params={"include": "historico"}, headers=ALLOWED).json()
+    p = api.get("/api/v1/asns/64503", params={"include": "historico_completo"}, headers=ALLOWED).json()
     h = p["historico"]
     assert h["completo"] is True and [x["date"] for x in h["serie"]] == [T0, T1] and h["snapshots_com_historico"] == 2
+    assert api.get("/api/v1/asns/64503", params={"include": "historico"}, headers=ALLOWED).json()["historico"]["completo"] is False
     assert "n_provedores" not in h["colunas"] and all(e["tipo"] not in ("provedor_novo", "provedor_perdido") for e in h["eventos"])
     assert any(e["tipo"] == "mudanca_origem" and e["destaque"] for e in h["eventos"])        # a origem do 198.18.24.0/21 passou para o 64503
     assert "historico" not in api.get("/api/v1/asns/64503", params={"include": "paths"}, headers=ALLOWED).json()
@@ -685,6 +686,23 @@ def test_perfis_consolidados_trazem_o_bloco_historico(api, ctx):
         op = api.get(f"/api/v1/operadoras/{cnpj}", params={"include": "historico"}, headers=ALLOWED).json()
         assert op["historico"] is None or op["historico"]["serie"]
     assert api.get("/api/v1/ufs/PR", params={"include": "x"}, headers=ALLOWED).status_code == 400
+
+
+def test_bloco_historico_depende_so_da_url(api, ctx):
+    """O nginx e o cache da API guardam por URL: `include=historico` (datas atuais) é o mesmo corpo para anônimo e logado, e a série
+    inteira é outra URL (`historico_completo`), da classe `login`: 401 ao anônimo e `private, no-store` a quem tem acesso."""
+    rotas = [("/api/v1/asns/64503", "paths"), (f"/api/v1/ixps/{ctx['code']}", "indice"), ("/api/v1/ufs/PR", "territorio")]
+    for rota, outro in rotas:
+        params = {"include": f"{outro},historico"}
+        anon, logado = api.get(rota, params=params, headers=ANON), api.get(rota, params=params, headers=ALLOWED)
+        assert anon.status_code == logado.status_code == 200, rota
+        assert anon.json()["historico"] == logado.json()["historico"] and anon.json()["historico"]["completo"] is False, rota
+        completo = {"include": f"{outro},historico_completo"}
+        negado = api.get(rota, params=completo, headers=ANON)
+        assert negado.status_code == 401 and negado.json().get("login_required") is True, rota
+        r = api.get(rota, params=completo, headers=ALLOWED)
+        assert r.status_code == 200 and r.json()["historico"]["completo"] is True, rota
+        assert r.headers["cache-control"] == "private, no-store", rota
 
 
 def test_bloco_historico_do_anonimo_so_tem_as_datas_atuais(tmp_path):

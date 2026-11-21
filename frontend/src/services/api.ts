@@ -311,8 +311,14 @@ export type IxpPerfil = IXPDocument & {
   facilities?: FacilitiesPtt | null
   portas?: PortasIxp | null
 }
-export function fetchIXPPerfil(code: string, date?: string): Promise<IxpPerfil> {
-  return get(`/api/v1/ixps/${code}`, { date, include: 'membros,usuarios_estimados,potencial,assinantes,indice,totais,historico,route_servers,rejeicoes,facilities,portas', opcional: true })
+/**
+ * O bloco de histórico dos perfis: `historico` traz os 2 snapshots atuais, igual para todos; `historico_completo` traz a série inteira e
+ * exige login (a API responde 401 ao anônimo). A resposta depende só da URL, então os caches por URL (nginx, API) não misturam os dois.
+ */
+export const blocoHistorico = (completo: boolean) => (completo ? 'historico_completo' : 'historico')
+
+export function fetchIXPPerfil(code: string, date?: string, historicoCompleto = false): Promise<IxpPerfil> {
+  return get(`/api/v1/ixps/${code}`, { date, include: `membros,usuarios_estimados,potencial,assinantes,indice,totais,${blocoHistorico(historicoCompleto)},route_servers,rejeicoes,facilities,portas`, opcional: true })
 }
 
 /** Um acerto da busca universal. `url` é o caminho da página no site. */
@@ -356,8 +362,8 @@ export interface AsnCdnBrasil {
   ixp_peers?: Record<string, { v4?: { total_prefixes: number; own_prefixes: number }; v6?: { total_prefixes: number; own_prefixes: number } }>
   historico?: HistoricoBloco | null
 }
-export function fetchAsnCdnBrasil(asn: number | string, date?: string): Promise<AsnCdnBrasil> {
-  return get(`/api/v1/asns/${asn}`, { date, include: 'ixp_peers,historico' })
+export function fetchAsnCdnBrasil(asn: number | string, date?: string, historicoCompleto = false): Promise<AsnCdnBrasil> {
+  return get(`/api/v1/asns/${asn}`, { date, include: `ixp_peers,${blocoHistorico(historicoCompleto)}` })
 }
 
 export function fetchASN(asn: number | string, date?: string): Promise<ASNDocument> {
@@ -384,8 +390,8 @@ export type AsnPerfil = ASNDocument & {
   facilities?: FacilitiesAsn | null
   peering?: PeeringAsn | null
 }
-export function fetchASNPerfil(asn: number | string, date?: string): Promise<AsnPerfil> {
-  return get(`/api/v1/asns/${asn}`, { date, include: 'paths,ixp_peers,estabilidade,historico,seguranca,prontidao,route_servers,politica_rs,organizacao,abuso,bloqueios,radar,exposicao,facilities,peering,transito,referencias', opcional: true })
+export function fetchASNPerfil(asn: number | string, date?: string, historicoCompleto = false): Promise<AsnPerfil> {
+  return get(`/api/v1/asns/${asn}`, { date, include: `paths,ixp_peers,estabilidade,${blocoHistorico(historicoCompleto)},seguranca,prontidao,route_servers,politica_rs,organizacao,abuso,bloqueios,radar,exposicao,facilities,peering,transito,referencias`, opcional: true })
 }
 
 export function fetchASNContacts(asn: number | string, date?: string): Promise<ASNContactsResponse> {
@@ -802,8 +808,8 @@ export function fetchAcessosStats(date?: string, top = 20): Promise<SiciStats> {
 }
 
 /** Perfil consolidado da operadora (SCM, SMP, STFC e SeAC, ASNs e rede) numa chamada; 204 = CNPJ sem informação. */
-export function fetchOperadoraPerfil(cnpj: string, date?: string): Promise<PerfilOperadora | null> {
-  return get(`/api/v1/operadoras/${cnpj}`, { date, include: 'historico,indicadores,erbs,multas,prontidao,qualidade,reclamacoes,consumidor,mercado_grupos', opcional: true })
+export function fetchOperadoraPerfil(cnpj: string, date?: string, historicoCompleto = false): Promise<PerfilOperadora | null> {
+  return get(`/api/v1/operadoras/${cnpj}`, { date, include: `${blocoHistorico(historicoCompleto)},indicadores,erbs,multas,prontidao,qualidade,reclamacoes,consumidor,mercado_grupos`, opcional: true })
 }
 
 export function fetchOperadoraContacts(cnpj: string, date?: string): Promise<OperadoraContactsResponse> {
@@ -911,8 +917,8 @@ export function fetchUfs(date?: string): Promise<{ snapshot_date: string; mes_re
 }
 
 /** Perfil consolidado da UF numa chamada. */
-export function fetchUfPerfil(uf: string, date?: string): Promise<PerfilUf> {
-  return get(`/api/v1/ufs/${uf}`, { date, include: 'historico,territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio' })
+export function fetchUfPerfil(uf: string, date?: string, historicoCompleto = false): Promise<PerfilUf> {
+  return get(`/api/v1/ufs/${uf}`, { date, include: `${blocoHistorico(historicoCompleto)},territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio` })
 }
 
 export function fetchAcessosMunicipios(opts: {

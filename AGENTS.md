@@ -139,6 +139,9 @@ explicitamente em vez de omitir.
   `python -m publish.snapshot_builder --date AAAA-MM-DD --detail-only` (aditivo). Sem ele, a API recalcula e a memória cresce
   centenas de MiB por data.
 - Logs de produção chegam a GB; leia com `tail -c` ou por stdin.
+- A resposta de uma URL não pode depender de quem pede: o nginx e o cache da API guardam por URL, sem o nível de acesso na chave. O
+  bloco de histórico dos perfis mudava com o login e o aquecimento gravava a série inteira, que ia para anônimos. Conteúdo só para
+  quem tem login vai em outra URL, da classe `login` (`include=historico_completo`).
 - Todo 4xx vira erro no console do navegador, mesmo tratado. Página que consulta um serviço que a entidade pode não ter pede
   `?opcional=1` e recebe **204** em vez de 404 (`api/main.py`); sem o parâmetro a API continua respondendo 404.
 - `?date=` de snapshot publicado sai `immutable` por um ano (navegador e `nginx_cache`): campo novo numa rota existente, ou arquivo

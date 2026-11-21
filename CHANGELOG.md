@@ -1,5 +1,16 @@
 # Notas de versão
 
+## v2.0.26
+
+**A série histórica dos perfis não chega mais a anônimos pelo cache.** O bloco `historico` dos perfis de AS, PTT, operadora e UF mudava
+conforme quem pedia (série inteira com login, 2 datas sem), mas o nginx e o cache de bytes da API guardam por URL. O aquecimento da API
+monta os perfis com acesso completo, e a partir dali todo anônimo recebia a série inteira; quando o anônimo chegava primeiro, o usuário
+logado recebia a série curta e o aviso para entrar.
+- `include=historico` traz sempre só os 2 snapshots atuais, para todos; `include=historico_completo` traz a série inteira e é da classe
+  `login` (401 ao anônimo, `private, no-store`). A resposta depende só da URL.
+- O front pede `historico_completo` quando há usuário (login ou IP na allowlist), com a variante na chave do cache do React Query.
+- Testes: mesma URL dá o mesmo bloco para anônimo e logado; `historico_completo` exige login nos quatro perfis.
+
 ## v2.0.25
 
 Configuração de memória que não chegava aos contêineres. O `docker-compose.prod.yml` só vale com `PROD_OVERRIDES=true`, e era só ele que

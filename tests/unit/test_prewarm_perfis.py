@@ -16,11 +16,13 @@ FRONT = Path(__file__).resolve().parents[2] / "frontend" / "src" / "services" / 
 def _chamadas_do_front() -> dict:
     texto = FRONT.read_text(encoding="utf-8")
     achadas = {}
-    for m in re.finditer(r"get\(`(/api/v1/(?:ixps|asns|operadoras|municipios|ufs))/\$\{\w+\}`,\s*\{([^}]*)\}\)", texto):
+    # o bloco de histórico entra como `${blocoHistorico(...)}`: o aquecimento grava a versão de todos (`historico`, as datas atuais)
+    for m in re.finditer(r"get\(`(/api/v1/(?:ixps|asns|operadoras|municipios|ufs))/\$\{\w+\}`,\s*\{(.*)\}\)$", texto, re.M):
         rota, params = m.group(1), m.group(2)
-        inc = re.search(r"include:\s*'([^']+)'", params)
+        inc = re.search(r"include:\s*[`']([^`']+)[`']", params)
         if inc:
-            achadas.setdefault(rota, []).append((inc.group(1), "opcional: true" in params))
+            blocos = re.sub(r"\$\{blocoHistorico\([^)]*\)\}", "historico", inc.group(1))
+            achadas.setdefault(rota, []).append((blocos, "opcional: true" in params))
     return achadas
 
 

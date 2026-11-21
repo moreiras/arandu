@@ -52,6 +52,12 @@ def test_contatos_exigem_login(path):
     assert c(path) == LOGIN
 
 
+@pytest.mark.parametrize("path", ["/api/v1/asns/3356", "/api/v1/ixps/sp", "/api/v1/operadoras/02558157000162", "/api/v1/ufs/SP"])
+def test_serie_historica_inteira_no_perfil_exige_login(path):
+    assert c(path, {"include": "paths, historico_completo", "date": RECENT[0]}) == LOGIN
+    assert c(path, {"include": "paths,historico", "date": RECENT[0]}) != LOGIN
+
+
 @pytest.mark.parametrize("path", ["/api/v1/asns", "/api/v1/scms", "/api/v1/smps", "/api/v1/stfcs", "/api/v1/seacs"])
 def test_listas_primeira_pagina_aberta_e_alem_exige_login(path):
     assert c(path, {"date": "2026-10-04"}) == OPEN
