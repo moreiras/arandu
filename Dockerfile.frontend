@@ -28,6 +28,9 @@ ENV VITE_SITE_NOME=$SITE_NOME VITE_SITE_NOME_EXTENSO=$SITE_NOME_EXTENSO VITE_SIT
     VITE_SITE_PREFIXO_ARQUIVOS=$SITE_PREFIXO_ARQUIVOS VITE_SITE_SOFTWARE=$SITE_SOFTWARE VITE_SITE_CONTATO=$SITE_CONTATO \
     VITE_SITE_CONTATO_PRIVACIDADE=$SITE_CONTATO_PRIVACIDADE \
     VITE_SITE_CODIGO_FONTE=$SITE_CODIGO_FONTE
+# Marca da instância (fora do repositório, instancia/README.md): substitui o símbolo e os ícones padrão do software em public/.
+COPY instancia/ ./instancia/
+RUN if [ -d instancia/marca ]; then cp -a instancia/marca/. public/; fi && rm -rf instancia
 RUN npm run build
 
 # Estágio 2: módulos brotli do nginx (ngx_brotli), compilados contra o MESMO nginx da imagem final

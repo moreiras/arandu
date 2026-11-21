@@ -1,5 +1,19 @@
 # Notas de versão
 
+## v2.0.25
+
+O que o usuário vê fala do site, não do software. O Arandurapé é o software; a instância tem nome, contato e marca próprios.
+- **Marca da instância fora do repositório.** O símbolo do cabeçalho e da tela de login e os ícones da aba (`favicon.svg`, `favicon.ico`)
+  vêm de `instancia/marca/` (ignorada pelo git, só o README é versionado), copiada sobre `frontend/public/` no `Dockerfile.frontend`.
+  Sem ela, o site sai com o símbolo padrão do software, um "A". Saem do git `arandu-mark.svg` (agora `marca.svg`) e `arandu-logo.svg`.
+- **Página de fontes:** o `catalogo.json` é gerado com o nome do software e passa por `comIdentidade` (`frontend/src/lib/site.ts`, o mesmo
+  marcador de `core/site.py`) antes de ser exibido. A nota da tabela curada de marcas deixa de trazer um e-mail fixo e aponta o contato do
+  site.
+- **User-Agent:** os coletores do RouteViews/RIPE RIS, da Receita (sócios), dos grupos de sócios, a sondagem do Shodan e a medição de
+  RDAP usavam `arandurape/1.0` sem o endereço da instância; passam a usar `core.site.USER_AGENT` (`arandurape/<versão> (+SITE_URL)`).
+- Implantação: antes do build, ponha a marca da instância em `instancia/marca/` (`marca.svg`, `favicon.svg`, `favicon.ico`); sem isso o
+  site sai com o "A".
+
 ## v2.0.24
 
 Contatos no MCP, com a cota do site.

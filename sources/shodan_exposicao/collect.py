@@ -53,7 +53,7 @@ TEMPO_MAX_S = 2 * 3600
 VULN_REEXPERIMENTA_DIAS = 30
 CHECKPOINT_A_CADA = 100
 ARQUIVO = "shodan_exposicao.json.gz"
-UA_SONDAGEM = {"User-Agent": "Arandurape-medicao/1.0 (pesquisa; projeto sem fins lucrativos)"}
+UA_SONDAGEM = {"User-Agent": f"{USER_AGENT} medicao-pesquisa"}     # a sondagem também identifica a instância
 
 logging.getLogger("httpx").setLevel(logging.WARNING)       # o httpx loga a URL da requisição, e a URL do Shodan carrega a chave
 logging.getLogger("httpcore").setLevel(logging.WARNING)

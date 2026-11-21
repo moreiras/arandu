@@ -60,6 +60,7 @@ from core.common import (
     write_json_gz,
     ignorar_sigpipe,
 )
+from core.site import USER_AGENT
 
 # O mrtparse zera o tratamento de SIGPIPE ao ser importado (ver ignorar_sigpipe)
 ignorar_sigpipe()
@@ -151,7 +152,7 @@ def _download_one(url: str, dest: Path, log) -> bool:
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(".tmp")
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "arandurape/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
         with urllib.request.urlopen(req, timeout=120) as resp:
             data = resp.read()
         tmp.write_bytes(data)

@@ -25,7 +25,7 @@ Tabela curada que liga o nome da marca ou da prestadora, como aparece no RQUAL e
 - **Formato:** YAML mantido à mão em config/
 - **Licença:** Curadoria do projeto (dados públicos; nada de pessoa física)
 - **Uso comercial:** `permitido`
-- **Evidência / ressalvas:** Criada em 2026-11-06 sobre as outorgas do snapshot 2026-11-05. Cada linha traz a base do vínculo (razão social ou grupo do SICI). Correções por arandurape@internetbitabit.com.br (política editorial).
+- **Evidência / ressalvas:** Criada em 2026-11-06 sobre as outorgas do snapshot 2026-11-05. Cada linha traz a base do vínculo (razão social ou grupo do SICI). Correções pelo contato do site, na página Sobre (política editorial).
 
 ## Saídas
 

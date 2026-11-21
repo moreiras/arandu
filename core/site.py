@@ -71,7 +71,7 @@ FORMATO_CHAVE_MCP = re.compile(r"([a-z0-9][a-z0-9-]{0,30})_mcp_([A-Z2-7]{8})_([A
 
 
 def prefixo_chave_mcp(site: Site | None = None) -> str:
-    """Prefixo das chaves novas: `obint_mcp_` com `SITE_MCP_ESQUEMA=obint`."""
+    """Prefixo das chaves novas: `exemplo_mcp_` com `SITE_MCP_ESQUEMA=exemplo`."""
     esquema = re.sub(r"[^a-z0-9-]", "-", (site or SITE).mcp_esquema.lower()).strip("-")[:31] or "mcp"
     return f"{esquema}_mcp_"
 

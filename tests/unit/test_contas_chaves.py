@@ -83,15 +83,15 @@ def test_prefixo_segue_o_esquema_do_site_e_chave_antiga_continua_valida(tmp_path
     """O prefixo vem de SITE_MCP_ESQUEMA; quem autentica é id + segredo, então mudar o esquema não derruba as chaves emitidas."""
     from core import site
     from core.site import FORMATO_CHAVE_MCP, carregar, prefixo_chave_mcp
-    assert prefixo_chave_mcp(carregar({"SITE_MCP_ESQUEMA": "obint"})) == "obint_mcp_"
-    assert prefixo_chave_mcp(carregar({"SITE_MCP_ESQUEMA": "OBINT Brasil"})) == "obint-brasil_mcp_"
-    monkeypatch.setattr(site, "SITE", carregar({"SITE_MCP_ESQUEMA": "obint"}))
+    assert prefixo_chave_mcp(carregar({"SITE_MCP_ESQUEMA": "exemplo"})) == "exemplo_mcp_"
+    assert prefixo_chave_mcp(carregar({"SITE_MCP_ESQUEMA": "Exemplo Brasil"})) == "exemplo-brasil_mcp_"
+    monkeypatch.setattr(site, "SITE", carregar({"SITE_MCP_ESQUEMA": "exemplo"}))
     chave, meta = chaves_mcp.gerar(tmp_path, "conta-2")
-    assert chave.startswith("obint_mcp_" + meta["id"] + "_")
+    assert chave.startswith("exemplo_mcp_" + meta["id"] + "_")
     segredo = chave.split("_")[-1]
-    for prefixo in ("arandu_mcp_", "arandurape_mcp_", "obint_mcp_"):             # chaves emitidas antes da troca do esquema
+    for prefixo in ("arandu_mcp_", "arandurape_mcp_", "exemplo_mcp_"):             # chaves emitidas antes da troca do esquema
         assert chaves_mcp.verificar(tmp_path, f"{prefixo}{meta['id']}_{segredo}") == "conta-2"
-    assert chaves_mcp.verificar(tmp_path, f"OBINT_mcp_{meta['id']}_{segredo}") is None   # fora do formato
+    assert chaves_mcp.verificar(tmp_path, f"EXEMPLO_mcp_{meta['id']}_{segredo}") is None   # fora do formato
     assert not FORMATO_CHAVE_MCP.fullmatch("_mcp_" + meta["id"] + "_" + segredo)
 
 

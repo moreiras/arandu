@@ -74,6 +74,7 @@ from core.common import (
     today_str,
     write_json_gz,
 )
+from core.site import USER_AGENT
 from core.cpf import sem_socios_pessoa_fisica
 
 BRASILAPI_URL = "https://brasilapi.com.br/api/cnpj/v1/{cnpj}"
@@ -332,7 +333,7 @@ def run(date_str: str, base: Path, log) -> dict:
     holdings_cache: dict[str, dict] = read_json_gz(cache_path) if cache_path.exists() else {}
     missing = [basico for basico in external_holdings if basico not in holdings_cache]
     if missing:
-        with httpx.Client(headers={"User-Agent": "arandurape/1.0"},
+        with httpx.Client(headers={"User-Agent": USER_AGENT},
                            follow_redirects=True) as client:
             for i, basico in enumerate(missing, 1):
                 holdings_cache[basico] = _fetch_cartao_cnpj(_matriz_cnpj(basico), client)

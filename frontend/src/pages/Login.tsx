@@ -25,7 +25,7 @@ export function Login() {
     <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 w-full max-w-sm">
         <div className="text-center mb-8">
-          <img src="/arandu-mark.svg" alt="" className="h-12 w-12 mx-auto mb-4" />
+          <img src="/marca.svg" alt="" className="h-12 w-12 mx-auto mb-4" />
           <h1 className="text-xl font-light text-[#0c1e45] tracking-widest uppercase">
             {SITE.nome}
           </h1>

@@ -108,7 +108,7 @@ export function AppLayout() {
       <header ref={topo} className="bg-white border-b border-gray-200 sticky top-0 z-40 print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 h-12 flex items-center gap-2 sm:justify-between">
           <NavLink to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0 group" aria-label={`${SITE.nome}: página inicial`}>
-            <img src="/arandu-mark.svg" alt="" className="h-8 w-8 sm:h-10 sm:w-10" />
+            <img src="/marca.svg" alt="" className="h-8 w-8 sm:h-10 sm:w-10" />
             <span className="hidden sm:inline text-[#0c1e45] text-sm sm:text-base font-semibold tracking-wide group-hover:text-primario-800 transition-colors whitespace-nowrap">
               {SITE.nome}
             </span>

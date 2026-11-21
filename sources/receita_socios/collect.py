@@ -78,6 +78,7 @@ from core.common import (
     today_str,
     write_json_gz,
 )
+from core.site import USER_AGENT
 
 
 
@@ -246,7 +247,7 @@ def run(date_str: str, base: Path, log) -> dict:
     by_cnpj_basico: dict[str, list[dict]] = {}
 
     with httpx.Client(follow_redirects=True,
-                       headers={"User-Agent": "arandurape/1.0"}) as client:
+                       headers={"User-Agent": USER_AGENT}) as client:
         month = _discover_latest_month(client, log)
         file_names = _list_socios_files(client, month, log)
         if not file_names:

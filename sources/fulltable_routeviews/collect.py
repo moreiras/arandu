@@ -64,6 +64,7 @@ from core.common import (
     write_json_gz,
     ignorar_sigpipe,
 )
+from core.site import USER_AGENT
 
 # O mrtparse zera o tratamento de SIGPIPE ao ser importado (ver ignorar_sigpipe)
 ignorar_sigpipe()
@@ -150,7 +151,7 @@ def _list_ribs_rv(name: str, base: str, year_month: str, log) -> list[str]:
     """Lista arquivos rib.YYYYMMDD.HHMM.bz2 no diretório RIBS/ de um coletor RouteViews."""
     url = f"{base}/{year_month}/RIBS/"
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "arandurape/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
         with urllib.request.urlopen(req, timeout=30) as r:
             html = r.read().decode("utf-8", errors="replace")
         names = sorted(set(re.findall(r"rib\.\d{8}\.\d{4}\.bz2", html)))
@@ -198,7 +199,7 @@ def _list_bviews_ris(name: str, year_month: str, log) -> list[str]:
     """Lista arquivos bview.YYYYMMDD.HHMM.gz no diretório de um coletor RIPE RIS."""
     url = f"{_RIS_BASE}/{name}/{year_month}/"
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "arandurape/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
         with urllib.request.urlopen(req, timeout=30) as r:
             html = r.read().decode("utf-8", errors="replace")
         names = sorted(set(re.findall(r"bview\.\d{8}\.\d{4}\.gz", html)))
@@ -242,7 +243,7 @@ def _download(url: str, dest: Path, log) -> bool:
     fname = url.rsplit("/", 1)[-1]
     log.info("download start", file=fname, url=url)
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "arandurape/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
         with urllib.request.urlopen(req, timeout=600) as resp:
             total      = int(resp.headers.get("Content-Length", 0) or 0)
             total_mb   = round(total / 1e6, 1) if total else "?"

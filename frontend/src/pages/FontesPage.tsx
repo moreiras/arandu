@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query'
 import { EmptyState, formatarReferencia, rotuloFrescor, type FonteEntrada } from '../components/entidade'
 import { descreverCadencia, rotuloTipo, type Catalogo, type CampoCatalogo, type FonteCatalogo } from '../features/fontes/catalogo'
 import { useFontes } from '../hooks/entidades'
+import { comIdentidade } from '../lib/site'
 
 /** Quantas fontes aparecem antes de "mostrar todas" (a tabela completa ocupa 8 telas; a meta é ≤ 4). */
 const TAMANHO_LOTE = 18
@@ -70,7 +71,8 @@ function DetalheFonte({ f }: { f: FonteCatalogo }) {
 
 /** `/fontes`: gerada do catálogo — cada fonte com licença, periodicidade, última coleta no snapshot ativo e os campos que produz; depois os produtos e seus limites. */
 export function FontesPage() {
-  const cat = useQuery<Catalogo>({ queryKey: ['catalogo'], queryFn: () => fetch('/catalogo.json').then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() }), staleTime: Infinity, gcTime: Infinity, retry: false })
+  // o catálogo é gerado com o nome do software; a página mostra o do site
+  const cat = useQuery<Catalogo>({ queryKey: ['catalogo'], queryFn: () => fetch('/catalogo.json').then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() }).then((c: Catalogo) => comIdentidade(c)), staleTime: Infinity, gcTime: Infinity, retry: false })
   const { fontes, snapshot } = useFontes()
   const [busca, setBusca] = useState('')
   const [tipo, setTipo] = useState('')

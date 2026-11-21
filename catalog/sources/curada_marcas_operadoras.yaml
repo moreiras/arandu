@@ -11,7 +11,7 @@ origem:
   formato: YAML mantido à mão em config/
   licenca: Curadoria do projeto (dados públicos; nada de pessoa física)
   uso_comercial: permitido
-  nota: 'Criada em 2026-11-06 sobre as outorgas do snapshot 2026-11-05. Cada linha traz a base do vínculo (razão social ou grupo do SICI). Correções por arandurape@internetbitabit.com.br (política editorial).'
+  nota: 'Criada em 2026-11-06 sobre as outorgas do snapshot 2026-11-05. Cada linha traz a base do vínculo (razão social ou grupo do SICI). Correções pelo contato do site, na página Sobre (política editorial).'
 cadencia:
   fonte_atualiza: irregular
   coleta: sob_demanda

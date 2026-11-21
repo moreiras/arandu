@@ -16,7 +16,8 @@ if [[ -f "$DEST/$FONTE/0-255.pbf" && "$(ls "$DEST/$FONTE" | wc -l)" -ge 256 ]]; 
 fi
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
-curl -fsSL -A "arandurape/1.0" -o "$TMP/noto-sans.zip" "$URL"
+# User-Agent no formato de core/site.py: o software e o endereço da instância (SITE_URL do ambiente, se definido)
+curl -fsSL -A "arandurape/$(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo 0) (+${SITE_URL:-http://localhost})" -o "$TMP/noto-sans.zip" "$URL"
 python3 - "$TMP/noto-sans.zip" "$DEST" "$FONTE" <<'PY'
 import sys, zipfile
 from pathlib import Path

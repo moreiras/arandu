@@ -31,3 +31,21 @@ export const TITULO_SITE = `${SITE.nome} — ${SITE.nomeExtenso}`
 
 /** Nome de arquivo baixado: `nomeArquivo('comparar-ixps.csv')` → `arandurape-comparar-ixps.csv`. */
 export const nomeArquivo = (resto: string) => `${SITE.prefixoArquivos}-${resto}`
+
+// O mesmo marcador de `core/site.py` (`_NOME_ANTIGO`). O `\b` do JavaScript não reconhece "é" como letra: as fronteiras são por lookaround Unicode.
+const NOME_DO_SOFTWARE = /(?<![\p{L}\p{N}_])(?:ARANDURAP[ÉE]|Arandurap[ée])(?![\p{L}\p{N}_])/gu
+
+/**
+ * Textos gerados com o nome do software ("Estimativa do Arandurapé", `arandurape://`) com o nome do site, como `core.site.com_identidade`
+ * faz na API e no MCP. Para o que o front lê sem passar pela API (o `catalogo.json`). Só valores de texto mudam, nunca chaves.
+ */
+export function comIdentidade<T>(valor: T): T {
+  if (typeof valor === 'string') {
+    return valor.replace(/arandurape:\/\//g, `${SITE.mcp}://`).replace(NOME_DO_SOFTWARE, SITE.nome) as T
+  }
+  if (Array.isArray(valor)) return valor.map((v) => comIdentidade(v)) as T
+  if (valor !== null && typeof valor === 'object') {
+    return Object.fromEntries(Object.entries(valor).map(([k, v]) => [k, comIdentidade(v)])) as T
+  }
+  return valor
+}

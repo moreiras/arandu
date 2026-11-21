@@ -25,9 +25,10 @@ from pathlib import Path
 import httpx
 
 from core.common import read_json_gz
+from core.site import USER_AGENT
 from sources.rdap_contatos.collect import BASE_URL, extrair
 
-UA = {"User-Agent": "Arandurape-medicao/1.0 (pesquisa; projeto sem fins lucrativos)", "Accept": "application/rdap+json"}
+UA = {"User-Agent": f"{USER_AGENT} medicao-pesquisa", "Accept": "application/rdap+json"}
 
 
 def consulta(client: httpx.Client, asn: int, fase: str, intervalo: float, saida) -> dict:

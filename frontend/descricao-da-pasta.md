@@ -39,8 +39,7 @@ testes rodam em contêiner (`bash scripts/front-test.sh`; servidor de desenvolvi
 
 | Arquivo | Papel |
 |---|---|
-| `favicon.ico`, `favicon.svg`, `arandu-mark.svg` | Ícones e marca. |
-| `arandu-logo.svg` | Logotipo completo (sem referência no código atual). |
+| `favicon.ico`, `favicon.svg`, `marca.svg` | Ícones e símbolo padrão do software (um "A"); a instância troca pelos seus em `instancia/marca/` (ver `instancia/README.md`). |
 | `br-states.geojson`, `br-places.geojson`, `world-places.geojson` | Contornos dos estados e rótulos de lugares dos mapas. |
 | `malha-municipal.pmtiles`, `malha-municipal.json` | Malha municipal do IBGE em tiles vetoriais e seus metadados (`scripts/build-malha-municipal.py`). |
 | `municipios-centroides.json` | Centroides dos municípios (`scripts/build-municipio-centroides.py`, que grava também a cópia em `config/`). |

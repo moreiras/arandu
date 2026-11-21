@@ -1,6 +1,10 @@
 # Dados coletados — nunca versionar
 data/
 
+# Arquivos da instância (marca e ícones do site): ficam fora do repositório, ver instancia/README.md
+instancia/*
+!instancia/README.md
+
 # Variáveis de ambiente
 .env
 .env.*
