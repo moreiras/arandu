@@ -103,6 +103,13 @@ class LatestResponseCache:
     def clear(self) -> None:
         self._entries.clear()
 
+    def esvaziar(self) -> int:
+        """Esvazia trocando o mapeamento inteiro (atribuição atômica), não com `clear()`: chamado pela guarda de memória, de outra
+        thread, enquanto o laço de eventos grava; o `LRUCache` não é seguro entre threads. Devolve os bytes que ele ocupava."""
+        antigo = self._entries
+        self._entries = LRUCache(maxsize=antigo.maxsize, getsizeof=lambda v: len(v[2]) or 1)
+        return int(antigo.currsize)
+
     def __len__(self) -> int:  # pragma: no cover - trivial
         return len(self._entries)
 

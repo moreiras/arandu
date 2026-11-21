@@ -186,7 +186,9 @@ async def lifespan(app: FastAPI):
     )
     # Teto de memória (api/memoria.py): datas residentes e guarda perto do limite do contêiner. Sem isto, cada data antiga
     # consultada somava ~1,7 GB que nunca voltava (medido num ambiente de teste em 2026-11-18) e duas levavam a API ao OOM.
-    app.state.guarda_memoria = GuardaMemoria(store, app.state.latest_cache.current_latest) if memoria_ligada() else None
+    # no crítico da guarda, o cache de respostas prontas (recalculável) é esvaziado antes de se tocar nas bases da data mais recente
+    app.state.guarda_memoria = (GuardaMemoria(store, app.state.latest_cache.current_latest, liberar=app.state.latest_cache.esvaziar)
+                                if memoria_ligada() else None)
     if app.state.guarda_memoria is not None:
         asyncio.create_task(app.state.guarda_memoria.laco())
     app.state.auth_config = init_auth_config(_data_dir)

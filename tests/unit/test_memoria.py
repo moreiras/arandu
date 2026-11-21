@@ -103,17 +103,78 @@ def test_alivio_expurga_tudo_que_nao_e_a_mais_recente(monkeypatch):
     assert not g.critico
 
 
-def test_critico_expurga_tudo_e_nao_recusa():
+def test_critico_esvazia_recalculaveis_e_mantem_a_mais_recente():
     s = _Store()
+    liberados = []
     g, leitura = _guarda(s, uso=91, teto=100)
+    g._liberar = lambda: liberados.append(1) or 10
+    g.passada()
+    assert set(s._asn_detail_cache) == {L} and not g.critico and g.expurgos_totais == 0   # 91%: a mais recente fica (antes saía)
+    assert liberados == [1] and g.ultimo["liberado"] == 10
+
+
+def test_total_expurga_tudo_uma_vez_por_intervalo_e_nao_recusa():
+    s = _Store()
+    g, leitura = _guarda(s, uso=96, teto=100)
     g.passada()
     assert s._asn_detail_cache == {} and g.critico and g.expurgos_totais == 1   # inclusive a mais recente: relida sob demanda
     assert s._sem_data == {"sp": 1, 13335: 2}
     assert not hasattr(g, "recusa")
-    leitura["uso"] = 85                                                      # entre alívio e crítico: a mais recente volta a ficar
     s._asn_detail_cache.update({L: {1: {}}, A: {1: {}}})
+    g._pressao = None                                                         # sem histerese: só o intervalo do total vale aqui
+    g.passada()                                                               # ainda a 96%, mas o total foi há pouco: só o crítico
+    assert set(s._asn_detail_cache) == {L} and not g.critico and g.expurgos_totais == 1
+    leitura["uso"] = 85                                                       # entre alívio e crítico: a mais recente fica
+    s._asn_detail_cache.update({L: {1: {}}, A: {1: {}}})
+    g._pressao = None
     g.passada()
     assert set(s._asn_detail_cache) == {L} and not g.critico
+
+
+def test_sem_motivo_a_passada_nao_varre(monkeypatch):
+    s = _Store()
+    g, leitura = _guarda(s, uso=50, teto=100)
+    g.passada()                                                               # a primeira varre (início)
+    varridos = []
+    monkeypatch.setattr(memoria, "caches_do_store", lambda store: varridos.append(1) or [])
+    for _ in range(20):
+        r = g.passada()
+    assert varridos == [] and r["varreu"] is False
+    g.registrar(C)                                                            # consulta a data não residente: varre uma vez
+    g.passada()
+    g.passada()
+    assert varridos == [1]
+
+
+def test_varredura_periodica(monkeypatch):
+    s = _Store()
+    g, _ = _guarda(s, uso=50, teto=100)
+    g.passada()
+    s._asn_detail_cache[C] = {1: {}}                                          # entrou por outro caminho (sem ?date=)
+    g.passada()
+    assert C in s._asn_detail_cache
+    g._ultima_varredura -= g.varredura_s + 1
+    g.passada()
+    assert C not in s._asn_detail_cache
+
+
+def test_histerese_nao_repete_expurgo_por_pressao_sem_ganho(monkeypatch):
+    s = _Store()
+    g, leitura = _guarda(s, uso=82, teto=100)
+    g.passada()
+    varridos = []
+    monkeypatch.setattr(memoria, "caches_do_store", lambda store: varridos.append(1) or [])
+    leitura["uso"] = 83                                                       # o uso não caiu (o Python não devolveu), mas quase não subiu
+    for _ in range(10):
+        g.passada()
+    assert varridos == []
+    leitura["uso"] = 88                                                       # subiu 6 pontos: expurga de novo
+    g.passada()
+    assert varridos == [1]
+    leitura["uso"] = 88
+    g._pressao = (g._pressao[0] - g.repetir_s - 1, g._pressao[1])             # passou o intervalo: pode repetir
+    g.passada()
+    assert varridos == [1, 1]
 
 
 def test_data_em_uso_nao_e_expurgada_no_meio_da_consulta(monkeypatch):
@@ -241,3 +302,19 @@ def test_mcp_tools_rodam_dentro_da_guarda():
     assert mcp_app._com_guarda(_Srv, _G()) == 0                             # não envolve duas vezes
 
 
+
+
+def test_cache_de_respostas_esvazia_trocando_o_mapeamento():
+    from api.cache import LatestResponseCache
+
+    class _S:
+        def latest(self):
+            return L
+    c = LatestResponseCache(_S(), max_bytes=1000, max_entry_bytes=100)
+    c.set(("/a", "", True), (200, [], b"x" * 40))
+    c.set(("/b", "", True), (200, [], b"y" * 30))
+    antigo = c._entries
+    assert c.esvaziar() == 70 and len(c) == 0 and c.size_bytes == 0
+    assert c._entries is not antigo and c._entries.maxsize == 1000            # outra thread que grave no antigo não corrompe o novo
+    c.set(("/c", "", True), (200, [], b"z" * 10))
+    assert c.size_bytes == 10

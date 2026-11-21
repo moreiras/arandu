@@ -16,9 +16,19 @@ Duas defesas, numa só tarefa de fundo. Nenhuma recusa consulta: a data antiga �
    último (começa com a anterior à mais recente). O que for de outra data é expurgado de todos os caches quando a consulta termina
    (enquanto uma consulta a usa, a data fica: ver `usando`). A próxima consulta a ela relê o disco: o histórico fica mais lento, a
    memória para de crescer. Com 0, só a data mais recente fica (o padrão do MCP no compose).
-2. **Guarda.** A cada `API_MEMORIA_INTERVALO_S` lê a memória anônima do cgroup (o heap; o page cache é descartável e não conta).
-   Acima de `API_MEMORIA_ALIVIO_PCT` (80) do teto, expurga tudo o que não é a data mais recente. Acima de `API_MEMORIA_CRITICO_PCT`
-   (90), expurga tudo, inclusive a data mais recente, que volta a ser lida sob demanda: lentidão por alguns instantes em vez de OOM.
+2. **Guarda.** A cada `API_MEMORIA_INTERVALO_S` (5) lê a memória anônima do cgroup (o heap; o page cache é descartável e não conta).
+   Só isso: percorrer as chaves dos caches é caro (no perfil da produção em 2026-11-21 foram 763 mil `data_da_chave` em 13 minutos,
+   disputando o GIL com os pedidos), então a varredura só acontece quando há motivo:
+   - uma consulta a data não residente terminou (`registrar`), ou saiu snapshot novo;
+   - a cada `API_MEMORIA_VARREDURA_S` (600), para o que entrou por outro caminho (séries, manifestos);
+   - pressão: acima de `API_MEMORIA_ALIVIO_PCT` (80) do teto, expurga tudo o que não é a data mais recente. Acima de
+     `API_MEMORIA_CRITICO_PCT` (90), também esvazia o que é recalculável (o cache de respostas prontas). Só acima de
+     `API_MEMORIA_TOTAL_PCT` (95) expurga tudo, inclusive a data mais recente (relida sob demanda), e no máximo uma vez a cada
+     `API_MEMORIA_TOTAL_INTERVALO_S` (300): no teste de carga de 2026-11-21 o expurgo total a 91% fez cada pedido recarregar as bases
+     já sob carga e derrubou a API.
+   Histerese: o Python nem sempre devolve ao sistema a memória que solta (o uso medido não cai), então, depois de um expurgo por
+   pressão, outro só vem depois de `API_MEMORIA_REPETIR_S` (60) ou se o uso subir mais `API_MEMORIA_REPETIR_PCT` (5) pontos. Antes, a
+   guarda repetia o expurgo a cada 5 s sem ganho ("5827 → 5841 MiB") e jogava fora os caches da data anterior a cada passada.
    (Até 2026-11-18 o crítico recusava datas antigas com 503; no MCP uma data inteira passa de 80% de um teto de 5 GiB, a memória não
    voltava abaixo do alívio e o histórico ficava recusado para sempre.)
 
@@ -245,7 +255,7 @@ def uso_memoria() -> tuple[Optional[int], Optional[int]]:
 
 class GuardaMemoria:
     def __init__(self, store: Any, latest: Callable[[], Optional[str]], *, leitor: Callable[[], tuple] = uso_memoria,
-                 prefixo: str = "API"):
+                 prefixo: str = "API", liberar: Optional[Callable[[], Any]] = None):
         # prefixo das variáveis de ambiente: API_* na API, MCP_* no servidor MCP (o mesmo Store, em outro contêiner e com outro teto)
         self.prefixo = prefixo
         self.store = store
@@ -254,7 +264,19 @@ class GuardaMemoria:
         self.extras = int(_env_num(f"{prefixo}_DATAS_EXTRAS", 1))
         self.alivio = _env_num(f"{prefixo}_MEMORIA_ALIVIO_PCT", 80) / 100
         self.critico_pct = _env_num(f"{prefixo}_MEMORIA_CRITICO_PCT", 90) / 100
+        self.total_pct = _env_num(f"{prefixo}_MEMORIA_TOTAL_PCT", 95) / 100
         self.intervalo = _env_num(f"{prefixo}_MEMORIA_INTERVALO_S", 5)
+        self.varredura_s = _env_num(f"{prefixo}_MEMORIA_VARREDURA_S", 600)
+        self.repetir_s = _env_num(f"{prefixo}_MEMORIA_REPETIR_S", 60)
+        self.repetir_pct = _env_num(f"{prefixo}_MEMORIA_REPETIR_PCT", 5) / 100
+        self.total_intervalo_s = _env_num(f"{prefixo}_MEMORIA_TOTAL_INTERVALO_S", 300)
+        self._liberar = liberar                    # esvazia o que é recalculável (cache de respostas prontas da API), no crítico
+        self._pendente = True                      # há o que expurgar fora de pressão (consulta a data antiga, snapshot novo, início)
+        self._ultima_varredura = time.monotonic()
+        self._pressao: Optional[tuple[float, float]] = None    # (instante, fração) do último expurgo por pressão: histerese
+        self._ultimo_total = float("-inf")
+        self._protegidas_memo: Optional[tuple] = None          # (residentes, snapshots) → protegidas, refeito só quando mudam
+        self.varreduras = 0
         self.critico = False                       # a última passada expurgou tudo (informativo: nada é recusado)
         self.expurgos_totais = 0
         self._em_uso: Counter = Counter()           # datas com consulta em andamento: não são expurgadas no meio dela
@@ -301,6 +323,7 @@ class GuardaMemoria:
             self._acessos.move_to_end(data)
             while len(self._acessos) > max(self.extras, 0) + 8:
                 self._acessos.popitem(last=False)
+            self._pendente = True
         self.acordar()
 
     def acordar(self) -> None:
@@ -322,6 +345,9 @@ class GuardaMemoria:
     def protegidas(self, residentes: set[str]) -> dict[str, set[str]]:
         """Datas que um cache específico guarda para as residentes: as semanas da série de estabilidade BGP de cada uma. Sem isto a
         semana anterior de uma data residente era expurgada e relida a cada passada (visto num ambiente de teste em 2026-11-18)."""
+        chave = (frozenset(residentes), tuple(self._snapshots()))
+        if self._protegidas_memo is not None and self._protegidas_memo[0] == chave:
+            return self._protegidas_memo[1]
         semanas: set[str] = set()
         bgp = getattr(self.store, "_bgp", None)
         if bgp is not None and hasattr(bgp, "bgp_stability_datas_semanais"):
@@ -330,46 +356,79 @@ class GuardaMemoria:
                     semanas.update(bgp.bgp_stability_datas_semanais(d, 6))
                 except Exception:  # noqa: BLE001
                     pass
-        return {"_bgp_horaria_cache": semanas}
+        out = {"_bgp_horaria_cache": semanas}
+        self._protegidas_memo = (chave, out)
+        return out
 
     def passada(self) -> dict[str, Any]:
-        """Uma verificação: mede, expurga o que estiver fora da política e atualiza o modo crítico. Bloqueante (rode em thread)."""
+        """Uma verificação: mede e, só se houver motivo (ver o docstring do módulo), varre os caches e expurga o que estiver fora da
+        política. Bloqueante (rode em thread)."""
         t0 = time.perf_counter()
+        agora = time.monotonic()
         latest = self._latest()
         if latest and self._visto_latest and latest != self._visto_latest:
             # snapshot novo publicado: o que era o mais recente vira o "anterior" e continua residente
             with self._trava:
-                self._acessos[self._visto_latest] = time.monotonic()
+                self._acessos[self._visto_latest] = agora
                 self._acessos.move_to_end(self._visto_latest)
+                self._pendente = True
         self._visto_latest = latest or self._visto_latest
         uso, teto = self._ler()
         frac = (uso / teto) if (uso and teto) else None
+        tudo = frac is not None and frac >= self.total_pct and agora - self._ultimo_total >= self.total_intervalo_s
+        critico = frac is not None and frac >= self.critico_pct
         so_latest = frac is not None and frac >= self.alivio
-        tudo = frac is not None and frac >= self.critico_pct
+        if so_latest and not tudo and self._pressao is not None:
+            t_ant, f_ant = self._pressao
+            if agora - t_ant < self.repetir_s and frac < f_ant + self.repetir_pct:
+                so_latest = critico = False              # histerese: o último expurgo por pressão é recente e o uso não subiu
+        with self._trava:
+            motivo = self._pendente or agora - self._ultima_varredura >= self.varredura_s
+            self._pendente = False
+        if not (tudo or so_latest or motivo):
+            self.critico = False
+            self.ultimo = {"uso_bytes": uso, "teto_bytes": teto, "fracao": round(frac, 3) if frac is not None else None,
+                           "critico": False, "varreu": False, "segundos": round(time.perf_counter() - t0, 4)}
+            return self.ultimo
+        self._ultima_varredura = agora
+        self.varreduras += 1
+        liberado = 0
+        if (critico or tudo) and self._liberar is not None:
+            try:
+                liberado = self._liberar() or 0
+            except Exception as exc:  # noqa: BLE001 — a guarda nunca derruba o serviço
+                _log.warning("memoria (%s): liberar recalculáveis falhou: %s", self.prefixo, exc)
         caches = caches_do_store(self.store) + caches_de_modulo()
         manter = set() if tudo else self.residentes(so_latest)
         removidas = expurgar(caches, manter, {} if tudo else self.protegidas(manter)) if (manter or tudo) else {}
+        if so_latest or tudo:
+            self._pressao = (agora, frac)
         self.critico = tudo
         if tudo:
+            self._ultimo_total = agora
             self.expurgos_totais += 1
             _log.warning("memoria (%s): %.0f%% do teto: tudo expurgado, inclusive a data mais recente (relida sob demanda)",
                          self.prefixo, frac * 100)
+        elif critico:
+            _log.warning("memoria (%s): %.0f%% do teto: recalculáveis esvaziados e só a data mais recente mantida", self.prefixo, frac * 100)
         if removidas:
             uso2, _ = self._ler()
             _log.info("memoria (%s): expurgo de %s (%s entradas), uso %s → %s MiB de %s MiB, %.2f s%s",
                       self.prefixo, sorted(removidas), sum(removidas.values()), _mib(uso), _mib(uso2), _mib(teto),
                       time.perf_counter() - t0,
-                      " (crítico: nenhuma data)" if tudo else " (alívio: só a data mais recente)" if so_latest else "")
+                      " (total: nenhuma data)" if tudo else " (crítico: recalculáveis e só a data mais recente)" if critico
+                      else " (alívio: só a data mais recente)" if so_latest else "")
             uso = uso2
             frac = (uso / teto) if (uso and teto) else None
         self.ultimo = {"uso_bytes": uso, "teto_bytes": teto, "fracao": round(frac, 3) if frac is not None else None,
-                       "critico": self.critico, "residentes": sorted(manter), "expurgadas": removidas,
-                       "segundos": round(time.perf_counter() - t0, 3)}
+                       "critico": self.critico, "varreu": True, "residentes": sorted(manter), "expurgadas": removidas,
+                       "liberado": liberado, "segundos": round(time.perf_counter() - t0, 3)}
         return self.ultimo
 
     def estado(self) -> dict[str, Any]:
         return {"ligado": ligado(self.prefixo), "extras": self.extras, "alivio_pct": self.alivio * 100,
-                "critico_pct": self.critico_pct * 100, "critico": self.critico, "expurgos_totais": self.expurgos_totais,
+                "critico_pct": self.critico_pct * 100, "total_pct": self.total_pct * 100, "critico": self.critico,
+                "expurgos_totais": self.expurgos_totais, "varreduras": self.varreduras,
                 "em_uso": sorted(self._em_uso),
                 "acessos": list(self._acessos), "ultima_passada": self.ultimo}
 

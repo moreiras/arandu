@@ -48,11 +48,12 @@ services:
       - ANON_HEARTBEAT_CEILING_MULTIPLIER=${ANON_HEARTBEAT_CEILING_MULTIPLIER:-3}
       - ANON_SESSION_TTL_HOURS=${ANON_SESSION_TTL_HOURS:-24}
       - ANON_INACTIVITY_TIMEOUT_SECONDS=${ANON_INACTIVITY_TIMEOUT_SECONDS:-45}
-      # Teto de memória (api/memoria.py): vazio = padrão do código (ligado; 1 data além da mais recente; alívio 80%, crítico 90%)
+      # Teto de memória (api/memoria.py): vazio = padrão do código (ligado; 1 data além da mais recente; alívio 80%, crítico 90%, total 95%)
       - API_MEMORIA=${API_MEMORIA:-}
       - API_DATAS_EXTRAS=${API_DATAS_EXTRAS:-}
       - API_MEMORIA_ALIVIO_PCT=${API_MEMORIA_ALIVIO_PCT:-}
       - API_MEMORIA_CRITICO_PCT=${API_MEMORIA_CRITICO_PCT:-}
+      - API_MEMORIA_TOTAL_PCT=${API_MEMORIA_TOTAL_PCT:-}
       - ANON_API_CLIENT_COST_SECONDS=${ANON_API_CLIENT_COST_SECONDS:-3}   # custo por pedido medido sem sessão válida, na conta do IP
       - ACCESS_POLICY_MODE=${ACCESS_POLICY_MODE:-shadow}
       # glibc: uma arena de malloc por thread fragmenta e não devolve ao SO; com o GIL, 2 arenas não custam vazão
@@ -115,6 +116,7 @@ services:
       - MCP_DATAS_EXTRAS=${MCP_DATAS_EXTRAS:-0}
       - MCP_MEMORIA_ALIVIO_PCT=${MCP_MEMORIA_ALIVIO_PCT:-}
       - MCP_MEMORIA_CRITICO_PCT=${MCP_MEMORIA_CRITICO_PCT:-}
+      - MCP_MEMORIA_TOTAL_PCT=${MCP_MEMORIA_TOTAL_PCT:-}
       - MCP_PRECARGA=${MCP_PRECARGA:-}
       - MALLOC_ARENA_MAX=${MALLOC_ARENA_MAX:-2}
       - MCP_HOSTS_EXTRAS=${MCP_HOSTS_EXTRAS:-}     # hosts além de localhost e do host do SITE_URL (ex.: IP de um ambiente de teste); sem isso, 421

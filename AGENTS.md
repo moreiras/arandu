@@ -165,7 +165,8 @@ explicitamente em vez de omitir.
 - Coleta ou produto pesado feito à mão passa por `scripts/arandu-exclusivo.sh` (mesmo lock do cron: nunca ao lado do pipeline) e roda
   no worker com teto (`WORKER_MEM_LIMIT`). Tetos padrão (três compose): API 6g, MCP 5g, worker e Routinator 3g (nunca juntos), frontend
   512m, swap igual ao teto. A guarda de memória (`api/memoria.py`) mantém residentes só a data mais recente (e, na API, a anterior) e
-  expurga a 80% e 90% do teto: cache novo por data precisa da data na chave (`'AAAA-MM-DD'`, `(data, …)`, `'AAAA-MM-DD/…'`) para entrar nela.
+  expurga a 80% (datas antigas), 90% (também respostas prontas) e 95% (tudo) do teto, varrendo os caches só quando há motivo: cache
+  novo por data precisa da data na chave (`'AAAA-MM-DD'`, `(data, …)`, `'AAAA-MM-DD/…'`) para entrar nela.
 - RPKI: o Routinator roda avulso antes do worker (`scripts/rpki-avulso.sh`, perfil `rpki`, cache no volume `rpki_cache`) e a etapa
   `rpki_collector` lê `data/cache/rpki/vrps.json`. Não volte a um serviço 24/7: ele revalida o repositório o tempo todo e satura o
   disco. Coleta RPKI à mão: `scripts/rpki-avulso.sh` antes da etapa.

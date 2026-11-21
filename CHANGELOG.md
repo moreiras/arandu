@@ -1,5 +1,20 @@
 # Notas de versão
 
+## v2.0.30
+
+Guarda de memória (`api/memoria.py`) que não disputa a CPU com os pedidos nem derruba a API perto do teto.
+- **Varre os caches só quando há motivo.** A cada 5 s ela só lê a memória do cgroup. Percorre as chaves quando uma consulta a data não
+  residente termina, quando sai snapshot novo, sob pressão, ou a cada `API_MEMORIA_VARREDURA_S` (600). Antes varria tudo a cada 5 s: no
+  perfil da produção foram 763 mil `data_da_chave` em 13 minutos, numa thread que segurava o GIL enquanto os pedidos esperavam.
+- **Histerese:** depois de um expurgo por pressão, outro só após `API_MEMORIA_REPETIR_S` (60) ou se o uso subir mais
+  `API_MEMORIA_REPETIR_PCT` (5) pontos. O Python nem sempre devolve ao sistema a memória solta, e a guarda repetia o expurgo sem ganho
+  ("5827 → 5841 MiB"), jogando fora os caches a cada passada.
+- **Crítico menos destrutivo:** a 90% esvazia o cache de respostas prontas (recalculável) e mantém só a data mais recente; o expurgo
+  total, inclusive da data mais recente, passa a `API_MEMORIA_TOTAL_PCT` (95) e no máximo uma vez a cada `API_MEMORIA_TOTAL_INTERVALO_S`
+  (300). No teste de carga de 2026-11-21 o expurgo total a 91% fez cada pedido recarregar as bases sob carga e a API parou de responder.
+- As semanas protegidas da série de estabilidade BGP são calculadas uma vez por conjunto de datas residentes, não a cada passada.
+- `LatestResponseCache.esvaziar()` troca o mapeamento inteiro (seguro entre threads); o MCP recebe a mesma guarda.
+
 ## v2.0.29
 
 Lista de snapshots guardada em memória (`Store.list_snapshots`).
