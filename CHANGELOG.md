@@ -1,5 +1,19 @@
 # Notas de versão
 
+## v2.0.32
+
+Tabelas ordenáveis por coluna em todo o site e rótulos da home conforme o que é contado.
+- **Home:** "ASes brasileiros na tabela de roteamento" contava os ASes alocados ao Brasil (delegated do LACNIC, via Registro.br),
+  apareçam ou não na tabela global: passa a "ASes brasileiros alocados". "ASes BR que anunciam IPv6" contava também IPv6 só alocado:
+  passa a "com IPv6 alocado ou anunciado". O cartão "sem RPKI" filtra prefixo IPv6 na tabela global (o número muda). O destaque de
+  municípios com operadora dominante abre `/municipios?ordem=hhi` (o localizador não mostra esse dado) e diz o critério da consulta.
+- **Tabelas:** `lib/ordenacao.ts` e `ThOrdenavel` dão às tabelas montadas à mão o comportamento do `TabelaDados` (botão, `aria-sort`,
+  seta). A lista inteira é ordenada antes do corte da versão reduzida. Onde a API já ordena, o cabeçalho usa o parâmetro dela.
+- `GET /acessos/divergencias/scm` aceita `ordem` e `asc`, aplicados à lista inteira antes do `limit` (tabela "Maiores divergências
+  entre APNIC e Anatel").
+- Ficam sem ordenação, de propósito: fichas chave/valor, matrizes transpostas, séries curtas, as tabelas marcadas "ordem alfabética, sem
+  ranking" (qualidade, multas, Consumidor.gov.br) e as listas que a API ou o pipeline entregam cortadas sem parâmetro de ordem.
+
 ## v2.0.31
 
 CPF embutido na razão social de empresário individual e MEI mascarado na publicação, não mais na leitura da API.
