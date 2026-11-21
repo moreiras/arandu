@@ -38,11 +38,11 @@ export function montarKpis(resumo: SnapshotSummary | null | undefined, anterior:
   const r = resumo as (SnapshotSummary & Record<string, any>) | null | undefined
   const a = anterior as (SnapshotSummary & Record<string, any>) | null | undefined
   const rede: KpiHome[] = [
-    { id: 'ases', tom: 'v4', rotulo: 'ASes brasileiros na tabela de roteamento', valor: r?.total_asns_br != null ? n0(r.total_asns_br) : null,
-      variacao: deltaInteiro(r?.total_asns_br, a?.total_asns_br, true), fonte: 'Registro.br e tabela global (RouteViews)', dataRef: dataSnapshot },
-    { id: 'ipv6', tom: 'v6', rotulo: 'ASes BR que anunciam IPv6', valor: r?.br_ipv6_pct != null ? `${n1(r.br_ipv6_pct)}%` : null,
+    { id: 'ases', tom: 'v4', rotulo: 'ASes brasileiros alocados', valor: r?.total_asns_br != null ? n0(r.total_asns_br) : null,
+      variacao: deltaInteiro(r?.total_asns_br, a?.total_asns_br, true), fonte: 'Registro.br (estatística delegated do LACNIC)', dataRef: dataSnapshot },
+    { id: 'ipv6', tom: 'v6', rotulo: 'ASes BR com IPv6 alocado ou anunciado', valor: r?.br_ipv6_pct != null ? `${n1(r.br_ipv6_pct)}%` : null,
       variacao: r?.br_ipv6_pct != null && a?.br_ipv6_pct != null ? (() => { const d = Math.round((r.br_ipv6_pct - a.br_ipv6_pct) * 10) / 10; return d === 0 ? { texto: 'sem variação' } : { texto: `${sinal(d)}${n1(Math.abs(d))} p.p. desde o snapshot anterior`, bom: d > 0 } })() : undefined,
-      fonte: 'tabela global (RouteViews) e Registro.br', dataRef: dataSnapshot },
+      fonte: 'Registro.br, tabela global (RouteViews) e IX.br', dataRef: dataSnapshot },
     { id: 'ptts', tom: 'tecnico', rotulo: 'PTTs do IX.br com coleta', valor: r?.ixps_ok != null ? n0(r.ixps_ok) : null,
       variacao: deltaInteiro(r?.ixps_ok, a?.ixps_ok, true), fonte: 'looking glass do IX.br', dataRef: dataSnapshot },
     { id: 'usuarios', tom: 'estimado', rotulo: 'Usuários estimados nos ASes BR', valor: r?.br_apnic_users_total != null ? compacto(r.br_apnic_users_total) : null,

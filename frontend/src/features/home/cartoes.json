@@ -96,7 +96,7 @@
   {
    "id": "sem-rpki",
    "titulo": "ASes com IPv6 e sem RPKI em 3 ou mais PTTs",
-   "pergunta": "Quais ASes BR já estão em vários PTTs com IPv6 mas não assinaram seus prefixos?",
+   "pergunta": "Quais ASes BR já estão em vários PTTs e anunciam IPv6, mas não assinaram seus prefixos?",
    "consulta": {
     "tipo": "query",
     "colecao": "asns",
@@ -109,9 +109,9 @@
         "value": true
        },
        {
-        "field": "has_ipv6",
-        "op": "eq",
-        "value": true
+        "field": "global_prefixes_v6_count",
+        "op": "gte",
+        "value": 1
        },
        {
         "field": "has_rpki",
@@ -158,7 +158,7 @@
   {
    "id": "monopolio-local",
    "titulo": "Municípios dominados por uma só operadora",
-   "pergunta": "Onde uma única operadora tem mais de 80% do mercado de banda larga?",
+   "pergunta": "Onde uma única operadora tem 80% ou mais do mercado de banda larga?",
    "consulta": {
     "tipo": "query",
     "colecao": "acessos_municipio",
@@ -201,8 +201,8 @@
     "link": "/municipio/{ibge}"
    },
    "destino": {
-    "to": "/localizador",
-    "rotulo": "Abrir o localizador"
+    "to": "/municipios?ordem=hhi",
+    "rotulo": "Ver os municípios por concentração"
    },
    "fontes": [
     "anatel_sici"
