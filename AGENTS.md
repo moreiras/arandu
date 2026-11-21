@@ -63,7 +63,8 @@ Resumo do que mais quebra (o completo está nas diretrizes do guia):
 - **Nome do site:** vem do `.env` (`SITE_NOME`, `SITE_URL`, `SITE_MCP_ESQUEMA`… em `core/site.py` e `frontend/src/lib/site.ts`; o
   frontend lê na compilação). Não escreva o nome público nem o domínio em código: use `SITE`. Em docstring e descrição de rota/tool,
   "Arandurapé" e `arandurape://` servem de marcador que `core.site.com_identidade` troca na saída (OpenAPI, catálogo, MCP). Nos
-  artefatos do pipeline "Arandurapé" é o software e fica. `tests/unit/test_identidade_site.py` confere.
+  artefatos do pipeline "Arandurapé" é o software e fica, mas não chega a quem consulta: as respostas da API (`api/respostas.py`) e as
+  das tools e resources do MCP (`_com_identidade` em `mcp_server/app.py`) levam o nome do site. `tests/unit/test_identidade_site.py` confere.
 
 ## 4. Política de acesso (a parte que mais quebra por descuido)
 

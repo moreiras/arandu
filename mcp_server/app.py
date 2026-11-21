@@ -154,6 +154,40 @@ def _com_guarda(servidor, guarda) -> int:
 
 if _guarda is not None:
     _com_guarda(mcp, _guarda)
+
+
+def _com_identidade(servidor) -> int:
+    """Resultado de cada tool, resource e template com o nome do site: os artefatos do pipeline dizem "o Arandurapé coletou" (limitações,
+    metodologia, fonte) e o cliente repetia o nome do software nas respostas e nas citações. As descrições já passam por `_aplicar_identidade`."""
+    from core.site import com_identidade_nos_dados
+
+    def envolver(fn):
+        if getattr(fn, "_identidade", False):
+            return fn
+        if inspect.iscoroutinefunction(fn):
+            @functools.wraps(fn)
+            async def envoltorio(*a, __fn=fn, **kw):
+                return com_identidade_nos_dados(await __fn(*a, **kw))
+        else:
+            @functools.wraps(fn)
+            def envoltorio(*a, __fn=fn, **kw):
+                return com_identidade_nos_dados(__fn(*a, **kw))
+        for attr in ("_previa", "_usage_logged", "_guarda"):
+            if getattr(fn, attr, False):
+                setattr(envoltorio, attr, True)
+        envoltorio._identidade = True                           # type: ignore[attr-defined]
+        return envoltorio
+
+    n = 0
+    for col in (servidor._tool_manager._tools, servidor._resource_manager._resources, servidor._resource_manager._templates):
+        for item in col.values():
+            if callable(getattr(item, "fn", None)):
+                item.fn = envolver(item.fn)
+                n += 1
+    return n
+
+
+_com_identidade(mcp)
 instrument_mcp_tools(mcp, data_dir)
 app.add_middleware(UsageLogMiddleware, data_dir=data_dir, src="mcp")
 precarga.iniciar(_funcoes_originais, _store)

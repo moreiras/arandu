@@ -15,7 +15,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from core.site import PADROES, carregar, com_identidade
+from core.site import PADROES, carregar, com_identidade, com_identidade_json, com_identidade_nos_dados
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "frontend" / "src"
@@ -127,3 +127,39 @@ def test_valores_vem_do_ambiente_com_padroes():
     # AGPL §13: a instância oferece o código que roda; quem modifica aponta para o próprio repositório
     assert padrao.codigo_fonte.startswith("https://")
     assert carregar({"SITE_CODIGO_FONTE": "https://git.exemplo.test/fork/"}).codigo_fonte == "https://git.exemplo.test/fork"
+
+
+def test_dados_das_respostas_levam_o_nome_do_site():
+    """Os artefatos do pipeline dizem "o Arandurapé coletou": a API e o MCP trocam pelo nome do site na saída, só nos valores."""
+    outro = carregar({"SITE_NOME": 'Sítio "Teste"', "SITE_MCP_ESQUEMA": "tst"})
+    dados = {"limitacoes": ["n_redes conta os vínculos que o Arandurapé coletou"], "Arandurapé": 1, "n": 3, "ok": ("sem nome",)}
+    trocado = com_identidade_nos_dados(dados, outro)
+    assert trocado["limitacoes"] == ['n_redes conta os vínculos que o Sítio "Teste" coletou']
+    assert "Arandurapé" in trocado, "chave não muda"
+    sem_nome = {"a": ["x", {"b": "y"}], "c": 1}
+    assert com_identidade_nos_dados(sem_nome, outro) is sem_nome, "sem nada a trocar, sem cópia"
+    corpo = json.dumps(dados, ensure_ascii=False)
+    assert json.loads(com_identidade_json(corpo, outro))["limitacoes"] == trocado["limitacoes"], "nome com aspas segue JSON válido"
+
+
+def test_api_e_mcp_trocam_o_nome_nos_dados():
+    saida = _em_outro_processo("""
+import asyncio, json
+from api.respostas import JSONResponse
+from mcp.server.fastmcp import FastMCP
+from mcp_server.app import _com_identidade
+
+api = json.loads(JSONResponse({"limitacoes": "vínculos que o Arandurapé coletou"}).body)
+srv = FastMCP("t")
+
+@srv.tool()
+def exemplo() -> dict:
+    return {"fonte": {"nome": "Arandurapé: relações inferidas"}}
+
+_com_identidade(srv)
+conteudo = asyncio.run(srv.call_tool("exemplo", {}))
+blocos = conteudo[0] if isinstance(conteudo, tuple) else conteudo
+print(json.dumps({"api": api["limitacoes"], "mcp": " ".join(b.text for b in blocos)}, ensure_ascii=False))
+""")
+    assert saida["api"] == f"vínculos que o {_OUTRA['SITE_NOME']} coletou"
+    assert _OUTRA["SITE_NOME"] in saida["mcp"] and "Arandurap" not in saida["mcp"]

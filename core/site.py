@@ -10,6 +10,7 @@ Fonte única no Python; os valores vêm do ambiente (`.env`), com os padrões ab
 """
 from __future__ import annotations
 
+import json
 import os
 import re
 from dataclasses import dataclass
@@ -87,6 +88,35 @@ USER_AGENT = user_agent()
 
 
 _NOME_ANTIGO = re.compile(r"\bARANDURAP[ÉE]\b|\bArandurap[ée]\b")
+
+
+def _tem_nome_do_software(texto: str) -> bool:
+    return "randurap" in texto or "RANDURAP" in texto
+
+
+def com_identidade_nos_dados(valor, site: Site | None = None):
+    """`com_identidade` aplicado aos valores de uma resposta (tool do MCP): os artefatos do pipeline dizem "o Arandurapé coletou" e a
+    resposta tem de dizer o nome do site. Só os valores de texto mudam, nunca as chaves; sem nada a trocar devolve o mesmo objeto."""
+    if isinstance(valor, str):
+        return com_identidade(valor, site) if _tem_nome_do_software(valor) else valor
+    if isinstance(valor, dict):
+        novo = {k: com_identidade_nos_dados(v, site) for k, v in valor.items()}
+        return valor if all(novo[k] is valor[k] for k in valor) else novo
+    if isinstance(valor, (list, tuple)):
+        novo_l = [com_identidade_nos_dados(v, site) for v in valor]
+        if all(a is b for a, b in zip(novo_l, valor)):
+            return valor
+        return type(valor)(novo_l) if isinstance(valor, tuple) else novo_l
+    return valor
+
+
+def com_identidade_json(texto: str, site: Site | None = None) -> str:
+    """O mesmo sobre um JSON já serializado (corpo de resposta da API). O nome entra escapado como string JSON; o teste barato vem antes."""
+    if not _tem_nome_do_software(texto):
+        return texto
+    s = site or SITE
+    nome = json.dumps(s.nome, ensure_ascii=False)[1:-1]
+    return _NOME_ANTIGO.sub(lambda _m: nome, texto.replace("arandurape://", f"{s.mcp_esquema}://"))
 
 
 def com_identidade(texto, site: Site | None = None):

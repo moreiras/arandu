@@ -218,6 +218,8 @@ async def lifespan(app: FastAPI):
     yield
 
 
+from api.respostas import JSONResponse as JSONComIdentidade  # noqa: E402
+
 app = FastAPI(
     title=SITE.nome,
     description=_DESCRIPTION,
@@ -230,6 +232,8 @@ app = FastAPI(
     redoc_url="/api/v1/redoc",
     openapi_url="/api/v1/openapi.json",
     lifespan=lifespan,
+    # o nome do site no lugar do nome do software nos textos dos artefatos (api/respostas.py)
+    default_response_class=JSONComIdentidade,
 )
 
 from core.site import com_identidade  # noqa: E402

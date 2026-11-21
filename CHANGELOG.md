@@ -1,5 +1,15 @@
 # Notas de versão
 
+## v2.0.23
+
+O nome do site no lugar do nome do software nas respostas. Os artefatos do pipeline trazem textos como "n_redes conta os vínculos que o
+Arandurapé coletou" (limitações, metodologia, fonte), e o cliente do MCP repetia o nome do software nas respostas e nas citações.
+- API: a classe de resposta padrão (`api/respostas.py`) troca o nome nos corpos JSON; o teste é feito em bytes e o corpo sem o nome não é
+  tocado. As rotas que montam a resposta à mão (`/asns/{asn}`, `/ixps/{code}`) usam a mesma classe.
+- MCP: o resultado de cada tool, resource e template passa por `com_identidade_nos_dados` (`_com_identidade` em `mcp_server/app.py`); só
+  valores de texto mudam, nunca chaves. As descrições já passavam por `com_identidade`.
+- Os snapshots publicados não mudam: a troca é na saída.
+
 ## v2.0.22
 
 Correções da terceira varredura do site, em 20/11/2026, sobre a 2.0.21.

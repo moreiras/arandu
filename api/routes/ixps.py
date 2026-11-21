@@ -14,7 +14,7 @@ from __future__ import annotations
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query, Request
-from fastapi.responses import JSONResponse
+from api.respostas import JSONResponse
 
 from api.schemas import IXPListResponse, IXPDocumentResponse
 from api.store import Store

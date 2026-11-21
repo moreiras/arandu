@@ -17,7 +17,7 @@ import re
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from fastapi.responses import JSONResponse
+from api.respostas import JSONResponse
 
 from api.auth.deps import require_user
 from api.ratelimit import limiter, LIMIT_CONTACTS, LIMIT_HEAVY
