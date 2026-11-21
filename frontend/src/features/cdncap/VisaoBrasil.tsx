@@ -10,6 +10,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useHistoricoCompleto } from '../../hooks/entidades/entidades'
 import { fetchAlcanceCdns, fetchAsnCdnBrasil, type AsnCdnBrasil } from '../../services/api'
 import { CartogramaIndicador } from '../estados/CartogramaIndicador'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../lib/ordenacao'
 
 const n = (v: number) => v.toLocaleString('pt-BR')
 
@@ -72,14 +74,15 @@ function VisaoBrasilAberta({ asns, ixbr, ixpNames, date, nome }: Props) {
   const qs = useQueries({ queries: asns.map((a) => ({ queryKey: ['cdn-br', a, date, completo], queryFn: () => fetchAsnCdnBrasil(a, date ?? undefined, completo), staleTime: 10 * 60 * 1000 })) })
   const docs = qs.map((q) => q.data).filter((d): d is AsnCdnBrasil => !!d)
   const { linhas, serie } = useMemo(() => agregarCdnBrasil(docs, ixbr), [docs.length, ixbr.join(',')])   // eslint-disable-line react-hooks/exhaustive-deps
+  const { ordenados, props } = useOrdenacao(linhas, { ptt: (l) => ixpNames[l.code] ?? l.code, v6: (l) => l.v6, v4: (l) => l.v4 })
   if (qs.some((q) => q.isLoading) && docs.length === 0) return <div className="h-24 bg-gray-50 rounded animate-pulse" />
   return (
     <section className="space-y-3" data-testid="cdn-brasil">
       <h2 className="text-base font-semibold text-gray-800">No Brasil: PTTs do IX.br e prefixos anunciados</h2>
       {linhas.length === 0 ? <p className="text-sm text-gray-500">Sem prefixos anunciados por esta CDN nos PTTs do IX.br neste snapshot.</p> : (
         <div className="overflow-x-auto"><table className="min-w-full text-sm">
-          <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th className="py-1 pr-3 font-medium">PTT</th><th className="py-1 pr-3 font-medium text-right">Prefixos IPv6</th><th className="py-1 pr-3 font-medium text-right">Prefixos IPv4</th></tr></thead>
-          <tbody>{linhas.map((l) => (
+          <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><ThOrdenavel {...props('ptt')} className="py-1 pr-3 font-medium">PTT</ThOrdenavel><ThOrdenavel {...props('v6')} alinhar="right" className="py-1 pr-3 font-medium text-right">Prefixos IPv6</ThOrdenavel><ThOrdenavel {...props('v4')} alinhar="right" className="py-1 pr-3 font-medium text-right">Prefixos IPv4</ThOrdenavel></tr></thead>
+          <tbody>{ordenados.map((l) => (
             <tr key={l.code} className="border-b border-gray-100">
               <td className="py-1 pr-3"><Link to={`/ixp/${l.code}`} className="text-primario-700 hover:underline">{ixpNames[l.code] ?? l.code}</Link></td>
               <td className="py-1 pr-3 text-right tabular-nums">{l.v6 ? n(l.v6) : '—'}</td><td className="py-1 pr-3 text-right tabular-nums">{l.v4 ? n(l.v4) : '—'}</td>

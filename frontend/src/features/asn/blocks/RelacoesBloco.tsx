@@ -12,6 +12,8 @@ import type { AsnCtx } from '../contexto'
 import { SITE } from '../../../lib/site'
 import { Dica } from '../../../components/ui/Dica'
 import { nomesFamilias } from '../../../lib/familias'
+import { useOrdenacao } from '../../../lib/ordenacao'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 
 const NIVEIS: Record<NivelRelacao, { rotulo: string; classe: string; dica: string }> = {
   declarado: { rotulo: 'declarado', classe: 'bg-mercado-100 text-mercado-800', dica: 'O próprio AS declarou o provedor em um objeto ASPA (RPKI)' },
@@ -44,6 +46,9 @@ function NivelBadge({ nivel, estrato }: { nivel: NivelRelacao; estrato?: Estrato
 }
 
 const PAPEL = { provedor: 'provedor', cliente: 'cliente', par: 'par' } as const
+
+/** Força do nível para ordenar a coluna (maior = mais evidência). */
+const FORCA_NIVEL: Record<NivelRelacao, number> = { declarado: 4, confirmado: 3, provavel: 2, possivel: 1, sem_classificacao: 0 }
 
 /** Níveis que entram no grafo. */
 const NIVEIS_GRAFO = new Set<NivelRelacao>(['declarado', 'confirmado', 'provavel'])
@@ -138,11 +143,22 @@ const ROTULO_PAPEL: Record<Papel, string> = { provedor: 'Provedor', cliente: 'Cl
 /** Todas as relações num quadro só, filtrável por papel e ordenável por confiança ou por AS: para quem quer comparar, filtrar ou copiar. Mesmos dados e mesmos selos das listas. */
 function TabelaRelacoes({ rel }: { rel: AsnRelacoes }) {
   const [papel, setPapel] = useState<'todos' | Papel>('todos')
-  const [ordem, setOrdem] = useState<'confianca' | 'asn'>('confianca')
-  const linhas = [
+  // Ordem padrão: confiança do modelo, depois o número do AS. O cabeçalho reordena as linhas recebidas (clientes e pares já vêm limitados
+  // aos de maior confiança, como diz a nota abaixo da tabela).
+  const base = useMemo(() => [
     ...rel.provedores.map((i) => ({ papel: 'provedor' as Papel, i })), ...rel.clientes.map((i) => ({ papel: 'cliente' as Papel, i })), ...rel.pares.map((i) => ({ papel: 'par' as Papel, i })),
     ...rel.irmaos.map((i) => ({ papel: 'mesmo_grupo' as Papel, i })), ...(rel.complexas ?? []).map((i) => ({ papel: 'complexa' as Papel, i })),
-  ].filter((l) => papel === 'todos' || l.papel === papel).sort((a, b) => (ordem === 'asn' ? a.i.asn - b.i.asn : b.i.p - a.i.p || a.i.asn - b.i.asn))
+  ].filter((l) => papel === 'todos' || l.papel === papel).sort((a, b) => b.i.p - a.i.p || a.i.asn - b.i.asn), [rel, papel])
+  const { ordenados: linhas, ordem, setOrdem, props } = useOrdenacao(base, {
+    papel: (l) => ROTULO_PAPEL[l.papel],
+    asn: { valor: (l) => l.i.asn, primeiro: 'asc' },
+    nome: (l) => l.i.nome,
+    nivel: (l) => FORCA_NIVEL[l.i.nivel],
+    p: (l) => l.i.p,
+    p_calibrada: (l) => l.i.p_calibrada,
+    afi: (l) => nomesFamilias(l.i.afi, ' '),
+  })
+  const ordemSelect = ordem?.campo === 'asn' && ordem.dir === 'asc' ? 'asn' : ordem == null || (ordem.campo === 'p' && ordem.dir === 'desc') ? 'confianca' : ''
   return (
     <div className="space-y-2" data-testid="relacoes-tabela">
       <div className="flex flex-wrap gap-3">
@@ -151,13 +167,18 @@ function TabelaRelacoes({ rel }: { rel: AsnRelacoes }) {
             <option value="todos">Todos</option>{(Object.keys(ROTULO_PAPEL) as Papel[]).map((k) => <option key={k} value={k}>{ROTULO_PAPEL[k]}</option>)}
           </select></label>
         <label className="text-sm text-gray-600 flex flex-col">Ordenar por
-          <select value={ordem} onChange={(e) => setOrdem(e.target.value as 'confianca' | 'asn')} className="border border-gray-300 rounded px-2 py-1.5 text-sm">
+          <select value={ordemSelect} onChange={(e) => setOrdem(e.target.value === 'asn' ? { campo: 'asn', dir: 'asc' } : null)} className="border border-gray-300 rounded px-2 py-1.5 text-sm">
+            {ordemSelect === '' && <option value="" disabled>Coluna escolhida no cabeçalho</option>}
             <option value="confianca">Confiança do modelo</option><option value="asn">Número do AS</option>
           </select></label>
       </div>
       {linhas.length === 0 ? <p className="text-sm text-gray-500">Nenhuma relação com esse papel neste snapshot.</p> : (
         <div className="overflow-x-auto"><table className="text-sm min-w-full" aria-label="Relações do AS em tabela" data-tabela="grade">
-          <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th className="py-1 pr-3">Papel do outro AS</th><th className="pr-3">AS</th><th className="pr-3">Nome</th><th className="pr-3">Nível</th><th className="pr-3 text-right">Probabilidade</th><th className="pr-3 text-right">Calibrada</th><th>Famílias</th></tr></thead>
+          <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200">
+            <ThOrdenavel {...props('papel')} className="py-1 pr-3">Papel do outro AS</ThOrdenavel><ThOrdenavel {...props('asn')} className="pr-3">AS</ThOrdenavel>
+            <ThOrdenavel {...props('nome')} className="pr-3">Nome</ThOrdenavel><ThOrdenavel {...props('nivel')} className="pr-3">Nível</ThOrdenavel>
+            <ThOrdenavel {...props('p')} alinhar="right" className="pr-3 text-right">Probabilidade</ThOrdenavel><ThOrdenavel {...props('p_calibrada')} alinhar="right" className="pr-3 text-right">Calibrada</ThOrdenavel>
+            <ThOrdenavel {...props('afi')}>Famílias</ThOrdenavel></tr></thead>
           <tbody>{linhas.map(({ papel: pp, i }) => (
             <tr key={`${pp}-${i.asn}`} className="border-b border-gray-100">
               <td className="py-1 pr-3">{ROTULO_PAPEL[pp]}</td>

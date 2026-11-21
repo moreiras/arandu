@@ -3,12 +3,14 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchDiffSnapshots, fetchSnapshots } from '../../services/api'
 import { useAuth } from '../../auth/AuthContext'
 import { isHistoricalDate } from '../../auth/accessPolicy'
 import { ROTULO_METRICA, TIPOS_DA_PAGINA } from '../historico/rotulos'
+import { useOrdenacao } from '../../lib/ordenacao'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 
 const fmt = (n: number) => n.toLocaleString('pt-BR')
 const ROTULO: Record<string, string> = { ...ROTULO_METRICA, n_asns: 'ASNs brasileiros (por UF da sede)', ptts_coletados: 'PTTs coletados por inteiro', ptts_membros: 'Membros cadastrados nos PTTs' }
@@ -29,6 +31,13 @@ export function ComparaDatas() {
     set(e.target.value)
   }
   const diff = useQuery({ queryKey: ['diff', A, B], queryFn: () => fetchDiffSnapshots(A, B), enabled: !!A && !!B && A !== B, staleTime: Infinity, retry: false })
+  const totais = useMemo(() => Object.entries(diff.data?.totais ?? {}), [diff.data])
+  const { ordenados, props } = useOrdenacao(totais, {
+    indicador: ([k]) => ROTULO[k] ?? k,
+    a: ([, v]) => v.a,
+    b: ([, v]) => v.b,
+    variacao: ([, v]) => v.variacao,
+  })
   const eventos = Object.entries(diff.data?.eventos.por_tipo ?? {}).filter(([t]) => TIPOS_DA_PAGINA.includes(t))
   return (
     <div className="space-y-5">
@@ -49,9 +58,9 @@ export function ComparaDatas() {
       {diff.data && (
         <>
           <table className="text-sm bg-white border border-gray-200 rounded-lg">
-            <thead><tr className="text-left text-xs text-gray-500"><th className="px-3 py-2">Indicador</th><th className="px-3 py-2 text-right">{diff.data.a}</th><th className="px-3 py-2 text-right">{diff.data.b}</th><th className="px-3 py-2 text-right">Variação</th></tr></thead>
+            <thead><tr className="text-left text-xs text-gray-500"><ThOrdenavel {...props('indicador')} className="px-3 py-2">Indicador</ThOrdenavel><ThOrdenavel {...props('a')} alinhar="right" className="px-3 py-2 text-right">{diff.data.a}</ThOrdenavel><ThOrdenavel {...props('b')} alinhar="right" className="px-3 py-2 text-right">{diff.data.b}</ThOrdenavel><ThOrdenavel {...props('variacao')} alinhar="right" className="px-3 py-2 text-right">Variação</ThOrdenavel></tr></thead>
             <tbody>
-              {Object.entries(diff.data.totais).map(([k, v]) => (
+              {ordenados.map(([k, v]) => (
                 <tr key={k} className="border-t border-gray-100">
                   <td className="px-3 py-1.5">{ROTULO[k] ?? k}</td>
                   <td className="px-3 py-1.5 text-right tabular-nums">{fmt(v.a)}</td>

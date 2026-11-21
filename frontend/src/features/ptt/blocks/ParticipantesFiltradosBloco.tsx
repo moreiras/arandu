@@ -7,6 +7,8 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../../lib/ordenacao'
 
 type Filtro = 'todos' | 'sem-v6' | 'sem-v4' | 'sem-rs' | 'sem-direto'
 const FILTROS: Array<[Filtro, string]> = [['todos', 'Todos'], ['sem-v6', 'Sem IPv6'], ['sem-v4', 'Sem IPv4'], ['sem-rs', 'Cadastrados sem sessão com o route server'], ['sem-direto', 'Sem peering direto']]
@@ -30,8 +32,17 @@ export function ParticipantesFiltradosBloco({ dados }: BlocoProps<PttCtx>) {
       return { asn, nome: n?.name ?? '', uf: n?.uf ?? '', v4: v4.has(asn), v6: v6.has(asn), semRs: semRs.has(asn) }
     })
   }, [ixp, mergedV4, mergedV6, membersData, routeServers])
+  // Ordena a lista inteira; filtro e "mostrar mais" cortam depois.
+  const { ordenados, props } = useOrdenacao(linhas, {
+    asn: { valor: (l) => l.asn, primeiro: 'asc' },
+    nome: (l) => l.nome || null,
+    uf: (l) => l.uf || null,
+    v6: (l) => l.v6,
+    v4: (l) => l.v4,
+    rs: (l) => l.semRs,
+  })
   const ufs = useMemo(() => Array.from(new Set(linhas.map((l) => l.uf).filter(Boolean))).sort(), [linhas])
-  const vis = linhas.filter((l) => (!uf || l.uf === uf) && (filtro === 'todos' || (filtro === 'sem-v6' && !l.v6) || (filtro === 'sem-v4' && !l.v4) || (filtro === 'sem-rs' && l.semRs) || (filtro === 'sem-direto' && !l.v4 && !l.v6)))
+  const vis = ordenados.filter((l) => (!uf || l.uf === uf) && (filtro === 'todos' || (filtro === 'sem-v6' && !l.v6) || (filtro === 'sem-v4' && !l.v4) || (filtro === 'sem-rs' && l.semRs) || (filtro === 'sem-direto' && !l.v4 && !l.v6)))
   return (
     <div className="space-y-2" data-testid="participantes-filtrados">
       <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -50,7 +61,14 @@ export function ParticipantesFiltradosBloco({ dados }: BlocoProps<PttCtx>) {
       <p className="text-xs text-gray-500">{vis.length.toLocaleString('pt-BR')} de {linhas.length.toLocaleString('pt-BR')} participantes.</p>
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
-          <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th className="py-1 pr-3 font-medium">AS</th><th className="py-1 pr-3 font-medium">Nome</th><th className="py-1 pr-3 font-medium">UF</th><th className="py-1 pr-3 font-medium">IPv6</th><th className="py-1 pr-3 font-medium">IPv4</th><th className="py-1 pr-3 font-medium">Route server</th></tr></thead>
+          <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200">
+            <ThOrdenavel {...props('asn')} className="py-1 pr-3 font-medium">AS</ThOrdenavel>
+            <ThOrdenavel {...props('nome')} className="py-1 pr-3 font-medium">Nome</ThOrdenavel>
+            <ThOrdenavel {...props('uf')} className="py-1 pr-3 font-medium">UF</ThOrdenavel>
+            <ThOrdenavel {...props('v6')} className="py-1 pr-3 font-medium">IPv6</ThOrdenavel>
+            <ThOrdenavel {...props('v4')} className="py-1 pr-3 font-medium">IPv4</ThOrdenavel>
+            <ThOrdenavel {...props('rs')} className="py-1 pr-3 font-medium">Route server</ThOrdenavel>
+          </tr></thead>
           <tbody>
             {vis.slice(0, limite).map((l) => (
               <tr key={l.asn} className="border-b border-gray-100">

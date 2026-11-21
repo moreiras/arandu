@@ -6,6 +6,8 @@
 import { Link } from 'react-router-dom'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PrefixoCtx } from '../contexto'
+import { useOrdenacao } from '../../../lib/ordenacao'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 
 /** PTTs em cujos route servers o prefixo aparece (documento do AS de origem), com o papel do AS em cada um. */
 export function PttsBloco({ dados }: BlocoProps<PrefixoCtx>) {
@@ -15,11 +17,15 @@ export function PttsBloco({ dados }: BlocoProps<PrefixoCtx>) {
       const x = p[afi]
       return x && (x.prefixes ?? []).includes(prefix) ? [{ code, afi, direto: !!x.direct, origem: !!x.origin }] : []
     }))
+  const { ordenados, props } = useOrdenacao(linhas, {
+    ptt: (l) => l.code, afi: { valor: (l) => (l.afi === 'v6' ? 0 : 1), primeiro: 'asc' },   // IPv6 antes de IPv4 no primeiro clique
+    papel: (l) => [l.direto && 'peer direto', l.origem && 'originador'].filter(Boolean).join(' e ') || null,
+  })
   return linhas.length === 0 ? <p className="text-sm text-gray-500">O prefixo não aparece nos route servers dos PTTs coletados.</p> : (
     <table className="w-full text-sm">
-      <thead><tr className="text-left text-xs text-gray-400 border-b border-gray-100"><th className="py-1">PTT</th><th>Família</th><th>AS de origem é</th></tr></thead>
+      <thead><tr className="text-left text-xs text-gray-400 border-b border-gray-100"><ThOrdenavel {...props('ptt')} className="py-1">PTT</ThOrdenavel><ThOrdenavel {...props('afi')}>Família</ThOrdenavel><ThOrdenavel {...props('papel')}>AS de origem é</ThOrdenavel></tr></thead>
       <tbody className="divide-y divide-gray-50">
-        {linhas.map((l) => (
+        {ordenados.map((l) => (
           <tr key={`${l.code}-${l.afi}`}>
             <td className="py-1"><Link to={`/ixp/${l.code}`} className="text-primario-600 hover:underline font-mono">{l.code.toUpperCase()}</Link></td>
             <td>IP{l.afi}</td><td className="text-gray-600">{[l.direto && 'peer direto', l.origem && 'originador'].filter(Boolean).join(' e ') || '—'}</td>

@@ -8,8 +8,19 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useAcoesPerfil, usePerfil } from '../features/perfil/api'
 import { SITE } from '../lib/site'
+import { useOrdenacao } from '../lib/ordenacao'
+import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 
 const dataBr = (d: string) => d.split('-').reverse().join('/')
+
+/** Uso por dia (até 30 linhas); começa na ordem recebida, e o cabeçalho ordena por dia ou por chamadas. */
+function UsoPorDia({ uso }: { uso: { dia: string; chamadas: number }[] }) {
+  const { ordenados, props } = useOrdenacao(uso, { dia: { valor: (d) => d.dia, primeiro: 'asc' }, chamadas: (d) => d.chamadas })
+  return (
+    <table className="mt-2 text-xs"><thead><tr><ThOrdenavel {...props('dia')} className="text-left pr-6">Dia</ThOrdenavel><ThOrdenavel {...props('chamadas')} alinhar="right" className="text-right">Chamadas</ThOrdenavel></tr></thead>
+      <tbody>{ordenados.map((d) => <tr key={d.dia}><td className="pr-6">{dataBr(d.dia)}</td><td className="text-right tabular-nums">{d.chamadas.toLocaleString('pt-BR')}</td></tr>)}</tbody></table>
+  )
+}
 
 /** Comandos de uso por cliente MCP (a chave aparece só aqui, uma vez, no navegador de quem a pediu). */
 function Instrucoes({ chave }: { chave: string }) {
@@ -111,8 +122,7 @@ export function Perfil() {
         <p className="text-sm text-gray-600">{total.toLocaleString('pt-BR')} chamadas ao site, à API e ao MCP com a sua conta. O registro serve ao controle de acesso e à prevenção de abuso (Política de Privacidade, seção 2.3).</p>
         {p.uso.length > 0 && (
           <details className="text-sm"><summary className="cursor-pointer text-primario-600 hover:underline">Ver por dia</summary>
-            <table className="mt-2 text-xs"><thead><tr><th className="text-left pr-6">Dia</th><th className="text-right">Chamadas</th></tr></thead>
-              <tbody>{p.uso.map((d) => <tr key={d.dia}><td className="pr-6">{dataBr(d.dia)}</td><td className="text-right tabular-nums">{d.chamadas.toLocaleString('pt-BR')}</td></tr>)}</tbody></table>
+            <UsoPorDia uso={p.uso} />
           </details>
         )}
       </section>

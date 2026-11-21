@@ -11,6 +11,8 @@ import { DailySparkline }      from './DailySparkline'
 import { BgpActivityChart }    from './BgpActivityChart'
 import { Tip } from './BgpShared'
 import { VerDados } from '../ui/VerDados'
+import { ThOrdenavel } from '../ui/ThOrdenavel'
+import { useOrdenacao } from '../../lib/ordenacao'
 
 function fmtEpppd(v: number): string {
   if (v === 0) return '0'
@@ -275,6 +277,13 @@ export function StabilitySection({ data, deepData, history, categorias, totalMed
   const [showAll, setShowAll] = useState(false)
   const [sortKey, setSortKey] = useState<TableSortKey>('rank')
   const [sortDesc, setSortDesc] = useState(false)
+  const upstreams = useOrdenacao(deepData?.suspected_upstreams, {
+    asn: { valor: (u) => u.asn, primeiro: 'asc' },
+    nome: (u) => u.name || null,
+    afetados: (u) => u.affected_origin_ases.length,
+    eventos: (u) => u.events_attributed,
+    pico: (u) => u.peak_hour_utc,
+  })
 
   const allMed = useMemo(
     () => data.as_stability.filter(a => ['critical','high','medium'].includes(a.severity)),
@@ -469,15 +478,15 @@ export function StabilitySection({ data, deepData, history, categorias, totalMed
             <table className="w-full text-xs border-collapse">
               <thead>
                 <tr className="border-b border-gray-200 text-left text-gray-500">
-                  <th className="py-1.5 pr-3">Upstream</th>
-                  <th className="py-1.5 pr-3">Organização</th>
-                  <th className="py-1.5 pr-2 text-right">ASes afetados</th>
-                  <th className="py-1.5 pr-2 text-right">Eventos atribuídos</th>
-                  <th className="py-1.5">Pico UTC</th>
+                  <ThOrdenavel {...upstreams.props('asn')} className="py-1.5 pr-3">Upstream</ThOrdenavel>
+                  <ThOrdenavel {...upstreams.props('nome')} className="py-1.5 pr-3">Organização</ThOrdenavel>
+                  <ThOrdenavel {...upstreams.props('afetados')} alinhar="right" className="py-1.5 pr-2 text-right">ASes afetados</ThOrdenavel>
+                  <ThOrdenavel {...upstreams.props('eventos')} alinhar="right" className="py-1.5 pr-2 text-right">Eventos atribuídos</ThOrdenavel>
+                  <ThOrdenavel {...upstreams.props('pico')} className="py-1.5">Pico UTC</ThOrdenavel>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {deepData.suspected_upstreams.map(u => (
+                {upstreams.ordenados.map(u => (
                   <tr key={u.asn} className="hover:bg-gray-50">
                     <td className="py-1.5 pr-3">
                       <Link to={`/asn/${u.asn}`} className="font-mono text-primario-700 hover:underline">

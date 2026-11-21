@@ -8,6 +8,8 @@ import { useGrupoBloco } from '../../../hooks/entidades/entidades'
 import type { BlocoProps } from '../../entidade/registry'
 import type { GrupoCtx } from '../contexto'
 import type { GrupoRelacoes } from '../../../types/api'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../../lib/ordenacao'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 const fmtCnpj = (c: string) => (c.length === 14 ? `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5, 8)}/${c.slice(8, 12)}-${c.slice(12)}` : c)
@@ -19,6 +21,12 @@ function Empresa({ cnpj, nome }: { cnpj: string; nome: string }) {
 /** Com que evidência as empresas do grupo estão ligadas: tipo da ligação e quantos sócios a sustentam. Sem nome nem CPF de sócio; é indício societário, não prova de operação conjunta. */
 export function RelacoesGrupoBloco({ dados }: BlocoProps<GrupoCtx>) {
   const q = useGrupoBloco<GrupoRelacoes>(dados.grupo.grupo_id, 'relacoes')
+  const { ordenados: ligacoes, props } = useOrdenacao(q.data?.ligacoes, {
+    tipo: (l) => l.tipo_rotulo,
+    de: (l) => l.de_nome,
+    para: (l) => l.para_nome,
+    socios: (l) => l.socios,
+  })
   if (q.isLoading) return <div className="h-32 bg-gray-50 rounded animate-pulse" role="status" aria-label="Carregando" />
   const r = q.data
   if (!r) return <p className="text-sm text-gray-500">O cruzamento do quadro societário não está publicado neste snapshot.</p>
@@ -31,8 +39,13 @@ export function RelacoesGrupoBloco({ dados }: BlocoProps<GrupoCtx>) {
       </p>
       {r.ligacoes.length > 0 && (
         <div className="overflow-x-auto"><table className="text-sm min-w-full" aria-label="Ligações entre as empresas do grupo" data-tabela="grade">
-          <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th className="py-1 pr-3">Tipo de ligação</th><th className="pr-3">Empresa</th><th className="pr-3">Empresa</th><th className="text-right">Sócios na evidência</th></tr></thead>
-          <tbody>{r.ligacoes.map((l) => (
+          <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200">
+            <ThOrdenavel {...props('tipo')} className="py-1 pr-3">Tipo de ligação</ThOrdenavel>
+            <ThOrdenavel {...props('de')} className="pr-3">Empresa</ThOrdenavel>
+            <ThOrdenavel {...props('para')} className="pr-3">Empresa</ThOrdenavel>
+            <ThOrdenavel {...props('socios')} alinhar="right" className="text-right">Sócios na evidência</ThOrdenavel>
+          </tr></thead>
+          <tbody>{ligacoes.map((l) => (
             <tr key={`${l.tipo}-${l.de}-${l.para}`} className="border-b border-gray-100 align-top">
               <td className="py-1 pr-3">{l.tipo_rotulo}</td>
               <td className="pr-3"><Empresa cnpj={l.de} nome={l.de_nome} />{l.tipo === 'controle_parcial' && <span className="block text-xs text-gray-500">controla parte de</span>}</td>

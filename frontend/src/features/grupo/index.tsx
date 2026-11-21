@@ -12,6 +12,8 @@ import { ConcorrentesBloco, SeriePosicaoBloco, UfsBloco } from './blocks/Mercado
 import { RelacoesGrupoBloco } from './blocks/RelacoesGrupoBloco'
 import { AsesTecnicoBloco, OutorgasMultasBloco, PttsTransitoBloco, QualidadeReclamacoesBloco } from './blocks/RegulatorioTecnicoBlocos'
 import type { GrupoCtx } from './contexto'
+import { useOrdenacao } from '../../lib/ordenacao'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 
 const n = (v: number) => v.toLocaleString('pt-BR')
 const reais = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
@@ -26,13 +28,16 @@ const CLASSES: Record<string, string> = {
 
 function Composicao({ dados }: BlocoProps<GrupoCtx>) {
   const g = dados.grupo
+  const { ordenados, props } = useOrdenacao(g.cnpjs, {
+    empresa: (c) => c.empresa || fmtCnpj(c.cnpj), cnpj: { valor: (c) => c.cnpj, primeiro: 'asc' }, assinantes: (c) => c.assinantes, asns: (c) => c.asns?.length || null,
+  })
   return (
     <div className="space-y-3">
       <p className="text-sm text-gray-600">{CLASSES[g.classificacao]} A composição é inferida do quadro societário da Receita Federal (evidência direta, nunca transitiva); <strong>só a estrutura entre empresas é mostrada</strong>.</p>
       <table className="w-full text-sm" aria-label="Empresas do grupo">
-        <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th className="py-1 pr-3">Empresa</th><th className="pr-3">CNPJ</th><th className="pr-3">Serviços</th><th className="pr-3 text-right">Acessos fixos</th><th>ASNs</th></tr></thead>
+        <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><ThOrdenavel {...props('empresa')} className="py-1 pr-3">Empresa</ThOrdenavel><ThOrdenavel {...props('cnpj')} className="pr-3">CNPJ</ThOrdenavel><th scope="col" className="pr-3">Serviços</th><ThOrdenavel {...props('assinantes')} alinhar="right" className="pr-3 text-right">Acessos fixos</ThOrdenavel><ThOrdenavel {...props('asns')}>ASNs</ThOrdenavel></tr></thead>
         <tbody>
-          {g.cnpjs.map((c) => (
+          {ordenados.map((c) => (
             <tr key={c.cnpj} className="border-b border-gray-100 align-top">
               <td className="py-1 pr-3"><Link to={`/operadora/${c.cnpj}`} className="text-primario-600 hover:underline">{c.empresa || fmtCnpj(c.cnpj)}</Link></td>
               <td className="pr-3 font-mono text-xs text-gray-500">{fmtCnpj(c.cnpj)}</td>

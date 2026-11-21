@@ -6,24 +6,29 @@
 import { Link } from 'react-router-dom'
 import type { SiciOperador } from '../../types/api'
 import { fmt, fmtCnpj } from './ui'
+import { useOrdenacao } from '../../lib/ordenacao'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 
 /** Quem atende o município, com ASN e participação (a tabela da página de antes; serve ao fixo e ao móvel). */
 export function TabelaOperadores({ titulo, operadores }: { titulo: string; operadores: SiciOperador[] }) {
+  const { ordenados, props } = useOrdenacao(operadores, {
+    empresa: (o) => o.empresa || fmtCnpj(o.cnpj), asn: { valor: (o) => o.asns[0], primeiro: 'asc' }, acessos: (o) => o.acessos, share: (o) => o.share,
+  })
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div className="px-4 py-2 text-sm font-semibold text-gray-700 border-b border-gray-100">{titulo}</div>
       <table className="w-full text-sm">
         <thead>
           <tr className="text-left text-xs text-gray-400 bg-gray-50 border-b border-gray-100">
-            <th className="px-4 py-2 w-8 text-right">#</th>
-            <th className="px-4 py-2">Operadora</th>
-            <th className="px-4 py-2 w-40">ASN</th>
-            <th className="px-4 py-2 w-28 text-right">Acessos</th>
-            <th className="px-4 py-2 w-32 text-right">Participação</th>
+            <th scope="col" className="px-4 py-2 w-8 text-right">#</th>
+            <ThOrdenavel {...props('empresa')} className="px-4 py-2">Operadora</ThOrdenavel>
+            <ThOrdenavel {...props('asn')} className="px-4 py-2 w-40">ASN</ThOrdenavel>
+            <ThOrdenavel {...props('acessos')} alinhar="right" className="px-4 py-2 w-28 text-right">Acessos</ThOrdenavel>
+            <ThOrdenavel {...props('share')} alinhar="right" className="px-4 py-2 w-32 text-right">Participação</ThOrdenavel>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
-          {operadores.map((o, i) => (
+          {ordenados.map((o, i) => (
             <tr key={o.cnpj} className="hover:bg-gray-50">
               <td className="px-4 py-1.5 text-right text-gray-400 tabular-nums">{i + 1}</td>
               <td className="px-4 py-1.5">

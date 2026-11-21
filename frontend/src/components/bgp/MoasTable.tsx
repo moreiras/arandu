@@ -8,7 +8,7 @@ interface Props {
   date?: string
 }
 
-type SortKey = 'prefix' | 'origins_count' | 'br_origins_count'
+type SortKey = 'prefix' | 'afi' | 'origins_count' | 'br_origins_count' | 'is_prefix_br'
 
 function fmt(n: number) { return n.toLocaleString('pt-BR') }
 
@@ -37,6 +37,8 @@ export function MoasTable({ data, date }: Props) {
       let bVal: string | number
       switch (sortKey) {
         case 'prefix':          aVal = a.prefix;           bVal = b.prefix;           break
+        case 'afi':             aVal = a.afi;              bVal = b.afi;              break
+        case 'is_prefix_br':    aVal = a.is_prefix_br ? 1 : 0; bVal = b.is_prefix_br ? 1 : 0; break
         case 'origins_count':   aVal = a.origins.length;   bVal = b.origins.length;   break
         case 'br_origins_count':aVal = a.br_origins.length;bVal = b.br_origins.length;break
         default:                aVal = 0;                  bVal = 0
@@ -52,7 +54,7 @@ export function MoasTable({ data, date }: Props) {
   const visible = filtered.slice(page * PAGE, (page + 1) * PAGE)
 
   function SortTh({ k, label, right, tooltip }: {
-    k: SortKey; label: string; right?: boolean; tooltip: string
+    k: SortKey; label: string; right?: boolean; tooltip?: string
   }) {
     const active = sortKey === k
     return (
@@ -66,7 +68,7 @@ export function MoasTable({ data, date }: Props) {
       >
         <span className="inline-flex items-center gap-0.5">
           {label}
-          <Tip text={tooltip} />
+          {tooltip && <Tip text={tooltip} />}
           <SortIcon active={active} dir={sortDir} />
         </span>
       </th>
@@ -98,15 +100,10 @@ export function MoasTable({ data, date }: Props) {
           <thead>
             <tr className="border-b border-gray-200">
               <SortTh k="prefix" label="Prefixo" tooltip="Prefixo IP anunciado por mais de um ASN de origem diferente." />
-              <th className="text-xs font-medium text-gray-500 text-left pb-1.5 px-1">Família</th>
+              <SortTh k="afi" label="Família" />
               <SortTh k="origins_count" label="Origens" right tooltip="Total de ASNs distintos que anunciam este prefixo como origem. Quanto mais origens, maior a chance de uso legítimo (anycast) ou de sequestro." />
               <SortTh k="br_origins_count" label="Origens BR" right tooltip="Quantas das origens detectadas são ASNs brasileiros conforme Registro.br." />
-              <th className="text-xs font-medium text-gray-500 text-left pb-1.5 px-1">
-                <span className="inline-flex items-center gap-0.5">
-                  Prefixo BR?
-                  <Tip text="Indica se o prefixo está alocado ao Brasil pelo Registro.br. Um prefixo BR com origens não-BR merece atenção especial." />
-                </span>
-              </th>
+              <SortTh k="is_prefix_br" label="Prefixo BR?" tooltip="Indica se o prefixo está alocado ao Brasil pelo Registro.br. Um prefixo BR com origens não-BR merece atenção especial." />
             </tr>
           </thead>
           <tbody>

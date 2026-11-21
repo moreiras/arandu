@@ -5,6 +5,8 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { Link } from 'react-router-dom'
 import type { SCMRecord, SMPRecord, STFCRecord, SEACRecord } from '../../types/api'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../lib/ordenacao'
 
 export function fmtCnpj(c: string): string {
   if (c.length !== 14) return c
@@ -42,17 +44,24 @@ export function dedupePorCnpj(outorgas: OutorgaRecord[]) {
 }
 
 export function OutorgaSection({ outorgas, fonte }: { outorgas: OutorgaRecord[]; fonte: string }) {
-  const linhas = dedupePorCnpj(outorgas)
+  const { ordenados: linhas, props } = useOrdenacao(dedupePorCnpj(outorgas), {
+    razao: ({ rep }) => rep.razao_social,
+    cnpj: { valor: ({ rep }) => rep.cnpj, primeiro: 'asc' },
+    municipio: ({ rep }) => rep.municipio,
+    // Sem data vai para o fim (nulo), não para o topo do sentido decrescente.
+    data: { valor: ({ rep }) => (rep.data_outorga ? dataOutorgaKey(rep.data_outorga) : null), primeiro: 'asc' },
+    situacao: ({ rep }) => rep.situacao,
+  })
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <table className="w-full text-sm">
         <thead>
           <tr className="text-left text-xs text-gray-400 bg-gray-50 border-b border-gray-100">
-            <th className="px-4 py-2">Razão Social / Nome Fantasia</th>
-            <th className="px-4 py-2 w-36">CNPJ</th>
-            <th className="px-4 py-2 w-36">Município / UF</th>
-            <th className="px-4 py-2 w-28">Data Outorga</th>
-            <th className="px-4 py-2 w-16">Sit.</th>
+            <ThOrdenavel {...props('razao')} className="px-4 py-2">Razão Social / Nome Fantasia</ThOrdenavel>
+            <ThOrdenavel {...props('cnpj')} className="px-4 py-2 w-36">CNPJ</ThOrdenavel>
+            <ThOrdenavel {...props('municipio')} className="px-4 py-2 w-36">Município / UF</ThOrdenavel>
+            <ThOrdenavel {...props('data')} className="px-4 py-2 w-28">Data Outorga</ThOrdenavel>
+            <ThOrdenavel {...props('situacao')} className="px-4 py-2 w-16">Sit.</ThOrdenavel>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">

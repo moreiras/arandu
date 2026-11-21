@@ -6,6 +6,8 @@
 import { cobre } from '../../../lib/prefixo'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PrefixoCtx } from '../contexto'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../../lib/ordenacao'
 
 const ESTADO: Record<string, { texto: string; cor: string }> = {
   valid: { texto: 'válido', cor: 'bg-ok-100 text-ok-800' },
@@ -16,10 +18,14 @@ const ESTADO: Record<string, { texto: string; cor: string }> = {
 /** Validação da origem contra os ROAs (RPKI): o estado calculado para este prefixo, os ROAs que o cobrem e as ASPAs do AS de origem. */
 export function RpkiBloco({ dados }: BlocoProps<PrefixoCtx>) {
   const { prefix, asn, carregandoAsn } = dados
+  const { ordenados: roas, props } = useOrdenacao((asn?.roa_list ?? []).filter((r) => cobre(r.prefix, prefix)), {
+    roa: (r) => r.prefix,
+    maxlen: { valor: (r) => r.maxLength, primeiro: 'asc' },
+    ta: (r) => r.ta,
+  })
   if (!asn) return <p className="text-sm text-gray-500">{carregandoAsn ? 'Carregando o AS de origem…' : 'Documento do AS de origem indisponível neste snapshot.'}</p>
   const estado = asn.rpki_validation?.[prefix]
   const e = estado ? ESTADO[estado] : undefined
-  const roas = (asn.roa_list ?? []).filter((r) => cobre(r.prefix, prefix))
   return (
     <div className="space-y-3 text-sm">
       <div>
@@ -28,7 +34,7 @@ export function RpkiBloco({ dados }: BlocoProps<PrefixoCtx>) {
       </div>
       {roas.length > 0 ? (
         <table className="w-full text-xs">
-          <thead><tr className="text-left text-gray-400 border-b border-gray-100"><th className="py-1">ROA</th><th>AS autorizado</th><th>maxLength</th><th>TA</th></tr></thead>
+          <thead><tr className="text-left text-gray-400 border-b border-gray-100"><ThOrdenavel {...props('roa')} className="py-1">ROA</ThOrdenavel><th scope="col">AS autorizado</th><ThOrdenavel {...props('maxlen')}>maxLength</ThOrdenavel><ThOrdenavel {...props('ta')}>TA</ThOrdenavel></tr></thead>
           <tbody className="divide-y divide-gray-50">
             {roas.map((r, i) => (
               <tr key={`${r.prefix}-${i}`}><td className="py-1 font-mono">{r.prefix}</td><td>AS{asn.asn}</td><td>{r.maxLength}</td><td className="uppercase">{r.ta}</td></tr>

@@ -8,6 +8,8 @@ import type { BlocoProps } from '../../entidade/registry'
 import type { AsnCtx } from '../contexto'
 import { AtribuicaoPeeringDb, LinkInstalacao, SeloCadastro, dataCurta, fmtMbps, localDe, n } from '../../instalacoes/comum'
 import { SITE } from '../../../lib/site'
+import { useOrdenacao } from '../../../lib/ordenacao'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 
 const sim = (v: boolean | undefined) => (v == null ? '—' : v ? 'sim' : 'não')
 /** URL de looking glass ou route server informada pela rede: só http(s) vira link; telnet e ssh aparecem como texto (o navegador não os abre). */
@@ -25,6 +27,14 @@ function UrlDeclarada({ url }: { url?: string }) {
 export function InstalacoesAsnBloco({ dados }: BlocoProps<AsnCtx>) {
   const fac = dados.facilities
   const pe = dados.peering
+  const { ordenados, props } = useOrdenacao(fac?.items, {
+    nome: (f) => f.nome,
+    local: (f) => localDe(f),
+    ptts: (f) => f.ptts.length,
+    redes: (f) => f.n_redes,
+    desde: { valor: (f) => f.no_vinculo_desde, primeiro: 'asc' },
+    cadastro: (f) => f.cadastro?.dias,
+  })
   return (
     <div className="space-y-4 text-sm" data-testid="instalacoes-asn">
       {pe && (
@@ -71,12 +81,12 @@ export function InstalacoesAsnBloco({ dados }: BlocoProps<AsnCtx>) {
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-left text-gray-500 border-b border-gray-100">
-                  <th className="py-1 pr-3 font-medium">Instalação</th><th className="py-1 pr-3 font-medium">Local</th><th className="py-1 pr-3 font-medium">PTTs</th>
-                  <th className="py-1 pr-3 font-medium text-right">Redes</th><th className="py-1 pr-3 font-medium">Vínculo desde</th><th className="py-1 font-medium">Cadastro</th>
+                  <ThOrdenavel {...props('nome')} className="py-1 pr-3 font-medium">Instalação</ThOrdenavel><ThOrdenavel {...props('local')} className="py-1 pr-3 font-medium">Local</ThOrdenavel><ThOrdenavel {...props('ptts')} className="py-1 pr-3 font-medium">PTTs</ThOrdenavel>
+                  <ThOrdenavel {...props('redes')} alinhar="right" className="py-1 pr-3 font-medium text-right">Redes</ThOrdenavel><ThOrdenavel {...props('desde')} className="py-1 pr-3 font-medium">Vínculo desde</ThOrdenavel><ThOrdenavel {...props('cadastro')} className="py-1 font-medium">Cadastro</ThOrdenavel>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {fac.items.map((f) => (
+                {ordenados.map((f) => (
                   <tr key={f.id}>
                     <td className="py-1 pr-3"><LinkInstalacao f={f} /></td>
                     <td className="py-1 pr-3 text-gray-600">{localDe(f)}</td>

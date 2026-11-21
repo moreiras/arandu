@@ -10,18 +10,27 @@ import type { BlocoProps } from '../entidade/registry'
 import type { AsnCtx } from '../asn/contexto'
 import type { OperadoraCtx } from '../operadora/contexto'
 import type { Ipv4EspacoLinha, Ipv4UsoItem } from '../../types/api'
+import { useOrdenacao } from '../../lib/ordenacao'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 
 export const CLASSES_ESPACO: Record<string, string> = { nao_anunciado: 'não anunciado', roa_sem_anuncio: 'ROA sem anúncio', parcial: 'anunciado em parte', em_recuperacao: 'em recuperação' }
 const inteiro = (v?: number | null) => (v == null ? '—' : Math.round(v).toLocaleString('pt-BR'))
 const AVISO = 'Não anunciado não é sem uso (rede interna, enlace, reserva técnica e CGNAT não aparecem na tabela global). Sinal de terceiros é hipótese, com falsos positivos conhecidos: o caso comum é o provedor que anuncia o bloco do cliente.'
 
-function ListaEspaco({ itens }: { itens: Ipv4EspacoLinha[] }) {
+/** `ordenavel` só quando a lista está inteira no navegador: com a página da API (total maior que os itens), reordenar o recorte esconderia
+ * quem lidera a coluna, e `/ipv4/espaco` ainda não aceita ordem. */
+function ListaEspaco({ itens, ordenavel = true }: { itens: Ipv4EspacoLinha[]; ordenavel?: boolean }) {
+  const { ordenados, props } = useOrdenacao(itens, {
+    bloco: { valor: (b) => b.inicio, primeiro: 'asc' }, quantidade: (b) => b.quantidade, classe: (b) => CLASSES_ESPACO[b.classe] ?? b.classe,
+    anunciado: (b) => b.anunciado_pct, sem_anuncio: (b) => b.tabelas_sem_anuncio || null,
+  })
   if (itens.length === 0) return null
+  const th = (campo: Parameters<typeof props>[0]) => (ordenavel ? props(campo) : { campo, ordem: null })
   return (
     <table className="text-xs min-w-full">
-      <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Bloco</th><th className="text-right px-2 py-1">Endereços</th><th className="text-left px-2 py-1">Situação</th><th className="text-right px-2 py-1">Anunciado</th><th className="text-left px-2 py-1">Sem anúncio</th></tr></thead>
+      <thead className="text-gray-500"><tr><ThOrdenavel {...th('bloco')} className="text-left px-2 py-1">Bloco</ThOrdenavel><ThOrdenavel {...th('quantidade')} alinhar="right" className="text-right px-2 py-1">Endereços</ThOrdenavel><ThOrdenavel {...th('classe')} className="text-left px-2 py-1">Situação</ThOrdenavel><ThOrdenavel {...th('anunciado')} alinhar="right" className="text-right px-2 py-1">Anunciado</ThOrdenavel><ThOrdenavel {...th('sem_anuncio')} className="text-left px-2 py-1">Sem anúncio</ThOrdenavel></tr></thead>
       <tbody>
-        {itens.map((b) => (
+        {(ordenavel ? ordenados : itens).map((b) => (
           <tr key={b.inicio} className="border-t border-gray-100">
             <td className="px-2 py-1"><Link to={`/prefixo/${encodeURIComponent(`${b.inicio}/${32 - Math.ceil(Math.log2(b.quantidade))}`)}`} className="text-primario-600 hover:underline">{b.inicio}</Link></td>
             <td className="px-2 py-1 text-right tabular-nums">{inteiro(b.quantidade)}</td><td className="px-2 py-1">{CLASSES_ESPACO[b.classe] ?? b.classe}</td>
@@ -76,7 +85,7 @@ export function RecursosIpv4OperadoraBloco({ dados }: BlocoProps<OperadoraCtx>) 
   return (
     <div className="space-y-3">
       <p className="text-sm text-gray-700">{inteiro(nE)} blocos não plenamente anunciados · {inteiro(nU)} blocos com sinais de uso por terceiros.</p>
-      <ListaEspaco itens={e.data?.items ?? []} />
+      <ListaEspaco itens={e.data?.items ?? []} ordenavel={(e.data?.items.length ?? 0) >= nE} />
       <ListaSinais itens={u.data?.items ?? []} />
       <p className="text-xs text-gray-500">{AVISO} <Link to="/mercado-ipv4?aba=espaco" className="text-primario-600 hover:underline">Mercado de IPv4</Link>.</p>
     </div>

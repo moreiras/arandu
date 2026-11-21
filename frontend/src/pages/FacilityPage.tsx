@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchFacility } from '../services/api'
@@ -11,6 +11,8 @@ import { useActiveDate } from '../hooks/useSnapshot'
 import { idInstalacaoValido } from '../lib/identificadores'
 import { AtribuicaoPeeringDb, PttRotulo, SeloCadastro, dataCurta, localDe, n } from '../features/instalacoes/comum'
 import { MapaInstalacoes } from '../features/instalacoes/MapaInstalacoes'
+import { useOrdenacao } from '../lib/ordenacao'
+import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 
 /**
  * `/instalacao/:id` — uma instalação do PeeringDB: localização, PTTs, carriers, campus e as redes que declaram estar nela.
@@ -21,6 +23,13 @@ export function FacilityPage() {
   const date = useActiveDate()
   const [soBr, setSoBr] = useState(false)
   const { data: f, isLoading, isError } = useQuery({ queryKey: ['facility', id, date], queryFn: () => fetchFacility(id, date ?? undefined), enabled: idInstalacaoValido(id), staleTime: Infinity, gcTime: Infinity, retry: false })
+  const redesFiltradas = useMemo(() => (f?.redes ?? []).filter((r) => !soBr || r.is_br), [f, soBr])
+  // Ordena todas as redes e só depois corta nas 500 exibidas.
+  const { ordenados, props } = useOrdenacao(redesFiltradas, {
+    asn: { valor: (r) => r.asn, primeiro: 'asc' },
+    nome: (r) => r.nome,
+    desde: { valor: (r) => r.no_vinculo_desde, primeiro: 'asc' },
+  })
 
   if (isLoading) return <div className="text-sm text-gray-400">Carregando…</div>
   if (isError || !f) {
@@ -31,7 +40,7 @@ export function FacilityPage() {
       </div>
     )
   }
-  const redes = f.redes.filter((r) => !soBr || r.is_br)
+  const redes = redesFiltradas
   return (
     <div className="space-y-4" data-testid="pagina-instalacao">
       <div className="space-y-1">
@@ -81,9 +90,9 @@ export function FacilityPage() {
         {redes.length > 0 && (
           <div className="overflow-x-auto max-h-96">
             <table className="w-full text-xs">
-              <thead><tr className="text-left text-gray-500 border-b border-gray-100"><th className="py-1 pr-3 font-medium">ASN</th><th className="py-1 pr-3 font-medium">Nome</th><th className="py-1 font-medium">Vínculo desde</th></tr></thead>
+              <thead><tr className="text-left text-gray-500 border-b border-gray-100"><ThOrdenavel {...props('asn')} className="py-1 pr-3 font-medium">ASN</ThOrdenavel><ThOrdenavel {...props('nome')} className="py-1 pr-3 font-medium">Nome</ThOrdenavel><ThOrdenavel {...props('desde')} className="py-1 font-medium">Vínculo desde</ThOrdenavel></tr></thead>
               <tbody className="divide-y divide-gray-50">
-                {redes.slice(0, 500).map((r) => (
+                {ordenados.slice(0, 500).map((r) => (
                   <tr key={r.asn}><td className="py-1 pr-3"><Link to={`/asn/${r.asn}`} className="text-primario-600 hover:underline">AS{r.asn}</Link></td><td className="py-1 pr-3 text-gray-700">{r.nome ?? '—'}</td><td className="py-1 tabular-nums">{dataCurta(r.no_vinculo_desde)}</td></tr>
                 ))}
               </tbody>

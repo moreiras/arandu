@@ -5,6 +5,8 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { BlocoProps } from '../../entidade/registry'
 import type { AsnCtx } from '../contexto'
+import { useOrdenacao } from '../../../lib/ordenacao'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`)
@@ -15,6 +17,11 @@ const pct = (v: number | null | undefined) => (v == null ? '—' : `${v.toLocale
  */
 export function BloqueiosAsnBloco({ dados }: BlocoProps<AsnCtx>) {
   const b = dados.bloqueios
+  const { ordenados, props } = useOrdenacao(b?.testes, {
+    teste: (t) => t.rotulo,
+    n: (t) => t.n,
+    anomalia: (t) => t.pct_anomalia,
+  })
   if (!b) return null
   const j = b.janela
   return (
@@ -25,14 +32,14 @@ export function BloqueiosAsnBloco({ dados }: BlocoProps<AsnCtx>) {
           <caption className="sr-only">Medições do OONI por teste neste AS</caption>
           <thead>
             <tr className="text-gray-500">
-              <th className="py-1 pr-3 font-medium">Teste</th>
-              <th className="py-1 pr-3 text-right font-medium">Medições</th>
-              <th className="py-1 pr-3 text-right font-medium">Anomalia declarada pela sonda</th>
-              <th className="py-1 font-medium">Critério</th>
+              <ThOrdenavel {...props('teste')} className="py-1 pr-3 font-medium">Teste</ThOrdenavel>
+              <ThOrdenavel {...props('n')} alinhar="right" className="py-1 pr-3 text-right font-medium">Medições</ThOrdenavel>
+              <ThOrdenavel {...props('anomalia')} alinhar="right" className="py-1 pr-3 text-right font-medium">Anomalia declarada pela sonda</ThOrdenavel>
+              <th scope="col" className="py-1 font-medium">Critério</th>
             </tr>
           </thead>
           <tbody>
-            {b.testes.map((t) => (
+            {ordenados.map((t) => (
               <tr key={t.teste} className="border-t border-gray-100 align-top">
                 <td className="py-1 pr-3 font-medium">{t.rotulo}</td>
                 <td className="py-1 pr-3 text-right tabular-nums">{n(t.n)}</td>

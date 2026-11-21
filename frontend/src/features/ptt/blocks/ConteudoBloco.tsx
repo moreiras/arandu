@@ -8,6 +8,8 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchCDNPresence } from '../../../services/api'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
+import { useOrdenacao } from '../../../lib/ordenacao'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 
 const slug = (nome: string) => nome.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 
@@ -21,6 +23,11 @@ export function ConteudoBloco({ dados }: BlocoProps<PttCtx>) {
   const diretosV4 = new Set(mergedV4?.asn_direct ?? [])
   const diretosV6 = new Set(mergedV6?.asn_direct ?? [])
   const aqui = (q.data?.cdns ?? []).filter((c) => c.ixbr.includes(code))
+  const { ordenados, props } = useOrdenacao(aqui, {
+    cdn: (c) => c.name,
+    diretos: (c) => new Set(c.asns.filter((a) => diretosV4.has(a) || diretosV6.has(a))).size,
+    outros: (c) => c.ixbr_count - 1,
+  })
   if (q.isLoading) return <div className="h-20 bg-gray-50 rounded animate-pulse" />
   if (aqui.length === 0) return <p className="text-sm text-gray-500">Nenhuma CDN da matriz tem peering direto neste PTT no snapshot.</p>
   return (
@@ -28,9 +35,9 @@ export function ConteudoBloco({ dados }: BlocoProps<PttCtx>) {
       <p className="text-sm text-gray-600">{aqui.length} CDN{aqui.length === 1 ? '' : 's'}/provedores de conteúdo com presença neste PTT (de {q.data!.cdns.length} na matriz).</p>
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
-          <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th className="py-1 pr-3 font-medium">CDN</th><th className="py-1 pr-3 font-medium">ASNs com peering direto aqui</th><th className="py-1 pr-3 font-medium">Outros PTTs do IX.br</th></tr></thead>
+          <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><ThOrdenavel {...props('cdn')} className="py-1 pr-3 font-medium">CDN</ThOrdenavel><ThOrdenavel {...props('diretos')} className="py-1 pr-3 font-medium">ASNs com peering direto aqui</ThOrdenavel><ThOrdenavel {...props('outros')} className="py-1 pr-3 font-medium">Outros PTTs do IX.br</ThOrdenavel></tr></thead>
           <tbody>
-            {aqui.map((c) => {
+            {ordenados.map((c) => {
               const v4 = c.asns.filter((a) => diretosV4.has(a)); const v6 = c.asns.filter((a) => diretosV6.has(a))
               return (
                 <tr key={c.name} className="border-b border-gray-100">

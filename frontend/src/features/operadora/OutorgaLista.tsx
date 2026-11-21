@@ -4,6 +4,11 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { STFCRecord, SEACRecord } from '../../types/api'
+import { useOrdenacao } from '../../lib/ordenacao'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
+
+/** A Anatel publica a data como dd/mm/aaaa; para ordenar, vira aaaa-mm-dd. */
+const dataOrdenavel = (d?: string) => { const m = /^(\d{2})\/(\d{2})\/(\d{4})/.exec(d ?? ''); return m ? `${m[3]}-${m[2]}-${m[1]}` : d }
 
 /**
  * Seção genérica para outorgas sem equivalente de acessos declarados ao SICI
@@ -17,6 +22,10 @@ export function OutorgaListSection({
   fonte: string
   outorgas: (STFCRecord | SEACRecord)[]
 }) {
+  const { ordenados, props } = useOrdenacao(outorgas, {
+    endereco: (o) => o.logradouro, municipio: (o) => (o.municipio ? `${o.municipio}${o.uf ? `/${o.uf}` : ''}` : o.uf),
+    data: { valor: (o) => dataOrdenavel(o.data_outorga), primeiro: 'asc' }, situacao: (o) => o.situacao,
+  })
   return (
     <div>
       <h2 className="text-base font-semibold text-gray-800 mb-1">{titulo}</h2>
@@ -28,14 +37,14 @@ export function OutorgaListSection({
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-xs text-gray-400 bg-gray-50 border-b border-gray-100">
-              <th className="px-4 py-2">Endereço</th>
-              <th className="px-4 py-2 w-36">Município / UF</th>
-              <th className="px-4 py-2 w-28">Data Outorga</th>
-              <th className="px-4 py-2 w-16">Sit.</th>
+              <ThOrdenavel {...props('endereco')} className="px-4 py-2">Endereço</ThOrdenavel>
+              <ThOrdenavel {...props('municipio')} className="px-4 py-2 w-36">Município / UF</ThOrdenavel>
+              <ThOrdenavel {...props('data')} className="px-4 py-2 w-28">Data Outorga</ThOrdenavel>
+              <ThOrdenavel {...props('situacao')} className="px-4 py-2 w-16">Sit.</ThOrdenavel>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {outorgas.map((o, i) => (
+            {ordenados.map((o, i) => (
               <tr key={`${o.cnpj}-${i}`} className="hover:bg-gray-50">
                 <td className="px-4 py-2 text-xs text-gray-500">
                   {o.logradouro

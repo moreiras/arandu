@@ -8,6 +8,8 @@ import { InstalacoesPtt } from '../features/ptt/blocks/InstalacoesBloco'
 import { useAsnNomes } from '../hooks/useAsnName'
 import type { ExternalIXPMember } from '../types/api'
 import { ExternalIXPRouteServer, type ExternalIXPComRouteServer } from './ExternalIXPRouteServer'
+import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../lib/ordenacao'
 
 const FLAG: Record<string, string> = {
   BR: '🇧🇷', AR: '🇦🇷', CL: '🇨🇱', CO: '🇨🇴', PE: '🇵🇪',
@@ -44,7 +46,14 @@ export function ExternalIXPPage() {
     if (search && !String(m.asn).includes(search) && !m.name.toLowerCase().includes(search.toLowerCase())) return false
     return true
   }), [data, brOnly, search])
-  const nomes = useAsnNomes(useMemo(() => members.slice(0, 500).map(m => m.asn), [members]), activeDate)
+  // Ordena todos os membros filtrados e só então corta nos 500 mostrados (e nos nomes buscados).
+  const { ordenados, props } = useOrdenacao(members, {
+    asn: { valor: m => m.asn, primeiro: 'asc' },
+    nome: m => m.name || null,
+    velocidade: m => m.speed || null,
+    br: m => m.is_br,
+  })
+  const nomes = useAsnNomes(useMemo(() => ordenados.slice(0, 500).map(m => m.asn), [ordenados]), activeDate)
 
   if (isLoading) return <div className="py-20 text-center text-gray-400 text-sm">Carregando...</div>
   if (error || !data) return (
@@ -120,14 +129,14 @@ export function ExternalIXPPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs text-gray-500 border-b border-gray-100 bg-gray-50">
-                <th className="px-4 py-2 font-medium">ASN</th>
-                <th className="px-4 py-2 font-medium">Nome</th>
-                <th className="px-4 py-2 font-medium">Velocidade</th>
-                <th className="px-4 py-2 font-medium">BR</th>
+                <ThOrdenavel {...props('asn')} className="px-4 py-2 font-medium">ASN</ThOrdenavel>
+                <ThOrdenavel {...props('nome')} className="px-4 py-2 font-medium">Nome</ThOrdenavel>
+                <ThOrdenavel {...props('velocidade')} className="px-4 py-2 font-medium">Velocidade</ThOrdenavel>
+                <ThOrdenavel {...props('br')} className="px-4 py-2 font-medium">BR</ThOrdenavel>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {members.slice(0, 500).map(m => (
+              {ordenados.slice(0, 500).map(m => (
                 <tr key={m.asn} className="hover:bg-gray-50">
                   <td className="px-4 py-2">
                     <a href={`/asn/${m.asn}`} className="text-primario-600 hover:underline font-mono">

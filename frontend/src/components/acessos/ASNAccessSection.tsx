@@ -4,6 +4,8 @@ import { fetchASNAcessos, fetchASNAcessosMunicipios } from '../../services/api'
 import { AccessMunicipioMap } from './AccessMunicipioMap'
 import { AccessHistoryChart } from './AccessHistoryChart'
 import type { SiciDivergencia } from '../../types/api'
+import { useOrdenacao } from '../../lib/ordenacao'
+import { ThOrdenavel } from '../ui/ThOrdenavel'
 
 const fmt = (n: number | undefined | null) =>
   n == null ? '—' : n.toLocaleString('pt-BR')
@@ -104,6 +106,15 @@ export function ASNAccessSection({ asn, date, apnicUsers }: {
     staleTime: 5 * 60 * 1000,
   })
 
+  // A lista vem inteira da API: ordena-se toda e só depois corta nas 300 primeiras.
+  const { ordenados: munsOrdenados, props } = useOrdenacao(muns?.items, {
+    nome: (m) => m.nome,
+    uf: (m) => m.uf,
+    acessos: (m) => m.acessos,
+    pj: (m) => m.pj,
+    share: (m) => m.share,
+  })
+
   // Sem dados do SICI a seção simplesmente não aparece — nem todo AS é operadora
   // licenciada, e a maioria dos ASes BR não declara acessos.
   if (isLoading || !data) return null
@@ -180,15 +191,15 @@ export function ASNAccessSection({ asn, date, apnicUsers }: {
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-gray-50">
                 <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
-                  <th className="px-3 py-1.5">Município</th>
-                  <th className="px-3 py-1.5 w-14">UF</th>
-                  <th className="px-3 py-1.5 w-24 text-right">Acessos</th>
-                  <th className="px-3 py-1.5 w-20 text-right">B2B</th>
-                  <th className="px-3 py-1.5 w-24 text-right">Share</th>
+                  <ThOrdenavel {...props('nome')} className="px-3 py-1.5">Município</ThOrdenavel>
+                  <ThOrdenavel {...props('uf')} className="px-3 py-1.5 w-14">UF</ThOrdenavel>
+                  <ThOrdenavel {...props('acessos')} alinhar="right" className="px-3 py-1.5 w-24">Acessos</ThOrdenavel>
+                  <ThOrdenavel {...props('pj')} alinhar="right" className="px-3 py-1.5 w-20">B2B</ThOrdenavel>
+                  <ThOrdenavel {...props('share')} alinhar="right" className="px-3 py-1.5 w-24">Share</ThOrdenavel>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {items.slice(0, 300).map(m => (
+                {munsOrdenados.slice(0, 300).map(m => (
                   <tr key={m.ibge} className="hover:bg-gray-50">
                     <td className="px-3 py-1">
                       <Link to={`/municipio/${m.ibge}`} className="text-primario-600 hover:underline">

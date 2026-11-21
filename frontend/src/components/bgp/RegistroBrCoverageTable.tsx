@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import type { RegistroBrCoverage, OriginDetail } from '../../types/routingAnalysis'
 import { Tip, SortIcon, type SortDir } from './BgpShared'
+import { ordenar } from '../../lib/ordenacao'
 
 interface Props {
   data: RegistroBrCoverage[]
@@ -55,7 +56,7 @@ function fmtCnpj(cnpj: string): string {
 
 type Category = keyof typeof CATEGORY_BADGE | 'all'
 type AfiFilter = 'all' | 'v6' | 'v4'
-type SortKey = 'block' | 'coverage_pct' | 'routes_inside' | 'asn' | 'category'
+type SortKey = 'block' | 'afi' | 'asn' | 'name' | 'cnpj' | 'coverage_pct' | 'routes_inside' | 'category'
 
 function fmt(n: number) { return n.toLocaleString('pt-BR') }
 
@@ -139,7 +140,8 @@ export function RegistroBrCoverageTable({ data, date }: Props) {
       setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
     } else {
       setSortKey(key)
-      setSortDir(key === 'coverage_pct' ? 'asc' : 'desc')
+      // Texto e ASN começam de A a Z / do menor; cobertura, do menor (o que falta anunciar); rotas, do maior.
+      setSortDir(key === 'routes_inside' ? 'desc' : 'asc')
     }
     setPage(0)
   }
@@ -148,44 +150,32 @@ export function RegistroBrCoverageTable({ data, date }: Props) {
     const rows = data.filter(
       (r) => (cat === 'all' || r.category === cat) && (afi === 'all' || r.afi === afi),
     )
-    rows.sort((a, b) => {
-      let aVal: string | number
-      let bVal: string | number
-      switch (sortKey) {
-        case 'block':         aVal = a.block;         bVal = b.block;         break
-        case 'coverage_pct':  aVal = a.coverage_pct;  bVal = b.coverage_pct;  break
-        case 'routes_inside': aVal = a.routes_inside; bVal = b.routes_inside; break
-        case 'asn':           aVal = a.asn;           bVal = b.asn;           break
-        case 'category':      aVal = a.category;      bVal = b.category;      break
-        default:              aVal = 0;               bVal = 0
-      }
-      if (typeof aVal === 'string') {
-        return sortDir === 'asc' ? aVal.localeCompare(bVal as string) : (bVal as string).localeCompare(aVal)
-      }
-      return sortDir === 'asc' ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number)
-    })
-    return rows
+    // Vazios (sem nome, sem CNPJ) no fim nos dois sentidos; prefixos comparados com os números (`numeric`).
+    return ordenar(rows, (r) => r[sortKey], sortDir)
   }, [data, cat, afi, sortKey, sortDir])
 
   const visible = filtered.slice(page * PAGE, (page + 1) * PAGE)
 
   function SortTh({ k, label, right, tooltip }: {
-    k: SortKey; label: string; right?: boolean; tooltip: string
+    k: SortKey; label: string; right?: boolean; tooltip?: string
   }) {
     const active = sortKey === k
     return (
       <th
-        onClick={() => handleSort(k)}
+        scope="col"
+        aria-sort={active ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
         className={[
-          'text-xs font-medium pb-1.5 px-1 cursor-pointer select-none whitespace-nowrap',
+          'text-xs font-medium pb-1.5 px-1 whitespace-nowrap',
           right ? 'text-right' : 'text-left',
-          active ? 'text-primario-600' : 'text-gray-500 hover:text-gray-700',
+          active ? 'text-primario-600' : 'text-gray-500',
         ].join(' ')}
       >
-        <span className="inline-flex items-center gap-0.5">
-          {label}
-          <Tip text={tooltip} />
-          <SortIcon active={active} dir={sortDir} />
+        <span className={`inline-flex items-center gap-0.5${right ? ' justify-end' : ''}`}>
+          <button type="button" onClick={() => handleSort(k)}
+            className="hover:text-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primario-500">
+            {label}<SortIcon active={active} dir={sortDir} />
+          </button>
+          {tooltip && <Tip text={tooltip} />}
         </span>
       </th>
     )
@@ -236,22 +226,12 @@ export function RegistroBrCoverageTable({ data, date }: Props) {
           <thead>
             <tr className="border-b border-gray-200">
               <SortTh k="block" label="Bloco" tooltip="Prefixo IP alocado pelo Registro.br ao ASN brasileiro correspondente." />
-              <th className="text-xs font-medium text-gray-500 text-left pb-1.5 px-1">Fam.</th>
+              <SortTh k="afi" label="Fam." />
               <SortTh k="asn" label="Titular — ASN"
                 tooltip="Número do sistema autônomo titular do bloco conforme alocação do Registro.br." />
-              <th className="text-xs font-medium text-gray-500 text-left pb-1.5 px-1">
-                <span className="inline-flex items-center gap-0.5">
-                  Nome
-                  <Tip text="Nome da organização titular do bloco conforme Registro.br." />
-                </span>
-              </th>
-              <th className="text-xs font-medium text-gray-500 text-left pb-1.5 px-1">
-                <span className="inline-flex items-center gap-0.5">
-                  CNPJ
-                  <Tip text="CNPJ da organização titular conforme Registro.br." />
-                </span>
-              </th>
-              <th className="text-xs font-medium text-gray-500 text-left pb-1.5 px-1">
+              <SortTh k="name" label="Nome" tooltip="Nome da organização titular do bloco conforme Registro.br." />
+              <SortTh k="cnpj" label="CNPJ" tooltip="CNPJ da organização titular conforme Registro.br." />
+              <th scope="col" className="text-xs font-medium text-gray-500 text-left pb-1.5 px-1">
                 <span className="inline-flex items-center gap-0.5">
                   Anuncia na tabela
                   <Tip text="ASN(s) que originam rotas cobrindo este bloco na tabela global. Passe o mouse sobre cada ASN para ver CNPJ, rotas anunciadas e status RPKI de cada uma. ASNs em laranja diferem do titular." />

@@ -13,6 +13,7 @@ import type { MunicipioCtx } from '../municipio/contexto'
 import type { OperadoraCtx } from '../operadora/contexto'
 import type { UfCtx } from '../uf/contexto'
 import type { ErbsGeracoes, ErbsMeta, Geracao } from '../../types/api'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 
 const GERACOES: Geracao[] = ['2G', '3G', '4G', '5G']
 const inteiro = (v?: number | null) => (v == null ? '—' : Math.round(v).toLocaleString('pt-BR'))
@@ -73,10 +74,13 @@ export function ErbsMunicipioBloco({ dados }: BlocoProps<MunicipioCtx>) {
 export function ErbsUfBloco({ dados }: BlocoProps<UfCtx>) {
   const e = dados.erbs
   const [geracao, setGeracao] = useState('')
+  // A tabela traz só os 10 primeiros: a ordem vai ao servidor (`ordem`), que só ordena do maior para o menor nestas duas colunas.
+  const [campo, setCampo] = useState<'estacoes' | 'por_10mil_hab'>('estacoes')
   const q = useQuery({
-    queryKey: ['erbs-municipios', dados.uf, geracao], enabled: !!e,
-    queryFn: () => fetchErbsMunicipios({ uf: dados.uf, geracao: geracao || undefined, limit: 10 }), staleTime: 10 * 60 * 1000, retry: false,
+    queryKey: ['erbs-municipios', dados.uf, geracao, campo], enabled: !!e,
+    queryFn: () => fetchErbsMunicipios({ uf: dados.uf, geracao: geracao || undefined, limit: 10, ...(campo === 'estacoes' ? {} : { ordem: campo }) }), staleTime: 10 * 60 * 1000, retry: false,
   })
+  const th = (c: typeof campo) => ({ campo: c, ordem: { campo, dir: 'desc' as const }, onOrdenar: () => setCampo(c) })
   if (!e) return null
   const r = e.resumo
   return (
@@ -94,7 +98,7 @@ export function ErbsUfBloco({ dados }: BlocoProps<UfCtx>) {
       </label>
       {q.data && (
         <table className="text-xs min-w-full">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Município</th><th className="text-right px-2 py-1">{geracao ? `Estações ${geracao}` : 'Estações'}</th><th className="text-right px-2 py-1">Por 10 mil hab.</th><th className="text-left px-2 py-1">Mais estações</th></tr></thead>
+          <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Município</th><ThOrdenavel {...th('estacoes')} alinhar="right" className="text-right px-2 py-1">{geracao ? `Estações ${geracao}` : 'Estações'}</ThOrdenavel><ThOrdenavel {...th('por_10mil_hab')} alinhar="right" className="text-right px-2 py-1">Por 10 mil hab.</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Mais estações</th></tr></thead>
           <tbody>
             {q.data.items.map((m) => (
               <tr key={m.ibge} className="border-t border-gray-100">

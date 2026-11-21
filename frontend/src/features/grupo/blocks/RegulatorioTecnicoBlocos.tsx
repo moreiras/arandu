@@ -9,10 +9,32 @@ import { useGrupoBloco } from '../../../hooks/entidades/entidades'
 import type { BlocoProps } from '../../entidade/registry'
 import type { GrupoCtx } from '../contexto'
 import type { GrupoRegulatorio, GrupoTecnico } from '../../../types/api'
+import { useOrdenacao } from '../../../lib/ordenacao'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`)
 const reais = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+
+/**
+ * ASes do grupo. Com ASes omitidos (a API detalha só os maiores por usuários estimados), o cabeçalho não ordena: reordenar o recorte
+ * esconderia quem lidera a coluna entre os omitidos.
+ */
+function TabelaAses({ t }: { t: GrupoTecnico }) {
+  const { ordenados, props } = useOrdenacao(t.por_asn, {
+    asn: { valor: (a) => a.asn, primeiro: 'asc' }, usuarios: (a) => a.usuarios, pct_v6: (a) => a.pct_v6, prefixos_v4: (a) => a.prefixos_v4,
+    prefixos_v6: (a) => a.prefixos_v6, roa: (a) => a.roa_valido_pct, ptts: (a) => a.ptts_diretos,
+  })
+  const completa = t.asns_omitidos === 0
+  const th = (campo: Parameters<typeof props>[0]) => (completa ? props(campo) : { campo, ordem: null })
+  return (
+    <div className="overflow-x-auto"><table className="text-sm min-w-full" aria-label="ASes do grupo" data-tabela="grade">
+      <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><ThOrdenavel {...th('asn')} className="py-1 pr-3">AS</ThOrdenavel><ThOrdenavel {...th('usuarios')} alinhar="right" className="pr-3 text-right">Usuários (est.)</ThOrdenavel><ThOrdenavel {...th('pct_v6')} alinhar="right" className="pr-3 text-right">% IPv6</ThOrdenavel><ThOrdenavel {...th('prefixos_v4')} alinhar="right" className="pr-3 text-right">Prefixos v4</ThOrdenavel><ThOrdenavel {...th('prefixos_v6')} alinhar="right" className="pr-3 text-right">Prefixos v6</ThOrdenavel><ThOrdenavel {...th('roa')} alinhar="right" className="pr-3 text-right">ROA válido</ThOrdenavel><ThOrdenavel {...th('ptts')} alinhar="right" className="text-right">PTTs diretos</ThOrdenavel></tr></thead>
+      <tbody>{(completa ? ordenados : t.por_asn).map((a) => <tr key={a.asn} className="border-b border-gray-100"><td className="py-1 pr-3"><Link to={`/asn/${a.asn}`} className="text-primario-600 hover:underline">AS{a.asn}</Link> <span className="text-gray-500">{a.nome}</span></td>
+        <td className="pr-3 text-right tabular-nums">{n(a.usuarios)}</td><td className="pr-3 text-right tabular-nums">{pct(a.pct_v6)}</td><td className="pr-3 text-right tabular-nums">{n(a.prefixos_v4)}</td><td className="pr-3 text-right tabular-nums">{n(a.prefixos_v6)}</td>
+        <td className="pr-3 text-right tabular-nums">{pct(a.roa_valido_pct)}</td><td className="text-right tabular-nums">{n(a.ptts_diretos)}</td></tr>)}</tbody></table></div>
+  )
+}
 
 function Carrega<T>({ id, bloco, vazio, children }: { id: string; bloco: 'regulatorio' | 'tecnico'; vazio: string; children: (d: T) => JSX.Element }) {
   const q = useGrupoBloco<T>(id, bloco)
@@ -82,11 +104,7 @@ export function AsesTecnicoBloco({ dados }: BlocoProps<GrupoCtx>) {
         <Kpi rotulo="Prefixos com ROA válido" valor={pct(t.rpki.valido_pct)} />
       </div>
       {t.asns_omitidos > 0 && <p className="text-sm text-aviso-700" role="status">Mostrando os {n(t.asns_detalhados)} maiores ASes por usuários estimados; {n(t.asns_omitidos)} ficaram de fora do detalhe.</p>}
-      <div className="overflow-x-auto"><table className="text-sm min-w-full" aria-label="ASes do grupo" data-tabela="grade">
-        <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th className="py-1 pr-3">AS</th><th className="pr-3 text-right">Usuários (est.)</th><th className="pr-3 text-right">% IPv6</th><th className="pr-3 text-right">Prefixos v4</th><th className="pr-3 text-right">Prefixos v6</th><th className="pr-3 text-right">ROA válido</th><th className="text-right">PTTs diretos</th></tr></thead>
-        <tbody>{t.por_asn.map((a) => <tr key={a.asn} className="border-b border-gray-100"><td className="py-1 pr-3"><Link to={`/asn/${a.asn}`} className="text-primario-600 hover:underline">AS{a.asn}</Link> <span className="text-gray-500">{a.nome}</span></td>
-          <td className="pr-3 text-right tabular-nums">{n(a.usuarios)}</td><td className="pr-3 text-right tabular-nums">{pct(a.pct_v6)}</td><td className="pr-3 text-right tabular-nums">{n(a.prefixos_v4)}</td><td className="pr-3 text-right tabular-nums">{n(a.prefixos_v6)}</td>
-          <td className="pr-3 text-right tabular-nums">{pct(a.roa_valido_pct)}</td><td className="text-right tabular-nums">{n(a.ptts_diretos)}</td></tr>)}</tbody></table></div>
+      <TabelaAses t={t} />
       <p className="text-xs text-gray-500">{t.rpki.invalido > 0 ? `${n(t.rpki.invalido)} prefixo(s) com ROA inválido e ` : ''}{n(t.rpki.sem_roa)} sem ROA, de {n(t.rpki.validados)} validados. {t.limites}</p>
     </div>
   )}</Carrega>

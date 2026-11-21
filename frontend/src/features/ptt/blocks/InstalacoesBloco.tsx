@@ -7,9 +7,19 @@ import type { BlocoProps } from '../../entidade/registry'
 import type { FacilitiesPtt, PortasIxp } from '../../../types/api'
 import type { PttCtx } from '../contexto'
 import { AtribuicaoPeeringDb, LinkInstalacao, SeloCadastro, fmtMbps, localDe, n } from '../../instalacoes/comum'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../../lib/ordenacao'
 
 /** Instalações onde o PeeringDB diz que o PTT tem presença, e, nos PTTs externos, as portas por velocidade. Autodeclarado; sem veredito sobre as instalações. */
 export function InstalacoesPtt({ facilities, portas }: { facilities?: FacilitiesPtt | null; portas?: PortasIxp | null }) {
+  const { ordenados, props } = useOrdenacao(facilities?.items, {
+    nome: (f) => f.nome,
+    org: (f) => f.org_nome,
+    local: (f) => (localDe(f) === '—' ? null : localDe(f)),
+    redes: (f) => f.n_redes ?? f.redes_declaradas,
+    ptts: (f) => f.n_ptts,
+    cadastro: { valor: (f) => f.cadastro?.dias, primeiro: 'asc' },
+  })
   return (
     <div className="space-y-4 text-sm" data-testid="instalacoes-ptt">
       {facilities && (
@@ -19,12 +29,12 @@ export function InstalacoesPtt({ facilities, portas }: { facilities?: Facilities
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-left text-gray-500 border-b border-gray-100">
-                  <th className="py-1 pr-3 font-medium">Instalação</th><th className="py-1 pr-3 font-medium">Organização</th><th className="py-1 pr-3 font-medium">Local</th>
-                  <th className="py-1 pr-3 font-medium text-right">Redes</th><th className="py-1 pr-3 font-medium text-right">PTTs</th><th className="py-1 font-medium">Cadastro</th>
+                  <ThOrdenavel {...props('nome')} className="py-1 pr-3 font-medium">Instalação</ThOrdenavel><ThOrdenavel {...props('org')} className="py-1 pr-3 font-medium">Organização</ThOrdenavel><ThOrdenavel {...props('local')} className="py-1 pr-3 font-medium">Local</ThOrdenavel>
+                  <ThOrdenavel {...props('redes')} alinhar="right" className="py-1 pr-3 font-medium text-right">Redes</ThOrdenavel><ThOrdenavel {...props('ptts')} alinhar="right" className="py-1 pr-3 font-medium text-right">PTTs</ThOrdenavel><ThOrdenavel {...props('cadastro')} className="py-1 font-medium">Cadastro</ThOrdenavel>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {facilities.items.map((f) => (
+                {ordenados.map((f) => (
                   <tr key={f.id}>
                     <td className="py-1 pr-3"><LinkInstalacao f={f} /></td>
                     <td className="py-1 pr-3 text-gray-600">{f.org_nome ?? '—'}</td>

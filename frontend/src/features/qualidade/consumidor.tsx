@@ -10,6 +10,8 @@ import type { OperadoraCtx } from '../operadora/contexto'
 import type { UfCtx } from '../uf/contexto'
 import type { ConsJanela, ConsMeta, ConsMetricas } from '../../types/api'
 import { dec, inteiro } from './blocos'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
+import { useOrdenacao, type Ordem } from '../../lib/ordenacao'
 
 /** Indicador nulo = base insuficiente (menos de 30 casos): o traço explica, não é zero. */
 export const BASE_INSUF = 'base insuficiente (menos de 30 casos)'
@@ -29,11 +31,19 @@ export function NotaConsumidor({ m, janela }: { m: ConsMeta; janela: ConsJanela 
   )
 }
 
-export function CabecalhoMetricas() {
+/** Campos das colunas de `CabecalhoMetricas` (os de `ConsMetricas`), para os acessores de `useOrdenacao`. */
+export type CampoMetrica = 'n' | 'indice_solucao' | 'tempo_medio_dias' | 'nota_media' | 'pct_respondidas'
+type PropsOrdem = (campo: CampoMetrica) => { campo: string; ordem: Ordem | null | undefined; onOrdenar?: (c: string) => void }
+
+/** Cabeçalho das métricas; com `props` (de `useOrdenacao(...).props`) as colunas ordenam, sem ele são `<th>` comuns. */
+export function CabecalhoMetricas({ props }: { props?: PropsOrdem } = {}) {
+  const th = (campo: CampoMetrica, rotulo: string, title?: string) => (
+    <ThOrdenavel {...(props ? props(campo) : { campo, ordem: null })} alinhar="right" className="text-right px-2 py-1" title={title}>{rotulo}</ThOrdenavel>
+  )
   return (
     <>
-      <th className="text-right px-2 py-1">Finalizadas</th><th className="text-right px-2 py-1" title="Resolvidas ÷ avaliadas pelo consumidor">Índice de solução</th>
-      <th className="text-right px-2 py-1" title="Média, em dias, das respondidas">Tempo de resposta</th><th className="text-right px-2 py-1" title="Média de 1 a 5">Nota média</th><th className="text-right px-2 py-1">% respondidas</th>
+      {th('n', 'Finalizadas')}{th('indice_solucao', 'Índice de solução', 'Resolvidas ÷ avaliadas pelo consumidor')}
+      {th('tempo_medio_dias', 'Tempo de resposta', 'Média, em dias, das respondidas')}{th('nota_media', 'Nota média', 'Média de 1 a 5')}{th('pct_respondidas', '% respondidas')}
     </>
   )
 }
@@ -53,15 +63,24 @@ export function CelulasMetricas({ x }: { x: ConsMetricas }) {
 /** Reclamações finalizadas das empresas ligadas ao CNPJ: janela de 12 meses, série mensal e assuntos. */
 export function ConsumidorOperadoraBloco({ dados }: BlocoProps<OperadoraCtx>) {
   const c = dados.consumidor
+  // Só as empresas ligadas a este CNPJ (lista inteira); não é ranking entre operadoras.
+  const { ordenados, props } = useOrdenacao((c?.marcas ?? []).filter((m) => m.janela), {
+    marca: (m) => m.marca,
+    n: (m) => m.janela!.n,
+    indice_solucao: (m) => m.janela!.indice_solucao,
+    tempo_medio_dias: { valor: (m) => m.janela!.tempo_medio_dias, primeiro: 'asc' },
+    nota_media: (m) => m.janela!.nota_media,
+    pct_respondidas: (m) => m.janela!.pct_respondidas,
+  })
   if (!c) return null
   return (
     <div className="space-y-3">
       <p className="text-sm text-gray-600">Empresas do Consumidor.gov.br ligadas a este CNPJ: {c.marcas.map((m) => `${m.marca} (${m.casamento ?? 'sem ligação'})`).join(', ')}.</p>
       <div className="overflow-x-auto">
         <table className="text-xs min-w-full">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Empresa (últimos 12 meses)</th><CabecalhoMetricas /></tr></thead>
+          <thead className="text-gray-500"><tr><ThOrdenavel {...props('marca')} className="text-left px-2 py-1">Empresa (últimos 12 meses)</ThOrdenavel><CabecalhoMetricas props={props} /></tr></thead>
           <tbody>
-            {c.marcas.filter((m) => m.janela).map((m) => <tr key={m.marca} className="border-t border-gray-100"><td className="px-2 py-1">{m.marca}</td><CelulasMetricas x={m.janela!} /></tr>)}
+            {ordenados.map((m) => <tr key={m.marca} className="border-t border-gray-100"><td className="px-2 py-1">{m.marca}</td><CelulasMetricas x={m.janela!} /></tr>)}
           </tbody>
         </table>
       </div>

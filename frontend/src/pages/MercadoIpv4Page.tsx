@@ -3,12 +3,14 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router-dom'
 import { fetchIpv4Espaco, fetchIpv4Subasignacoes, fetchIpv4Mercado, fetchIpv4Recuperacao, fetchIpv4Transferencias, fetchIpv4UsoPorTerceiros } from '../services/api'
 import type { Ipv4Direcao, Ipv4Operacao } from '../types/api'
 import { CLASSES_ESPACO } from '../features/ipv4/blocos'
+import { useOrdenacao } from '../lib/ordenacao'
+import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 
 const ABAS = [
   { id: 'transferencias', rotulo: 'Transferências' },
@@ -43,6 +45,15 @@ function Transferencias() {
   })
   const m = mercado.data
   const anos = m ? Object.keys(m.por_ano).sort().reverse() : []
+  const porAno = useOrdenacao(anos, {
+    ano: { valor: (a) => Number(a), primeiro: 'asc' },
+    operacoes: (a) => m?.por_ano[a].operacoes,
+    blocos: (a) => m?.por_ano[a].blocos,
+    enderecos: (a) => m?.por_ano[a].enderecos,
+    br_br: (a) => m?.por_ano[a].por_direcao.br_br?.operacoes ?? 0,
+    br_exterior: (a) => m?.por_ano[a].por_direcao.br_exterior?.operacoes ?? 0,
+    exterior_br: (a) => m?.por_ano[a].por_direcao.exterior_br?.operacoes ?? 0,
+  })
   const total = lista.data?.total ?? 0
   return (
     <div className="space-y-4">
@@ -56,10 +67,10 @@ function Transferencias() {
           </div>
           <div className="overflow-x-auto">
             <table className="text-xs min-w-full">
-              <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Ano</th><th className="text-right px-2 py-1">Operações</th><th className="text-right px-2 py-1">Blocos</th><th className="text-right px-2 py-1">Endereços</th>
-                {(Object.keys(DIRECOES) as Ipv4Direcao[]).map((d) => <th key={d} className="text-right px-2 py-1">{DIRECOES[d]}</th>)}</tr></thead>
+              <thead className="text-gray-500"><tr><ThOrdenavel {...porAno.props('ano')} className="text-left px-2 py-1">Ano</ThOrdenavel><ThOrdenavel {...porAno.props('operacoes')} alinhar="right" className="text-right px-2 py-1">Operações</ThOrdenavel><ThOrdenavel {...porAno.props('blocos')} alinhar="right" className="text-right px-2 py-1">Blocos</ThOrdenavel><ThOrdenavel {...porAno.props('enderecos')} alinhar="right" className="text-right px-2 py-1">Endereços</ThOrdenavel>
+                {(Object.keys(DIRECOES) as Ipv4Direcao[]).map((d) => <ThOrdenavel key={d} {...porAno.props(d)} alinhar="right" className="text-right px-2 py-1">{DIRECOES[d]}</ThOrdenavel>)}</tr></thead>
               <tbody>
-                {anos.map((a) => (
+                {porAno.ordenados.map((a) => (
                   <tr key={a} className="border-t border-gray-100">
                     <td className="px-2 py-1 font-medium">{a}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(m.por_ano[a].operacoes)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(m.por_ano[a].blocos)}</td>
                     <td className="px-2 py-1 text-right tabular-nums">{inteiro(m.por_ano[a].enderecos)}</td>
@@ -109,9 +120,23 @@ function Transferencias() {
 
 function Recuperacao() {
   const q = useQuery({ queryKey: ['ipv4-recuperacao'], queryFn: fetchIpv4Recuperacao, staleTime: 10 * 60 * 1000, retry: false })
+  const TIPO_ROTULO: Record<string, string> = { bloco: 'IPv4', bloco6: 'IPv6', asn: 'ASN' }
+  const itens = useOrdenacao(q.data?.em_recuperacao.itens, {
+    tipo: (i) => TIPO_ROTULO[i.tipo] ?? i.tipo,
+    recurso: (i) => (i.tipo === 'asn' ? Number(i.recurso) : i.recurso),
+    janela: { valor: (i) => i.inicio, primeiro: 'asc' },
+    delegated: (i) => i.status_delegated,
+  })
+  // Os meses mais recentes primeiro; o cabeçalho reordena todos os meses e só depois corta nos 18 exibidos.
+  const todosMeses = useMemo(() => Object.keys(q.data?.eventos_por_mes ?? {}).sort().reverse(), [q.data])
+  const porMes = useOrdenacao(todosMeses, {
+    mes: { valor: (m) => m, primeiro: 'desc' },
+    recuperacao: (m) => q.data?.eventos_por_mes[m].recuperacao ?? 0,
+    liberacao: (m) => q.data?.eventos_por_mes[m].liberacao ?? 0,
+  })
   if (!q.data) return null
   const r = q.data
-  const meses = Object.keys(r.eventos_por_mes).sort().reverse().slice(0, 18)
+  const meses = porMes.ordenados.slice(0, 18)
   return (
     <div className="space-y-4">
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
@@ -122,9 +147,9 @@ function Recuperacao() {
         </p>
         <div className="overflow-x-auto max-h-96">
           <table className="text-xs min-w-full">
-            <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Tipo</th><th className="text-left px-2 py-1">Recurso</th><th className="text-left px-2 py-1">Janela</th><th className="text-left px-2 py-1">No delegated</th></tr></thead>
+            <thead className="text-gray-500"><tr><ThOrdenavel {...itens.props('tipo')} className="text-left px-2 py-1">Tipo</ThOrdenavel><ThOrdenavel {...itens.props('recurso')} className="text-left px-2 py-1">Recurso</ThOrdenavel><ThOrdenavel {...itens.props('janela')} className="text-left px-2 py-1">Janela</ThOrdenavel><ThOrdenavel {...itens.props('delegated')} className="text-left px-2 py-1">No delegated</ThOrdenavel></tr></thead>
             <tbody>
-              {r.em_recuperacao.itens.map((i) => (
+              {itens.ordenados.map((i) => (
                 <tr key={`${i.tipo}${i.recurso}`} className="border-t border-gray-100">
                   <td className="px-2 py-1">{i.tipo === 'bloco' ? 'IPv4' : i.tipo === 'bloco6' ? 'IPv6' : 'ASN'}</td>
                   <td className="px-2 py-1">{i.tipo === 'asn' ? <Link to={`/asn/${i.recurso}`} className="text-primario-600 hover:underline">AS{i.recurso}</Link> : i.tipo === 'bloco' ? <Link to={`/prefixo/${encodeURIComponent(i.recurso)}`} className="text-primario-600 hover:underline">{i.recurso}</Link> : i.recurso}</td>
@@ -139,7 +164,7 @@ function Recuperacao() {
         <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-2">
           <h2 className="text-base font-semibold text-gray-900">Endereços recuperados e liberados por mês <span className="text-xs font-normal text-gray-500">· blocos do Brasil vistos no delegated</span></h2>
           <table className="text-xs">
-            <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Mês</th><th className="text-right px-2 py-1">Passaram a reservados</th><th className="text-right px-2 py-1">Saíram da reserva</th></tr></thead>
+            <thead className="text-gray-500"><tr><ThOrdenavel {...porMes.props('mes')} className="text-left px-2 py-1">Mês</ThOrdenavel><ThOrdenavel {...porMes.props('recuperacao')} alinhar="right" className="text-right px-2 py-1">Passaram a reservados</ThOrdenavel><ThOrdenavel {...porMes.props('liberacao')} alinhar="right" className="text-right px-2 py-1">Saíram da reserva</ThOrdenavel></tr></thead>
             <tbody>{meses.map((m) => <tr key={m} className="border-t border-gray-100"><td className="px-2 py-1">{m}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(r.eventos_por_mes[m].recuperacao ?? 0)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(r.eventos_por_mes[m].liberacao ?? 0)}</td></tr>)}</tbody>
           </table>
         </section>
@@ -154,6 +179,13 @@ function EspacoSemUso() {
   const [page, setPage] = useState(1)
   const q = useQuery({ queryKey: ['ipv4-espaco', classe, uf, page], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4Espaco({ classe: classe || undefined, uf: uf || undefined, limit: 25, page }) })
   const d = q.data
+  const classes = useMemo(() => Object.entries(d?.resumo.por_classe ?? {}), [d])
+  const porClasse = useOrdenacao(classes, {
+    situacao: ([c]) => (c === 'anunciado' ? 'anunciado' : CLASSES_ESPACO[c] ?? c),
+    blocos: ([, v]) => v.blocos,
+    enderecos: ([, v]) => v.enderecos,
+    pct: ([, v]) => v.enderecos,
+  })
   if (!d) return null
   const r = d.resumo
   const ufs = Object.keys(r.por_uf).filter((u) => u !== 'sem_asn').sort()
@@ -166,9 +198,9 @@ function EspacoSemUso() {
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
         <p className="text-sm text-gray-700">{inteiro(r.total_blocos)} blocos IPv4 do Brasil ({inteiro(r.total_enderecos)} endereços). Foto do delegated de {data(d.ultima_foto)}.</p>
         <table className="text-xs">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Situação</th><th className="text-right px-2 py-1">Blocos</th><th className="text-right px-2 py-1">Endereços</th><th className="text-right px-2 py-1">%</th></tr></thead>
+          <thead className="text-gray-500"><tr><ThOrdenavel {...porClasse.props('situacao')} className="text-left px-2 py-1">Situação</ThOrdenavel><ThOrdenavel {...porClasse.props('blocos')} alinhar="right" className="text-right px-2 py-1">Blocos</ThOrdenavel><ThOrdenavel {...porClasse.props('enderecos')} alinhar="right" className="text-right px-2 py-1">Endereços</ThOrdenavel><ThOrdenavel {...porClasse.props('pct')} alinhar="right" className="text-right px-2 py-1">%</ThOrdenavel></tr></thead>
           <tbody>
-            {Object.entries(r.por_classe).map(([c, v]) => (
+            {porClasse.ordenados.map(([c, v]) => (
               <tr key={c} className="border-t border-gray-100"><td className="px-2 py-1">{c === 'anunciado' ? 'anunciado' : CLASSES_ESPACO[c] ?? c}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(v.blocos)}</td>
                 <td className="px-2 py-1 text-right tabular-nums">{inteiro(v.enderecos)}</td><td className="px-2 py-1 text-right tabular-nums text-gray-500">{(100 * v.enderecos / r.total_enderecos).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</td></tr>
             ))}

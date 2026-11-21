@@ -11,6 +11,8 @@ import { UFS, nomeUf } from '../lib/ufs'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
 import { DICA_PREFIXOS_LIMITE } from '../lib/textos'
 import { Dica } from '../components/ui/Dica'
+import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { alternarOrdem, type Ordem } from '../lib/ordenacao'
 
 const POR_PAGINA = 25
 const POR_PAGINA_RANK = 25
@@ -75,6 +77,18 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
   const muda = (k: string, v: string) => { const q = new URLSearchParams(sp); if (v) q.set(k, v); else q.delete(k); if (k !== 'p') q.delete('p'); setSp(q, { replace: true }) }
   const trocaAba = (a: Aba) => setSp(new URLSearchParams({ aba: a }), { replace: true })
   const embutido = !!abaFixa
+  // Ordem pelo cabeçalho: vai à API (lista paginada), que ordena a lista inteira antes de cortar a página.
+  const ordemOp: Ordem = { campo: ordem || 'acessos', dir: asc ? 'asc' : 'desc' }
+  const ordenaOp = (campo: string) => {
+    const o = alternarOrdem(ordemOp, campo, 'desc')
+    const q = new URLSearchParams(sp)
+    if (o.campo === 'acessos') q.delete('ordem'); else q.set('ordem', o.campo)
+    if (o.dir === 'asc') q.set('asc', '1'); else q.delete('asc')
+    q.delete('p'); setSp(q, { replace: true })
+  }
+  const thOp = (campo: string) => ({ campo, ordem: ordemOp, onOrdenar: ordenaOp })
+  // A API dos route servers só ordena do maior para o menor: o cabeçalho troca o critério, não inverte o sentido.
+  const thRs = (campo: string) => ({ campo, ordem: { campo: criterioRs, dir: 'desc' } as Ordem, onOrdenar: (c: string) => muda('criterio', c === 'sessoes_down' ? '' : c) })
 
   const base = { retry: false, staleTime: 5 * 60 * 1000 }
   const ops = useQuery({ queryKey: ['rank-op', uf, ordem, asc, pagina], enabled: aba === 'operadoras', ...base,
@@ -164,7 +178,8 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
       {ativa.isLoading && <p className="text-sm text-gray-400" role="status">Carregando…</p>}
       {ativa.isError && <p className="text-sm text-gray-500" role="status">Não foi possível carregar a lista agora.</p>}
       {aba === 'operadoras' && ops.data && (
-        <Tabela cab={['#', 'Operadora', 'Acessos', 'Parcela', ...(uf ? [] : ['12 meses', 'Queda seguida'])]}>
+        <Tabela cab={['#', 'Operadora', 'Acessos', 'Parcela', ...(uf ? [] : ['12 meses', 'Queda seguida'])]}
+          ord={{ Acessos: thOp('acessos'), Parcela: thOp('share'), '12 meses': thOp('var_aa_pct'), 'Queda seguida': thOp('declinio') }}>
           {ops.data.items.map((r) => (
             <tr key={r.cnpj}>
               <td className="px-2 py-1 text-gray-400 tabular-nums">{r.posicao}</td>
@@ -179,7 +194,8 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
       )}
       {aba === 'route-servers' && rsq.data && (
         <>
-          <Tabela cab={['#', 'Membro', 'PTT', 'Sessões up', 'Down', 'Maior tempo de queda (dias)', 'Prefixos / limite']} dicas={{ 'Prefixos / limite': DICA_PREFIXOS_LIMITE }}>
+          <Tabela cab={['#', 'Membro', 'PTT', 'Sessões up', 'Down', 'Maior tempo de queda (dias)', 'Prefixos / limite']} dicas={{ 'Prefixos / limite': DICA_PREFIXOS_LIMITE }}
+            ord={{ Down: thRs('sessoes_down'), 'Maior tempo de queda (dias)': thRs('dias_down'), 'Prefixos / limite': thRs('uso_limite') }}>
             {rsq.data.items.map((r) => (
               <tr key={`${r.ixp}-${r.asn}`}>
                 <td className="px-2 py-1 text-gray-400 tabular-nums">{r.posicao}</td>
@@ -252,11 +268,36 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
   )
 }
 
-function Tabela({ cab, dicas = {}, children }: { cab: string[]; dicas?: Record<string, string>; children: React.ReactNode }) {
+type PropsOrdem = { campo: string; ordem: Ordem; onOrdenar: (campo: string) => void }
+
+/** Cabeçalho ordenável com a dica fora do botão (botão dentro de botão não é permitido). */
+function ThOrdenavelComDica({ o, rotulo, dica, className }: { o: PropsOrdem; rotulo: string; dica: string; className: string }) {
+  const sentido = o.ordem.campo === o.campo ? o.ordem.dir : null
+  return (
+    <th scope="col" className={className} aria-sort={sentido === 'asc' ? 'ascending' : sentido === 'desc' ? 'descending' : 'none'}>
+      <span className="inline-flex items-baseline justify-end gap-0.5">
+        <button type="button" onClick={() => o.onOrdenar(o.campo)} className="inline-flex items-center gap-0.5 rounded hover:text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primario-500">
+          <span>{rotulo}</span>
+          <span aria-hidden="true" className={sentido ? 'text-primario-700' : 'text-gray-300'}>{sentido === 'asc' ? '▲' : sentido === 'desc' ? '▼' : '↕'}</span>
+        </button>
+        <Dica texto={dica} rotulo={rotulo} />
+      </span>
+    </th>
+  )
+}
+
+function Tabela({ cab, dicas = {}, ord = {}, children }: { cab: string[]; dicas?: Record<string, string>; ord?: Record<string, PropsOrdem>; children: React.ReactNode }) {
+  const th = (c: string, i: number) => {
+    const cls = `px-2 py-1.5 font-medium ${i > 1 ? 'text-right' : 'text-left'}`
+    const o = ord[c]
+    if (o && dicas[c]) return <ThOrdenavelComDica key={c} o={o} rotulo={c} dica={dicas[c]} className={cls} />
+    if (o) return <ThOrdenavel key={c} {...o} alinhar={i > 1 ? 'right' : 'left'} className={cls}>{c}</ThOrdenavel>
+    return <th key={c} scope="col" className={cls}>{c}{dicas[c] && <Dica texto={dicas[c]} rotulo={c} />}</th>
+  }
   return (
     <div className="overflow-x-auto bg-white border border-gray-200 rounded-lg">
       <table className="min-w-full text-sm">
-        <thead className="bg-gray-50 text-xs text-gray-500"><tr>{cab.map((c, i) => <th key={c} scope="col" className={`px-2 py-1.5 font-medium ${i > 1 ? 'text-right' : 'text-left'}`}>{c}{dicas[c] && <Dica texto={dicas[c]} rotulo={c} />}</th>)}</tr></thead>
+        <thead className="bg-gray-50 text-xs text-gray-500"><tr>{cab.map(th)}</tr></thead>
         <tbody className="divide-y divide-gray-100">{children}</tbody>
       </table>
     </div>

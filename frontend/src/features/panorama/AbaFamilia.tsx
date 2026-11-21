@@ -16,6 +16,8 @@ import { CoberturaIxbr } from './CoberturaIxbr'
 import { EXPLICA, Ipv6Apnic, useBrasilIndicadores } from './IndicadoresBrasil'
 import { SecaoHilbertV4, SecaoHilbertV6 } from './SecoesHilbert'
 import { useResumo } from './useResumo'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../lib/ordenacao'
 import { fracao, grande, num, pct } from './formato'
 
 export type Familia = 'v6' | 'v4'
@@ -130,19 +132,19 @@ interface FeicaoPrefixo { properties: { uf?: string; ip_version?: number; prefix
 function PrefixosPorUf({ f }: { f: Familia }) {
   const { date } = useResumo()
   const q = useQuery({ queryKey: ['map-prefixes', date], queryFn: () => fetchMapPrefixes(date ?? undefined) as Promise<{ features: FeicaoPrefixo[] }>, staleTime: Infinity, gcTime: Infinity, retry: false })
-  if (q.isLoading) return <div className="h-40 animate-pulse rounded bg-gray-50" />
-  if (!q.data) return <p className="text-sm text-gray-500">A geolocalização dos prefixos não está disponível.</p>
   const versao = f === 'v6' ? 6 : 4
   const porUf: Record<string, number> = {}
-  for (const ft of q.data.features) {
+  for (const ft of q.data?.features ?? []) {
     const uf = (ft.properties.uf || '').toUpperCase()
     if (!uf || (ft.properties.ip_version === 6) !== (versao === 6)) continue
     porUf[uf] = (porUf[uf] ?? 0) + (ft.properties.prefix_count ?? 1)
   }
-  const linhas = Object.entries(porUf).sort((a, b) => b[1] - a[1])
+  const { ordenados: linhas, props } = useOrdenacao(Object.entries(porUf).sort((a, b) => b[1] - a[1]), { uf: ([uf]) => uf, prefixos: ([, n]) => n })
+  if (q.isLoading) return <div className="h-40 animate-pulse rounded bg-gray-50" />
+  if (!q.data) return <p className="text-sm text-gray-500">A geolocalização dos prefixos não está disponível.</p>
   return (
     <CartogramaIndicador titulo={`Prefixos ${NOME[f]} geolocalizados, por UF`} indicadores={[{ id: f, rotulo: 'Prefixos', valor: (uf) => porUf[uf] ?? null, texto: (v) => v.toLocaleString('pt-BR') }]}
-      verDados={<table className="text-xs min-w-full" data-tabela="grade"><thead className="text-gray-500"><tr><th className="px-2 py-1 text-left">UF</th><th className="px-2 py-1 text-right">Prefixos {NOME[f]}</th></tr></thead>
+      verDados={<table className="text-xs min-w-full" data-tabela="grade"><thead className="text-gray-500"><tr><ThOrdenavel {...props('uf')} className="px-2 py-1 text-left">UF</ThOrdenavel><ThOrdenavel {...props('prefixos')} alinhar="right" className="px-2 py-1 text-right">Prefixos {NOME[f]}</ThOrdenavel></tr></thead>
         <tbody>{linhas.map(([uf, n]) => <tr key={uf} className="border-t border-gray-100"><td className="px-2 py-1"><Link to={`/uf/${uf}`} className="text-primario-700 hover:underline">{uf} — {nomeUf(uf)}</Link></td><td className="px-2 py-1 text-right tabular-nums">{n.toLocaleString('pt-BR')}</td></tr>)}</tbody></table>} />
   )
 }

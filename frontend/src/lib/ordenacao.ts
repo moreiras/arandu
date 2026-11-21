@@ -66,7 +66,7 @@ function primeiroSentido<T>(dados: readonly T[], a: Acessor<T>): Sentido {
  * Estado de ordenação de uma tabela com a lista inteira no navegador. `inicial` nulo mantém a ordem recebida até o primeiro clique.
  * Devolve a lista inteira ordenada (corte depois para a versão reduzida) e `props(campo)` para o `ThOrdenavel`.
  */
-export function useOrdenacao<T, C extends string>(dados: readonly T[] | null | undefined, acessores: Record<C, Acessor<T>>, inicial: Ordem<C> | null = null) {
+export function useOrdenacao<T, C extends string>(dados: readonly T[] | null | undefined, acessores: Record<C, Acessor<T>>, inicial: Ordem<NoInfer<C>> | null = null) {
   const [ordem, setOrdem] = useState<Ordem<C> | null>(inicial)
   const lista = dados ?? []
   const ordenados = useMemo(() => {

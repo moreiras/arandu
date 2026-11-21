@@ -8,6 +8,8 @@ import type { BlocoProps } from '../entidade/registry'
 import type { OperadoraCtx } from '../operadora/contexto'
 import type { MunicipioCtx } from '../municipio/contexto'
 import type { ContratosCabecalho } from '../../types/api'
+import { useOrdenacao } from '../../lib/ordenacao'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 
 const reais = (v?: number | null) => (v == null ? '—' : `R$ ${v.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`)
 const n = (v?: number | null) => (v == null ? '—' : v.toLocaleString('pt-BR'))
@@ -36,6 +38,9 @@ function Rodape({ c, nota }: { c: ContratosCabecalho; nota?: string }) {
  */
 export function ContratosOperadoraBloco({ dados }: BlocoProps<OperadoraCtx>) {
   const c = dados.contratos
+  // por ano fica em ordem cronológica (série curta); esfera e UF ordenam pelo cabeçalho, na lista inteira
+  const esferas = useOrdenacao(c?.por_esfera, { esfera: (e) => ESFERA[e.esfera] ?? e.esfera, contratacoes: (e) => e.contratacoes, valor: (e) => e.valor })
+  const ufs = useOrdenacao(c?.por_uf, { uf: (u) => u.uf, contratacoes: (u) => u.contratacoes, valor: (u) => u.valor })
   if (!c) return null
   const idade = c.idade_dias == null ? '' : c.idade_dias === 0 ? ' (hoje)' : ` (há ${c.idade_dias} dia${c.idade_dias === 1 ? '' : 's'})`
   return (
@@ -59,12 +64,12 @@ export function ContratosOperadoraBloco({ dados }: BlocoProps<OperadoraCtx>) {
               <tbody>{(c.por_ano ?? []).map((a) => <tr key={a.ano} className="border-t border-gray-100"><td className="py-1 pr-3">{a.ano}</td><td className="pr-3 text-right tabular-nums">{n(a.contratacoes)}</td><td className="text-right tabular-nums">{reais(a.valor)}</td></tr>)}</tbody>
             </table>
             <table className="w-full text-xs" data-testid="contratos-por-esfera">
-              <thead><tr className="text-left text-gray-500"><th className="py-1 pr-3">Esfera (como informada no PNCP)</th><th className="pr-3 text-right">Contratações</th><th className="text-right">Valor</th></tr></thead>
-              <tbody>{(c.por_esfera ?? []).map((e) => <tr key={e.esfera} className="border-t border-gray-100"><td className="py-1 pr-3">{ESFERA[e.esfera] ?? e.esfera}</td><td className="pr-3 text-right tabular-nums">{n(e.contratacoes)}</td><td className="text-right tabular-nums">{reais(e.valor)}</td></tr>)}</tbody>
+              <thead><tr className="text-left text-gray-500"><ThOrdenavel {...esferas.props('esfera')} className="py-1 pr-3">Esfera (como informada no PNCP)</ThOrdenavel><ThOrdenavel {...esferas.props('contratacoes')} alinhar="right" className="pr-3 text-right">Contratações</ThOrdenavel><ThOrdenavel {...esferas.props('valor')} alinhar="right" className="text-right">Valor</ThOrdenavel></tr></thead>
+              <tbody>{esferas.ordenados.map((e) => <tr key={e.esfera} className="border-t border-gray-100"><td className="py-1 pr-3">{ESFERA[e.esfera] ?? e.esfera}</td><td className="pr-3 text-right tabular-nums">{n(e.contratacoes)}</td><td className="text-right tabular-nums">{reais(e.valor)}</td></tr>)}</tbody>
             </table>
             <table className="w-full text-xs" data-testid="contratos-por-uf">
-              <thead><tr className="text-left text-gray-500"><th className="py-1 pr-3">UF do órgão</th><th className="pr-3 text-right">Contratações</th><th className="text-right">Valor</th></tr></thead>
-              <tbody>{(c.por_uf ?? []).map((u) => <tr key={u.uf} className="border-t border-gray-100"><td className="py-1 pr-3">{u.uf}</td><td className="pr-3 text-right tabular-nums">{n(u.contratacoes)}</td><td className="text-right tabular-nums">{reais(u.valor)}</td></tr>)}</tbody>
+              <thead><tr className="text-left text-gray-500"><ThOrdenavel {...ufs.props('uf')} className="py-1 pr-3">UF do órgão</ThOrdenavel><ThOrdenavel {...ufs.props('contratacoes')} alinhar="right" className="pr-3 text-right">Contratações</ThOrdenavel><ThOrdenavel {...ufs.props('valor')} alinhar="right" className="text-right">Valor</ThOrdenavel></tr></thead>
+              <tbody>{ufs.ordenados.map((u) => <tr key={u.uf} className="border-t border-gray-100"><td className="py-1 pr-3">{u.uf}</td><td className="pr-3 text-right tabular-nums">{n(u.contratacoes)}</td><td className="text-right tabular-nums">{reais(u.valor)}</td></tr>)}</tbody>
             </table>
           </div>
           <details>

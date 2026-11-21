@@ -13,6 +13,8 @@ import type { ManrsResumo, ProntidaoAgregado } from '../types/api'
 import { ComoLer } from '../components/ui/ComoLer'
 import { Dica } from '../components/ui/Dica'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
+import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../lib/ordenacao'
 
 import { EstadoRpkiRotas, RpkiPublicacao } from '../features/panorama/AbaSeguranca'
 const num = (v: number | null | undefined, c = 1) => (v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c }))
@@ -30,14 +32,28 @@ const CARTAO_TABELA = 'bg-white border border-gray-200 border-l-4 border-l-tecni
 const THEAD = 'bg-gray-50 text-gray-600'
 
 function Tabela({ titulo, itens, rotulo }: { titulo: string; itens: Array<[string, ProntidaoAgregado]>; rotulo: (k: string) => string }) {
+  const { ordenados, props } = useOrdenacao(itens, {
+    recorte: ([k]) => rotulo(k),
+    asns: ([, a]) => a.asns,
+    com_indice: ([, a]) => a.asns_com_indice,
+    media: ([, a]) => a.media_ponderada_usuarios,
+    mediana: ([, a]) => a.mediana,
+  })
   return (
     <section className={CARTAO_TABELA}>
       <h3 className="text-titulo-4 text-gray-800">{titulo}</h3>
       <div className="overflow-x-auto">
         <table className="text-xs min-w-full" aria-label={titulo}>
-          <thead className={THEAD}><tr><th className="text-left px-2 py-1">Recorte</th><th className="text-right px-2 py-1">ASNs</th><th className="text-right px-2 py-1">Com índice</th><th className="text-right px-2 py-1">Média ponderada</th><th className="text-right px-2 py-1">Mediana</th><th className="px-2 py-1 w-56">Distribuição por classe</th></tr></thead>
+          <thead className={THEAD}><tr>
+            <ThOrdenavel {...props('recorte')} className="text-left px-2 py-1">Recorte</ThOrdenavel>
+            <ThOrdenavel {...props('asns')} alinhar="right" className="text-right px-2 py-1">ASNs</ThOrdenavel>
+            <ThOrdenavel {...props('com_indice')} alinhar="right" className="text-right px-2 py-1">Com índice</ThOrdenavel>
+            <ThOrdenavel {...props('media')} alinhar="right" className="text-right px-2 py-1">Média ponderada</ThOrdenavel>
+            <ThOrdenavel {...props('mediana')} alinhar="right" className="text-right px-2 py-1">Mediana</ThOrdenavel>
+            <th scope="col" className="px-2 py-1 w-56">Distribuição por classe</th>
+          </tr></thead>
           <tbody>
-            {itens.map(([k, a]) => (
+            {ordenados.map(([k, a]) => (
               <tr key={k} className="border-t border-gray-100 align-middle">
                 <td className="px-2 py-1 font-medium">{rotulo(k)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(a.asns)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(a.asns_com_indice)}</td>
                 <td className="px-2 py-1 text-right tabular-nums">{num(a.media_ponderada_usuarios)}</td><td className="px-2 py-1 text-right tabular-nums">{num(a.mediana)}</td>
@@ -72,16 +88,19 @@ function medida(a: ProntidaoAgregado, c: string, pesoUsuarios: boolean): { v: nu
 }
 
 function TabelaMedicoes({ titulo, itens, rotulo, pesoUsuarios }: { titulo: string; itens: Array<[string, ProntidaoAgregado]>; rotulo: (k: string) => string; pesoUsuarios: boolean }) {
+  const acessores = Object.fromEntries(MEDIDAS.map(([id]) => [id, ([, a]: [string, ProntidaoAgregado]) => medida(a, id, pesoUsuarios).v]))
+  // `itens` é um array novo a cada render do pai, então a troca de peso também reordena.
+  const { ordenados, props } = useOrdenacao<[string, ProntidaoAgregado], string>(itens, { recorte: ([k]) => rotulo(k), ...acessores })
   return (
     <section className={CARTAO_TABELA}>
       <h3 className="text-titulo-4 text-gray-800">{titulo}</h3>
       <div className="overflow-x-auto">
         <table className="text-xs min-w-full" aria-label={titulo}>
           <thead className={THEAD}>
-            <tr><th className="text-left px-2 py-1">Recorte</th>{MEDIDAS.map(([id, nome, dica]) => <th key={id} scope="col" className="text-right px-2 py-1 font-medium whitespace-nowrap">{nome}<Dica texto={dica} rotulo={nome} /></th>)}</tr>
+            <tr><ThOrdenavel {...props('recorte')} className="text-left px-2 py-1">Recorte</ThOrdenavel>{MEDIDAS.map(([id, nome, dica]) => <ThOrdenavel key={id} {...props(id)} alinhar="right" className="text-right px-2 py-1 font-medium whitespace-nowrap" extra={<Dica texto={dica} rotulo={nome} />}>{nome}</ThOrdenavel>)}</tr>
           </thead>
           <tbody>
-            {itens.map(([k, a]) => (
+            {ordenados.map(([k, a]) => (
               <tr key={k} className="border-t border-gray-100">
                 <td className="px-2 py-1 font-medium">{rotulo(k)}</td>
                 {MEDIDAS.map(([id]) => {

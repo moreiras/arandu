@@ -6,6 +6,8 @@
 import { Link } from 'react-router-dom'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../../lib/ordenacao'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 const MAX_LINHAS = 15
@@ -13,8 +15,8 @@ const data = (iso: string | null | undefined) => (iso ? iso.slice(0, 16).replace
 
 /**
  * Route servers do PTT: estado de cada route server no Alice-LG e as sessões dos membros, cruzadas com o cadastro do IX.br. É o que o route server mostra
- * na data da coleta: sessão down não diz de quem é a causa e "cadastrado sem sessão" pode ser peering bilateral. Sem ordenar nem adjetivar (política editorial);
- * a lista completa e ordenável está em Rankings → Route servers.
+ * na data da coleta: sessão down não diz de quem é a causa e "cadastrado sem sessão" pode ser peering bilateral. Sem adjetivar (política editorial); o cabeçalho
+ * reordena a lista inteira de membros down antes do corte nas primeiras linhas, e a lista completa está em Rankings → Route servers.
  */
 export function RouteServersBloco({ dados }: BlocoProps<PttCtx>) {
   const rs = dados.routeServers!
@@ -22,6 +24,19 @@ export function RouteServersBloco({ dados }: BlocoProps<PttCtx>) {
   const membrosDown = rs.membros.filter((m) => m.membro_down).sort((a, b) => (b.max_dias_down ?? 0) - (a.max_dias_down ?? 0) || a.asn - b.asn)
   const sem = rs.membros.filter((m) => m.cadastrado_sem_sessao)
   const incertos = rs.rs.filter((x) => x.vizinhos_incerto)
+  const down = useOrdenacao(membrosDown, {
+    asn: { valor: (m) => m.asn, primeiro: 'asc' },
+    nome: (m) => m.nome || null,
+    sessoes: (m) => m.sessoes,
+    dias: (m) => m.max_dias_down,
+  })
+  const servidores = useOrdenacao(rs.rs, {
+    rs: (x) => x.rs,
+    em: (x) => (x.consultado ? x.vizinhos_em : null),
+    up: (x) => x.sessoes_up,
+    cache: (x) => x.estado_rotas,
+    rotas: (x) => x.rotas_importadas,
+  })
   return (
     <div className="space-y-3 text-sm" data-testid="route-servers">
       <dl className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -44,9 +59,14 @@ export function RouteServersBloco({ dados }: BlocoProps<PttCtx>) {
         <div>
           <h4 className="text-xs font-semibold text-gray-600 mb-1">Membros com todas as sessões down há {rs.parametros.dias_down} dias ou mais</h4>
           <table className="min-w-full text-xs">
-            <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">ASN</th><th className="text-left px-2 py-1">Nome cadastrado</th><th className="text-right px-2 py-1">Sessões</th><th className="text-right px-2 py-1">Maior tempo de queda (dias)</th></tr></thead>
+            <thead className="text-gray-500"><tr>
+              <ThOrdenavel {...down.props('asn')} className="text-left px-2 py-1">ASN</ThOrdenavel>
+              <ThOrdenavel {...down.props('nome')} className="text-left px-2 py-1">Nome cadastrado</ThOrdenavel>
+              <ThOrdenavel {...down.props('sessoes')} alinhar="right" className="text-right px-2 py-1">Sessões</ThOrdenavel>
+              <ThOrdenavel {...down.props('dias')} alinhar="right" className="text-right px-2 py-1">Maior tempo de queda (dias)</ThOrdenavel>
+            </tr></thead>
             <tbody className="divide-y divide-gray-100">
-              {membrosDown.slice(0, MAX_LINHAS).map((m) => (
+              {down.ordenados.slice(0, MAX_LINHAS).map((m) => (
                 <tr key={m.asn}>
                   <td className="px-2 py-1"><Link to={`/asn/${m.asn}`} className="text-primario-600 hover:underline">AS{m.asn}</Link></td>
                   <td className="px-2 py-1">{m.nome || '—'}</td>
@@ -70,9 +90,15 @@ export function RouteServersBloco({ dados }: BlocoProps<PttCtx>) {
       <details className="text-xs text-gray-600">
         <summary className="cursor-pointer">Route servers do PTT ({n(rs.rs.length)})</summary>
         <table className="min-w-full mt-1">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Route server</th><th className="text-left px-2 py-1">Sessões atualizadas em</th><th className="text-right px-2 py-1">Sessões up</th><th className="text-left px-2 py-1">Cache de rotas</th><th className="text-right px-2 py-1">Rotas importadas</th></tr></thead>
+          <thead className="text-gray-500"><tr>
+            <ThOrdenavel {...servidores.props('rs')} className="text-left px-2 py-1">Route server</ThOrdenavel>
+            <ThOrdenavel {...servidores.props('em')} className="text-left px-2 py-1">Sessões atualizadas em</ThOrdenavel>
+            <ThOrdenavel {...servidores.props('up')} alinhar="right" className="text-right px-2 py-1">Sessões up</ThOrdenavel>
+            <ThOrdenavel {...servidores.props('cache')} className="text-left px-2 py-1">Cache de rotas</ThOrdenavel>
+            <ThOrdenavel {...servidores.props('rotas')} alinhar="right" className="text-right px-2 py-1">Rotas importadas</ThOrdenavel>
+          </tr></thead>
           <tbody className="divide-y divide-gray-100">
-            {rs.rs.map((x) => (
+            {servidores.ordenados.map((x) => (
               <tr key={x.rs}>
                 <td className="px-2 py-1 font-mono">{x.rs}</td>
                 <td className="px-2 py-1">{x.consultado ? data(x.vizinhos_em) : 'não consultado'}</td>

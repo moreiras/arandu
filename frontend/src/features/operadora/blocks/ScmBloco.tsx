@@ -9,9 +9,17 @@ import { MapaShareOperadora } from '../MapaShareOperadora'
 import { Barras, KPI, fmt, fmtCapacidade } from '../ui'
 import type { BlocoProps } from '../../entidade/registry'
 import type { OperadoraCtx } from '../contexto'
+import { useOrdenacao } from '../../../lib/ordenacao'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+
+const MUNICIPIOS_MAX = 500
 
 export function ScmBloco({ dados }: BlocoProps<OperadoraCtx>) {
   const { data, hasScm, hasSici, b2cPct } = dados
+  // Ordena a lista inteira de municípios e só depois corta nos primeiros MUNICIPIOS_MAX.
+  const { ordenados: municipios, props } = useOrdenacao(data?.municipios_detalhe, {
+    nome: (m) => m.nome, uf: (m) => m.uf, acessos: (m) => m.acessos, pf: (m) => m.pf, pj: (m) => m.pj,
+  })
   return (
     <div className="space-y-5">
           {data && (hasScm || hasSici) && (
@@ -90,15 +98,15 @@ export function ScmBloco({ dados }: BlocoProps<OperadoraCtx>) {
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 bg-gray-50">
                     <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
-                      <th className="px-4 py-1.5">Município</th>
-                      <th className="px-4 py-1.5 w-14">UF</th>
-                      <th className="px-4 py-1.5 w-28 text-right">Acessos</th>
-                      <th className="px-4 py-1.5 w-24 text-right">B2C</th>
-                      <th className="px-4 py-1.5 w-24 text-right">B2B</th>
+                      <ThOrdenavel {...props('nome')} className="px-4 py-1.5">Município</ThOrdenavel>
+                      <ThOrdenavel {...props('uf')} className="px-4 py-1.5 w-14">UF</ThOrdenavel>
+                      <ThOrdenavel {...props('acessos')} alinhar="right" className="px-4 py-1.5 w-28 text-right">Acessos</ThOrdenavel>
+                      <ThOrdenavel {...props('pf')} alinhar="right" className="px-4 py-1.5 w-24 text-right">B2C</ThOrdenavel>
+                      <ThOrdenavel {...props('pj')} alinhar="right" className="px-4 py-1.5 w-24 text-right">B2B</ThOrdenavel>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {data.municipios_detalhe!.slice(0, 500).map(m => (
+                    {municipios.slice(0, MUNICIPIOS_MAX).map(m => (
                       <tr key={m.ibge} className="hover:bg-gray-50">
                         <td className="px-4 py-1">
                           <Link to={`/municipio/${m.ibge}`} className="text-primario-600 hover:underline">

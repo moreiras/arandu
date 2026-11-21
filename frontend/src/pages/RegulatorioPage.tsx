@@ -14,6 +14,8 @@ import {
 import type { GrupoServico, RegMeta } from '../types/api'
 import { SITE } from '../lib/site'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
+import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { useOrdenacao, type Ordem } from '../lib/ordenacao'
 
 const ABAS = [
   { id: 'fust', rotulo: 'FUST' },
@@ -27,6 +29,10 @@ const reais = (v?: number | null) => (v == null ? '—' : v.toLocaleString('pt-B
 const mhz = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits: 4 })
 const data = (d?: string | null) => (d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : '—')
 const staleTime = 10 * 60 * 1000
+
+/** Cabeçalho ligado à `ordem` de uma rota paginada: a API só ordena do maior para o menor, então o clique escolhe a coluna e não inverte. */
+const thServidor = (ordem: string, setOrdem: (c: string) => void) => (campo: string) =>
+  ({ campo, ordem: { campo: ordem, dir: 'desc' } as Ordem, onOrdenar: setOrdem })
 
 function Rodape({ m }: { m: RegMeta }) {
   return <p className="text-xs text-gray-500">Anatel, dados abertos (arquivo de {m.data_arquivo ? new Date(m.data_arquivo).toLocaleDateString('pt-BR') : 'data não informada'}; snapshot {m.snapshot_date}). {m.limites}</p>
@@ -46,9 +52,14 @@ function Paginacao({ page, total, limit, onPage }: { page: number; total: number
 function Fust() {
   const [uf, setUf] = useState('')
   const [programa, setPrograma] = useState('')
+  // Os 15 primeiros vêm da API: a ordem vai ao servidor para o corte sair da lista inteira.
+  const [ordemMun, setOrdemMun] = useState('compromissos')
   const resumo = useQuery({ queryKey: ['fust-resumo'], queryFn: fetchFustResumo, staleTime, retry: false })
-  const lista = useQuery({ queryKey: ['fust-municipios-pagina', uf, programa], queryFn: () => fetchFustMunicipios({ uf: uf || undefined, programa: programa || undefined, limit: 15 }), staleTime, retry: false })
+  const lista = useQuery({ queryKey: ['fust-municipios-pagina', uf, programa, ordemMun], queryFn: () => fetchFustMunicipios({ uf: uf || undefined, programa: programa || undefined, limit: 15, ...(ordemMun === 'compromissos' ? {} : { ordem: ordemMun }) }), staleTime, retry: false, placeholderData: (prev) => prev })
   const r = resumo.data
+  const programas = useOrdenacao(r?.programas, { programa: (p) => p.codigo, compromissos: (p) => p.compromissos, atendidos: (p) => p.atendidos, municipios: (p) => p.municipios, previsto: (p) => p.investimento })
+  const editais = useOrdenacao(r?.editais, { origem: (e) => e.origem, compromissos: (e) => e.compromissos, municipios: (e) => e.municipios, previsto: (e) => e.investimento })
+  const thMun = thServidor(ordemMun, setOrdemMun)
   if (!r) return <p className="text-sm text-gray-500">{resumo.isError ? 'FUST não publicado neste snapshot.' : 'Carregando…'}</p>
   const b = r.brasil
   const ufs = Object.entries(r.ufs).sort((a, c) => c[1].compromissos - a[1].compromissos)
@@ -62,9 +73,9 @@ function Fust() {
         </div>
         <div className="overflow-x-auto">
           <table className="text-xs min-w-full">
-            <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Programa</th><th className="text-right px-2 py-1">Compromissos</th><th className="text-right px-2 py-1">Atendidos</th><th className="text-right px-2 py-1">Municípios</th><th className="text-right px-2 py-1">Previsto</th></tr></thead>
+            <thead className="text-gray-500"><tr><ThOrdenavel {...programas.props('programa')} className="text-left px-2 py-1">Programa</ThOrdenavel><ThOrdenavel {...programas.props('compromissos')} alinhar="right" className="text-right px-2 py-1">Compromissos</ThOrdenavel><ThOrdenavel {...programas.props('atendidos')} alinhar="right" className="text-right px-2 py-1">Atendidos</ThOrdenavel><ThOrdenavel {...programas.props('municipios')} alinhar="right" className="text-right px-2 py-1">Municípios</ThOrdenavel><ThOrdenavel {...programas.props('previsto')} alinhar="right" className="text-right px-2 py-1">Previsto</ThOrdenavel></tr></thead>
             <tbody>
-              {r.programas.map((p) => (
+              {programas.ordenados.map((p) => (
                 <tr key={p.codigo} className="border-t border-gray-100"><td className="px-2 py-1">{p.codigo} · {p.nome}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(p.compromissos)}</td>
                   <td className="px-2 py-1 text-right tabular-nums">{inteiro(p.atendidos)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(p.municipios)}</td><td className="px-2 py-1 text-right tabular-nums">{reais(p.investimento)}</td></tr>
               ))}
@@ -76,8 +87,8 @@ function Fust() {
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-2">
         <h2 className="text-sm font-semibold text-gray-700">Editais e projetos de origem</h2>
         <table className="text-xs min-w-full">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Origem</th><th className="text-right px-2 py-1">Compromissos</th><th className="text-right px-2 py-1">Municípios</th><th className="text-right px-2 py-1">Previsto</th></tr></thead>
-          <tbody>{r.editais.map((e) => <tr key={e.origem} className="border-t border-gray-100"><td className="px-2 py-1">{e.origem}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(e.compromissos)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(e.municipios)}</td><td className="px-2 py-1 text-right tabular-nums">{reais(e.investimento)}</td></tr>)}</tbody>
+          <thead className="text-gray-500"><tr><ThOrdenavel {...editais.props('origem')} className="text-left px-2 py-1">Origem</ThOrdenavel><ThOrdenavel {...editais.props('compromissos')} alinhar="right" className="text-right px-2 py-1">Compromissos</ThOrdenavel><ThOrdenavel {...editais.props('municipios')} alinhar="right" className="text-right px-2 py-1">Municípios</ThOrdenavel><ThOrdenavel {...editais.props('previsto')} alinhar="right" className="text-right px-2 py-1">Previsto</ThOrdenavel></tr></thead>
+          <tbody>{editais.ordenados.map((e) => <tr key={e.origem} className="border-t border-gray-100"><td className="px-2 py-1">{e.origem}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(e.compromissos)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(e.municipios)}</td><td className="px-2 py-1 text-right tabular-nums">{reais(e.investimento)}</td></tr>)}</tbody>
         </table>
       </section>
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-2">
@@ -90,7 +101,7 @@ function Fust() {
         </div>
         {lista.data && (
           <table className="text-xs min-w-full">
-            <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Município</th><th className="text-right px-2 py-1">Compromissos</th><th className="text-right px-2 py-1">Atendidos</th><th className="text-right px-2 py-1">Previsto</th></tr></thead>
+            <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Município</th><ThOrdenavel {...thMun('compromissos')} alinhar="right" className="text-right px-2 py-1">Compromissos</ThOrdenavel><ThOrdenavel {...thMun('atendidos')} alinhar="right" className="text-right px-2 py-1">Atendidos</ThOrdenavel><ThOrdenavel {...thMun('investimento')} alinhar="right" className="text-right px-2 py-1">Previsto</ThOrdenavel></tr></thead>
             <tbody>{lista.data.items.map((m) => <tr key={m.ibge} className="border-t border-gray-100"><td className="px-2 py-1"><Link to={`/municipio/${m.ibge}`} className="text-primario-600 hover:underline">{m.nome ?? m.ibge}</Link> <span className="text-gray-400">{m.uf}</span></td>
               <td className="px-2 py-1 text-right tabular-nums">{inteiro(m.compromissos)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(m.atendidos)}</td><td className="px-2 py-1 text-right tabular-nums">{reais(m.investimento)}</td></tr>)}</tbody>
           </table>
@@ -105,8 +116,11 @@ function Multas() {
   const [grupo, setGrupo] = useState('')
   const [q, setQ] = useState('')
   const [page, setPage] = useState(1)
+  // Lista paginada pela API: a ordem vai ao servidor e volta à primeira página.
+  const [ordem, setOrdem] = useState('saldo')
   const resumo = useQuery({ queryKey: ['multas-resumo'], queryFn: fetchMultasResumo, staleTime, retry: false })
-  const lista = useQuery({ queryKey: ['multas-empresas', grupo, q, page], queryFn: () => fetchMultasEmpresas({ grupo: grupo || undefined, q: q || undefined, limit: 20, page }), staleTime, retry: false })
+  const lista = useQuery({ queryKey: ['multas-empresas', grupo, q, page, ordem], queryFn: () => fetchMultasEmpresas({ grupo: grupo || undefined, q: q || undefined, limit: 20, page, ...(ordem === 'saldo' ? {} : { ordem }) }), staleTime, retry: false })
+  const th = thServidor(ordem, (c) => { setOrdem(c); setPage(1) })
   const r = resumo.data
   if (!r) return <p className="text-sm text-gray-500">{resumo.isError ? 'Multas não publicadas neste snapshot.' : 'Carregando…'}</p>
   const anos = [...r.por_ano].reverse().slice(0, 12)
@@ -138,7 +152,7 @@ function Multas() {
           <>
             <div className="overflow-x-auto">
               <table className="text-xs min-w-full">
-                <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Empresa</th><th className="text-left px-2 py-1">Serviço</th><th className="text-right px-2 py-1">Multas</th><th className="text-right px-2 py-1">Devedor</th><th className="text-right px-2 py-1">Saldo atualizado</th><th className="text-left px-2 py-1">Anos</th></tr></thead>
+                <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Empresa</th><th scope="col" className="text-left px-2 py-1">Serviço</th><ThOrdenavel {...th('multas')} alinhar="right" className="text-right px-2 py-1">Multas</ThOrdenavel><th scope="col" className="text-right px-2 py-1">Devedor</th><ThOrdenavel {...th('saldo')} alinhar="right" className="text-right px-2 py-1">Saldo atualizado</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Anos</th></tr></thead>
                 <tbody>{lista.data.items.map((e) => (
                   <tr key={`${e.raiz}-${e.grupo}`} className="border-t border-gray-100">
                     <td className="px-2 py-1">{e.cnpj_matriz ? <Link to={`/operadora/${e.cnpj_matriz}`} className="text-primario-600 hover:underline">{e.entidade}</Link> : e.entidade}</td>
@@ -163,6 +177,7 @@ function Espectro() {
   const [servico, setServico] = useState('')
   const [page, setPage] = useState(1)
   const resumo = useQuery({ queryKey: ['espectro-resumo'], queryFn: fetchEspectroResumo, staleTime, retry: false })
+  const refs = useOrdenacao(resumo.data?.referencias, { faixa: (f) => f.nome, mhz: { valor: (f) => f.ini_mhz, primeiro: 'asc' } })
   const lista = useQuery({
     queryKey: ['espectro-faixas', de, ate, servico, page], staleTime, retry: false,
     queryFn: () => fetchEspectroFaixas({ de: de ? Number(de.replace(',', '.')) : undefined, ate: ate ? Number(ate.replace(',', '.')) : undefined, servico: servico || undefined, limit: 25, page }),
@@ -175,8 +190,8 @@ function Espectro() {
         <h2 className="text-sm font-semibold text-gray-700">Faixas de interesse para a Internet</h2>
         <div className="overflow-x-auto">
           <table className="text-xs min-w-full">
-            <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Faixa</th><th className="text-right px-2 py-1">MHz</th><th className="text-left px-2 py-1">Destinação (primária primeiro)</th></tr></thead>
-            <tbody>{r.referencias.map((f) => (
+            <thead className="text-gray-500"><tr><ThOrdenavel {...refs.props('faixa')} className="text-left px-2 py-1">Faixa</ThOrdenavel><ThOrdenavel {...refs.props('mhz')} alinhar="right" className="text-right px-2 py-1">MHz</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Destinação (primária primeiro)</th></tr></thead>
+            <tbody>{refs.ordenados.map((f) => (
               <tr key={f.nome} className="border-t border-gray-100 align-top"><td className="px-2 py-1 font-medium whitespace-nowrap">{f.nome}</td><td className="px-2 py-1 text-right tabular-nums whitespace-nowrap">{mhz(f.ini_mhz)}–{mhz(f.fim_mhz)}</td>
                 <td className="px-2 py-1">{f.destinacao.length ? f.destinacao.map((s) => <span key={s.servico} className={`inline-block mr-2 ${s.carater === 'Primário' ? '' : 'text-gray-400'}`}>{s.servico}</span>) : '—'}</td></tr>))}</tbody>
           </table>
@@ -213,6 +228,7 @@ function Satelites() {
   const [tipo, setTipo] = useState('')
   const [page, setPage] = useState(1)
   const resumo = useQuery({ queryKey: ['satelites-resumo'], queryFn: fetchSatelitesResumo, staleTime, retry: false })
+  const ngeo = useOrdenacao(resumo.data?.ngeo, { sistema: (n) => n.objeto, prestadora: (n) => n.prestadora, orbita: (n) => n.orbita, satelites: (n) => n.constelacao, situacao: (n) => n.status })
   const lista = useQuery({ queryKey: ['satelites-direitos', operadora, tipo, page], queryFn: () => fetchSatelitesDireitos({ operadora: operadora || undefined, tipo: tipo || undefined, limit: 20, page }), staleTime, retry: false })
   const r = resumo.data
   if (!r) return <p className="text-sm text-gray-500">{resumo.isError ? 'Satélites não publicados neste snapshot.' : 'Carregando…'}</p>
@@ -227,8 +243,8 @@ function Satelites() {
         </div>
         <h2 className="text-sm font-semibold text-gray-700 pt-2">Constelações de órbita não geoestacionária ({inteiro(s.ngeo)})</h2>
         <div className="overflow-x-auto"><table className="text-xs min-w-full">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Sistema</th><th className="text-left px-2 py-1">Prestadora</th><th className="text-left px-2 py-1">Órbita</th><th className="text-right px-2 py-1">Satélites</th><th className="text-left px-2 py-1">Situação</th></tr></thead>
-          <tbody>{r.ngeo.map((n, i) => <tr key={`${n.estacao}-${i}`} className="border-t border-gray-100"><td className="px-2 py-1">{n.objeto}</td><td className="px-2 py-1">{n.prestadora}</td><td className="px-2 py-1">{n.orbita}</td>
+          <thead className="text-gray-500"><tr><ThOrdenavel {...ngeo.props('sistema')} className="text-left px-2 py-1">Sistema</ThOrdenavel><ThOrdenavel {...ngeo.props('prestadora')} className="text-left px-2 py-1">Prestadora</ThOrdenavel><ThOrdenavel {...ngeo.props('orbita')} className="text-left px-2 py-1">Órbita</ThOrdenavel><ThOrdenavel {...ngeo.props('satelites')} alinhar="right" className="text-right px-2 py-1">Satélites</ThOrdenavel><ThOrdenavel {...ngeo.props('situacao')} className="text-left px-2 py-1">Situação</ThOrdenavel></tr></thead>
+          <tbody>{ngeo.ordenados.map((n, i) => <tr key={`${n.estacao}-${i}`} className="border-t border-gray-100"><td className="px-2 py-1">{n.objeto}</td><td className="px-2 py-1">{n.prestadora}</td><td className="px-2 py-1">{n.orbita}</td>
             <td className="px-2 py-1 text-right tabular-nums">{inteiro(n.constelacao)}</td><td className="px-2 py-1">{n.status}</td></tr>)}</tbody>
         </table></div>
       </section>

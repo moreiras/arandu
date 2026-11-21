@@ -6,6 +6,8 @@ import { fetchCDNPresence, fetchExternalIXPs } from '../services/api'
 import { countryToRegion, REGION_STYLE } from '../components/tables/ExternalIXPTable'
 import { cdnSlug } from '../lib/cdn'
 import type { CDNRow, CDNMatrixColumn } from '../types/api'
+import { useOrdenacao } from '../lib/ordenacao'
+import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 
 // ─── CDN categories ───────────────────────────────────────────────────────────
 
@@ -135,19 +137,24 @@ function PresenceMatrix({
   columns: CDNMatrixColumn[]
   getPresence: (cdn: CDNRow) => string[]
 }) {
+  const columnCodes = useMemo(() => new Set(columns.map(c => c.code)), [columns])
+  // As colunas de PTT são entidades (presença sim/não); ordenam só o nome e o total, sobre todas as linhas.
+  const { ordenados, props } = useOrdenacao(cdns, {
+    nome: (c) => c.name,
+    total: (c) => getPresence(c).filter(code => columnCodes.has(code)).length,
+  })
   if (columns.length === 0) {
     return <p className="text-sm text-gray-400 py-4">Nenhuma fonte/coluna selecionada.</p>
   }
-  const columnCodes = useMemo(() => new Set(columns.map(c => c.code)), [columns])
 
   return (
     <div className="overflow-x-auto border border-gray-200 rounded-lg">
       <table className="text-xs border-collapse" style={{ minWidth: columns.length * 28 + 240 }}>
         <thead>
           <tr>
-            <th className="sticky left-0 z-10 bg-gray-50 border-b border-r border-gray-200 px-3 py-2 text-left font-medium text-gray-600 min-w-[220px]">
+            <ThOrdenavel {...props('nome')} className="sticky left-0 z-10 bg-gray-50 border-b border-r border-gray-200 px-3 py-2 text-left font-medium text-gray-600 min-w-[220px]">
               CDN / Provedor
-            </th>
+            </ThOrdenavel>
             {columns.map(col => {
               const region = col.region
               const stripeCls = col.origin === 'ixbr' ? IXBR_STRIPE : region ? REGION_STRIPE[region] : undefined
@@ -187,13 +194,13 @@ function PresenceMatrix({
                 </th>
               )
             })}
-            <th className="border-b border-gray-200 bg-gray-50 px-2 text-right font-medium text-gray-500 whitespace-nowrap">
+            <ThOrdenavel {...props('total')} alinhar="right" className="border-b border-gray-200 bg-gray-50 px-2 text-right font-medium text-gray-500 whitespace-nowrap">
               Total
-            </th>
+            </ThOrdenavel>
           </tr>
         </thead>
         <tbody>
-          {cdns.map((cdn, i) => {
+          {ordenados.map((cdn, i) => {
             const presence = new Set(getPresence(cdn).filter(code => columnCodes.has(code)))
             const count = presence.size
             if (count === 0) return null

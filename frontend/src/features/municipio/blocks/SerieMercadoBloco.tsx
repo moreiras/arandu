@@ -6,6 +6,8 @@
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { BlocoProps } from '../../entidade/registry'
 import type { MunicipioCtx } from '../contexto'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { useOrdenacao, type Acessor } from '../../../lib/ordenacao'
 
 const CORES = ['#2563eb', '#d97706', '#059669', '#7c3aed']
 const mes = (m: string) => m.slice(2).replace('-', '/')
@@ -16,6 +18,14 @@ export function SerieMercadoBloco({ dados }: BlocoProps<MunicipioCtx>) {
   const s = dados.serieMercado!
   const pontos = s.meses.map((m, i) => ({ mes: mes(m), ...Object.fromEntries(s.lideres.map((l) => [l.empresa || l.cnpj, l.share[i]])), hhi: s.hhi[i], acessos: s.acessos[i] }))
   const com = s.acessos.filter((v) => v != null).length
+  // Linhas são os meses (índices); a ordem inicial é a cronológica.
+  const acessores: Record<string, Acessor<number>> = {
+    mes: { valor: (i) => s.meses[i], primeiro: 'asc' },
+    acessos: (i) => s.acessos[i],
+    hhi: (i) => s.hhi[i],
+    ...Object.fromEntries(s.lideres.map((l) => [`l:${l.cnpj}`, (i: number) => l.share[i]])),
+  }
+  const { ordenados, props } = useOrdenacao(s.meses.map((_, i) => i), acessores)
   if (com < 2) return <p className="text-sm text-gray-500">Só há {com} mês com declaração neste município na janela; a série precisa de ao menos dois.</p>
   return (
     <div className="space-y-2" data-testid="serie-mercado">
@@ -35,10 +45,10 @@ export function SerieMercadoBloco({ dados }: BlocoProps<MunicipioCtx>) {
       <details className="text-sm">
         <summary className="cursor-pointer text-primario-600 hover:underline">Ver dados (tabela)</summary>
         <div className="overflow-x-auto mt-2"><table className="text-xs min-w-full" data-tabela="grade">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Mês</th><th className="text-right px-2 py-1">Acessos</th><th className="text-right px-2 py-1">HHI</th>{s.lideres.map((l) => <th key={l.cnpj} className="text-right px-2 py-1">{l.empresa || l.cnpj}</th>)}</tr></thead>
-          <tbody>{s.meses.map((m, i) => (
+          <thead className="text-gray-500"><tr><ThOrdenavel {...props('mes')} className="text-left px-2 py-1">Mês</ThOrdenavel><ThOrdenavel {...props('acessos')} alinhar="right" className="text-right px-2 py-1">Acessos</ThOrdenavel><ThOrdenavel {...props('hhi')} alinhar="right" className="text-right px-2 py-1">HHI</ThOrdenavel>{s.lideres.map((l) => <ThOrdenavel key={l.cnpj} {...props(`l:${l.cnpj}`)} alinhar="right" className="text-right px-2 py-1">{l.empresa || l.cnpj}</ThOrdenavel>)}</tr></thead>
+          <tbody>{ordenados.map((i) => { const m = s.meses[i]; return (
             <tr key={m} className="border-t border-gray-100"><td className="px-2 py-1">{m}</td><td className="px-2 py-1 text-right tabular-nums">{s.acessos[i]?.toLocaleString('pt-BR') ?? '—'}</td><td className="px-2 py-1 text-right tabular-nums">{s.hhi[i] ?? '—'}</td>
-              {s.lideres.map((l) => <td key={l.cnpj} className="px-2 py-1 text-right tabular-nums">{pct(l.share[i])}</td>)}</tr>))}</tbody>
+              {s.lideres.map((l) => <td key={l.cnpj} className="px-2 py-1 text-right tabular-nums">{pct(l.share[i])}</td>)}</tr>) })}</tbody>
         </table></div>
       </details>
     </div>

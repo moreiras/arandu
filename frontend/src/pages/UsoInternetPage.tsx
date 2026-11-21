@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { fetchDemandaOferta, fetchCeticEstimativas, fetchCeticIndicadores, fetchCeticTabelas } from '../services/api'
@@ -12,6 +12,8 @@ import { BarrasRecorte, recortesDaColuna } from '../features/cetic/BarrasRecorte
 import { CartogramaIndicador } from '../features/estados/CartogramaIndicador'
 import { CLASSES, inteiro as inteiroDO, intervaloRazao, razao } from '../features/uf/blocks/DemandaOfertaUfBloco'
 import { SITE } from '../lib/site'
+import { useOrdenacao } from '../lib/ordenacao'
+import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 
 const PESQUISAS = [
   { id: 'domicilios', rotulo: 'TIC Domicílios', descricao: 'Uso de internet e equipamentos nos domicílios brasileiros' },
@@ -40,6 +42,12 @@ function pivo(linhas: CeticLinha[]) {
 function EstimativasUf() {
   const q = useQuery({ queryKey: ['cetic-estimativas'], queryFn: () => fetchCeticEstimativas(), staleTime: 10 * 60 * 1000, retry: false })
   const [indicador, setIndicador] = useState('internet')
+  // Linhas com a estimativa do indicador escolhido: a lista muda com o indicador e a ordem por coluna é refeita sobre ela.
+  const linhas = useMemo(() => (q.data?.items ?? []).map((g) => ({ g, e: g.indicadores[indicador] ?? {} })), [q.data, indicador])
+  const { ordenados, props } = useOrdenacao(linhas, {
+    grupo: (l) => l.g.grupo, proporcao: (l) => (l.e.suprimido ? null : l.e.proporcao), margem: (l) => (l.e.suprimido ? null : l.e.margem),
+    total: (l) => l.e.total, n: (l) => l.g.n,
+  })
   if (!q.data) return null
   const c = q.data
   const grupos = c.items
@@ -60,10 +68,9 @@ function EstimativasUf() {
         verDados={
       <div className="overflow-x-auto">
         <table className="text-xs min-w-full">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Grupo</th><th className="text-right px-2 py-1">%</th><th className="text-right px-2 py-1">Margem (95%)</th><th className="text-right px-2 py-1">Domicílios estimados</th><th className="text-right px-2 py-1">Entrevistados</th></tr></thead>
+          <thead className="text-gray-500"><tr><ThOrdenavel {...props('grupo')} className="text-left px-2 py-1">Grupo</ThOrdenavel><ThOrdenavel {...props('proporcao')} alinhar="right" className="text-right px-2 py-1">%</ThOrdenavel><ThOrdenavel {...props('margem')} alinhar="right" className="text-right px-2 py-1">Margem (95%)</ThOrdenavel><ThOrdenavel {...props('total')} alinhar="right" className="text-right px-2 py-1">Domicílios estimados</ThOrdenavel><ThOrdenavel {...props('n')} alinhar="right" className="text-right px-2 py-1">Entrevistados</ThOrdenavel></tr></thead>
           <tbody>
-            {grupos.map((g) => {
-              const e = g.indicadores[indicador] ?? {}
+            {ordenados.map(({ g, e }) => {
               return (
                 <tr key={g.grupo} className="border-t border-gray-100">
                   <td className="px-2 py-1">{g.tipo === 'uf' ? <Link to={`/uf/${g.grupo}`} className="text-primario-600 hover:underline">{g.grupo}</Link> : g.grupo}{g.tipo !== 'uf' && <span className="text-gray-400"> ({g.tipo === 'brasil' ? 'Brasil' : 'região'})</span>}</td>
@@ -93,9 +100,16 @@ function EstimativasUf() {
 /** Demanda × oferta de banda larga fixa por UF: estimativa do Arandurapé, com intervalo de 95% e a leitura (classe). */
 function DemandaOfertaUfs() {
   const q = useQuery({ queryKey: ['demanda-oferta'], queryFn: () => fetchDemandaOferta(), staleTime: 10 * 60 * 1000, retry: false })
+  const grupos = useMemo(() => {
+    const d = q.data
+    return d ? [{ id: 'Brasil', tipo: 'brasil', l: d.brasil }, ...Object.entries(d.regioes).map(([id, l]) => ({ id, tipo: 'regiao', l })), ...Object.entries(d.ufs).map(([id, l]) => ({ id, tipo: 'uf', l }))] : []
+  }, [q.data])
+  const { ordenados, props } = useOrdenacao(grupos, {
+    grupo: (g) => g.id, demanda: (g) => g.l.demanda_domicilios, oferta: (g) => g.l.oferta_acessos_pf, razao: (g) => g.l.razao,
+    intervalo: (g) => g.l.razao_min, nao_visto: (g) => g.l.nao_visto, leitura: (g) => CLASSES[g.l.classe].rotulo,
+  })
   if (!q.data) return null
   const d = q.data
-  const grupos = [{ id: 'Brasil', tipo: 'brasil', l: d.brasil }, ...Object.entries(d.regioes).map(([id, l]) => ({ id, tipo: 'regiao', l })), ...Object.entries(d.ufs).map(([id, l]) => ({ id, tipo: 'uf', l }))]
   return (
     <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
       <div>
@@ -109,9 +123,9 @@ function DemandaOfertaUfs() {
         verDados={
       <div className="overflow-x-auto">
         <table className="text-xs min-w-full">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Grupo</th><th className="text-right px-2 py-1">Demanda (domicílios)</th><th className="text-right px-2 py-1">Oferta (acessos PF)</th><th className="text-right px-2 py-1">Razão</th><th className="text-right px-2 py-1">Intervalo (95%)</th><th className="text-right px-2 py-1">Não visto</th><th className="text-left px-2 py-1">Leitura</th></tr></thead>
+          <thead className="text-gray-500"><tr><ThOrdenavel {...props('grupo')} className="text-left px-2 py-1">Grupo</ThOrdenavel><ThOrdenavel {...props('demanda')} alinhar="right" className="text-right px-2 py-1">Demanda (domicílios)</ThOrdenavel><ThOrdenavel {...props('oferta')} alinhar="right" className="text-right px-2 py-1">Oferta (acessos PF)</ThOrdenavel><ThOrdenavel {...props('razao')} alinhar="right" className="text-right px-2 py-1">Razão</ThOrdenavel><ThOrdenavel {...props('intervalo')} alinhar="right" className="text-right px-2 py-1">Intervalo (95%)</ThOrdenavel><ThOrdenavel {...props('nao_visto')} alinhar="right" className="text-right px-2 py-1">Não visto</ThOrdenavel><ThOrdenavel {...props('leitura')} className="text-left px-2 py-1">Leitura</ThOrdenavel></tr></thead>
           <tbody>
-            {grupos.map(({ id, tipo, l }) => (
+            {ordenados.map(({ id, tipo, l }) => (
               <tr key={id} className="border-t border-gray-100">
                 <td className="px-2 py-1">{tipo === 'uf' ? <Link to={`/uf/${id}`} className="text-primario-600 hover:underline">{id}</Link> : id}{tipo === 'regiao' && <span className="text-gray-400"> (região)</span>}</td>
                 <td className="px-2 py-1 text-right tabular-nums">{inteiroDO(l.demanda_domicilios)}</td>

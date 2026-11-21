@@ -6,6 +6,8 @@
 import type { BlocoProps } from '../entidade/registry'
 import type { OperadoraCtx } from '../operadora/contexto'
 import type { FinanciamentoOperadora, SancaoRegistro } from '../../types/api'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../lib/ordenacao'
 
 const reais = (v?: number | null) => (v == null ? '—' : `R$ ${v.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`)
 const dataBr = (d?: string | null) => (d ? d.split('-').reverse().join('/') : '—')
@@ -20,6 +22,12 @@ function Rodape({ f, fonte }: { f: FinanciamentoOperadora; fonte: 'bndes' | 'cgu
 export function CreditoPublicoBloco({ dados }: BlocoProps<OperadoraCtx>) {
   const f = dados.financiamento
   const b = f?.financiamento
+  const { ordenados: porAno, props } = useOrdenacao(b?.por_ano, {
+    ano: { valor: (a) => a.ano, primeiro: 'asc' },
+    operacoes: (a) => a.operacoes,
+    contratado: (a) => a.contratado,
+    desembolsado: (a) => a.desembolsado,
+  })
   if (!f || !b) return null
   return (
     <div className="space-y-3 text-sm" data-testid="credito-publico">
@@ -29,9 +37,14 @@ export function CreditoPublicoBloco({ dados }: BlocoProps<OperadoraCtx>) {
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
-          <thead><tr className="text-left text-gray-500"><th className="py-1 pr-3">Ano</th><th className="pr-3 text-right">Operações</th><th className="pr-3 text-right">Contratado</th><th className="text-right">Desembolsado</th></tr></thead>
+          <thead><tr className="text-left text-gray-500">
+            <ThOrdenavel {...props('ano')} className="py-1 pr-3">Ano</ThOrdenavel>
+            <ThOrdenavel {...props('operacoes')} alinhar="right" className="pr-3 text-right">Operações</ThOrdenavel>
+            <ThOrdenavel {...props('contratado')} alinhar="right" className="pr-3 text-right">Contratado</ThOrdenavel>
+            <ThOrdenavel {...props('desembolsado')} alinhar="right" className="text-right">Desembolsado</ThOrdenavel>
+          </tr></thead>
           <tbody>
-            {b.por_ano.map((a) => (
+            {porAno.map((a) => (
               <tr key={a.ano} className="border-t border-gray-100"><td className="py-1 pr-3">{a.ano}</td><td className="pr-3 text-right tabular-nums">{a.operacoes}</td><td className="pr-3 text-right tabular-nums">{reais(a.contratado)}</td><td className="text-right tabular-nums">{reais(a.desembolsado)}</td></tr>
             ))}
           </tbody>

@@ -9,6 +9,8 @@ import type { BlocoProps } from '../entidade/registry'
 import type { OperadoraCtx } from '../operadora/contexto'
 import type { UfCtx } from '../uf/contexto'
 import type { CadastroMeta, CadastroOperadora } from '../../types/api'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../lib/ordenacao'
 
 const inteiro = (v?: number | null) => (v == null ? '—' : Math.round(v).toLocaleString('pt-BR'))
 const dataBr = (d?: string | null) => (d ? d.split('-').reverse().join('/') : '—')
@@ -39,9 +41,16 @@ function Dados({ c }: { c: CadastroOperadora }) {
 export function PresencaFisicaOperadoraBloco({ dados }: BlocoProps<OperadoraCtx>) {
   const c = dados.cadastro
   const [todas, setTodas] = useState(false)
+  // Ordem inicial: mais acessos primeiro; o cabeçalho reordena a lista inteira antes do corte.
+  const base = [...(c?.presenca ?? [])].sort((a, b) => (b.acessos_fixo + b.acessos_movel) - (a.acessos_fixo + a.acessos_movel) || b.ativos - a.ativos || a.municipio.localeCompare(b.municipio))
+  const { ordenados: linhas, props } = useOrdenacao(base, {
+    municipio: (p) => p.municipio,
+    ativos: (p) => p.ativos,
+    fixo: (p) => p.acessos_fixo || null,
+    movel: (p) => p.acessos_movel || null,
+  })
   if (!c) return null
   const r = c.resumo_presenca
-  const linhas = [...c.presenca].sort((a, b) => (b.acessos_fixo + b.acessos_movel) - (a.acessos_fixo + a.acessos_movel) || b.ativos - a.ativos || a.municipio.localeCompare(b.municipio))
   const vis = todas ? linhas : linhas.slice(0, LINHAS)
   return (
     <div className="space-y-3 text-sm" data-testid="presenca-fisica">
@@ -53,7 +62,12 @@ export function PresencaFisicaOperadoraBloco({ dados }: BlocoProps<OperadoraCtx>
       {linhas.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
-            <thead><tr className="text-left text-gray-500"><th className="py-1 pr-3">Município</th><th className="pr-3 text-right">Estabelecimentos ativos</th><th className="pr-3 text-right">Acessos fixo</th><th className="text-right">Acessos móvel</th></tr></thead>
+            <thead><tr className="text-left text-gray-500">
+              <ThOrdenavel {...props('municipio')} className="py-1 pr-3">Município</ThOrdenavel>
+              <ThOrdenavel {...props('ativos')} alinhar="right" className="pr-3 text-right">Estabelecimentos ativos</ThOrdenavel>
+              <ThOrdenavel {...props('fixo')} alinhar="right" className="pr-3 text-right">Acessos fixo</ThOrdenavel>
+              <ThOrdenavel {...props('movel')} alinhar="right" className="text-right">Acessos móvel</ThOrdenavel>
+            </tr></thead>
             <tbody>
               {vis.map((p) => (
                 <tr key={p.ibge} className="border-t border-gray-100">
@@ -80,17 +94,28 @@ export function PresencaFisicaOperadoraBloco({ dados }: BlocoProps<OperadoraCtx>
 /** Empresas de telecom da UF: abertas e baixadas por ano (matriz com CNAE 61 principal) e quantas estão ativas. */
 export function EmpresasTelecomUfBloco({ dados }: BlocoProps<UfCtx>) {
   const c = dados.cadastro
+  const entradas = c?.entradas_por_ano ?? [], baixas = c?.baixas_por_ano ?? []
+  const anosBase = [...new Set([...entradas.map((e) => e.ano), ...baixas.map((e) => e.ano)])].sort((a, b) => b - a)
+  const ent = new Map(entradas.map((e) => [e.ano, e.total]))
+  const bai = new Map(baixas.map((e) => [e.ano, e.total]))
+  const { ordenados: anos, props } = useOrdenacao(anosBase, {
+    ano: { valor: (a) => a, primeiro: 'asc' },
+    abertas: (a) => ent.get(a) ?? 0,
+    baixadas: (a) => bai.get(a) ?? 0,
+  })
   if (!c) return null
-  const anos = [...new Set([...c.entradas_por_ano.map((e) => e.ano), ...c.baixas_por_ano.map((e) => e.ano)])].sort((a, b) => b - a)
-  const ent = new Map(c.entradas_por_ano.map((e) => [e.ano, e.total]))
-  const bai = new Map(c.baixas_por_ano.map((e) => [e.ano, e.total]))
   const max = Math.max(1, ...c.entradas_por_ano.map((e) => e.total), ...c.baixas_por_ano.map((e) => e.total))
   return (
     <div className="space-y-3 text-sm" data-testid="empresas-telecom-uf">
       <p><span className="text-2xl font-semibold tabular-nums">{inteiro(c.ativas)}</span> <span className="text-gray-500">empresas de telecom ativas em {c.uf} (matriz com CNAE 61 principal)</span></p>
       {anos.length > 0 && (
         <table className="w-full text-xs">
-          <thead><tr className="text-left text-gray-500"><th className="py-1 pr-3">Ano</th><th className="pr-3 text-right">Abertas</th><th className="pr-3 text-right">Baixadas</th><th className="w-1/2" /></tr></thead>
+          <thead><tr className="text-left text-gray-500">
+            <ThOrdenavel {...props('ano')} className="py-1 pr-3">Ano</ThOrdenavel>
+            <ThOrdenavel {...props('abertas')} alinhar="right" className="pr-3 text-right">Abertas</ThOrdenavel>
+            <ThOrdenavel {...props('baixadas')} alinhar="right" className="pr-3 text-right">Baixadas</ThOrdenavel>
+            <th scope="col" className="w-1/2" />
+          </tr></thead>
           <tbody>
             {anos.map((a) => (
               <tr key={a} className="border-t border-gray-100">

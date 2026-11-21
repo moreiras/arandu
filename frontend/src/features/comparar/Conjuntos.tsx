@@ -9,6 +9,8 @@ import type { IXPCompareParticipant } from '../../types/api'
 import { SET_COLORS } from './MetricasAfi'
 import { nomeArquivo } from '../../lib/site'
 import { asnEspecial } from '../../lib/asnEspecial'
+import { useOrdenacao } from '../../lib/ordenacao'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 
 /** Chave canônica de uma combinação: índices ordenados, separados por vírgula. */
 export function comboKey(indices: number[]): string {
@@ -204,6 +206,14 @@ export function ParticipantsTable({
   participants: IXPCompareParticipant[]
   labelByKey: Record<string, string>
 }) {
+  const { ordenados, props } = useOrdenacao(participants, {
+    asn: { valor: (p) => p.asn, primeiro: 'asc' },
+    nome: (p) => p.name,
+    cnpj: { valor: (p) => p.cnpj, primeiro: 'asc' },
+    v6: (p) => p.ipv6_prefixes.length,
+    v4: (p) => p.ipv4_prefixes.length,
+    ixps: (p) => p.member_of.length,
+  })
   function download() {
     const header = 'ASN,Nome,CNPJ,Blocos IPv6,Blocos IPv4,IXPs'
     const lines = participants.map(r => {
@@ -241,19 +251,19 @@ export function ParticipantsTable({
         <table className="w-full text-xs">
           <thead className="bg-gray-50 text-gray-500 uppercase sticky top-0">
             <tr>
-              <th className="px-2 py-1.5 text-left font-medium">ASN</th>
-              <th className="px-2 py-1.5 text-left font-medium">Nome</th>
-              <th className="px-2 py-1.5 text-left font-medium">CNPJ</th>
-              <th className="px-2 py-1.5 text-left font-medium">Blocos IPv6</th>
-              <th className="px-2 py-1.5 text-left font-medium">Blocos IPv4</th>
-              <th className="px-2 py-1.5 text-left font-medium">IXPs</th>
+              <ThOrdenavel {...props('asn')} className="px-2 py-1.5 text-left font-medium">ASN</ThOrdenavel>
+              <ThOrdenavel {...props('nome')} className="px-2 py-1.5 text-left font-medium">Nome</ThOrdenavel>
+              <ThOrdenavel {...props('cnpj')} className="px-2 py-1.5 text-left font-medium">CNPJ</ThOrdenavel>
+              <ThOrdenavel {...props('v6')} className="px-2 py-1.5 text-left font-medium">Blocos IPv6</ThOrdenavel>
+              <ThOrdenavel {...props('v4')} className="px-2 py-1.5 text-left font-medium">Blocos IPv4</ThOrdenavel>
+              <ThOrdenavel {...props('ixps')} className="px-2 py-1.5 text-left font-medium">IXPs</ThOrdenavel>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {participants.length === 0 && (
               <tr><td colSpan={6} className="px-2 py-6 text-center text-gray-400">Nenhum participante nesta seleção</td></tr>
             )}
-            {participants.map(p => (
+            {ordenados.map(p => (
               <tr key={p.asn} className="hover:bg-gray-50">
                 <td className="px-2 py-1.5 font-mono">
                   <CelulaAsn p={p} />

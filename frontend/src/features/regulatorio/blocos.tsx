@@ -12,6 +12,8 @@ import type { MunicipioCtx } from '../municipio/contexto'
 import type { OperadoraCtx } from '../operadora/contexto'
 import type { UfCtx } from '../uf/contexto'
 import type { FustMeta, FustTotais, RegMeta } from '../../types/api'
+import { useOrdenacao } from '../../lib/ordenacao'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 
 const inteiro = (v?: number | null) => (v == null ? '—' : Math.round(v).toLocaleString('pt-BR'))
 const reais = (v?: number | null) => (v == null ? '—' : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }))
@@ -72,10 +74,13 @@ export function FustMunicipioBloco({ dados }: BlocoProps<MunicipioCtx>) {
 export function FustUfBloco({ dados }: BlocoProps<UfCtx>) {
   const f = dados.fust
   const [programa, setPrograma] = useState('')
+  // A tabela traz só os 10 primeiros: a ordem vai ao servidor (`ordem`), que ordena do maior para o menor.
+  const [campo, setCampo] = useState<'compromissos' | 'atendidos' | 'investimento'>('compromissos')
   const q = useQuery({
-    queryKey: ['fust-municipios', dados.uf, programa], enabled: !!f,
-    queryFn: () => fetchFustMunicipios({ uf: dados.uf, programa: programa || undefined, limit: 10 }), staleTime: 10 * 60 * 1000, retry: false,
+    queryKey: ['fust-municipios', dados.uf, programa, campo], enabled: !!f,
+    queryFn: () => fetchFustMunicipios({ uf: dados.uf, programa: programa || undefined, limit: 10, ...(campo === 'compromissos' ? {} : { ordem: campo }) }), staleTime: 10 * 60 * 1000, retry: false,
   })
+  const th = (c: typeof campo) => ({ campo: c, ordem: { campo, dir: 'desc' as const }, onOrdenar: () => setCampo(c) })
   if (!f) return null
   const r = f.resumo
   return (
@@ -94,7 +99,7 @@ export function FustUfBloco({ dados }: BlocoProps<UfCtx>) {
       </label>
       {q.data && (
         <table className="text-xs min-w-full">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Município</th><th className="text-right px-2 py-1">Compromissos</th><th className="text-right px-2 py-1">Atendidos</th><th className="text-right px-2 py-1">Previsto</th></tr></thead>
+          <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Município</th><ThOrdenavel {...th('compromissos')} alinhar="right" className="text-right px-2 py-1">Compromissos</ThOrdenavel><ThOrdenavel {...th('atendidos')} alinhar="right" className="text-right px-2 py-1">Atendidos</ThOrdenavel><ThOrdenavel {...th('investimento')} alinhar="right" className="text-right px-2 py-1">Previsto</ThOrdenavel></tr></thead>
           <tbody>
             {q.data.items.map((m) => (
               <tr key={m.ibge} className="border-t border-gray-100">
@@ -115,6 +120,14 @@ export function FustUfBloco({ dados }: BlocoProps<UfCtx>) {
 /** Multas constituídas contra a empresa (raiz do CNPJ) por serviço. Sempre com o aviso de que multa constituída não é condenação definitiva. */
 export function MultasOperadoraBloco({ dados }: BlocoProps<OperadoraCtx>) {
   const m = dados.multas
+  const { ordenados, props } = useOrdenacao(m?.por_grupo, {
+    servico: (g) => g.grupo,
+    multas: (g) => g.multas,
+    quitadas: (g) => g.situacoes.Quitado ?? 0,
+    devedor: (g) => (g.situacoes.Devedor ?? 0) + (g.situacoes.Parcial ?? 0),
+    saldo: (g) => g.saldo,
+    anos: { valor: (g) => g.primeiro_ano, primeiro: 'asc' },
+  })
   if (!m) return null
   return (
     <div className="space-y-2">
@@ -123,10 +136,10 @@ export function MultasOperadoraBloco({ dados }: BlocoProps<OperadoraCtx>) {
         <div className="text-sm text-gray-600">saldo devedor atualizado {reais(m.saldo)} · valor original {reais(m.original)} · pago {reais(m.pago)}</div>
       </div>
       <table className="text-xs min-w-full">
-        <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Serviço</th><th className="text-right px-2 py-1">Multas</th><th className="text-right px-2 py-1">Quitadas</th><th className="text-right px-2 py-1">Devedor</th>
-          <th className="text-right px-2 py-1">Saldo</th><th className="text-left px-2 py-1">Anos</th></tr></thead>
+        <thead className="text-gray-500"><tr><ThOrdenavel {...props('servico')} className="text-left px-2 py-1">Serviço</ThOrdenavel><ThOrdenavel {...props('multas')} alinhar="right" className="text-right px-2 py-1">Multas</ThOrdenavel><ThOrdenavel {...props('quitadas')} alinhar="right" className="text-right px-2 py-1">Quitadas</ThOrdenavel><ThOrdenavel {...props('devedor')} alinhar="right" className="text-right px-2 py-1">Devedor</ThOrdenavel>
+          <ThOrdenavel {...props('saldo')} alinhar="right" className="text-right px-2 py-1">Saldo</ThOrdenavel><ThOrdenavel {...props('anos')} className="text-left px-2 py-1">Anos</ThOrdenavel></tr></thead>
         <tbody>
-          {m.por_grupo.map((g) => (
+          {ordenados.map((g) => (
             <tr key={g.grupo} className="border-t border-gray-100">
               <td className="px-2 py-1">{g.grupo}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(g.multas)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(g.situacoes.Quitado ?? 0)}</td>
               <td className="px-2 py-1 text-right tabular-nums">{inteiro((g.situacoes.Devedor ?? 0) + (g.situacoes.Parcial ?? 0))}</td><td className="px-2 py-1 text-right tabular-nums">{reais(g.saldo)}</td>

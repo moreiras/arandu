@@ -7,6 +7,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { OperadoraRede } from '../../types/api'
 import { KPI, fmt } from './ui'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../lib/ordenacao'
 
 export const SEVERITY_LABEL: Record<string, string> = { critico: 'Crítico', aviso: 'Aviso', info: 'Info' }
 export const SEVERITY_CLS: Record<string, string> = {
@@ -25,6 +27,17 @@ export const CATEGORY_LABEL: Record<string, string> = {
  */
 export function RedeSection({ rede }: { rede: OperadoraRede }) {
   const [showAsns, setShowAsns] = useState(false)
+  const { ordenados, props } = useOrdenacao(rede.asns, {
+    asn: { valor: (a) => a.asn, primeiro: 'asc' },
+    nome: (a) => a.name || null,
+    usuarios: (a) => a.apnic_users,
+    v6: (a) => a.rir_prefixes_v6_count,
+    v4: (a) => a.rir_prefixes_v4_count,
+    rpki: { valor: (a) => (a.has_rpki ? 1 : 0), primeiro: 'desc' },
+    aspa: { valor: (a) => (a.has_aspa ? 1 : 0), primeiro: 'desc' },
+    ixps: (a) => a.ixps_direct_count,
+    alertas: (a) => a.alerts_count,
+  })
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4">
       <h2 className="text-base font-semibold text-gray-800 mb-1">
@@ -89,19 +102,19 @@ export function RedeSection({ rede }: { rede: OperadoraRede }) {
           <table className="w-full text-xs">
             <thead>
               <tr className="text-left text-gray-400 border-b border-gray-100">
-                <th className="px-2 py-1">ASN</th>
-                <th className="px-2 py-1">Nome</th>
-                <th className="px-2 py-1 text-right">Usuários</th>
-                <th className="px-2 py-1 text-right">Blocos v6</th>
-                <th className="px-2 py-1 text-right">Blocos v4</th>
-                <th className="px-2 py-1 text-center">RPKI</th>
-                <th className="px-2 py-1 text-center">ASPA</th>
-                <th className="px-2 py-1 text-right">IXPs</th>
-                <th className="px-2 py-1 text-right">Alertas</th>
+                <ThOrdenavel {...props('asn')} className="px-2 py-1">ASN</ThOrdenavel>
+                <ThOrdenavel {...props('nome')} className="px-2 py-1">Nome</ThOrdenavel>
+                <ThOrdenavel {...props('usuarios')} alinhar="right" className="px-2 py-1 text-right">Usuários</ThOrdenavel>
+                <ThOrdenavel {...props('v6')} alinhar="right" className="px-2 py-1 text-right">Blocos v6</ThOrdenavel>
+                <ThOrdenavel {...props('v4')} alinhar="right" className="px-2 py-1 text-right">Blocos v4</ThOrdenavel>
+                <ThOrdenavel {...props('rpki')} alinhar="center" className="px-2 py-1 text-center">RPKI</ThOrdenavel>
+                <ThOrdenavel {...props('aspa')} alinhar="center" className="px-2 py-1 text-center">ASPA</ThOrdenavel>
+                <ThOrdenavel {...props('ixps')} alinhar="right" className="px-2 py-1 text-right">IXPs</ThOrdenavel>
+                <ThOrdenavel {...props('alertas')} alinhar="right" className="px-2 py-1 text-right">Alertas</ThOrdenavel>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {rede.asns.map(a => (
+              {ordenados.map(a => (
                 <tr key={a.asn} className="hover:bg-gray-50">
                   <td className="px-2 py-1">
                     <Link to={`/asn/${a.asn}`} className="text-primario-600 hover:underline font-mono">AS{a.asn}</Link>

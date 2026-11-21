@@ -10,6 +10,8 @@ import type { RegiaoVinculo } from '../../../types/api'
 import type { MunicipioCtx } from '../contexto'
 import { fmt } from '../ui'
 import { BarraClasses } from '../../prontidao/blocos'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../../lib/ordenacao'
 
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`)
 const ROTULO: Record<RegiaoVinculo, { texto: string; dica: string; cor: string }> = {
@@ -35,7 +37,17 @@ export function ProvedoresRegiaoBloco({ dados }: BlocoProps<MunicipioCtx>) {
   const r = dados.regiao!
   const nomePtt = nomeDosPtts(r.ptts_nomes)
   const [todos, setTodos] = useState(false)
-  const lista = todos ? r.provedores : r.provedores.slice(0, 15)
+  // A API corta a lista em 300: só se ordena no navegador quando ela veio inteira (reordenar um recorte esconderia quem lidera a coluna).
+  const inteira = r.provedores_total <= r.provedores.length
+  const { ordenados, props: propsLocal } = useOrdenacao(r.provedores, {
+    asn: { valor: (p) => p.asn, primeiro: 'asc' },
+    vinculo: (p) => p.vinculos.map((k) => ROTULO[k].texto).join(' '),
+    acessos: (p) => (p.acessos_fixo + p.acessos_movel > 0 ? p.acessos_fixo + p.acessos_movel : null),
+    prefixos: (p) => (p.prefixos_geo > 0 ? p.prefixos_geo : null),
+    ptts: (p) => p.ptts_diretos.length || null,
+  })
+  const props = (c: Parameters<typeof propsLocal>[0]) => (inteira ? propsLocal(c) : { campo: c, ordem: null })
+  const lista = todos ? ordenados : ordenados.slice(0, 15)
   const v = r.asns.por_vinculo
   return (
     <div className="space-y-2" data-testid="regiao-provedores">
@@ -45,7 +57,7 @@ export function ProvedoresRegiaoBloco({ dados }: BlocoProps<MunicipioCtx>) {
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead><tr className="text-left text-xs text-gray-400 border-b border-gray-100"><th className="px-2 py-1">ASN</th><th className="px-2 py-1">Vínculo</th><th className="px-2 py-1 text-right" title="total declarado pela operadora do ASN no recorte; operadora com vários ASNs repete o mesmo total em cada um">Acessos da operadora (fixo + móvel)</th><th className="px-2 py-1 text-right">Prefixos ali</th><th className="px-2 py-1">PTTs diretos</th></tr></thead>
+          <thead><tr className="text-left text-xs text-gray-400 border-b border-gray-100"><ThOrdenavel {...props('asn')} className="px-2 py-1">ASN</ThOrdenavel><ThOrdenavel {...props('vinculo')} className="px-2 py-1">Vínculo</ThOrdenavel><ThOrdenavel {...props('acessos')} alinhar="right" className="px-2 py-1 text-right" title="total declarado pela operadora do ASN no recorte; operadora com vários ASNs repete o mesmo total em cada um">Acessos da operadora (fixo + móvel)</ThOrdenavel><ThOrdenavel {...props('prefixos')} alinhar="right" className="px-2 py-1 text-right">Prefixos ali</ThOrdenavel><ThOrdenavel {...props('ptts')} className="px-2 py-1">PTTs diretos</ThOrdenavel></tr></thead>
           <tbody className="divide-y divide-gray-50">
             {lista.map((p) => (
               <tr key={p.asn}>
@@ -71,6 +83,13 @@ export function PttsRegiaoBloco({ dados }: BlocoProps<MunicipioCtx>) {
   const r = dados.regiao!
   const p = r.participacao_ptts
   const nomePtt = nomeDosPtts(r.ptts_nomes)
+  // A lista de PTTs vem inteira: ordena-se toda e só depois corta nos 20 primeiros.
+  const { ordenados, props } = useOrdenacao(p.ptts, {
+    ptt: (t) => nomePtt(t.codigo),
+    direto: (t) => t.direto,
+    indireto: (t) => t.indireto,
+    pct: (t) => t.pct_total,
+  })
   return (
     <div className="space-y-3" data-testid="regiao-ptts">
       <dl className="grid grid-cols-3 gap-3 text-sm">
@@ -80,9 +99,9 @@ export function PttsRegiaoBloco({ dados }: BlocoProps<MunicipioCtx>) {
       </dl>
       {p.ptts.length > 0 && (
         <table className="w-full text-sm">
-          <thead><tr className="text-left text-xs text-gray-400 border-b border-gray-100"><th className="px-2 py-1">PTT</th><th className="px-2 py-1 w-1/3">ASNs da região</th><th className="px-2 py-1 text-right">Direto</th><th className="px-2 py-1 text-right">Indireto</th><th className="px-2 py-1 text-right">% dos ASNs</th></tr></thead>
+          <thead><tr className="text-left text-xs text-gray-400 border-b border-gray-100"><ThOrdenavel {...props('ptt')} className="px-2 py-1">PTT</ThOrdenavel><th scope="col" className="px-2 py-1 w-1/3">ASNs da região</th><ThOrdenavel {...props('direto')} alinhar="right" className="px-2 py-1 text-right">Direto</ThOrdenavel><ThOrdenavel {...props('indireto')} alinhar="right" className="px-2 py-1 text-right">Indireto</ThOrdenavel><ThOrdenavel {...props('pct')} alinhar="right" className="px-2 py-1 text-right">% dos ASNs</ThOrdenavel></tr></thead>
           <tbody className="divide-y divide-gray-50">
-            {p.ptts.slice(0, 20).map((t) => (
+            {ordenados.slice(0, 20).map((t) => (
               <tr key={t.codigo}>
                 <td className="px-2 py-1"><Link to={`/ixp/${t.codigo}`} className="text-primario-600 hover:underline">{nomePtt(t.codigo)}</Link></td>
                 <td className="px-2 py-1"><div className="flex h-2 rounded bg-gray-100 overflow-hidden" aria-hidden><div className="bg-primario-600" style={{ width: `${t.pct_direto ?? 0}%` }} /><div className="bg-primario-300" style={{ width: `${(t.pct_total ?? 0) - (t.pct_direto ?? 0)}%` }} /></div></td>

@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { AccessError, fetchAsnsPorOrganizacao } from '../../services/api'
 import { useOrcamentoAvancado } from '../../auth/AuthContext'
 import type { OrganizacaoVariosAsns, AsnsPorOrganizacaoResponse } from '../../types/api'
+import { ThOrdenavel } from '../ui/ThOrdenavel'
+import { useOrdenacao } from '../../lib/ordenacao'
 
 const SECTION_COLOR = '#0e7490'
 
@@ -28,6 +30,17 @@ function YesNo({ v }: { v: boolean | null }) {
 
 function LinhaOrganizacao({ group, rank }: { group: OrganizacaoVariosAsns; rank: number }) {
   const [open, setOpen] = useState(false)
+  const { ordenados: asns, props } = useOrdenacao(group.asns, {
+    asn: { valor: (a) => a.asn, primeiro: 'asc' },
+    nome: (a) => a.name || null,
+    usuarios: (a) => a.apnic_users,
+    pct_v6: (a) => a.pct_v6,
+    v6: (a) => a.rir_prefixes_v6_count,
+    v4: (a) => a.rir_prefixes_v4_count,
+    rpki: (a) => (a.has_rpki == null ? null : Number(a.has_rpki)),
+    aspa: (a) => (a.has_aspa == null ? null : Number(a.has_aspa)),
+    ixps: (a) => a.ixps_direct_count || null,
+  })
   return (
     <>
       <tr
@@ -62,19 +75,19 @@ function LinhaOrganizacao({ group, rank }: { group: OrganizacaoVariosAsns; rank:
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-gray-400">
-                  <th className="text-left font-medium py-1 pr-2">ASN</th>
-                  <th className="text-left font-medium py-1 pr-2">Nome</th>
-                  <th className="text-right font-medium py-1 px-2">Usuários</th>
-                  <th className="text-right font-medium py-1 px-2">%IPv6</th>
-                  <th className="text-right font-medium py-1 px-2">Blocos v6</th>
-                  <th className="text-right font-medium py-1 px-2">Blocos v4</th>
-                  <th className="text-center font-medium py-1 px-2">RPKI</th>
-                  <th className="text-center font-medium py-1 px-2">ASPA</th>
-                  <th className="text-right font-medium py-1 pl-2">IXes</th>
+                  <ThOrdenavel {...props('asn')} className="text-left font-medium py-1 pr-2">ASN</ThOrdenavel>
+                  <ThOrdenavel {...props('nome')} className="text-left font-medium py-1 pr-2">Nome</ThOrdenavel>
+                  <ThOrdenavel {...props('usuarios')} alinhar="right" className="text-right font-medium py-1 px-2">Usuários</ThOrdenavel>
+                  <ThOrdenavel {...props('pct_v6')} alinhar="right" className="text-right font-medium py-1 px-2">%IPv6</ThOrdenavel>
+                  <ThOrdenavel {...props('v6')} alinhar="right" className="text-right font-medium py-1 px-2">Blocos v6</ThOrdenavel>
+                  <ThOrdenavel {...props('v4')} alinhar="right" className="text-right font-medium py-1 px-2">Blocos v4</ThOrdenavel>
+                  <ThOrdenavel {...props('rpki')} alinhar="center" className="text-center font-medium py-1 px-2">RPKI</ThOrdenavel>
+                  <ThOrdenavel {...props('aspa')} alinhar="center" className="text-center font-medium py-1 px-2">ASPA</ThOrdenavel>
+                  <ThOrdenavel {...props('ixps')} alinhar="right" className="text-right font-medium py-1 pl-2">IXes</ThOrdenavel>
                 </tr>
               </thead>
               <tbody>
-                {group.asns.map(a => (
+                {asns.map(a => (
                   <tr key={a.asn} className="border-t border-gray-100">
                     <td className="py-1 pr-2 font-mono whitespace-nowrap">
                       <Link to={`/asn/${a.asn}`} className="text-primario-600 hover:underline" onClick={e => e.stopPropagation()}>

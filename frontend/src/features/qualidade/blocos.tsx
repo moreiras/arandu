@@ -10,6 +10,8 @@ import type { MunicipioCtx } from '../municipio/contexto'
 import type { OperadoraCtx } from '../operadora/contexto'
 import type { UfCtx } from '../uf/contexto'
 import type { QualIndicador, QualMeta, ReclTaxa } from '../../types/api'
+import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../lib/ordenacao'
 
 export const inteiro = (v?: number | null) => (v == null ? '—' : Math.round(v).toLocaleString('pt-BR'))
 export const dec = (v?: number | null, casas = 1) => (v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }))
@@ -156,14 +158,18 @@ export function QualidadeUfBloco({ dados }: BlocoProps<UfCtx>) {
 }
 
 export function TaxasReclamacoes({ itens, janela, mes }: { itens: ReclTaxa[]; janela: { de: string; ate: string } | null; mes: { SCM: string | null; SMP: string | null } }) {
+  // Só as marcas ligadas a um CNPJ (lista inteira); não é ranking entre operadoras.
+  const { ordenados, props } = useOrdenacao(itens, {
+    marca: (t) => t.marca, servico: (t) => t.grupo, reclamacoes: (t) => t.reclamacoes, acessos: (t) => t.acessos, taxa: (t) => t.por_mil_acessos,
+  })
   if (itens.length === 0) return null
   return (
     <div className="space-y-1">
       <h3 className="text-sm font-medium text-gray-700">Reclamações por mil acessos {janela && <span className="text-xs font-normal text-gray-500">(reclamações de {janela.de} a {janela.ate} ÷ acessos do SICI de {mes.SCM ?? '—'} (fixo) e {mes.SMP ?? '—'} (móvel))</span>}</h3>
       <table className="text-xs min-w-full">
-        <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Marca</th><th className="text-left px-2 py-1">Serviço</th><th className="text-right px-2 py-1">Reclamações</th><th className="text-right px-2 py-1">Acessos (SICI)</th><th className="text-right px-2 py-1">Por mil acessos</th></tr></thead>
+        <thead className="text-gray-500"><tr><ThOrdenavel {...props('marca')} className="text-left px-2 py-1">Marca</ThOrdenavel><ThOrdenavel {...props('servico')} className="text-left px-2 py-1">Serviço</ThOrdenavel><ThOrdenavel {...props('reclamacoes')} alinhar="right" className="text-right px-2 py-1">Reclamações</ThOrdenavel><ThOrdenavel {...props('acessos')} alinhar="right" className="text-right px-2 py-1">Acessos (SICI)</ThOrdenavel><ThOrdenavel {...props('taxa')} alinhar="right" className="text-right px-2 py-1">Por mil acessos</ThOrdenavel></tr></thead>
         <tbody>
-          {itens.map((t) => (
+          {ordenados.map((t) => (
             <tr key={`${t.marca}-${t.grupo}`} className="border-t border-gray-100"><td className="px-2 py-1">{t.marca}</td><td className="px-2 py-1">{t.grupo}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(t.reclamacoes)}</td>
               <td className="px-2 py-1 text-right tabular-nums">{inteiro(t.acessos)}</td><td className="px-2 py-1 text-right tabular-nums">{t.por_mil_acessos == null ? <span className="text-gray-400" title={t.motivo_sem_taxa ?? ''}>não calculado</span> : dec(t.por_mil_acessos, 2)}</td></tr>
           ))}

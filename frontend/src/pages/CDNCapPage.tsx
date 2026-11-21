@@ -9,6 +9,8 @@ import { CDNIXPPresenceGraph } from '../components/graphs/CDNIXPPresenceGraph'
 import type { CDNAsnPresenceData } from '../components/graphs/CDNIXPPresenceGraph'
 import { CDNRelationsGraph } from '../components/graphs/CDNRelationsGraph'
 import type { ASNDocument, ASNPathsResponse, RoaEntry, AspaProviderEntry, AspaCustomerEntry } from '../types/api'
+import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../lib/ordenacao'
 import { fmtN, RoaTable, AspaProvidersTable, AspaCustomersTable, Kpi, PrefixBox } from '../features/cdncap/componentes'
 
 /** Página de uma CDN/CAP (/cdncap/:slug): a página busca os ASNs do grupo e compõe os componentes de `features/cdncap/`. */
@@ -154,6 +156,14 @@ export function CDNCapPage() {
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
+
+  const pdb = useOrdenacao(useMemo(() => docs.filter((d) => d.pdb), [docs]), {
+    asn: { valor: (d) => d.asn, primeiro: 'asc' },
+    tipo: (d) => d.pdb!.network_type,
+    trafego: (d) => d.pdb!.traffic_class,
+    politica: (d) => d.pdb!.peering_policy,
+    irr: (d) => d.pdb!.irr_as_set,
+  })
 
   if (loadingPresence) {
     return (
@@ -371,15 +381,15 @@ export function CDNCapPage() {
             <table className="w-full text-sm">
               <thead className="text-xs text-gray-400 uppercase bg-gray-50">
                 <tr>
-                  <th className="px-3 py-2 text-left font-medium">ASN</th>
-                  <th className="px-3 py-2 text-left font-medium">Tipo</th>
-                  <th className="px-3 py-2 text-left font-medium">Tráfego</th>
-                  <th className="px-3 py-2 text-left font-medium">Política</th>
-                  <th className="px-3 py-2 text-left font-medium">IRR AS-SET</th>
+                  <ThOrdenavel {...pdb.props('asn')} className="px-3 py-2 text-left font-medium">ASN</ThOrdenavel>
+                  <ThOrdenavel {...pdb.props('tipo')} className="px-3 py-2 text-left font-medium">Tipo</ThOrdenavel>
+                  <ThOrdenavel {...pdb.props('trafego')} className="px-3 py-2 text-left font-medium">Tráfego</ThOrdenavel>
+                  <ThOrdenavel {...pdb.props('politica')} className="px-3 py-2 text-left font-medium">Política</ThOrdenavel>
+                  <ThOrdenavel {...pdb.props('irr')} className="px-3 py-2 text-left font-medium">IRR AS-SET</ThOrdenavel>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {docs.filter((d) => d.pdb).map((d) => (
+                {pdb.ordenados.map((d) => (
                   <tr key={d.asn} className="hover:bg-gray-50">
                     <td className="px-3 py-2">
                       <Link to={`/asn/${d.asn}`} className="font-mono text-primario-700 hover:underline">AS{d.asn}</Link>

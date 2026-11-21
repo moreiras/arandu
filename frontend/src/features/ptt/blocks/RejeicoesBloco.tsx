@@ -6,6 +6,8 @@
 import { Link } from 'react-router-dom'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
+import { useOrdenacao } from '../../../lib/ordenacao'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 const MAX_ASNS = 10
@@ -18,6 +20,7 @@ export function RejeicoesBloco({ dados }: BlocoProps<PttCtx>) {
   const rj = dados.rejeicoes!
   const r = rj.rejeicoes
   const p = rj.politica
+  const motivos = useOrdenacao(r?.por_motivo, { motivo: (m) => m.rotulo ?? m.codigo, rotas: (m) => m.rotas, asns: (m) => m.asns })
   return (
     <div className="space-y-3 text-sm" data-testid="rejeicoes">
       {r && (
@@ -27,9 +30,9 @@ export function RejeicoesBloco({ dados }: BlocoProps<PttCtx>) {
             {' '}{n(r.rotas_rejeitadas)} rotas rejeitadas de {n(r.asns_com_rejeicao)} ASNs, {n(r.rotas_com_motivo_decodificado)} com motivo decodificado (uma rota pode ter mais de um motivo: as linhas abaixo somam {n(r.soma_dos_motivos)}).
           </p>
           <table className="min-w-full text-xs">
-            <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Motivo</th><th className="text-right px-2 py-1">Rotas</th><th className="text-right px-2 py-1">ASNs</th></tr></thead>
+            <thead className="text-gray-500"><tr><ThOrdenavel {...motivos.props('motivo')} className="text-left px-2 py-1">Motivo</ThOrdenavel><ThOrdenavel {...motivos.props('rotas')} alinhar="right" className="text-right px-2 py-1">Rotas</ThOrdenavel><ThOrdenavel {...motivos.props('asns')} alinhar="right" className="text-right px-2 py-1">ASNs</ThOrdenavel></tr></thead>
             <tbody className="divide-y divide-gray-100">
-              {r.por_motivo.map((m) => (
+              {motivos.ordenados.map((m) => (
                 <tr key={m.codigo}><td className="px-2 py-1">{m.rotulo ?? m.codigo} <span className="font-mono text-gray-400">{m.codigo}</span></td><td className="px-2 py-1 text-right tabular-nums">{n(m.rotas)}</td><td className="px-2 py-1 text-right tabular-nums">{n(m.asns)}</td></tr>
               ))}
             </tbody>

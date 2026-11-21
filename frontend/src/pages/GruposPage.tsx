@@ -173,7 +173,11 @@ function CnpjChips({ grupo, onSelect }: { grupo: GrupoSocietarioRow; onSelect: (
   )
 }
 
-type SortField = 'classificacao' | 'tamanho' | 'assinantes' | 'usuarios_apnic' | 'visibilidade_bgp'
+type SortField = 'nome' | 'classificacao' | 'tamanho' | 'assinantes' | 'usuarios_apnic' | 'visibilidade_bgp'
+
+const colacao = new Intl.Collator('pt-BR', { numeric: true, sensitivity: 'base' })
+/** O nome mostrado na coluna Grupo (a primeira empresa); é também o que a coluna ordena. */
+const nomeGrupo = (g: GrupoSocietarioRow) => g.cnpjs[0]?.empresa ?? g.grupo_id
 
 function SortHeader({
   field, label, align = 'right', sortField, sortDir, onSort,
@@ -238,7 +242,7 @@ export function GruposPage() {
       setSortDir(d => (d === 'desc' ? 'asc' : 'desc'))
     } else {
       setSortField(field)
-      setSortDir('desc')
+      setSortDir(field === 'nome' ? 'asc' : 'desc')   // nome de A a Z; números do maior
     }
   }
 
@@ -319,12 +323,14 @@ export function GruposPage() {
       : grupos
     return [...filtrados].sort((a, b) => {
       let cmp: number
-      if (sortField === 'classificacao') {
+      if (sortField === 'nome') {
+        cmp = colacao.compare(nomeGrupo(a), nomeGrupo(b))
+      } else if (sortField === 'classificacao') {
         cmp = classifOrdem.get(a.classificacao)! - classifOrdem.get(b.classificacao)!
       } else if (sortField === 'visibilidade_bgp') {
         cmp = Number(a.visibilidade_bgp) - Number(b.visibilidade_bgp)
       } else {
-        cmp = a[sortField] - b[sortField]
+        cmp = (a[sortField] as number) - (b[sortField] as number)
       }
       return cmp * dir
     })
@@ -487,13 +493,13 @@ export function GruposPage() {
           <table className="w-full text-sm" aria-label="Grupos econômicos">
             <thead className="bg-gray-50 text-xs text-gray-600 lg:sticky lg:top-[var(--altura-topo,89px)] z-10 shadow-sm">
               <tr>
-                <th scope="col" className="text-left px-4 py-2 font-medium">Grupo</th>
+                <SortHeader field="nome" label="Grupo" align="left" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                 <SortHeader field="classificacao" label="Classificação" align="left" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                 <SortHeader field="tamanho" label="Empresas" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                 <SortHeader field="assinantes" label="Assinantes" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                 <SortHeader field="usuarios_apnic" label="Usuários (APNIC)" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                 <SortHeader field="visibilidade_bgp" label="Visibilidade BGP" align="left" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                <th className="text-left px-4 py-2 font-medium">CNPJs</th>
+                <th scope="col" className="text-left px-4 py-2 font-medium">CNPJs</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -509,7 +515,7 @@ export function GruposPage() {
                   >
                     <td className="px-4 py-2.5 min-w-[12rem]">
                       <Link to={`/grupo/${encodeURIComponent(g.grupo_id)}`} onClick={e => e.stopPropagation()} className="font-medium text-primario-700 hover:underline">
-                        {g.cnpjs[0]?.empresa ?? g.grupo_id}
+                        {nomeGrupo(g)}
                       </Link>
                       {g.cnpjs.length > 1 && <span className="ml-1 text-xs text-gray-500">e mais {g.cnpjs.length - 1}</span>}
                     </td>

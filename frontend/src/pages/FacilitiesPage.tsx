@@ -10,8 +10,12 @@ import { useActiveDate } from '../hooks/useSnapshot'
 import { UFS } from '../lib/ufs'
 import { AtribuicaoPeeringDb, LinkInstalacao, SeloCadastro, localDe, n } from '../features/instalacoes/comum'
 import { MapaInstalacoes } from '../features/instalacoes/MapaInstalacoes'
+import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import type { Sentido } from '../lib/ordenacao'
 
 const POR_PAGINA = 100       // a prévia aberta: acima disso (ou página 2) a API exige login
+// Ordens que a API aceita (`ordem`), cada uma num sentido só: o cabeçalho escolhe a ordem no servidor, que ordena a lista inteira antes de paginar.
+const SENTIDO_ORDEM: Record<string, Sentido> = { nome: 'asc', redes: 'desc', ptts: 'desc', atualizado: 'desc' }
 
 /**
  * `/instalacoes` — datacenters e pontos de interconexão cadastrados no PeeringDB no Brasil, com mapa e filtros.
@@ -33,6 +37,7 @@ export function FacilitiesPage() {
   const mudar = <T,>(set: (v: T) => void) => (v: T) => { set(v); setPagina(1) }
   const total = data?.total ?? 0
   const paginas = Math.max(1, Math.ceil(total / POR_PAGINA))
+  const th = (campo: string) => ({ campo, ordem: { campo: ordem, dir: SENTIDO_ORDEM[ordem] ?? 'desc' }, onOrdenar: mudar(setOrdem) })
 
   return (
     <div className="space-y-4" data-testid="pagina-instalacoes">
@@ -82,8 +87,8 @@ export function FacilitiesPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs text-gray-500 border-b border-gray-100 bg-gray-50">
-                  <th className="px-3 py-2 font-medium">Instalação</th><th className="px-3 py-2 font-medium">Organização</th><th className="px-3 py-2 font-medium">Local</th>
-                  <th className="px-3 py-2 font-medium text-right">Redes</th><th className="px-3 py-2 font-medium text-right">PTTs</th><th className="px-3 py-2 font-medium text-right">Carriers</th><th className="px-3 py-2 font-medium">Cadastro</th>
+                  <ThOrdenavel {...th('nome')} className="px-3 py-2 font-medium">Instalação</ThOrdenavel><th scope="col" className="px-3 py-2 font-medium">Organização</th><th scope="col" className="px-3 py-2 font-medium">Local</th>
+                  <ThOrdenavel {...th('redes')} alinhar="right" className="px-3 py-2 font-medium text-right">Redes</ThOrdenavel><ThOrdenavel {...th('ptts')} alinhar="right" className="px-3 py-2 font-medium text-right">PTTs</ThOrdenavel><th scope="col" className="px-3 py-2 font-medium text-right">Carriers</th><ThOrdenavel {...th('atualizado')} className="px-3 py-2 font-medium">Cadastro</ThOrdenavel>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">

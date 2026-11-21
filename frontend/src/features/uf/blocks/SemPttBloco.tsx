@@ -9,17 +9,21 @@ import type { BlocoProps } from '../../entidade/registry'
 import type { UfCtx } from '../contexto'
 import { fmt } from '../../municipio/ui'
 import { RAIO_SEM_PTT_KM } from '../contexto'
+import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { useOrdenacao } from '../../../lib/ordenacao'
 
 /** Municípios com banda larga declarada a mais de 100 km do PTT mais próximo, do maior para o menor em acessos (até 20). */
 export function SemPttBloco({ dados }: BlocoProps<UfCtx>) {
-  const lista = dados.municipios.filter((m) => m.kmPtt != null && m.kmPtt > RAIO_SEM_PTT_KM).sort((a, b) => b.acessos - a.acessos)
+  const filtrados = dados.municipios.filter((m) => m.kmPtt != null && m.kmPtt > RAIO_SEM_PTT_KM).sort((a, b) => b.acessos - a.acessos)
+  // Ordena-se a lista inteira e só depois se corta nos 20 primeiros.
+  const { ordenados: lista, props } = useOrdenacao(filtrados, { nome: (m) => m.nome, ptt: (m) => m.ptt, km: (m) => m.kmPtt, acessos: (m) => m.acessos })
   return (
     <div>
       <table className="w-full text-sm">
         <thead>
           <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
-            <th className="px-2 py-1">Município</th><th className="px-2 py-1">PTT mais próximo</th>
-            <th className="px-2 py-1 text-right">Distância</th><th className="px-2 py-1 text-right">Acessos</th>
+            <ThOrdenavel {...props('nome')} className="px-2 py-1">Município</ThOrdenavel><ThOrdenavel {...props('ptt')} className="px-2 py-1">PTT mais próximo</ThOrdenavel>
+            <ThOrdenavel {...props('km')} alinhar="right" className="px-2 py-1 text-right">Distância</ThOrdenavel><ThOrdenavel {...props('acessos')} alinhar="right" className="px-2 py-1 text-right">Acessos</ThOrdenavel>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
