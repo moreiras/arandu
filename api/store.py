@@ -231,6 +231,9 @@ class Store:
 
     def __init__(self, base: Path):
         self.base = base
+        # (assinatura de published/, datas, diretórios ainda sem manifesto): ver list_snapshots. Tupla, não mapeamento: a guarda de
+        # memória (api/memoria.py) não a trata como cache por data.
+        self._snapshots_cache: Optional[tuple] = None
         # documentos de nível de snapshot lidos inteiros (resumo, manifesto, índices, Hilbert, BGP…): api/repos/documentos.py
         self._docs = DocumentosRepo(self._pub)
         self._asn_map: dict[str, dict[int, dict]] = {}
@@ -325,15 +328,28 @@ class Store:
     # -------------------------------------------------------------------------
 
     def list_snapshots(self) -> list[str]:
-        """Retorna datas disponíveis (diretórios com manifest.json), ordenadas."""
+        """Retorna datas disponíveis (diretórios com manifest.json), ordenadas.
+
+        Guardada em memória: era chamada várias vezes por pedido (política de acesso, middleware, estabilidade BGP, guarda de memória) e
+        cada chamada fazia dois `stat` por data publicada. Com 19 datas e a API ocupada, cada `stat` esperava o GIL na volta e a lista
+        custava 0,65 s (perfil medido na produção em 2026-11-21). Agora custa um `stat` de `published/`: data nova, removida ou
+        renomeada muda o diretório; um diretório ainda sem manifesto (publicação em andamento) é reconferido até ganhá-lo."""
         pub = self.base / "published"
-        if not pub.exists():
+        try:
+            st = pub.stat()
+        except OSError:
             return []
-        return sorted(
-            d.name
-            for d in pub.iterdir()
-            if d.is_dir() and (d / "manifest.json").exists()
-        )
+        assinatura = (st.st_mtime_ns, st.st_ino, st.st_nlink)
+        cache = self._snapshots_cache
+        if cache is not None and cache[0] == assinatura and not any((pub / d / "manifest.json").exists() for d in cache[2]):
+            return list(cache[1])
+        datas, pendentes = [], []
+        for d in pub.iterdir():
+            if d.is_dir():
+                (datas if (d / "manifest.json").exists() else pendentes).append(d.name)
+        datas.sort()
+        self._snapshots_cache = (assinatura, tuple(datas), tuple(pendentes))
+        return datas
 
     def latest(self) -> Optional[str]:
         snaps = self.list_snapshots()

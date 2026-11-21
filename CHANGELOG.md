@@ -1,5 +1,14 @@
 # Notas de versão
 
+## v2.0.29
+
+Lista de snapshots guardada em memória (`Store.list_snapshots`).
+- Era chamada várias vezes por pedido (política de acesso, middleware, estabilidade BGP, guarda de memória) e cada chamada fazia dois `stat`
+  por data publicada. Com 19 datas na produção e a API ocupada, cada `stat` esperava o GIL na volta: a lista custou em média 0,65 s por
+  chamada no perfil medido em 2026-11-21, e o mesmo código levava 81 s para aquecer os perfis com 2 datas e 687 s com 19.
+- Agora custa um `stat` de `published/`. Data nova, removida ou renomeada muda o diretório; um diretório ainda sem `manifest.json`
+  (publicação em andamento) é reconferido a cada chamada até ganhá-lo (`tests/unit/test_store_snapshots.py`).
+
 ## v2.0.28
 
 Tabelas que ordenavam só a parte que estava na tela.
