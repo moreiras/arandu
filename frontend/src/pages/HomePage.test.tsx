@@ -18,7 +18,8 @@ import { routeAccess } from '../auth/accessPolicy'
 import { HomePage } from './HomePage'
 import { SITE } from '../lib/site'
 
-const resumo = (asns: number, pct: number, ok: number) => ({ total_asns_br: asns, br_ipv6_pct: pct, ixps_ok: ok, ixps_partial: 0, br_apnic_users_total: 2241254 })
+// `pct`: % dos ASes alocados que anunciam IPv6 na tabela global; `br_ipv6_pct` (alocado ou anunciado) fica bem acima e não deve ser o exibido.
+const resumo = (asns: number, pct: number, ok: number) => ({ total_asns_br: asns, br_asns_ft_v6: Math.round((asns * pct) / 100), br_ipv6_pct: 97.1, ixps_ok: ok, ixps_partial: 0, br_apnic_users_total: 2241254 })
 const sici = { mes_referencia: '2026-08', total_acessos: 621868, operadoras_ativas: 1142, municipios_atendidos: 12, por_meio: { Fibra: 497494 }, serie_total: [{ mes: '2026-07', acessos: 600000, cnpjs: 1100 }, { mes: '2026-08', acessos: 621868, cnpjs: 1142 }] }
 
 const montar = () => render(
@@ -123,6 +124,7 @@ describe('destaques e faixa (lógica)', () => {
   })
   it('montarKpis: IPv6 em pontos percentuais e acessos pelo mês anterior da série', () => {
     const k = montarKpis(resumo(1136, 67.2, 2) as never, resumo(1130, 66.9, 2) as never, sici as never, '2026-09-20')
+    expect(k.rede[1].valor).toBe('67,2%')
     expect(k.rede[1].variacao?.texto).toBe('+0,3 p.p. desde o snapshot anterior')
     expect(k.rede[2].variacao?.texto).toBe('sem variação')
     expect(k.mercado[0].variacao?.texto).toBe('+3,6% desde 07/2026')
