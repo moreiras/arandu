@@ -537,6 +537,14 @@
    ],
    "tipo": "objeto"
   },
+  "asn_contatos": {
+   "chaves": [
+    "contatos_liberados",
+    "motivo",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
   "asn_detalhe": {
    "chaves": [
     "alerts",
@@ -1118,6 +1126,14 @@
    ],
    "tipo": "objeto"
   },
+  "operadora_contatos": {
+   "chaves": [
+    "contatos_liberados",
+    "motivo",
+    "snapshot_date"
+   ],
+   "tipo": "objeto"
+  },
   "operadora_contratos": {
    "chaves": [
     "aviso",
@@ -1386,6 +1402,15 @@
  ],
  "tools": {
   "asn_bloqueios": {
+   "obrigatorios": [
+    "asn"
+   ],
+   "parametros": [
+    "asn",
+    "date"
+   ]
+  },
+  "asn_contatos": {
    "obrigatorios": [
     "asn"
    ],
@@ -1741,6 +1766,16 @@
    "parametros": [
     "asns",
     "date"
+   ]
+  },
+  "operadora_contatos": {
+   "obrigatorios": [
+    "cnpj"
+   ],
+   "parametros": [
+    "cnpj",
+    "date",
+    "servico"
    ]
   },
   "operadora_contratos": {

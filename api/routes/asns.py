@@ -626,17 +626,31 @@ def get_asn_contacts(
     # Cota de contatos: conta obrigatória, custo 1 por ASN, tetos por conta, rede e global.
     restante = contatos_cota.exigir(request, user, 1)
 
+    out = montar_contatos_asn(store, date_str, asn)
+    # Auditoria: quem acessou contatos de qual AS (gancho p/ detecção de enumeração). Conta, nunca e-mail nem IP.
+    _log.info("contact_access asn=%s conta=%s count=%d", asn, (user.get("conta_id") or user.get("provider")), out["total"])
+    return {**out, "cota": {"restante_hoje": restante}}
+
+
+def montar_contatos_asn(store: Store, date_str: str, asn: int) -> dict:
+    """Corpo de `/asns/{asn}/contacts` sem a cota: a rota e a tool `asn_contatos` do MCP (`/internal/contatos`) cobram antes de chamar."""
     scm_data = store.scm_for_asn(date_str, asn)
     pdb_contacts = store.peeringdb_contacts_for_asn(date_str, asn)
     geo_org = (store._load_geo_orgs(date_str) or {}).get(asn) or {}
     rdap = store.rdap_contatos_for_asn(date_str, asn)
     contacts = _consolidate_contacts(scm_data, pdb_contacts, geo_org, rdap["contatos"])
+    return {"snapshot_date": date_str, "asn": asn, "total": len(contacts), "contacts": contacts,
+            "rdap": {k: rdap[k] for k in ("leitura_em", "tentou_em", "status", "cobertura")}}
 
-    # Auditoria: quem acessou contatos de qual AS (gancho p/ detecção de enumeração). Conta, nunca e-mail nem IP.
-    _log.info("contact_access asn=%s conta=%s count=%d", asn, (user.get("conta_id") or user.get("provider")), len(contacts))
 
-    return {"snapshot_date": date_str, "asn": asn, "total": len(contacts), "contacts": contacts, "rdap": {k: rdap[k] for k in ("leitura_em", "tentou_em", "status", "cobertura")},
-            "cota": {"restante_hoje": restante}}
+def montar_contatos_operadora(store: Store, date_str: str, cnpj: str, asns: list[int], servico: str = "fixa") -> list[dict]:
+    """Contatos de uma operadora (CNPJ de 14 dígitos, `asns` do índice do snapshot), sem a cota: as rotas `/acessos/operadora/{cnpj}/contacts`
+    e `/acessos-movel/…` e a tool `operadora_contatos` do MCP. `servico`: `fixa` (SCM) ou `movel` (SMP)."""
+    dados = store.smp_for_cnpj_with_contacts(date_str, cnpj) if servico == "movel" else store.scm_for_cnpj_with_contacts(date_str, cnpj)
+    pdb_contacts = [c for a in asns for c in store.peeringdb_contacts_for_asn(date_str, a)]
+    geo_orgs = store._load_geo_orgs(date_str) or {}
+    geo_org = next((geo_orgs.get(a) for a in asns if geo_orgs.get(a)), {}) or {}
+    return _consolidate_contacts(dados, pdb_contacts, geo_org)
 
 
 @router.get(

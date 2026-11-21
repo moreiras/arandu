@@ -49,7 +49,7 @@ TAREFAS: list[tuple[str, tuple[str, ...], str]] = [
 ]
 
 # tools visíveis que não são o destino de uma tarefa (ferramentas do próprio guia)
-FORA_DO_GUIA = {"describe_schema"}
+FORA_DO_GUIA = {"describe_schema", "asn_contatos", "operadora_contatos"}   # contatos: na regra 9 das instruções
 
 # collection do `query` → tool que traz o detalhe de uma linha
 DETALHE_DA_COLLECTION = {
@@ -114,7 +114,7 @@ COMO ESCOLHER (pela pergunta):
 7. Tempo → historico_snapshots (datas), historico_serie (série de uma entidade), historico_mudancas (eventos entre snapshots).
 8. Lugar → municipio_resolver (coordenadas de cidade), infra_proximos (cabos e linhas perto de um ponto), facility_lista/facility_detalhe
    (datacenters do PeeringDB), rota_prefixos/rota_rpki/rota_analise (prefixos, RPKI, tabela global). Mapas para desenhar → viz.
-9. Contatos (e-mail, telefone) não saem pelo MCP: diga que estão na interface web, com login. Não chame tool para isso.
+9. Contatos (e-mail, telefone) → asn_contatos ou operadora_contatos, só com chave de MCP e na cota do site; um por chamada.
 
 CÓDIGOS DOS PTTs DO IX.br (sempre minúsculos): {ptts}
 

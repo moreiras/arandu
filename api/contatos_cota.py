@@ -191,20 +191,29 @@ def exigir(request, user: dict, custo: int) -> Optional[int]:
     `CONTATOS_ALLOWLIST` está desligado, 429 acima do teto (com `Retry-After`). Devolve quantas consultas da conta ainda cabem hoje."""
     from fastapi import HTTPException
 
-    from api.auth import contas
     from api.auth.config import get_auth_config
     from api.auth.deps import client_ip
-    from api.limites import rede_do_ip
 
     cfg = get_auth_config(request)
     conta_id = user.get("conta_id")
     if not conta_id and not contatos_pela_allowlist():
         raise HTTPException(401, detail="Os contatos exigem login com uma conta.")
+    return exigir_da_conta(cfg, conta_id, client_ip(request), custo)
+
+
+def exigir_da_conta(cfg, conta_id: Optional[str], ip: str, custo: int) -> Optional[int]:
+    """O mesmo `exigir` com a conta e o IP já resolvidos: a rota interna do MCP (`/internal/contatos`) cobra aqui, no mesmo registro e com
+    os mesmos tetos do site, e a cota é uma só para a conta nos dois caminhos. Levanta 429 acima do teto."""
+    from fastapi import HTTPException
+
+    from api.auth import contas
+    from api.limites import rede_do_ip
+
     criada_em = None
     if conta_id:
         c = contas.por_id(cfg.data_dir, conta_id)
         criada_em = c.criada_em if c else None
-    r = consumir(cfg.data_dir, conta_id, hash_rede(rede_do_ip(client_ip(request)), cfg.jwt_secret), custo, criada_em)
+    r = consumir(cfg.data_dir, conta_id, hash_rede(rede_do_ip(ip), cfg.jwt_secret), custo, criada_em)
     if not r.ok:
         raise HTTPException(429, detail=mensagem(r), headers={"Retry-After": str(max(1, r.espera_s)), "Cache-Control": "private, no-store"})
     return r.restante_dia

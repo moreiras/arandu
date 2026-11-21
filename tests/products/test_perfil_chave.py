@@ -173,3 +173,48 @@ def test_s13_limite_global_saturado_nao_nega_a_chave_valida(ctx):
     assert r.status_code == 200 and r.json()["valida"] is True
     r = api.post("/internal/mcp-chave/verificar", json={"chave": "arandu_mcp_" + "AAAAAAAA" + "_" + "B" * 52, "cliente": "novo"}, headers=h)
     assert r.status_code == 429 and r.json()["limitada"] is True
+
+
+def test_contatos_pelo_mcp_tem_a_resposta_e_a_cota_do_site(ctx, pipeline, monkeypatch):
+    """`asn_contatos` (MCP) → `POST /internal/contatos`: a mesma lista de `/asns/{asn}/contacts` e a mesma cota da conta (um registro só);
+    sem chave, a tool responde sem contato."""
+    import asyncio
+    import gzip
+    import json
+
+    import httpx
+
+    from mcp_server import tools_contatos as tc
+    from tests.synth.world import T1
+
+    api, cfg, conta = ctx
+    base, _ = pipeline
+    doc = json.load(gzip.open(base / "normalized" / T1 / "summary" / "rdap_contatos.json.gz", "rt"))
+    asn = int(next(a for a, v in doc["contatos"].items() if v["em"]))
+    h = {"X-Internal-Token": TOKEN_INTERNO}
+    corpo = {"conta_id": conta.conta_id, "ip": "203.0.113.5", "tipo": "asn", "id": str(asn)}
+    assert api.post("/internal/contatos", json=corpo).status_code == 403
+    assert api.post("/internal/contatos", json={**corpo, "conta_id": "inexistente"}, headers=h).status_code == 401
+    assert api.post("/internal/contatos", json={**corpo, "tipo": "operadora", "id": "xyz"}, headers=h).status_code == 400
+
+    site = api.get(f"/api/v1/asns/{asn}/contacts").json()
+    assert site["contacts"], "o sintético tem contato RDAP neste AS"
+    interno = api.post("/internal/contatos", json=corpo, headers=h)
+    assert interno.status_code == 200 and interno.headers["cache-control"] == "private, no-store"
+    assert interno.json()["contacts"] == site["contacts"]
+
+    monkeypatch.setenv("MCP_API_URL", "http://api.test")
+    monkeypatch.setattr(tc, "_quem_chama", lambda: (conta.conta_id, "203.0.113.5"))
+    monkeypatch.setattr(tc, "_resolve", lambda d: d or site["snapshot_date"])
+    monkeypatch.setattr(tc, "_cliente", lambda: httpx.AsyncClient(transport=httpx.ASGITransport(app=api.app), timeout=5))
+    assert asyncio.run(tc.asn_contatos(asn))["contacts"] == site["contacts"]
+
+    # site + rota interna + tool = 3 consultas da mesma conta: com teto de 3 por 10 min, a próxima é recusada nos dois caminhos
+    monkeypatch.setenv("CONTATOS_CONTA_RAJADA", "3")
+    assert api.get(f"/api/v1/asns/{asn}/contacts").status_code == 429
+    with pytest.raises(ValueError, match="Tente de novo"):
+        asyncio.run(tc.asn_contatos(asn))
+
+    monkeypatch.setattr(tc, "_quem_chama", lambda: (None, ""))
+    sem = asyncio.run(tc.operadora_contatos("02558157000162"))
+    assert sem["contatos_liberados"] is False and "contacts" not in sem and sem["snapshot_date"] == site["snapshot_date"]

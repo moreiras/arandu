@@ -65,6 +65,7 @@ from mcp_server import tools_financiamento  # noqa: E402,F401
 from mcp_server import tools_grupo  # noqa: E402,F401
 from mcp_server import tools_interconexao  # noqa: E402,F401
 from mcp_server import tools_contratos  # noqa: E402,F401
+from mcp_server import tools_contatos  # noqa: E402,F401
 
 # App ASGI para uvicorn (transporte Streamable HTTP, produção).
 # Limites: nginx (taxa grossa por endereço) e, na aplicação, o orçamento por cliente registrado abaixo (api/limites.py). O SlowAPIMiddleware

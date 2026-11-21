@@ -41,7 +41,8 @@ Resumo do que mais quebra (o completo está nas diretrizes do guia):
 - **Honestidade semântica:** inferido, estimado e hipótese são rotulados; todo número exibido tem fonte e data.
 - **Política editorial:** só dados e comparações, sem juízo de valor, causa ou intenção ("sem declaração", não "omitiu"); ranking
   nominal só com dado medido ou declarado e regra visível; a revisão humana é da metodologia, não de cada resultado.
-- **Privacidade:** contatos (PeeringDB, RDAP) e dados de pessoa física **não** vão para rota pública nem para o MCP. O log de uso
+- **Privacidade:** contatos (PeeringDB, RDAP) e dados de pessoa física **não** vão para rota pública. No MCP, contatos só pelas tools
+  `asn_contatos` e `operadora_contatos`, com chave, cobradas pela API (`POST /internal/contatos`) na mesma cota da conta no site. O log de uso
   (`api/usage_log.py`, `data/ops/usage/`) **nunca** grava IP, cookie, e-mail nem querystring; se mudar o que ele registra, atualize a
   seção 2.2 de `/privacidade`. O registro por conta (`api/uso_conta.py`, `data/ops/uso_conta/`) usa `conta_id` (nunca e-mail nem IP)
   e segue a seção 2.3 de `/privacidade`: detalhe 90 dias, agregados 12 meses; a exclusão de conta é sempre em 30 dias

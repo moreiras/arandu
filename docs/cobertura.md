@@ -4,9 +4,9 @@ Gerado por `python3 scripts/gen_cobertura.py` a partir do OpenAPI, do MCP, do fr
 Não edite à mão. Rota nova precisa de uma entrada em `serve/capabilities/_manuais.yaml` (ou de uma capacidade declarada); lacuna
 sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rotas que os substituem.
 
-- Rotas de dados (GET, não deprecated): **167**; com tool no MCP: **135**; consumidas pela interface: **135**.
+- Rotas de dados (GET, não deprecated): **167**; com tool no MCP: **137**; consumidas pela interface: **135**.
 - Pendências marcadas (`pendente:`): **0**; lacunas sem justificativa: **0**.
-- Tools do MCP geradas de capacidade declarada: **2** de 56.
+- Tools do MCP geradas de capacidade declarada: **2** de 58.
 
 | Rota | MCP | UI | Observação |
 |---|---|---|---|
@@ -16,7 +16,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /acessos/municipios` | `query:acessos_municipio` | ✔ |  |
 | `GET /acessos/municipios/mapa` | — | ✔ | MCP: blob de visualização (GeoJSON); fora do MCP |
 | `GET /acessos/operadora/{cnpj}` | `operadora_acessos` | ✔ |  |
-| `GET /acessos/operadora/{cnpj}/contacts` | — | ✔ | MCP: contatos nunca saem pelo MCP (privacidade); a tool de perfil traz só contacts_available |
+| `GET /acessos/operadora/{cnpj}/contacts` | `operadora_contatos` | ✔ |  |
 | `GET /acessos/operadoras` | `operadora_ranking` | ✔ |  |
 | `GET /acessos/stats` | `historico_acessos` | ✔ |  |
 | `GET /analytics/operators/reach` | `operadora_alcance` | — | UI: sem tela própria hoje; atende o MCP e clientes externos |
@@ -29,7 +29,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /asns/{asn}/acessos` | `operadora_acessos` | ✔ |  |
 | `GET /asns/{asn}/acessos/municipios` | — | ✔ | MCP: operadora_acessos(asn=) traz os 25 maiores municípios (top_municipios); a lista completa sai de query(collection=acessos_municipio) filtrando asns contains <asn> |
 | `GET /asns/{asn}/bloqueios` | `asn_bloqueios` | — | UI: a página usa o mesmo bloco pelo ?include=bloqueios do perfil |
-| `GET /asns/{asn}/contacts` | — | ✔ | MCP: contatos nunca saem pelo MCP (privacidade) |
+| `GET /asns/{asn}/contacts` | `asn_contatos` | ✔ |  |
 | `GET /asns/{asn}/exposicao` | `asn_exposicao` | — | UI: a página usa o mesmo bloco pelo ?include=exposicao do perfil |
 | `GET /asns/{asn}/facilities` | `facility_lista` | — | UI: a página usa o mesmo bloco pelo ?include=facilities do perfil |
 | `GET /asns/{asn}/geo` | `viz` | ✔ |  |

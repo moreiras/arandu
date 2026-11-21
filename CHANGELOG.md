@@ -1,5 +1,18 @@
 # Notas de versão
 
+## v2.0.24
+
+Contatos no MCP, com a cota do site.
+- Tools `asn_contatos` (um AS) e `operadora_contatos` (um CNPJ, `servico=fixa|movel`), só com chave de MCP. A cobrança é da API, numa rota
+  interna (`POST /internal/contatos`, com `X-Internal-Token`): mesmo custo (1 por AS revelado; a operadora custa o número de ASNs do CNPJ),
+  mesmos tetos por conta, por rede e global, mesma suspensão e o mesmo registro de `api/contatos_cota.py`. A cota da conta é uma só no site
+  e no MCP. O MCP não grava em `data/auth/`.
+- Sem chave, a tool responde sem contato (`contatos_liberados: false`) e diz como obter a chave.
+- As rotas `/asns/{asn}/contacts`, `/acessos/operadora/{cnpj}/contacts` e `/acessos-movel/…` passam a montar a lista pelas mesmas funções
+  da rota interna (`montar_contatos_asn`, `montar_contatos_operadora`); a resposta delas não muda.
+- Pós-implantação: além das duas tools, nenhuma tool de contato; `asn_contatos` chamada sem chave não pode devolver contato.
+- Instruções do MCP (regra 9), descrições, matriz de cobertura e AGENTS.md atualizados.
+
 ## v2.0.23
 
 O nome do site no lugar do nome do software nas respostas. Os artefatos do pipeline trazem textos como "n_redes conta os vínculos que o

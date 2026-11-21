@@ -31,7 +31,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from api.auth.deps import require_user
 from api.ratelimit import limiter, LIMIT_CONTACTS
 from api import contatos_cota
-from api.routes.asns import _consolidate_contacts, _contacts_available
+from api.routes.asns import _contacts_available, montar_contatos_operadora
 from api.store import Store
 
 router = APIRouter()
@@ -409,11 +409,7 @@ def get_operadora_contacts(
     asns = store.cnpj_asns_index(date_str).get(clean, [])
     # Cota de contatos: a operadora custa o número de ASNs do CNPJ (mínimo 1), porque revela os contatos de todos eles de uma vez.
     restante = contatos_cota.exigir(request, user, max(1, len(asns)))
-    scm_data = store.scm_for_cnpj_with_contacts(date_str, clean)
-    pdb_contacts = [c for a in asns for c in store.peeringdb_contacts_for_asn(date_str, a)]
-    geo_orgs = store._load_geo_orgs(date_str) or {}
-    geo_org = next((geo_orgs.get(a) for a in asns if geo_orgs.get(a)), {}) or {}
-    contacts = _consolidate_contacts(scm_data, pdb_contacts, geo_org)
+    contacts = montar_contatos_operadora(store, date_str, clean, asns, "fixa")
 
     _log.info("contact_access cnpj=%s conta=%s asns=%d count=%d", clean, (user.get("conta_id") or user.get("provider")), len(asns), len(contacts))
     return {"cnpj": clean, "contacts": contacts, "cota": {"restante_hoje": restante}}

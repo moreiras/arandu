@@ -54,8 +54,8 @@ def get_asn(asn: int, date: Optional[str] = None) -> dict:
     com probabilidade e nível — ver o glossário). `upstreams_*`/`downstreams_*` são só
     vizinhos observados no AS_PATH (deprecado). Quando disponíveis: campo `scm` (outorgas SCM
     Anatel associadas ao CNPJ do AS; sem telefone/e-mail). Para listar/filtrar outorgas SCM use `outorga_lista` ou `query` com
-    collection="scms". Contatos NÃO vêm aqui: `contacts_available` só conta (PeeringDB, Anatel, Receita); os valores ficam na
-    interface web, com login.
+    collection="scms". Contatos NÃO vêm aqui: `contacts_available` só conta (PeeringDB, Anatel, Receita); os valores saem por
+    `asn_contatos`, só com chave de MCP e com a cota de contatos da conta.
 
     Args:
         asn: Número do Sistema Autônomo (ex.: 22548).

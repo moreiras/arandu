@@ -20,7 +20,7 @@ DESCRICOES: dict[str, str] = {
     'asn_detalhe': (
         'Perfil completo de UM AS: nome, CNPJ, UF, PTTs diretos e como originador, prefixos (Registro.br × tabela global), '
         'RPKI, usuários APNIC, IXPs externos, relações inferidas. Não use para vários AS (asn_lote) nem para achar o número '
-        'pelo nome (asn_lista). Sem contatos. Args: asn.'
+        'pelo nome (asn_lista). Sem contatos (asn_contatos). Args: asn.'
     ),
     'asn_exposicao': (
         'Serviços expostos que o Shodan viu (Telnet, RDP, gestão de roteador, bancos de dados) num AS ou, somados, numa UF. '
@@ -246,5 +246,13 @@ DESCRICOES: dict[str, str] = {
         'layer=asns_members|asns_direct|asns_origin|prefixes_v4|prefixes_v6) · hilbert_v4 · hilbert_v6 · hilbert_v4_detail '
         '(slash8) · ixp_hilbert_v4/ixp_hilbert_v6 (code) · map_asns/map_prefixes (uf) · map_pix. Para coordenadas em texto '
         'use geo_localizar.'
+    ),
+    'asn_contatos': (
+        'Contatos de UM AS (PeeringDB, RDAP do Registro.br, Receita, Anatel), com origem e função. Só com chave de MCP; gasta 1 da '
+        'cota de contatos da conta, a mesma do site. Um AS por chamada, nunca em lote. Args: asn.'
+    ),
+    'operadora_contatos': (
+        'Contatos de UMA operadora por CNPJ (PeeringDB dos ASNs, Receita, Anatel). Só com chave de MCP; custa o número de ASNs do '
+        'CNPJ na cota de contatos da conta. Args: cnpj, servico=fixa|movel.'
     ),
 }

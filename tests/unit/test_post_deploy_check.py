@@ -12,7 +12,10 @@ TOOLS = list(pdc.TOOLS_CHAVE) + ["outorga_lista"]
 HTML = b'<!doctype html><html><body><div id="root"></div></body></html>'
 
 
-def fake(version="1.1.5", tools=TOOLS, contacts=401, coleta_ok=True, drop=()):
+SEM_CHAVE = {"result": {"structuredContent": {"snapshot_date": "2026-10-11", "contatos_liberados": False, "motivo": "exige chave"}}}
+
+
+def fake(version="1.1.5", tools=TOOLS, contacts=401, coleta_ok=True, drop=(), mcp_contatos=SEM_CHAVE):
     def call(method, path, body=None, headers=None):
         p = path.split("?")[0]
         if p in drop:
@@ -45,6 +48,8 @@ def fake(version="1.1.5", tools=TOOLS, contacts=401, coleta_ok=True, drop=()):
                 return 200, {"Mcp-Session-Id": "s1"}, b'event: message\r\ndata: {"jsonrpc":"2.0","id":1,"result":{}}\r\n\r\n'
             if m == "tools/list":
                 return 200, {}, ("data: " + json.dumps({"result": {"tools": [{"name": t} for t in tools]}})).encode()
+            if m == "tools/call":
+                return 200, {}, ("data: " + json.dumps(mcp_contatos)).encode()
             return 202, {}, b""
         return 200, {}, HTML
     return call
@@ -73,7 +78,11 @@ def test_contatos_abertos_sao_falha_de_privacidade():
 
 def test_mcp_com_tool_de_contatos_ou_sem_tool_chave():
     r = pdc.run_checks(fake(tools=TOOLS + ["get_peeringdb_contacts"]), "1.1.5", len(TOOLS) + 1)
-    assert failed(r) == ["mcp sem tool de contatos"]
+    assert failed(r) == ["mcp sem tool de contatos além das com chave"]
+    com = TOOLS + list(pdc.TOOLS_CONTATOS)
+    assert failed(pdc.run_checks(fake(tools=com), "1.1.5", len(com))) == []
+    vazou = {"result": {"structuredContent": {"contacts": [{"email": "noc@exemplo.test"}]}}}
+    assert failed(pdc.run_checks(fake(tools=com, mcp_contatos=vazou), "1.1.5", len(com))) == ["mcp: contatos exigem chave"]
     r = pdc.run_checks(fake(tools=[t for t in TOOLS if t != "query"]), "1.1.5", len(TOOLS))
     assert set(failed(r)) == {"mcp tools-chave", "mcp nº de tools = contrato"}
 

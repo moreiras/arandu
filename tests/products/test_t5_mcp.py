@@ -163,8 +163,11 @@ def test_resources_e_prompt_legiveis(srv):
 
 
 def test_nenhuma_tool_devolve_email_ou_telefone_e_nao_ha_tool_de_contatos(srv, ctx):
+    """Contatos só pelas duas tools com chave (`asn_contatos`, `operadora_contatos`, cota do site); aqui não há chave e nenhuma devolve contato."""
     tools = tools_of(srv)
-    assert not [n for n in tools if "contact" in n], "contatos só na interface, com login"
+    assert not [n for n in tools if "contact" in n or ("contato" in n and n not in ("asn_contatos", "operadora_contatos"))]
+    for nome in ("asn_contatos", "operadora_contatos"):
+        assert _chamar(srv, nome, ctx, tools[nome])["contatos_liberados"] is False, nome
     achados = {}
     for name, t in tools.items():
         resposta = _chamar(srv, name, ctx, t)
@@ -411,7 +414,7 @@ def test_nomes_por_dominio_e_aliases_ocultos(srv):
     dominios = ("asn_", "ixp_", "rota_", "operadora_", "municipio_", "uf_", "outorga_", "infra_", "historico_", "geo_", "cdn_", "facility_", "grupo_")
     fora = sorted(n for n in visiveis if not n.startswith(dominios) and n not in {"query", "describe_schema", "viz"})
     assert fora == [], f"tool visível sem nome de domínio: {fora}"
-    assert len(visiveis) <= 56, f"{len(visiveis)} tools visíveis"   # teto: cada tool nova é uma escolha consciente
+    assert len(visiveis) <= 58, f"{len(visiveis)} tools visíveis"   # teto: cada tool nova é uma escolha consciente (+2: contatos com chave)
     todas = set(srv.mcp._tool_manager._tools)
     assert set(srv.mcp.ocultas) == todas - visiveis
     for antigo in sorted(srv.mcp.ocultas):

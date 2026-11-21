@@ -3,7 +3,7 @@
 # Este arquivo faz parte do Arandurape.
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-"""Rotas internas, só para o contêiner do MCP: verificar a chave e enviar eventos de uso por conta.
+"""Rotas internas, só para o contêiner do MCP: verificar a chave, enviar eventos de uso por conta e revelar contatos com a cota do site.
 
 Fora de `/api/v1` (isentas do guard) e que o nginx não encaminha. Exigem `X-Internal-Token` = `INTERNAL_API_TOKEN` (sem fallback de loopback).
 A chave chega no corpo (nunca na URL) e não é registrada; o cliente é o hash diário do IP+navegador que o MCP já calcula.
@@ -83,3 +83,49 @@ def receber_uso(request: Request, corpo: _Eventos) -> JSONResponse:
     for e in corpo.eventos:
         uso_conta.registrar(cfg.data_dir, e.conta, "mcp", e.rota, e.status, e.bytes, e.ms, e.classe)
     return JSONResponse({"recebidos": len(corpo.eventos)})
+
+
+class _Contatos(BaseModel):
+    conta_id: str = Field(max_length=64)
+    ip: str = Field(max_length=64)
+    tipo: str = Field(pattern="^(asn|operadora)$")
+    id: str = Field(max_length=32)
+    servico: str = Field(default="fixa", pattern="^(fixa|movel)$")
+    date: Optional[str] = Field(default=None, max_length=10)
+
+
+@router.post("/contatos")
+def contatos(request: Request, corpo: _Contatos) -> JSONResponse:
+    """Tools `asn_contatos` e `operadora_contatos` do MCP: a conta vem da chave (o MCP já a verificou) e o IP do cliente, para os tetos por
+    rede. Mesmo custo, mesmos tetos e mesmo registro de `/asns/{asn}/contacts` e `/acessos/operadora/{cnpj}/contacts`: a cota da conta é
+    uma só. O MCP não grava em `data/auth/`, por isso a cobrança é aqui."""
+    import re
+
+    from api import contatos_cota
+    from api.routes.asns import montar_contatos_asn, montar_contatos_operadora
+
+    _token(request)
+    cfg = get_auth_config(request)
+    c = contas.por_id(cfg.data_dir, corpo.conta_id)
+    if c is None or c.desativada:
+        raise HTTPException(401, "Conta inexistente ou desativada.")
+    store = request.app.state.store
+    date_str = store.resolve_date(corpo.date)
+    if date_str is None:
+        raise HTTPException(404, "Nenhum snapshot disponível")
+    if corpo.tipo == "asn":
+        if not re.fullmatch(r"[1-9][0-9]{0,9}", corpo.id) or int(corpo.id) > 4294967295:
+            raise HTTPException(400, "ASN inválido")
+        restante = contatos_cota.exigir_da_conta(cfg, corpo.conta_id, corpo.ip, 1)
+        out = montar_contatos_asn(store, date_str, int(corpo.id))
+        _log.info("contact_access", asn=int(corpo.id), conta=corpo.conta_id, count=out["total"], origem="mcp")
+        return JSONResponse({**out, "cota": {"restante_hoje": restante}}, headers={"Cache-Control": "private, no-store"})
+    cnpj = re.sub(r"\D", "", corpo.id)
+    if len(cnpj) != 14:
+        raise HTTPException(400, "CNPJ deve ter 14 dígitos")
+    asns = store.cnpj_asns_index(date_str).get(cnpj, [])
+    restante = contatos_cota.exigir_da_conta(cfg, corpo.conta_id, corpo.ip, max(1, len(asns)))
+    contacts = montar_contatos_operadora(store, date_str, cnpj, asns, corpo.servico)
+    _log.info("contact_access", cnpj=cnpj, conta=corpo.conta_id, asns=len(asns), count=len(contacts), servico=corpo.servico, origem="mcp")
+    return JSONResponse({"snapshot_date": date_str, "cnpj": cnpj, "servico": corpo.servico, "total": len(contacts), "contacts": contacts,
+                         "cota": {"restante_hoje": restante}}, headers={"Cache-Control": "private, no-store"})

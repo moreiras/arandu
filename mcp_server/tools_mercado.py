@@ -32,7 +32,7 @@ def get_operator(cnpj: str, blocos: Optional[list[str]] = None, date: Optional[s
 
     Retorna blocos `scm` (outorgas SCM, SICI fixo, ASNs, grupo econômico), `smp` (móvel), `stfc` e `seac`
     — cada um nulo quando o CNPJ não tem o serviço — e `rede` (agregação de rede dos ASNs: BGP, RPKI, IX.br) uma
-    vez só. Contatos NÃO vêm aqui (só `contacts_available` com a contagem). DUAS DATAS no SICI: cite o
+    vez só. Contatos NÃO vêm aqui (só `contacts_available` com a contagem; os valores, em `operadora_contatos`). DUAS DATAS no SICI: cite o
     `mes_referencia` e o `snapshot_date`. Com `acessos_compartilhados` verdadeiro não some ASes do mesmo CNPJ.
 
     Args:

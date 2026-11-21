@@ -17,7 +17,7 @@
 - http: GET /acessos/operadora/{cnpj}
   mcp: operadora_acessos
 - http: GET /acessos/operadora/{cnpj}/contacts
-  sem_mcp: "contatos nunca saem pelo MCP (privacidade); a tool de perfil traz só contacts_available"
+  mcp: operadora_contatos
 - http: GET /acessos/operadoras
   mcp: operadora_ranking
 - http: GET /acessos/stats
@@ -40,7 +40,7 @@
 - http: GET /asns/{asn}/acessos/municipios
   sem_mcp: "operadora_acessos(asn=) traz os 25 maiores municípios (top_municipios); a lista completa sai de query(collection=acessos_municipio) filtrando asns contains <asn>"
 - http: GET /asns/{asn}/contacts
-  sem_mcp: "contatos nunca saem pelo MCP (privacidade)"
+  mcp: asn_contatos
 - http: GET /asns/{asn}/geo
   mcp: viz
 - http: GET /asns/{asn}/ixp-peers

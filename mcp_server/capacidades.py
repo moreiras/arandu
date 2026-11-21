@@ -6,7 +6,7 @@
 """Tools do MCP geradas das capacidades declaradas (bloco `mcp:` de `serve/capabilities/*.yaml`).
 
 `registrar_tools(mcp, loja, resolver)` cria, para cada operação com `mcp:`, a tool com o nome, o docstring e os parâmetros da
-declaração; a consulta é a mesma da REST (`core/consulta_outorgas.py`). Contatos nunca passam por aqui.
+declaração; a consulta é a mesma da REST (`core/consulta_outorgas.py`). Contatos nunca passam por aqui (só por `asn_contatos` e `operadora_contatos`, com chave).
 Operação sem `mcp:` precisa de `sem_mcp:` com a justificativa (a matriz de cobertura falha se faltar).
 """
 from __future__ import annotations

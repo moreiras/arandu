@@ -38,6 +38,7 @@ ROTAS = [   # (caminho, campos de topo obrigatórios)
     ("/api/v1/rpki/summary", ["br_asns_total"]),
 ]
 TOOLS_CHAVE = ["historico_snapshots", "asn_detalhe", "ixp_detalhe", "query", "describe_schema", "ixp_lista", "operadora_ranking"]   # nomes por domínio
+TOOLS_CONTATOS = ("asn_contatos", "operadora_contatos")    # as únicas com contato, e só com chave de MCP
 PAGINAS = ["/", "/privacidade", "/ixps", "/asns"]       # SPA: todas devolvem o index.html
 
 
@@ -125,7 +126,14 @@ def run_checks(call: Transport, expect_version: str, mcp_tools: int | None) -> l
     add("mcp tools/list", st == 200 and bool(nomes), f"{len(nomes)} tools")
     faltam = [t for t in TOOLS_CHAVE if t not in nomes]
     add("mcp tools-chave", not faltam, f"faltam={faltam}" if faltam else "ok")
-    add("mcp sem tool de contatos", not [n for n in nomes if "contact" in n], "")
+    # contatos só pelas duas tools com chave; o pós-implantação chama sem chave e não pode receber contato
+    extras = [n for n in nomes if ("contact" in n or "contato" in n) and n not in TOOLS_CONTATOS]
+    add("mcp sem tool de contatos além das com chave", not extras, f"extras={extras}" if extras else "")
+    if "asn_contatos" in nomes:
+        st, _, body = call("POST", "/mcp", {"jsonrpc": "2.0", "id": 3, "method": "tools/call",
+                                           "params": {"name": "asn_contatos", "arguments": {"asn": 1251}}}, hdr)
+        texto = json.dumps(_mcp_body(body) or {}, ensure_ascii=False)
+        add("mcp: contatos exigem chave", st == 200 and "contatos_liberados" in texto and "@" not in texto, f"status={st}")
     if mcp_tools is not None:
         add("mcp nº de tools = contrato", len(nomes) == mcp_tools, f"{len(nomes)} (contrato: {mcp_tools})")
 
