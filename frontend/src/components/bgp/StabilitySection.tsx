@@ -237,11 +237,11 @@ type TableSortKey = 'rank' | 'epppd' | 'epppd_v6' | 'epppd_v4' | 'flap'
 function sortEntries(entries: AsStability[], key: TableSortKey, desc: boolean): AsStability[] {
   const getValue = (a: AsStability): number => {
     switch (key) {
-      case 'rank':    return a.rank
-      case 'epppd':   return a.period.events_per_prefix_per_day
-      case 'epppd_v6': return a.period.events_per_prefix_per_day_v6
-      case 'epppd_v4': return a.period.events_per_prefix_per_day_v4
-      case 'flap':    return a.period.flapping_prefixes
+      case 'rank':    return a.rank ?? 0
+      case 'epppd':   return a.period.events_per_prefix_per_day ?? 0
+      case 'epppd_v6': return a.period.events_per_prefix_per_day_v6 ?? 0
+      case 'epppd_v4': return a.period.events_per_prefix_per_day_v4 ?? 0
+      case 'flap':    return a.period.flapping_prefixes ?? 0
     }
   }
   return [...entries].sort((a, b) => {
@@ -283,13 +283,21 @@ export function StabilitySection({ data, deepData, history, categorias, totalMed
   const contagem = useMemo(() => categorias ?? contarCategorias(data.as_stability), [categorias, data])
   const totalMed = totalMedioOuMaior ?? allMed.length
   const listaCompleta = totalMed <= allMed.length   // só o top: a lista completa vem sob demanda
-  const baseRows = showAll && listaCompleta ? allMed : data.as_stability.slice(0, 10)
-  const rows = useMemo(
-    () => sortKey === 'rank' && !showAll
-      ? baseRows  // já ordenado por rank
-      : sortEntries(baseRows, sortKey, sortDesc),
-    [baseRows, sortKey, sortDesc, showAll],
-  )
+  // A tabela recolhida mostra as 10 primeiras linhas da MESMA ordem da lista inteira (severidade média ou maior). Com a lista inteira em
+  // mãos, ordena e corta; com só a visão geral, usa as `ordens` que a API calculou sobre a lista inteira. Ordenar as 10 linhas da visão
+  // geral escondia quem lidera outra coluna (os mais instáveis em IPv4, por exemplo).
+  const rows = useMemo(() => {
+    if (showAll && listaCompleta) return sortEntries(allMed, sortKey, sortDesc)
+    if (listaCompleta) {
+      return sortKey === 'rank' && !sortDesc ? data.as_stability.slice(0, 10) : sortEntries(allMed, sortKey, sortDesc).slice(0, 10)
+    }
+    const ordem = data.ordens?.[sortKey]?.[sortDesc ? 'desc' : 'asc']
+    if (ordem) {
+      const porAsn = new Map([...data.as_stability, ...(data.as_stability_ordens ?? [])].map((a) => [a.asn, a]))
+      return ordem.map((asn) => porAsn.get(asn)).filter((a): a is AsStability => !!a)
+    }
+    return sortEntries(data.as_stability.slice(0, 10), sortKey, sortDesc)   // API sem `ordens`
+  }, [data, allMed, listaCompleta, showAll, sortKey, sortDesc])
 
   const dist = data.distribution[afi]
   const { period } = data

@@ -93,6 +93,18 @@ def _as_path_stats(br_routes: list[dict], afi: str) -> dict:
     }
 
 
+def _topo_de_cada_ordem(linhas: list[dict], chaves: tuple[str, ...], n: int, principal: str) -> list[dict]:
+    """A união dos `n` primeiros e dos `n` últimos de cada coluna ordenável da tabela (AsPathSection.tsx), na ordem de `principal`.
+    A página ordena o que recebe e mostra os `n` primeiros: com só o topo de UMA coluna, ordenar por outra reordenava esse corte e
+    escondia quem lidera a outra coluna (o padrão da tabela de prepending, excesso médio, já caía nesse caso)."""
+    vistos: dict[int, dict] = {}
+    for chave in chaves:
+        ordenadas = sorted(linhas, key=lambda x: (x[chave], -x["asn"]))
+        for r in ordenadas[:n] + ordenadas[-n:]:
+            vistos.setdefault(r["asn"], r)
+    return sorted(vistos.values(), key=lambda x: (-x[principal], x["asn"]))
+
+
 def _top_prependers(br_routes: list[dict], asn_names: dict[int, str], afi: str, top_n: int = 20) -> list[dict]:
     by_asn: dict[int, dict] = defaultdict(lambda: {"routes": 0, "prepend": 0, "excess": []})
     for r in br_routes:
@@ -124,8 +136,7 @@ def _top_prependers(br_routes: list[dict], asn_names: dict[int, str], afi: str, 
             "max_excess":         max(d["excess"]) if d["excess"] else 0,
         })
 
-    results.sort(key=lambda x: -x["routes_with_prepend"])
-    return results[:top_n]
+    return _topo_de_cada_ordem(results, ("routes", "routes_with_prepend", "prepend_pct", "avg_excess"), top_n, "routes_with_prepend")
 
 
 def _upstream_diversity(br_routes: list[dict], asn_names: dict[int, str], afi: str, top_n: int = 50) -> list[dict]:
@@ -158,8 +169,7 @@ def _upstream_diversity(br_routes: list[dict], asn_names: dict[int, str], afi: s
             "main_upstream_pct": main_pct,
         })
 
-    results.sort(key=lambda x: -x["upstream_count"])
-    return results[:top_n]
+    return _topo_de_cada_ordem(results, ("routes", "upstream_count", "main_upstream_pct"), top_n, "upstream_count")
 
 
 def _hygiene_issues(br_routes: list[dict], afi: str, max_entries: int = 200) -> list[dict]:

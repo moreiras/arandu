@@ -874,6 +874,27 @@ def test_visao_geral_da_estabilidade_bgp_traz_o_resumo_sem_as_series_pesadas(tmp
     assert store.bgp_stability_visao_geral("2026-01-01") is None
 
 
+def test_visao_geral_da_estabilidade_bgp_traz_o_topo_de_cada_ordem_da_lista_inteira(tmp_path):
+    """A tabela recolhida ordenada por v4 mostra os mais instáveis em v4 da lista inteira (severidade média ou maior), não as 10 linhas do
+    top por rank reordenadas: o AS 7, 7º no rank e 1º em v4, entra; o de severidade baixa, mesmo com v4 alto, não."""
+    from api.store import Store
+    pub = tmp_path / "published" / "2026-09-20"
+    pub.mkdir(parents=True)
+    (pub / "manifest.json").write_text("{}")
+    ases = [{"asn": i, "rank": i, "severity": "medium", "period": {"events_per_prefix_per_day": 10 - i, "events_per_prefix_per_day_v4": 0.1,
+             "events_per_prefix_per_day_v6": 0.1, "flapping_prefixes": 0}, "hourly": {}} for i in range(1, 9)]
+    ases[6]["period"]["events_per_prefix_per_day_v4"] = 50                     # AS 7
+    ases.append({"asn": 99, "rank": 9, "severity": "low", "period": {"events_per_prefix_per_day_v4": 99}})
+    doc = {"period": {}, "distribution": {}, "as_stability": ases}
+    (pub / "bgp_stability.json").write_text(json.dumps(doc))
+    r = Store(tmp_path).bgp_stability_visao_geral("2026-09-20", top=3)
+    assert [a["asn"] for a in r["as_stability"]] == [1, 2, 3]
+    assert r["ordens"]["epppd_v4"]["desc"][0] == 7 and 99 not in r["ordens"]["epppd_v4"]["desc"]
+    assert r["ordens"]["rank"] == {"asc": [1, 2, 3], "desc": [8, 7, 6]}
+    extras = {a["asn"] for a in r["as_stability_ordens"]}
+    assert 7 in extras and not extras & {1, 2, 3} and all("hourly" not in a for a in r["as_stability_ordens"])
+
+
 def test_outorgas_unificadas_batem_com_as_rotas_por_servico(api, ctx):
     """`/outorgas` tem uma linha por CNPJ com os serviços; stats, mapa e `/outorgas/{cnpj}` iguais às rotas por serviço."""
     todos = api.get("/api/v1/outorgas", params={"limit": 1000}, headers=ALLOWED).json()

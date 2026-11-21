@@ -48,7 +48,10 @@ const ALINHAR = { left: 'text-left', right: 'text-right', center: 'text-center' 
  *  - linhas expansíveis (`linhaExpandida`) e ações no topo (`acoes`, ex.: CSV).
  * Paginar ou expandir listas com mais de 100 itens no servidor continua sendo regra de acesso (`login`): esta tabela só pagina o que já recebeu.
  */
-export function TabelaDados<T>({ colunas, dados, rotulo, tamanhoPagina = 25, tamanhos = [25, 50, 100, 250], linhaExpandida, snapshot, vazio, acoes, forcarCartao, semCartao }: {
+/** Ordenação feita pelo servidor: a tabela recebe só uma página e o clique no cabeçalho pede a lista inteira na nova ordem. */
+export interface OrdemServidor { campo: string; dir: 'asc' | 'desc' }
+
+export function TabelaDados<T>({ colunas, dados, rotulo, tamanhoPagina = 25, tamanhos = [25, 50, 100, 250], linhaExpandida, snapshot, vazio, acoes, forcarCartao, semCartao, ordemServidor, onOrdemServidor }: {
   colunas: ColumnDef<T, any>[]
   dados: T[]
   rotulo: string
@@ -63,11 +66,22 @@ export function TabelaDados<T>({ colunas, dados, rotulo, tamanhoPagina = 25, tam
   forcarCartao?: boolean
   /** Nunca vira cartão (tabelas cujo sentido depende da grade). */
   semCartao?: boolean
+  /** Com `onOrdemServidor`, `dados` é uma parte de uma lista maior: ordenar aqui reordenaria só essa parte e esconderia quem lidera a
+   *  coluna. O clique no cabeçalho vai ao servidor; as colunas que ele não sabe ordenar ficam sem botão (`enableSorting: false`). */
+  ordemServidor?: OrdemServidor | null
+  onOrdemServidor?: (o: OrdemServidor | null) => void
 }) {
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sortingLocal, setSortingLocal] = useState<SortingState>([])
+  const servidor = !!onOrdemServidor
+  const sorting: SortingState = servidor ? (ordemServidor ? [{ id: ordemServidor.campo, desc: ordemServidor.dir === 'desc' }] : []) : sortingLocal
+  const setSorting = (u: SortingState | ((s: SortingState) => SortingState)) => {
+    const novo = typeof u === 'function' ? u(sorting) : u
+    if (!servidor) { setSortingLocal(novo); return }
+    onOrdemServidor!(novo[0] ? { campo: novo[0].id, dir: novo[0].desc ? 'desc' : 'asc' } : null)
+  }
   const estreita = useTelaEstreita()
   const tabela = useReactTable({
-    data: dados, columns: colunas, state: { sorting }, onSortingChange: setSorting,
+    data: dados, columns: colunas, state: { sorting }, onSortingChange: setSorting, manualSorting: servidor,
     getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel(), getPaginationRowModel: getPaginationRowModel(),
     getExpandedRowModel: getExpandedRowModel(), getRowCanExpand: () => !!linhaExpandida,
     initialState: { pagination: { pageSize: tamanhoPagina } },

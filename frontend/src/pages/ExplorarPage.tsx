@@ -106,7 +106,9 @@ export function ExplorarPage() {
         </p>
       )}
       {resultado.data && daUrl && (
-        <Resultado colecao={daUrl.colecao} resposta={resultado.data} pagina={daUrl.pagina} onPagina={(p) => executar({ ...daUrl, pagina: p })} />
+        <Resultado colecao={daUrl.colecao} resposta={resultado.data} pagina={daUrl.pagina} onPagina={(p) => executar({ ...daUrl, pagina: p })}
+          ordem={daUrl.ordem} onOrdem={(o) => executar({ ...daUrl, ordem: o, pagina: 1 })}
+          camposOrdenaveis={schema ? new Set(schema.collections[daUrl.colecao]?.fields.map((f) => f.name) ?? []) : undefined} />
       )}
       {corpoExecutado && (
         <details className="text-xs text-gray-500">

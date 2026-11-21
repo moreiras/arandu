@@ -5,7 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { ReactNode } from 'react'
 import type { ColumnDef, Row } from '@tanstack/react-table'
-import { TabelaDados } from '../ui/TabelaDados'
+import { TabelaDados, type OrdemServidor } from '../ui/TabelaDados'
 
 /**
  * Tabela das páginas de entidade: a `TabelaDados`, com cabeçalho fixo, dicas por coluna, seletor de linhas por página e cartões
@@ -20,6 +20,8 @@ export function DataTable<T>(props: {
   vazio?: string
   acoes?: ReactNode
   rotulo: string
+  ordemServidor?: OrdemServidor | null
+  onOrdemServidor?: (o: OrdemServidor | null) => void
 }) {
   return <TabelaDados {...props} />
 }

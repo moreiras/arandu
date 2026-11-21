@@ -117,6 +117,22 @@ class BgpEstabilidadeService:
 
     _BGP_PESADOS = ("hourly", "top_prefixes")   # séries por AS: ficam em /bgp-stability/asn/{asn}
 
+    # colunas ordenáveis da tabela de estabilidade (StabilitySection.tsx): valor ausente conta como 0
+
+    _BGP_ORDENS = {
+
+        "rank": lambda a: a.get("rank") or 0,
+
+        "epppd": lambda a: (a.get("period") or {}).get("events_per_prefix_per_day") or 0,
+
+        "epppd_v6": lambda a: (a.get("period") or {}).get("events_per_prefix_per_day_v6") or 0,
+
+        "epppd_v4": lambda a: (a.get("period") or {}).get("events_per_prefix_per_day_v4") or 0,
+
+        "flap": lambda a: (a.get("period") or {}).get("flapping_prefixes") or 0,
+
+    }
+
     def bgp_stability_visao_geral(self, date_str: str, top: int = 10) -> Optional[dict]:
         """O que a seção de estabilidade da página `/bgp` mostra, sem o documento de ~46 MB: período, distribuição, estatísticas,
         atividade global, a contagem de ASes por categoria de ruído e por severidade e os `top` ASes mais ruidosos (por rank, sem
@@ -135,6 +151,17 @@ class BgpEstabilidadeService:
             categorias[c] = categorias.get(c, 0) + 1
             severidades[a.get("severity", "")] = severidades.get(a.get("severity", ""), 0) + 1
         maiores = sorted(ases, key=lambda a: a.get("rank", 0))[:top]
+        # Tabela recolhida da página: as `top` primeiras linhas da MESMA ordem que "Ver todos" daria (severidade média ou maior), para cada
+        # coluna e sentido. Ordenar só as 10 linhas da visão geral escondia, por exemplo, os mais instáveis em IPv4.
+        medios = sorted((a for a in ases if a.get("severity") in ("critical", "high", "medium")), key=lambda a: a.get("rank", 0))
+        ordens: dict[str, dict[str, list]] = {}
+        escolhidos: dict = {a.get("asn"): a for a in maiores}
+        for chave, valor in self._BGP_ORDENS.items():
+            cresc = sorted(medios, key=valor)                          # estável: empate fica na ordem de rank, como no navegador
+            decr = sorted(medios, key=valor, reverse=True)
+            ordens[chave] = {"asc": [a.get("asn") for a in cresc[:top]], "desc": [a.get("asn") for a in decr[:top]]}
+            for a in cresc[:top] + decr[:top]:
+                escolhidos.setdefault(a.get("asn"), a)
         out = {
             "snapshot_date": date_str,
             "period": doc.get("period"), "distribution": doc.get("distribution"), "epppd_stats": doc.get("epppd_stats"),
@@ -143,6 +170,10 @@ class BgpEstabilidadeService:
             "severidades": severidades,
             "medio_ou_maior": sum(severidades.get(k, 0) for k in ("critical", "high", "medium")),
             "as_stability": [{k: v for k, v in a.items() if k not in self._BGP_PESADOS} for a in maiores],
+            # ASes das `ordens` que não estão em `as_stability` (mesmo formato enxuto); `ordens[coluna][asc|desc]` = ASNs, na ordem
+            "as_stability_ordens": [{k: v for k, v in a.items() if k not in self._BGP_PESADOS}
+                                    for asn, a in escolhidos.items() if asn not in {m.get("asn") for m in maiores}],
+            "ordens": ordens,
         }
         if len(cache) >= 4:
             cache.pop(next(iter(cache)))

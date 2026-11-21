@@ -7,6 +7,7 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import type { ColumnDef } from '@tanstack/react-table'
 import { DataTable, EmptyState } from '../../components/entidade'
+import type { OrdemServidor } from '../../components/ui/TabelaDados'
 import { formatarCelula, linkDoCampo } from './consulta'
 
 export interface RespostaConsulta {
@@ -28,8 +29,17 @@ function Celula({ colecao, campo, valor }: { colecao: string; campo: string; val
   return link ? <Link to={link} className="text-primario-600 hover:underline">{texto}</Link> : <span className={typeof valor === 'number' ? 'tabular-nums' : ''}>{texto}</span>
 }
 
-/** Resultado da consulta: tabela (lista ou grupos) com ordenação local, links nos campos-chave e paginação do servidor. */
-export function Resultado({ colecao, resposta, pagina, onPagina }: { colecao: string; resposta: RespostaConsulta; pagina: number; onPagina: (p: number) => void }) {
+/**
+ * Resultado da consulta: tabela (lista ou grupos) com links nos campos-chave e paginação do servidor. Com o resultado inteiro na tela, a
+ * ordenação é local; com só uma página dele (mais de uma página, ou o limite do anônimo), o clique no cabeçalho refaz a consulta com
+ * `sort` no servidor (`onOrdem`), senão reordenaria só a página e esconderia quem lidera a coluna. Só ordenam os campos da coleção.
+ */
+export function Resultado({ colecao, resposta, pagina, onPagina, ordem, onOrdem, camposOrdenaveis }: {
+  colecao: string; resposta: RespostaConsulta; pagina: number; onPagina: (p: number) => void
+  ordem?: OrdemServidor | null; onOrdem?: (o: OrdemServidor | null) => void; camposOrdenaveis?: Set<string>
+}) {
+  const parcial = resposta.mode === 'list' && ((resposta.pages ?? 1) > 1 || (resposta.total ?? 0) > (resposta.items?.length ?? 0))
+  const noServidor = parcial && !!onOrdem
   const linhas = useMemo(() => (resposta.mode === 'aggregate'
     ? (resposta.groups ?? []).map(({ key, ...resto }) => ({ ...key, ...resto }))
     : (resposta.items ?? [])), [resposta])
@@ -37,8 +47,9 @@ export function Resultado({ colecao, resposta, pagina, onPagina }: { colecao: st
     const nomes: string[] = []
     for (const l of linhas.slice(0, 50)) for (const k of Object.keys(l)) if (!nomes.includes(k)) nomes.push(k)
     return nomes.map((n) => ({ id: n, header: n, accessorFn: (r) => r[n], cell: (c) => <Celula colecao={colecao} campo={n} valor={c.getValue()} />,
+      enableSorting: !noServidor || !camposOrdenaveis || camposOrdenaveis.has(n),
       sortingFn: (a, b) => { const x = a.original[n], y = b.original[n]; return typeof x === 'number' && typeof y === 'number' ? x - y : String(x ?? '').localeCompare(String(y ?? '')) } }))
-  }, [linhas, colecao])
+  }, [linhas, colecao, noServidor, camposOrdenaveis])
 
   const total = resposta.mode === 'aggregate' ? (resposta.groups?.length ?? 0) : resposta.total ?? linhas.length
   return (
@@ -52,7 +63,8 @@ export function Resultado({ colecao, resposta, pagina, onPagina }: { colecao: st
       <div className="bg-white rounded-lg border border-gray-200 p-3 overflow-x-auto">
         {linhas.length === 0
           ? <EmptyState mensagem="Nenhuma linha atende à consulta" snapshot={resposta.snapshot_date} />
-          : <DataTable rotulo="Resultado" colunas={colunas} dados={linhas} tamanhoPagina={1000} />}
+          : <DataTable rotulo="Resultado" colunas={colunas} dados={linhas} tamanhoPagina={1000}
+              {...(noServidor ? { ordemServidor: ordem ?? null, onOrdemServidor: onOrdem } : {})} />}
       </div>
       {resposta.mode === 'list' && (resposta.pages ?? 1) > 1 && (
         <nav className="flex items-center gap-2 text-sm" aria-label="Páginas do resultado">

@@ -1,5 +1,20 @@
 # Notas de versão
 
+## v2.0.28
+
+Tabelas que ordenavam só a parte que estava na tela.
+- **Estabilidade BGP (`/bgp?aba=estabilidade`):** a tabela recolhida tinha os 10 primeiros por instabilidade combinada; ordenar por v4
+  reordenava esses 10 e os mais instáveis em IPv4 não apareciam. `/bgp-stability/overview` passa a trazer, para cada coluna e sentido,
+  os 10 primeiros da lista inteira de severidade média ou maior (`ordens`, `as_stability_ordens`), e a tabela mostra essas linhas.
+- **AS_PATH (prepending e diversidade de upstreams, `/bgp`):** o pipeline guardava os 20 (50) primeiros por uma coluna só, e a tabela,
+  que abre ordenada por excesso médio, ordenava esse corte: no snapshot de 2026-11-15 o AS com maior excesso médio (AS53051, 17,0) estava
+  fora. O pipeline passa a guardar os N primeiros e os N últimos de cada coluna ordenável. O snapshot de 2026-11-15 foi **corrigido no
+  lugar**, por decisão do mantenedor: só essas duas listas, recalculadas dos mesmos dados (conferido que a regra antiga reproduz o
+  publicado), com os originais guardados e o registro em `correcoes` no manifesto. O front pede `/routing-analysis` com `esquema=2`,
+  para não servir a versão antiga guardada como `immutable`.
+- **Explorar:** com só uma página do resultado (mais de uma página, ou o limite do anônimo), o clique no cabeçalho refaz a consulta com
+  `sort` no servidor; com o resultado inteiro, segue ordenando na tabela. `TabelaDados` ganha o modo `ordemServidor`.
+
 ## v2.0.27
 
 CI e dependências.

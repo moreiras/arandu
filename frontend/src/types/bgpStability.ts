@@ -176,6 +176,10 @@ export interface BgpStability {
   } & HourlySeries
   as_stability:  AsStability[]
   published_at?: string
+  /** Só na visão geral: os 10 primeiros ASNs de cada ordem da lista "Ver todos" (coluna → sentido → ASNs) e os ASes que não estão em
+   *  `as_stability`. Com eles a tabela recolhida mostra o topo da lista inteira, não as 10 linhas da visão geral reordenadas. */
+  ordens?: Partial<Record<'rank' | 'epppd' | 'epppd_v6' | 'epppd_v4' | 'flap', { asc: number[]; desc: number[] }>>
+  as_stability_ordens?: AsStability[]
 }
 
 /** `GET /bgp-stability/asn/{asn}` (1.4.2.1): o que a página de um AS usa da estabilidade, sem o documento inteiro. */

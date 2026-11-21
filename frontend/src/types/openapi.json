@@ -2154,7 +2154,7 @@
    "url": "http://localhost/fontes"
   },
   "title": "Arandurapé",
-  "version": "2.0.25"
+  "version": "2.0.28"
  },
  "openapi": "3.1.0",
  "paths": {
@@ -5732,7 +5732,7 @@
   },
   "/api/v1/bgp-stability/overview": {
    "get": {
-    "description": "Período, `distribution`, `epppd_stats`, `hourly_global`, a contagem de ASes por categoria de ruído (`categorias`) e por severidade\n(`severidades`, `medio_ou_maior`) e os 10 ASes mais ruidosos em `as_stability` (por `rank`, **sem** `hourly` nem `top_prefixes`).\nAlgumas dezenas de KB em vez dos ~46 MB de `/bgp-stability`, que continua existindo para a lista completa.",
+    "description": "Período, `distribution`, `epppd_stats`, `hourly_global`, a contagem de ASes por categoria de ruído (`categorias`) e por severidade\n(`severidades`, `medio_ou_maior`) e os 10 ASes mais ruidosos em `as_stability` (por `rank`, **sem** `hourly` nem `top_prefixes`).\n`ordens[coluna][asc|desc]` dá os 10 primeiros ASNs da lista de severidade média ou maior ordenada por `rank`, `epppd`, `epppd_v6`,\n`epppd_v4` ou `flap` (prefixos com flap), e `as_stability_ordens` traz os que não estão em `as_stability`, no mesmo formato.\nAlgumas dezenas de KB em vez dos ~46 MB de `/bgp-stability`, que continua existindo para a lista completa.",
     "operationId": "get_bgp_stability_overview_api_v1_bgp_stability_overview_get",
     "parameters": [
      {

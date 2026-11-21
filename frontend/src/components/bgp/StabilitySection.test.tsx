@@ -55,6 +55,16 @@ describe('StabilitySection com a visão geral (1.4.2.5)', () => {
     expect(screen.getByRole('link', { name: 'AS31' })).toBeInTheDocument()
   })
 
+  it('ordenar a tabela recolhida usa a ordem da lista inteira (API), não as 10 linhas do top', () => {
+    const v4 = (asn: number, rank: number, ev4: number) => ({ ...as(asn, rank, 'medium'), period: { ...periodo, events_per_prefix_per_day_v4: ev4 } } as AsStability)
+    const data = { ...base([v4(1, 1, 0.1), v4(2, 2, 0.2)]), ordens: { epppd_v4: { desc: [77, 2], asc: [1, 2] } }, as_stability_ordens: [v4(77, 40, 50)] }
+    montar(<StabilitySection data={data} totalMedioOuMaior={50} onPedirTodos={() => {}} />)
+    expect(screen.queryByRole('link', { name: 'AS77' })).toBeNull()
+    fireEvent.click(screen.getByText('v4'))
+    const links = screen.getAllByRole('link', { name: /^AS\d+$/ }).map((l) => l.textContent)
+    expect(links.slice(0, 2)).toEqual(['AS77', 'AS2'])
+  })
+
   it('sem a visão geral (documento completo) continua contando as categorias no próprio documento', () => {
     montar(<StabilitySection data={base([as(1, 1, 'high', 'critico'), as(2, 2, 'low', 'estavel')])} />)
     expect(screen.getAllByText('Crítico').length).toBeGreaterThan(0)

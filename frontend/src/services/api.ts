@@ -1158,8 +1158,14 @@ export async function postHeartbeat(): Promise<AnonInfo | null> {
   }
 }
 
+/**
+ * Muda a URL quando a resposta muda sem a data mudar. 2: as listas de AS_PATH (prepending e upstreams) passaram a trazer o topo de cada
+ * coluna ordenável (2.0.28), inclusive no snapshot de 2026-11-15, corrigido no lugar; a URL antiga fica `immutable` no navegador e na borda.
+ */
+const ESQUEMA_ROUTING_ANALYSIS = 2
+
 export function fetchRoutingAnalysis(date?: string): Promise<RoutingAnalysis> {
-  return get('/api/v1/routing-analysis', { date })
+  return get('/api/v1/routing-analysis', { date, esquema: ESQUEMA_ROUTING_ANALYSIS })
 }
 
 export function fetchBgpStability(date?: string): Promise<import('../types/bgpStability').BgpStability> {

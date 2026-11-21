@@ -1070,6 +1070,8 @@ export interface paths {
          * Visão geral da estabilidade BGP: o que a página /bgp mostra, sem o documento inteiro
          * @description Período, `distribution`, `epppd_stats`, `hourly_global`, a contagem de ASes por categoria de ruído (`categorias`) e por severidade
          *     (`severidades`, `medio_ou_maior`) e os 10 ASes mais ruidosos em `as_stability` (por `rank`, **sem** `hourly` nem `top_prefixes`).
+         *     `ordens[coluna][asc|desc]` dá os 10 primeiros ASNs da lista de severidade média ou maior ordenada por `rank`, `epppd`, `epppd_v6`,
+         *     `epppd_v4` ou `flap` (prefixos com flap), e `as_stability_ordens` traz os que não estão em `as_stability`, no mesmo formato.
          *     Algumas dezenas de KB em vez dos ~46 MB de `/bgp-stability`, que continua existindo para a lista completa.
          */
         get: operations["get_bgp_stability_overview_api_v1_bgp_stability_overview_get"];
