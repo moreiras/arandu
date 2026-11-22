@@ -78,4 +78,5 @@ fixture: tests/fixtures/raw/siasg_contratos/
 etapa:
   tentativas: 1
   espera_s: 0
+  memoria_mb: 544   # pico do contêiner do worker nas execuções de 2026-11-21 e 22 (amostras de 30 s) com 25% de folga; refine com `arandu memoria`
 pendencias: []

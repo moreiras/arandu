@@ -102,6 +102,7 @@ class EtapaInline(_Base):
     tentativas: int = Field(default=3, ge=1, le=5)
     espera_s: int = Field(default=60, ge=0, le=900)
     politica_falha: Optional[Literal["critica", "opcional", "usar_ultima_valida"]] = None     # padrão: a da fonte
+    memoria_mb: Optional[int] = Field(default=None, ge=1)    # ver Step.memoria_mb
 
 
 class Source(_Base):
@@ -244,6 +245,9 @@ class Step(_Base):
     pesada: bool = False                           # coleta que ocupa GBs: não roda com o disco acima do limite de bloqueio (arandu doctor)
     replay: bool = False                           # reexecutada por `arandu run --compare` (equivale aos estágios do replay)
     replay_se_publicado: Optional[str] = None      # só no compare se este arquivo existir no publicado original
+    # Pico de memória da etapa, medido (`pico_mem_mb` nos relatórios; `arandu memoria` resume), com folga. Sem ele a etapa nunca roda
+    # ao lado de outra: é a reserva que o paralelismo das coletas desconta do orçamento de memória do worker.
+    memoria_mb: Optional[int] = Field(default=None, ge=1)
     descricao: str = ""
 
     @field_validator("id")

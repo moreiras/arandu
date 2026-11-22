@@ -3857,7 +3857,8 @@
           "{date}"
         ],
         "tentativas": 1,
-        "espera_s": 60
+        "espera_s": 60,
+        "memoria_mb": 160
       },
       "nao_verificado": 2,
       "uso_comercial_efetivo": "nao_verificado"
@@ -4994,7 +4995,8 @@
           "{date}"
         ],
         "tentativas": 2,
-        "espera_s": 120
+        "espera_s": 120,
+        "memoria_mb": 320
       },
       "nao_verificado": 2,
       "uso_comercial_efetivo": "nao_verificado"
@@ -5139,7 +5141,8 @@
           "{date}"
         ],
         "tentativas": 1,
-        "espera_s": 60
+        "espera_s": 60,
+        "memoria_mb": 256
       },
       "nao_verificado": 2,
       "uso_comercial_efetivo": "nao_verificado"
@@ -5582,7 +5585,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 600
+        "espera_s": 600,
+        "memoria_mb": 128
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "restrito"
@@ -7366,7 +7370,8 @@
           "{date}"
         ],
         "tentativas": 1,
-        "espera_s": 0
+        "espera_s": 0,
+        "memoria_mb": 544
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "nao_verificado"
@@ -15276,6 +15281,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "memoria_mb": 256,
       "descricao": "Rodízio diário de até 1.500 ASNs (três consultas de contagem por ASN com serviço, 1,1 s entre consultas). O estado do rodízio vem do normalizado anterior; se a coleta falhar (chave ausente ou recusada), copia o último arquivo válido para a data."
     },
     {
@@ -15335,6 +15341,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "memoria_mb": 544,
       "descricao": "Etapa declarada em catalog/sources/siasg_contratos.yaml."
     },
     {
@@ -15470,6 +15477,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "memoria_mb": 128,
       "descricao": "Etapa declarada em catalog/sources/manrs_participantes.yaml."
     },
     {
@@ -15497,6 +15505,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "memoria_mb": 256,
       "descricao": "Etapa declarada em catalog/sources/ixbr_alice_rotas.yaml."
     },
     {
@@ -15524,6 +15533,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "memoria_mb": 320,
       "descricao": "Etapa declarada em catalog/sources/ixbr_alice.yaml."
     },
     {
@@ -15740,6 +15750,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "memoria_mb": 160,
       "descricao": "Etapa declarada em catalog/sources/decix_alice.yaml."
     },
     {
@@ -18062,6 +18073,7 @@
       "so_com_only": false,
       "pesada": true,
       "replay": false,
+      "memoria_mb": 3328,
       "descricao": "Cada família (v6, v4) grava seu próprio manifesto: numa retentativa só a que falhou é refeita."
     },
     {
@@ -18089,6 +18101,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "memoria_mb": 160,
       "descricao": ""
     },
     {
@@ -18116,6 +18129,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "memoria_mb": 160,
       "descricao": ""
     },
     {
@@ -18143,6 +18157,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "memoria_mb": 160,
       "descricao": ""
     },
     {

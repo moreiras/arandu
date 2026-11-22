@@ -1,5 +1,13 @@
 # Notas de versão
 
+## v2.0.38
+
+Memória medida por etapa do pipeline, base para rodar coletas em paralelo.
+- O executor espera o subprocesso de cada etapa com `wait4` e grava no relatório o `pico_mem_mb` (maior RSS entre as tentativas).
+- `memoria_mb` no catálogo (etapa ou `etapa:` da fonte): o pico com folga. Declarado para as coletas longas a partir do amostrador
+  de memória das execuções de 2026-11-21 e 22 (contêiner do worker, a cada 30 s), com 25% de folga; a medição por `wait4` o refina.
+- `arandu memoria`: pico e duração máximos por etapa nos relatórios gravados, contra o declarado.
+
 ## v2.0.37
 
 Sai a pasta `logos/`: sobra de antes da decisão de que o software não tem logotipo (o símbolo e os ícones são da instância,

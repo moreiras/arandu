@@ -18,6 +18,7 @@ na seção "Executor `arandu`" do [guia do desenvolvedor](../guia-do-desenvolved
 | `lockfile.py` | Lock por `flock` em `data/ops/arandu.lock` (sobrevive a contêiner morto, ao contrário de lock por pid). |
 | `compare.py` | `run --compare`: reexecuta as etapas reprodutíveis num diretório temporário e compara com o publicado, pelo critério do `scripts/replay.py`. |
 | `repair.py` | `repair`: acha etapas sem saída primária num snapshot e as reexecuta, com as dependentes. |
+| `medicao.py` | `memoria`: pico de memória (`pico_mem_mb` dos relatórios) e duração por etapa contra o `memoria_mb` do catálogo. |
 | `status.py` | `status`: última versão de cada fonte, frescor e falhas recentes. |
 | `ops.py` | `doctor`: disco, inodes, lock, versões, catálogo e última execução. |
 | `retencao.py` | `gc`: plano e remoção pelos perfis de `catalog/retencao.yaml`, com pisos em código que nenhum perfil desliga. |

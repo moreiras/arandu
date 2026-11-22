@@ -19,7 +19,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from arandu import compare as cmp_  # noqa: E402
-from arandu import executor, lockfile, ops, repair as rp, status as st  # noqa: E402
+from arandu import executor, lockfile, medicao, ops, repair as rp, status as st  # noqa: E402
 from arandu.runner import SubprocessRunner  # noqa: E402
 from core.catalog.loader import dependencias_de_etapas, load_catalog, validate  # noqa: E402
 from core import store as armazem  # noqa: E402
@@ -115,6 +115,12 @@ def cmd_status(a) -> int:
     linhas = st.status_das_fontes(cat, _data_dir(a.data_dir), a.date or executor.hoje())
     print(json.dumps(linhas, ensure_ascii=False, indent=1) if a.json else st.texto(linhas))
     return 1 if any(l["estado"] == "atrasado" and l["politica_falha"] == "critica" for l in linhas) else 0
+
+
+def cmd_memoria(a) -> int:
+    linhas = medicao.resumo(_catalogo(), _data_dir(a.data_dir))
+    print(json.dumps(linhas, ensure_ascii=False, indent=1) if a.json else medicao.texto(linhas))
+    return 0
 
 
 def cmd_doctor(a) -> int:
@@ -348,6 +354,10 @@ def parser() -> argparse.ArgumentParser:
     comum(p)
     p.add_argument("--json", action="store_true")
     p.set_defaults(f=cmd_status)
+    p = sp.add_parser("memoria", help="pico de memória e duração medidos por etapa (relatórios gravados) contra o memoria_mb do catálogo")
+    comum(p)
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(f=cmd_memoria)
     p = sp.add_parser("doctor", help="disco, inodes, lock, versões, catálogo, última execução")
     comum(p)
     p.set_defaults(f=cmd_doctor)

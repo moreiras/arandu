@@ -230,7 +230,7 @@ produtos), `depois_de`, política de falha e janelas por marcador. A ordem é **
 docker compose run --rm worker python -m arandu plan
 docker compose run --rm worker python -m arandu run --date AAAA-MM-DD [--only ETAPA…] [--due] [--retomar] [--dry-run]
 docker compose run --rm worker python -m arandu run --date AAAA-MM-DD --compare --out relatorio.json
-docker compose run --rm worker python -m arandu status | doctor | repair --dry-run | store list | gc --dry-run
+docker compose run --rm worker python -m arandu status | doctor | memoria | repair --dry-run | store list | gc --dry-run
 ```
 
 `run` grava `data/ops/runs/AAAA-MM-DD.json` (por etapa: status, tempo, saída, motivo; `falhas_criticas` e `avisos`),
@@ -245,6 +245,8 @@ Etapas de rede podem ter `tentativas`/`espera_s` no catálogo (erro transitório
 de cada uma em `data/ops/runs/AAAA-MM-DD.host.jsonl`. Ids de etapa renomeados seguem aceitos em `--only` e na retomada
 (`ALIASES_ETAPA` em `core/catalog/loader.py`).
 O pipeline inteiro pelo executor (worker + etapas de host + compare opcional) é `bash scripts/arandu-weekly.sh`.
+
+**Memória por etapa.** Cada etapa roda num subprocesso, esperado com `wait4`: o relatório guarda o `pico_mem_mb` (maior RSS do processo da etapa entre as tentativas). `arandu memoria` junta os relatórios gravados e mostra, por etapa, o pico medido, a duração máxima e o `memoria_mb` declarado no catálogo, apontando as sem declaração e as que passaram dela. O `memoria_mb` é o pico medido com folga; sem ele a etapa nunca roda ao lado de outra.
 
 ### Armazém de versões, cadência e retenção (`data/sources/`, `catalog/retencao.yaml`, `arandu gc`)
 

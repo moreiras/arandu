@@ -245,6 +245,7 @@ class EtapaRelatorio:
     publicados: Optional[list] = None         # arquivos copiados para published/ por `publicar:` da fonte
     versoes: Optional[list] = None            # versões de fonte registradas no armazém por esta etapa
     reutilizadas: Optional[list] = None       # versões do armazém restauradas no lugar da coleta (cadência)
+    pico_mem_mb: Optional[int] = None         # maior RSS do processo da etapa entre as tentativas (base do `memoria_mb` do catálogo)
 
 
 @dataclass
@@ -434,14 +435,17 @@ def executar(cat: Catalog, date: str, data_dir: Path, runner, *, only: Optional[
             t = time.time()
             bloqueio = bloqueada_por_disco(s, data_dir)
             r = Resultado(75, bloqueio) if bloqueio else runner.run(s, date)
+            picos = [r.pico_mem_mb]
             n = 1
             while r.rc != 0 and not bloqueio and n < s.tentativas:      # disco cheio não melhora esperando
                 log(f"[{s.id}] tentativa {n}/{s.tentativas} falhou ({r.motivo}); nova tentativa em {s.espera_s} s")
                 sleep(s.espera_s)
                 n += 1
                 r = runner.run(s, date)
+                picos.append(r.pico_mem_mb)
             if n > 1:
                 e.tentativas = n
+            e.pico_mem_mb = max((p for p in picos if p is not None), default=None)
             e.fim, e.duracao_s, e.exit = agora(), round(time.time() - t, 1), r.rc
             if r.rc == 0:
                 e.status = OK

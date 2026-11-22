@@ -48,3 +48,4 @@ pendencias:
 etapa:
   tentativas: 3
   espera_s: 600
+  memoria_mb: 128   # pico do contêiner do worker nas execuções de 2026-11-21 e 22 (amostras de 30 s) com 25% de folga; refine com `arandu memoria`

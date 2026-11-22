@@ -8,5 +8,6 @@ fontes:
 tentativas: 3
 espera_s: 120
 pesada: true
+memoria_mb: 3328   # pico do contêiner do worker nas execuções de 2026-11-21 e 22 (amostras de 30 s) com 25% de folga; refine com `arandu memoria`
 politica_falha: critica
 descricao: 'Cada família (v6, v4) grava seu próprio manifesto: numa retentativa só a que falhou é refeita.'
