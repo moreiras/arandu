@@ -1,5 +1,11 @@
 # Notas de versão
 
+## v2.0.40
+
+`GET /api/v1/query/{collection}`: o `corpo` aceita até 5.120 caracteres (era 8.192), e o site passa a usar o GET até 5.000
+caracteres codificados (era 6.000); acima disso, o POST, como antes. Com caracteres de 4 bytes, 8.192 caracteres viravam uma URL de
+~96 KiB: o fuzz do T4 falhava às vezes porque o cliente HTTP recusava montar a URL (não era 5xx da API).
+
 ## v2.0.39
 
 Trilha contínua: as coletas em rodízio diário com orçamento saem do pipeline.

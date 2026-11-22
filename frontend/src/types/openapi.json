@@ -2154,7 +2154,7 @@
    "url": "http://localhost/fontes"
   },
   "title": "Arandurapé",
-  "version": "2.0.32"
+  "version": "2.0.40"
  },
  "openapi": "3.1.0",
  "paths": {
@@ -14889,7 +14889,7 @@
       "schema": {
        "default": "{}",
        "description": "Corpo da consulta em JSON (o mesmo do POST).",
-       "maxLength": 8192,
+       "maxLength": 5120,
        "title": "Corpo",
        "type": "string"
       }

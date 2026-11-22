@@ -733,8 +733,9 @@ export function fetchCaminho<T = unknown>(caminho: string, params?: Record<strin
   return get(caminho, params)
 }
 
-/** Corpo maior que isto (codificado na URL) vai pelo POST: o nginx aceita linhas de requisição de ~8 KB. */
-export const MAX_CORPO_NA_URL = 6000
+/** Corpo maior que isto (codificado na URL) vai pelo POST: o nginx aceita linhas de requisição de ~8 KB, e a API aceita no GET até
+ * 5.120 caracteres de corpo (`_MAX_CORPO_GET`, api/routes/query.py). Codificado ≤ 5.000 garante decodificado ≤ 5.000. */
+export const MAX_CORPO_NA_URL = 5000
 
 /**
  * Consulta genérica de uma collection (mesmo motor do MCP): filtro, agregação, ordenação e paginação — ver `GET /api/v1/schema`.

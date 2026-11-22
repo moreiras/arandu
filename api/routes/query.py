@@ -113,7 +113,9 @@ def post_query(
 
 # A linha da requisição passa pelo nginx (~8 KB); corpo maior vai pelo POST (até `_MAX_CORPO_QUERY`, api/main.py). O site manda até
 # MAX_CORPO_NA_URL (frontend/src/services/api.ts) por GET.
-_MAX_CORPO_GET = 8 * 1024
+# 5 KiB de caracteres: cobre os 5.000 do site (MAX_CORPO_NA_URL) e, no pior caso (UTF-8 de 4 bytes, percentual: 12 caracteres na URL
+# por caractere), a URL fica em ~60 KiB, abaixo do teto de 64 KiB do httpx (o fuzz do T4 gerava URLs que o cliente nem montava).
+_MAX_CORPO_GET = 5 * 1024
 
 
 @router.get(
