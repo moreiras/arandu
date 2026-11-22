@@ -1,5 +1,10 @@
 # Notas de versão
 
+## v2.0.36
+
+Espelho do `data/`: os bancos de `auth/` (contas, chaves de MCP, sessões) chegam ao destino sem permissão para outros
+usuários do host (saíam 0664 do diretório de preparo).
+
 ## v2.0.35
 
 Espelho do `data/`: o sal do log de uso (`ops/usage/.salt-*`) fica de fora. Só o contêiner da API o lê, então o rsync

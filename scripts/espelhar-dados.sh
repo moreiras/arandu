@@ -87,7 +87,7 @@ PY
         *) cp -p "$f" "$PREPARO/auth/$nome" ;;
     esac
 done
-chmod -R u+rwX,g+rwX "$PREPARO/auth"
+chmod -R u+rwX,g+rwX,o-rwx "$PREPARO/auth"       # contas e chaves: nada para outros usuários do host de destino
 
 log "espelhando até $ULTIMA para $DESTINO (teto ${BWLIMIT} KiB/s)"
 # 2) tudo menos raw/ (salvo ixbr_members.json), auth/ (vem do preparo) e os manifestos (vão por último). --delete: espelho; o que é

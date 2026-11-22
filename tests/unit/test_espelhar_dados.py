@@ -66,6 +66,7 @@ def test_espelha_sem_o_bruto_e_com_sqlite_consistente(tmp_path):
     assert not (destino / "ops/usage/.salt-2026-11-22").exists()
     assert (destino / "auth/emails.csv").exists()
     assert not (destino / "auth/contas.db-wal").exists()
+    assert (destino / "auth/contas.db").stat().st_mode & 0o007 == 0
     assert sqlite3.connect(destino / "auth/contas.db").execute("select id from contas").fetchall() == [(7,)]
 
 
