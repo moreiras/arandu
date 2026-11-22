@@ -66,6 +66,12 @@ def cmd_plan(a) -> int:
     return 0
 
 
+def _paralelo(a) -> int:
+    """--paralelo N, ou ARANDU_PARALELO; padrão 1 (em série). Só as coletas com destino e memória medida rodam lado a lado."""
+    v = getattr(a, "paralelo", None)
+    return max(1, int(v)) if v is not None else executor.paralelo_do_ambiente()
+
+
 def cmd_run(a) -> int:
     cat = _catalogo()
     date = a.date or executor.hoje()
@@ -78,9 +84,10 @@ def cmd_run(a) -> int:
         print(cmp_.resumo(rep))
         return 1 if (cmp_.diferencas_novas(rep) or rep.get("etapa_falhou")) else 0
     try:
-        rel = executor.executar(cat, date, data, SubprocessRunner({"DATA_DIR": str(data)} if a.data_dir else None),
+        par = _paralelo(a)
+        rel = executor.executar(cat, date, data, SubprocessRunner({"DATA_DIR": str(data)} if a.data_dir else None, prefixar=par > 1),
                                 only=a.only, due=a.due, retomar=a.retomar, pin_sources=a.pin_sources, dry_run=a.dry_run, force=a.force, versao=_versao(),
-                                publicar=getattr(a, "publicar", False))
+                                publicar=getattr(a, "publicar", False), paralelo=par)
     except executor.LockOcupado as exc:
         print(f"ERRO: {exc}", file=sys.stderr)
         return 3
@@ -100,8 +107,9 @@ def cmd_continuo(a) -> int:
     date = a.date or executor.hoje()
     data = _data_dir(a.data_dir)
     try:
-        rel = executor.executar(cat, date, data, SubprocessRunner({"DATA_DIR": str(data)} if a.data_dir else None),
-                                only=a.only, continuo=True, dry_run=a.dry_run, versao=_versao())
+        par = _paralelo(a)
+        rel = executor.executar(cat, date, data, SubprocessRunner({"DATA_DIR": str(data)} if a.data_dir else None, prefixar=par > 1),
+                                only=a.only, continuo=True, dry_run=a.dry_run, versao=_versao(), paralelo=par)
     except executor.LockOcupado as exc:
         print(f"a trilha contínua já está em andamento: {exc}", file=sys.stderr)
         return 3
@@ -341,6 +349,7 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--publicar", action="store_true", help="com --due: abre a janela de publicação (roda análises e produtos mesmo antes do intervalo de ARANDU_PUBLICACAO_DIAS, padrão 7)")
     p.add_argument("--pin-sources", dest="pin_sources", action="store_true", help="reconstrói o snapshot com as versões de fonte fixadas no manifesto (não coleta)")
     p.add_argument("--retomar", action="store_true", help="pula as etapas já concluídas no dia (relatório do arandu)")
+    p.add_argument("--paralelo", type=int, default=None, help="coletas ao mesmo tempo (padrão: ARANDU_PARALELO ou 1); uma por destino, no orçamento de memória")
     p.add_argument("--force", action="store_true")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--compare", action="store_true", help="reexecuta as etapas reprodutíveis em diretório de teste e compara (critério do replay)")
@@ -379,6 +388,7 @@ def parser() -> argparse.ArgumentParser:
     p = sp.add_parser("continuo", help="trilha contínua: só as coletas `continua: true` (rodízios diários), com lock e relatório próprios")
     comum(p)
     p.add_argument("--only", nargs="+", help="só estas etapas contínuas")
+    p.add_argument("--paralelo", type=int, default=None, help="coletas ao mesmo tempo (padrão: ARANDU_PARALELO ou 1)")
     p.add_argument("--dry-run", action="store_true")
     p.set_defaults(f=cmd_continuo)
     p = sp.add_parser("memoria", help="pico de memória e duração medidos por etapa (relatórios gravados) contra o memoria_mb do catálogo")

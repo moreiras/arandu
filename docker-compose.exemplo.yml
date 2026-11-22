@@ -178,6 +178,10 @@ services:
       - SHODAN_INTERVALO_S=${SHODAN_INTERVALO_S:-}
       - RDAP_ASNS_POR_EXECUCAO=${RDAP_ASNS_POR_EXECUCAO:-}           # RDAP de contatos do Registro.br
       - RDAP_INTERVALO_S=${RDAP_INTERVALO_S:-}
+      # Coletas em paralelo (arandu run/continuo): quantas ao mesmo tempo (vazio = 1, em série) e a memória para elas (vazio = 80% do teto
+      # do contêiner). Só rodam lado a lado as etapas com destino conhecido e memoria_mb medido, uma por destino.
+      - ARANDU_PARALELO=${ARANDU_PARALELO:-}
+      - ARANDU_MEM_ORCAMENTO_MB=${ARANDU_MEM_ORCAMENTO_MB:-}
       # Identidade do site: vazio = padrão de core/site.py (Arandurapé, http://localhost)
       - SITE_NOME=${SITE_NOME:-}
       - SITE_NOME_EXTENSO=${SITE_NOME_EXTENSO:-}

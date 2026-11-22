@@ -7,8 +7,8 @@
 # Trilha contínua: as coletas em rodízio diário com orçamento (`continua: true` no catálogo; hoje o Alice-LG do IX.br e o RDAP de
 # contatos do Registro.br) rodam aqui, fora do `arandu-weekly.sh`, no serviço `worker_continuo` (teto de memória próprio), com lock e
 # relatório próprios (data/ops/runs/continuo/AAAA-MM-DD.json). O pipeline não as coleta: restaura do armazém a última versão que esta
-# trilha registrou. As duas trilhas podem rodar ao mesmo tempo: nenhuma etapa do pipeline fala com os destinos destas (lg.ix.br,
-# rdap.registro.br), e a cortesia é por destino.
+# trilha registrou. As duas trilhas podem rodar ao mesmo tempo: a cortesia é por destino, e o executor segura um lock por host
+# (data/ops/destinos/) que vale entre elas.
 #
 #   bash scripts/arandu-continuo.sh
 #

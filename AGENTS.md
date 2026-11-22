@@ -56,7 +56,8 @@ Resumo do que mais quebra (o completo está nas diretrizes do guia):
 - **Frontend:** hover não deve disparar estado do React (use CSS); mapas e gráficos não re-renderizam por hover. Qualquer 401 abre o
   modal de login; não mostre erro cru. IPv6 antes de IPv4 em toda ordem visual e texto (`lib/familias.ts`); acessibilidade
   ABNT NBR 17225 / WCAG 2.2 AA (`tests/e2e/acessibilidade.js`).
-- **Coleta:** `User-Agent` identificado, uma requisição por vez, ≥ 1 s entre requisições, `robots.txt` respeitado, só fontes abertas;
+- **Coleta:** `User-Agent` identificado, uma requisição por vez **por destino (host)**, ≥ 1 s entre requisições, `robots.txt` respeitado,
+  só fontes abertas; destinos diferentes podem ser consultados em paralelo (o executor garante: lock por host em `data/ops/destinos/`);
   bruto com dado pessoal é agregado em fluxo e não gravado; campos de terceiros por lista branca.
 - **Limites:** identidade por conta ou rede (IPv6 pelo /64), janelas de minuto, hora e dia, custo por rota (`api/limites.py`); contatos
   só com conta e com cota (`api/contatos_cota.py`). Rota nova cara: some o custo em `custo_api`. Os testes desligam os tetos em

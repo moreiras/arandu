@@ -80,7 +80,7 @@ def _etapas_inline(cat: "Catalog") -> None:
         try:
             cat.steps[sid] = Step(
                 id=sid, nome=src.nome, ordem=ordem, modulo=src.modulo, args=e.args, fontes=[sid],
-                tentativas=e.tentativas, espera_s=e.espera_s, memoria_mb=e.memoria_mb, continua=e.continua,
+                tentativas=e.tentativas, espera_s=e.espera_s, memoria_mb=e.memoria_mb, continua=e.continua, destinos=e.destinos,
                 politica_falha=e.politica_falha or src.politica_falha, descricao=f"Etapa declarada em catalog/sources/{sid}.yaml.")
         except ValidationError as exc:
             cat.errors.append(f"sources/{sid}.yaml: etapa inline inválida: {exc}")

@@ -1,5 +1,18 @@
 # Notas de versão
 
+## v2.0.41
+
+Coletas em paralelo, uma por destino, no orçamento de memória do worker (desligado por padrão).
+- **Cortesia por destino** (decisão do mantenedor, 2026-11-22): uma requisição por vez por host; hosts diferentes podem ser consultados
+  ao mesmo tempo. O executor segura um lock por host (`data/ops/destinos/`) enquanto a etapa roda, em série ou em paralelo e também
+  entre o pipeline e a trilha contínua. O host vem do `origem.url` das fontes; o que mais a etapa consultar vai em `destinos`
+  (`fulltable_routeviews`: RouteViews e RIPE RIS).
+- `arandu run --paralelo N` / `arandu continuo --paralelo N` (ou `ARANDU_PARALELO`): só rodam lado a lado as coletas puras (fontes
+  `bruta`) com destino e `memoria_mb` que caiba no orçamento (`ARANDU_MEM_ORCAMENTO_MB` ou 80% do teto do contêiner); o resto roda
+  sozinho, na ordem do plano, e toda etapa espera as dependências. Em simulação da coleta de 2026-11-22 (durações medidas, sem Alice
+  e RDAP), 4 em paralelo com o worker de 3g levam 5,9 h contra 7,5 h em série; o ganho cresce à medida que as coletas curtas
+  ganham `memoria_mb` (`arandu memoria`).
+
 ## v2.0.40
 
 `GET /api/v1/query/{collection}`: o `corpo` aceita até 5.120 caracteres (era 8.192), e o site passa a usar o GET até 5.000

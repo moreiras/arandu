@@ -104,6 +104,7 @@ class EtapaInline(_Base):
     politica_falha: Optional[Literal["critica", "opcional", "usar_ultima_valida"]] = None     # padrão: a da fonte
     memoria_mb: Optional[int] = Field(default=None, ge=1)    # ver Step.memoria_mb
     continua: bool = False                                    # ver Step.continua
+    destinos: list[str] = Field(default_factory=list)         # ver Step.destinos
 
 
 class Source(_Base):
@@ -252,6 +253,9 @@ class Step(_Base):
     # Coleta contínua (rodízio diário com orçamento): roda na trilha própria (`arandu continuo`, em horário próprio e com lock próprio),
     # nunca dentro do pipeline; no pipeline, a etapa só restaura do armazém a última versão coletada.
     continua: bool = False
+    # Hosts que a etapa consulta além do `origem.url` das fontes dela (que entra sozinho). Cortesia por destino: nunca duas consultas
+    # ao mesmo host ao mesmo tempo (lock por host em data/ops/destinos/, entre o pipeline e a trilha contínua).
+    destinos: list[str] = Field(default_factory=list)
     descricao: str = ""
 
     @field_validator("id")

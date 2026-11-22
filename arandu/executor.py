@@ -363,9 +363,174 @@ def etapa_de_publicacao(cat: Catalog, step: Step, deps: dict[str, set[str]]) -> 
     return any(d in cat.steps and etapa_sem_fonte(cat, cat.steps[d]) for d in deps.get(step.id, set()))
 
 
+# ── destinos, memória e paralelismo das coletas ─────────────────────────────────────────────────────────────────────────────────
+# Cortesia por destino (regra do mantenedor): nunca duas consultas ao mesmo host ao mesmo tempo, nem entre o pipeline e a trilha
+# contínua. Hosts diferentes podem ser consultados em paralelo, dentro do orçamento de memória do worker.
+
+def destinos_da_etapa(cat: Catalog, step: Step) -> set[str]:
+    """Hosts que a etapa consulta: os declarados em `destinos` mais o host do `origem.url` de cada fonte que ela produz.
+
+    URL com molde (`telnet://lg.{ixp}.ix.br`) vira um destino só, com o molde no nome: conservador, nenhum par de PTTs em paralelo."""
+    from urllib.parse import urlsplit
+
+    hosts = {h.strip().lower() for h in step.destinos if h.strip()}
+    for fid in step.fontes:
+        src = cat.sources.get(fid)
+        url = ((src.origem.url if src and src.origem else None) or "").strip()
+        primeiro = url.split()[0] if url else ""
+        if "://" not in primeiro:
+            continue
+        try:
+            netloc = urlsplit(primeiro).netloc
+        except ValueError:
+            continue
+        host = netloc.rsplit("@", 1)[-1].split(":")[0].strip().lower()
+        if host:
+            hosts.add(host)
+    return hosts
+
+
+def paralelizavel(cat: Catalog, step: Step, orcamento_mb: int) -> bool:
+    """Pode rodar ao lado de outras: coleta pura (só fontes `bruta`, que declaram o que leem em `entradas`) do worker, com destino
+    conhecido e pico de memória medido que cabe no orçamento. Derivadas e produtos ficam em série, na ordem do plano (o desempate da
+    ordem cobre dependências que o catálogo não declara)."""
+    fontes = [cat.sources.get(f) for f in step.fontes]
+    return (step.runner == "worker" and step.memoria_mb is not None and step.memoria_mb <= orcamento_mb
+            and bool(fontes) and all(f is not None and f.tipo == "bruta" for f in fontes)
+            and bool(destinos_da_etapa(cat, step)))
+
+
+def orcamento_memoria_mb(env: Optional[dict] = None) -> Optional[int]:
+    """Memória para as etapas em paralelo: ARANDU_MEM_ORCAMENTO_MB ou 80% do teto do cgroup do contêiner; None se não se sabe."""
+    env = os.environ if env is None else env
+    v = str(env.get("ARANDU_MEM_ORCAMENTO_MB") or "").strip()
+    if v.isdigit() and int(v) > 0:
+        return int(v)
+    for arq in ("/sys/fs/cgroup/memory.max", "/sys/fs/cgroup/memory/memory.limit_in_bytes"):
+        try:
+            txt = Path(arq).read_text(encoding="utf-8").strip()
+        except OSError:
+            continue
+        if txt.isdigit() and int(txt) < 1 << 50:            # "max" ou número astronômico = sem teto
+            return int(int(txt) / 2**20 * 0.8)
+    return None
+
+
+def paralelo_do_ambiente(env: Optional[dict] = None) -> int:
+    v = str((os.environ if env is None else env).get("ARANDU_PARALELO") or "").strip()
+    return max(1, int(v)) if v.isdigit() else 1
+
+
+@contextmanager
+def travas_de_destino(data_dir: Path, hosts: set[str], sid: str, log: Callable[[str], None] = print):
+    """flock por host em data/ops/destinos/: vale entre processos (pipeline e trilha contínua). Ordem fixa: sem impasse."""
+    import fcntl
+
+    abertos = []
+    try:
+        for h in sorted(hosts):
+            arq = data_dir / "ops" / "destinos" / (re.sub(r"[^a-z0-9._-]", "_", h) + ".lock")
+            arq.parent.mkdir(parents=True, exist_ok=True)
+            f = open(arq, "a+")
+            abertos.append(f)
+            try:
+                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                log(f"[{sid}] aguardando o destino {h} (em uso por outra execução)")
+                fcntl.flock(f, fcntl.LOCK_EX)
+        yield
+    finally:
+        for f in abertos:
+            try:
+                fcntl.flock(f, fcntl.LOCK_UN)
+            finally:
+                f.close()
+
+
+def em_paralelo(plano: list[Step], preparar, rodar, concluir, rel: "Relatorio", deps: dict[str, set[str]], elegivel, destinos,
+                paralelo: int, orcamento_mb: int, estado: dict) -> None:
+    """Agenda o plano com até `paralelo` etapas ao mesmo tempo.
+
+    As etapas que não são `elegivel` rodam sozinhas, na ordem do plano, sempre que nada está rodando e uma delas está pronta. As
+    `elegivel` (coleta pura, destino conhecido, memória medida) começam juntas quando não há dessas prontas: uma por destino, e a soma dos
+    `memoria_mb` em curso nunca passa do orçamento. Toda etapa espera as dependências terminarem. As decisões (`preparar`, `concluir`) ficam na thread principal; só `rodar`
+    vai para as threads. O relatório mantém a ordem do plano."""
+    from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+
+    entradas = {s.id: EtapaRelatorio(id=s.id, status=PLANEJADA, politica=s.politica_falha) for s in plano}
+    rel.etapas.extend(entradas[s.id] for s in plano)
+    ids = {s.id for s in plano}
+    dep = {s.id: deps.get(s.id, set()) & ids for s in plano}
+    pendentes = list(plano)
+    feitas: set[str] = set()
+    rodando: dict = {}
+    ocupados: set[str] = set()
+    em_uso = 0
+
+    def pronta(s: Step) -> bool:
+        return dep[s.id] <= feitas
+
+    def sozinha(s: Step) -> None:
+        pendentes.remove(s)
+        if preparar(s, entradas[s.id]):
+            concluir(s, entradas[s.id], *rodar(s))
+        feitas.add(s.id)
+
+    def esperar() -> None:
+        nonlocal em_uso
+        prontos, _ = wait(list(rodando), return_when=FIRST_COMPLETED)
+        for fut in prontos:
+            s, mb, hs = rodando.pop(fut)
+            em_uso -= mb
+            ocupados.difference_update(hs)
+            concluir(s, entradas[s.id], *fut.result())
+            feitas.add(s.id)
+
+    with ThreadPoolExecutor(max_workers=paralelo, thread_name_prefix="etapa") as pool:
+        while pendentes or rodando:
+            if estado["abortada"]:                      # nada novo começa; o que está rodando termina
+                if rodando:
+                    esperar()
+                    continue
+                for s in list(pendentes):
+                    sozinha(s)                           # preparar marca como não executada
+                continue
+            if not rodando:                              # as que não podem ter companhia vão primeiro, enquanto nada roda
+                excl = next((s for s in pendentes if not elegivel(s) and pronta(s)), None)
+                if excl is not None:
+                    sozinha(excl)
+                    continue
+            lancou = False
+            for s in list(pendentes):
+                if estado["abortada"] or len(rodando) >= paralelo:
+                    break
+                if not (elegivel(s) and pronta(s)):
+                    continue
+                hs, mb = destinos(s), int(s.memoria_mb or 0)
+                if hs & ocupados or em_uso + mb > orcamento_mb:
+                    continue
+                pendentes.remove(s)
+                lancou = True
+                if not preparar(s, entradas[s.id]):
+                    feitas.add(s.id)
+                    continue
+                ocupados.update(hs)
+                em_uso += mb
+                rodando[pool.submit(rodar, s)] = (s, mb, hs)
+            if lancou:
+                continue
+            if rodando:
+                esperar()
+                continue
+            alvo = next((s for s in pendentes if pronta(s)), None)
+            if alvo is None:                             # não acontece num plano em ordem topológica; melhor falhar alto que travar
+                raise RuntimeError("agendamento sem progresso: " + ", ".join(s.id for s in pendentes))
+            sozinha(alvo)
+
+
 def executar(cat: Catalog, date: str, data_dir: Path, runner, *, only: Optional[Iterable[str]] = None,
              due: bool = False, retomar: bool = False, pin_sources: bool = False, dry_run: bool = False, force: bool = False, versao: str = "desconhecida",
-             publicar: bool = False, continuo: bool = False,
+             publicar: bool = False, continuo: bool = False, paralelo: int = 1, orcamento_mem_mb: Optional[int] = None,
              log: Callable[[str], None] = print, env: Optional[dict] = None, usar_lock: bool = True,
              gravar_relatorio: bool = True, sleep: Callable[[float], None] = time.sleep) -> Relatorio:
     plano = planejar(cat, only)
@@ -385,78 +550,86 @@ def executar(cat: Catalog, date: str, data_dir: Path, runner, *, only: Optional[
         if gravar_relatorio and not dry_run:
             _escreve_atomico(path, json.dumps(rel.para_dict(), ensure_ascii=False, indent=2) + "\n")
 
-    def corpo():
-        abortada = False
-        for s in plano:
-            e = EtapaRelatorio(id=s.id, status=PLANEJADA, politica=s.politica_falha)
-            rel.etapas.append(e)
-            if abortada:
-                e.status, e.motivo = NAO_EXECUTADA, f"execução abortada em {rel.abortada_em}"
-                continue
-            if s.runner == "host":
-                e.status, e.motivo = DELEGADA, "etapa de host (compose/shell): roda em scripts/host-steps.sh"
-                continue
-            if s.continua and not explicito:
-                reus, porque = (None, "coleta contínua: roda em arandu continuo") if dry_run else restaurar_continua(cat, s, data_dir, date)
-                e.status, e.motivo, e.reutilizadas = PULADA, porque, reus
-                if not dry_run:
-                    log(f"[{s.id}] {porque}")
-                    salvar()
-                continue
-            if s.so_com_only and not explicito:
-                e.status, e.motivo = PULADA, "etapa manual: só roda com --only"
-                continue
-            if s.somente_se_executou and not explicito and not all(x in executadas for x in s.somente_se_executou):
-                e.status, e.motivo = PULADA, "etapa de que depende não rodou nesta execução"
-                continue
-            if retomar and s.id in ok_antes and not explicito:
-                refez = sorted(deps.get(s.id, set()) & refeitas)
-                if not refez:
-                    e.status, e.motivo = RETOMADA, "já concluída neste dia"
-                    executadas.add(s.id)
-                    continue
-                e.motivo = f"concluída antes, mas refeita porque {', '.join(refez)} foi(ram) executada(s) de novo"
-            if pin_sources and s.fontes and not explicito:
-                try:
-                    e.reutilizadas = restaurar_pins(cat, s, data_dir, date) or None
-                except FileNotFoundError as exc:
-                    e.status, e.motivo, e.exit = FALHA, str(exc), 1
-                    if s.politica_falha == "critica":
-                        abortada, rel.abortada_em = True, s.id
-                    continue
-                e.status, e.motivo = PULADA, "versão fixada pelo manifesto (--pin-sources)"
-                continue
-            if due and not explicito and not publicar and etapa_de_publicacao(cat, s, deps):
-                aberta, porque = publicacao.janela_aberta(data_dir, date, env)
-                if not aberta:       # coleta por fonte todo dia, snapshot só a cada N dias
+    estado = {"abortada": False}
+
+    def abortar(s: Step) -> None:
+        estado["abortada"] = True
+        rel.abortada_em = s.id
+
+    def preparar(s: Step, e: EtapaRelatorio) -> bool:
+        """Decide a etapa sem rodá-la (pular, restaurar, retomar, dry-run). True = tem de rodar. Só na thread principal."""
+        if estado["abortada"]:
+            e.status, e.motivo = NAO_EXECUTADA, f"execução abortada em {rel.abortada_em}"
+            return False
+        if s.runner == "host":
+            e.status, e.motivo = DELEGADA, "etapa de host (compose/shell): roda em scripts/host-steps.sh"
+            return False
+        if s.continua and not explicito:
+            reus, porque = (None, "coleta contínua: roda em arandu continuo") if dry_run else restaurar_continua(cat, s, data_dir, date)
+            e.status, e.motivo, e.reutilizadas = PULADA, porque, reus
+            if not dry_run:
+                log(f"[{s.id}] {porque}")
+                salvar()
+            return False
+        if s.so_com_only and not explicito:
+            e.status, e.motivo = PULADA, "etapa manual: só roda com --only"
+            return False
+        if s.somente_se_executou and not explicito and not all(x in executadas for x in s.somente_se_executou):
+            e.status, e.motivo = PULADA, "etapa de que depende não rodou nesta execução"
+            return False
+        if retomar and s.id in ok_antes and not explicito:
+            refez = sorted(deps.get(s.id, set()) & refeitas)
+            if not refez:
+                e.status, e.motivo = RETOMADA, "já concluída neste dia"
+                executadas.add(s.id)
+                return False
+            e.motivo = f"concluída antes, mas refeita porque {', '.join(refez)} foi(ram) executada(s) de novo"
+        if pin_sources and s.fontes and not explicito:
+            try:
+                e.reutilizadas = restaurar_pins(cat, s, data_dir, date) or None
+            except FileNotFoundError as exc:
+                e.status, e.motivo, e.exit = FALHA, str(exc), 1
+                if s.politica_falha == "critica":
+                    abortar(s)
+                return False
+            e.status, e.motivo = PULADA, "versão fixada pelo manifesto (--pin-sources)"
+            return False
+        if due and not explicito and not publicar and etapa_de_publicacao(cat, s, deps):
+            aberta, porque = publicacao.janela_aberta(data_dir, date, env)
+            if not aberta:       # coleta por fonte todo dia, snapshot só a cada N dias
+                e.status, e.motivo = PULADA, porque
+                return False
+        if due and not explicito:
+            devida, porque = devida_por_cadencia(cat, s, data_dir, date, env)
+            if not devida:
+                reus = [] if dry_run else reutilizar_versao(cat, s, data_dir, date)
+                if reus or dry_run or not s.fontes:
                     e.status, e.motivo = PULADA, porque
-                    continue
-            if due and not explicito:
-                devida, porque = devida_por_cadencia(cat, s, data_dir, date, env)
-                if not devida:
-                    reus = [] if dry_run else reutilizar_versao(cat, s, data_dir, date)
-                    if reus or dry_run or not s.fontes:
-                        e.status, e.motivo = PULADA, porque
-                        e.reutilizadas = reus or None
-                        if reus and not dry_run:
-                            salvar()
-                        continue
-                    # nada no armazém para reutilizar: a etapa roda mesmo fora da cadência
-                    e.motivo = f"{porque}; sem versão para reutilizar — executada"
-            if not explicito and not due:
-                devida, porque = vencida(s, data_dir, date, env)
-                if not devida:
-                    e.status, e.motivo = PULADA, porque
-                    if s.reaproveita and not dry_run:
-                        feito, msg = reaproveitar(s, data_dir, date)
-                        e.motivo = f"{porque}; {msg}"
-                    continue
-            if dry_run:
-                e.status, e.motivo = PLANEJADA, "dry-run"
-                continue
-            log(f"[{s.id}] {s.nome}...")
-            e.inicio = agora()
-            t = time.time()
+                    e.reutilizadas = reus or None
+                    if reus and not dry_run:
+                        salvar()
+                    return False
+                # nada no armazém para reutilizar: a etapa roda mesmo fora da cadência
+                e.motivo = f"{porque}; sem versão para reutilizar — executada"
+        if not explicito and not due:
+            devida, porque = vencida(s, data_dir, date, env)
+            if not devida:
+                e.status, e.motivo = PULADA, porque
+                if s.reaproveita and not dry_run:
+                    feito, msg = reaproveitar(s, data_dir, date)
+                    e.motivo = f"{porque}; {msg}"
+                return False
+        if dry_run:
+            e.status, e.motivo = PLANEJADA, "dry-run"
+            return False
+        log(f"[{s.id}] {s.nome}...")
+        e.inicio = agora()
+        return True
+
+    def rodar(s: Step) -> tuple:
+        """Roda a etapa com as tentativas, sob o lock dos destinos dela. Pode ir para uma thread: não mexe no relatório."""
+        t = time.time()
+        with travas_de_destino(data_dir, destinos_da_etapa(cat, s), s.id, log):
             bloqueio = bloqueada_por_disco(s, data_dir)
             r = Resultado(75, bloqueio) if bloqueio else runner.run(s, date)
             picos = [r.pico_mem_mb]
@@ -467,45 +640,65 @@ def executar(cat: Catalog, date: str, data_dir: Path, runner, *, only: Optional[
                 n += 1
                 r = runner.run(s, date)
                 picos.append(r.pico_mem_mb)
-            if n > 1:
-                e.tentativas = n
-            e.pico_mem_mb = max((p for p in picos if p is not None), default=None)
-            e.fim, e.duracao_s, e.exit = agora(), round(time.time() - t, 1), r.rc
-            if r.rc == 0:
-                e.status = OK
-                executadas.add(s.id)
-                refeitas.add(s.id)
-                e.publicados, erro_pub = publicar_fontes(cat, s, data_dir, date, log)
-                if erro_pub:
-                    e.status, e.motivo = FALHA, erro_pub
-                    if s.politica_falha == "critica":
-                        abortada = True
-                        rel.abortada_em = s.id
-                    salvar()
-                    continue
-                e.versoes = registrar_versoes(cat, s, data_dir, date, versao, log) or None
-                if s.gravar_marcador:
-                    _escreve_atomico(data_dir / s.gravar_marcador, json.dumps({"date": date}))
+        return r, n, picos, round(time.time() - t, 1)
+
+    def concluir(s: Step, e: EtapaRelatorio, r: Resultado, n: int, picos: list, duracao: float) -> None:
+        """Status, publicação, armazém e política de falha. Só na thread principal."""
+        if n > 1:
+            e.tentativas = n
+        e.pico_mem_mb = max((p for p in picos if p is not None), default=None)
+        e.fim, e.duracao_s, e.exit = agora(), duracao, r.rc
+        if r.rc == 0:
+            e.status = OK
+            executadas.add(s.id)
+            refeitas.add(s.id)
+            e.publicados, erro_pub = publicar_fontes(cat, s, data_dir, date, log)
+            if erro_pub:
+                e.status, e.motivo = FALHA, erro_pub
+                if s.politica_falha == "critica":
+                    abortar(s)
+                salvar()
+                return
+            e.versoes = registrar_versoes(cat, s, data_dir, date, versao, log) or None
+            if s.gravar_marcador:
+                _escreve_atomico(data_dir / s.gravar_marcador, json.dumps({"date": date}))
+        else:
+            e.status, e.motivo = FALHA, r.motivo
+            if s.politica_falha == "usar_ultima_valida":
+                feito, msg = reaproveitar(s, data_dir, date)
+                e.motivo = f"{r.motivo}; {msg}"
+                log(f"[{s.id}] AVISO: falhou; {msg}")
+            elif s.politica_falha == "critica":
+                abortar(s)
+                log(f"[{s.id}] ERRO: etapa crítica falhou — execução abortada")
             else:
-                e.status, e.motivo = FALHA, r.motivo
-                if s.politica_falha == "usar_ultima_valida":
-                    feito, msg = reaproveitar(s, data_dir, date)
-                    e.motivo = f"{r.motivo}; {msg}"
-                    log(f"[{s.id}] AVISO: falhou; {msg}")
-                elif s.politica_falha == "critica":
-                    abortada = True
-                    rel.abortada_em = s.id
-                    log(f"[{s.id}] ERRO: etapa crítica falhou — execução abortada")
-                else:
-                    log(f"[{s.id}] AVISO: falhou ({r.motivo}) — etapa opcional, segue")
-                if s.politica_falha == "opcional" and not dry_run:
-                    # o manifesto declara a última versão boa do armazém para esta fonte: o arquivo tem de estar na data
-                    # (sem isso, cabos e linhas de transmissão somem do snapshot)
-                    reus = reutilizar_versao(cat, s, data_dir, date)
-                    if reus:
-                        e.reutilizadas = reus
-                        log(f"[{s.id}] AVISO: usando a versão do armazém de {reus[0]['as_of']}")
-            salvar()
+                log(f"[{s.id}] AVISO: falhou ({r.motivo}) — etapa opcional, segue")
+            if s.politica_falha == "opcional" and not dry_run:
+                # o manifesto declara a última versão boa do armazém para esta fonte: o arquivo tem de estar na data
+                # (sem isso, cabos e linhas de transmissão somem do snapshot)
+                reus = reutilizar_versao(cat, s, data_dir, date)
+                if reus:
+                    e.reutilizadas = reus
+                    log(f"[{s.id}] AVISO: usando a versão do armazém de {reus[0]['as_of']}")
+        salvar()
+
+    def sequencial():
+        for s in plano:
+            e = EtapaRelatorio(id=s.id, status=PLANEJADA, politica=s.politica_falha)
+            rel.etapas.append(e)
+            if preparar(s, e):
+                concluir(s, e, *rodar(s))
+
+    def corpo():
+        orc = orcamento_mem_mb if orcamento_mem_mb is not None else orcamento_memoria_mb(env)
+        if paralelo > 1 and not dry_run and orc:
+            log(f"[arandu] coletas em paralelo: até {paralelo} ao mesmo tempo, orçamento de memória {orc} MB, uma por destino")
+            em_paralelo(plano, preparar, rodar, concluir, rel, deps, lambda s: paralelizavel(cat, s, orc),
+                        lambda s: destinos_da_etapa(cat, s), paralelo, orc, estado)
+        else:
+            if paralelo > 1 and not dry_run:
+                log("[arandu] paralelo pedido, mas sem orçamento de memória (ARANDU_MEM_ORCAMENTO_MB ou teto do cgroup): roda em série")
+            sequencial()
         return None
 
     if usar_lock and not dry_run:

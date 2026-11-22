@@ -61,9 +61,12 @@ contratos, cenários plantados e regras de negócio).
 
 ### Coleta
 
-- `User-Agent` identificado, uma requisição por vez, pausa mínima de 1 s (ou a que a fonte pedir), orçamento por rodada, parar ao
+- `User-Agent` identificado, uma requisição por vez **por destino (host)**, pausa mínima de 1 s (ou a que a fonte pedir), orçamento
+  por rodada, parar ao
   primeiro sinal de bloqueio (403, 429, conexão derrubada) e registrar. O limite de 1 s é garantido em toda requisição, repetições
-  incluídas (`core.rodizio.Limitador`).
+  incluídas (`core.rodizio.Limitador`). Destinos diferentes podem ser consultados ao mesmo tempo, o mesmo destino nunca (decisão do
+  mantenedor em 2026-11-22): o executor segura um lock por host (`data/ops/destinos/`) enquanto a etapa roda, também entre o pipeline
+  e a trilha contínua. O host vem do `origem.url` das fontes da etapa; o que mais ela consultar vai em `destinos` no catálogo.
 - **`robots.txt` é respeitado.** Exceção só por decisão do mantenedor, por host e com registro no catálogo (hoje: `lg.de-cix.net`,
   cuja página convida ao uso da API em scripts).
 - **Só fontes abertas, sem depender de pedido nem de parceria.** Dados restritos, exclusivos ou sob termo de acesso
@@ -247,6 +250,8 @@ de cada uma em `data/ops/runs/AAAA-MM-DD.host.jsonl`. Ids de etapa renomeados se
 O pipeline inteiro pelo executor (worker + etapas de host + compare opcional) é `bash scripts/arandu-weekly.sh`.
 
 **Trilha contínua.** As coletas em rodízio diário com orçamento (`continua: true` na etapa; hoje `ixbr_alice`, `ixbr_alice_rotas` e `rdap_contatos`) não rodam no pipeline: `arandu continuo` as roda à parte (`scripts/arandu-continuo.sh`, no serviço `worker_continuo`, com teto de memória próprio), com lock (`data/ops/arandu-continuo.lock`) e relatório (`data/ops/runs/continuo/`) próprios, num horário que termina antes do pipeline das 04:00. No pipeline a etapa só restaura do armazém a última versão registrada pela trilha contínua (o `as_of` fica no relatório e no manifesto); quem depende dela roda normalmente. `arandu run --only <id>` ainda a roda à mão.
+
+**Coletas em paralelo.** `arandu run --paralelo N` (ou `ARANDU_PARALELO`; padrão 1, em série) deixa até N coletas rodarem ao mesmo tempo. Só rodam lado a lado as coletas puras (fontes `bruta`) com destino conhecido e `memoria_mb` declarado que caiba no orçamento (`ARANDU_MEM_ORCAMENTO_MB` ou 80% do teto do contêiner): uma por destino, e a soma dos `memoria_mb` em curso nunca passa do orçamento. As demais (processamento e coletas sem medição) rodam sozinhas, na ordem do plano, e toda etapa espera as dependências. A saída de cada etapa sai com o prefixo `[id]` no log.
 
 **Memória por etapa.** Cada etapa roda num subprocesso, esperado com `wait4`: o relatório guarda o `pico_mem_mb` (maior RSS do processo da etapa entre as tentativas). `arandu memoria` junta os relatórios gravados e mostra, por etapa, o pico medido, a duração máxima e o `memoria_mb` declarado no catálogo, apontando as sem declaração e as que passaram dela. O `memoria_mb` é o pico medido com folga; sem ele a etapa nunca roda ao lado de outra.
 
