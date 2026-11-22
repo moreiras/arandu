@@ -19,6 +19,7 @@ um traz o uso e as variáveis.
 | `lib-docker.sh` | Detecta o Docker rootless e o endereço do daemon do usuário (para ser carregado com `source`; usado por `instalar.sh`, `restart-safe.sh` e `preparar-dados-api-sem-root.sh`). |
 | `vigia-saude.sh` | Reinicia, com recuo, o serviço que o Docker marcou como `unhealthy` (timer do systemd em `docker/systemd/`). |
 | `vigia-externo.sh` | Verificação de ponta a ponta pela URL pública: frontend, API e MCP, cada um com o seu critério. |
+| `espelhar-dados.sh` | Espelha o `data/` (menos o bruto) em outra instância por rsync sobre SSH quando há snapshot publicado novo; agendado depois do pipeline (`ESPELHO_*` no `.env`). |
 | `alerta-telegram.sh` | Envia ao chat configurado a mensagem lida da entrada padrão (só falhas), com intervalo mínimo entre repetições. |
 | `atualiza-faixas-cloudflare.sh` | Regera `docker/nginx-real-ip-cloudflare.inc` a partir das faixas publicadas pela Cloudflare. |
 | `post-deploy-check.sh`, `post_deploy_check.py` | Verificação pós-implantação, só leitura contra a instância no ar (`/health` e versão, rotas-chave, contatos exigem login, MCP, páginas). |

@@ -1,5 +1,13 @@
 # Notas de versão
 
+## v2.0.34
+
+Espelho do `data/` em outra instância (um ambiente de teste com os dados da produção, sem coletor).
+- `scripts/espelhar-dados.sh`: rsync sobre SSH para `ESPELHO_DESTINO`, só quando há snapshot publicado novo (`--forcar` para a
+  primeira carga). Vai tudo menos `raw/`; dele, só os `ixbr_members.json`, que a API ainda lê em tempo de execução, como lê
+  `normalized/`. Os SQLite de `auth/` vão por backup consistente e os `-wal`/`-shm` antigos do destino saem antes; os manifestos vão
+  por último, então o destino nunca vê um snapshot pela metade. O destino é sobrescrito a cada cópia.
+
 ## v2.0.33
 
 Consulta genérica também por GET, cacheável: as perguntas prontas da página inicial deixam de recalcular a cada visita.
