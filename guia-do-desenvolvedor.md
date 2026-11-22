@@ -171,7 +171,6 @@ arandu/                       (raiz do repositório)
 ├── scripts/           instalação, operação, geradores de documentação, CI
 ├── docs/              documentação gerada do catálogo e do código (não edite à mão)
 ├── tests/             testes T0 a T7, dataset sintético, amostras por fonte, carga, E2E
-├── logos/             identidade visual
 ├── collector/ enrich/ analysis/   atalhos para os nomes antigos dos módulos (emitem DeprecationWarning)
 ├── data/              dados gerados (fora do repositório)
 ├── docker-compose.exemplo.yml (+ .prod.yml e .no-nginx.yml)   api, mcp, frontend; worker e rpki por perfil (copiar para docker-compose.yml)

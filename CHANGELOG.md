@@ -1,5 +1,10 @@
 # Notas de versão
 
+## v2.0.37
+
+Sai a pasta `logos/`: sobra de antes da decisão de que o software não tem logotipo (o símbolo e os ícones são da instância,
+em `instancia/marca/`, fora do git). Nada a usava.
+
 ## v2.0.36
 
 Espelho do `data/`: os bancos de `auth/` (contas, chaves de MCP, sessões) chegam ao destino sem permissão para outros
