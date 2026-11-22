@@ -237,9 +237,11 @@ if $ROOTLESS; then
     [[ -n "$DH" ]] || DH="unix:///run/user/$(id -u)/docker.sock"
     CRON_ENV="DOCKER_HOST=$DH "
 fi
-LINHAS="$MARCA: pipeline diário (coleta pela cadência de cada fonte; snapshot semanal) e manutenção das contas (exclusão em 30 dias)
+LINHAS="$MARCA: pipeline diário (coleta pela cadência de cada fonte; snapshot semanal), manutenção das contas (exclusão em 30 dias)
+# e trilha contínua (rodízios diários: Alice-LG, RDAP), às 18:00 UTC para terminar antes do pipeline das 04:00
 0 $HORA * * * cd $REPO_DIR && ${CRON_ENV}ARANDU_MODO=due MEM_SAMPLE_API_CONTAINER=${API_CONTAINER:-api} flock -n /tmp/arandurape-run.lock bash scripts/arandu-weekly.sh >> $REPO_DIR/logs/arandu.log 2>&1
-20 4 * * * cd $REPO_DIR && ${CRON_ENV}$COMPOSE exec -T api python -m api.auth.manutencao >> $REPO_DIR/logs/manutencao.log 2>&1"
+20 4 * * * cd $REPO_DIR && ${CRON_ENV}$COMPOSE exec -T api python -m api.auth.manutencao >> $REPO_DIR/logs/manutencao.log 2>&1
+0 ${HORA_CONTINUO:-18} * * * cd $REPO_DIR && ${CRON_ENV}flock -n /tmp/arandurape-continuo.lock bash scripts/arandu-continuo.sh >> $REPO_DIR/logs/arandu-continuo.log 2>&1"
 if ! $CRON; then
     echo "  (--sem-cron) linhas que entrariam:"; echo "$LINHAS" | sed 's/^/    /'
 elif crontab -l 2>/dev/null | grep -qF "$MARCA"; then

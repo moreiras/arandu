@@ -213,6 +213,20 @@ services:
     # Exemplo: docker compose run --rm worker python -m sources.lg_ixbr.collect
     profiles: ["worker"]
 
+  # Trilha contínua (scripts/arandu-continuo.sh, `arandu continuo`): as coletas em rodízio diário rodam fora do pipeline e podem estar de
+  # pé ao lado dele, então têm teto próprio e pequeno (pico medido de 0,2 a 0,3 GiB em 2026-11-21 e 22), em vez dos 3g do worker.
+  worker_continuo:
+    extends:
+      service: worker
+    memswap_limit: ${WORKER_CONTINUO_MEM_LIMIT:-1g}
+    deploy:
+      resources:
+        limits:
+          memory: ${WORKER_CONTINUO_MEM_LIMIT:-1g}
+          cpus: '1.0'
+          pids: 100
+    profiles: ["worker"]
+
   frontend:
     build:
       context: .

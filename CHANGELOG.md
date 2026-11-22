@@ -1,5 +1,18 @@
 # Notas de versão
 
+## v2.0.39
+
+Trilha contínua: as coletas em rodízio diário com orçamento saem do pipeline.
+- `continua: true` no catálogo (hoje `ixbr_alice`, `ixbr_alice_rotas` e `rdap_contatos`): a etapa roda em `arandu continuo`, à parte, com
+  lock (`data/ops/arandu-continuo.lock`) e relatório (`data/ops/runs/continuo/`) próprios. No pipeline ela não coleta: restaura do
+  armazém a última versão registrada (o relatório diz de quando) e quem depende dela roda como antes. Em 2026-11-22 o Alice levou 7 h
+  (o orçamento dele) e o RDAP até 3 h dentro do pipeline, que passou de 16 h.
+- `scripts/arandu-continuo.sh` roda a trilha no serviço novo `worker_continuo` (herda o worker, teto `WORKER_CONTINUO_MEM_LIMIT`, padrão
+  1g) e alerta em caso de falha. O `instalar.sh` agenda às 18:00 UTC, para terminar antes do pipeline das 04:00.
+- `gc` e compactação recusam rodar com qualquer das duas trilhas em andamento; `doctor` mostra os dois locks.
+- **Implantação em instância existente:** traga o `worker_continuo` do `docker-compose.exemplo.yml` para o `docker-compose.yml` local e
+  acrescente ao crontab a linha da trilha contínua (a do `instalar.sh`); sem isso as três coletas param, porque o pipeline já não as roda.
+
 ## v2.0.38
 
 Memória medida por etapa do pipeline, base para rodar coletas em paralelo.

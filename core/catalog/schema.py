@@ -103,6 +103,7 @@ class EtapaInline(_Base):
     espera_s: int = Field(default=60, ge=0, le=900)
     politica_falha: Optional[Literal["critica", "opcional", "usar_ultima_valida"]] = None     # padrão: a da fonte
     memoria_mb: Optional[int] = Field(default=None, ge=1)    # ver Step.memoria_mb
+    continua: bool = False                                    # ver Step.continua
 
 
 class Source(_Base):
@@ -248,6 +249,9 @@ class Step(_Base):
     # Pico de memória da etapa, medido (`pico_mem_mb` nos relatórios; `arandu memoria` resume), com folga. Sem ele a etapa nunca roda
     # ao lado de outra: é a reserva que o paralelismo das coletas desconta do orçamento de memória do worker.
     memoria_mb: Optional[int] = Field(default=None, ge=1)
+    # Coleta contínua (rodízio diário com orçamento): roda na trilha própria (`arandu continuo`, em horário próprio e com lock próprio),
+    # nunca dentro do pipeline; no pipeline, a etapa só restaura do armazém a última versão coletada.
+    continua: bool = False
     descricao: str = ""
 
     @field_validator("id")

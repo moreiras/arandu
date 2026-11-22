@@ -70,3 +70,4 @@ etapa:
   tentativas: 2
   espera_s: 120
   memoria_mb: 320   # pico do contêiner do worker nas execuções de 2026-11-21 e 22 (amostras de 30 s) com 25% de folga; refine com `arandu memoria`
+  continua: true   # rodízio diário com orçamento: roda em `arandu continuo` (scripts/arandu-continuo.sh), fora do pipeline

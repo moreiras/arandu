@@ -61,7 +61,9 @@ Resumo do que mais quebra (o completo está nas diretrizes do guia):
 - **Limites:** identidade por conta ou rede (IPv6 pelo /64), janelas de minuto, hora e dia, custo por rota (`api/limites.py`); contatos
   só com conta e com cota (`api/contatos_cota.py`). Rota nova cara: some o custo em `custo_api`. Os testes desligam os tetos em
   `tests/conftest.py`; quem testa um limite liga o dele.
-- **Pipeline/coletor:** idempotente (`--date`, `--force`), escrita atômica, falha alto com código ≠ 0, limite de taxa.
+- **Pipeline/coletor:** idempotente (`--date`, `--force`), escrita atômica, falha alto com código ≠ 0, limite de taxa. Coleta em rodízio
+  diário com orçamento é `continua: true` no catálogo: roda em `arandu continuo` (`scripts/arandu-continuo.sh`), fora do pipeline, que só
+  a restaura do armazém.
 - **Nome do site:** vem do `.env` (`SITE_NOME`, `SITE_URL`, `SITE_MCP_ESQUEMA`… em `core/site.py` e `frontend/src/lib/site.ts`; o
   frontend lê na compilação). Não escreva o nome público nem o domínio em código: use `SITE`. Em docstring e descrição de rota/tool,
   "Arandurapé" e `arandurape://` servem de marcador que `core.site.com_identidade` troca na saída (OpenAPI, catálogo, MCP). Nos

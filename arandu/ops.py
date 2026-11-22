@@ -51,11 +51,12 @@ def diagnostico(cat: Catalog, data_dir: Path, repo: Path, em: str) -> list[dict]
             add("inodes", "erro" if ipct >= BLOQUEIO_DISCO_PCT else ("aviso" if ipct >= AVISO_DISCO_PCT else "ok"), f"{ipct}% usados")
     except OSError:
         add("inodes", "aviso", "statvfs indisponível")
-    info = lockfile.ocupado(data_dir / "ops" / "arandu.lock")
-    if info is not None:
-        add("lock", "aviso", f"execução em andamento (pid {info.get('pid', '?')}, início {info.get('inicio', '?')})")
-    else:
-        add("lock", "ok", "livre")
+    for nome, arq in (("lock", "arandu.lock"), ("lock_continuo", "arandu-continuo.lock")):
+        info = lockfile.ocupado(data_dir / "ops" / arq)
+        if info is not None:
+            add(nome, "aviso", f"execução em andamento (pid {info.get('pid', '?')}, início {info.get('inicio', '?')})")
+        else:
+            add(nome, "ok", "livre")
     erros = validate(cat)
     add("catalogo", "erro" if erros else "ok", f"{len(cat.sources)} fontes, {len(cat.products)} produtos, {len(cat.steps)} etapas; {len(erros)} erro(s)")
     try:

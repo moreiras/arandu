@@ -94,6 +94,28 @@ def cmd_run(a) -> int:
     return 0 if rel.ok else 1
 
 
+def cmd_continuo(a) -> int:
+    """Trilha contínua: as coletas `continua` do catálogo (rodízios diários com orçamento), fora do pipeline e com lock próprio."""
+    cat = _catalogo()
+    date = a.date or executor.hoje()
+    data = _data_dir(a.data_dir)
+    try:
+        rel = executor.executar(cat, date, data, SubprocessRunner({"DATA_DIR": str(data)} if a.data_dir else None),
+                                only=a.only, continuo=True, dry_run=a.dry_run, versao=_versao())
+    except executor.LockOcupado as exc:
+        print(f"a trilha contínua já está em andamento: {exc}", file=sys.stderr)
+        return 3
+    except KeyError as exc:
+        print(f"ERRO: {exc}", file=sys.stderr)
+        return 2
+    for e in rel.etapas:
+        print(f"  {e.status:18s} {e.id}" + (f"  — {e.motivo}" if e.motivo else ""))
+    falhas = [e.id for e in rel.etapas if e.status == executor.FALHA]
+    print(f"arandu continuo {date}: {'ok' if not falhas else 'com falha em ' + ', '.join(falhas)}"
+          + ("" if a.dry_run else f" — {rel.duracao_s} s — {executor.caminho_relatorio(data, date, continuo=True)}"))
+    return 1 if falhas else 0
+
+
 def _alvo(a, campo: str) -> int:
     cat = _catalogo()
     etapas = executor.etapas_de(cat, a.id)
@@ -202,7 +224,7 @@ def cmd_gc(a) -> int:
     if a.dry_run:
         retencao.registrar_dry_run(data, p)
         return 0
-    ativo = lockfile.ocupado(data / "ops" / "arandu.lock") is not None
+    ativo = any(lockfile.ocupado(executor.caminho_lock(data, c)) is not None for c in (False, True))   # pipeline ou trilha contínua
     try:
         rel = retencao.aplicar(data, p, lock_ativo=ativo)
     except RuntimeError as exc:
@@ -354,6 +376,11 @@ def parser() -> argparse.ArgumentParser:
     comum(p)
     p.add_argument("--json", action="store_true")
     p.set_defaults(f=cmd_status)
+    p = sp.add_parser("continuo", help="trilha contínua: só as coletas `continua: true` (rodízios diários), com lock e relatório próprios")
+    comum(p)
+    p.add_argument("--only", nargs="+", help="só estas etapas contínuas")
+    p.add_argument("--dry-run", action="store_true")
+    p.set_defaults(f=cmd_continuo)
     p = sp.add_parser("memoria", help="pico de memória e duração medidos por etapa (relatórios gravados) contra o memoria_mb do catálogo")
     comum(p)
     p.add_argument("--json", action="store_true")

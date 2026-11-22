@@ -11,7 +11,7 @@ na seção "Executor `arandu`" do [guia do desenvolvedor](../guia-do-desenvolved
 
 | Arquivo | Papel |
 |---|---|
-| `__main__.py`, `cli.py` | Linha de comando: `plan`, `run`, `status`, `doctor`, `repair`, `store`, `source new`, `build alerts --recompute`, `gc`. |
+| `__main__.py`, `cli.py` | Linha de comando: `plan`, `run`, `continuo`, `memoria`, `status`, `doctor`, `repair`, `store`, `source new`, `build alerts --recompute`, `gc`. |
 | `executor.py` | Ordem calculada, política de falha por etapa (crítica, opcional, `usar_ultima_valida`), relatório em `data/ops/runs/AAAA-MM-DD.json`, retomada (`--retomar`) e modo por cadência (`--due`). |
 | `runner.py` | Executa uma etapa: subprocesso em produção, no próprio processo no `--compare` e nos testes. |
 | `publicacao.py` | Janela de publicação: no `--due`, as etapas sem fonte (produtos, manifesto) só rodam a cada `ARANDU_PUBLICACAO_DIAS` dias. |

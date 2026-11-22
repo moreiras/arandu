@@ -71,6 +71,7 @@ fixture: tests/fixtures/raw/rdap_contatos/
 etapa:
   tentativas: 1
   espera_s: 0
+  continua: true   # rodízio diário com orçamento: roda em `arandu continuo` (scripts/arandu-continuo.sh), fora do pipeline
 pendencias:
 - 'Termos de uso do RDAP do Registro.br não lidos (licenca/uso_comercial/termos nao_verificado). Aprovar o recorte mínimo (handle fica ou sai) e a retenção do dado de contato.'
 - 'Ritmo (RDAP_INTERVALO_S) e doses por execução: confirmar a medição com `arandu run` real.'

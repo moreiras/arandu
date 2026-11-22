@@ -246,6 +246,8 @@ de cada uma em `data/ops/runs/AAAA-MM-DD.host.jsonl`. Ids de etapa renomeados se
 (`ALIASES_ETAPA` em `core/catalog/loader.py`).
 O pipeline inteiro pelo executor (worker + etapas de host + compare opcional) é `bash scripts/arandu-weekly.sh`.
 
+**Trilha contínua.** As coletas em rodízio diário com orçamento (`continua: true` na etapa; hoje `ixbr_alice`, `ixbr_alice_rotas` e `rdap_contatos`) não rodam no pipeline: `arandu continuo` as roda à parte (`scripts/arandu-continuo.sh`, no serviço `worker_continuo`, com teto de memória próprio), com lock (`data/ops/arandu-continuo.lock`) e relatório (`data/ops/runs/continuo/`) próprios, num horário que termina antes do pipeline das 04:00. No pipeline a etapa só restaura do armazém a última versão registrada pela trilha contínua (o `as_of` fica no relatório e no manifesto); quem depende dela roda normalmente. `arandu run --only <id>` ainda a roda à mão.
+
 **Memória por etapa.** Cada etapa roda num subprocesso, esperado com `wait4`: o relatório guarda o `pico_mem_mb` (maior RSS do processo da etapa entre as tentativas). `arandu memoria` junta os relatórios gravados e mostra, por etapa, o pico medido, a duração máxima e o `memoria_mb` declarado no catálogo, apontando as sem declaração e as que passaram dela. O `memoria_mb` é o pico medido com folga; sem ele a etapa nunca roda ao lado de outra.
 
 ### Armazém de versões, cadência e retenção (`data/sources/`, `catalog/retencao.yaml`, `arandu gc`)

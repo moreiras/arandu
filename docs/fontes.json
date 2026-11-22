@@ -75,7 +75,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -190,7 +191,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 300
+        "espera_s": 300,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -279,7 +281,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 300
+        "espera_s": 300,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -360,7 +363,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 300
+        "espera_s": 300,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -490,7 +494,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 300
+        "espera_s": 300,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -578,7 +583,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 300
+        "espera_s": 300,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -675,7 +681,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 300
+        "espera_s": 300,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -762,7 +769,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 300
+        "espera_s": 300,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -1646,7 +1654,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 1,
       "uso_comercial_efetivo": "nao_verificado"
@@ -1727,7 +1736,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 1,
       "uso_comercial_efetivo": "nao_verificado"
@@ -2182,7 +2192,8 @@
           "{date}"
         ],
         "tentativas": 2,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -2262,7 +2273,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 1,
       "uso_comercial_efetivo": "nao_verificado"
@@ -2350,7 +2362,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 1,
       "uso_comercial_efetivo": "nao_verificado"
@@ -2439,7 +2452,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 1,
       "uso_comercial_efetivo": "nao_verificado"
@@ -2519,7 +2533,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 1,
       "uso_comercial_efetivo": "nao_verificado"
@@ -2607,7 +2622,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 600
+        "espera_s": 600,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -2697,7 +2713,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 120
+        "espera_s": 120,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -2795,7 +2812,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 120
+        "espera_s": 120,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -2893,7 +2911,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 120
+        "espera_s": 120,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -2969,7 +2988,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -3289,7 +3309,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 300
+        "espera_s": 300,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "permitido"
@@ -3858,7 +3879,8 @@
         ],
         "tentativas": 1,
         "espera_s": 60,
-        "memoria_mb": 160
+        "memoria_mb": 160,
+        "continua": false
       },
       "nao_verificado": 2,
       "uso_comercial_efetivo": "nao_verificado"
@@ -4283,7 +4305,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 2,
       "uso_comercial_efetivo": "nao_verificado"
@@ -4396,7 +4419,8 @@
           "{date}"
         ],
         "tentativas": 1,
-        "espera_s": 0
+        "espera_s": 0,
+        "continua": false
       },
       "nao_verificado": 3,
       "uso_comercial_efetivo": "nao_verificado"
@@ -4486,7 +4510,8 @@
           "{date}"
         ],
         "tentativas": 2,
-        "espera_s": 120
+        "espera_s": 120,
+        "continua": false
       },
       "nao_verificado": 2,
       "uso_comercial_efetivo": "nao_verificado"
@@ -4578,7 +4603,8 @@
           "{date}"
         ],
         "tentativas": 2,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 2,
       "uso_comercial_efetivo": "nao_verificado"
@@ -4643,7 +4669,8 @@
           "{date}"
         ],
         "tentativas": 2,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 5,
       "uso_comercial_efetivo": "nao_verificado"
@@ -4703,7 +4730,8 @@
           "{date}"
         ],
         "tentativas": 2,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 2,
       "uso_comercial_efetivo": "nao_verificado"
@@ -4797,7 +4825,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 600
+        "espera_s": 600,
+        "continua": false
       },
       "nao_verificado": 1,
       "uso_comercial_efetivo": "nao_verificado"
@@ -4996,7 +5025,8 @@
         ],
         "tentativas": 2,
         "espera_s": 120,
-        "memoria_mb": 320
+        "memoria_mb": 320,
+        "continua": true
       },
       "nao_verificado": 2,
       "uso_comercial_efetivo": "nao_verificado"
@@ -5142,7 +5172,8 @@
         ],
         "tentativas": 1,
         "espera_s": 60,
-        "memoria_mb": 256
+        "memoria_mb": 256,
+        "continua": true
       },
       "nao_verificado": 2,
       "uso_comercial_efetivo": "nao_verificado"
@@ -5586,7 +5617,8 @@
         ],
         "tentativas": 3,
         "espera_s": 600,
-        "memoria_mb": 128
+        "memoria_mb": 128,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "restrito"
@@ -5681,7 +5713,8 @@
           "{date}"
         ],
         "tentativas": 2,
-        "espera_s": 300
+        "espera_s": 300,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "restrito"
@@ -5889,7 +5922,8 @@
           "{date}"
         ],
         "tentativas": 3,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 1,
       "uso_comercial_efetivo": "restrito"
@@ -6482,7 +6516,8 @@
           "{date}"
         ],
         "tentativas": 1,
-        "espera_s": 0
+        "espera_s": 0,
+        "continua": true
       },
       "nao_verificado": 3,
       "uso_comercial_efetivo": "nao_verificado"
@@ -6583,7 +6618,8 @@
           "{date}"
         ],
         "tentativas": 2,
-        "espera_s": 60
+        "espera_s": 60,
+        "continua": false
       },
       "nao_verificado": 1,
       "uso_comercial_efetivo": "nao_verificado"
@@ -7371,7 +7407,8 @@
         ],
         "tentativas": 1,
         "espera_s": 0,
-        "memoria_mb": 544
+        "memoria_mb": 544,
+        "continua": false
       },
       "nao_verificado": 0,
       "uso_comercial_efetivo": "nao_verificado"
@@ -15282,6 +15319,7 @@
       "pesada": false,
       "replay": false,
       "memoria_mb": 256,
+      "continua": false,
       "descricao": "Rodízio diário de até 1.500 ASNs (três consultas de contagem por ASN com serviço, 1,1 s entre consultas). O estado do rodízio vem do normalizado anterior; se a coleta falhar (chave ausente ou recusada), copia o último arquivo válido para a data."
     },
     {
@@ -15314,6 +15352,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: serviços observados pelo Shodan por ASN (com a data da leitura do rodízio), serviços em portas de risco por classe, CVEs se o plano as tiver, e agregado derivado por UF, com a cobertura declarada. Lê o normalizado da fonte `shodan_exposicao`; sem ele não gera nada. Só contagens, sem lista de IPs, sem ranking de ASN."
     },
     {
@@ -15342,6 +15381,7 @@
       "pesada": false,
       "replay": false,
       "memoria_mb": 544,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/siasg_contratos.yaml."
     },
     {
@@ -15369,6 +15409,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/receita_cnpj.yaml."
     },
     {
@@ -15396,6 +15437,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": true,
       "descricao": "Etapa declarada em catalog/sources/rdap_contatos.yaml."
     },
     {
@@ -15423,6 +15465,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/peeringdb_fac.yaml."
     },
     {
@@ -15450,6 +15493,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/ooni_bloqueios.yaml."
     },
     {
@@ -15478,6 +15522,7 @@
       "pesada": false,
       "replay": false,
       "memoria_mb": 128,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/manrs_participantes.yaml."
     },
     {
@@ -15506,6 +15551,7 @@
       "pesada": false,
       "replay": false,
       "memoria_mb": 256,
+      "continua": true,
       "descricao": "Etapa declarada em catalog/sources/ixbr_alice_rotas.yaml."
     },
     {
@@ -15534,6 +15580,7 @@
       "pesada": false,
       "replay": false,
       "memoria_mb": 320,
+      "continua": true,
       "descricao": "Etapa declarada em catalog/sources/ixbr_alice.yaml."
     },
     {
@@ -15561,6 +15608,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/irr_route_objects.yaml."
     },
     {
@@ -15588,6 +15636,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/ipv4_vigia.yaml."
     },
     {
@@ -15615,6 +15664,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/ipv4_subasignacao.yaml."
     },
     {
@@ -15642,6 +15692,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/ipv4_listas.yaml."
     },
     {
@@ -15669,6 +15720,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/ipv4_delegated.yaml."
     },
     {
@@ -15696,6 +15748,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/ioda_outages.yaml."
     },
     {
@@ -15723,6 +15776,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/ibge_censo_pnad.yaml."
     },
     {
@@ -15751,6 +15805,7 @@
       "pesada": false,
       "replay": false,
       "memoria_mb": 160,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/decix_alice.yaml."
     },
     {
@@ -15778,6 +15833,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/consumidor_gov.yaml."
     },
     {
@@ -15805,6 +15861,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/cgu_ceis_cnep.yaml."
     },
     {
@@ -15832,6 +15889,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/cetic_tic_provedores_tabelas.yaml."
     },
     {
@@ -15859,6 +15917,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/cetic_tic_domicilios_tabelas.yaml."
     },
     {
@@ -15886,6 +15945,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/cetic_tic_domicilios_microdados.yaml."
     },
     {
@@ -15913,6 +15973,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/caida_spoofer.yaml."
     },
     {
@@ -15940,6 +16001,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/caida_asrel.yaml."
     },
     {
@@ -15967,6 +16029,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/caida_asrank.yaml."
     },
     {
@@ -15994,6 +16057,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/caida_as2org.yaml."
     },
     {
@@ -16021,6 +16085,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/bogons.yaml."
     },
     {
@@ -16048,6 +16113,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/bndes_operacoes.yaml."
     },
     {
@@ -16075,6 +16141,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/apnic_irov.yaml."
     },
     {
@@ -16102,6 +16169,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/apnic_dnssec.yaml."
     },
     {
@@ -16129,6 +16197,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/anatel_satelites.yaml."
     },
     {
@@ -16156,6 +16225,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/anatel_rqual.yaml."
     },
     {
@@ -16183,6 +16253,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/anatel_reclamacoes.yaml."
     },
     {
@@ -16210,6 +16281,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/anatel_pdff.yaml."
     },
     {
@@ -16237,6 +16309,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/anatel_multas.yaml."
     },
     {
@@ -16264,6 +16337,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/anatel_fust.yaml."
     },
     {
@@ -16291,6 +16365,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/anatel_erbs.yaml."
     },
     {
@@ -16318,6 +16393,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Etapa declarada em catalog/sources/abusech.yaml."
     },
     {
@@ -16350,6 +16426,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: instalações do PeeringDB, vínculos, atributos das redes e portas dos PTTs externos. Roda sozinho; lê o normalizado da fonte e o índice de ASNs."
     },
     {
@@ -16382,6 +16459,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: contagens por ASN do Brasil de servidores C2 do Feodo Tracker (abuse.ch). Sem IPs. Roda sozinho; lê o normalizado da fonte."
     },
     {
@@ -16414,6 +16492,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: organização de cada ASN do Brasil (CAIDA, via AS Rank), irmãos e cobertura. Roda sozinho; lê o normalizado da fonte e o índice de ASNs."
     },
     {
@@ -16451,6 +16530,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: cruza o cadastro de telecom da Receita (estabelecimentos, empresas, Simples) com o SICI, por operadora (matriz, estabelecimentos por situação, porte, Simples e MEI, e a presença física por município: onde há estabelecimento ativo × onde a empresa declara acessos) e por mercado (entradas e baixas de empresas de telecom por ano e UF, empresas ativas por UF e porte). Sem e-mail, telefone, rua nem CEP; empresário individual sem razão social nem nome fantasia. O `cnpj_geo` (BrasilAPI) segue como está por um ciclo."
     },
     {
@@ -16483,6 +16563,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: janela de medições do OONI agregadas por ASN × teste, só célula com 10 ou mais medições. Roda sozinho; lê o normalizado da fonte `ooni_bloqueios` (a coleta vem ativa por decisão do mantenedor, `OONI_ATIVO=0` a desliga; sem o normalizado o passo não gera nada)."
     },
     {
@@ -16520,6 +16601,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: reúne, por raiz de CNPJ, as operações de financiamento do BNDES (total contratado e desembolsado, por ano e UF, e as últimas operações) e as sanções do CEIS e do CNEP (vigentes e encerradas na data do snapshot). Registro de fonte oficial, sem julgamento: o BNDES em valores nominais da data da contratação, a sanção na data do arquivo da CGU; sem ligação entre as duas partes. Pessoa física nunca entra."
     },
     {
@@ -16552,6 +16634,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: IPv6 por ASN (com a data da leitura do rodízio), participação no tráfego e velocidade dos ASNs de topo, papéis nos eventos de BGP dos últimos 28 dias e agregado derivado por UF, com a cobertura declarada. Lê o normalizado da fonte `cloudflare_radar`; sem ele não gera nada. Sem ranking de ASN."
     },
     {
@@ -16584,6 +16667,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: resultados de itens publicados no PNCP por raiz de CNPJ (valor homologado sem os itens cancelados, órgãos, UF, ano, esfera, modalidade e objeto resumido), por município do órgão comprador e o resumo nacional, com a data da leitura de cada raiz e a cobertura do rodízio. Lê o normalizado da fonte `siasg_contratos`; sem ele não gera nada. Ausência não é zero; sem ranking de fornecedor."
     },
     {
@@ -16620,6 +16704,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: agrega as reclamações finalizadas de operadoras no Consumidor.gov.br por empresa, UF, município (casado ao código IBGE pelo nome), assunto e grupo de problema, com índice de solução, tempo médio de resposta e nota média só com base mínima, e liga a empresa ao CNPJ pela tabela curada de marcas (mais os apelidos do Consumidor.gov.br). Só agregados; sem ranking."
     },
     {
@@ -16657,6 +16742,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: consolida o RQUAL (série nacional e por UF, último resultado por município) e as reclamações da Anatel (por marca, serviço, UF, município e assunto), liga prestadoras e marcas ao CNPJ pela tabela curada `config/curada_marcas_operadoras.yaml` (mais o nome fantasia único das outorgas, rotulado) e calcula a taxa de reclamações por mil acessos só onde há volume. Sem ranking."
     },
     {
@@ -16688,6 +16774,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: decodifica as communities pelo dicionário do snapshot e publica rejeições por PTT e ASN, política de roteamento (perfil inferido), explorador de communities, grafo declarado \"não exporto para\" e linhas para o /query. Roda sozinho; lê só os normalizados do `ixbr_alice` e do `ixbr_alice_rotas`."
     },
     {
@@ -16718,6 +16805,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: participação de ASNs e usuários do Brasil em organizações do programa de operadores do MANRS, por UF e porte, e comparação agregada da prontidão. Só agregados, com atribuição e supressão de recortes com menos de 5 ASNs participantes (termos do MANRS)."
     },
     {
@@ -16750,6 +16838,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: calcula o índice de prontidão por ASN do Brasil em quatro pilares (filtragem, anti-spoofing, coordenação e validação global) com as regras versionadas em products/prontidao/regras.yaml, e os agregados por UF, porte e operadora. Roda depois de saude_asn (precisa da validação RPKI de cada prefixo); lê o produto seguranca_asn, o Spoofer, os IRRs, os ASPAs e os documentos de ASN."
     },
     {
@@ -16785,6 +16874,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: consolida os compromissos do FUST por município, UF, programa e edital (com o casamento com o IBGE), as multas constituídas por empresa de SCM, SMP, STFC e SeAC, o quadro de faixas de frequência (PDFF) e os satélites com direito de exploração. Roda sozinho; lê só o normalizado."
     },
     {
@@ -16816,6 +16906,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: publica o estado das sub-asignações (política LAC-2025-5). Sem a bitácora oficial sai com `ativa: false`, o aviso \"aguardando a publicação oficial\" e o estado do vigia de diretórios; com a fonte ativada, cada registro recebe as validações da política e o indicador de anúncios de terceiros com e sem registro oficial."
     },
     {
@@ -16847,6 +16938,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: classifica cada bloco IPv4 do Brasil (anunciado, parcial, ROA sem anúncio, não anunciado, em recuperação), conta quantas tabelas de origem distintas seguidas sem anúncio foram observadas e avalia os sinais de uso por terceiros S1 a S4 (S5 a S7 ainda sem fonte). Hipótese, nunca \"aluguel\"; \"não anunciado\" não é \"sem uso\". Lê o estado do delegated, a tabela de origens do snapshot, os ROAs e o histórico de mudanças de origem."
     },
     {
@@ -16880,6 +16972,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: agrupa as transferências do Registro.br e do LACNIC em operações (mesmo dia e mesmas partes), casa o bloco com o ASN do snapshot, resume o mercado por ano, direção e tamanho, lista os recursos em recuperação e publica os blocos IPv4 do Brasil com o estado atual no delegated. Roda sozinho; lê o normalizado das listas e o estado de data/ipv4/."
     },
     {
@@ -16914,6 +17007,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: consolida as estações do SMP licenciadas por município, UF e operadora (gerações 2G a 5G, municípios com estação e com 5G, estações por 10 mil habitantes), com o casamento com o IBGE e o CNPJ e a sanidade contra o SICI móvel. Roda sozinho; lê o que o sici_movel e as outorgas deixaram em published/."
     },
     {
@@ -16946,6 +17040,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: cruza as estimativas da TIC Domicílios (banda larga fixa por UF, com erro-padrão), os domicílios projetados do IBGE e os acessos fixos de pessoa física do SICI, e publica a razão oferta ÷ demanda e o mercado não visto, com intervalo. Roda sozinho; lê o que a penetração e o cetic deixaram em published/."
     },
     {
@@ -17022,6 +17117,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Última etapa do build: monta manifest.json, checks de coleta, sources[], rules_version, o detalhe do snapshot e os checksums de TODOS os arquivos publicados. A API só lista datas com manifest.json: o snapshot aparece quando termina."
     },
     {
@@ -17055,6 +17151,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: publica as tabelas oficiais da TIC Domicílios e da TIC Provedores, em formato longo, lidas do normalizado, e as estimativas por UF dos microdados da TIC Domicílios, com a validação contra as tabelas. Roda sozinho; pesquisa sem normalizado fica sem artefato."
     },
     {
@@ -17087,6 +17184,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: cruza as sessões BGP vistas no Alice-LG (ixbr_alice) com o cadastro de membros do IX.br (ixbr_api) e publica um bloco por PTT e outro por ASN. Roda sozinho; lê os normalizados e o raw de membros."
     },
     {
@@ -17123,6 +17221,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: reúne ROV e DNSSEC (APNIC), AS Rank (CAIDA) e bogons por ASN do Brasil, com agregados por UF e faixa de porte. Roda sozinho; lê os arquivos normalizados das fontes e o que os passos anteriores deixaram em published/."
     },
     {
@@ -17155,6 +17254,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: acessos fixos do SICI sobre os domicílios do Censo 2022 e o mercado não visto (domicílios com internet pela PNAD menos acessos de pessoa física). Roda sozinho; lê o que os anteriores deixaram em published/ e os arquivos normalizados do IBGE."
     },
     {
@@ -17189,6 +17289,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: share, HHI, variações, declínio e outorgas SCM sem declaração, com os usuários estimados (APNIC). Roda sozinho; lê o que os anteriores deixaram em published/ e o cache mensal do SICI."
     },
     {
@@ -17220,6 +17321,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Grupos societários. Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17255,6 +17357,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Acessos SICI móveis. Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17289,6 +17392,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Camadas de infraestrutura física. Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17330,6 +17434,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Outorgas SMP, STFC e SeAC. Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17371,6 +17476,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Outorgas SCM (já com o SICI). Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17406,6 +17512,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Acessos SICI fixos (fragmentos de ASN e de SCM). Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17444,6 +17551,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Mapas GeoJSON de prefixos e ASNs. Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17488,6 +17596,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Nomes de ASNs (asns/names.json). Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17532,6 +17641,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Caminhos de IXP por ASN (fragmento ixp_paths). Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17565,6 +17675,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Presença de CDNs nos IXPs. Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17602,6 +17713,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: IXPs externos do PeeringDB. Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17638,6 +17750,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Resumo do snapshot (summary.json). Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17676,6 +17789,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Densidade Hilbert v6 e v4. Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17713,6 +17827,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Índice de IXPs (ixps/index.json). Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17758,6 +17873,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: Índice de ASNs (asns/index.json) e conjuntos de prefixos. Roda sozinho; lê o que os anteriores deixaram em published/ e build/intermediarios/."
     },
     {
@@ -17790,6 +17906,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: indexa os ASNs do Brasil por município (operadora que declara acessos no SICI, sede do CNPJ e prefixos geolocalizados pelo DB-IP) e guarda, por ASN, os PTTs (direto e indireto), os carregadores observados e os provedores de trânsito inferidos. Alimenta GET /regiao e a página de município com raio. Inferência, com os limites no artefato."
     },
     {
@@ -17824,6 +17941,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Passo do build do snapshot: cruza as sessões e as rotas lidas nos route servers do DE-CIX (decix_alice) com os documentos do IX.br da mesma cidade e com os membros do PeeringDB (external-ixps), e publica por PTT (decix-sp, decix-rj) os ASNs diretos (sessão no route server), os originadores (piso), os membros e a comparação por cidade. Sem o normalizado do `decix_alice` (ou com bloqueio registrado) não gera nada."
     },
     {
@@ -17857,6 +17975,7 @@
       "pesada": false,
       "replay": true,
       "replay_se_publicado": "territorio/rede_territorio.json.gz",
+      "continua": false,
       "descricao": "Passo do build do snapshot: cruza o SICI (acessos por município e CNPJ) com a adoção de IPv6 e os usuários dos ASNs (APNIC), o ROV medido pela APNIC e os provedores de trânsito inferidos, e publica o IPv6 estimado por município, os usuários atrás de ROV por UF e a dependência de trânsito. Estimativas e inferências, com a suposição e a cobertura à vista."
     },
     {
@@ -17884,6 +18003,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Baixa o CSV nacional uma vez por data; SCM, SMP, STFC e SeAC (que o filtram) rodam depois; se esta etapa não rodou, o primeiro coletor baixa."
     },
     {
@@ -17911,6 +18031,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Só guarda o bruto comprimido."
     },
     {
@@ -17938,6 +18059,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Só guarda o bruto comprimido."
     },
     {
@@ -17965,6 +18087,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -17992,6 +18115,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18019,6 +18143,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18046,6 +18171,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18074,6 +18200,7 @@
       "pesada": true,
       "replay": false,
       "memoria_mb": 3328,
+      "continua": false,
       "descricao": "Cada família (v6, v4) grava seu próprio manifesto: numa retentativa só a que falhou é refeita."
     },
     {
@@ -18102,6 +18229,7 @@
       "pesada": false,
       "replay": false,
       "memoria_mb": 160,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18130,6 +18258,7 @@
       "pesada": false,
       "replay": false,
       "memoria_mb": 160,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18158,6 +18287,7 @@
       "pesada": false,
       "replay": false,
       "memoria_mb": 160,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18185,6 +18315,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18212,6 +18343,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18239,6 +18371,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18266,6 +18399,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18294,6 +18428,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18322,6 +18457,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18350,6 +18486,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18377,6 +18514,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18404,6 +18542,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18431,6 +18570,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18458,6 +18598,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18485,6 +18626,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18512,6 +18654,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18539,6 +18682,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18566,6 +18710,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18593,6 +18738,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18620,6 +18766,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18647,6 +18794,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18674,6 +18822,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18701,6 +18850,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18728,6 +18878,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18756,6 +18907,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Gera ixps/{ixp}.json e asns/{asn}.json; a etapa saude_asn completa os documentos de ASN com RPKI e alertas."
     },
     {
@@ -18785,6 +18937,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Lê normalized/{ixp}/ produzidos pela etapa bgp_ixp (dependência de um produto, por isso explícita)."
     },
     {
@@ -18820,6 +18973,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Baixa só se a última coleta tiver 30 dias ou mais; senão (ou se falhar) copia receita_socios.json.gz da última coleta."
     },
     {
@@ -18847,6 +19001,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -18876,6 +19031,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Lê data/cache/rpki/vrps.json, gravado por scripts/rpki-avulso.sh antes do worker. Precisa vir antes do índice de ASNs (que nasce com has_rpki), da análise BGP e de saude_asn6b: todos usam os VRPs (achado do replay, 1.1.5.4)."
     },
     {
@@ -18915,6 +19071,7 @@
       "so_com_only": true,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Índices, mapas, mercado, manifesto e checksums. ixps/index.json e _aggregate.json saem daqui."
     },
     {
@@ -18947,6 +19104,7 @@
       "pesada": false,
       "replay": true,
       "replay_se_publicado": "routing_analysis.json",
+      "continua": false,
       "descricao": "Usa asns/index.json já publicado (etapa asn_indice)."
     },
     {
@@ -18974,6 +19132,7 @@
       "so_com_only": false,
       "pesada": true,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -19006,6 +19165,7 @@
       "pesada": false,
       "replay": true,
       "replay_se_publicado": "bgp_stability.json",
+      "continua": false,
       "descricao": ""
     },
     {
@@ -19035,6 +19195,7 @@
       "so_com_only": false,
       "pesada": true,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -19065,6 +19226,7 @@
       "pesada": false,
       "replay": true,
       "replay_se_publicado": "bgp_stability_deep.json",
+      "continua": false,
       "descricao": ""
     },
     {
@@ -19115,6 +19277,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": true,
+      "continua": false,
       "descricao": "Completa asns/{asn}.json (alerts, roa_list, rpki_validation, aspa_*) e atualiza checks do manifesto. Não fatal: a API calcula sob demanda."
     },
     {
@@ -19150,6 +19313,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Roda no host (compose exec), por scripts/host-steps.sh, enquanto o arandu roda no container."
     },
     {
@@ -19187,6 +19351,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -19220,6 +19385,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -19251,6 +19417,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": ""
     },
     {
@@ -19279,6 +19446,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Rodízio diário de até 1.400 ASNs (IPv6) mais as listas de topo, os eventos de BGP e a consulta de quedas. O estado do rodízio vem do normalizado anterior; se a coleta falhar, copia o último arquivo válido para a data."
     },
     {
@@ -19306,6 +19474,7 @@
       "so_com_only": true,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Manual: `arandu run --only lacnic_historico` baixa até 500 arquivos novos do delegated-extended; o log de transferências se roda pelo módulo (`--tipo transfers`)."
     },
     {
@@ -19346,6 +19515,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Infere provedor/cliente/par entre ASNs com ao menos um brasileiro, usando a rampa dos route servers do IX.br, os caminhos dos coletores com VP, o ASPA e o CAIDA como prior. Rótulo de nível e probabilidade em cada elo."
     },
     {
@@ -19376,6 +19546,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Séries por ASN (e agregadas por PTT, operadora e UF) e log de eventos derivados do snapshot publicado. Camada derivada em data/history/, fora de published/. Não fatal, pois o snapshot já está publicado."
     },
     {
@@ -19405,6 +19576,7 @@
       "so_com_only": false,
       "pesada": false,
       "replay": false,
+      "continua": false,
       "descricao": "Lê as relações inferidas (ARC v2) e publica a concentração do trânsito por UF e o cone de clientes por ASN. Roda sozinho, depois de as_relationships."
     }
   ]

@@ -203,7 +203,7 @@ def _seguro(data_dir: Path, item: dict) -> bool:
 def aplicar(data_dir: Path, p: dict, *, lock_ativo: bool = False) -> dict:
     """Remove os itens do plano. Recusa sem um `--dry-run` anterior e com execução do pipeline em andamento."""
     if lock_ativo:
-        raise RuntimeError("há uma execução do arandu em andamento (data/ops/arandu.lock): o gc não roda em paralelo")
+        raise RuntimeError("há uma execução do arandu em andamento (pipeline ou trilha contínua: data/ops/arandu.lock, arandu-continuo.lock): o gc não roda em paralelo")
     if not _marcador(data_dir).is_file():
         raise RuntimeError("rode `arandu gc --dry-run` e revise a lista antes do primeiro `--apply`")
     removidos, falhas, bytes_ = [], [], 0

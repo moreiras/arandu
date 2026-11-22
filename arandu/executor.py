@@ -267,15 +267,30 @@ class Relatorio:
         return d
 
 
-def caminho_relatorio(data_dir: Path, date: str) -> Path:
-    return data_dir / "ops" / "runs" / f"{date}.json"
+def caminho_relatorio(data_dir: Path, date: str, continuo: bool = False) -> Path:
+    """Relatório do dia; a trilha contínua (`arandu continuo`) grava o dela à parte, para não se misturar à retomada do pipeline."""
+    return data_dir / "ops" / "runs" / ("continuo" if continuo else "") / f"{date}.json"
 
 
-def ler_relatorio(data_dir: Path, date: str) -> Optional[dict]:
+def ler_relatorio(data_dir: Path, date: str, continuo: bool = False) -> Optional[dict]:
     try:
-        return json.loads(caminho_relatorio(data_dir, date).read_text(encoding="utf-8"))
+        return json.loads(caminho_relatorio(data_dir, date, continuo).read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
+
+
+def caminho_lock(data_dir: Path, continuo: bool = False) -> Path:
+    """Lock do pipeline e, separado, o da trilha contínua: uma não espera a outra; duas instâncias da mesma trilha, nunca."""
+    return data_dir / "ops" / ("arandu-continuo.lock" if continuo else "arandu.lock")
+
+
+def restaurar_continua(cat: Catalog, step: Step, data_dir: Path, date: str) -> tuple[Optional[list], str]:
+    """No pipeline, a etapa contínua não coleta: restaura na data a última versão que a trilha contínua registrou no armazém."""
+    reus = reutilizar_versao(cat, step, data_dir, date)
+    if reus:
+        quando = ", ".join(sorted({r["as_of"][:10] for r in reus if r.get("as_of")}))
+        return reus, f"coleta contínua (arandu continuo): restaurada a versão do armazém de {quando or '?'}"
+    return None, "coleta contínua (arandu continuo): nenhuma versão no armazém; a etapa fica sem dado nesta data"
 
 
 def publicar_fontes(cat: Catalog, step: Step, data_dir: Path, date: str, log: Callable[[str], None] = print) -> tuple[Optional[list], Optional[str]]:
@@ -350,18 +365,20 @@ def etapa_de_publicacao(cat: Catalog, step: Step, deps: dict[str, set[str]]) -> 
 
 def executar(cat: Catalog, date: str, data_dir: Path, runner, *, only: Optional[Iterable[str]] = None,
              due: bool = False, retomar: bool = False, pin_sources: bool = False, dry_run: bool = False, force: bool = False, versao: str = "desconhecida",
-             publicar: bool = False,
+             publicar: bool = False, continuo: bool = False,
              log: Callable[[str], None] = print, env: Optional[dict] = None, usar_lock: bool = True,
              gravar_relatorio: bool = True, sleep: Callable[[float], None] = time.sleep) -> Relatorio:
     plano = planejar(cat, only)
-    explicito = bool(only)
+    if continuo:                       # trilha contínua: só as etapas `continua`, sempre (o rodízio de cada uma decide o que ler)
+        plano = [s for s in plano if s.continua]
+    explicito = bool(only) or continuo
     rel = Relatorio(date=date, versao=versao, inicio=agora())
-    anterior = ler_relatorio(data_dir, date) if (retomar and not force) else None
+    anterior = ler_relatorio(data_dir, date, continuo) if (retomar and not force) else None
     ok_antes = {id_de_etapa(e["id"]) for e in (anterior or {}).get("etapas", []) if e.get("status") in (OK, RETOMADA)}
     executadas: set[str] = set()
     refeitas: set[str] = set()         # etapas executadas nesta rodada: tudo que depende delas precisa ser refeito
     deps = dependencias_de_etapas(cat)
-    path = caminho_relatorio(data_dir, date)
+    path = caminho_relatorio(data_dir, date, continuo)
     t0 = time.time()
 
     def salvar():
@@ -378,6 +395,13 @@ def executar(cat: Catalog, date: str, data_dir: Path, runner, *, only: Optional[
                 continue
             if s.runner == "host":
                 e.status, e.motivo = DELEGADA, "etapa de host (compose/shell): roda em scripts/host-steps.sh"
+                continue
+            if s.continua and not explicito:
+                reus, porque = (None, "coleta contínua: roda em arandu continuo") if dry_run else restaurar_continua(cat, s, data_dir, date)
+                e.status, e.motivo, e.reutilizadas = PULADA, porque, reus
+                if not dry_run:
+                    log(f"[{s.id}] {porque}")
+                    salvar()
                 continue
             if s.so_com_only and not explicito:
                 e.status, e.motivo = PULADA, "etapa manual: só roda com --only"
@@ -485,7 +509,7 @@ def executar(cat: Catalog, date: str, data_dir: Path, runner, *, only: Optional[
         return None
 
     if usar_lock and not dry_run:
-        with lock(data_dir / "ops" / "arandu.lock"):
+        with lock(caminho_lock(data_dir, continuo)):
             corpo()
     else:
         corpo()

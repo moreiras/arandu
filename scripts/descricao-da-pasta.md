@@ -11,6 +11,7 @@ um traz o uso e as variáveis.
 |---|---|
 | `instalar.sh` | Prepara um servidor: `.env` com segredos gerados, `data/` para a API sem root, fontes do mapa, serviços no ar, cron do pipeline e da manutenção das contas, vigia de saúde (`--simular`, `--coletar`). |
 | `preparar-dados-api-sem-root.sh` | Entrega `data/auth/`, `ops/usage`, `ops/uso_conta` e `cache/br11` ao UID da API com permissões restritas, para ela rodar sem root e com `data/` só leitura. |
+| `arandu-continuo.sh` | Trilha contínua: `arandu continuo` no `worker_continuo` (teto próprio), as coletas em rodízio diário fora do pipeline; alerta em caso de falha. |
 | `arandu-weekly.sh` | O que o cron roda: RPKI avulso, `arandu run` no worker, etapas de host e, se ligado, a comparação de paridade; alerta em caso de falha. |
 | `arandu-exclusivo.sh` | Roda um comando segurando o mesmo lock do pipeline, para coleta ou produto feito à mão nunca rodar ao lado dele. |
 | `rpki-avulso.sh` | Roda o Routinator avulso (perfil `rpki`), grava `data/cache/rpki/vrps.json` e termina; a etapa `rpki_collector` só lê o arquivo. |
