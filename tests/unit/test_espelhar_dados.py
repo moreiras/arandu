@@ -31,6 +31,7 @@ def _origem(base: Path) -> Path:
     _arquivo(d / "raw/dbip/base.mmdb", "bruto")
     _arquivo(d / "tiles/basemap.pmtiles")
     _arquivo(d / "ops/usage/2026-11-22.jsonl", "{}\n")
+    _arquivo(d / "ops/usage/.salt-2026-11-22", "segredo")
     (d / "auth").mkdir()
     con = sqlite3.connect(d / "auth/contas.db")
     con.execute("PRAGMA journal_mode=WAL")
@@ -62,6 +63,7 @@ def test_espelha_sem_o_bruto_e_com_sqlite_consistente(tmp_path):
     assert not (destino / "raw/dbip").exists()
     assert (destino / "tiles/basemap.pmtiles").exists()
     assert (destino / "ops/usage/2026-11-22.jsonl").exists()
+    assert not (destino / "ops/usage/.salt-2026-11-22").exists()
     assert (destino / "auth/emails.csv").exists()
     assert not (destino / "auth/contas.db-wal").exists()
     assert sqlite3.connect(destino / "auth/contas.db").execute("select id from contas").fetchall() == [(7,)]

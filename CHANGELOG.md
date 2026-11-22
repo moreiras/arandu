@@ -1,5 +1,10 @@
 # Notas de versão
 
+## v2.0.35
+
+Espelho do `data/`: o sal do log de uso (`ops/usage/.salt-*`) fica de fora. Só o contêiner da API o lê, então o rsync
+falhava nele e o espelho parava antes de `auth/` e dos manifestos; e cada instância usa o seu.
+
 ## v2.0.34
 
 Espelho do `data/` em outra instância (um ambiente de teste com os dados da produção, sem coletor).

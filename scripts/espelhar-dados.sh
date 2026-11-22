@@ -12,7 +12,7 @@
 # Vai tudo menos raw/: a API ainda lê normalized/ e os raw/<data>/<ptt>/ixbr_members.json em tempo de execução (os PTTs em que o ASN é
 # membro), então esses vão também; o resto do bruto (GBs) não. Os SQLite de data/auth/ estão em WAL e abertos pela API: vão por
 # `sqlite3 .backup` (cópia consistente) e, no destino, os -wal/-shm antigos são apagados antes, senão o SQLite aplicaria o WAL do banco
-# velho sobre o novo. Os manifestos dos snapshots vão por último: a API só enxerga a data que tem manifest.json, então o destino nunca
+# velho sobre o novo. O sal do log de uso (ops/usage/.salt-*) não vai: só o contêiner o lê e cada instância usa o seu. Os manifestos dos snapshots vão por último: a API só enxerga a data que tem manifest.json, então o destino nunca
 # vê um snapshot pela metade.
 #
 # Sem snapshot novo desde a última cópia (ESPELHO_ESTADO), não faz nada: dá para agendar todo dia logo depois do pipeline, dentro do
@@ -95,7 +95,7 @@ log "espelhando até $ULTIMA para $DESTINO (teto ${BWLIMIT} KiB/s)"
 "${RSYNC[@]}" --delete --max-delete=5000 --prune-empty-dirs \
     --exclude='/auth/' --exclude='/published/*/manifest.json' \
     --include='/raw/' --include='/raw/*/' --include='/raw/*/*/' --include='/raw/*/*/ixbr_members.json' --exclude='/raw/**' \
-    --exclude='*.tmp' \
+    --exclude='*.tmp' --exclude='.salt-*' \
     "$DADOS/" "$DESTINO" || { log "rsync dos dados falhou"; exit 1; }
 # 3) auth/: --delete-before tira os -wal/-shm do banco antigo antes de o novo entrar.
 "${RSYNC[@]}" --delete-before "$PREPARO/auth/" "$DEST_AUTH" || { log "rsync de auth/ falhou"; exit 1; }
