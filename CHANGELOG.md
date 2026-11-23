@@ -1,5 +1,19 @@
 # Notas de versão
 
+## v2.1.0
+
+Desempenho da API: os caminhos quentes que o perfil por amostragem (py-spy, com GIL) apontou no teste de carga da instância de
+teste de 2026-11-23 deixam de ser refeitos a cada pedido.
+- **Histórico dos perfis** (ASN, PTT, operadora, UF): a lista de todos os eventos, ordenada, e um índice por entidade são montados uma
+  vez, sob trava, e refeitos só quando muda a lista de datas ou um arquivo de eventos. Antes, cada perfil juntava e ordenava todos os
+  eventos de todas as datas: metade do tempo em que a API segurava o GIL. A saída é a mesma (comparada com o algoritmo antigo).
+- **Índice de operadoras** e **outorgas sem contato**: montados uma vez por data e documento carregado (eram refeitos a cada perfil
+  de UF, `/meta` e consulta; ~20% do tempo com GIL).
+- **Diag leve sem `sys._debugmallocstats`**: ele percorre todas as arenas segurando o GIL e, com carga ao lado, parou a API por 21 s;
+  o diag leve é o que o amostrador de memória chama a cada 30 s durante o pipeline. O bloco `pymalloc` fica só no `?deep=1`.
+- Resultado na instância de teste (snapshot 2026-11-22, até 200 simultâneos, só navegação web): pior requisição de 31,7 s para 1,9 s,
+  pior página de 40,5 s para 1,9 s, p99 no degrau de 200 de 4,5 s para 1,5 s, nenhuma parada do `/health` acima de 3 s (eram 7).
+
 ## v2.0.42
 
 Aba de estabilidade de `/bgp`: os ASes com mais updates BGP nas 6 semanas do gráfico de atividade, uma grade AS × semana para IPv6 e
