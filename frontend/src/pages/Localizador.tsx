@@ -14,7 +14,7 @@ import { useMapaLocalizador } from '../features/localizador/useMapaLocalizador'
 import { Link } from 'react-router-dom'
 
 /**
- * Localizador de ASes (/localizador): ASes, prefixos, SCMs e usuários SICI num raio em volta de um ponto.
+ * Localizador de Redes (/localizador): ASes, prefixos, SCMs e usuários SICI num raio em volta de um ponto.
  * A página só compõe: dados em `useLocalizadorDados`, cálculos puros em `calculos.ts` (cobertos por testes), feições e balões em
  * `balloes.ts`, mapa em `useMapaLocalizador` e os painéis em `Painel*.tsx`.
  */
@@ -112,7 +112,7 @@ export function Localizador() {
   return (
     <div className="space-y-1">
       <div>
-        <h1 className="text-titulo-1 text-gray-900">Localizador de ASes</h1>
+        <h1 className="text-titulo-1 text-gray-900">Localizador de Redes</h1>
         <p className="text-sm text-gray-500">
           Encontre Sistemas Autônomos próximos a uma localização no Brasil
         </p>

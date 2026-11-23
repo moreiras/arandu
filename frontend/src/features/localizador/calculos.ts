@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 /**
- * Cálculos do Localizador de ASes: o que está dentro do raio, a lista de entidades deduplicada por CNPJ, agrupamento por coordenada,
+ * Cálculos do Localizador de Redes: o que está dentro do raio, a lista de entidades deduplicada por CNPJ, agrupamento por coordenada,
  * contagens e participação em IXes. Funções puras (as `useMemo` da página só chamam estas); testadas em calculos.test.ts.
  */
 import { distKm } from './geo'

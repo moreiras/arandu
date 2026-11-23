@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-/** Tipos, cores e constantes do Localizador de ASes (divisão do pages/Localizador.tsx). */
+/** Tipos, cores e constantes do Localizador de Redes (divisão do pages/Localizador.tsx). */
 import { MAP_COLORS } from '../../components/maps/mapTheme'
 
 export interface AsnFeature {

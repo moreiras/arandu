@@ -54,14 +54,14 @@ export const MAP_COLORS = {
   sici: '#dc2626', // red-600
 
   // Infraestrutura física de fundo (ITU + TeleGeography).
-  // Violeta claro para o enlace terrestre; nos cabos submarinos, azul real destaca os que
-  // conectam o Brasil e um cinza-azulado médio deixa os demais como contexto. Os dois têm de se
+  // Violeta claro para o enlace terrestre; nos cabos submarinos, verde-mar destaca os que
+  // conectam o Brasil e um cinza-azulado médio deixa os demais (e os pontos de chegada) como contexto. Os dois têm de se
   // distinguir entre si e do mar do mapa de fundo (o marinho e o cinza 70% da 2.0.9 ficaram
   // pesados e parecidos).
   terrestrialLink: '#c4b5fd', // violet-300
   submarineCableOther: '#607B8B', // cinza 50% (cinza-azulado) — cabos submarinos sem landing point no Brasil
   erbs: '#0d9488', // teal-600 — células de estações do SMP licenciadas
-  submarineCableBr: '#3A5FCD', // azul real — cabos com landing point no Brasil
+  submarineCableBr: '#20B2AA', // verde-mar (light sea green) — cabos com landing point no Brasil
 
   // Linhas de transmissão de alta tensão (SIGEL/ANEEL).
   // Violeta mais saturado que terrestrialLink (violet-300) para não se confundir
@@ -233,7 +233,7 @@ export function createBaseMapStyle(): maplibregl.StyleSpecification {
         id: 'infra-submarine-landing-points', type: 'circle', source: 'infra-submarine-landing-points',
         paint: {
           'circle-radius': 2.5,
-          'circle-color': MAP_COLORS.submarineCableBr,
+          'circle-color': MAP_COLORS.submarineCableOther,   // pontos de chegada no cinza dos demais cabos
           'circle-opacity': 0.85,
         },
       },

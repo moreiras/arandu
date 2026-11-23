@@ -1,5 +1,12 @@
 # Notas de versão
 
+## v2.1.1
+
+Mapas e localizador.
+- Cabos submarinos que chegam ao Brasil em verde-mar (`#20B2AA`, era azul); os pontos de chegada passam ao cinza dos demais cabos
+  (`submarineCableOther`), como contexto.
+- `/localizador`: o título passa a "Localizador de Redes" (era "Localizador de ASes").
+
 ## v2.1.0
 
 Desempenho da API: os caminhos quentes que o perfil por amostragem (py-spy, com GIL) apontou no teste de carga da instância de
