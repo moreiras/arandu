@@ -672,6 +672,13 @@
    "status": 404,
    "tipo": "objeto"
   },
+  "GET /api/v1/bgp-stability/carga": {
+   "chaves": [
+    "detail"
+   ],
+   "status": 404,
+   "tipo": "objeto"
+  },
   "GET /api/v1/bgp-stability/history": {
    "chaves": [
     "weeks"

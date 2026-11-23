@@ -15,12 +15,20 @@ from datetime import timedelta
 from typing import Optional
 
 
+def _data_ou_none(v) -> Optional[date]:
+    try:
+        return date.fromisoformat(str(v)[:10]) if v else None
+    except ValueError:
+        return None
+
+
 class BgpEstabilidadeService:
     def __init__(self, store):
         self._s = store
         self._bgp_horaria_cache: dict[str, dict] = {}
         self._bgp_idx: dict[str, dict] = {}
         self._bgp_visao: dict[str, dict] = {}
+        self._bgp_carga: dict[tuple, dict] = {}
 
     def __getattr__(self, nome):
         if nome == "_s":
@@ -72,12 +80,25 @@ class BgpEstabilidadeService:
             return None
         from array import array
         series = {}
+        # volume da semana por AS e família (anúncios + retiradas + mudanças de atributo) e prefixos com update: alguns inteiros por AS,
+        # lidos nesta mesma passagem para `bgp_stability_carga` não precisar reabrir o documento de cada semana
+        carga: dict[int, tuple] = {}
         for a in doc.get("as_stability", []):
             h = a.get("hourly")
             if h:
                 series[a["asn"]] = {k: array("I", v) for k, v in h.items()}
+            p = a.get("period") or {}
+            if "announcements_v6" in p or "announcements_v4" in p:
+                carga[a["asn"]] = (
+                    a.get("name") or "",
+                    sum(p.get(k) or 0 for k in ("announcements_v6", "withdrawals_v6", "attribute_updates_v6")),
+                    sum(p.get(k) or 0 for k in ("announcements_v4", "withdrawals_v4", "attribute_updates_v4")),
+                    a.get("prefix_count_v6") or 0, a.get("prefix_count_v4") or 0,
+                )
+        per = doc.get("period") or {}
         out = {"timestamps": (doc.get("hourly_global") or {}).get("timestamps", []), "series": series,
-               "global": doc.get("hourly_global") or {}}
+               "global": doc.get("hourly_global") or {}, "carga": carga,
+               "periodo": {k: per.get(k) for k in ("start", "end", "days", "collector", "files_missing")}}
         if len(cache) >= 12:
             cache.pop(next(iter(cache)))
         cache[date_str] = out
@@ -113,6 +134,69 @@ class BgpEstabilidadeService:
             h = self._bgp_horaria(d)
             if h and h.get("global"):
                 out.append({"date": d, "data": {"hourly_global": h["global"]}})
+        return out
+
+    def bgp_stability_carga(self, date_str: str, weeks: int = 6, top: int = 10) -> Optional[dict]:
+        """Os `top` ASes com mais updates BGP (anúncios + retiradas + mudanças de atributo) somados nas últimas `weeks` semanas, por
+        família, com o volume de cada semana. É a carga na tabela, em número absoluto: não é a métrica por prefixo da tabela de
+        estabilidade. Sai das formas compactas de `_bgp_horaria` (as mesmas semanas do gráfico de atividade). None se nenhuma semana
+        da janela tem a análise."""
+        chave = (date_str, weeks, top)
+        if chave in self._bgp_carga:
+            return self._bgp_carga[chave]
+        semanas: list[dict] = []
+        cargas: list[dict] = []
+        anterior_fim: Optional[date] = None
+        for d in self.bgp_stability_datas_semanais(date_str, weeks):
+            h = self._bgp_horaria(d)
+            if not h or h.get("carga") is None:
+                continue
+            per = h.get("periodo") or {}
+            inicio, fim = _data_ou_none(per.get("start")), _data_ou_none(per.get("end"))
+            # `end` é exclusivo (a janela é [start, start + 7 dias)). Semanas escolhidas com folga (até 3 dias): a janela real pode se
+            # sobrepor à anterior ou deixar dias de fora
+            sobreposicao = lacuna = 0
+            if anterior_fim and inicio:
+                delta = (inicio - anterior_fim).days
+                sobreposicao, lacuna = max(0, -delta), max(0, delta)
+            anterior_fim = fim or anterior_fim
+            c = h["carga"]
+            semanas.append({"date": d, "inicio": per.get("start"),
+                            "ultimo_dia": (fim - timedelta(days=1)).isoformat() if fim else None, "dias": per.get("days"),
+                            "coletor": per.get("collector"), "arquivos_faltando": per.get("files_missing"),
+                            "sobreposicao_dias": sobreposicao, "lacuna_dias": lacuna,
+                            "total_v6": sum(v[1] for v in c.values()), "total_v4": sum(v[2] for v in c.values())})
+            cargas.append(c)
+        if not semanas:
+            return None
+        nomes: dict[int, str] = {}
+        for c in cargas:                                   # o nome mais recente que houver
+            for asn, v in c.items():
+                if v[0]:
+                    nomes[asn] = v[0]
+        out: dict = {"snapshot_date": date_str, "weeks": weeks, "top": top, "coletor": semanas[-1]["coletor"], "semanas": semanas}
+        for fam, i_upd, i_pfx in (("v6", 1, 3), ("v4", 2, 4)):
+            totais: dict[int, int] = {}
+            for c in cargas:
+                for asn, v in c.items():
+                    if v[i_upd]:
+                        totais[asn] = totais.get(asn, 0) + v[i_upd]
+            soma = sum(totais.values())
+            maiores = sorted(totais.items(), key=lambda kv: (-kv[1], kv[0]))[:top]
+            # AS ausente da análise de uma semana não teve update visto naquela semana: 0, não falta de dado
+            ases = [{"asn": asn, "nome": nomes.get(asn, ""), "total": total,
+                     "semanas": [(c.get(asn) or (None, 0, 0, 0, 0))[i_upd] for c in cargas],
+                     "prefixos": [(c.get(asn) or (None, 0, 0, 0, 0))[i_pfx] for c in cargas]}
+                    for asn, total in maiores]
+            soma_top = sum(a["total"] for a in ases)
+            out[fam] = {"total": soma, "total_top": soma_top,
+                        "parcela_top_pct": round(100 * soma_top / soma, 1) if soma else None,
+                        "parcela_top_semana_pct": [round(100 * sum(a["semanas"][k] for a in ases) / t, 1) if t else None
+                                                   for k, t in enumerate(s[f"total_{fam}"] for s in semanas)],
+                        "ases": ases}
+        if len(self._bgp_carga) >= 8:
+            self._bgp_carga.pop(next(iter(self._bgp_carga)))
+        self._bgp_carga[chave] = out
         return out
 
     _BGP_PESADOS = ("hourly", "top_prefixes")   # séries por AS: ficam em /bgp-stability/asn/{asn}

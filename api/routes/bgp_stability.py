@@ -116,6 +116,37 @@ def get_bgp_stability_overview(
 
 
 @router.get(
+    "/bgp-stability/carga",
+    summary="ASes com mais updates BGP nas últimas semanas, por família (carga na tabela)",
+    description="""
+Os `top` ASes brasileiros com mais updates BGP (anúncios + retiradas + mudanças de atributo) somados nas últimas `weeks` semanas, em
+separado para IPv6 (`v6`) e IPv4 (`v4`), com o volume de cada semana (`ases[].semanas`, da mais antiga à mais recente) e os prefixos com
+update em cada uma (`ases[].prefixos`). É volume absoluto, a carga na tabela; a tabela de estabilidade usa outra métrica, updates por
+prefixo por dia. `semanas[]` dá a janela real de cada semana (`inicio`, `ultimo_dia`), o coletor, arquivos faltando e a sobreposição ou
+lacuna em dias em relação à semana anterior; `total_v6`/`total_v4` são a soma de todos os ASes da análise, base de `parcela_top_pct` e
+`parcela_top_semana_pct`. Um AS sem update visto numa semana conta 0. As semanas são as do gráfico de atividade (`/bgp-stability/history`).
+404 se nenhuma semana da janela tem a análise.
+""",
+    tags=["bgp-stability"],
+)
+def get_bgp_stability_carga(
+    request: Request,
+    date: Optional[str] = Query(None, description="Data do snapshot mais recente (YYYY-MM-DD)."),
+    weeks: int = Query(6, ge=1, le=12, description="Número de semanas somadas."),
+    top: int = Query(10, ge=1, le=20, description="Quantos ASes por família."),
+) -> dict:
+    from api.store import Store
+    store: Store = request.app.state.store
+    date_str = store.resolve_date(date)
+    if date_str is None:
+        raise HTTPException(404, "Nenhum snapshot disponível")
+    out = store.bgp_stability_carga(date_str, weeks, top)
+    if out is None:
+        raise HTTPException(404, "bgp_stability não disponível para este snapshot.")
+    return out
+
+
+@router.get(
     "/bgp-stability/asn/{asn}",
     summary="Estabilidade BGP de um AS: snapshot ativo, diagnóstico e séries horárias das últimas semanas",
     description="""

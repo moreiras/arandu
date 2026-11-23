@@ -4,7 +4,7 @@ Gerado por `python3 scripts/gen_cobertura.py` a partir do OpenAPI, do MCP, do fr
 Não edite à mão. Rota nova precisa de uma entrada em `serve/capabilities/_manuais.yaml` (ou de uma capacidade declarada); lacuna
 sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rotas que os substituem.
 
-- Rotas de dados (GET, não deprecated): **168**; com tool no MCP: **138**; consumidas pela interface: **136**.
+- Rotas de dados (GET, não deprecated): **169**; com tool no MCP: **139**; consumidas pela interface: **137**.
 - Pendências marcadas (`pendente:`): **0**; lacunas sem justificativa: **0**.
 - Tools do MCP geradas de capacidade declarada: **2** de 58.
 
@@ -45,6 +45,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /bgp-stability` | — | ✔ | MCP: documento completo de dezenas de MB; o MCP serve recortes por rota_estabilidade (asn=, modo=visao_geral|resumo|historico) |
 | `GET /bgp-stability-deep` | — | ✔ | MCP: documento completo de dezenas de MB; o MCP serve recortes por rota_estabilidade (asn=, modo=visao_geral|resumo|historico) |
 | `GET /bgp-stability/asn/{asn}` | `rota_estabilidade` | ✔ |  |
+| `GET /bgp-stability/carga` | `rota_estabilidade` | ✔ |  |
 | `GET /bgp-stability/history` | `rota_estabilidade` | ✔ |  |
 | `GET /bgp-stability/overview` | `rota_estabilidade` | ✔ |  |
 | `GET /bgp-stability/summary` | `rota_estabilidade` | — | UI: a interface usa /bgp-stability/overview e /bgp-stability/history; o resumo atende clientes externos |

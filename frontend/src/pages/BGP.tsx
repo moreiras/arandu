@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchRoutingAnalysis, fetchBgpStability, fetchBgpStabilityDeep, fetchBgpStabilityHistory, fetchBgpStabilityVisaoGeral } from '../services/api'
+import { fetchRoutingAnalysis, fetchBgpStability, fetchBgpStabilityDeep, fetchBgpStabilityHistory, fetchBgpStabilityVisaoGeral, fetchBgpStabilityCarga } from '../services/api'
 import { useActiveDate } from '../hooks/useSnapshot'
 import { useNearViewport } from '../hooks/useNearViewport'
 import { useState } from 'react'
@@ -96,6 +96,16 @@ export function BGP() {
   const { data: stabilityHistory } = useQuery({
     queryKey:  ['bgp-stability-history', date],
     queryFn:   () => fetchBgpStabilityHistory(date ?? undefined, 6, true),
+    staleTime: 5 * 60 * 1000,
+    gcTime:    Infinity,
+    enabled:   !!visaoGeral,
+    retry:     false,
+  })
+
+  // ASes com mais updates nas mesmas 6 semanas do gráfico de atividade: alguns KB, montado pela API a partir das séries semanais
+  const { data: stabilityCarga } = useQuery({
+    queryKey:  ['bgp-stability-carga', date],
+    queryFn:   () => fetchBgpStabilityCarga(date ?? undefined, 6, 10),
     staleTime: 5 * 60 * 1000,
     gcTime:    Infinity,
     enabled:   !!visaoGeral,
@@ -246,7 +256,7 @@ export function BGP() {
         <div ref={secaoEstabilidade}>
         {stability ? (
           <StabilitySection
-            data={stability} deepData={stabilityDeep} history={stabilityHistory?.weeks}
+            data={stability} deepData={stabilityDeep} history={stabilityHistory?.weeks} carga={stabilityCarga}
             categorias={visaoGeral?.categorias} totalMedioOuMaior={visaoGeral?.medio_ou_maior}
             onPedirTodos={() => setPediuTodos(true)} carregandoTodos={carregandoTodos}
           />

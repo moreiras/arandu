@@ -4,11 +4,12 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ResponsiveContainer,
 } from 'recharts'
-import type { BgpStability, AsStability, NoiseCategory, BgpStabilityDeep, BgpStabilityHistoryEntry } from '../../types/bgpStability'
+import type { BgpStability, AsStability, NoiseCategory, BgpStabilityDeep, BgpStabilityHistoryEntry, BgpStabilityCarga } from '../../types/bgpStability'
 import { ClassificationBadge } from './ClassificationBadge'
 import { NoiseCategoryBadge }  from './NoiseCategoryBadge'
 import { DailySparkline }      from './DailySparkline'
 import { BgpActivityChart }    from './BgpActivityChart'
+import { CargaBgpSemanas }     from './CargaBgpSemanas'
 import { Tip } from './BgpShared'
 import { VerDados } from '../ui/VerDados'
 import { ThOrdenavel } from '../ui/ThOrdenavel'
@@ -263,6 +264,8 @@ interface Props {
   data:      BgpStability
   deepData?: BgpStabilityDeep
   history?:  BgpStabilityHistoryEntry[]
+  /** ASes com mais updates nas semanas do gráfico de atividade (`/bgp-stability/carga`); sem ele a grade não aparece. */
+  carga?: BgpStabilityCarga
   /** Contagem por categoria já calculada (visão geral); sem ela conta em `data.as_stability`. */
   categorias?: ContagemCategorias
   /** Quantos ASes têm severidade média ou maior, quando `data.as_stability` traz só o top (visão geral). */
@@ -272,7 +275,7 @@ interface Props {
   carregandoTodos?: boolean
 }
 
-export function StabilitySection({ data, deepData, history, categorias, totalMedioOuMaior, onPedirTodos, carregandoTodos }: Props) {
+export function StabilitySection({ data, deepData, history, carga, categorias, totalMedioOuMaior, onPedirTodos, carregandoTodos }: Props) {
   const [afi, setAfi] = useState<'v4' | 'v6'>('v6')   // D6: IPv6 primeiro
   const [showAll, setShowAll] = useState(false)
   const [sortKey, setSortKey] = useState<TableSortKey>('rank')
@@ -379,6 +382,13 @@ export function StabilitySection({ data, deepData, history, categorias, totalMed
       {(history?.length || data.hourly_global) && (
         <div className="border border-gray-100 rounded-lg p-3">
           <BgpActivityChart weeks={history?.length ? history : [{ date: '', data }]} />
+        </div>
+      )}
+
+      {/* ASes com mais updates nas mesmas semanas */}
+      {carga && (
+        <div className="border border-gray-100 rounded-lg p-3">
+          <CargaBgpSemanas data={carga} />
         </div>
       )}
 

@@ -77,14 +77,16 @@ def bgp_stability(
       - `visao_geral`: período, distribuição, estatísticas, atividade global por hora, contagem de ASes por categoria de ruído e
         severidade e os 10 mais ruidosos;
       - `resumo`: uma linha por AS com `epppd` (eventos/prefixo/dia; total, v6 e v4), do mais ruidoso ao mais calmo, até `limit`;
-      - `historico`: a atividade global por hora das últimas `weeks` semanas.
+      - `historico`: a atividade global por hora das últimas `weeks` semanas;
+      - `carga`: os `limit` ASes (até 20) com mais updates somados nas últimas `weeks` semanas, em separado para IPv6 e IPv4, com o
+        volume de cada semana e a parcela do total. É volume absoluto (carga na tabela), não eventos por prefixo.
     O documento completo (~46 MB) não é servido por esta tool.
 
     Args:
         asn: Número do AS. Omita para as visões globais.
-        modo: visao_geral | resumo | historico (ignorado com `asn`).
+        modo: visao_geral | resumo | historico | carga (ignorado com `asn`).
         weeks: Semanas de série (1..12).
-        limit: Quantos ASes em `modo="resumo"` (1..500).
+        limit: Quantos ASes em `modo="resumo"` (1..500) ou, por família, em `modo="carga"` (1..20).
         date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.
     """
     d = _resolve(date)
@@ -108,7 +110,12 @@ def bgp_stability(
         return {"snapshot_date": d, "total": len(itens), "items": ordenados[:max(1, min(limit, 500))]}
     if modo == "historico":
         return {"snapshot_date": d, "weeks": _store.bgp_stability_historico_resumo(d, weeks)}
-    raise ValueError(f"modo inválido: {modo!r}; válidos: visao_geral, resumo, historico")
+    if modo == "carga":
+        out = _store.bgp_stability_carga(d, weeks, max(1, min(limit, 20)))
+        if out is None:
+            raise ValueError(indisponivel)
+        return out
+    raise ValueError(f"modo inválido: {modo!r}; válidos: visao_geral, resumo, historico, carga")
 
 
 @mcp.tool()

@@ -911,6 +911,44 @@ def test_visao_geral_da_estabilidade_bgp_traz_o_topo_de_cada_ordem_da_lista_inte
     assert 7 in extras and not extras & {1, 2, 3} and all("hourly" not in a for a in r["as_stability_ordens"])
 
 
+def test_carga_bgp_soma_updates_por_familia_nas_semanas_do_grafico(tmp_path):
+    """`Store.bgp_stability_carga`: volume absoluto por família somado nas semanas (as de `bgp_stability_datas_semanais`), top N pela soma,
+    0 para o AS sem update numa semana, parcela do total e a janela real de cada semana (sobreposição e lacuna, com `end` exclusivo)."""
+    from api.store import Store
+
+    def per(v6, v4):
+        return {"announcements_v6": v6, "withdrawals_v6": 0, "attribute_updates_v6": 0,
+                "announcements_v4": v4 // 2, "withdrawals_v4": v4 - v4 // 2, "attribute_updates_v4": 0}
+
+    def snap(d, inicio, fim, ases):
+        pub = tmp_path / "published" / d
+        pub.mkdir(parents=True)
+        (pub / "manifest.json").write_text("{}")
+        doc = {"period": {"start": inicio, "end": fim, "days": 7, "collector": "rrc-x", "files_missing": 0},
+               "hourly_global": {"timestamps": []},
+               "as_stability": [{"asn": a, "name": f"Rede {a}", "prefix_count_v6": 1, "prefix_count_v4": 2, "period": per(v6, v4)}
+                                for a, v6, v4 in ases]}
+        (pub / "bgp_stability.json").write_text(json.dumps(doc))
+
+    snap("2026-09-06", "2026-08-30", "2026-09-06", [(1, 100, 10), (2, 5, 500)])
+    snap("2026-09-13", "2026-09-06", "2026-09-13", [(1, 100, 10), (3, 900, 0)])                 # pico isolado do AS 3 em v6
+    snap("2026-09-18", "2026-09-11", "2026-09-18", [(1, 100, 10), (2, 5, 400), (4, 1, 1)])      # sem o dia 20: recua; 2 dias sobrepostos
+    store = Store(tmp_path)
+    r = store.bgp_stability_carga("2026-09-20", 6, 2)
+    assert [s["date"] for s in r["semanas"]] == ["2026-09-06", "2026-09-13", "2026-09-18"]
+    assert [(s["sobreposicao_dias"], s["lacuna_dias"]) for s in r["semanas"]] == [(0, 0), (0, 0), (2, 0)]
+    assert r["semanas"][0]["ultimo_dia"] == "2026-09-05" and r["coletor"] == "rrc-x"
+    assert [a["asn"] for a in r["v6"]["ases"]] == [3, 1]                                         # soma: 900 > 300 > 10
+    assert r["v6"]["ases"][0]["semanas"] == [0, 900, 0] and r["v6"]["ases"][1]["semanas"] == [100, 100, 100]
+    assert [a["asn"] for a in r["v4"]["ases"]] == [2, 1] and r["v4"]["ases"][0]["semanas"] == [500, 0, 400]
+    assert r["v4"]["ases"][0]["nome"] == "Rede 2" and r["v4"]["ases"][0]["prefixos"] == [2, 0, 2]
+    assert [s["total_v6"] for s in r["semanas"]] == [105, 1000, 106] and r["v6"]["total"] == 1211
+    assert r["v6"]["parcela_top_pct"] == round(100 * 1200 / 1211, 1)
+    assert r["v6"]["parcela_top_semana_pct"] == [round(100 * 100 / 105, 1), 100.0, round(100 * 100 / 106, 1)]
+    assert store.bgp_stability_carga("2026-09-20", 1, 10)["semanas"][0]["date"] == "2026-09-18"
+    assert store.bgp_stability_carga("2026-01-01", 6, 10) is None
+
+
 def test_outorgas_unificadas_batem_com_as_rotas_por_servico(api, ctx):
     """`/outorgas` tem uma linha por CNPJ com os serviços; stats, mapa e `/outorgas/{cnpj}` iguais às rotas por serviço."""
     todos = api.get("/api/v1/outorgas", params={"limit": 1000}, headers=ALLOWED).json()

@@ -1034,6 +1034,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/bgp-stability/carga": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * ASes com mais updates BGP nas últimas semanas, por família (carga na tabela)
+         * @description Os `top` ASes brasileiros com mais updates BGP (anúncios + retiradas + mudanças de atributo) somados nas últimas `weeks` semanas, em
+         *     separado para IPv6 (`v6`) e IPv4 (`v4`), com o volume de cada semana (`ases[].semanas`, da mais antiga à mais recente) e os prefixos com
+         *     update em cada uma (`ases[].prefixos`). É volume absoluto, a carga na tabela; a tabela de estabilidade usa outra métrica, updates por
+         *     prefixo por dia. `semanas[]` dá a janela real de cada semana (`inicio`, `ultimo_dia`), o coletor, arquivos faltando e a sobreposição ou
+         *     lacuna em dias em relação à semana anterior; `total_v6`/`total_v4` são a soma de todos os ASes da análise, base de `parcela_top_pct` e
+         *     `parcela_top_semana_pct`. Um AS sem update visto numa semana conta 0. As semanas são as do gráfico de atividade (`/bgp-stability/history`).
+         *     404 se nenhuma semana da janela tem a análise.
+         */
+        get: operations["get_bgp_stability_carga_api_v1_bgp_stability_carga_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/bgp-stability/history": {
         parameters: {
             query?: never;
@@ -7101,6 +7127,44 @@ export interface operations {
             path: {
                 asn: number;
             };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_bgp_stability_carga_api_v1_bgp_stability_carga_get: {
+        parameters: {
+            query?: {
+                /** @description Data do snapshot mais recente (YYYY-MM-DD). */
+                date?: string | null;
+                /** @description Número de semanas somadas. */
+                weeks?: number;
+                /** @description Quantos ASes por família. */
+                top?: number;
+            };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;

@@ -27,6 +27,7 @@
  "/api/v1/bgp-stability",
  "/api/v1/bgp-stability-deep",
  "/api/v1/bgp-stability/asn/{asn}",
+ "/api/v1/bgp-stability/carga",
  "/api/v1/bgp-stability/history",
  "/api/v1/bgp-stability/overview",
  "/api/v1/cdns/presence",

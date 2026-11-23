@@ -55,6 +55,8 @@
   sem_mcp: "documento completo de dezenas de MB; o MCP serve recortes por rota_estabilidade (asn=, modo=visao_geral|resumo|historico)"
 - http: GET /bgp-stability/asn/{asn}
   mcp: rota_estabilidade
+- http: GET /bgp-stability/carga
+  mcp: rota_estabilidade
 - http: GET /bgp-stability/history
   mcp: rota_estabilidade
 - http: GET /bgp-stability/overview

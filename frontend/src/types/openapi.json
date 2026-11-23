@@ -2154,7 +2154,7 @@
    "url": "http://localhost/fontes"
   },
   "title": "Arandurapé",
-  "version": "2.0.40"
+  "version": "2.0.41"
  },
  "openapi": "3.1.0",
  "paths": {
@@ -5667,6 +5667,89 @@
      }
     },
     "summary": "Estabilidade BGP de um AS: snapshot ativo, diagnóstico e séries horárias das últimas semanas",
+    "tags": [
+     "bgp-stability",
+     "bgp-stability"
+    ]
+   }
+  },
+  "/api/v1/bgp-stability/carga": {
+   "get": {
+    "description": "Os `top` ASes brasileiros com mais updates BGP (anúncios + retiradas + mudanças de atributo) somados nas últimas `weeks` semanas, em\nseparado para IPv6 (`v6`) e IPv4 (`v4`), com o volume de cada semana (`ases[].semanas`, da mais antiga à mais recente) e os prefixos com\nupdate em cada uma (`ases[].prefixos`). É volume absoluto, a carga na tabela; a tabela de estabilidade usa outra métrica, updates por\nprefixo por dia. `semanas[]` dá a janela real de cada semana (`inicio`, `ultimo_dia`), o coletor, arquivos faltando e a sobreposição ou\nlacuna em dias em relação à semana anterior; `total_v6`/`total_v4` são a soma de todos os ASes da análise, base de `parcela_top_pct` e\n`parcela_top_semana_pct`. Um AS sem update visto numa semana conta 0. As semanas são as do gráfico de atividade (`/bgp-stability/history`).\n404 se nenhuma semana da janela tem a análise.",
+    "operationId": "get_bgp_stability_carga_api_v1_bgp_stability_carga_get",
+    "parameters": [
+     {
+      "description": "Data do snapshot mais recente (YYYY-MM-DD).",
+      "in": "query",
+      "name": "date",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Data do snapshot mais recente (YYYY-MM-DD).",
+       "title": "Date"
+      }
+     },
+     {
+      "description": "Número de semanas somadas.",
+      "in": "query",
+      "name": "weeks",
+      "required": false,
+      "schema": {
+       "default": 6,
+       "description": "Número de semanas somadas.",
+       "maximum": 12,
+       "minimum": 1,
+       "title": "Weeks",
+       "type": "integer"
+      }
+     },
+     {
+      "description": "Quantos ASes por família.",
+      "in": "query",
+      "name": "top",
+      "required": false,
+      "schema": {
+       "default": 10,
+       "description": "Quantos ASes por família.",
+       "maximum": 20,
+       "minimum": 1,
+       "title": "Top",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Get Bgp Stability Carga Api V1 Bgp Stability Carga Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "ASes com mais updates BGP nas últimas semanas, por família (carga na tabela)",
     "tags": [
      "bgp-stability",
      "bgp-stability"

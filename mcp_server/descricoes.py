@@ -219,7 +219,7 @@ DESCRICOES: dict[str, str] = {
     ),
     'rota_estabilidade': (
         'Estabilidade BGP (eventos por prefixo por dia). Com asn: o AS. Sem asn: modo="resumo" = ranking dos mais ruidosos; '
-        '"visao_geral"; "historico". Args: asn, modo, weeks, limit.'
+        '"visao_geral"; "historico"; "carga" = ASes com mais updates em weeks semanas, por família. Args: asn, modo, weeks, limit.'
     ),
     'rota_prefixo': (
         'UM prefixo BR: AS originador e UF. Com ip (sem máscara) acha o prefixo mais específico que contém o endereço. Args: '

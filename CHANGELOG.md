@@ -1,5 +1,17 @@
 # Notas de versão
 
+## v2.0.42
+
+Aba de estabilidade de `/bgp`: os ASes com mais updates BGP nas 6 semanas do gráfico de atividade, uma grade AS × semana para IPv6 e
+outra para IPv4.
+- **Métrica:** volume absoluto (anúncios + retiradas + mudanças de atributo) somado nas semanas, por família. É a carga na tabela, não
+  a métrica por prefixo da tabela de estabilidade, e o texto da grade diz isso. Top 10 por família, parcela dos 10 no total de cada
+  semana e do período, e a janela real de cada semana (sobreposição ou lacuna em relação à anterior, arquivos do coletor faltando).
+- `GET /api/v1/bgp-stability/carga?weeks=&top=` (padrão 6 e 10; até 12 e 20), classe `metered` e aberta a anônimos (decisão do
+  mantenedor, 2026-11-23), como o `/history?resumo=1`. Sai de alguns inteiros por AS e semana lidos na mesma passagem que monta as séries
+  horárias semanais (medido: ~2,2 MiB por semana para 8.000 ASes), sem reabrir o documento de cada semana.
+- MCP: `rota_estabilidade(modo="carga", weeks, limit)`.
+
 ## v2.0.41
 
 Coletas em paralelo, uma por destino, no orçamento de memória do worker (desligado por padrão).

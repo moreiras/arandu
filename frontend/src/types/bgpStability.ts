@@ -203,3 +203,46 @@ export interface BgpStabilityVisaoGeral extends Omit<BgpStability, 'as_stability
   /** ASes com severidade crítica, alta ou média: o que a lista "Ver todos" mostra (carregada sob demanda). */
   medio_ou_maior: number
 }
+
+/** Uma semana de `GET /bgp-stability/carga`: a janela real (`inicio` a `ultimo_dia`) e a soma de todos os ASes da análise. */
+export interface CargaSemana {
+  date: string
+  inicio: string | null
+  ultimo_dia: string | null
+  dias: number | null
+  coletor: string | null
+  arquivos_faltando: number | null
+  sobreposicao_dias: number
+  lacuna_dias: number
+  total_v6: number
+  total_v4: number
+}
+
+export interface CargaAs {
+  asn: number
+  nome: string
+  total: number
+  /** updates por semana, da mais antiga à mais recente (0 = nenhum update visto) */
+  semanas: number[]
+  /** prefixos com update em cada semana */
+  prefixos: number[]
+}
+
+export interface CargaFamilia {
+  total: number
+  total_top: number
+  parcela_top_pct: number | null
+  parcela_top_semana_pct: (number | null)[]
+  ases: CargaAs[]
+}
+
+/** `GET /bgp-stability/carga`: os ASes com mais updates (volume absoluto) somados nas semanas do gráfico de atividade, por família. */
+export interface BgpStabilityCarga {
+  snapshot_date: string
+  weeks: number
+  top: number
+  coletor: string | null
+  semanas: CargaSemana[]
+  v6: CargaFamilia
+  v4: CargaFamilia
+}

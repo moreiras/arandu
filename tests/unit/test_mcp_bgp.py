@@ -46,6 +46,9 @@ class Loja:
     def bgp_stability_historico_resumo(self, d, weeks):
         return [{"hourly_global": []}] * weeks
 
+    def bgp_stability_carga(self, d, weeks, top):
+        return {"weeks": weeks, "top": top} if self.com_analise else None
+
     def geo_map(self, d, camada):
         return {"features": [{"properties": {"prefix": "200.1.2.0/24", "origin_asn": 64500}}]}
 
@@ -97,6 +100,8 @@ def test_bgp_stability_modos_e_por_as(srv):
     r = chamar(srv, "rota_estabilidade", {"modo": "resumo", "limit": 2})
     assert r["total"] == 3 and [i["asn"] for i in r["items"]] == [2, 1]                  # do mais ruidoso ao mais calmo
     assert len(chamar(srv, "rota_estabilidade", {"modo": "historico", "weeks": 3})["weeks"]) == 3
+    carga = chamar(srv, "rota_estabilidade", {"modo": "carga", "weeks": 4, "limit": 50})
+    assert (carga["weeks"], carga["top"]) == (4, 20)                                         # até 20 por família
     assert chamar(srv, "rota_estabilidade", {"asn": 64500, "weeks": 99})["weeks"] == 12      # semanas limitadas a 12
     with pytest.raises(ToolError, match="modo inválido"):
         chamar(srv, "rota_estabilidade", {"modo": "completo"})

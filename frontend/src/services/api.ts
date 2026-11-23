@@ -1212,6 +1212,11 @@ export function fetchBgpStabilityHistory(date?: string, weeks = 6, resumo = fals
   return get('/api/v1/bgp-stability/history', { date, weeks, ...(resumo ? { resumo: true } : {}) })
 }
 
+/** Os `top` ASes com mais updates BGP somados nas últimas `weeks` semanas, por família (as mesmas semanas do gráfico de atividade). */
+export function fetchBgpStabilityCarga(date?: string, weeks = 6, top = 10): Promise<import('../types/bgpStability').BgpStabilityCarga> {
+  return get('/api/v1/bgp-stability/carga', { date, weeks, top })
+}
+
 export function postAuthLog(path: string): void {
   const url = new URL(BASE + '/auth/log', window.location.href)
   fetch(url.toString(), {

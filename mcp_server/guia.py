@@ -103,7 +103,7 @@ COMO ESCOLHER (pela pergunta):
    As collections estão abaixo; describe_schema(collection) dá os campos e enums de UMA collection.
 4. Pergunta temática sobre um AS → asn_peering (PeeringDB), asn_politica (rejeições nos route servers), asn_interconexao (origina sem ser
    direto, sessões ausentes), asn_bloqueios (OONI), asn_radar (Cloudflare Radar), asn_exposicao (Shodan), asn_rede (AS_PATH),
-   rota_estabilidade (BGP ruidoso), geo_localizar (coordenadas).
+   rota_estabilidade (BGP ruidoso; modo="carga": mais updates em semanas), geo_localizar (coordenadas).
 5. Pergunta temática sobre um PTT → ixp_participantes (membros), ixp_proximos (ASes num raio; direct/origin/absent), ixp_potencial,
    ixp_usuarios (usuários APNIC alcançáveis), ixp_assinantes (assinantes SICI alcançáveis), ixp_rejeicoes, ixp_communities, ixp_lista,
    ixp_externo/ixp_portas (PTTs fora do IX.br), cdn_presenca (CDNs nos PTTs).

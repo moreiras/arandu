@@ -113,6 +113,7 @@ _BORDA_PATTERNS: Sequence[str] = (
     r"/bgp-stability",
     r"/bgp-stability/history",
     r"/bgp-stability/overview",
+    r"/bgp-stability/carga",
     r"/routing-analysis",
 )
 
