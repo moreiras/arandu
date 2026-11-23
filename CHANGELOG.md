@@ -1,5 +1,10 @@
 # Notas de versão
 
+## v2.1.2
+
+`/localizador`: o subtítulo acompanha o título novo ("Escolha um ponto no Brasil e veja as redes, os provedores e os acessos de
+banda larga ao redor"; era "Encontre Sistemas Autônomos próximos a uma localização no Brasil").
+
 ## v2.1.1
 
 Mapas e localizador.

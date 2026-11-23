@@ -114,7 +114,7 @@ export function Localizador() {
       <div>
         <h1 className="text-titulo-1 text-gray-900">Localizador de Redes</h1>
         <p className="text-sm text-gray-500">
-          Encontre Sistemas Autônomos próximos a uma localização no Brasil
+          Escolha um ponto no Brasil e veja as redes, os provedores e os acessos de banda larga ao redor
         </p>
       </div>
 
