@@ -44,6 +44,7 @@ class OutorgasPublicadas(ArtifactRepo):
         self.chave, self.mapa = _REGISTRO[sigla].chave, _REGISTRO[sigla].mapa
         self._asn_set: dict[str, frozenset[int]] = {}
         self._geo: dict[str, Optional[dict]] = {}
+        self._index_cache: dict[str, tuple] = {}     # date → (documento carregado, linhas sem contato): só leitura
 
     def load(self, date_str: str) -> Optional[dict]:
         """Carrega <sigla>.json.gz do snapshot. None se não disponível."""
@@ -55,7 +56,14 @@ class OutorgasPublicadas(ArtifactRepo):
         Caminho de consumo em lote (REST, MCP list/query). Contatos (telefone/email) só são servidos por AS via `for_asn`.
         """
         data = self.load(date_str)
-        return [strip_contacts(r) for r in data.get(self.chave, [])] if data else []
+        if not data:
+            return []
+        atual = self._index_cache.get(date_str)
+        if atual is not None and atual[0] is data:          # copiar dezenas de milhares de registros a cada pedido custava ~8% da API
+            return atual[1]
+        linhas = [strip_contacts(r) for r in data.get(self.chave, [])]
+        self._index_cache[date_str] = (data, linhas)
+        return linhas
 
     def for_cnpj(self, date_str: str, cnpj: str) -> list[dict]:
         """Outorgas de um CNPJ (14 dígitos), SEM contatos."""

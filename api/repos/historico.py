@@ -17,7 +17,8 @@ from __future__ import annotations
 
 import gzip
 import json
-from collections import OrderedDict
+import threading
+from collections import OrderedDict, defaultdict
 from pathlib import Path
 from typing import Iterator, Optional
 
@@ -39,6 +40,9 @@ class HistoricoRepo:
         self._br: "OrderedDict[tuple, dict[int, dict]]" = OrderedDict()
         self._pequenos: dict[tuple, dict] = {}
         self._eventos: dict[tuple, list[dict]] = {}
+        # todos os eventos ordenados e o índice por entidade, refeitos só quando muda a lista de datas ou um arquivo de eventos
+        self._todos: Optional[tuple] = None
+        self._trava_todos = threading.Lock()
 
     # ── índice ───────────────────────────────────────────────────────────────
     def indice(self) -> dict:
@@ -132,11 +136,53 @@ class HistoricoRepo:
         return self._series_linhas
 
     # ── eventos ──────────────────────────────────────────────────────────────
+    def _chave_eventos(self) -> tuple:
+        partes = []
+        for d in self.datas():
+            try:
+                partes.append((d, (self.raiz / "events" / f"{d}.jsonl.gz").stat().st_mtime))
+            except OSError:
+                partes.append((d, None))
+        return tuple(partes)
+
+    def _montar_todos(self) -> tuple:
+        """(lista ordenada, índice). Montar custa juntar e ordenar dezenas de milhares de eventos: no teste de carga de 2026-11-23 isso,
+        refeito a cada perfil, era metade do tempo em que a API segurava o GIL. Agora só quando a chave muda, e sob trava (uma montagem só
+        quando vários pedidos chegam juntos)."""
+        chave = self._chave_eventos()
+        atual = self._todos
+        if atual is not None and atual[0] == chave:
+            return atual
+        with self._trava_todos:
+            atual = self._todos
+            if atual is not None and atual[0] == chave:
+                return atual
+            out = [e for d, _ in chave for e in self.eventos(d)]
+            out.sort(key=lambda e: (e["data"], e["tipo"], e["entidade"], e["chave"]), reverse=True)
+            idx: dict[str, dict] = {"asn": defaultdict(list), "ixp": defaultdict(list), "uf": defaultdict(list), "entidade": defaultdict(list)}
+            for e in out:                                   # na ordem da lista: cada recorte já sai ordenado
+                if e.get("asn") is not None:
+                    idx["asn"][e["asn"]].append(e)
+                if e["tipo"].startswith("ixp_"):
+                    idx["ixp"][e["chave"]].append(e)
+                if e.get("uf") is not None:
+                    idx["uf"][e["uf"]].append(e)
+                idx["entidade"][e["entidade"]].append(e)
+            self._todos = (chave, out, {k: dict(v) for k, v in idx.items()}, {id(e): i for i, e in enumerate(out)})
+            return self._todos
+
     def todos_eventos(self) -> list[dict]:
-        """Todos os eventos de todas as datas com histórico (tabela da coleção `eventos` do `/query`), do mais recente ao mais antigo."""
-        out = [e for d in self.datas() for e in self.eventos(d)]
-        out.sort(key=lambda e: (e["data"], e["tipo"], e["entidade"], e["chave"]), reverse=True)
-        return out
+        """Todos os eventos de todas as datas com histórico (tabela da coleção `eventos` do `/query`), do mais recente ao mais antigo.
+        A lista é compartilhada entre pedidos: só leitura."""
+        return self._montar_todos()[1]
+
+    def posicao(self, evento: dict) -> int:
+        """Posição do evento em `todos_eventos` (para juntar recortes do índice sem perder a ordem entre empates da chave de ordenação)."""
+        return self._montar_todos()[3][id(evento)]
+
+    def eventos_de(self, campo: str, valor) -> list[dict]:
+        """Os eventos com `campo` (`asn`, `ixp`, `uf` ou `entidade`) igual a `valor`, na ordem de `todos_eventos` (só leitura)."""
+        return self._montar_todos()[2][campo].get(valor, [])
 
     def eventos(self, date: str) -> list[dict]:
         caminho = self.raiz / "events" / f"{date}.jsonl.gz"

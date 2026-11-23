@@ -312,7 +312,9 @@ def latest_cache_report(cache: Any) -> dict | None:
 def collect(store: Any, latest_cache: Any = None, deep: bool = False, sample: int = 64) -> dict:
     t0 = time.perf_counter()
     sample = max(8, min(int(sample), 512))
-    rep = {"processo": process_info(deep), "pymalloc": pymalloc_stats(), "store": store_report(store, deep, sample),
+    # pymalloc só no profundo: `sys._debugmallocstats` percorre todas as arenas segurando o GIL e, com carga ao lado, chegou a parar a API
+    # por 21 s (teste de 2026-11-23); o diag leve é o que o amostrador de memória chama a cada 30 s durante o pipeline.
+    rep = {"processo": process_info(deep), "pymalloc": pymalloc_stats() if deep else None, "store": store_report(store, deep, sample),
            "byte_cache_latest": latest_cache_report(latest_cache), "profundo": bool(deep), "amostra": sample if deep else None,
            "caches_de_modulo": module_caches_report(deep, sample)}
     if deep:

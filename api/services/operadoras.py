@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import threading
 from typing import Optional
 
 from api.store import _log, _strip_scm_contacts
@@ -21,6 +22,9 @@ from core.cpf import sem_socios_pessoa_fisica
 class OperadorasService:
     def __init__(self, store):
         self._s = store
+        # Cache: date_str → (scm, sici, linhas) do operadora_index; vale enquanto o SCM e o SICI carregados forem os mesmos objetos
+        self._operadora_index_cache: dict[str, tuple] = {}
+        self._operadora_index_trava = threading.Lock()
         # Cache: "{date}/cnpj_asns" → {cnpj14: [asn, ...]}
         self._cnpj_asns_cache: dict[str, dict[str, list[int]]] = {}
         # Cache: date_str → {str(asn): [poc_dict, ...]} de peeringdb_contacts.json.gz
@@ -130,6 +134,20 @@ class OperadorasService:
         sici = self._load_sici(date_str)
         if not scm and not sici:
             return []
+        # Memoizado: refeito a cada chamada, era ~12% do tempo da API no teste de carga de 2026-11-23 (o perfil de UF e o /meta o chamam
+        # por pedido). As linhas são compartilhadas entre pedidos: só leitura.
+        atual = self._operadora_index_cache.get(date_str)
+        if atual is not None and atual[0] is scm and atual[1] is sici:
+            return atual[2]
+        with self._operadora_index_trava:
+            atual = self._operadora_index_cache.get(date_str)
+            if atual is not None and atual[0] is scm and atual[1] is sici:
+                return atual[2]
+            linhas = self._montar_operadora_index(scm, sici)
+            self._operadora_index_cache[date_str] = (scm, sici, linhas)
+            return linhas
+
+    def _montar_operadora_index(self, scm, sici) -> list[dict]:
         sici_cnpjs = (sici or {}).get("cnpjs", {})
         mes_ref = (sici or {}).get("mes_referencia", "")
         rows: dict[str, dict] = {}

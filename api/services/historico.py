@@ -224,18 +224,30 @@ def perfil(repo: HistoricoRepo, escopo: str, chave: str, completo: bool, recente
             serie.append({"date": d, **{k: ln[k] for k in cols if k in ln}})
     if not serie:
         return None
+    # Candidatos pelo índice do repositório (nada de varrer todos os eventos a cada perfil); o filtro `casa` continua valendo.
     if escopo == "operadora":
         asns = set(repo.asns_do_cnpj(datas[-1], chave))
         casa = lambda e: e.get("asn") in asns or e["entidade"] == f"cnpj:{chave}"      # noqa: E731
+        vistos: set[int] = set()
+        candidatos = []
+        for e in [x for a in asns for x in repo.eventos_de("asn", a)] + repo.eventos_de("entidade", f"cnpj:{chave}"):
+            if id(e) not in vistos:
+                vistos.add(id(e))
+                candidatos.append(e)
+        candidatos.sort(key=repo.posicao)                    # a ordem de todos_eventos, inclusive entre empates da chave
     elif escopo == "asn":
         casa = lambda e: e.get("asn") == int(chave)                                     # noqa: E731
+        candidatos = repo.eventos_de("asn", int(chave))
     elif escopo == "ixp":
         casa = lambda e: e["tipo"].startswith("ixp_") and e["chave"] == chave           # noqa: E731
+        candidatos = repo.eventos_de("ixp", chave)
     else:
         # Em UF os alertas (centenas por snapshot) afogariam o resto; ficam na página do AS e em /changes
         casa = lambda e: e.get("uf") == chave and not e["tipo"].startswith("alerta_")   # noqa: E731
+        candidatos = repo.eventos_de("uf", chave)
     eventos = []
-    todos = [e for e in repo.todos_eventos() if e["data"] in datas and e["estado"] != "revertido" and e["tipo"] not in _INFERIDOS and casa(e)]
+    no_recorte = set(datas)
+    todos = [e for e in candidatos if e["data"] in no_recorte and e["estado"] != "revertido" and e["tipo"] not in _INFERIDOS and casa(e)]
     for e in todos[:LIMITE_EVENTOS_PERFIL]:
         eventos.append({k: e[k] for k in ("data", "tipo", "entidade", "chave", "de", "para", "estado", "destaque") if k in e})
     return {"completo": completo, "snapshots_com_historico": len(repo.datas()), "colunas": [c for c in cols if any(c in p for p in serie)],
