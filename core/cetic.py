@@ -54,6 +54,18 @@ def _numero(v: Optional[str]) -> Optional[float]:
         return None
 
 
+# A planilha traz título e dimensão em caixa alta; ao passar para caixa de frase, estas palavras voltam à grafia própria.
+_GRAFIAS = {"internet": "Internet", "ix.br": "IX.br", "ipv6": "IPv6", "ipv4": "IPv4", "lgpd": "LGPD", "tic": "TIC", "ptt": "PTT",
+            "ix": "IX", "wi-fi": "Wi-Fi", "tv white spaces": "TV White Spaces", "br": "BR"}
+_RE_GRAFIAS = re.compile(r"(?<![\w.-])(" + "|".join(re.escape(k) for k in sorted(_GRAFIAS, key=len, reverse=True)) + r")(?![\w-]|\.\w)")
+
+
+def grafia(texto: str) -> str:
+    """Caixa de frase (primeira letra maiúscula) sem estragar siglas e nomes próprios ("Internet", "IX.br", "IPv6")."""
+    t = _RE_GRAFIAS.sub(lambda m: _GRAFIAS[m.group(1)], texto.lower())
+    return t[:1].upper() + t[1:]
+
+
 def _limpa(v: Optional[str]) -> str:
     return re.sub(r"[¹²³⁰-⁹]+$", "", (v or "").strip()).strip()
 
@@ -106,7 +118,7 @@ def normalizar(zip_bytes: bytes, minimo_tabelas: int) -> tuple[dict, list[dict]]
         while fim < len(dados) and len(dados[fim]) > 1 and dados[fim][1]:
             fim += 1
         notas = [_limpa(r[0]) if r else "" for r in dados[fim:]]
-        tabelas[aba] = {"codigo": codigo.strip(), "titulo": (nome.strip() or titulo).capitalize(), "universo": _limpa(dados[1][0] if len(dados) > 1 else ""),
+        tabelas[aba] = {"codigo": codigo.strip(), "titulo": grafia(nome.strip() or titulo), "universo": _limpa(dados[1][0] if len(dados) > 1 else ""),
                         "notas": [n for n in notas if n]}
         for i in range(inicio, fim):
             for j, (item, resposta) in enumerate(itens, start=2):
@@ -120,7 +132,7 @@ def normalizar(zip_bytes: bytes, minimo_tabelas: int) -> tuple[dict, list[dict]]
                     vals[campo] = _numero(linha[j]) if j < len(linha) else None
                 if all(v is None for v in vals.values()):
                     continue
-                linhas.append({"tabela": aba, "dimensao": _limpa(dados[i][0]).capitalize(),
+                linhas.append({"tabela": aba, "dimensao": grafia(_limpa(dados[i][0])),
                                "recorte": _limpa(dados[i][1]), "item": item, "resposta": resposta,
                                "proporcao": vals["proporcao"], "margem_proporcao": vals["margem_proporcao"],
                                "total": vals["total"], "margem_total": vals["margem_total"]})

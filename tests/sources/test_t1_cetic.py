@@ -61,6 +61,25 @@ def test_provedores_recortes_por_porte_e_regiao(fx):
     assert all(l["proporcao"] is None or 0 <= l["proporcao"] <= 100 for l in linhas)
 
 
+def test_titulos_preservam_siglas_e_nomes_proprios(fx):
+    """A planilha vem em caixa alta; `str.capitalize()` escrevia "internet", "ix.br", "ipv6" (USO-E2)."""
+    tabelas, _ = cetic.normalizar(_zip(fx, ZIP_PROV), 30)
+    t = {k: v["titulo"] for k, v in tabelas.items()}
+    assert t["E1A"] == "Empresas provedoras que participam do IX.br"
+    assert t["F4"] == "Empresas provedoras, por dificuldade de ativação do IPv6"
+    assert t["XP12"] == "Empresas provedoras, por tipo de ação para adequação à LGPD"
+    assert t["E3"].endswith("ponto de troca de tráfego (PTT ou IX)")
+    assert "TV White Spaces" in t["B13"] and "Internet" in t["D1"]
+    tabelas, _ = cetic.normalizar(_zip(fx, ZIP_DOM), 10)
+    assert tabelas["A"]["titulo"] == "Domicílios que possuem equipamentos TIC"
+    assert tabelas["A12"]["titulo"] == "Domicílios com acesso à Internet, por presença de Wi-Fi"
+
+
+def test_grafia_preserva_siglas_tambem_na_dimensao():
+    assert cetic.grafia("ACESSO À INTERNET VIA IPV4 E IPV6 NO IX.BR") == "Acesso à Internet via IPv4 e IPv6 no IX.br"
+    assert cetic.grafia("PORTE DO PROVEDOR") == "Porte do provedor" and cetic.grafia("") == ""
+
+
 def test_menos_tabelas_que_o_minimo_falha_alto(fx):
     with pytest.raises(RuntimeError, match="só 15 tabelas"):
         cetic.normalizar(_zip(fx, ZIP_DOM), 30)
