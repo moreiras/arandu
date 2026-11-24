@@ -567,7 +567,7 @@ SCHEMA["omissao_sici"] = {
         _f("uf", "string", "UF do cadastro (2 letras MAIÚSCULAS)", example="MG"),
         _f("n_outorgas", "int", "Outorgas SCM do CNPJ"),
         _f("desde", "string", "Mês da outorga mais antiga (AAAA-MM)"),
-        _f("asns", "array", "ASNs do CNPJ"),
+        _f("asns", "array[int]", "ASNs do CNPJ"),
         _f("usuarios_apnic", "int", "Usuários estimados (APNIC) somados nos ASNs do CNPJ"),
         _f("classe", "string", "Classe pelos usuários estimados", enum=["com_usuarios_apnic", "sem_usuarios", "nao_comparavel"]),
         _f("grupo_id", "string", "Grupo societário (identificador)"),
@@ -705,7 +705,7 @@ SCHEMA["rs_filtradas"] = {
         _f("classe", "string", "rejeicao ou blackhole", enum=["rejeicao", "blackhole"]),
         _f("rotas", "int", "Rotas rejeitadas com esse motivo (exato)"),
         _f("rotas_rejeitadas_do_asn", "int", "Total de rotas rejeitadas do ASN no PTT"),
-        _f("prefixos_amostra", "list", "Até 5 prefixos de exemplo (amostra)"),
+        _f("prefixos_amostra", "array[string]", "Até 5 prefixos de exemplo (amostra)"),
     ],
 }
 
@@ -988,7 +988,7 @@ SCHEMA["fust_municipio"] = {
         _f("em_apuracao", "int", "Com situação Em apuração"),
         _f("investimento", "float", "Investimento total previsto (R$)"),
         _f("por_10mil_hab", "float", "Compromissos por 10 mil habitantes"),
-        _f("programas", "array", "Códigos dos programas com compromisso no município (ex.: 1.1, 2.6)"),
+        _f("programas", "array[string]", "Códigos dos programas com compromisso no município (ex.: 1.1, 2.6)"),
     ],
 }
 
@@ -1066,7 +1066,7 @@ SCHEMA["prontidao_asn"] = {
         _f("pilar_anti_spoofing", "float", "Nota do pilar anti-spoofing (nulo se sem dado)"),
         _f("pilar_coordenacao", "float", "Nota do pilar coordenação (nulo se sem dado)"),
         _f("pilar_validacao_global", "float", "Nota do pilar validação global (nulo se sem dado)"),
-        _f("pilares_sem_dado", "array", "Pilares sem dado para o ASN"),
+        _f("pilares_sem_dado", "array[string]", "Pilares sem dado para o ASN"),
     ],
 }
 
@@ -1129,7 +1129,7 @@ SCHEMA["reclamacoes_marca"] = {
         _f("ano", "int", "Ano", example=2025),
         _f("reclamacoes", "int", "Reclamações (tipo Reclamação) no ano"),
         _f("municipios", "int", "Municípios com ao menos uma reclamação"),
-        _f("raizes", "array", "Raízes de CNPJ (8 dígitos) ligadas à marca"),
+        _f("raizes", "array[string]", "Raízes de CNPJ (8 dígitos) ligadas à marca"),
         _f("casamento", "string", "Como a marca foi ligada ao CNPJ", enum=["curada", "automatico"]),
     ],
 }
@@ -1153,7 +1153,7 @@ SCHEMA["consumidor_marca"] = {
         _f("indice_solucao", "float", "% resolvidas entre as avaliadas (nulo com menos de 30 avaliadas)"),
         _f("tempo_medio_dias", "float", "Tempo médio de resposta, em dias (nulo com menos de 30 respostas)"),
         _f("nota_media", "float", "Nota média do consumidor, de 1 a 5 (nulo com menos de 30 notas)"),
-        _f("raizes", "array", "Raízes de CNPJ (8 dígitos) ligadas à empresa"),
+        _f("raizes", "array[string]", "Raízes de CNPJ (8 dígitos) ligadas à empresa"),
         _f("casamento", "string", "Como a empresa foi ligada ao CNPJ", enum=["curada", "automatico"]),
     ],
 }
@@ -1168,9 +1168,9 @@ SCHEMA["faixas_espectro"] = {
         _f("ini_mhz", "float", "Início da faixa (MHz)", example=3300.0),
         _f("fim_mhz", "float", "Fim da faixa (MHz)", example=3400.0),
         _f("largura_mhz", "float", "Largura da faixa (MHz)"),
-        _f("destinacao", "array", "Serviços destinados com caráter primário"),
-        _f("destinacao_secundaria", "array", "Serviços destinados com caráter secundário"),
-        _f("atribuicao", "array", "Serviços atribuídos (primários)"),
+        _f("destinacao", "array[string]", "Serviços destinados com caráter primário"),
+        _f("destinacao_secundaria", "array[string]", "Serviços destinados com caráter secundário"),
+        _f("atribuicao", "array[string]", "Serviços atribuídos (primários)"),
     ],
 }
 
@@ -1210,8 +1210,8 @@ SCHEMA["transferencias_ipv4"] = {
         _f("tamanho", "string", "Classe de tamanho pelo total de endereços", enum=["ate_24", "22_a_23", "20_a_21", "19_ou_maior"]),
         _f("origem_nome", "string", "Parte de origem (pessoa física omitida)"), _f("origem_pais", "string", "País da origem"), _f("origem_rir", "string", "RIR da origem"),
         _f("destino_nome", "string", "Parte de destino (pessoa física omitida)"), _f("destino_pais", "string", "País do destino"), _f("destino_rir", "string", "RIR do destino"),
-        _f("n_blocos", "int", "Blocos CIDR da operação"), _f("enderecos", "int", "Endereços IPv4 da operação"), _f("blocos", "array", "Blocos CIDR"),
-        _f("fontes", "array", "registrobr e/ou lacnic"), _f("primeira_vez_visto", "string", "Primeira data de snapshot em que apareceu"),
+        _f("n_blocos", "int", "Blocos CIDR da operação"), _f("enderecos", "int", "Endereços IPv4 da operação"), _f("blocos", "array[string]", "Blocos CIDR"),
+        _f("fontes", "array[string]", "registrobr e/ou lacnic"), _f("primeira_vez_visto", "string", "Primeira data de snapshot em que apareceu"),
         _f("anterior_a_coleta", "bool", "Já estava na primeira lista coletada"), _f("defasagem_dias", "int", "primeira_vez_visto − data (só para o que apareceu depois do início da coleta)"),
         _f("asn_destino", "int", "ASN atual do bloco de destino"), _f("org_destino", "string", "Organização do ASN (pessoa física omitida)"),
     ],
@@ -1240,9 +1240,9 @@ SCHEMA["eventos_bloco"] = {
     "fields": [
         _f("id", "string", "Identificador do evento"), _f("data", "string", "Data da foto em que a mudança apareceu"),
         _f("tipo", "string", "Tipo do evento", enum=["titularidade", "recuperacao", "liberacao", "novo", "removido", "pais"]),
-        _f("inicio", "string", "Primeiro endereço do bloco"), _f("quantidade", "int", "Endereços"), _f("blocos", "array", "Blocos CIDR"),
+        _f("inicio", "string", "Primeiro endereço do bloco"), _f("quantidade", "int", "Endereços"), _f("blocos", "array[string]", "Blocos CIDR"),
         _f("de_status", "string", "Status antes"), _f("de_cc", "string", "País antes"), _f("de_opaque", "string", "opaque-id antes"),
-        _f("para_status", "string", "Status depois"), _f("para_cc", "string", "País depois"), _f("para_opaque", "string", "opaque-id depois"), _f("visto_entre", "array", "Fotos extremas quando faltou uma"),
+        _f("para_status", "string", "Status depois"), _f("para_cc", "string", "País depois"), _f("para_opaque", "string", "opaque-id depois"), _f("visto_entre", "array[string]", "Fotos extremas quando faltou uma"),
     ],
 }
 
@@ -1258,7 +1258,7 @@ SCHEMA["espaco_ipv4"] = {
         _f("classe", "string", "Classe pela tabela de origens", enum=["nao_anunciado", "roa_sem_anuncio", "parcial", "em_recuperacao"]), _f("anunciado_pct", "float", "% de endereços anunciados"),
         _f("asn", "int", "ASN titular (blocos alocados pelo Registro.br ao ASN)"), _f("org", "string", "Organização do ASN (pessoa física omitida)"), _f("cnpj", "string", "CNPJ da organização do ASN"),
         _f("uf", "string", "UF da organização do ASN"), _f("tabelas_sem_anuncio", "int", "Tabelas de origem distintas seguidas sem anúncio (vazio se parcial)"),
-        _f("sem_anuncio_desde", "string", "Data mais antiga em que a tabela sem anúncio apareceu"), _f("ano_registro", "string", "Ano do registro no delegated"), _f("roa_asns", "array", "ASNs com ROA para o bloco"),
+        _f("sem_anuncio_desde", "string", "Data mais antiga em que a tabela sem anúncio apareceu"), _f("ano_registro", "string", "Ano do registro no delegated"), _f("roa_asns", "array[int]", "ASNs com ROA para o bloco"),
     ],
 }
 
@@ -1271,8 +1271,8 @@ SCHEMA["uso_por_terceiros_ipv4"] = {
     ),
     "fields": [
         _f("inicio", "string", "Primeiro endereço do bloco"), _f("quantidade", "int", "Endereços"), _f("classe", "string", "Classe pela tabela de origens"), _f("anunciado_pct", "float", "% anunciado"),
-        _f("asn_titular", "int", "ASN titular"), _f("org_titular", "string", "Organização do titular (pessoa física omitida)"), _f("origens", "array", "ASNs que anunciam o bloco"),
-        _f("roa_asns", "array", "ASNs com ROA"), _f("sinais", "array", "Sinais presentes (S1 a S4)"), _f("confianca", "string", "Confiança do bloco", enum=["baixa", "media", "alta"]),
+        _f("asn_titular", "int", "ASN titular"), _f("org_titular", "string", "Organização do titular (pessoa física omitida)"), _f("origens", "array[int]", "ASNs que anunciam o bloco"),
+        _f("roa_asns", "array[int]", "ASNs com ROA"), _f("sinais", "array[string]", "Sinais presentes (S1 a S4)"), _f("confianca", "string", "Confiança do bloco", enum=["baixa", "media", "alta"]),
         _f("evidencias", "array", "Evidência de cada sinal"),
     ],
 }
@@ -1285,7 +1285,7 @@ SCHEMA["subasignacoes_ipv4"] = {
     ),
     "fields": [
         _f("id", "string", "Identificador do registro"), _f("bloco", "string", "Bloco CIDR sub-asignado"), _f("receptor_asn", "int", "ASN do receptor"), _f("cedente_asn", "int", "ASN do cedente"),
-        _f("inicio", "string", "Início"), _f("fim", "string", "Fim (vazio se em aberto)"), _f("em_conformidade", "bool", "Todas as validações verdadeiras"), _f("pendentes", "array", "Validações sem dado"),
+        _f("inicio", "string", "Início"), _f("fim", "string", "Fim (vazio se em aberto)"), _f("em_conformidade", "bool", "Todas as validações verdadeiras"), _f("pendentes", "array[string]", "Validações sem dado"),
         _f("valida_receptor_origina", "bool", "O receptor origina o bloco"), _f("valida_tem_roa", "bool", "Há ROA do bloco para o receptor"), _f("valida_tamanho", "bool", "Entre /24 e /22"),
         _f("valida_receptor_ipv6", "bool", "O receptor tem IPv6"), _f("valida_prazo_3_anos", "bool", "3 anos desde a última transferência ou recuperação"), _f("valida_nao_infra_critica", "bool", "Não é infraestrutura crítica"),
     ],
@@ -1438,10 +1438,13 @@ RECIPES: list[dict] = [
         },
     },
     {
-        "pergunta": "Quantos ASes por macro-região e a média de usuários finais",
+        "pergunta": "Quantos ASes brasileiros por macro-região e a média de usuários finais",
         "ferramenta": "query",
+        "nota": "Só ASNs brasileiros (`is_br`, delegação LACNIC com país BR); os sem UF conhecida ficam no grupo de região vazia ('sem região'). "
+                "Sem o filtro, os estrangeiros entram todos sem região.",
         "args": {
             "collection": "asns",
+            "filter": {"field": "is_br", "op": "eq", "value": True},
             "group_by": ["region"],
             "aggregate": [{"fn": "count"}, {"fn": "avg", "field": "apnic_users", "as": "media_usuarios"}],
         },
@@ -1609,17 +1612,19 @@ RECIPES: list[dict] = [
     {
         "pergunta": "Proporção de domicílios com acesso à Internet por grande região (TIC Domicílios)",
         "ferramenta": "query",
-        "nota": "Estimativa amostral do Cetic.br|NIC.br com margem de erro; cite pesquisa, edição e margem. Veja as tabelas em /cetic/tabelas (a aba 'A1' é computador; procure a de acesso à Internet pelo título).",
+        "nota": "Estimativa amostral do Cetic.br|NIC.br com margem de erro; cite pesquisa, edição e margem e leia cada proporção como intervalo "
+                "(proporção ± margem): regiões com intervalos sobrepostos não se distinguem, por isso a lista sai por região e não em ranking. "
+                "Uma só tabela (A4, domicílios com acesso à Internet): o título 'acesso à Internet' também casa outras tabelas, que não se misturam.",
         "args": {
             "collection": "cetic_indicadores",
             "filter": {"and": [
                 {"field": "pesquisa", "op": "eq", "value": "domicilios"},
+                {"field": "tabela", "op": "eq", "value": "A4"},
                 {"field": "dimensao", "op": "eq", "value": "Região"},
-                {"field": "titulo_tabela", "op": "contains", "value": "acesso à internet"},
                 {"field": "resposta", "op": "eq", "value": "Sim"},
             ]},
-            "select": ["tabela", "recorte", "proporcao", "margem_proporcao", "total", "edicao"],
-            "sort": [{"field": "proporcao", "dir": "desc"}],
+            "select": ["tabela", "titulo_tabela", "recorte", "proporcao", "margem_proporcao", "total", "edicao"],
+            "sort": [{"field": "recorte", "dir": "asc"}],
             "limit": 10,
         },
     },
