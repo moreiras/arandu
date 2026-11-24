@@ -24,7 +24,9 @@ export const DESTAQUES: Destaque[] = [
   { id: 'grandes-sem-asn', cartaoId: 'grandes-sem-asn', unidade: 'operadoras', frase: 'com mais de 5 mil assinantes ainda não têm ASN próprio', to: '/operadoras?servico=scm', rotulo: 'Ver as operadoras' },
   { id: 'sem-rpki', cartaoId: 'sem-rpki', unidade: 'ASes brasileiros', frase: 'estão em 3 ou mais PTTs, anunciam IPv6 e não assinaram seus prefixos no RPKI', to: '/seguranca-de-roteamento', rotulo: 'Ver segurança de roteamento' },
   { id: 'monopolio-local', cartaoId: 'monopolio-local', unidade: 'municípios', frase: 'com mil acessos ou mais têm uma única operadora com 80% ou mais da banda larga fixa', to: '/municipios?ordem=hhi', rotulo: 'Ver os municípios por concentração' },
-  { id: 'divergencias', cartaoId: 'divergencias-apnic-anatel', unidade: 'ASes', frase: 'têm usuários estimados pelo APNIC muito acima dos acessos declarados à Anatel', to: '/panorama/mercado', rotulo: 'Ver o panorama de mercado' },
+  // mesma consulta e mesma regra da lista de destino (`/acessos/divergencias/scm` com os parâmetros padrão do panorama): o número do
+  // destaque é o total que o panorama mostra (HOME-E3; antes eram 351 de `classificacao=apnic_alto` contra 2.147 no destino)
+  { id: 'divergencias', cartaoId: 'divergencias-apnic-anatel', unidade: 'ASNs', frase: 'têm usuários estimados pelo APNIC 10 vezes ou mais acima do esperado pelos acessos fixos declarados à Anatel', to: '/panorama/mercado', rotulo: 'Ver o panorama de mercado' },
 ]
 
 /** O cartão de origem de um destaque (a consulta e as fontes). */

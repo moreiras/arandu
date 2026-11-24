@@ -437,24 +437,23 @@
   {
    "id": "divergencias-apnic-anatel",
    "titulo": "Divergências APNIC × Anatel",
-   "pergunta": "Onde as estimativas de usuários do APNIC passam muito dos acessos declarados à Anatel?",
+   "pergunta": "Onde os usuários estimados pelo APNIC passam 10 vezes ou mais o esperado pelos acessos fixos declarados à Anatel?",
    "consulta": {
     "tipo": "get",
-    "caminho": "/api/v1/acessos/divergencias",
+    "caminho": "/api/v1/acessos/divergencias/scm",
     "params": {
-     "classificacao": "apnic_alto",
      "limit": 5
     }
    },
    "linha": {
     "rotulo": "name",
-    "valor": "razao",
-    "unidade": "× (APNIC / Anatel)",
+    "valor": "apnic_users",
+    "unidade": "usuários estimados (APNIC)",
     "link": "/asn/{asn}"
    },
    "destino": {
-    "to": "/estatisticas",
-    "rotulo": "Ver as estatísticas"
+    "to": "/panorama/mercado",
+    "rotulo": "Ver o panorama de mercado"
    },
    "fontes": [
     "apnic_pop",
