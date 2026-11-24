@@ -55,7 +55,7 @@ function LinhaOrganizacao({ group, rank }: { group: OrganizacaoVariosAsns; rank:
             {/* o clique na linha não chega ao teclado: o botão faz o mesmo, com o estado anunciado */}
             <button type="button" aria-expanded={open} aria-controls={open ? idDetalhe : undefined}
               onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-              className="rounded text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primario-500">
+              className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primario-500">
               <span aria-hidden="true" className={`inline-block transition-transform ${open ? 'rotate-90' : ''}`}>▸</span>
               <span className="sr-only">{`ASNs de ${group.razao_social || fmtCnpj(group.cnpj)}`}</span>
             </button>

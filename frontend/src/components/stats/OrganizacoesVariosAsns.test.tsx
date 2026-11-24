@@ -35,6 +35,8 @@ describe('/ases, organizações com vários ASNs: linha expansível por teclado 
     for (const th of within(tabela).getAllByRole('columnheader')) expect(th).toHaveAttribute('scope', 'col')
     const botao = within(tabela).getByRole('button', { name: 'ASNs de Provedor Exemplo Ltda' })
     expect(botao).toHaveAttribute('type', 'button')
+    // alvo de 24 x 24 px (WCAG 2.2, 2.5.8: o axe acusava target-size no ▸ solto)
+    expect(botao).toHaveClass('h-6', 'w-6')
     expect(botao).toHaveAttribute('aria-expanded', 'false')
     expect(botao).not.toHaveAttribute('aria-controls')
     expect(screen.queryByRole('link', { name: 'AS64500' })).toBeNull()
