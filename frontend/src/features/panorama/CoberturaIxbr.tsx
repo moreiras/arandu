@@ -131,7 +131,7 @@ export function CoberturaIxbr({ grupos }: { grupos: GrupoCobertura[] }) {
     return <div className="space-y-6">{[1, 2, 3].map((i) => <div key={i} className="h-64 bg-gray-100 rounded-lg animate-pulse" />)}</div>
   }
   if (ixps.length === 0) {
-    return <div className="text-center py-16 text-gray-400"><p>Nenhum dado disponível. Execute o pipeline completo para gerar estatísticas.</p></div>
+    return <div className="text-center py-16 text-gray-400"><p>Nenhum dado de PTT disponível neste snapshot.</p></div>
   }
   return (
     <div className="space-y-10" data-testid="cobertura-ixbr">

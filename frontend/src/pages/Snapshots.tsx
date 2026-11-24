@@ -71,9 +71,8 @@ export function Snapshots() {
         </div>
       ) : !list || list.count === 0 ? (
         <div className="text-center py-16">
-          <div className="text-3xl mb-3">📭</div>
           <p className="text-gray-500 text-sm">
-            Nenhum snapshot publicado. Execute o pipeline para gerar o primeiro snapshot.
+            Nenhum snapshot publicado até agora.
           </p>
         </div>
       ) : (
@@ -126,9 +125,9 @@ export function Snapshots() {
                 {detail.summary ? (
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     {[
-                      { label: 'ASN alocados pelo Registro.br', value: fmtN(detail.summary.total_asns_br) },
+                      { label: 'ASNs brasileiros no índice do snapshot', value: fmtN(detail.summary.total_asns_br) },
                       { label: 'ASN BR na full table', value: fmtN(detail.summary.global_table?.br_asns_in_ft) },
-                      { label: 'ASN BR no IX.br', value: fmtN(detail.summary.ixp_aggregate?.br_asns_origin_union_count) },
+                      { label: 'ASNs BR com rotas vistas no IX.br (originadores)', value: fmtN(detail.summary.ixp_aggregate?.br_asns_origin_union_count) },
                       { label: 'ASN BR com cadastro no PeeringDB', value: fmtN(detail.summary.br_asns_peeringdb) },
                       { label: 'Usuários BR estimados (APNIC)', value: fmtLarge(detail.summary.br_apnic_users_total) },
                       { label: 'ASN com objetos RPKI', value: fmtN(rpkiSummary?.br_asns_with_roa) },
@@ -143,7 +142,7 @@ export function Snapshots() {
                   </div>
                 ) : (
                   <p className="text-sm text-gray-400">
-                    summary.json não disponível neste snapshot (pipeline incompleto).
+                    Os totais deste snapshot não estão disponíveis.
                   </p>
                 )}
 
