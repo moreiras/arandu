@@ -6,6 +6,7 @@ import { useActiveDate } from '../hooks/useSnapshot'
 import { HomeMap } from '../components/maps/HomeMap'
 import { HilbertMap16, LAYER_META } from '../components/hilbert/HilbertMap16'
 import type { LayerKey } from '../components/hilbert/HilbertMap16'
+import { corLegivel } from '../lib/contraste'
 import { HilbertMapV6 } from '../components/hilbert/HilbertMapV6'
 import { SummaryTable } from '../components/tables/SummaryTable'
 import { HeroKpis } from '../features/dashboard/Hero'
@@ -150,13 +151,15 @@ export function Dashboard() {
             return (
               <button
                 key={key}
+                type="button"
+                aria-pressed={active}
                 onClick={() => setActiveLayer(key)}
                 className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
                   active
                     ? 'text-white border-transparent'
                     : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
                 }`}
-                style={active ? { backgroundColor: meta.color, borderColor: meta.color } : undefined}
+                style={active ? { backgroundColor: corLegivel(meta.color), borderColor: corLegivel(meta.color) } : undefined}
                 title={meta.description}
               >
                 {meta.label}

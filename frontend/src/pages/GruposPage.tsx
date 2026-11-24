@@ -528,7 +528,7 @@ export function GruposPage() {
                       {g.cnpjs.length > 1 && <span className="ml-1 text-xs text-gray-500">e mais {g.cnpjs.length - 1}</span>}
                       {/* O clique na linha não chega ao teclado: este botão faz a mesma seleção (WCAG 2.1.1). */}
                       <button type="button" aria-pressed={isSelected} onClick={e => { e.stopPropagation(); setSelectedId(g.grupo_id) }}
-                        className="ml-2 text-xs text-primario-700 underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primario-500">
+                        className="ml-2 inline-flex min-h-6 items-center text-xs text-primario-700 underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primario-500">
                         Ver no mapa<span className="sr-only">: {nomeGrupo(g)}</span>
                       </button>
                     </td>

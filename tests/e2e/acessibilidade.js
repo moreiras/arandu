@@ -60,11 +60,16 @@ const exceto = (rota, regra) => EXCECOES.some((e) => e.rota === rota && e.regra 
   // Teclado (GRUPOS-E2): em /grupos, "Ver no mapa" recebe foco e seleciona o grupo com Enter.
   try {
     await p.goto(BASE + '/grupos', { waitUntil: 'networkidle', timeout: 60000 })
-    const botao = p.getByRole('button', { name: /^Ver no mapa/ }).nth(1)
+    // A seleção vai para a URL (?grupo=) e a tabela re-renderiza depois do evento: o teste espera o estado em vez de ler logo
+    // após o Enter, e reencontra o botão pelo texto (um nth() reavaliado ou um nó trocado apontariam para outro elemento).
+    const texto = ((await p.getByRole('button', { name: /^Ver no mapa/ }).nth(1).textContent()) ?? '').trim()
+    const botao = p.locator('button[aria-pressed]', { hasText: texto }).first()
     await botao.focus()
+    const focado = await p.evaluate(() => document.activeElement?.textContent ?? '')
     await p.keyboard.press('Enter')
-    const estado = await botao.getAttribute('aria-pressed')
-    if (estado !== 'true') { falhas++; console.log(`ERRO /grupos teclado: aria-pressed=${estado} depois do Enter`) }
+    let estado = null
+    for (let i = 0; i < 50 && estado !== 'true'; i++) { estado = await botao.getAttribute('aria-pressed'); if (estado !== 'true') await p.waitForTimeout(100) }
+    if (estado !== 'true') { falhas++; console.log(`ERRO /grupos teclado: aria-pressed=${estado} depois do Enter (foco em "${focado.trim()}", URL ${p.url()})`) }
     else console.log('ok   /grupos: seleção por teclado')
   } catch (e) { falhas++; console.log(`ERRO /grupos teclado: ${String(e).slice(0, 160)}`) }
 
