@@ -61,10 +61,12 @@ export function SpeedDistributionChart({ distrib }: { distrib: DistribVelocidade
             <option value="Brasil">Brasil</option>
             {REGION_ORDER.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
-          <div className="flex rounded-md border border-gray-200 overflow-hidden text-xs">
+          <div role="group" aria-label="Tipo de assinante" className="flex rounded-md border border-gray-200 overflow-hidden text-xs">
             {(['todos', 'pf', 'pj'] as Tipo[]).map(t => (
               <button
                 key={t}
+                type="button"
+                aria-pressed={tipo === t}
                 onClick={() => setTipo(t)}
                 className={`px-2.5 py-1 ${tipo === t ? 'bg-primario-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
               >

@@ -255,12 +255,12 @@ function MaioresOperadoras({ acessos }: { acessos: SiciStats }) {
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-700">Maiores operadoras</h3>
-        <div className="flex rounded-md border border-gray-200 overflow-hidden text-xs">
-          <button onClick={() => setAba('sici')}
+        <div role="group" aria-label="Critério das maiores operadoras" className="flex rounded-md border border-gray-200 overflow-hidden text-xs">
+          <button type="button" aria-pressed={aba === 'sici'} onClick={() => setAba('sici')}
                   className={`px-2.5 py-1 ${aba === 'sici' ? 'bg-primario-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
             Por acessos declarados (SICI)
           </button>
-          <button onClick={() => setAba('asn')}
+          <button type="button" aria-pressed={aba === 'asn'} onClick={() => setAba('asn')}
                   className={`px-2.5 py-1 ${aba === 'asn' ? 'bg-primario-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
             Por usuários estimados (AS/APNIC)
           </button>
