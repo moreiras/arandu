@@ -712,7 +712,9 @@ def asn_interconexao(asn: int, request: Request, date: Optional[str] = Query(Non
     uf = geo.get("uf")
     # distância em linha reta da sede do AS a cada PTT (um PTT com vários locais vale pelo mais próximo)
     km = {p["codigo"]: p["km"] for p in store.ptts_proximos(date_str, geo["lon"], geo["lat"], n=1000)} if geo.get("lat") is not None and geo.get("lon") is not None else None
-    return {"snapshot_date": date_str, **oportunidades(doc, rs, store.route_servers_ixps_doc(date_str), pol, ixps, uf, km)}
+    cnpj = "".join(ch for ch in (doc.get("cnpj") or "") if ch.isdigit())
+    mesmo_cnpj = {a for a in store.cnpj_asns_index(date_str).get(cnpj, []) if a != asn} if len(cnpj) == 14 else set()
+    return {"snapshot_date": date_str, **oportunidades(doc, rs, store.route_servers_ixps_doc(date_str), pol, ixps, uf, km, mesmo_cnpj)}
 
 
 @router.get(

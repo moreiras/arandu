@@ -32,11 +32,14 @@ export function InterconexaoMensuravelBloco({ dados }: BlocoProps<AsnCtx>) {
               <li key={o.ixp} className="flex flex-wrap items-center gap-x-3 gap-y-0.5 px-3 py-1.5">
                 <Link to={`/ixp/${o.ixp}`} className="text-primario-700 hover:underline">{o.nome}</Link><span className="text-xs text-gray-500">{o.uf}{o.mesma_uf && ' · mesma UF da sede'}{o.km_da_sede != null && ` · a ${Math.round(o.km_da_sede).toLocaleString('pt-BR')} km da sede`}</span>
                 <span className="text-xs text-gray-600">{fam(o.familias)}</span>
-                {o.carregadores.length > 0 && <span className="text-xs text-gray-500">entregue por {o.carregadores.map((c) => `AS${c.asn} (${c.caminhos})`).join(', ')}</span>}
+                {o.carregadores.length > 0
+                  ? <span className="text-xs text-gray-500">entregue por {o.carregadores.map((c) => `AS${c.asn}${c.via?.length ? ` via ${c.via.map((v) => `AS${v}`).join(', ')}` : ''}${c.vinculo === 'mesmo_cnpj' ? ', mesmo CNPJ' : c.vinculo === 'mesma_org' ? ', mesma organização (inferido)' : ''} (${c.caminhos})`).join('; ')}</span>
+                  : r.carregadores_disponiveis && <span className="text-xs text-gray-500">caminho observado sem AS identificável</span>}
               </li>
             ))}
           </ul>
           {!r.carregadores_disponiveis && <p className="mt-1 text-xs text-gray-500">Os caminhos observados não estão disponíveis para este AS; por isso não aparece quem entrega.</p>}
+          <p className="mt-1 text-xs text-gray-500">Como ler: entregue por = AS com sessão no PTT que aparece por último no caminho observado (via = o AS logo depois da origem); um caminho por prefixo coletado, não volume de tráfego.</p>
         </div>
       )}
       {r.sessoes.length > 0 && (

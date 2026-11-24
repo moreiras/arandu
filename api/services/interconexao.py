@@ -21,14 +21,34 @@ LIMITES_ALCANCE = ("Fração dos usuários estimados pela APNIC (ASes do Brasil,
                    "Estimativa: usuários se repetem entre ASes da mesma operadora, membro registrado não quer dizer que o tráfego da CDN passe ali, e não mede tráfego nem qualidade.")
 
 
-def _carregadores(paths: list, topo: int = 3) -> list[dict]:
-    """Quem entrega o AS no PTT: o primeiro AS de cada caminho observado (o par direto do PTT), contado."""
-    c = Counter(p[0] for p in paths if isinstance(p, list) and len(p) > 1)
-    return [{"asn": a, "caminhos": n} for a, n in c.most_common(topo)]
+def _carregadores(paths: list, topo: int = 3, mesmo_cnpj: frozenset = frozenset(), irmaos: frozenset = frozenset()) -> list[dict]:
+    """Quem entrega o AS no PTT, contado por caminho observado.
+
+    `ixp_paths` guarda os ASes entre a origem e o PTT, sem a origem e na ordem origem → PTT (`products/asn_docs/build.py`,
+    `_parse_route_file`): o par do PTT é o ÚLTIMO elemento, e um caminho de um elemento é o próprio vizinho com sessão. `via` lista os
+    ASes logo depois da origem quando o caminho tem mais de um AS. `vinculo`: `mesmo_cnpj` (fato, cadastro) ou `mesma_org` (relação
+    de irmãos inferida pelo ARC)."""
+    c: Counter = Counter()
+    via: dict[int, set[int]] = {}
+    for p in paths:
+        if not isinstance(p, (list, tuple)) or not p:
+            continue
+        c[p[-1]] += 1
+        if len(p) > 1:
+            via.setdefault(p[-1], set()).add(p[0])
+    out = []
+    for a, n in c.most_common(topo):
+        item: dict = {"asn": a, "caminhos": n, "via": sorted(via.get(a, ()))}
+        item["vinculo"] = "mesmo_cnpj" if a in mesmo_cnpj else ("mesma_org" if a in irmaos else None)
+        out.append(item)
+    return out
 
 
-def oportunidades(doc: dict, rs_asn: Optional[dict], rs_ixps: Optional[dict], pol_asn: Optional[dict], ixps: dict[str, dict], uf_as: Optional[str], km_por_ptt: Optional[dict[str, float]] = None) -> dict:
-    """Fatos de interconexão de um AS, na ordem em que a pessoa vai querer ler. `ixps` = {código: {nome, uf}}."""
+def oportunidades(doc: dict, rs_asn: Optional[dict], rs_ixps: Optional[dict], pol_asn: Optional[dict], ixps: dict[str, dict], uf_as: Optional[str], km_por_ptt: Optional[dict[str, float]] = None,
+                  mesmo_cnpj: Optional[set[int]] = None) -> dict:
+    """Fatos de interconexão de um AS, na ordem em que a pessoa vai querer ler. `ixps` = {código: {nome, uf}}; `mesmo_cnpj` = outros ASNs do mesmo CNPJ."""
+    cnpj = frozenset(mesmo_cnpj or ())
+    irmaos = frozenset(i["asn"] for i in ((doc.get("relacoes") or {}).get("irmaos") or []) if isinstance(i, dict) and i.get("asn") is not None)
     origem = []
     for code, pres in (doc.get("ixp_presence") or {}).items():
         fams = [afi for afi in ("v4", "v6") if (pres.get(afi) or {}).get("origin") and not (pres.get(afi) or {}).get("direct")]
@@ -36,7 +56,7 @@ def oportunidades(doc: dict, rs_asn: Optional[dict], rs_ixps: Optional[dict], po
             continue
         info = ixps.get(code, {})
         paths = (doc.get("ixp_paths") or {}).get(code) or []
-        origem.append({"ixp": code, "nome": info.get("nome", code), "uf": info.get("uf"), "familias": fams, "mesma_uf": bool(uf_as and info.get("uf") == uf_as), "carregadores": _carregadores(paths),
+        origem.append({"ixp": code, "nome": info.get("nome", code), "uf": info.get("uf"), "familias": fams, "mesma_uf": bool(uf_as and info.get("uf") == uf_as), "carregadores": _carregadores(paths, mesmo_cnpj=cnpj, irmaos=irmaos),
                        "km_da_sede": (km_por_ptt or {}).get(code)})
     # proximidade: do PTT mais perto da sede do AS para o mais longe (linha reta do endereço da sede, não do usuário); sem coordenada, cai para a UF
     origem.sort(key=lambda x: (x["km_da_sede"] is None, x["km_da_sede"] if x["km_da_sede"] is not None else 0, not x["mesma_uf"], -len(x["familias"]), x["ixp"]))
