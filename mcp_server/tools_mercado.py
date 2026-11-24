@@ -506,7 +506,7 @@ def list_outorgas(
         municipio: Município da sede (substring).
         q: Razão social, nome fantasia ou CNPJ.
         com_asn: True = só com ASN; False = só sem ASN.
-        ativo: True = só quem declara acessos ao SICI (fixo ou móvel).
+        ativo: True = só quem declara acessos ao SICI; com `servico` só SCM conta o fixo, só SMP o móvel, senão fixo ou móvel.
         porte: Porte declarado ao SICI (ex.: "Pequeno Porte", "Grande Porte").
         min_acessos: Mínimo de acessos declarados.
         sort_by: razao_social | cnpj | uf | municipio | acessos | acessos_fixo | acessos_movel | pj_fixo | pj_movel | municipios_fixo |

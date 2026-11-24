@@ -16,6 +16,7 @@ import { ORDEM_SERVICOS, SERVICOS, servicoDe } from '../features/operadoras/serv
 // jsdom não tem WebGL: os mapas são testados no E2E
 vi.mock('../features/operadoras/MapaSede', () => ({ MapaSede: () => <div data-testid="mapa-sede" /> }))
 vi.mock('../features/operadoras/MapaAcessos', () => ({ MapaAcessos: () => <div data-testid="mapa-acessos" /> }))
+vi.mock('./RankingsPage', () => ({ RankingsSici: () => <div data-testid="rankings-sici" /> }))
 
 const stats = { snapshot_date: '2026-09-20', total: 1234, unique_cnpjs: 1000, geolocated: 900, cnpjs_with_asn: 800 }
 const linha = {
@@ -63,7 +64,7 @@ describe('configuração dos serviços', () => {
     expect(ORDEM_SERVICOS).toEqual(['scm', 'smp', 'stfc', 'seac', 'todas'])
     expect(SERVICOS.scm.ordenacaoPadrao).toEqual({ campo: 'acessos_fixo', desc: true })
     expect(SERVICOS.scm.soAtivosPadrao).toBe(false)
-    expect(SERVICOS.smp.soAtivosPadrao).toBe(true)
+    expect(SERVICOS.smp.soAtivosPadrao).toBe(false)     // OPERADORAS-E2: a aba SMP abre no universo
     expect(SERVICOS.smp.ordenacaoPadrao).toEqual({ campo: 'acessos', desc: true })
     expect(SERVICOS.stfc.temSici).toBe(false)
     expect(SERVICOS.seac.ordenacaoPadrao).toEqual({ campo: 'razao_social', desc: false })
@@ -111,7 +112,28 @@ describe('página /operadoras', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Operadoras SMP' })).toBeInTheDocument()
     expect(screen.getByTestId('onde')).toHaveTextContent('/operadoras?servico=smp')
     expect(await screen.findByText('Escala')).toBeInTheDocument()
-    expect(screen.getByLabelText('Apenas em operação')).toBeChecked()   // SMP abre só com quem opera
+    expect(screen.getByLabelText('Apenas em operação')).not.toBeChecked()   // SMP abre com o universo (OPERADORAS-E2)
+  })
+
+  it('aba SMP: filtro desligado não manda `ativo` (a API devolve o universo); ligado manda ativo=true (OPERADORAS-E2)', async () => {
+    montar('/operadoras?servico=smp')
+    await screen.findByText('Escala')
+    expect(vistos.filter((v) => v.startsWith('moveis')).every((v) => !v.includes('ativo'))).toBe(true)
+    fireEvent.click(screen.getByLabelText('Apenas em operação'))
+    await waitFor(() => expect(screen.getByTestId('onde')).toHaveTextContent('ativo=1'))
+    await waitFor(() => expect(vistos.some((v) => v.startsWith('moveis') && v.includes('ativo=true'))).toBe(true))
+    fireEvent.click(screen.getByLabelText('Apenas em operação'))
+    await waitFor(() => expect(screen.getByTestId('onde')).not.toHaveTextContent('ativo'))
+  })
+
+  it('alternar entre ?visao=ranking e as listas por serviço não quebra a ordem dos hooks (OPERADORAS-E3)', async () => {
+    const erro = vi.spyOn(console, 'error').mockImplementation(() => {})
+    montar('/operadoras?visao=ranking')
+    expect(await screen.findByRole('heading', { level: 1, name: /Operadoras por acessos declarados/ })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('link', { name: 'Listas por serviço' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Outorgas SCM' })).toBeInTheDocument()
+    expect(erro.mock.calls.map((c) => String(c[0])).filter((m) => /hooks|Rendered (more|fewer) hooks/i.test(m))).toEqual([])
+    erro.mockRestore()
   })
 
   it('filtros vão para a URL e para a chamada à API; valor padrão sai da URL', async () => {
