@@ -11,6 +11,14 @@ export interface SummaryStats {
 export interface PbrCompositionEntry {
   routes: number
   asns: number
+  /** `asn_br_fora_de_bloco` (alias `origin_only_br`): apoio, fora do total de rotas brasileiras. */
+  fora_do_total?: boolean
+}
+
+/** Rota brasileira = prefixo em bloco do Registro.br (a origem não define): a composição traz `total` e a contagem de apoio
+ * `asn_br_fora_de_bloco`. Documentos gerados antes da regra não trazem `total` e somavam "apenas origem BR" ao total. */
+export function composicaoPorPrefixo(data: { pbr_composition: { v6: Record<string, PbrCompositionEntry> } }): boolean {
+  return 'total' in (data.pbr_composition?.v6 ?? {})
 }
 
 export interface PrefixLengthEntry {

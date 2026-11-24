@@ -1,4 +1,4 @@
-import type { RoutingAnalysis } from '../../types/routingAnalysis'
+import { composicaoPorPrefixo, type RoutingAnalysis } from '../../types/routingAnalysis'
 import { Tip } from './BgpShared'
 
 interface Props { data: RoutingAnalysis }
@@ -33,6 +33,7 @@ function Card({ label, value, sub, tooltip, accent = 'gray' }: {
 }
 
 export function SummaryCards({ data }: Props) {
+  const porPrefixo = composicaoPorPrefixo(data)
   const v4 = data.summary.v4
   const v6 = data.summary.v6
   const ms_v4 = data.more_specifics.v4
@@ -57,7 +58,7 @@ export function SummaryCards({ data }: Props) {
           label="Rotas BR (IPv6)"
           value={fmt(v6.pbr_routes)}
           sub={`${v6.pbr_pct.toFixed(2)}% da tabela global`}
-          tooltip="Rotas na tabela de roteamento global cujo ASN de origem ou prefixo são alocados ao Brasil pelo Registro.br, para a família IPv6."
+          tooltip={porPrefixo ? "Rotas IPv6 na tabela de roteamento global com prefixo contido em bloco alocado pelo Registro.br; a origem do anúncio não define." : "Rotas IPv6 na tabela global com prefixo alocado pelo Registro.br ou origem num ASN da lista do Registro.br (regra anterior à atual, como este snapshot foi gerado)."}
         />
         <Card
           accent="blue"
@@ -96,7 +97,7 @@ export function SummaryCards({ data }: Props) {
           label="Rotas BR (IPv4)"
           value={fmt(v4.pbr_routes)}
           sub={`${v4.pbr_pct.toFixed(2)}% da tabela global`}
-          tooltip="Rotas na tabela de roteamento global cujo ASN de origem ou prefixo são alocados ao Brasil pelo Registro.br, para a família IPv4."
+          tooltip={porPrefixo ? "Rotas IPv4 na tabela de roteamento global com prefixo contido em bloco alocado pelo Registro.br; a origem do anúncio não define." : "Rotas IPv4 na tabela global com prefixo alocado pelo Registro.br ou origem num ASN da lista do Registro.br (regra anterior à atual, como este snapshot foi gerado)."}
         />
         <Card
           accent="green"

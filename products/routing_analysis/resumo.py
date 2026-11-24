@@ -11,7 +11,8 @@ O `routing_analysis.json` tem ~14 MB; o Panorama só precisa dos totais, e a API
 para servir meia dúzia de números (diretriz de memória da API). O estado RPKI por rota (válida, inválida, sem ROA)
 não existia em nenhum agregado: só bloco a bloco na cobertura do Registro.br.
 
-Rotas brasileiras = P_BR (prefixo alocado pelo Registro.br ou origem BR), a mesma definição da página Tabela BGP.
+Rotas brasileiras = P_BR (prefixo contido em bloco alocado pelo Registro.br; a origem não define), a mesma definição da página
+Tabela BGP. As rotas de ASN da lista do Registro.br em espaço de outro RIR saem contadas à parte (`asn_br_fora_de_bloco`).
 O espaço é a união dos prefixos de cada estado; um bloco pode ter rotas em mais de um estado (um agregado válido e um
 mais-específico inválido), por isso os espaços por estado não somam necessariamente o total.
 
@@ -28,7 +29,7 @@ from pathlib import Path
 
 from core.common import configure_logging, data_dir, normalized_path, now_iso, published_path, read_json_gz, today_str
 from core.moas import MOTIVO as MOAS_MOTIVO
-from products.routing_analysis.mais_especificos import _classify_pbr
+from products.routing_analysis.mais_especificos import _classify_pbr, separar_rota_br
 from products.routing_analysis.rpki import _build_rpki_index, _rpki_status
 
 ARQUIVO = "routing_analysis_resumo.json"
@@ -77,7 +78,7 @@ def estado_rpki(pbr: list[dict], rpki_index: dict, afi: str) -> dict:
 
 def montar(date_str: str, pbr_v4: list[dict], pbr_v6: list[dict], rpki_index: dict, *, summary: dict | None = None,
            more_specifics: dict | None = None, too_specific: dict | None = None, moas: list | None = None,
-           moas_limite: int = 500, vrps: int | None = None) -> dict:
+           moas_limite: int = 500, vrps: int | None = None, fora_de_bloco: dict | None = None) -> dict:
     saude: dict = {}
     for afi in ("v6", "v4"):
         ms = (more_specifics or {}).get(afi) or {}
@@ -90,10 +91,12 @@ def montar(date_str: str, pbr_v4: list[dict], pbr_v6: list[dict], rpki_index: di
     return {
         "snapshot_date": date_str,
         "generated_at": now_iso(),
-        "definicao": "Rotas brasileiras (P_BR): prefixo alocado pelo Registro.br ou ASN de origem brasileiro, na tabela global (RouteViews). "
-                     "Estado RPKI de origem (RFC 6811) contra os VRPs do snapshot.",
+        "definicao": "Rotas brasileiras (P_BR): prefixo contido em bloco alocado pelo Registro.br, na tabela global (RouteViews); a origem do "
+                     "anúncio não define. Rotas de ASN da lista do Registro.br em espaço de outro RIR ficam fora do total "
+                     "(asn_br_fora_de_bloco). Estado RPKI de origem (RFC 6811) contra os VRPs do snapshot.",
         "vrps": vrps,
-        "rotas_br": {afi: {k: (summary or {}).get(afi, {}).get(k) for k in ("pbr_routes", "pbr_pct", "br_origin_asns", "total_routes_global")} for afi in ("v6", "v4")},
+        "rotas_br": {afi: {**{k: (summary or {}).get(afi, {}).get(k) for k in ("pbr_routes", "pbr_pct", "br_origin_asns", "total_routes_global")},
+                           "asn_br_fora_de_bloco": (fora_de_bloco or {}).get(afi)} for afi in ("v6", "v4")},
         "rpki": {"v6": estado_rpki(pbr_v6, rpki_index, "v6"), "v4": estado_rpki(pbr_v4, rpki_index, "v4")},
         "saude": {
             **saude,
@@ -131,11 +134,12 @@ def run(date_str: str, base: Path, log) -> bool:
         log.error("vrp_list.json.gz não encontrado", date=date_str)
         return False
     vrp_list = read_json_gz(vrp_path)
-    pbr_v4, pbr_v6 = _classify_pbr(op["v4"], op["v6"], registro_br)
+    todas_v4, todas_v6 = _classify_pbr(op["v4"], op["v6"], registro_br)
+    (pbr_v4, fora_v4), (pbr_v6, fora_v6) = separar_rota_br(todas_v4), separar_rota_br(todas_v6)
     analise = json.loads((pub / "routing_analysis.json").read_text(encoding="utf-8")) if (pub / "routing_analysis.json").exists() else {}
     payload = montar(date_str, pbr_v4, pbr_v6, _build_rpki_index(vrp_list), summary=analise.get("summary"),
                      more_specifics=analise.get("more_specifics"), too_specific=analise.get("too_specific"),
-                     moas=analise.get("moas"), vrps=len(vrp_list))
+                     moas=analise.get("moas"), vrps=len(vrp_list), fora_de_bloco={"v4": len(fora_v4), "v6": len(fora_v6)})
     destino = gravar(pub, payload)
     log.info("routing_analysis_resumo written", path=str(destino))
     return True

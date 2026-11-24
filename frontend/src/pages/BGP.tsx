@@ -282,8 +282,9 @@ export function BGP() {
       {/* Metodologia */}
       <div className="text-xs text-gray-400 border-t border-gray-200 pt-4">
         <p>
-          <strong>Metodologia:</strong> Prefixos brasileiros = prefixos com ASN originador ∈ Registro.br (strict_br e origin_only_br)
-          ou prefixo dentro de bloco alocado pelo Registro.br (prefix_only_br). Mais específicos detectados via trie
+          <strong>Metodologia:</strong> Rota brasileira = prefixo contido em bloco alocado pelo Registro.br (strict_br e prefix_only_br);
+          a origem do anúncio não define. Rotas de ASN da lista do Registro.br em espaço de outro RIR ficam fora do total, contadas à parte
+          (asn_br_fora_de_bloco; snapshots gerados antes desta regra as somavam como origin_only_br). Mais específicos detectados via trie
           de prefixos. Potencial de agregação calculado com{' '}
           <code className="font-mono">ipaddress.collapse_addresses</code> por ASN.
           Dados representam um ponto de observação: múltiplos coletores RouteViews e RIPE RIS.

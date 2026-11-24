@@ -82,7 +82,9 @@ export function VisibilidadeGlobal({ f }: { f: Familia }) {
       <Kpi rotulo="Espaço alocado visível" valor={pct(f === 'v6' ? gt?.v6_br_coverage_pct : gt?.v4_br_coverage_pct)} tom={f}
         explicacao={`Parte do espaço ${NOME[f]} alocado pelo Registro.br que aparece anunciado na tabela global.`} fonte="RouteViews e Registro.br" dataRef={s?.snapshot_date} />
       <Kpi rotulo="Rotas brasileiras na tabela global" valor={num(rotas?.pbr_routes)} tom={f} referencia={rotas?.pbr_pct != null ? `${pct(rotas.pbr_pct)} das rotas ${NOME[f]} da tabela` : undefined}
-        explicacao="Rotas com prefixo alocado pelo Registro.br ou com origem num ASN brasileiro (P_BR, a definição da página Tabela BGP)." fonte="RouteViews e Registro.br" dataRef={data?.rpki?.rotas?.snapshot_date} />
+        explicacao={rotas?.asn_br_fora_de_bloco != null
+          ? `Rotas com prefixo contido em bloco alocado pelo Registro.br; a origem não define (a definição da página Tabela BGP). Fora do total: ${num(rotas.asn_br_fora_de_bloco)} rotas de ASN da lista do Registro.br em espaço de outro RIR.`
+          : 'Rotas com prefixo alocado pelo Registro.br ou com origem num ASN da lista do Registro.br (regra anterior à atual, como este snapshot foi gerado).'} fonte="RouteViews e Registro.br" dataRef={data?.rpki?.rotas?.snapshot_date} />
       <Kpi rotulo="Parte do Brasil no espaço da tabela" valor={pct(f === 'v6' ? gt?.v6_br_pct_of_ft : gt?.v4_br_pct_of_ft, 2)} tom={f}
         explicacao={`Parte de todo o espaço ${NOME[f]} anunciado no mundo que é alocado ao Brasil.`} fonte="RouteViews e Registro.br" dataRef={s?.snapshot_date} />
     </Grade>
