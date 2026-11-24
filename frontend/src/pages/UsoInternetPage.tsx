@@ -182,12 +182,15 @@ export function UsoInternetPage() {
       <div className="flex flex-wrap gap-3 items-end">
         <div role="group" aria-label="Pesquisa" className="flex gap-1">
           {PESQUISAS.map((p) => (
-            <button key={p.id} type="button" onClick={() => { setPesquisa(p.id); setTabela('') }} title={p.descricao}
+            <button key={p.id} type="button" aria-pressed={pesquisa === p.id} aria-describedby={pesquisa === p.id ? 'pesquisa-descricao' : undefined}
+              onClick={() => { setPesquisa(p.id); setTabela('') }} title={p.descricao}
               className={`px-3 py-1.5 text-sm rounded border ${pesquisa === p.id ? 'bg-primario-600 text-white border-primario-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
               {p.rotulo}
             </button>
           ))}
         </div>
+        {/* a descrição da pesquisa ficava só no title dos botões */}
+        <p id="pesquisa-descricao" className="basis-full text-xs text-gray-600">{PESQUISAS.find((p) => p.id === pesquisa)?.descricao}</p>
         <label className="text-sm text-gray-600 flex flex-col">Tabela
           <select value={escolhida?.tabela ?? ''} onChange={(e) => setTabela(e.target.value)} className="border border-gray-300 rounded px-2 py-1.5 text-sm max-w-xl">
             {itens.map((t) => <option key={t.tabela} value={t.tabela}>{t.codigo} — {t.titulo}</option>)}
@@ -224,22 +227,23 @@ export function UsoInternetPage() {
               <summary className="cursor-pointer text-sm text-primario-600 hover:underline">Tabela completa ({recortes.length} recortes × {colunas.length} colunas)</summary>
             <div className="overflow-x-auto mt-2">
               <table className="text-xs min-w-full">
+                <caption className="sr-only">{`${escolhida.codigo}: ${escolhida.titulo}`}</caption>
                 <thead className="text-gray-500">
-                  <tr><th className="text-left px-2 py-1">Recorte</th>{colunas.map((c) => <th key={c} className="text-right px-2 py-1 font-medium">{c}</th>)}</tr>
+                  <tr><th scope="col" className="text-left px-2 py-1">Recorte</th>{colunas.map((c) => <th key={c} scope="col" className="text-right px-2 py-1 font-medium">{c}</th>)}</tr>
                 </thead>
                 <tbody>
                   {recortes.map((r) => {
                     const [dim, rec] = r.split('|')
                     return (
                       <tr key={r} className="border-t border-gray-100">
-                        <td className="px-2 py-1 whitespace-nowrap"><span className="text-gray-400">{dim === 'Total' ? '' : `${dim}: `}</span>{rec}</td>
+                        <th scope="row" className="px-2 py-1 whitespace-nowrap text-left font-normal"><span className="text-gray-500">{dim === 'Total' ? '' : `${dim}: `}</span>{rec}</th>
                         {colunas.map((c) => {
                           const l = celulas.get(`${r}||${c}`)
                           const v = medida === 'proporcao' ? l?.proporcao ?? null : l?.total ?? null
                           const m = medida === 'proporcao' ? l?.margem_proporcao ?? null : l?.margem_total ?? null
                           return (
                             <td key={c} className="px-2 py-1 text-right tabular-nums whitespace-nowrap">
-                              {medida === 'proporcao' ? pct(v) : inteiro(v)}{v != null && m != null && <span className="text-gray-400"> ±{medida === 'proporcao' ? pct(m) : inteiro(m)}</span>}
+                              {medida === 'proporcao' ? pct(v) : inteiro(v)}{v != null && m != null && <span className="text-gray-500"> ±{medida === 'proporcao' ? pct(m) : inteiro(m)}</span>}
                             </td>
                           )
                         })}
