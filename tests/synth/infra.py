@@ -54,6 +54,7 @@ def peeringdb_external(world: World) -> dict:
     br = [a for a in world.ases.values() if a.is_br and a.role == "access"][:3]
     fo = [a for a in world.ases.values() if a.role == "foreign"][:2]
     members = [{"asn": a.asn, "name": a.name, "speed": 10000} for a in br + fo]
+    members.append({"asn": br[0].asn, "name": br[0].name, "speed": 100000})          # segunda porta da mesma rede (IXE-E1: conta rede, não porta)
     per_asn = {str(m["asn"]): {"external": [EXTERNAL_IXP["code"]], "ixbr": [c for c, _, _ in PTTS if m["asn"] in world.members[c]]}
                for m in members}
     return {"external_ixps": {EXTERNAL_IXP["code"]: {**{k: EXTERNAL_IXP[k] for k in ("name", "city", "country", "pdb_ix_id")},

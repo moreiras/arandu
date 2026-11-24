@@ -384,7 +384,7 @@ ixbr:
   - { code: ac,          pdb_ix_id: 4159 }
   - { code: ap,          pdb_ix_id: 5102 }
   - { code: ro,          pdb_ix_id: 4556 }
-  - { code: ria,         pdb_ix_id: 4862 }
+  - { code: ria,         pdb_ix_id: 1847 }
+  - { code: rao,         pdb_ix_id: 4862 }
   - { code: fec,         pdb_ix_id: 4578 }
   - { code: cau,         pdb_ix_id: 4587 }
-  - { code: santa-maria, pdb_ix_id: 1847 }

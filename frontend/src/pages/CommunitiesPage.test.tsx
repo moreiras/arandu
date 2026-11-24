@@ -34,6 +34,19 @@ describe('explorador de communities', () => {
     await waitFor(() => expect(pedidos.some((p) => p.includes('q=64510'))).toBe(true))
   })
 
+  it('COMM-E1: mostra membros distintos e PTTs, e rotula as rotas como soma por PTT', async () => {
+    const multi = { ...item, community: '65000:6939', asns_total: 1, asns_soma_ptts: 2, ptts: 2, rotas_total: 84,
+      ixps: { sp: { asns: 1, rotas: 42, top: [{ asn: 262901, rotas: 42 }] }, ce: { asns: 1, rotas: 42, top: [{ asn: 262901, rotas: 42 }] } } }
+    server.use(http.get('*/api/v1/communities', () => HttpResponse.json(resp([multi]))))
+    montar()
+    await waitFor(() => expect(screen.getByText('65000:6939')).toBeTruthy())
+    expect(screen.getByText('Membros')).toBeTruthy()
+    expect(screen.getByText('Rotas (soma por PTT)')).toBeTruthy()
+    const linha = screen.getByText('65000:6939').closest('tr') as HTMLElement
+    const celulas = Array.from(linha.querySelectorAll('td')).map((td) => td.textContent)
+    expect(celulas.slice(2, 5)).toEqual(['1', '2', '84'])
+  })
+
   it('sem resultado diz que não achou nas rotas coletadas; erro da API vira aviso, não erro cru', async () => {
     server.use(http.get('*/api/v1/communities', () => HttpResponse.json(resp([]))))
     montar()

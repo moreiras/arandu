@@ -80,7 +80,7 @@ export function FacilitiesPage() {
       {data && (
         <>
           <p className="text-xs text-gray-500" data-testid="total-instalacoes">
-            {n(total)} instalação(ões){data.cobertura ? ` · ${n(data.cobertura.ptts_ixbr_com_instalacao)} de ${n(data.cobertura.ptts_ixbr)} PTTs do IX.br têm instalação cadastrada` : ''}
+            {n(total)} instalação(ões){data.cobertura ? ` · ${n(data.cobertura.ptts_ixbr_com_instalacao)} de ${n(data.cobertura.ptts_ixbr)} PTTs do IX.br aparecem em alguma instalação do PeeringDB${data.cobertura.ptts_ixbr_sem_instalacao?.length ? ` (sem instalação: ${data.cobertura.ptts_ixbr_sem_instalacao.map((c) => c.toUpperCase()).join(', ')})` : ''}` : ''}
             {total > POR_PAGINA ? ` · mapa e lista mostram a página ${pagina} de ${paginas}` : ''}
           </p>
           <MapaInstalacoes itens={data.items} />

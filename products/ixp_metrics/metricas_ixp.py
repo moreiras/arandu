@@ -83,6 +83,9 @@ def gerar_metricas_ixp(
     pub_dir = published_path(base, date_str, "ixps")
     pub_dir.mkdir(parents=True, exist_ok=True)
 
+    # União v4∪v6 real, por PTT e no agregado, com os conjuntos que `_compute_ixp_afi` já leu (sem reler os arquivos de rotas)
+    all_direct: set[int] = set()
+    all_origin: set[int] = set()
     for ixp in all_ixps:
         code = ixp["code"]
         log.info("computing p2", ixp=code)
@@ -103,6 +106,13 @@ def gerar_metricas_ixp(
                     br_asns_in_ft[afi],
                     ft_space[afi],
                 )
+            origem_ixp: set[int] = set()
+            for afi in ip_versions:
+                origem_ixp |= doc[afi].pop("_asn_origin", set())
+                all_direct |= set(doc[afi].get("asn_direct", []))
+            all_origin |= origem_ixp
+            # ASNs originadores no PTT, união IPv6 ∪ IPv4 (antes o índice gravava o maior dos dois)
+            doc["asn_origin_union_count"] = len(origem_ixp)
 
             out_file = pub_dir / f"{code}.json"
             out_file.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")
@@ -124,19 +134,6 @@ def gerar_metricas_ixp(
         nicbr_asns, nicbr_nets["v6"], nicbr_space["v6"],
         br_asns_in_ft["v6"], ft_space["v6"],
     )
-    # União v4∪v6 real — passa extra por todos os IXPs (arquivos em cache do SO)
-    log.info("computing cross-afi union counts")
-    all_direct: set[int] = set()
-    all_origin: set[int] = set()
-    all_br_origin: set[int] = set()
-    for ixp in all_ixps:
-        for afi in ("v4", "v6"):
-            rels = _load_rels(base, date_str, ixp["code"], afi)
-            if not rels:
-                continue
-            rd = rels.get("relationships", {})
-            all_direct |= set(rd.get("asn_direct", []))
-            all_origin |= set(rd.get("asn_origin", []))
     v4_origin_br = set(agg_v4.get("br_asns_origin", [])) if isinstance(agg_v4, dict) else set()
     v6_origin_br = set(agg_v6.get("br_asns_origin", [])) if isinstance(agg_v6, dict) else set()
     all_br_origin = v4_origin_br | v6_origin_br

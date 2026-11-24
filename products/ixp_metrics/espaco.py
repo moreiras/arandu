@@ -158,6 +158,8 @@ def _compute_ixp_afi(
         "asn_stub_count": len(asn_stub),
         "asn_direct": sorted(asn_direct),
         "asn_stub": sorted(asn_stub),
+        # só para a união IPv6 ∪ IPv4 do PTT (quem chama retira antes de gravar: a lista é grande e não vai ao documento)
+        "_asn_origin": asn_origin,
         # Métricas de presença de ASNs brasileiros
         "br_asns_direct": br_direct,
         "br_asns_direct_count": len(br_direct),

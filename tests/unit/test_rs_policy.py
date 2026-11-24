@@ -115,3 +115,19 @@ def test_rota_com_dois_motivos_faz_a_soma_passar_do_total_sem_inventar_rota_sem_
     f = {"cobertura": {}, "vizinhos": [_v(1, 10, motivos={"26162:300:0": 8, "26162:100:0": 5}, ixp="za")]}          # 13 > 10: 3 rotas têm os dois motivos
     r = pol.calcular(f, None, dic, None, NOMES)["ixps"]["za"]["rejeicoes"]
     assert (r["rotas_rejeitadas"], r["soma_dos_motivos"], r["rotas_com_motivo_decodificado"]) == (10, 13, 10)
+
+
+def test_community_conta_asns_distintos_e_ptts_nao_a_soma_por_ptt():
+    """COMM-E1: um membro em vários PTTs conta uma vez em `asns_total`; a soma por PTT fica em `asns_soma_ptts`, ao lado de `ptts`."""
+    c_doc = {"vizinhos": [_v(64500, 10, {"65000:6939": 10}, ixp="za"), _v(64500, 10, {"65000:6939": 10}, ixp="zb"), _v(64500, 7, {"65000:6939": 7}, ixp="zc"),
+                          _v(64501, 5, {"65000:6939": 5}, ixp="za"), _v(64502, 4, {"65000:6939": 2}, ixp="za", afi="v6")]}
+    out = pol.calcular(None, c_doc, market._dicionario_alice(), None, {"za": "A", "zb": "B", "zc": "C"})
+    e = next(x for x in out["communities"] if x["community"] == "65000:6939")
+    assert (e["asns_total"], e["asns_soma_ptts"], e["ptts"], e["rotas_total"]) == (3, 5, 3, 34)
+    # borda: um membro único em vários PTTs
+    so = pol.calcular(None, {"vizinhos": [_v(64500, 3, {"65535:666": 3}, ixp=x) for x in ("za", "zb")]}, market._dicionario_alice(), None, {"za": "A", "zb": "B"})
+    b = so["communities"][0]
+    assert (b["asns_total"], b["asns_soma_ptts"], b["ptts"]) == (1, 2, 2)
+    from api.services.rs_policy import uso_da_community
+    um = uso_da_community({"snapshot_date": "2026-01-01", "communities": out["communities"]}, "65000:6939", "za")
+    assert (um["asns_total"], um["asns_soma_ptts"], um["ptts"], um["rotas_total"]) == (3, 3, 1, 17)

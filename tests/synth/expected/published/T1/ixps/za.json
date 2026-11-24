@@ -1,4 +1,5 @@
 {
+ "asn_origin_union_count": 32,
  "ixp": "za",
  "name": "Arandurápolis",
  "snapshot_date": "2026-09-20",
@@ -31,15 +32,14 @@
    65543,
    4200000000,
    4200000001,
-   4200000100,
    4200000101,
    4200000102,
    4200000103,
    4200000104,
    4200000105
   ],
-  "asn_direct_count": 32,
-  "asn_origin_count": 32,
+  "asn_direct_count": 31,
+  "asn_origin_count": 31,
   "asn_stub": [
    64496,
    64497,
@@ -65,14 +65,13 @@
    65541,
    65542,
    65543,
-   4200000100,
    4200000101,
    4200000102,
    4200000103,
    4200000104,
    4200000105
   ],
-  "asn_stub_count": 30,
+  "asn_stub_count": 29,
   "br_asns_direct": [
    64496,
    64497,
@@ -137,10 +136,10 @@
   "br_prefix_covered_space": 26112,
   "br_prefix_declared_space": 39680,
   "ft_space": 49152,
-  "ixp_space": 29184,
-  "ixp_vs_fulltable_space_pct": 59.375,
-  "total_routes": 65,
-  "unique_prefixes": 58
+  "ixp_space": 28928,
+  "ixp_vs_fulltable_space_pct": 58.8542,
+  "total_routes": 64,
+  "unique_prefixes": 57
  },
  "v6": {
   "asn_direct": [

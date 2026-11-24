@@ -39,6 +39,7 @@ CENARIOS = {
     6: "Prefixo cuja origem muda entre T0 e T1 (198.18.24.0/21: 64502 → 64503)",
     7: "Contatos PeeringDB e telefone de outorga não aparecem em rotas públicas",
     8: "Município sem PTT a menos de 100 km: lacuna (Tabajara do Norte)",
+    9: "Membro estrangeiro que só anuncia IPv6 no za: originadores do PTT são a união IPv6 ∪ IPv4, maior que o maior dos dois",
 }
 
 
@@ -190,6 +191,8 @@ def build_world(instant: str = T1, seed: int = 1, extra_asns: int = 0) -> World:
                 origin = asn
                 if instant == T1 and p == moving and asn == 64502:
                     continue                                              # 64502 deixa de originar
+                if ptt == "za" and asn == foreign_asns[0] and ":" not in p:
+                    continue                                              # 9) só IPv6 no za: originadores IPv6 ∪ IPv4 > max(IPv6, IPv4)
                 rs.append((p, [origin]))
             if a.role == "transit":                                       # trânsitos anunciam clientes (caminho [trânsito, cliente])
                 clientes = [c for c, t in transit_of.items() if t == asn][:3]

@@ -56,6 +56,18 @@ def test_load_peeringdb_ixps_config():
         assert isinstance(ix["pdb_ix_id"], int) and ix["code"]
 
 
+def test_peeringdb_ixbr_cobre_os_ptts_da_config_sem_codigo_estranho():
+    """INST-E2: todo código do bloco `ixbr` existe em config/ixps.yaml e cada PTT tem um, e só um, registro do PeeringDB.
+    Santa Maria (ria) é o IX 1847 e Ribeirão Preto (rao) o 4862 no PeeringDB; estavam trocados, com um código `santa-maria` a mais."""
+    c = _common.load_peeringdb_ixps_config()
+    codigos = [i["code"] for i in c["ixbr"]]
+    ids = [i["pdb_ix_id"] for i in c["ixbr"] + c["external"]]
+    assert sorted(codigos) == sorted(i["code"] for i in _common.load_ixps())
+    assert len(set(codigos)) == len(codigos) and len(set(ids)) == len(ids)
+    por_codigo = {i["code"]: i["pdb_ix_id"] for i in c["ixbr"]}
+    assert (por_codigo["ria"], por_codigo["rao"]) == (1847, 4862)
+
+
 def test_configure_logging_aceita_formato_texto(monkeypatch):
     monkeypatch.setenv("LOG_FORMAT", "text")
     assert _common.configure_logging() is not None

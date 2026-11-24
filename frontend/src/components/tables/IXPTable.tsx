@@ -82,10 +82,7 @@ function sortValue(
     case 'code': return ixp.code
     case 'asn_members': return ixp.ixbr_members_count ?? 0
     case 'asn_direct': return ixp.asn_direct_union_count ?? 0
-    case 'asn_dif':
-      return ixp.asn_direct_union_count
-        ? ((ixp.ixbr_members_count ?? 0) - (ixp.asn_direct_union_count ?? 0)) / ixp.asn_direct_union_count
-        : 0
+    case 'asn_dif': return foraDoRouteServer(ixp)?.n ?? 0
     case 'asn_origin': return ixp.asn_origin_union_count ?? 0
     case 'asn_br_coverage':
       return totalBrASNs
@@ -148,6 +145,18 @@ function Th({
       </span>
     </th>
   )
+}
+
+/**
+ * Participantes do cadastro sem sessão com o route server (IXPS-E3): número absoluto e % dos participantes, nunca dos diretos.
+ * `null` sem as duas contagens ou sem participantes.
+ */
+export function foraDoRouteServer(ixp: Pick<IXPIndexEntry, 'ixbr_members_count' | 'asn_direct_union_count'>): { n: number; pct: number } | null {
+  const membros = ixp.ixbr_members_count
+  const diretos = ixp.asn_direct_union_count
+  if (membros == null || diretos == null || membros <= 0) return null
+  const n = Math.max(0, membros - diretos)
+  return { n, pct: (n / membros) * 100 }
 }
 
 export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTableProps) {
@@ -222,8 +231,8 @@ export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTa
             {grupo === 'ases' && <>
             <Th label="Participantes" tooltip="Membros registrados neste PTT no dashboard do IX.br, incluindo os que não usam os route servers" sortKey="asn_members" {...thProps} className="border-l border-gray-200" />
             <Th label="Diretos no route server" tooltip="ASNs com sessão direta com o route server (RS) deste PTT, união de IPv6 e IPv4" sortKey="asn_direct" {...thProps} />
-            <Th label="Fora do route server" tooltip="Quantos participantes a mais que os diretos no RS existem, em % dos diretos: (participantes − diretos) ÷ diretos" sortKey="asn_dif" {...thProps} />
-            <Th label="Originadores" tooltip="ASNs que originam (são o último AS do AS_PATH) algum prefixo visível neste PTT; aproximadamente o maior entre IPv6 e IPv4" sortKey="asn_origin" {...thProps} />
+            <Th label="Fora do route server" tooltip="Participantes do cadastro do IX.br sem sessão com o route server nesta coleta, e a % dos participantes. Pode ser peering só bilateral ou porta sem sessão; o dado não distingue." sortKey="asn_dif" {...thProps} />
+            <Th label="Originadores" tooltip="ASNs de todos os países que originam (são o último AS do AS_PATH) algum prefixo visível neste PTT, união IPv6 ∪ IPv4 (snapshots anteriores a 2026-11: o maior entre IPv6 e IPv4)" sortKey="asn_origin" {...thProps} />
             <Th label="Cobertura Registro.br" tooltip="% dos ASNs brasileiros cadastrados no Registro.br que aparecem como originadores neste PTT (união IPv6 ∪ IPv4)" sortKey="asn_br_coverage" {...thProps} />
             <Th label="Cobertura tabela global" tooltip="% dos ASNs presentes na tabela global (RouteViews) que aparecem como originadores neste PTT" sortKey="asn_ft_coverage" {...thProps} />
             <Th label="Usuários (estimados)" tooltip="Usuários finais brasileiros estimados visíveis por este PTT (IPv4): soma dos usuários do APNIC × fração do espaço IPv4 do AS visível no PTT, sobre os ASes BR originadores" sortKey="asn_est_users" {...thProps} />
@@ -300,9 +309,7 @@ export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTa
                   {num(ixp.asn_direct_union_count)}
                 </td>
                 <td className={`px-2 py-2 text-right tabular-nums text-gray-700 transition-colors ${hoverBg} ${colBg('asn_dif')}`}>
-                  {ixp.asn_direct_union_count && ixp.ixbr_members_count != null
-                    ? pct(((ixp.ixbr_members_count - ixp.asn_direct_union_count) / ixp.asn_direct_union_count) * 100)
-                    : '—'}
+                  {(() => { const f = foraDoRouteServer(ixp); return f ? `${num(f.n)} (${pct(f.pct)})` : '—' })()}
                 </td>
                 <td className={`px-2 py-2 text-right tabular-nums text-gray-700 transition-colors ${hoverBg} ${colBg('asn_origin')}`}>
                   {num(ixp.asn_origin_union_count)}

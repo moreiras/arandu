@@ -1668,7 +1668,7 @@ def test_instalacoes_peeringdb_rotas_blocos_colecoes_e_sem_contato(api):
     assert ptt["total"] == 2 and api.get("/api/v1/ixps/zc/facilities", headers=h).status_code == 404
     assert [x["id"] for x in api.get("/api/v1/ixps/zx/facilities", headers=h).json()["items"]] == [9201]       # instalação do PTT externo, fora do Brasil
     por = api.get("/api/v1/ixps/zx/portas", headers=h).json()
-    assert por["portas"] == 5 and por["capacidade_mbps"] == 50000 and por["por_velocidade"] == {"10000": 5} and por["fonte"] and "não tráfego" in por["limites"]
+    assert por["portas"] == 6 and por["capacidade_mbps"] == 150000 and por["por_velocidade"] == {"10000": 5, "100000": 1}      # uma rede com duas portas (IXE-E1) and por["fonte"] and "não tráfego" in por["limites"]
     assert api.get("/api/v1/ixps/za/portas", headers=h).status_code == 404
     asn = d["redes"][0]["asn"]
     af = api.get(f"/api/v1/asns/{asn}/facilities", headers=h).json()

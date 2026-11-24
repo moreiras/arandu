@@ -31,6 +31,34 @@ function p(v: number | null | undefined, denom: number | null | undefined, dec =
 }
 
 
+export interface BasesAsn { totalBrASNs: number | null; brAsnsInFt: number | null; totalGlobalASNs: number | null }
+
+/**
+ * Linhas do balão de ASNs por PTT (IXPS-E2, PANT-E1). Nunca divide um total de todos os países por uma base brasileira:
+ * diretos e originadores de todos os países vão sobre a tabela global; os brasileiros (LACNIC, `is_br`) sobre os ASNs brasileiros.
+ */
+export function textosAsnPtt(tipo: 'direto' | 'origem' | 'origem_br', ixp: IXPIndexEntry, value: number, b: BasesAsn): string[] {
+  const onde = `IX.br ${ixp.name}, ${ixp.uf}`
+  const sobreBr = (y: number) => `${p(y, b.totalBrASNs)} dos ${n(b.totalBrASNs)} ASNs brasileiros (LACNIC) e ${p(y, b.brAsnsInFt)} dos ${n(b.brAsnsInFt)} visíveis na tabela global`
+  if (tipo === 'direto') {
+    const br = ixp.br_asns_direct_union_count
+    return [
+      `${n(value)} ASNs com sessão em route server do ${onde}${br != null ? `, dos quais ${n(br)} brasileiros` : ''}.`,
+      ...(br != null ? [`Os ${n(br)} brasileiros são ${sobreBr(br)}.`] : []),
+    ]
+  }
+  if (tipo === 'origem') {
+    const br = ixp.br_asns_origin_union_count
+    return [
+      `${n(value)} ASNs (todos os países) originam prefixos vistos no ${onde}${br != null ? `, dos quais ${n(br)} brasileiros` : ''}.`,
+      `São ${p(value, b.totalGlobalASNs)} dos ${n(b.totalGlobalASNs)} ASNs da tabela global.`,
+      ...(br != null ? [`Os ${n(br)} brasileiros são ${sobreBr(br)}.`] : []),
+    ]
+  }
+  return [`${n(value)} ASNs brasileiros (LACNIC) originam prefixos vistos no ${onde}: ${sobreBr(value)}.`]
+}
+
+
 /**
  * Cobertura no IX.br por PTT: `ipv4` (2 gráficos), `ipv6` (2) e `asns` (3). Cada panorama escolhe os grupos que cabem no seu tema;
  * a página de Estatísticas (`?versao=1`) mostra os três. As consultas (`ixps`, detalhe do snapshot) usam as mesmas chaves das demais páginas, então não repetem chamada.
@@ -85,45 +113,23 @@ export function CoberturaIxbr({ grupos }: { grupos: GrupoCobertura[] }) {
   }
 
   // ── Tooltips de ASNs ─────────────────────────────────────────────────────
+  // Cada percentual compara o mesmo universo: brasileiros sobre ASNs brasileiros, todos os países sobre a tabela global.
+
+  const bases = { totalBrASNs, brAsnsInFt, totalGlobalASNs }
 
   function tooltipAsnDirect(ixp: IXPIndexEntry, value: number) {
-    return (
-      <>
-        <strong>{n(value)}</strong> ASNs participam diretamente do IX.br {ixp.name}, {ixp.uf},
-        isso representa <strong>{p(value, totalBrASNs)}</strong> dos {n(totalBrASNs)} ASNs
-        alocados pelo Registro.br, <strong>{p(value, brAsnsInFt)}</strong> dos {n(brAsnsInFt)}{' '}
-        ASNs do Registro.br visíveis na tabela global e{' '}
-        <strong>{p(value, totalGlobalASNs)}</strong> dos {n(totalGlobalASNs)} ASNs presentes na
-        tabela global BGP
-      </>
-    )
+    const t = textosAsnPtt('direto', ixp, value, bases)
+    return <>{t.map((l, i) => <span key={i} className="block">{l}</span>)}</>
   }
 
   function tooltipAsnOrigin(ixp: IXPIndexEntry, value: number) {
-    return (
-      <>
-        <strong>{n(value)}</strong> ASNs originam prefixos visíveis no IX.br {ixp.name},{' '}
-        {ixp.uf}, isso representa <strong>{p(value, totalBrASNs)}</strong> dos {n(totalBrASNs)}{' '}
-        ASNs alocados pelo Registro.br, <strong>{p(value, brAsnsInFt)}</strong> dos{' '}
-        {n(brAsnsInFt)} ASNs do Registro.br visíveis na tabela global e{' '}
-        <strong>{p(value, totalGlobalASNs)}</strong> dos {n(totalGlobalASNs)} ASNs presentes na
-        tabela global BGP
-      </>
-    )
+    const t = textosAsnPtt('origem', ixp, value, bases)
+    return <>{t.map((l, i) => <span key={i} className="block">{l}</span>)}</>
   }
 
   function tooltipAsnBrOrigin(ixp: IXPIndexEntry, value: number) {
-    return (
-      <>
-        <strong>{n(value)}</strong> ASNs brasileiros (Registro.br) originam prefixos visíveis no
-        IX.br {ixp.name}, {ixp.uf}, isso representa{' '}
-        <strong>{p(value, totalBrASNs)}</strong> dos {n(totalBrASNs)} ASNs alocados pelo
-        Registro.br, <strong>{p(value, brAsnsInFt)}</strong> dos {n(brAsnsInFt)} ASNs do
-        Registro.br visíveis na tabela global e{' '}
-        <strong>{p(value, totalGlobalASNs)}</strong> dos {n(totalGlobalASNs)} ASNs presentes na
-        tabela global BGP
-      </>
-    )
+    const t = textosAsnPtt('origem_br', ixp, value, bases)
+    return <>{t.map((l, i) => <span key={i} className="block">{l}</span>)}</>
   }
 
 
@@ -251,7 +257,7 @@ export function CoberturaIxbr({ grupos }: { grupos: GrupoCobertura[] }) {
               ASNs originadores brasileiros por IXP
             </h2>
             <p className="text-xs text-gray-500 mb-4">
-              ASNs alocados pelo Registro.br cujos prefixos são visíveis na tabela do IXP (união IPv6 ∪ IPv4).
+              ASNs brasileiros (delegados pela LACNIC ao Brasil) cujos prefixos são visíveis na tabela do IXP (união IPv6 ∪ IPv4).
             </p>
             <IXPMetricsChart
               ixps={ixps}

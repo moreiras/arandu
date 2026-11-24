@@ -23,6 +23,7 @@ O repositório guarda o **gerador** (`world.py`, `market.py`, `infra.py`, `gener
 | 6 | Prefixo que muda de origem (198.18.24.0/21: 64502 → 64503) e vira RPKI inválido | `asns/64502`, `asns/64503` T0×T1 |
 | 7 | Contatos PeeringDB nunca em `published/` (o telefone de outorga é checado na API, no T4) | varredura de `published/` |
 | 8 | Município sem PTT a < 100 km (Tabajara do Norte) fica fora do raio de todos os PTTs | `Store.ixp_nearby_breakdown` |
+| 9 | Membro estrangeiro só com IPv6 no `za`: originadores = união IPv6 ∪ IPv4 > max (IXP-E3) | `ixps/index.json`, `tests/products/test_t2_originadores_uniao.py` |
 
 Também há divergência APNIC × Anatel plantada (64504 `apnic_alto`, 64505 `apnic_baixo`) e um novo membro em T1 (zb).
 

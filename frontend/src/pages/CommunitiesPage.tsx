@@ -36,7 +36,7 @@ export function CommunitiesPage() {
       <div>
         <h1 className="text-titulo-1 text-gray-900">Communities dos route servers do IX.br</h1>
         <p className="text-sm text-gray-500 mt-1">
-          O que cada community significa (dicionário do Alice-LG do IX.br) e quem a usa em cada PTT, a partir das rotas recebidas coletadas. É a <strong>declaração</strong> do membro, não tráfego nem relação comercial;
+          O que cada community significa (dicionário do Alice-LG do IX.br) e quem a usa em cada PTT, a partir das rotas recebidas coletadas: communities presentes nas rotas que o membro enviou ao route server (podem ter sido marcadas por ele ou recebidas de clientes), não tráfego nem relação comercial;
           só entram os PTTs e membros coletados na rodada (a coleta é parcial, por desenho).
         </p>
       </div>
@@ -61,7 +61,7 @@ export function CommunitiesPage() {
           <div className="overflow-x-auto">
             <table className="min-w-full text-xs">
               <thead className="text-gray-500"><tr>
-                <th className="text-left px-2 py-1">Community</th><th className="text-left px-2 py-1">Significado</th><th className="text-right px-2 py-1">ASNs</th><th className="text-right px-2 py-1">Rotas</th><th className="text-left px-2 py-1">Quem mais usa</th>
+                <th className="text-left px-2 py-1">Community</th><th className="text-left px-2 py-1">Significado</th><th className="text-right px-2 py-1" title="ASNs distintos: um membro em vários PTTs conta uma vez">Membros</th><th className="text-right px-2 py-1">PTTs</th><th className="text-right px-2 py-1" title="A mesma rota anunciada em vários PTTs conta uma vez por PTT">Rotas (soma por PTT)</th><th className="text-left px-2 py-1">Quem mais usa</th>
               </tr></thead>
               <tbody className="divide-y divide-gray-100">
                 {d.items.map((c) => {
@@ -71,12 +71,13 @@ export function CommunitiesPage() {
                       <td className="px-2 py-1 font-mono">{c.community}</td>
                       <td className="px-2 py-1">{c.rotulo ?? 'sem decodificação no dicionário'} <span className="text-gray-400">· {CLASSES[c.classe] ?? c.classe}{c.forma === 'equivalente_padrao' ? ' *' : ''}</span></td>
                       <td className="px-2 py-1 text-right tabular-nums">{n(c.asns_total)}</td>
+                      <td className="px-2 py-1 text-right tabular-nums">{n(c.ptts ?? Object.keys(c.ixps).length)}</td>
                       <td className="px-2 py-1 text-right tabular-nums">{n(c.rotas_total)}</td>
                       <td className="px-2 py-1">{top.map((t, i) => <span key={`${t.code}-${t.asn}`}>{i > 0 && ', '}<Link to={`/asn/${t.asn}`} className="text-primario-600 hover:underline">AS{t.asn}</Link> ({t.code.toUpperCase()})</span>)}</td>
                     </tr>
                   )
                 })}
-                {d.items.length === 0 && <tr><td colSpan={5} className="px-2 py-3 text-gray-500">Nenhuma community encontrada nas rotas coletadas.</td></tr>}
+                {d.items.length === 0 && <tr><td colSpan={6} className="px-2 py-3 text-gray-500">Nenhuma community encontrada nas rotas coletadas.</td></tr>}
               </tbody>
             </table>
           </div>

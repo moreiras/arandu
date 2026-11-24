@@ -7,7 +7,7 @@ import { codigoPttValido } from '../lib/identificadores'
 import { InstalacoesPtt } from '../features/ptt/blocks/InstalacoesBloco'
 import { useAsnNomes } from '../hooks/useAsnName'
 import type { ExternalIXPMember } from '../types/api'
-import { ExternalIXPRouteServer, type ExternalIXPComRouteServer } from './ExternalIXPRouteServer'
+import { ExternalIXPRouteServer, RedesBrPorFonte, contagemRedes, type ExternalIXPComRouteServer } from './ExternalIXPRouteServer'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { useOrdenacao } from '../lib/ordenacao'
 
@@ -43,7 +43,8 @@ export function ExternalIXPPage() {
   // Membros visíveis (filtros aplicados) e os nomes só dos 500 que a tabela mostra (não o dicionário inteiro)
   const members: ExternalIXPMember[] = useMemo(() => (data?.members ?? []).filter(m => {
     if (brOnly && !m.is_br) return false
-    if (search && !String(m.asn).includes(search) && !m.name.toLowerCase().includes(search.toLowerCase())) return false
+    const busca = search.trim().replace(/^AS/i, '')
+    if (busca && !String(m.asn).includes(busca) && !m.name.toLowerCase().includes(search.trim().toLowerCase())) return false
     return true
   }), [data, brOnly, search])
   // Ordena todos os membros filtrados e só então corta nos 500 mostrados (e nos nomes buscados).
@@ -63,6 +64,8 @@ export function ExternalIXPPage() {
   )
 
   const flag = FLAG[data.country] ?? ''
+  // redes = ASNs distintos; o PeeringDB lista uma linha por porta (IXE-E1)
+  const cont = contagemRedes(data.members ?? [])
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
@@ -79,12 +82,13 @@ export function ExternalIXPPage() {
       </div>
 
       {/* Números */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4" data-testid="cartoes-ixp-externo">
         {[
-          { label: 'Total de membros', value: data.member_count.toLocaleString('pt-BR') },
-          { label: 'Membros BR', value: data.br_member_count.toLocaleString('pt-BR') },
-          { label: '% BR', value: data.member_count > 0 ? `${((data.br_member_count / data.member_count) * 100).toFixed(1)}%` : '—' },
-          { label: 'Atualizado em', value: data.last_updated },
+          { label: 'Redes', value: cont.redes.toLocaleString('pt-BR') },
+          { label: 'Portas', value: cont.portas.toLocaleString('pt-BR') },
+          { label: 'Redes BR', value: cont.redesBr.toLocaleString('pt-BR') },
+          { label: '% de redes BR', value: cont.redes > 0 ? `${((cont.redesBr / cont.redes) * 100).toFixed(1)}%` : '—' },
+          { label: 'Snapshot', value: data.last_updated },
         ].map(({ label, value }) => (
           <div key={label} className="bg-white rounded-lg border border-gray-200 px-4 py-3">
             <div className="text-xs text-gray-500 mb-1">{label}</div>
@@ -100,6 +104,7 @@ export function ExternalIXPPage() {
       </div>
 
       {(data as ExternalIXPComRouteServer).route_server && <ExternalIXPRouteServer rs={(data as ExternalIXPComRouteServer).route_server!} />}
+      {(data as ExternalIXPComRouteServer).route_server && <RedesBrPorFonte members={data.members ?? []} rs={(data as ExternalIXPComRouteServer).route_server!} />}
 
       {(instalacoes || portas) && (
         <div className="bg-white rounded-lg border border-gray-200 px-4 py-3 space-y-2">
@@ -122,7 +127,7 @@ export function ExternalIXPPage() {
             <input type="checkbox" checked={brOnly} onChange={e => setBrOnly(e.target.checked)} className="rounded" />
             Apenas BR
           </label>
-          <span className="ml-auto text-xs text-gray-400">{members.length.toLocaleString('pt-BR')} membros</span>
+          <span className="ml-auto text-xs text-gray-400">{members.length.toLocaleString('pt-BR')} portas de {new Set(members.map((m) => m.asn)).size.toLocaleString('pt-BR')} redes</span>
         </div>
 
         <div className="overflow-x-auto">
@@ -136,8 +141,8 @@ export function ExternalIXPPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {ordenados.slice(0, 500).map(m => (
-                <tr key={m.asn} className="hover:bg-gray-50">
+              {ordenados.slice(0, 500).map((m, i) => (
+                <tr key={`${m.asn}-${i}`} className="hover:bg-gray-50">
                   <td className="px-4 py-2">
                     <a href={`/asn/${m.asn}`} className="text-primario-600 hover:underline font-mono">
                       AS{m.asn}
