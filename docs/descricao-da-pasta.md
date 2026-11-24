@@ -9,3 +9,4 @@ Quase tudo aqui é gerado; não edite à mão. Altere a origem e regenere (o CI 
 | `fontes/<id>.md`, `produtos/<id>.md`, `dicionario.md`, `licencas.md`, `etapas.md`, `fontes.json` | `python3 scripts/gen_docs.py` | `catalog/` |
 | `cobertura.md` | `python3 scripts/gen_cobertura.py` | OpenAPI, MCP, frontend e `serve/capabilities/` |
 | `metodologia-relacoes-asns.md` | escrito à mão | método de `products/as_relationships/` |
+| `glossario-contagens.md` | escrito à mão | universos de contagem (ASNs, PTTs, SICI, municípios, usuários) e o código que calcula cada um |
