@@ -108,10 +108,12 @@ describe('/grupo/:id', () => {
     server.use(http.get('*/api/v1/grupos/g1', ({ request }) => HttpResponse.json(new URL(request.url).searchParams.get('include') === 'regulatorio' ? { ...grupo, regulatorio } : grupo)))
     montar('g1', '?aba=regulatorio')
     expect(await screen.findByText('2 de 2', { selector: 'div' })).toBeInTheDocument()
-    expect(await screen.findByRole('table', { name: 'Multas por empresa do grupo' })).toBeInTheDocument()
+    const multas = await screen.findByRole('table', { name: 'Multas por empresa do grupo' })
+    // cabeçalhos associados às células (GRUPO-E1)
+    for (const th of within(multas).getAllByRole('columnheader')) expect(th).toHaveAttribute('scope', 'col')
     expect(screen.getByText(/1 de 2 empresas \(raízes de CNPJ\) têm registro/)).toBeInTheDocument()
     expect(await screen.findByText(/40/, { selector: 'strong' })).toBeInTheDocument()
-    expect(screen.getByRole('table', { name: 'Empresas do Consumidor.gov.br ligadas ao grupo' })).toBeInTheDocument()
+    for (const th of within(screen.getByRole('table', { name: 'Empresas do Consumidor.gov.br ligadas ao grupo' })).getAllByRole('columnheader')) expect(th).toHaveAttribute('scope', 'col')
     expect(document.body.textContent).not.toMatch(/melhor|pior|vencedor|maior infrator/i)
   })
 
@@ -122,6 +124,8 @@ describe('/grupo/:id', () => {
     expect(within(t).getByRole('link', { name: 'AS64500' })).toHaveAttribute('href', '/asn/64500')
     expect(await screen.findByText('85,7%')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /SP/ })).toHaveAttribute('href', '/ixp/sp')
+    // os ASes do PTT estavam só no title (OPERADORA-E4): agora fazem parte do nome acessível do link
+    expect(screen.getByRole('link', { name: /SP \(2\), ASes: AS64500, AS64501/ })).toBeInTheDocument()
     expect(screen.getByText(/Peering bilateral não é visível/)).toBeInTheDocument()
   })
 

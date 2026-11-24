@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { OperadoraRede } from '../../types/api'
 import { KPI, fmt } from './ui'
@@ -27,6 +27,7 @@ export const CATEGORY_LABEL: Record<string, string> = {
  */
 export function RedeSection({ rede }: { rede: OperadoraRede }) {
   const [showAsns, setShowAsns] = useState(false)
+  const idTabela = useId()
   const { ordenados, props } = useOrdenacao(rede.asns, {
     asn: { valor: (a) => a.asn, primeiro: 'asc' },
     nome: (a) => a.name || null,
@@ -70,9 +71,9 @@ export function RedeSection({ rede }: { rede: OperadoraRede }) {
       {rede.alertas.total > 0 && (
         <div className="mb-3 space-y-1">
           {rede.alertas.por_categoria.map(g => (
-            <div key={`${g.category}-${g.severity}`}
-                 className="flex items-center gap-2 text-xs border border-gray-100 rounded px-2 py-1"
-                 title={g.asns.map(a => `AS${a.asn}: ${a.title}`).join('\n')}>
+            // A lista "AS: alerta" ficava só no title (teclado e toque não alcançam): agora abre no próprio item (details/summary).
+            <details key={`${g.category}-${g.severity}`} className="text-xs border border-gray-100 rounded px-2 py-1" data-testid="alerta-categoria">
+              <summary className="flex cursor-pointer items-center gap-2">
               <span className={`px-1.5 py-0.5 rounded text-xs font-semibold ${SEVERITY_CLS[g.severity] ?? 'bg-gray-100 text-gray-500'}`}>
                 {SEVERITY_LABEL[g.severity] ?? g.severity}
               </span>
@@ -85,21 +86,29 @@ export function RedeSection({ rede }: { rede: OperadoraRede }) {
                   return `${g.count} alerta${g.count !== 1 ? 's' : ''} em ${asns.length} ASN${asns.length !== 1 ? 's' : ''}: ${asns.slice(0, 4).map(a => `AS${a}`).join(', ')}${asns.length > 4 ? ` +${asns.length - 4}` : ''}`
                 })()}
               </span>
-            </div>
+              </summary>
+              <ul className="mt-1 space-y-0.5 pl-2 text-gray-600">
+                {g.asns.map((a, i) => <li key={`${a.asn}-${i}`}><Link to={`/asn/${a.asn}`} className="font-mono text-primario-700 hover:underline">AS{a.asn}</Link>: {a.title}</li>)}
+              </ul>
+            </details>
           ))}
         </div>
       )}
 
       <button
+        type="button"
         onClick={() => setShowAsns(s => !s)}
+        aria-expanded={showAsns}
+        aria-controls={showAsns ? idTabela : undefined}
         className="text-xs text-primario-600 hover:underline"
       >
         {showAsns ? '▾ ocultar' : '▸ ver'} detalhe por ASN ({rede.asns.length})
       </button>
 
       {showAsns && (
-        <div className="mt-2 overflow-x-auto">
+        <div className="mt-2 overflow-x-auto" id={idTabela}>
           <table className="w-full text-xs">
+            <caption className="sr-only">Detalhe por ASN do CNPJ</caption>
             <thead>
               <tr className="text-left text-gray-400 border-b border-gray-100">
                 <ThOrdenavel {...props('asn')} className="px-2 py-1">ASN</ThOrdenavel>

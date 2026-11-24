@@ -58,7 +58,7 @@ export function OutorgasMultasBloco({ dados }: BlocoProps<GrupoCtx>) {
             <Kpi rotulo="Valor pago" valor={reais(r.multas.pago)} /><Kpi rotulo="Saldo (com atualização)" valor={reais(r.multas.saldo)} />
           </div>
           <div className="overflow-x-auto"><table className="text-sm min-w-full" aria-label="Multas por empresa do grupo" data-tabela="grade">
-            <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th className="py-1 pr-3">Empresa (ordem alfabética)</th><th className="pr-3 text-right">Multas</th><th className="pr-3 text-right">Original</th><th className="text-right">Saldo</th></tr></thead>
+            <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th scope="col" className="py-1 pr-3">Empresa (ordem alfabética)</th><th scope="col" className="pr-3 text-right">Multas</th><th scope="col" className="pr-3 text-right">Original</th><th scope="col" className="text-right">Saldo</th></tr></thead>
             <tbody>{r.multas.por_empresa.map((e) => <tr key={e.raiz} className="border-b border-gray-100"><td className="py-1 pr-3">{e.empresa ?? e.raiz}</td><td className="pr-3 text-right tabular-nums">{n(e.multas)}</td><td className="pr-3 text-right tabular-nums">{reais(e.original)}</td><td className="text-right tabular-nums">{reais(e.saldo)}</td></tr>)}</tbody></table></div>
         </>
       )}
@@ -84,7 +84,7 @@ export function QualidadeReclamacoesBloco({ dados }: BlocoProps<GrupoCtx>) {
         <h3 className="text-sm font-medium text-gray-700">Consumidor.gov.br{r.consumidor.janela ? ` (${r.consumidor.janela.de} a ${r.consumidor.janela.ate})` : ''}</h3>
         {r.consumidor.marcas.length === 0 ? <p className="text-sm text-gray-600">Nenhuma empresa do Consumidor.gov.br ligada a este grupo.</p> : (
           <div className="overflow-x-auto"><table className="text-sm min-w-full" aria-label="Empresas do Consumidor.gov.br ligadas ao grupo" data-tabela="grade">
-            <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th className="py-1 pr-3">Empresa (ordem alfabética)</th><th className="pr-3 text-right">Finalizadas</th><th className="pr-3 text-right">% respondidas</th><th className="pr-3 text-right">Índice de solução</th><th className="text-right">Nota</th></tr></thead>
+            <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th scope="col" className="py-1 pr-3">Empresa (ordem alfabética)</th><th scope="col" className="pr-3 text-right">Finalizadas</th><th scope="col" className="pr-3 text-right">% respondidas</th><th scope="col" className="pr-3 text-right">Índice de solução</th><th scope="col" className="text-right">Nota</th></tr></thead>
             <tbody>{r.consumidor.marcas.map((m) => <tr key={m.marca} className="border-b border-gray-100"><td className="py-1 pr-3">{m.marca}</td><td className="pr-3 text-right tabular-nums">{n(m.n)}</td><td className="pr-3 text-right tabular-nums">{pct(m.pct_respondidas)}</td><td className="pr-3 text-right tabular-nums">{pct(m.indice_solucao)}</td><td className="text-right tabular-nums">{m.nota_media == null ? '—' : m.nota_media.toLocaleString('pt-BR')}</td></tr>)}</tbody></table></div>
         )}
         <p className="text-xs text-gray-500">Reclamação finalizada não é prova de falha da empresa e depende do tamanho da base; a ligação marca → CNPJ é curada ou por nome fantasia único. Índice de solução, tempo e nota só com 30 ou mais casos. {r.limites}</p>
@@ -115,7 +115,7 @@ export function PttsTransitoBloco({ dados }: BlocoProps<GrupoCtx>) {
   return <Carrega<GrupoTecnico> id={dados.grupo.grupo_id} bloco="tecnico" vazio="Nenhum AS do grupo tem dado técnico neste snapshot.">{(t) => (
     <div className="space-y-3" data-testid="grupo-ptts">
       <p className="text-sm text-gray-700">{n(t.ptts.length)} {t.ptts.length === 1 ? 'PTT' : 'PTTs'} com sessão direta de algum AS do grupo; {n(t.transito.asns_multihomed)} dos {n(t.asns_detalhados)} ASes têm mais de um provedor de trânsito observado.</p>
-      {t.ptts.length > 0 && <div className="flex flex-wrap gap-2">{t.ptts.map((p) => <Link key={p.ixp} to={`/ixp/${p.ixp}`} title={`ASes: ${p.asns.map((a) => 'AS' + a).join(', ')}`} className="px-2.5 py-1 rounded border border-primario-200 bg-primario-50 text-primario-700 text-xs hover:bg-primario-100">{p.ixp.toUpperCase()} <span className="text-primario-500">({p.asns.length})</span></Link>)}</div>}
+      {t.ptts.length > 0 && <div className="flex flex-wrap gap-2">{t.ptts.map((p) => <Link key={p.ixp} to={`/ixp/${p.ixp}`} title={`ASes: ${p.asns.map((a) => 'AS' + a).join(', ')}`} className="px-2.5 py-1 rounded border border-primario-200 bg-primario-50 text-primario-700 text-xs hover:bg-primario-100">{p.ixp.toUpperCase()} <span className="text-primario-700">({p.asns.length})</span><span className="sr-only">{`, ASes: ${p.asns.map((a) => 'AS' + a).join(', ')}`}</span></Link>)}</div>}
       {t.transito.provedores.length > 0 && (
         <p className="text-sm text-gray-700">Provedores vistos acima dos ASes do grupo (ordem de AS usado por mais ASes do grupo): {t.transito.provedores.map((p, i) => <span key={p.asn}>{i > 0 && ', '}<Link to={`/asn/${p.asn}`} className="text-primario-600 hover:underline">AS{p.asn}</Link> ({p.asns_do_grupo})</span>)}.</p>
       )}
