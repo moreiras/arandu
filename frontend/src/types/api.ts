@@ -128,8 +128,13 @@ export interface SnapshotSummary {
 // IXPs
 // -------------------------------------------------------------------------
 
+/** Coleta de uma família no PTT: `ok` (o looking glass devolveu rotas), `vazia` (a coleta funcionou e o looking glass respondeu com a
+ * tabela vazia: zero rotas, não zero de cobertura) ou `missing` (sem bruto). Ausente em respostas antigas. */
+export type ColetaAfi = 'ok' | 'vazia' | 'missing'
+
 /** Métricas compactas por AFI no índice de IXPs (/api/v1/ixps) */
 export interface IXPIndexAfi {
+  coleta?: ColetaAfi
   total_routes: number
   unique_prefixes: number
   ixp_space: number
@@ -140,8 +145,9 @@ export interface IXPIndexAfi {
   asn_stub_count: number
   /** ASNs brasileiros originando prefixos neste IXP */
   br_asns_origin_count: number
-  br_prefix_coverage_pct: number
-  ixp_vs_fulltable_space_pct: number
+  /** `null` com a tabela vazia (`coleta: 'vazia'`). */
+  br_prefix_coverage_pct: number | null
+  ixp_vs_fulltable_space_pct: number | null
 }
 
 /** Entrada no índice de IXPs — campos compactos, sem listas */
@@ -166,6 +172,7 @@ export interface IXPIndexEntry {
 
 /** Documento completo de IXP (/api/v1/ixps/{code}) — quando há dados para o AFI */
 export interface IXPAfiFull {
+  coleta?: ColetaAfi
   total_routes: number
   unique_prefixes: number
   ixp_space: number
@@ -208,13 +215,21 @@ export interface IXPMembersResponse {
 /** Retornado quando não há dados coletados para um AFI neste IXP */
 export interface IXPAfiMissing {
   status: string
+  coleta?: ColetaAfi
 }
 
 export type IXPAfi = IXPAfiFull | IXPAfiMissing
 
-/** Type guard: retorna true quando o AFI tem dados completos */
+/** Type guard: retorna true quando o AFI tem dados completos. A família com a tabela vazia (`coleta: 'vazia'`) não tem: zero rotas não
+ * mede cobertura, e as porcentagens vêm nulas. */
 export function isIXPAfiFull(afi: IXPAfi): afi is IXPAfiFull {
-  return 'total_routes' in afi
+  return 'total_routes' in afi && afi.coleta !== 'vazia'
+}
+
+/** Estado da coleta de uma família, inclusive em respostas sem o campo `coleta`. */
+export function coletaDaFamilia(afi: IXPAfi | IXPIndexAfi | null | undefined): ColetaAfi {
+  if (!afi || !('total_routes' in afi)) return 'missing'
+  return afi.coleta ?? (afi.total_routes ? 'ok' : 'vazia')
 }
 
 export interface PathNodeIXPStats {

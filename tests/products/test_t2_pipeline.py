@@ -62,7 +62,7 @@ def test_cenario_5_ptt_com_coleta_parcial(pipeline):
     s = load(base, T1, "summary.json")
     assert (s["ixps_ok"], s["ixps_partial"], s["ixps_missing"]) == (2, 1, 0)
     zc = next(e for e in load(base, T1, "ixps", "index.json") if e["code"] == "zc")
-    assert zc["status"] == "partial" and zc["v6"] == {"status": "missing"} and zc["v4"]["unique_prefixes"] > 0
+    assert zc["status"] == "partial" and zc["v6"] == {"status": "missing", "coleta": "missing"} and zc["v4"]["unique_prefixes"] > 0
 
 
 def test_cenario_1_moas_e_roa_invalido(pipeline):

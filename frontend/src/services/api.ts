@@ -312,12 +312,16 @@ export function fetchSnapshot(date: string): Promise<SnapshotDetails> {
   return get(`/api/v1/snapshots/${date}`)
 }
 
+// `coleta` por família (ok, vazia, missing) e `status: partial` com a tabela vazia: a resposta de snapshot publicado mudou e o `?date=` é
+// imutável no cache, então a URL muda junto.
+const ESQUEMA_IXPS = 2
+
 export function fetchIXPs(date?: string, status?: string, uf?: string): Promise<IXPListResponse> {
-  return get('/api/v1/ixps', { date, status, uf })
+  return get('/api/v1/ixps', { date, status, uf, esquema: ESQUEMA_IXPS })
 }
 
 export function fetchIXP(code: string, date?: string): Promise<IXPDocument> {
-  return get(`/api/v1/ixps/${code}`, { date })
+  return get(`/api/v1/ixps/${code}`, { date, esquema: ESQUEMA_IXPS })
 }
 
 /** Perfil consolidado do PTT: o documento mais membros (com nomes), usuários estimados, potencial, assinantes, a linha do índice e os totais do snapshot. */
@@ -341,7 +345,7 @@ export type IxpPerfil = IXPDocument & {
 export const blocoHistorico = (completo: boolean) => (completo ? 'historico_completo' : 'historico')
 
 export function fetchIXPPerfil(code: string, date?: string, historicoCompleto = false): Promise<IxpPerfil> {
-  return get(`/api/v1/ixps/${code}`, { date, include: `membros,usuarios_estimados,potencial,assinantes,indice,totais,${blocoHistorico(historicoCompleto)},route_servers,rejeicoes,facilities,portas`, opcional: true })
+  return get(`/api/v1/ixps/${code}`, { date, esquema: ESQUEMA_IXPS, include: `membros,usuarios_estimados,potencial,assinantes,indice,totais,${blocoHistorico(historicoCompleto)},route_servers,rejeicoes,facilities,portas`, opcional: true })
 }
 
 /** Um acerto da busca universal. `url` é o caminho da página no site. */

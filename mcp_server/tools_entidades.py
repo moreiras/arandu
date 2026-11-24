@@ -76,7 +76,9 @@ def get_ixp(code: str, date: Optional[str] = None) -> dict:
 
     Inclui métricas por família (IPv6/IPv4): rotas e prefixos únicos, espaço de
     endereçamento, ASes diretos vs. originadores, cobertura de prefixos BR, e
-    comparação com a tabela global.
+    comparação com a tabela global. Cada família traz `coleta` (ok, vazia, missing):
+    `vazia` é coleta que funcionou com o looking glass respondendo tabela vazia (zero
+    rotas; as porcentagens saem null). Não trate como 0% de cobertura nem atribua causa.
 
     As listas grandes de membros (asn_direct, asn_stub, br_asns_direct,
     br_asns_origin) ficam em `ixp_members` para não inflar a resposta — aqui vêm
@@ -296,8 +298,11 @@ def list_ixps(
 ) -> dict:
     """Lista os 40 IXPs do IX.br com métricas-resumo por família (v6/v4).
 
+    Cada família traz `coleta`: `ok` (o looking glass devolveu rotas), `vazia` (a coleta funcionou e o looking glass respondeu com a
+    tabela vazia: zero rotas coletadas, não zero de cobertura; as porcentagens saem null) ou `missing`. Não atribua causa à tabela vazia.
+
     Args:
-        status: Filtro de coleta: ok | partial | missing.
+        status: Filtro de coleta: ok (rotas nas duas famílias) | partial (uma família vazia ou ausente) | missing.
         uf: Filtro por UF (sigla de 2 letras, ex.: SP).
         date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.
     """

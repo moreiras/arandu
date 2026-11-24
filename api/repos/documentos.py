@@ -15,6 +15,7 @@ from typing import Optional
 
 from api.repos.base import ArtifactRepo
 from core.chaves_registro import com_os_dois_nomes
+from core.ixp_coleta import marcar_ptt
 
 
 class DocumentosRepo(ArtifactRepo):
@@ -61,7 +62,12 @@ class DocumentosRepo(ArtifactRepo):
 
     def ixp_index(self, date_str: str) -> list[dict]:
         data = self.ler(date_str, "ixps/index.json")
-        return data if isinstance(data, list) else []
+        if not isinstance(data, list):
+            return []
+        # `coleta` por família e `status` coerente também nos snapshots publicados antes do campo (idempotente)
+        for e in data:
+            marcar_ptt(e)
+        return data
 
     def asn_index(self, date_str: str) -> list[dict]:
         data = self.ler(date_str, "asns/index.json")

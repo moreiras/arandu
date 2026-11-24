@@ -52,9 +52,11 @@ def _membros(store: Store, date_str: str, code: str, doc: dict, nomes: bool, ext
 Retorna a lista compacta de todos os IXPs do IX.br com métricas resumidas por AFI (v6/v4).
 
 Cada entrada inclui contagens de ASNs, prefixos e percentuais de cobertura.
-Quando não há dados coletados para um AFI, o campo correspondente é `{"status": "missing"}`.
+Quando não há dados coletados para um AFI, o campo correspondente é `{"status": "missing"}`. Cada AFI traz `coleta` (`ok`, `vazia`:
+a coleta funcionou e o looking glass respondeu com a tabela vazia, `missing`); `status` só é `ok` com rotas nas duas famílias.
 
-Use `?status=ok` para ver apenas IXPs com coleta completa, ou `?uf=SP` para filtrar por estado.
+Use `?status=ok` para ver apenas IXPs com coleta completa (`?status=partial` lista os que têm uma família vazia ou ausente), ou `?uf=SP`
+para filtrar por estado.
 """,
 )
 def list_ixps(
@@ -127,7 +129,9 @@ Retorna o documento completo de um IXP, com métricas detalhadas separadas por A
 - `br_prefix_coverage_pct` — % do espaço de endereços BR (Registro.br) visível aqui
 - `ixp_vs_fulltable_space_pct` — % do espaço global coberto pelos prefixos deste IXP
 
-Quando não há dados coletados para um AFI, o campo retorna `{"status": "missing"}`.
+Quando não há dados coletados para um AFI, o campo retorna `{"status": "missing"}`. Cada AFI traz `coleta`: `ok` (o looking glass
+devolveu rotas), `vazia` (a coleta funcionou e o looking glass respondeu com a tabela vazia; as porcentagens sobre rotas saem `null`, porque
+zero rotas não é zero de cobertura) ou `missing`.
 
 **Códigos de IXP:** `sp`, `rj`, `bsb`, `curitiba`, `poa`, `bel`, `manaus`, `fortaleza`, etc.
 Consulte `/api/v1/ixps` para a lista completa.

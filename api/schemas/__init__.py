@@ -146,13 +146,19 @@ class IXPIndexAfi(BaseModel):
     asn_direct_count: int = Field(description="ASNs em peering direto no IXP", examples=[487])
     asn_origin_count: int = Field(description="ASNs originadores de prefixos visíveis", examples=[23104])
     asn_stub_count: int = Field(description="ASNs diretos com exatamente 1 originador (stubs)", examples=[312])
-    br_prefix_coverage_pct: float = Field(
-        description="% do espaço IPv4 BR declarado no Registro.br visível neste IXP",
+    br_prefix_coverage_pct: Optional[float] = Field(
+        description="% do espaço IPv4 BR declarado no Registro.br visível neste IXP; `null` com a tabela vazia (`coleta: vazia`)",
         examples=[72.34],
     )
-    ixp_vs_fulltable_space_pct: float = Field(
-        description="% do espaço global da full table coberto pelos prefixos deste IXP",
+    ixp_vs_fulltable_space_pct: Optional[float] = Field(
+        description="% do espaço global da full table coberto pelos prefixos deste IXP; `null` com a tabela vazia",
         examples=[18.91],
+    )
+    coleta: Optional[str] = Field(
+        None,
+        description="Coleta desta família: **ok** (o looking glass devolveu rotas), **vazia** (a coleta funcionou e o looking glass "
+                    "respondeu com a tabela vazia: zero rotas, não zero de cobertura) ou **missing** (sem bruto).",
+        examples=["ok"],
     )
 
 
@@ -161,7 +167,8 @@ class IXPIndexEntry(BaseModel):
     name: str = Field(description="Nome da cidade", examples=["São Paulo"])
     uf: str = Field(description="Unidade Federativa", examples=["SP"])
     status: str = Field(
-        description="Status da coleta: **ok** (v6+v4), **partial** (só v6 ou v4), **missing** (sem dados)",
+        description="Status da coleta: **ok** (rotas em v6 e v4), **partial** (uma família sem bruto ou com a tabela vazia; ver `coleta` "
+                    "em cada família), **missing** (sem dados)",
         examples=["ok"],
     )
     asn_direct_union_count: Optional[int] = Field(
@@ -176,8 +183,8 @@ class IXPIndexEntry(BaseModel):
     ixbr_members_count: Optional[int] = Field(
         None, description="Membros registrados neste IXP no dashboard IX.br (inclui quem não usa RS)", examples=[312]
     )
-    v4: Any = Field(description="Métricas IPv4. `{status: 'missing'}` se sem dados.")
-    v6: Any = Field(description="Métricas IPv6. `{status: 'missing'}` se sem dados.")
+    v4: Any = Field(description="Métricas IPv4, com `coleta` (ok, vazia, missing). `{status: 'missing'}` se sem dados.")
+    v6: Any = Field(description="Métricas IPv6, com `coleta` (ok, vazia, missing). `{status: 'missing'}` se sem dados.")
 
 
 class IXPListResponse(BaseModel):
@@ -218,8 +225,10 @@ class IXPDocumentResponse(BaseModel):
     uf: str = Field(examples=["SP"])
     snapshot_date: str = Field(examples=["2026-06-06"])
     generated_at: str = Field(examples=["2026-06-06T13:20:43+00:00"])
-    v4: Any = Field(description="Métricas IPv4 completas. `{status: 'missing'}` se sem dados.")
-    v6: Any = Field(description="Métricas IPv6 completas. `{status: 'missing'}` se sem dados.")
+    v4: Any = Field(description="Métricas IPv4 completas, com `coleta` (ok, vazia, missing; com `vazia` as porcentagens sobre rotas são "
+                               "`null`). `{status: 'missing'}` se sem dados.")
+    v6: Any = Field(description="Métricas IPv6 completas, com `coleta` (ok, vazia, missing; com `vazia` as porcentagens sobre rotas são "
+                               "`null`). `{status: 'missing'}` se sem dados.")
     asn_members: Optional[list[int]] = Field(None, description="ASNs membros registrados no IX.br (ixbr_members.json).")
     ixbr_members_count: Optional[int] = Field(None, description="Total de membros registrados.")
     asn_origin_union_count: Optional[int] = Field(
