@@ -563,7 +563,8 @@ def test_perfil_e_resumo_das_ufs_batem_com_as_rotas_antigas(api, ctx):
     assert [o["cnpj"] for o in perfil["operadoras"]["items"]] == [o["cnpj"] for o in ops["items"]]
     linha = next(r for r in resumo["items"] if r["uf"] == uf)
     assert linha["acessos"] == perfil["totais"]["acessos"] and linha["usuarios"] == perfil["totais"]["usuarios"]
-    assert linha["ptts"] == len([i for i in antigo_ixps if i.get("status") != "missing"])
+    assert linha["ptts"] == len(antigo_ixps) == len(perfil["ixps"])           # a mesma lista da distância (EST-E1)
+    assert linha["ptts_com_coleta"] == len([i for i in antigo_ixps if i.get("status") != "missing"])
     assert linha["municipios_sem_ptt"] == perfil["totais"]["municipios_sem_ptt"]
     so = api.get(f"/api/v1/ufs/{uf}", params={"blocos": "municipios"}, headers=ALLOWED).json()
     assert "municipios" in so and "ixps" not in so and "operadoras" not in so and "totais" in so

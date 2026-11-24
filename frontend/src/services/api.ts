@@ -948,13 +948,17 @@ export function fetchTerritorioMapa(indicador: string, date?: string): Promise<T
   return get('/api/v1/territorio/mapa', { indicador, date })
 }
 
+// `ptts` passou a contar os PTTs do snapshot com ou sem coleta (+ `ptts_com_coleta`) e acessos/municípios sem SICI saem `null`; o `?date=`
+// é imutável no cache: subir quando a resposta de `/ufs` ou `/ufs/{uf}` mudar para um snapshot já publicado.
+const ESQUEMA_UFS = 2
+
 export function fetchUfs(date?: string): Promise<{ snapshot_date: string; mes_referencia?: string | null; total: number; items: ResumoUf[] }> {
-  return get('/api/v1/ufs', { date })
+  return get('/api/v1/ufs', { date, esquema: ESQUEMA_UFS })
 }
 
 /** Perfil consolidado da UF numa chamada. */
 export function fetchUfPerfil(uf: string, date?: string, historicoCompleto = false): Promise<PerfilUf> {
-  return get(`/api/v1/ufs/${uf}`, { date, include: `${blocoHistorico(historicoCompleto)},territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio` })
+  return get(`/api/v1/ufs/${uf}`, { date, esquema: ESQUEMA_UFS, include: `${blocoHistorico(historicoCompleto)},territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio` })
 }
 
 export function fetchAcessosMunicipios(opts: {

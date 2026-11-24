@@ -43,7 +43,7 @@ export const METRICAS: MetricaUf[] = [
   { id: 'ptts', rotulo: 'PTTs', valor: (u) => u.ptts, texto: n0 },
   { id: 'penetracao', rotulo: 'Acessos por 100 domicílios', valor: (u) => (u.penetracao == null ? null : u.penetracao * 100), texto: n0, normalizada: true,
     nota: 'Acessos fixos declarados à Anatel ÷ domicílios projetados do IBGE, por 100. Estimativa: um domicílio pode ter vários acessos ou nenhum, e o Censo é de 2022.' },
-  { id: 'longe', rotulo: '% de municípios longe de PTT', valor: (u) => (u.municipios ? (100 * u.municipios_sem_ptt) / u.municipios : null), texto: (v) => `${n0(v)}%`, normalizada: true,
+  { id: 'longe', rotulo: '% de municípios longe de PTT', valor: (u) => (u.municipios && u.municipios_sem_ptt != null ? (100 * u.municipios_sem_ptt) / u.municipios : null), texto: (v) => `${n0(v)}%`, normalizada: true,
     nota: 'Municípios a mais de 100 km em linha reta de um PTT do IX.br, entre os que declaram acessos ao SICI.' },
 ]
 

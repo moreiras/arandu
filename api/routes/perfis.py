@@ -249,8 +249,9 @@ _BLOCOS_UF = {"ptts", "municipios", "operadoras"}
     "/ufs",
     summary="Resumo das 27 UFs (acessos, fibra, usuários estimados e PTTs)",
     description="""
-Uma linha por UF com os números que a página `/estados` mostra: PTTs com coleta, municípios e acessos fixos
-declarados ao SICI, `fibra_pct` (meio de acesso "Fibra"), ASNs BR e **usuários estimados** (soma APNIC dos ASNs
+Uma linha por UF com os números que a página `/estados` mostra: `ptts` (PTTs do IX.br na UF no snapshot, com ou sem coleta: a mesma
+lista usada na distância) e `ptts_com_coleta`, municípios e acessos fixos declarados ao SICI (`null` quando o snapshot não tem o SICI;
+ausência, não zero), `fibra_pct` (meio de acesso "Fibra"), ASNs BR e **usuários estimados** (soma APNIC dos ASNs
 da UF, pela geolocalização da organização — estimativa, não censo), municípios a mais de 100 km de um PTT e, quando há o produto de território,
 `domicilios` (projetados, IBGE) e `penetracao` (acessos fixos ÷ domicílios; é razão, não percentual, e pode passar de 1 porque um domicílio tem vários acessos).
 """,

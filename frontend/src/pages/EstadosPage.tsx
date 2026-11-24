@@ -9,8 +9,16 @@ import { MapaSobDemanda } from '../features/estados/MapaSobDemanda'
 import { useUfs } from '../hooks/entidades'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import { REGIOES, nomeUf } from '../lib/ufs'
+import type { ResumoUf } from '../types/api'
 
 const fmt = (n: number) => n.toLocaleString('pt-BR')
+
+/** PTTs da UF no snapshot; quando parte deles não teve coleta, diz quantos tiveram. Zero é "nenhum PTT do IX.br", nunca "sem PTT". */
+function textoPtts(u: ResumoUf): string {
+  if (!u.ptts) return 'nenhum PTT do IX.br na UF'
+  const base = `${u.ptts} ${u.ptts === 1 ? 'PTT' : 'PTTs'}`
+  return u.ptts_com_coleta != null && u.ptts_com_coleta < u.ptts ? `${base} (${u.ptts_com_coleta} com coleta neste snapshot)` : base
+}
 
 /**
  * `/estados`: o cartograma das 27 UFs e a lista por região, cada UF levando a `/uf/<sigla>`.
@@ -43,11 +51,11 @@ export function EstadosPage() {
                       <span className="text-xs font-mono text-gray-400">{uf}</span>
                     </span>
                     <span className="block text-xs text-gray-500">
-                      {q.isLoading ? 'Carregando…' : q.isError || !u ? '—' : u.ptts ? `${u.ptts} ${u.ptts === 1 ? 'PTT' : 'PTTs'}` : 'sem PTT na UF'}
+                      {q.isLoading ? 'Carregando…' : q.isError || !u ? '—' : textoPtts(u)}
                     </span>
                     {u && (
                       <span className="block mt-1.5 text-xs text-gray-500 tabular-nums">
-                        {fmt(u.acessos)} acessos fixos · {fmt(u.usuarios)} usuários est.
+                        {u.acessos == null ? 'sem SICI neste snapshot' : `${fmt(u.acessos)} acessos fixos`} · {fmt(u.usuarios)} usuários est.
                         {u.fibra_pct != null && (
                           <span className="mt-1 flex items-center gap-1.5">
                             <span className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden" aria-hidden><span className="block h-full bg-mercado-500" style={{ width: `${u.fibra_pct}%` }} /></span>

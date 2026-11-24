@@ -51,7 +51,7 @@ describe('página Estados', () => {
     expect(within(sp).getByText(/9\.000\.000 acessos fixos · 40\.000\.000 usuários est\./)).toBeInTheDocument()
     expect(within(sp).getByText('82% fibra')).toBeInTheDocument()
     expect(within(screen.getByRole('link', { name: /Espírito Santo/ })).getByText('1 PTT')).toBeInTheDocument()
-    expect(within(screen.getByRole('link', { name: /Acre/ })).getByText('sem PTT na UF')).toBeInTheDocument()
+    expect(within(screen.getByRole('link', { name: /Acre/ })).getByText('nenhum PTT do IX.br na UF')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Sudeste' })).toBeInTheDocument()
   })
 
@@ -60,6 +60,20 @@ describe('página Estados', () => {
     montar()
     expect(await within(screen.getByRole('link', { name: /Bahia/ })).findByText('—')).toBeInTheDocument()
     expect(screen.getAllByRole('link')).toHaveLength(27)
+  })
+})
+
+describe('PTT sem coleta e snapshot sem SICI (EST-E1, EST-E2)', () => {
+  it('PTT sem coleta conta na UF com a ressalva; sem SICI não vira "0 acessos fixos"', async () => {
+    server.use(http.get('*/api/v1/ufs', () => HttpResponse.json({ snapshot_date: '2026-08-30', mes_referencia: null, total: 1, items: [
+      { uf: 'AP', ptts: 1, ptts_com_coleta: 0, municipios: null, acessos: null, fibra_pct: null, asns: 30, usuarios: 400_000, municipios_sem_ptt: null },
+    ] })))
+    montar()
+    const ap = screen.getByRole('link', { name: /Amapá/ })
+    expect(await within(ap).findByText('1 PTT (0 com coleta neste snapshot)')).toBeInTheDocument()
+    expect(within(ap).getByText(/sem SICI neste snapshot · 400\.000 usuários est\./)).toBeInTheDocument()
+    expect(within(ap).queryByText(/0 acessos fixos/)).toBeNull()
+    expect(screen.queryByText('sem PTT na UF')).toBeNull()
   })
 })
 

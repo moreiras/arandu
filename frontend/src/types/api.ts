@@ -928,14 +928,18 @@ export interface PerfilMunicipio {
 /** Uma linha de `GET /ufs`: números da UF para a página /estados. */
 export interface ResumoUf {
   uf: string
+  /** PTTs do IX.br na UF no snapshot, com ou sem coleta (a mesma lista da distância). */
   ptts: number
-  municipios: number
-  acessos: number
+  /** Dos `ptts`, os que tiveram coleta neste snapshot (ausente em respostas antigas). */
+  ptts_com_coleta?: number
+  /** `null` quando o snapshot não tem o SICI (ausência, não zero); o mesmo vale para `acessos` e `municipios_sem_ptt`. */
+  municipios: number | null
+  acessos: number | null
   fibra_pct: number | null
   asns: number
   /** Soma APNIC dos ASNs BR da UF (estimativa). */
   usuarios: number
-  municipios_sem_ptt: number
+  municipios_sem_ptt: number | null
   /** Domicílios projetados (IBGE) dos municípios com dado de território; ausente se o snapshot não tem o produto. */
   domicilios?: number | null
   /** Acessos fixos ÷ domicílios projetados (razão; 0,8 = 80 acessos por 100 domicílios). */
@@ -948,8 +952,9 @@ export interface PerfilUf {
   uf: string
   mes_referencia?: string | null
   totais: {
-    municipios: number; acessos: number; fibra_pct: number | null; asns: number; usuarios: number
-    municipios_sem_ptt: number; acessos_sem_ptt: number; raio_sem_ptt_km: number
+    /** `null` quando o snapshot não tem o SICI (ausência, não zero). */
+    municipios: number | null; acessos: number | null; fibra_pct: number | null; asns: number; usuarios: number
+    municipios_sem_ptt: number | null; acessos_sem_ptt: number | null; raio_sem_ptt_km: number
   }
   territorio?: TerritorioUf | null
   /** HHI por CNPJ e por grupo da UF (`include=mercado_grupos`). */
