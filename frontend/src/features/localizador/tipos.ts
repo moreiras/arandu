@@ -45,6 +45,7 @@ export interface Entity {
   key: string
   cnpj?: string
   asns: number[]          // todos os ASNs conhecidos do CNPJ (ou o próprio AS)
+  asnsNoRaio: number[]    // os que aparecem no raio (sede ou prefixo): contagem, etiquetas e CSV usam estes (LOC-E3)
   name: string
   city?: string; uf?: string
   fromHq: boolean         // sede de AS dentro do raio
@@ -122,3 +123,6 @@ export const IX_TAG_CLASS: Record<TipoTag, string> = {
 
 export const BR_STATES_URL = '/br-states.geojson'
 export const EMPTY_FC: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
+
+/** ASNs de uma entidade que valem para o raio: os vistos no raio; para entidade só de SCM/SICI (nenhum ASN no raio), os do CNPJ. */
+export const asnsDoRaio = (e: Entity): number[] => (e.asnsNoRaio.length ? e.asnsNoRaio : e.asns)

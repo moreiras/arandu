@@ -552,6 +552,17 @@ class Store:
 
         return {"lat": _median(lats), "lon": _median(lons), "n": len(lats)}
 
+    def place_ufs(self, date_str: str, name: str) -> dict[str, int]:
+        """UFs em que há organização geolocalizada num município com esse nome, com quantas (homônimos: "Bom Jesus" está no PI e no RN)."""
+        target = _normalize_city(name)
+        out: dict[str, int] = {}
+        for g in self._load_geo_orgs(date_str).values():
+            city = g.get("city")
+            if city and _normalize_city(city) == target and g.get("lat") is not None:
+                u = (g.get("uf") or "").upper()
+                out[u] = out.get(u, 0) + 1
+        return dict(sorted(out.items()))
+
     def near_centers(self, date_str: str, near: dict) -> tuple[list[list[float]], float, str]:
         """Resolve a conveniência `near` em (centros, radius_km, rótulo)."""
         from api.query import QueryError

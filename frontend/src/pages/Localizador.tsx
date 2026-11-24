@@ -9,7 +9,7 @@ import { baixarCsv, montarCsv } from '../features/localizador/csv'
 import { nearestIxCode } from '../features/localizador/geo'
 import { PainelControles } from '../features/localizador/PainelControles'
 import { PainelEntidades } from '../features/localizador/PainelEntidades'
-import { geocodeQuery, useLocalizadorDados } from '../features/localizador/useLocalizadorDados'
+import { LugarAmbiguo, geocodeQuery, useLocalizadorDados } from '../features/localizador/useLocalizadorDados'
 import { useMapaLocalizador } from '../features/localizador/useMapaLocalizador'
 import { Link } from 'react-router-dom'
 import { EstadoDados } from '../components/ui/EstadoDados'
@@ -28,7 +28,7 @@ export function Localizador() {
   const setShow = useCallback((p: Partial<typeof show>) => setShowState(s => ({ ...s, ...p })), [])
   const [search, setSearch] = useState('')
   const [searching, setSearching] = useState(false)
-  const [erroBusca, setErroBusca] = useState<{ erro: unknown; termo: string } | null>(null)
+  const [erroBusca, setErroBusca] = useState<{ erro: unknown; termo: string; mensagem?: string } | null>(null)
   const [copied, setCopied] = useState(false)
   const [modal, setModal] = useState<{ title: string; html: string } | null>(null)
 
@@ -90,7 +90,9 @@ export function Localizador() {
         mapRef.current?.flyTo({ center: [pos[1], pos[0]], zoom: 11 })
       } else setErroBusca({ erro: new Error('HTTP 404: não encontrado'), termo: search.trim() })
     } catch (e) {
-      setErroBusca({ erro: e, termo: search.trim() })
+      if (e instanceof LugarAmbiguo) setErroBusca({ erro: new Error('HTTP 404: ambíguo'), termo: search.trim(),
+        mensagem: `Há município "${e.termo}" em mais de uma UF (${e.ufs.join(', ')}). Informe a UF, por exemplo "${e.termo}/${e.ufs[0]}".` })
+      else setErroBusca({ erro: e, termo: search.trim() })
     } finally {
       setSearching(false)
     }
@@ -173,7 +175,7 @@ export function Localizador() {
         />
       </div>
 
-      {erroBusca && <EstadoDados erro={erroBusca.erro} oQue={'a busca por "' + erroBusca.termo + '"'} mensagem={'Lugar não encontrado: "' + erroBusca.termo + '". Tente o nome do município (ex.: Vitória).'} />}
+      {erroBusca && <EstadoDados erro={erroBusca.erro} oQue={'a busca por "' + erroBusca.termo + '"'} mensagem={erroBusca.mensagem ?? 'Lugar não encontrado: "' + erroBusca.termo + '". Tente o nome do município (ex.: Vitória ou Bom Jesus/PI).'} />}
       {dados.erro && <EstadoDados erro={dados.erro} oQue="algumas camadas do mapa" />}
 
       {/* os municípios e as UFs da área, com link para as páginas deles. */}

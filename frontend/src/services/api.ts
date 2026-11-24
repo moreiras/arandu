@@ -1106,9 +1106,14 @@ export function fetchIXPresence(date?: string): Promise<IXPresenceResponse> {
 export interface ResolvePlaceResult {
   snapshot_date: string
   place: string
-  lat: number
-  lon: number
+  /** Nulos quando o nome existe em mais de uma UF e nenhuma foi dada (`ambiguo`). */
+  lat: number | null
+  lon: number | null
   n: number
+  uf?: string
+  /** Homônimos sem UF (LOC-E4): `ufs` = organizações por UF; informe "Nome/UF". */
+  ambiguo?: boolean
+  ufs?: Record<string, number>
 }
 
 export function fetchResolvePlace(q: string, date?: string): Promise<ResolvePlaceResult> {

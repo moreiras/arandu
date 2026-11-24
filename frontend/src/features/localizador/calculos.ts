@@ -222,7 +222,7 @@ export function montarEntidades(p: {
       if (asn != null && !asns.includes(asn)) asns.push(asn)
       asns.sort((x, y) => x - y)
       e = {
-        key, cnpj, asns, name, city, uf,
+        key, cnpj, asns, asnsNoRaio: [], name, city, uf,
         fromHq: false, v4: false, v6: false,
         scm: !!cnpj && scmCnpjs.has(cnpj), scmHq: false,
       }
@@ -238,6 +238,7 @@ export function montarEntidades(p: {
     const cnpj = asnNameMap.get(a.asn)?.cnpj ?? asnToCnpj.get(a.asn)
     const e = get(cnpj, a.asn, a.name, a.city, a.uf)
     if (!e.asns.includes(a.asn)) { e.asns.push(a.asn); e.asns.sort((x, y) => x - y) }
+    if (!e.asnsNoRaio.includes(a.asn)) { e.asnsNoRaio.push(a.asn); e.asnsNoRaio.sort((x, y) => x - y) }
     e.fromHq ||= a.fromHq
     e.v4 ||= a.v4
     e.v6 ||= a.v6
@@ -268,8 +269,14 @@ export function montarEntidades(p: {
   return [...withAsn, ...withoutAsn]
 }
 
+/** `asns` conta ASNs distintos no raio (não entidades: um CNPJ com 13 ASNs contava "1 AS", LOC-E3); `cnpjsComAsn`, as entidades com
+ * algum ASN no raio; `scms`, as entidades com outorga SCM. */
 export function contagemEntidades(entities: Entity[]) {
-  return { asns: entities.filter(e => e.asns.length > 0).length, scms: entities.filter(e => e.scm).length }
+  return {
+    asns: new Set(entities.flatMap(e => e.asnsNoRaio)).size,
+    cnpjsComAsn: entities.filter(e => e.asnsNoRaio.length > 0).length,
+    scms: entities.filter(e => e.scm).length,
+  }
 }
 
 export interface GrupoCoord { lon: number; lat: number; asns: AsnDot[]; scms: ScmGeoFeature[] }

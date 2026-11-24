@@ -139,12 +139,16 @@ def resolve_place(place: str, date: Optional[str] = None) -> dict:
     Útil para alimentar `near.point` ou consultas geográficas por cidade.
 
     Args:
-        place: Nome do município (ex.: "Vitória").
+        place: Nome do município (ex.: "Vitória"; com homônimos, "Bom Jesus, PI").
         date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.
     """
     from mcp_server.entrada import separa_uf
     d = _resolve(date)
     nome, uf = separa_uf(place)                          # "Mossoró, RN" e "Boa Vista (Roraima)" falhavam
+    if not uf:
+        ufs = _store.place_ufs(d, nome)
+        if len(ufs) > 1:                                 # homônimos: a mediana das UFs juntas cai longe de todas (LOC-E4)
+            raise ValueError(f"'{place}' existe em mais de uma UF ({', '.join(ufs)}): informe a UF, por exemplo '{nome}, {next(iter(ufs))}'.")
     r = _store.resolve_place(d, nome, uf) if uf else _store.resolve_place(d, nome)
     if r is None:
         raise ValueError(f"Local '{place}' não encontrado no snapshot {d}." + _sugestoes_de_municipio(d, place))

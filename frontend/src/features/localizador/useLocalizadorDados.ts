@@ -72,9 +72,15 @@ export function useLocalizadorDados(date: string | undefined, showPrefixes: bool
   }
 }
 
+/** Nome em mais de uma UF sem UF informada (LOC-E4): a página pede "Nome/UF" em vez de um ponto entre os homônimos. */
+export class LugarAmbiguo extends Error {
+  constructor(public termo: string, public ufs: string[]) { super(`"${termo}" existe em mais de uma UF: ${ufs.join(', ')}`) }
+}
+
 export async function geocodeQuery(query: string, date?: string): Promise<[number, number] | null> {
   try {
     const r = await fetchResolvePlace(query, date)
+    if (r?.ambiguo) throw new LugarAmbiguo(query, Object.keys(r.ufs ?? {}))
     if (r?.lat != null && r?.lon != null) return [r.lat, r.lon]
   } catch (e) {
     // Só "não encontrado" vira null; acesso, taxa e rede sobem para a página dizer a causa.

@@ -180,9 +180,9 @@ describe('painéis do Localizador', () => {
     expect(screen.getByText(/centróide do IBGE/)).toBeTruthy()
   })
 
-  const ent = (extra: Partial<Entity>): Entity => ({ key: 'k', asns: [], name: '', fromHq: false, v4: false, v6: false, scm: false, scmHq: false, ...extra })
+  const ent = (extra: Partial<Entity>): Entity => ({ key: 'k', asns: [], asnsNoRaio: [], name: '', fromHq: false, v4: false, v6: false, scm: false, scmHq: false, ...extra })
   const propsEnt = (entities: Entity[], extra = {}) => ({
-    className: 'y', entities, entityCounts: { asns: entities.filter(e => e.asns.length).length, scms: entities.filter(e => e.scm).length },
+    className: 'y', entities, entityCounts: { asns: new Set(entities.flatMap(e => e.asnsNoRaio)).size, cnpjsComAsn: entities.filter(e => e.asnsNoRaio.length).length, scms: entities.filter(e => e.scm).length },
     markerPos: [-23.55, -46.63] as [number, number], stats: { sedesAsn: 1, asnsComPrefixo: 0, sedesScm: 0, scmsComUsuarios: 0 },
     filteredAsnsCount: 1, nearestIx: 'sp', ixLabel: (c: string) => `IX ${c.toUpperCase()}`,
     ixCounts: { nearMember: 1, nearOrigin: 0, anyMember: 1, otherNotNear: 0 }, copied: false, onCopy: vi.fn(), onCsv: vi.fn(), temPresenca: true,
@@ -191,12 +191,13 @@ describe('painéis do Localizador', () => {
 
   it('lista: AS com link, CNPJ, tags de IX, badges e resumo; só-SCM leva à operadora', () => {
     render(<MemoryRouter><PainelEntidades {...propsEnt([
-      ent({ key: 'a', asns: [64500, 64501], cnpj: CNPJ, name: 'Prov A', city: 'Serra', uf: 'ES', fromHq: true, v4: true, scm: true, sici: { acessos: 1500, municipios: 2 } }),
+      ent({ key: 'a', asns: [64500, 64501, 64502], asnsNoRaio: [64500, 64501], cnpj: CNPJ, name: 'Prov A', city: 'Serra', uf: 'ES', fromHq: true, v4: true, scm: true, sici: { acessos: 1500, municipios: 2 } }),
       ent({ key: 'b', asns: [], cnpj: '999', name: 'Só SCM', scm: true }),
     ])} /></MemoryRouter>)
-    expect(screen.getByText('2 entidades')).toBeTruthy()
-    expect(screen.getByText('1 AS, 2 SCMs')).toBeTruthy()
-    expect(screen.getByText('AS64500, AS64501').closest('a')!.getAttribute('href')).toBe('/asn/64500')
+    expect(screen.getByText('2 entidades (CNPJ ou AS sem CNPJ)')).toBeTruthy()
+    expect(screen.getByText('2 ASNs no raio, em 1 entidade; 2 com SCM')).toBeTruthy()     // conta ASNs, não CNPJs (LOC-E3)
+    expect(screen.getByText('AS64500, AS64501').closest('a')!.getAttribute('href')).toBe(`/operadora/${CNPJ}`)
+    expect(screen.getByText('mais 1 ASN do mesmo CNPJ fora do raio')).toBeTruthy()
     expect(screen.getByText('Só SCM').closest('a')!.getAttribute('href')).toBe('/operadora/999')
     expect(screen.getAllByText('IX SP').length).toBeGreaterThanOrEqual(1)      // a tag da entidade (e o resumo, que cita o IX mais próximo)
     expect(screen.getByText('1.500 acessos · 2 municípios no raio')).toBeTruthy()
@@ -205,7 +206,7 @@ describe('painéis do Localizador', () => {
   })
 
   it('copiar e CSV chamam os callbacks; sem ponto de referência mostra a orientação', () => {
-    const p = propsEnt([ent({ key: 'a', asns: [1], name: 'X' })])
+    const p = propsEnt([ent({ key: 'a', asns: [1], asnsNoRaio: [1], name: 'X' })])
     render(<MemoryRouter><PainelEntidades {...p} /></MemoryRouter>)
     fireEvent.click(screen.getByText('Copiar'))
     fireEvent.click(screen.getByText('CSV'))
