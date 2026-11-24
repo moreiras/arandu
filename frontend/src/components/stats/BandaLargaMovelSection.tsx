@@ -174,12 +174,12 @@ export function BandaLargaMovelSection({ date }: { date?: string }) {
   const licensed = smp?.unique_cnpjs ?? 0
   const withAsn = smp?.cnpjs_with_asn ?? 0
   const withoutAsn = Math.max(licensed - withAsn, 0)
-  const autonomizacao = licensed > 0 ? (withAsn / licensed) * 100 : null
+  const pctComAsn = licensed > 0 ? (withAsn / licensed) * 100 : null
   const cobertura = acessos?.cobertura_declaracao
 
   const donut = [
-    { name: 'Com ASN (autônomos)', value: withAsn, color: COLOR_WITH_ASN },
-    { name: 'Sem ASN (só licença)', value: withoutAsn, color: COLOR_WITHOUT_ASN },
+    { name: 'Com ASN no mesmo CNPJ', value: withAsn, color: COLOR_WITH_ASN },
+    { name: 'Sem ASN no mesmo CNPJ', value: withoutAsn, color: COLOR_WITHOUT_ASN },
   ]
 
   const serie: SiciSeriePoint[] = acessos
@@ -199,21 +199,21 @@ export function BandaLargaMovelSection({ date }: { date?: string }) {
         )}
       </h2>
 
-      {/* Licenciamento × autonomia × declaração */}
+      {/* Licenciamento × ASN × declaração */}
       {smp && (
         <div>
-          <h3 className="text-base font-semibold text-gray-800 mb-1">Licença, autonomia e declaração</h3>
+          <h3 className="text-base font-semibold text-gray-800 mb-1">Licença, ASN e declaração</h3>
           <p className="text-xs text-gray-500 mb-4">
             Operadores com outorga de SMP (Serviço Móvel Pessoal), cruzados por CNPJ com os ASNs
             do Registro.br e com a declaração mensal de acessos ao SICI. Universo pequeno: as
-            grandes operadoras móveis e MVNOs/M2M.
+            grandes operadoras móveis e MVNOs/M2M. O cruzamento é por CNPJ: uma operadora sem ASN pode usar a rede de outra empresa do grupo ou de um fornecedor, e ter ASN não garante anúncio na tabela BGP.
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-3">
               <StatCard value={fmt(licensed)} label="Operadores licenciados" sub="CNPJs únicos com outorga SMP" accent={SECTION_COLOR} />
-              <StatCard value={fmt(withAsn)} label="…com ASN" sub="autônomos no BGP" accent={COLOR_WITH_ASN} />
-              <StatCard value={fmt(withoutAsn)} label="…sem ASN" sub="licenciados, ausentes do BGP" accent={COLOR_WITHOUT_ASN} />
-              <StatCard value={fmtPct(autonomizacao)} label="Taxa de autonomização" sub="licenciados que viraram AS" />
+              <StatCard value={fmt(withAsn)} label="…com ASN" sub="ASN no Registro.br com o mesmo CNPJ" accent={COLOR_WITH_ASN} />
+              <StatCard value={fmt(withoutAsn)} label="…sem ASN" sub="nenhum ASN no Registro.br com o mesmo CNPJ" accent={COLOR_WITHOUT_ASN} />
+              <StatCard value={fmtPct(pctComAsn)} label="Parcela com ASN" sub="licenciados com ASN no mesmo CNPJ" />
               <StatCard value={fmt(cobertura?.informaram_sici)} label="…informaram no SICI"
                          sub={cobertura ? `${fmtPct(cobertura.pct_informaram_sici)} dos licenciados` : undefined} />
               <StatCard value={fmt(acessos?.acessos_m2m)} label="Acessos M2M" sub="chips máquina-a-máquina, fora do total" />
@@ -231,7 +231,7 @@ export function BandaLargaMovelSection({ date }: { date?: string }) {
                 </ResponsiveContainer>
                 <VerDados dados={donut as unknown as Record<string, unknown>[]} />
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="text-lg font-bold tabular-nums text-gray-800">{fmtPct(autonomizacao, 0)}</div>
+                  <div className="text-lg font-bold tabular-nums text-gray-800">{fmtPct(pctComAsn, 0)}</div>
                   <div className="text-xs text-gray-400">com ASN</div>
                 </div>
               </div>

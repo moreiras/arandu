@@ -77,7 +77,7 @@ def acessos_stats(
     rows = [r for r in all_rows if r.get("ativo")]
 
     # Cobertura de declaração: quantos licenciados (outorga SCM) de fato reportam ao
-    # SICI, no total e restrito aos que já viraram AS (autônomos no BGP).
+    # SICI, no total e restrito aos que têm ASN no Registro.br com o mesmo CNPJ.
     licenciados = [r for r in all_rows if r.get("licenciado")]
     licenciados_com_asn = [r for r in licenciados if r.get("com_asn")]
     licenciados_informaram = [r for r in licenciados if r.get("ativo")]

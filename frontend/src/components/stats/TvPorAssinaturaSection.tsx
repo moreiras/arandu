@@ -49,7 +49,7 @@ function OutorgasPorUf({ stats }: { stats: SEACStats }) {
 
 /**
  * SeAC não tem declaração de acessos ao SICI equivalente (ao contrário de SCM/SMP) —
- * a seção é só licenciamento × autonomia (ASN) × geografia da outorga.
+ * a seção é só licenciamento × ASN no mesmo CNPJ × geografia da outorga.
  */
 export function TvPorAssinaturaSection({ date }: { date?: string }) {
   const { data: stats, isError } = useQuery({
@@ -63,11 +63,11 @@ export function TvPorAssinaturaSection({ date }: { date?: string }) {
   const licensed = stats.unique_cnpjs ?? 0
   const withAsn = stats.cnpjs_with_asn ?? 0
   const withoutAsn = Math.max(licensed - withAsn, 0)
-  const autonomizacao = licensed > 0 ? (withAsn / licensed) * 100 : null
+  const pctComAsn = licensed > 0 ? (withAsn / licensed) * 100 : null
 
   const donut = [
-    { name: 'Com ASN (autônomos)', value: withAsn, color: COLOR_WITH_ASN },
-    { name: 'Sem ASN (só licença)', value: withoutAsn, color: COLOR_WITHOUT_ASN },
+    { name: 'Com ASN no mesmo CNPJ', value: withAsn, color: COLOR_WITH_ASN },
+    { name: 'Sem ASN no mesmo CNPJ', value: withoutAsn, color: COLOR_WITHOUT_ASN },
   ]
 
   return (
@@ -78,18 +78,18 @@ export function TvPorAssinaturaSection({ date }: { date?: string }) {
       </h2>
 
       <div>
-        <h3 className="text-base font-semibold text-gray-800 mb-1">Licença e autonomia</h3>
+        <h3 className="text-base font-semibold text-gray-800 mb-1">Licença e ASN</h3>
         <p className="text-xs text-gray-500 mb-4">
           Prestadoras com outorga de SeAC (Serviço de Acesso Condicionado — TV por assinatura,
-          Lei 12.485/2011), cruzadas por CNPJ com os ASNs do Registro.br. ~1.400 CNPJs
-          outorgados. Sem declaração de acessos equivalente ao SICI para este serviço.
+          Lei 12.485/2011), cruzadas por CNPJ com os ASNs do Registro.br. {fmt(licensed)} CNPJs
+          outorgados neste snapshot. Esta página não traz assinantes de SeAC: não há declaração equivalente ao SICI para este serviço. O cruzamento é por CNPJ: uma operadora sem ASN pode usar a rede de outra empresa do grupo ou de um fornecedor, e ter ASN não garante anúncio na tabela BGP.
         </p>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-3">
             <StatCard value={fmt(licensed)} label="Operadores licenciados" sub="CNPJs únicos com outorga SeAC" accent={SECTION_COLOR} />
-            <StatCard value={fmt(withAsn)} label="…com ASN" sub="autônomos no BGP" accent={COLOR_WITH_ASN} />
-            <StatCard value={fmt(withoutAsn)} label="…sem ASN" sub="licenciados, ausentes do BGP" accent={COLOR_WITHOUT_ASN} />
-            <StatCard value={fmtPct(autonomizacao)} label="Taxa de autonomização" sub="licenciados que viraram AS" />
+            <StatCard value={fmt(withAsn)} label="…com ASN" sub="ASN no Registro.br com o mesmo CNPJ" accent={COLOR_WITH_ASN} />
+            <StatCard value={fmt(withoutAsn)} label="…sem ASN" sub="nenhum ASN no Registro.br com o mesmo CNPJ" accent={COLOR_WITHOUT_ASN} />
+            <StatCard value={fmtPct(pctComAsn)} label="Parcela com ASN" sub="licenciados com ASN no mesmo CNPJ" />
             <StatCard value={fmt(stats.total)} label="Outorgas totais" sub="pode haver várias por CNPJ" />
             <StatCard value={fmt(stats.geolocated)} label="Geolocalizadas" sub={fmtPct(stats.total ? (100 * stats.geolocated) / stats.total : null)} />
           </div>
@@ -106,7 +106,7 @@ export function TvPorAssinaturaSection({ date }: { date?: string }) {
               </ResponsiveContainer>
               <VerDados dados={donut as unknown as Record<string, unknown>[]} />
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <div className="text-lg font-bold tabular-nums text-gray-800">{fmtPct(autonomizacao, 0)}</div>
+                <div className="text-lg font-bold tabular-nums text-gray-800">{fmtPct(pctComAsn, 0)}</div>
                 <div className="text-xs text-gray-400">com ASN</div>
               </div>
             </div>

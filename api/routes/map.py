@@ -158,7 +158,7 @@ de filtros booleanos, proximidade geográfica e seleção de camadas.
 | `scm_mode` | string | Para `outorgas_scm`: `todas` (default), `com_asn`, `sem_asn` |
 | `ix_apply_filter` | bool | Prefixos do PTT só com origem no recorte de ASes (default `false`) |
 
-A camada `scms` retorna as outorgas SCM **sem ASN** (operadores licenciados ausentes do BGP);
+A camada `scms` retorna as outorgas SCM **sem ASN** (nenhum ASN no Registro.br com o mesmo CNPJ);
 a interseção AS∩SCM aparece via `asns_geo` com `color_by="outorga"`. A camada
 `outorgas_scm` traz todas as outorgas (com `has_asn`); as com ASN respeitam o
 recorte, as sem ASN só aparecem sem filtro por atributos (a proximidade é aplicada
