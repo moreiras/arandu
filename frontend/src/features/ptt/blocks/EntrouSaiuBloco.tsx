@@ -23,7 +23,7 @@ export function EntrouSaiuBloco({ dados }: BlocoProps<PttCtx>) {
   const q = useQuery({ queryKey: ['ptt-entrou-saiu', code], queryFn: () => fetchMudancas({ tipo: TIPOS, ixp: code, estado: 'confirmado', limit: 100 }), staleTime: 10 * 60 * 1000 })
   const itens = q.data?.items ?? []
   if (q.isLoading) return <div className="h-20 bg-gray-50 rounded animate-pulse" />
-  if (itens.length === 0) return <p className="text-sm text-gray-500">Nenhuma entrada ou saída confirmada neste PTT no histórico disponível (o histórico começou em 2026-10).</p>
+  if (itens.length === 0) return <p className="text-sm text-gray-500">Nenhuma entrada ou saída confirmada neste PTT no histórico disponível.</p>
   return (
     <div className="space-y-2" data-testid="entrou-saiu">
       <p className="text-sm text-gray-600">{q.data!.total} evento{q.data!.total === 1 ? '' : 's'} confirmado{q.data!.total === 1 ? '' : 's'}; os mais recentes primeiro.</p>

@@ -35,7 +35,7 @@ export function agregarCdnBrasil(docs: AsnCdnBrasil[], ixbr: string[]) {
 
 /**
  * A CDN sob a ótica brasileira: em quais PTTs do IX.br ela tem peering direto, quantos prefixos anuncia ali em IPv6 e IPv4 (só contagens, nunca a lista) e como o
- * número de PTTs variou entre snapshots. O histórico começou em 2026-10 e o anônimo só vê as datas atuais. Quais ASes BR recebem as rotas da CDN nos route servers
+ * número de PTTs variou entre snapshots. O anônimo só vê as datas atuais. Quais ASes BR recebem as rotas da CDN nos route servers
  * não está nos dados coletados (precisaria das rotas do Alice por origem) e por isso não aparece.
  */
 /** Alcance da CDN por peering: a fração dos usuários BR em ASes membros dos PTTs onde ela está, por UF. Estimativa; não mede tráfego. */
@@ -93,7 +93,7 @@ function VisaoBrasilAberta({ asns, ixbr, ixpNames, date, nome }: Props) {
       <p className="text-xs text-gray-500">
         {serie.length > 1
           ? <>PTTs com peering direto: {serie.map(([d, v]) => `${d}: ${v}`).join(' · ')}.</>
-          : 'Evolução: o histórico ainda tem um só snapshot visível (ele começou em 2026-10; sem login só aparecem as datas atuais).'}
+          : 'Evolução: o histórico tem um só snapshot visível (sem login só aparecem as datas atuais).'}
         {' '}Contagens de prefixos vistos nas rotas coletadas por PTT; não medem tráfego. Os ASes BR que recebem as rotas da CDN nos route servers não são coletados.
       </p>
     </section>

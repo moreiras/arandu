@@ -78,7 +78,7 @@ const outorga = (id: string, titulo: string, ordem: number, campo: 'scm' | 'smp'
 def({ id: 'metricas', titulo: 'Métricas', ordem: 10, depende: ['useAsn'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr'], selo: 'fato', Componente: MetricasBloco })
 def({ id: 'usuarios', semTitulo: true, titulo: 'Usuários estimados', ordem: 20, depende: ['useAsn'], fontes: ['apnic_pop'], selo: 'estimado', nota: 'janela de 60 dias',
   aplicavel: (c) => c.doc.apnic_users != null, Componente: UsuariosBloco })
-def({ id: 'linha-do-tempo', titulo: 'Linha do tempo', ordem: 25, depende: ['useAsnPerfil'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr', 'rpki_collector', 'apnic_pop'], selo: 'fato', nota: 'diferenças observadas entre snapshots; o histórico começou em 2026-10',
+def({ id: 'linha-do-tempo', titulo: 'Linha do tempo', ordem: 25, depende: ['useAsnPerfil'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr', 'rpki_collector', 'apnic_pop'], selo: 'fato', nota: 'diferenças observadas entre snapshots',
   aplicavel: (c) => !!c.historico, Componente: LinhaDoTempoAsn })
 def({ id: 'alertas', semTitulo: true, titulo: 'Pontos de atenção', ordem: 30, depende: ['useAsn'], fontes: FONTES_ALERTAS, selo: 'inferido', nota: 'regras versionadas (rules_version do manifesto)', Componente: AlertasBloco })
 def({ id: 'seguranca', titulo: 'Segurança de roteamento', ordem: 35, depende: ['useAsnPerfil'], fontes: ['apnic_irov', 'apnic_dnssec', 'caida_asrank', 'bogons'], selo: 'estimado',

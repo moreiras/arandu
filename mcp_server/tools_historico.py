@@ -50,7 +50,7 @@ def historico_serie(
     usuários). Sem `metrica`, devolve as linhas inteiras (`metrics` escolhe colunas de ASN: users, prefixes_v4, ixps, roa, rpki, alertas…).
     Com `metrica` (ex.: `users`, `p4`, `n_roa`, `n_asns`), devolve só esse valor por data e a variação do primeiro ao último ponto (tendência).
     Usuários são estimativas da APNIC; nas séries de operadora e UF, `users_ma4` é a média dos últimos 28 dias. Coluna ausente = sem dado
-    naquele snapshot (ex.: provedores antes do bloco de relações), nunca zero. O histórico começou a ser guardado em 2026-10 e pode ter poucos pontos.
+    naquele snapshot (ex.: provedores antes do bloco de relações), nunca zero. As datas com histórico estão em historico_snapshots.
 
     Args:
         escopo: asn:N | ixp:código | operadora:cnpj | uf:XX | brasil.
