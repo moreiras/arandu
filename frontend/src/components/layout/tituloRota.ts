@@ -9,6 +9,8 @@ import { SITE, TITULO_SITE } from '../../lib/site'
 /** Marca no fim do título: o nome do site vem do .env na compilação (`lib/site.ts`). */
 export const MARCA = SITE.nome
 export const TITULO_HOME = TITULO_SITE
+/** Título de rota que a SPA não conhece (página 404). */
+export const TITULO_NAO_ENCONTRADA = 'Página não encontrada'
 
 /** Entidades: prefixo da rota → como o título descreve a página (o identificador vem do segmento da URL). */
 const ENTIDADES: [string, (id: string) => string][] = [
@@ -62,5 +64,5 @@ export function tituloDaRota(pathname: string): string {
     if (p.startsWith(prefixo) && p.length > prefixo.length) return `${rotulo(decodeURIComponent(p.slice(prefixo.length)))} · ${MARCA}`
   }
   const r = rotuloEstatico(p)
-  return r ? `${r} · ${MARCA}` : MARCA
+  return `${r ?? TITULO_NAO_ENCONTRADA} · ${MARCA}`
 }

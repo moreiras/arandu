@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { GRUPOS_MENU } from './menu'
-import { MARCA, tituloDaRota } from './tituloRota'
+import { MARCA, TITULO_NAO_ENCONTRADA, tituloDaRota } from './tituloRota'
 
 const main = readFileSync(resolve(__dirname, '../../main.tsx'), 'utf-8')
 const rotas = [...main.matchAll(/<Route path="([^"]+)"/g)].map((m) => '/' + m[1])
@@ -36,8 +36,23 @@ describe('rotas (aliases e títulos)', () => {
 
   it('100% das rotas de página têm título próprio (não só a marca)', () => {
     const exemplo = (r: string) => r.replace(':cnpj', '123').replace(':ibge', '3205309').replace(':code', 'sp').replace(':id', 'x').replace(':asn', '64500').replace(':slug', 'google').replace(':uf', 'es').replace('*', '10.0.0.0/8')
-    const semTitulo = rotas.filter((r) => !['/', '/*'].includes(r)).filter((r) => tituloDaRota(exemplo(r)) === MARCA)
+    const semTitulo = rotas.filter((r) => !['/', '/*'].includes(r)).filter((r) => [MARCA, `${TITULO_NAO_ENCONTRADA} · ${MARCA}`].includes(tituloDaRota(exemplo(r))))
     expect(semTitulo).toEqual([])
+  })
+
+  it('rota desconhecida tem título de página não encontrada', () => {
+    expect(tituloDaRota('/pagina-que-nao-existe')).toBe(`Página não encontrada · ${MARCA}`)
+  })
+
+  it('o nginx responde 200 a toda rota da SPA e 404 ao resto (soft 404)', () => {
+    const conf = readFileSync(resolve(__dirname, '../../../../docker/nginx-frontend.conf'), 'utf-8')
+    const m = /map \$uri \$rota_spa \{[^}]*"~\^\/\(([^)]+)\)\(\/\|\$\)" 1;/.exec(conf)
+    expect(m, 'map $rota_spa no nginx-frontend.conf').not.toBeNull()
+    const noNginx = new Set(m![1].split('|'))
+    const primeiros = [...new Set(rotas.map((r) => r.split('/')[1]).filter((p) => p && p !== '*'))]
+    expect(primeiros.filter((p) => !noNginx.has(p))).toEqual([])
+    expect([...noNginx].filter((p) => !primeiros.includes(p))).toEqual([])
+    expect(conf).toMatch(/location @spa \{\s*error_page 404 \/index\.html;\s*if \(\$rota_spa = 0\) \{ return 404; \}/)
   })
 
   it('títulos de entidade levam o identificador e a marca', () => {

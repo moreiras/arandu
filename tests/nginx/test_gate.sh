@@ -97,6 +97,13 @@ expect "entidade + navegador comum: SPA (sem metatags da API)" "0" "$(corpo 'Moz
 expect "entidade + navegador comum: devolve o index.html" "1" "$(corpo 'Mozilla/5.0 Firefox/130.0' /asn/64500 | grep -c 'id="root"')"
 expect "entidade inexistente + bot: cai na SPA"        "1" "$(corpo 'Googlebot/2.1' /uf/inexistente | grep -c 'id="root"')"
 expect "página que não é entidade + bot: SPA"          "1" "$(corpo 'Googlebot/2.1' /fontes | grep -c 'id="root"')"
+# Soft 404: rota da SPA responde 200; o que não é rota recebe o mesmo index.html com 404 (map $rota_spa).
+st() { curl -s -o /dev/null -w '%{http_code}' -H "X-Forwarded-For: 7.7.7.7" "localhost:18080$1"; }
+expect "rota da SPA: 200"                       "200" "$(st /sobre)"
+expect "rota aninhada da SPA: 200"              "200" "$(st /panorama/tecnico)"
+expect "entidade com id inválido: 200 (a página trata)" "200" "$(st /asn/abc)"
+expect "rota inexistente: 404"                  "404" "$(st /pagina-que-nao-existe)"
+expect "rota inexistente: corpo é a SPA"        "1"   "$(corpo 'Mozilla/5.0 Firefox/130.0' /pagina-que-nao-existe | grep -c 'id="root"')"
 kill "$API_PID"; sleep 1
 expect "API fora: fail-open serve do cache"    "200 HIT"   "$(req 9.9.9.9)"
 [ $fail -eq 0 ] && echo "TODOS OK" || { echo "HÁ FALHAS"; exit 1; }
