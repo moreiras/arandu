@@ -69,7 +69,7 @@ describe('página de prefixo', () => {
     server.use(http.get('*/api/v1/routing-analysis', () => { chamadas += 1; return HttpResponse.json({ moas: null }) }))
     montar('/prefixo/198.18.0.0/24')
     const aviso = await screen.findByTestId('moas-indisponivel')
-    expect(aviso.textContent).toMatch(/não está disponível/)
+    expect(aviso.textContent).toMatch(/não medida neste snapshot/)
     expect(aviso.textContent).toMatch(/limite da coleta, não ausência de eventos/)
     expect(document.body.textContent).not.toMatch(/Nenhuma origem múltipla/)
     expect(chamadas).toBe(0)
