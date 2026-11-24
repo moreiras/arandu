@@ -7,7 +7,7 @@
 Endpoint de análise de roteamento BGP — GET /bgp/routing-analysis.
 
 Serve o resultado da análise da tabela BGP global com foco nos ASNs e
-prefixos brasileiros: cobertura de espaço alocado, MOAS, prefixos too-specific,
+prefixos brasileiros: cobertura de espaço alocado, prefixos too-specific,
 composição de AS_PATHs e comunidades BGP relevantes.
 """
 from __future__ import annotations
@@ -21,6 +21,7 @@ import yaml
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from api.store import Store
+from core import moas
 
 router = APIRouter()
 
@@ -77,7 +78,8 @@ def _enrich_top_communities(data: dict) -> None:
 Retorna análise completa da tabela de roteamento global com foco em ASNs e
 prefixos brasileiros (P_BR). Inclui composição de P_BR, histograma de
 prefix length, more specifics, potencial de agregação, cobertura Registro.br,
-MOAS e prefixos potencialmente filtráveis.
+prefixos potencialmente filtráveis. `moas` vem nulo, com o motivo em `moas_indisponivel`: a tabela usada guarda uma origem por
+prefixo e não detecta origem múltipla.
 
 Quando `has_path_data` é `true`, o campo `as_path_stats` é preenchido com
 estatísticas de AS_PATH, prepending, upstream aparente, higiene e communities.
@@ -100,4 +102,4 @@ def get_routing_analysis(
             "Execute: python -m products.routing_analysis.build --date " + date_str,
         )
     _enrich_top_communities(data)
-    return data
+    return moas.retirar_da_analise(data)              # snapshots anteriores traziam `moas: []`, lido como "nenhum MOAS"

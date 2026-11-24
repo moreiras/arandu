@@ -15,7 +15,7 @@ export const GRUPOS_MENU: GrupoMenu[] = [
   { id: 'rede', rotulo: 'Rede', itens: [
     { rotulo: 'Panorama técnico', to: '/panorama/tecnico', descricao: 'A rede brasileira em números: IPv6, IPv4, interconexão, CDNs e segurança (RPKI, ROV, DNSSEC)', ativoEm: ['/visao-geral', '/panorama/ipv6'] },
     { rotulo: 'ASes', to: '/ases', descricao: 'Redes autônomas do Brasil, com prefixos, ROAs e relações', ativoEm: ['/asn/'] },
-    { rotulo: 'Tabela BGP', to: '/bgp', descricao: 'Análises da tabela global: agregação, MOAS e estabilidade' },
+    { rotulo: 'Tabela BGP', to: '/bgp', descricao: 'Análises da tabela global: agregação, cobertura e estabilidade' },
     { rotulo: 'Segurança de roteamento', to: '/seguranca-de-roteamento', descricao: 'Prontidão, RPKI e ROV por UF e porte, MANRS e metodologia' },
     { rotulo: 'Mercado IPv4', to: '/mercado-ipv4', descricao: 'Mercado secundário: transferências, espaço sem uso e uso por terceiros' },
   ] },

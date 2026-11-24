@@ -47,7 +47,7 @@ def test_montar_e_gravar(tmp_path):
     assert doc["rpki"]["v4"]["valid"] == 1 and doc["rpki"]["v6"]["rotas"] == 0
     assert doc["rpki"]["v6"]["pct"]["valid"] is None
     assert doc["saude"]["v4"] == {"mais_especificos": 1, "mais_especificos_pct": 25.0, "filtraveis": 1}
-    assert doc["saude"]["moas"] == {"prefixos": 500, "lista_truncada": True}
+    assert doc["saude"]["moas"] is None and "não indica ausência" in doc["saude"]["moas_indisponivel"]      # BGP-E2: a coleta não detecta MOAS
     destino = resumo.gravar(tmp_path, doc)
     assert destino.name == resumo.ARQUIVO and json.loads(destino.read_text())["vrps"] == 2
     assert not list(tmp_path.glob("*.tmp"))

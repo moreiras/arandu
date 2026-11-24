@@ -156,7 +156,7 @@ export interface IXPIndexEntry {
   br_asns_direct_union_count?: number
   /** União de ASNs BR originadores (v4 ∪ v6, exato) */
   br_asns_origin_union_count?: number
-  /** Aproximação da união de ASNs originadores (max(v4,v6)) */
+  /** União de ASNs originadores, todos os países (v6 ∪ v4; snapshots anteriores a 2026-11 traziam max(v6, v4)) */
   asn_origin_union_count?: number
   /** Membros registrados no IX.br (inclui quem não usa Route Servers) */
   ixbr_members_count?: number
@@ -563,7 +563,14 @@ export interface ExternalIXPIndexEntry {
   city: string
   country: string
   pdb_ix_id: number
+  /** Redes (ASNs distintos) declaradas no PeeringDB; ausente em snapshots anteriores a 2026-11. */
+  redes?: number
+  redes_br?: number
+  /** Portas (linhas netixlan): uma rede pode ter várias. */
+  portas?: number
+  /** Alias de `redes` (até 2026-11 contava portas). */
   member_count: number
+  /** Alias de `redes_br` (até 2026-11 contava portas). */
   br_member_count: number
   last_updated: string
 }
@@ -588,9 +595,15 @@ export interface ExternalIXPDocument {
   city: string
   country: string
   pdb_ix_id: number
+  redes?: number
+  redes_br?: number
+  portas?: number
+  /** Alias de `redes` (até 2026-11 contava portas). */
   member_count: number
+  /** Alias de `redes_br` (até 2026-11 contava portas). */
   br_member_count: number
   last_updated: string
+  /** Uma linha por porta (netixlan). */
   members: ExternalIXPMember[]
 }
 
@@ -612,20 +625,21 @@ export interface IXPCompareMembersResponse {
   participants: IXPCompareParticipant[]
 }
 
+/** Cadastro do PeeringDB (`/api/net`) como a API o entrega: só os campos de `sources/peeringdb_networks` (`_KEEP`), vazios omitidos. */
 export interface PDBNetworkInfo {
   name?: string
   aka?: string
   website?: string
-  network_type?: string
-  traffic_class?: string
-  traffic_ratio?: string
-  peering_policy?: string
+  info_type?: string
+  info_traffic?: string
+  info_ratio?: string
+  policy_general?: string
   policy_ratio?: boolean
   policy_contracts?: boolean
   policy_locations?: string
   irr_as_set?: string
-  declared_prefixes_v4?: number
-  declared_prefixes_v6?: number
+  info_prefixes4?: number
+  info_prefixes6?: number
 }
 
 // -------------------------------------------------------------------------
@@ -1739,7 +1753,10 @@ export interface AsnRelacoes {
   pares_total?: number
   irmaos_total?: number
   sem_classificacao_total?: number
+  /** Provedores de nível confirmado ou superior. */
   n_provedores: PorAfi<number>
+  /** Provedores de nível provável ou superior, sem o próprio AS nem irmãos inferidos (ausente em snapshots anteriores a 2026-11). */
+  n_provedores_provavel?: PorAfi<number>
   visibilidade: PorAfi<{ vps: number; ptts: number; coletores: boolean }>
   multihomed: PorAfi<boolean | null>
   single_homed: PorAfi<boolean | null>
@@ -2070,7 +2087,15 @@ export interface RsPolPoliticaIxp {
 export interface RejeicoesIxp extends RsPolMeta { ixp: string; nome: string; rejeicoes: RsPolRejeicoesIxp | null; politica: RsPolPoliticaIxp | null }
 export interface CommunityUso { asns: number; rotas: number; top: { asn: number; nome?: string; rotas: number }[] }
 export interface CommunityItem {
-  community: string; classe: string; rotulo: string | null; forma: 'dicionario' | 'equivalente_padrao' | 'nao_decodificada'; alvo?: number; asns_total: number; rotas_total: number; ixps: Record<string, CommunityUso>
+  community: string; classe: string; rotulo: string | null; forma: 'dicionario' | 'equivalente_padrao' | 'nao_decodificada'; alvo?: number
+  /** ASNs distintos que usam a community (um membro em vários PTTs conta uma vez). */
+  asns_total: number
+  /** Soma por PTT do número de membros (a contagem exibida até 2026-11). */
+  asns_soma_ptts?: number
+  /** PTTs onde a community aparece. */
+  ptts?: number
+  /** Rotas, soma por PTT: a mesma rota anunciada em dois PTTs conta duas vezes. */
+  rotas_total: number; ixps: Record<string, CommunityUso>
 }
 export interface CommunitiesResp extends RsPolMeta { filtros: { q: string | null; ixp: string | null; classe: string | null }; total: number; por_classe: Record<string, number>; items: CommunityItem[] }
 
@@ -2451,7 +2476,7 @@ export interface FacilityResumo {
 }
 export interface FacilitiesLista extends FacilityMeta {
   escopo: { pais: string }; ordem: string; total: number; items: FacilityResumo[]
-  cobertura?: { instalacoes_br: number; com_ptt: number; com_carrier: number; ptts_ixbr: number; ptts_ixbr_com_instalacao: number; ptts_externos: number; ptts_externos_com_instalacao: number; asns_br_no_peeringdb: number; asns_br_com_instalacao: number | null; cadastro_br: Record<string, number> } | null
+  cobertura?: { instalacoes_br: number; com_ptt: number; com_carrier: number; ptts_ixbr: number; ptts_ixbr_com_instalacao: number; ptts_ixbr_sem_instalacao?: string[]; ptts_externos: number; ptts_externos_com_instalacao: number; asns_br_no_peeringdb: number; asns_br_com_instalacao: number | null; cadastro_br: Record<string, number> } | null
 }
 export interface FacilityPtt { ix_id: number; code?: string; nome?: string; tipo: 'ixbr' | 'externo' | 'outro' }
 export interface FacilityDetalhe extends FacilityMeta {
@@ -2638,7 +2663,7 @@ export interface ResumoRedeTerritorio extends RedeMeta {
 /** Interconexão mensurável do AS e alcance de CDN. Só fatos observados; nunca "não troca tráfego com B". */
 export interface InterconexaoAsn {
   snapshot_date: string; asn: number; limites: string; uf_sede: string | null; usuarios_estimados: number | null; carregadores_disponiveis: boolean
-  origem_sem_direto: Array<{ ixp: string; nome: string; uf: string | null; familias: Array<'v4' | 'v6'>; mesma_uf: boolean; km_da_sede?: number | null; carregadores: Array<{ asn: number; caminhos: number }> }>
+  origem_sem_direto: Array<{ ixp: string; nome: string; uf: string | null; familias: Array<'v4' | 'v6'>; mesma_uf: boolean; km_da_sede?: number | null; carregadores: Array<{ asn: number; caminhos: number; via?: number[]; vinculo?: 'mesmo_cnpj' | 'mesma_org' | null }> }>
   sessoes: Array<{ ixp: string; nome: string; situacao: string; rotulo: string }>
   rejeicoes: Array<{ ixp: string; nome: string; rotas_rejeitadas: number; motivos: Array<{ rotulo: string | null; codigo: string | null; rotas: number | null }>; perfil: string | null; perfil_inferido: boolean | null; acoes: string[] }>
   resumo: { origem_sem_direto: number; sem_sessao: number; sessao_parcial: number; ptts_com_rejeicao: number }
@@ -2737,6 +2762,6 @@ export interface ResumoRoteamento {
   vrps: number | null
   rotas_br: Record<'v6' | 'v4', { pbr_routes: number | null; pbr_pct: number | null; br_origin_asns: number | null; total_routes_global: number | null }>
   rpki: Record<'v6' | 'v4', EstadoRpkiFamilia>
-  saude: Record<'v6' | 'v4', { mais_especificos: number | null; mais_especificos_pct: number | null; filtraveis: number | null }> & { moas: { prefixos: number; lista_truncada: boolean } | null }
+  saude: Record<'v6' | 'v4', { mais_especificos: number | null; mais_especificos_pct: number | null; filtraveis: number | null }> & { /** Sempre nulo: a coleta não detecta MOAS (motivo em `moas_indisponivel`). */ moas: { prefixos: number; lista_truncada: boolean } | null; moas_indisponivel?: string }
   limites: string
 }

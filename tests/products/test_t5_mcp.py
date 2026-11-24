@@ -207,6 +207,28 @@ def test_perfis_do_mcp_tem_a_mesma_forma_da_api(srv, api, ctx):
             run(srv.mcp.call_tool(tool, args))
 
 
+
+def test_asn_interconexao_mcp_e_rest_dizem_o_mesmo_e_o_carregador_e_o_par_do_ptt(srv, api):
+    """ASN-E1: o carregador é o último AS de cada caminho gravado (o par do PTT); MCP e REST devolvem o mesmo."""
+    from tests.products.api_contract import ALLOWED
+    vistos = 0
+    for item in api.get("/api/v1/asns", params={"limit": 100}, headers=ALLOWED).json()["items"]:
+        rest = api.get(f"/api/v1/asns/{item['asn']}/interconexao", headers=ALLOWED)
+        if rest.status_code != 200:
+            continue
+        r = rest.json()
+        assert call(srv, "asn_interconexao", {"asn": item["asn"]}) == r
+        doc = api.get(f"/api/v1/asns/{item['asn']}/paths", headers=ALLOWED).json()
+        for o in r["origem_sem_direto"]:
+            caminhos = (doc.get("ixp_paths") or {}).get(o["ixp"]) or []
+            ultimos = {c[-1] for c in caminhos if c}
+            assert {c["asn"] for c in o["carregadores"]} <= ultimos and item["asn"] not in {c["asn"] for c in o["carregadores"]}
+            if caminhos:
+                assert o["carregadores"], (item["asn"], o["ixp"])                         # caminho observado sempre tem quem entrega
+                vistos += 1
+    assert vistos, "o dataset sintético deveria ter um AS originando num PTT sem ser par direto, com caminho gravado"
+
+
 def _keys_deep(x, found=None):
     found = set() if found is None else found
     if isinstance(x, dict):

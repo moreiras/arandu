@@ -131,13 +131,6 @@ export function SummaryCards({ data }: Props) {
       {/* Linha global */}
       <div className="grid grid-cols-2 gap-3">
         <Card
-          accent="purple"
-          label="MOAS detectados"
-          value={fmt(data.moas.length)}
-          sub="prefixos com múltiplas origens"
-          tooltip="Multiple Origin AS: prefixos anunciados por mais de um AS de origem diferente. Pode ser legítimo (anycast, CDN) ou indicar sequestro de rota (BGP hijack). Merece verificação caso a caso."
-        />
-        <Card
           accent="gray"
           label="ASNs BR visíveis na tabela"
           value={`${fmt(data.br_asns_visible ?? 0)} / ${fmt(data.br_asns_registered ?? 0)}`}

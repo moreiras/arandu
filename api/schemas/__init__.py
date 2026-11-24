@@ -168,7 +168,7 @@ class IXPIndexEntry(BaseModel):
         None, description="ASNs em peering direto (união v6 ∪ v4)", examples=[487]
     )
     asn_origin_union_count: Optional[int] = Field(
-        None, description="ASNs originadores de prefixos — aproximação de max(v6, v4)", examples=[23104]
+        None, description="ASNs originadores de prefixos, todos os países (união v6 ∪ v4; snapshots anteriores a 2026-11 gravavam o maior dos dois)", examples=[23104]
     )
     br_asns_origin_union_count: Optional[int] = Field(
         None, description="ASNs brasileiros originadores (união v6 ∪ v4, exato)", examples=[8531]
@@ -222,6 +222,9 @@ class IXPDocumentResponse(BaseModel):
     v6: Any = Field(description="Métricas IPv6 completas. `{status: 'missing'}` se sem dados.")
     asn_members: Optional[list[int]] = Field(None, description="ASNs membros registrados no IX.br (ixbr_members.json).")
     ixbr_members_count: Optional[int] = Field(None, description="Total de membros registrados.")
+    asn_origin_union_count: Optional[int] = Field(
+        None, description="ASNs originadores no PTT, todos os países (união v6 ∪ v4); ausente em snapshots anteriores a 2026-11."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -404,7 +407,7 @@ class ASNDocumentResponse(BaseModel):
         None,
         description=(
             "Relações inferidas do AS (ARC v1): `provedores`, `clientes`, `pares`, `irmaos` e `sem_classificacao`, cada "
-            "item com {asn, p, nivel, afi}; `n_provedores` (nível confirmado ou superior), `visibilidade` e `single_homed`/`multihomed` "
+            "item com {asn, p, nivel, afi}; `n_provedores` (nível confirmado ou superior), `n_provedores_provavel` (provável ou superior, sem irmãos), `visibilidade` e `single_homed`/`multihomed` "
             "por família (null = indeterminado por falta de visibilidade). É inferência com probabilidade e nível, não contrato. "
             "Ausente em snapshots anteriores ao ARC; `upstreams_*` e `downstreams_*` seguem como adjacência observada (alias deprecado)."
         ),

@@ -35,9 +35,7 @@
    "v4": {
     "direct": true,
     "origin": true,
-    "prefixes": [
-     "100.64.0.0/24"
-    ]
+    "prefixes": []
    },
    "v6": {
     "direct": true,

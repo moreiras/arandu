@@ -4,7 +4,7 @@
 
 `routing_analysis` · produto
 
-Composição do espaço BR na tabela global (estrito, só origem, só prefixo), distribuição de tamanhos, mais-específicos, agregação possível, cobertura do Registro.br, MOAS e prefixos específicos demais.
+Composição do espaço BR na tabela global (estrito, só origem, só prefixo), distribuição de tamanhos, mais-específicos, agregação possível, cobertura do Registro.br e prefixos específicos demais.
 
 ## Resumo
 
@@ -32,7 +32,7 @@ Composição do espaço BR na tabela global (estrito, só origem, só prefixo), 
 |---|---|---|---|---|
 | `pbr_composition.{v6,v4}.strict_br / origin_only_br / prefix_only_br` | dict | Rotas e ASNs em que prefixo e origem são BR (estrito), só a origem é BR ou só o prefixo é BR. | Definição de PBR do projeto. | routing_analysis → routing_analysis.json#pbr_composition |
 | `aggregation_by_asn[].savings_origin / savings_path / savings_path_pct` | int / float | Rotas economizáveis se agregadas por origem ou por caminho. | Estimativa teórica; agregação real depende de política. | routing_analysis → routing_analysis.json#aggregation_by_asn |
-| `moas` | list | Prefixos com mais de uma origem observada. | Pode ser legítimo (anycast, DDoS mitigation). | routing_analysis → routing_analysis.json#moas |
+| `moas / moas_indisponivel` | null / str | Prefixos com mais de uma origem observada. Indisponível; `moas_indisponivel` traz o motivo. | Sempre nulo até a coleta guardar mais de uma origem por prefixo (a tabela usada guarda uma, e a contagem sairia sempre 0, o que não é ausência de MOAS). | routing_analysis → routing_analysis.json#moas |
 | `too_specific` | list | Prefixos mais específicos que o limite prático (/48 IPv6, /24 IPv4). | — | routing_analysis → routing_analysis.json#too_specific |
 | `registro_br_coverage[].coverage_pct / has_exact_aggregate` | float / bool | Cobertura do bloco alocado por rotas e se o agregado exato é anunciado. | — | routing_analysis → routing_analysis.json#registro_br_coverage |
 | `has_path_data` | bool | Se os dados de AS-PATH estavam disponíveis para as análises de caminho. | — | routing_analysis → routing_analysis.json#has_path_data |
@@ -47,7 +47,7 @@ Composição do espaço BR na tabela global (estrito, só origem, só prefixo), 
 | `global_comparison` | dict | Percentuais de /48 (v6) ou /24 (v4) e de mais-específicos, global × PBR, por família. | — | routing_analysis → routing_analysis.json#global_comparison |
 | `as_path_stats` | dict | Estatísticas de AS-PATH por família: comprimento (média, mediana, p95), rotas com prepend, AS privado, loops e AS_TRANS; só com dados de caminho. | — | routing_analysis → routing_analysis.json#as_path_stats |
 | `rpki.{v6,v4}.valid / invalid / not_found / espaco` | dict | Rotas brasileiras (P_BR) por estado RPKI de origem (RFC 6811), com a união do espaço de cada estado (/48 ou /24) e os ASNs de origem com rota inválida. | Validação contra os VRPs do snapshot; um bloco pode ter rotas em mais de um estado, então os espaços não somam o total. | routing_analysis → routing_analysis_resumo.json#rpki |
-| `saude.{v6,v4}.mais_especificos / filtraveis; saude.moas` | dict | Totais de saúde da tabela para o Panorama técnico (mais-específicos, prefixos filtráveis, MOAS), copiados da análise completa. | — | routing_analysis → routing_analysis_resumo.json#saude |
+| `saude.{v6,v4}.mais_especificos / filtraveis; saude.moas` | dict | Totais de saúde da tabela para o Panorama técnico (mais-específicos, prefixos filtráveis), copiados da análise completa. `saude.moas` é nulo, com o motivo em `saude.moas_indisponivel`. | — | routing_analysis → routing_analysis_resumo.json#saude |
 
 ## Limites
 

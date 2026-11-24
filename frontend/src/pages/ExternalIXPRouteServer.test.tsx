@@ -5,7 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { ExternalIXPRouteServer, type DecixRouteServer } from './ExternalIXPRouteServer'
+import { ExternalIXPRouteServer, RedesBrPorFonte, contagemRedes, redesBrPorFonte, type DecixRouteServer } from './ExternalIXPRouteServer'
 
 const base: DecixRouteServer = {
   coletado_em: '2026-11-10T12:00:00Z', rotas_coletadas_em: '2026-11-10T12:30:00Z', fonte: 'https://lg.de-cix.net (Alice-LG)', versao_alice: '6.2.0', aviso: 'Sessão BGP no route server; a origem é um piso.',
@@ -47,5 +47,23 @@ describe('cartões do route server do DE-CIX', () => {
     expect(screen.getByText(/sinal de bloqueio do servidor \(HTTP 429\)/)).toBeTruthy()
     expect(screen.queryByText(/IX\.br SP/)).toBeNull()
     expect(screen.queryByText(/ASNs estão nos dois/)).toBeNull()
+  })
+})
+
+describe('redes, portas e redes brasileiras por fonte (IXE-E1, IXE-E2)', () => {
+  const m = (asn: number, is_br: boolean) => ({ asn, name: '', speed: 10000, is_br })
+  // 16 portas de 14 redes; BR: 9 portas de 8 redes (duas redes com duas portas, uma delas brasileira)
+  const portas = [...Array.from({ length: 8 }, (_, i) => m(64500 + i, true)), m(64500, true), ...Array.from({ length: 6 }, (_, i) => m(65000 + i, false)), m(65000, false)]
+
+  it('conta redes distintas, não portas', () => {
+    expect(contagemRedes(portas)).toEqual({ redes: 14, redesBr: 8, portas: 16 })
+    expect(contagemRedes([])).toEqual({ redes: 0, redesBr: 0, portas: 0 })
+  })
+
+  it('reconcilia cadastro e sessão: cadastradas, com sessão, sessão sem cadastro e cadastro sem sessão', () => {
+    const rs = { ...base, asn_direct: [64500, 64501, 64502, 64503, 64504, 64505, 65000, 64999], resumo: { ...base.resumo, br_asn_direct_count: 9 } }
+    expect(redesBrPorFonte(portas, rs)).toEqual({ cadastradas: 8, sessao: 9, sessaoSemCadastro: 3, cadastradasSemSessao: 2 })
+    render(<RedesBrPorFonte members={portas} rs={rs} />)
+    expect(screen.getByTestId('redes-br-por-fonte').textContent).toContain('Com sessão up e sem cadastro no PeeringDB3')
   })
 })

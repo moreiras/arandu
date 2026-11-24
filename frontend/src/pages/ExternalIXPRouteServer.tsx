@@ -41,6 +41,46 @@ export type ExternalIXPComRouteServer = ExternalIXPDocument & { route_server?: D
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 
+/** Redes (ASNs distintos), redes brasileiras e portas a partir das linhas do PeeringDB (uma por porta): vale também para snapshot antigo. */
+export function contagemRedes(members: ExternalIXPDocument['members']): { redes: number; redesBr: number; portas: number } {
+  return { redes: new Set(members.map((m) => m.asn)).size, redesBr: new Set(members.filter((m) => m.is_br).map((m) => m.asn)).size, portas: members.length }
+}
+
+/**
+ * Redes brasileiras por fonte (IXE-E2): cadastradas no PeeringDB, com sessão up no route server, e o cruzamento. "Com sessão e sem
+ * cadastro" é derivado: brasileiros com sessão menos os cadastrados que têm sessão.
+ */
+export function redesBrPorFonte(members: ExternalIXPDocument['members'], rs: DecixRouteServer) {
+  const cadastradas = new Set(members.filter((m) => m.is_br).map((m) => m.asn))
+  const comSessao = new Set(rs.asn_direct)
+  const cadastradasComSessao = [...cadastradas].filter((a) => comSessao.has(a)).length
+  return {
+    cadastradas: cadastradas.size,
+    sessao: rs.resumo.br_asn_direct_count,
+    sessaoSemCadastro: Math.max(0, rs.resumo.br_asn_direct_count - cadastradasComSessao),
+    cadastradasSemSessao: cadastradas.size - cadastradasComSessao,
+  }
+}
+
+export function RedesBrPorFonte({ members, rs }: { members: ExternalIXPDocument['members']; rs: DecixRouteServer }) {
+  const r = redesBrPorFonte(members, rs)
+  const linhas: Array<[string, number]> = [
+    ['Cadastradas no PeeringDB', r.cadastradas],
+    ['Com sessão up no route server', r.sessao],
+    ['Com sessão up e sem cadastro no PeeringDB', r.sessaoSemCadastro],
+    ['Cadastradas e sem sessão up no route server', r.cadastradasSemSessao],
+  ]
+  return (
+    <section className="bg-white rounded-lg border border-gray-200 px-4 py-3 space-y-2" data-testid="redes-br-por-fonte">
+      <h2 className="text-base font-semibold text-gray-800">Redes brasileiras por fonte</h2>
+      <table className="text-sm"><tbody>
+        {linhas.map(([rot, v]) => <tr key={rot}><td className="pr-6 py-0.5 text-gray-600">{rot}</td><td className="text-right tabular-nums">{n(v)}</td></tr>)}
+      </tbody></table>
+      <p className="text-xs text-gray-500">Como ler: "brasileira" é ASN delegado pela LACNIC ao Brasil. O cadastro é o que a rede declara no PeeringDB; a sessão é o que o route server do DE-CIX mostra na coleta. Uma rede pode estar no PTT só com peering bilateral (sem sessão no route server) ou ter sessão sem ter se cadastrado.</p>
+    </section>
+  )
+}
+
 export function ExternalIXPRouteServer({ rs }: { rs: DecixRouteServer }) {
   const r = rs.resumo
   const cob = rs.rotas.cobertura

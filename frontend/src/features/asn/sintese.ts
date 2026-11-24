@@ -11,12 +11,60 @@ import { SITE } from '../../lib/site'
  * Frase-síntese do AS: gerada por **regras**, sem modelo de linguagem. Cada frase sai de campos do snapshot, leva o
  * selo (fato, inferido ou estimado) e a versão das regras. Mudar uma regra muda `REGRAS_VERSAO`; o teste fixa o conjunto de ids.
  */
-export const REGRAS_VERSAO = 'sintese-as-1'
+export const REGRAS_VERSAO = 'sintese-as-2'
 
 export interface Frase { id: string; texto: string; selo: Selo }
 
 const n = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits: 0 })
 const plural = (q: number, um: string, varios: string) => `${n(q)} ${q === 1 ? um : varios}`
+
+const FORTES = new Set(['declarado', 'confirmado', 'provavel'])
+
+export interface ProvedoresV4 {
+  /** Sem o fragmento `relacoes` (snapshot anterior ao ARC). */
+  semRelacoes: boolean
+  /** Provedores IPv4 de nível provável ou superior, sem o próprio AS, irmãos inferidos e ASNs do mesmo CNPJ. */
+  fortes: number[]
+  /** Só de nível possível, com as mesmas exclusões. */
+  possiveis: number[]
+  /** ASNs do mesmo CNPJ ou irmãos que apareceriam como provedor e ficaram de fora. */
+  irmaos: number[]
+  /** `relacoes.multihomed.v4` nulo: visibilidade insuficiente ou só relações possíveis. */
+  indeterminado: boolean
+}
+
+/**
+ * Provedores de trânsito IPv4 pelas relações inferidas (ARC), por nível. Nunca usa `upstreams_v4`, `is_multihomed_v4` nem
+ * `single_upstream_v4` (adjacência no AS_PATH, deprecados), nem conta o próprio AS ou um irmão como provedor (ASN-E4, CMP-E5).
+ */
+export function provedoresTransitoV4(doc: ASNDocument): ProvedoresV4 {
+  const rel = doc.relacoes
+  if (!rel) return { semRelacoes: true, fortes: [], possiveis: [], irmaos: [], indeterminado: true }
+  const irmaos = new Set<number>([...(doc.same_cnpj_asns ?? []).map((x) => x.asn), ...(rel.irmaos ?? []).map((x) => x.asn)])
+  const fortes: number[] = []
+  const possiveis: number[] = []
+  const fora: number[] = []
+  for (const p of rel.provedores ?? []) {
+    if (!p.afi.includes('v4') || p.asn === doc.asn) continue
+    if (irmaos.has(p.asn)) { if (!fora.includes(p.asn)) fora.push(p.asn); continue }
+    if (FORTES.has(p.nivel)) { if (!fortes.includes(p.asn)) fortes.push(p.asn) } else if (p.nivel === 'possivel' && !possiveis.includes(p.asn)) possiveis.push(p.asn)
+  }
+  return { semRelacoes: false, fortes, possiveis, irmaos: fora, indeterminado: rel.multihomed?.v4 == null }
+}
+
+const lista = (asns: number[]) => asns.map((a) => `AS${a}`).join(', ')
+
+/** Frase de trânsito da regra `sintese-as-2`: conta provedores de nível provável ou superior (não `n_provedores`, que é confirmado+). */
+export function fraseTransito(doc: ASNDocument): string {
+  const t = provedoresTransitoV4(doc)
+  if (t.semRelacoes) return 'Sem inferência de provedores de trânsito neste snapshot.'
+  const poss = t.possiveis.length ? ` e ${plural(t.possiveis.length, 'de nível possível', 'de nível possível')}` : ''
+  const irm = t.irmaos.length ? ` ${lista(t.irmaos)}, do mesmo CNPJ ou organização, fica${t.irmaos.length > 1 ? 'm' : ''} de fora.` : ''
+  if (t.fortes.length >= 2) return `Pelas relações inferidas, tem ${n(t.fortes.length)} provedores de trânsito IPv4 de nível provável ou superior (${lista(t.fortes)})${poss}.${irm}`
+  if (t.fortes.length === 1) return `Pelas relações inferidas, tem um provedor de trânsito IPv4 de nível provável ou superior (${lista(t.fortes)})${poss}.${irm}`
+  if (t.possiveis.length) return `Sem provedor de trânsito IPv4 de nível provável neste snapshot; ${plural(t.possiveis.length, 'relação possível', 'relações possíveis')}.${irm}`
+  return t.indeterminado ? `Visibilidade insuficiente para inferir provedores de trânsito IPv4.${irm}` : `Sem provedor de trânsito IPv4 inferido neste snapshot.${irm}`
+}
 
 /** As frases do AS, na ordem de leitura; regra sem dado não gera frase (nunca preenche com palpite). */
 export function sinteseAs(doc: ASNDocument, ref?: ReferenciasAsn | null): Frase[] {
@@ -55,11 +103,7 @@ export function sinteseAs(doc: ASNDocument, ref?: ReferenciasAsn | null): Frase[
         + (pos && ref ? ` (${n(pos)}º entre ${n(ref.usuarios_com_dado)} ASes brasileiros com estimativa).` : '.'),
     })
   }
-  if (doc.single_upstream_v4 != null) {
-    f.push({ id: 'transito', selo: 'inferido', texto: `Pelas rotas observadas, usa um único provedor de trânsito IPv4 (AS${doc.single_upstream_v4}).` })
-  } else if (doc.is_multihomed_v4) {
-    f.push({ id: 'transito', selo: 'inferido', texto: 'Pelas rotas observadas, usa mais de um provedor de trânsito IPv4.' })
-  }
+  f.push({ id: 'transito', selo: 'inferido', texto: fraseTransito(doc) })
   const alertas = doc.alerts?.length ?? 0
   if (alertas > 0) f.push({ id: 'alertas', selo: 'fato', texto: `${plural(alertas, 'ponto de atenção', 'pontos de atenção')} nas regras do ${SITE.nome} (aba Resumo).` })
   return f

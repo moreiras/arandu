@@ -93,11 +93,12 @@ const montar = (ui: React.ReactElement, url: string) => render(
 describe('página de instalações', () => {
   it('lista com filtros que viram parâmetros da API e atribuição; o nome do cadastro não vira HTML', async () => {
     const chamadas: URLSearchParams[] = []
-    const corpo: FacilitiesLista = { ...meta, escopo: { pais: 'BR' }, ordem: 'x', total: 2, items: [f1, f2], cobertura: { instalacoes_br: 2, com_ptt: 2, com_carrier: 2, ptts_ixbr: 40, ptts_ixbr_com_instalacao: 38, ptts_externos: 5, ptts_externos_com_instalacao: 4, asns_br_no_peeringdb: 10, asns_br_com_instalacao: 4, cadastro_br: { recente: 1, parado: 1 } } }
+    const corpo: FacilitiesLista = { ...meta, escopo: { pais: 'BR' }, ordem: 'x', total: 2, items: [f1, f2], cobertura: { instalacoes_br: 2, com_ptt: 2, com_carrier: 2, ptts_ixbr: 40, ptts_ixbr_com_instalacao: 38, ptts_ixbr_sem_instalacao: ['ac', 'the'], ptts_externos: 5, ptts_externos_com_instalacao: 4, asns_br_no_peeringdb: 10, asns_br_com_instalacao: 4, cadastro_br: { recente: 1, parado: 1 } } }
     server.use(http.get('*/api/v1/facilities', ({ request }) => { chamadas.push(new URL(request.url).searchParams); return HttpResponse.json(corpo) }))
     const { container } = montar(<FacilitiesPage />, '/instalacoes')
     await screen.findByText('Datacenter Exemplo SP-1')
     expect(screen.getByTestId('total-instalacoes').textContent).toMatch(/2 instalação\(ões\) · 38 de 40 PTTs do IX.br/)
+    expect(screen.getByTestId('total-instalacoes').textContent).toContain('(sem instalação: AC, THE)')                    // INST-E2: quem falta, nomeado
     expect(container.querySelector('b')?.textContent ?? '').not.toBe('Exemplo')                              // "<b>" do nome é texto, não elemento
     expect(screen.getByText('Colo <b>Exemplo</b> RJ')).toBeTruthy()
     expect(screen.getByTestId('mapa-instalacoes')).toBeTruthy()

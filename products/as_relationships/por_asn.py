@@ -7,7 +7,8 @@
 sem classificação, cada um com probabilidade, nível e famílias; mais `single_homed`/`multihomed` por família **só com visibilidade
 suficiente** (nunca por ausência de dado: `null` = indeterminado).
 
-Contagens de provedores: `n_provedores` usa nível `confirmado` ou superior (a mesma definição do histórico); a decisão de
+Contagens de provedores: `n_provedores` usa nível `confirmado` ou superior (a mesma definição do histórico);
+`n_provedores_provavel` usa `provavel` ou superior, sem o próprio AS nem os irmãos inferidos (a contagem da frase de trânsito); a decisão de
 single-homed olha também os `provavel` (um segundo provedor provável impede afirmar single-homed) e, havendo qualquer provedor só
 `possivel`, fica indeterminada."""
 from __future__ import annotations
@@ -74,6 +75,9 @@ def por_asn(linhas: Iterable[dict], cfg: Config, coletores: dict[str, bool], nom
                 doc[f"{chave}_total"] = len(itens)
         provs = g.get("provedores", [])
         doc["n_provedores"] = {afi: sum(1 for p in provs if afi in _afis(p) and ORDEM_NIVEL[p["nivel"]] >= 3) for afi in ("v4", "v6")}
+        fora = {asn} | {i["asn"] for i in g.get("irmaos", [])}
+        doc["n_provedores_provavel"] = {afi: len({p["asn"] for p in provs if afi in _afis(p) and ORDEM_NIVEL[p["nivel"]] >= 2 and p["asn"] not in fora})
+                                        for afi in ("v4", "v6")}
         doc["visibilidade"] = {afi: {"vps": vis[asn][afi][0], "ptts": vis[asn][afi][1], "coletores": coletores.get(afi, False)}
                                for afi in ("v4", "v6")}
         multi, single = {}, {}

@@ -46,6 +46,9 @@ def test_instalacoes_ligam_redes_ptts_carriers_e_so_o_brasil_conta_redes():
     cob = calcular_cobertura(inst, vinc, PTTS, DOC, 10, {64496, 64500})
     assert cob["instalacoes_br"] == 2 and cob["instalacoes_ptt_externo"] == 1 and cob["com_ptt"] == 2 and cob["com_carrier"] == 1 and cob["em_campus"] == 1 and cob["com_coordenadas"] == 1
     assert cob["ptts_ixbr"] == 1 and cob["ptts_ixbr_com_instalacao"] == 1 and cob["ptts_externos"] == 2 and cob["ptts_externos_com_instalacao"] == 2
+    assert cob["ptts_ixbr_sem_instalacao"] == []
+    sem = calcular_cobertura(inst, vinc, {**PTTS, 11: {"code": "ac", "nome": None, "tipo": "ixbr"}}, DOC, 10, set())
+    assert (sem["ptts_ixbr"], sem["ptts_ixbr_com_instalacao"], sem["ptts_ixbr_sem_instalacao"]) == (2, 1, ["ac"])      # INST-E2: quem falta, pelo código
     assert cob["asns_br_no_peeringdb"] == 2 and cob["asns_br_com_instalacao"] == 1 and cob["cadastro_br"] == {"recente": 1, "antigo": 1}
 
 

@@ -70,15 +70,33 @@ def _analyze_more_specifics(pbr_routes: list[dict]) -> tuple[dict, list[dict]]:
         trie.insert(r["prefix"], r)
     trie._build()
 
-    annotated = []
-    for r in pbr_routes:
+    # Profundidade: 0 na raiz, 1 num sub-bloco da raiz, 2 num sub-bloco de um mais específico... Calculada do menos para o mais
+    # específico, pela profundidade já conhecida do pai imediato (o valor guardado na trie é a rota original, sem `depth`).
+    def _rede(p: str):
+        try:
+            return ip_network(p, strict=False)
+        except ValueError:
+            return None
+
+    profundidade: dict = {}
+    pais: dict[int, dict | None] = {}
+    for i in sorted(range(len(pbr_routes)), key=lambda i: getattr(_rede(pbr_routes[i]["prefix"]), "prefixlen", 0)):
+        r = pbr_routes[i]
         parent = trie.find_less_specific(r["prefix"])
+        pais[i] = parent
+        rede = _rede(r["prefix"])
+        if rede is not None and rede not in profundidade:
+            profundidade[rede] = 0 if parent is None else profundidade.get(_rede(parent["prefix"]), 0) + 1
+
+    annotated = []
+    for i, r in enumerate(pbr_routes):
+        parent = pais[i]
         r2 = dict(r)
         r2["is_root"]      = parent is None
         r2["is_more_spec"] = parent is not None
         r2["same_origin"]  = (parent is not None and
                                r["origin_as"] == parent["origin_as"])
-        r2["depth"]        = 0 if parent is None else (parent.get("depth", 0) + 1)
+        r2["depth"]        = profundidade.get(_rede(r["prefix"]), 0)
         annotated.append(r2)
 
     n_root      = sum(1 for r in annotated if r["is_root"])

@@ -21,7 +21,7 @@ _LIMITE_SECAO_BYTES = 4000        # seção maior que isto só é descrita no í
 
 @mcp.tool()
 def routing_analysis(secao: Optional[str] = None, limit: int = 50, offset: int = 0, date: Optional[str] = None) -> dict:
-    """Análise BGP global focada nos prefixos brasileiros (P_BR): composição, tamanhos de prefixo, more specifics, agregação, MOAS.
+    """Análise BGP global focada nos prefixos brasileiros (P_BR): composição, tamanhos de prefixo, more specifics, agregação.
 
     Sem `secao` devolve o índice: os campos pequenos inteiros e, das seções grandes, só o nome e o tamanho em `secoes_grandes`.
     Com `secao` devolve aquela seção; lista ou mapa com mais de `limit` entradas vem fatiado (`total`, `offset`, `truncado`) — algumas
@@ -39,7 +39,8 @@ def routing_analysis(secao: Optional[str] = None, limit: int = 50, offset: int =
     doc = _store.routing_analysis(d)
     if doc is None:
         raise ValueError(f"routing_analysis indisponível no snapshot {d}.")
-    doc = dict(doc)
+    from core.moas import retirar_da_analise
+    doc = retirar_da_analise(doc)
     _enrich_top_communities(doc)
     if secao is not None:
         if secao not in doc:

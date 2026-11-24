@@ -56,7 +56,8 @@ def _uso(e: dict, ixp: Optional[str]) -> dict:
     if not ixp:
         return e
     u = e["ixps"][ixp]
-    return {**{k: v for k, v in e.items() if k not in ("ixps", "asns_total", "rotas_total")}, "asns_total": u["asns"], "rotas_total": u["rotas"], "ixps": {ixp: u}}
+    return {**{k: v for k, v in e.items() if k not in ("ixps", "asns_total", "asns_soma_ptts", "ptts", "rotas_total")}, "asns_total": u["asns"], "asns_soma_ptts": u["asns"], "ptts": 1,
+            "rotas_total": u["rotas"], "ixps": {ixp: u}}
 
 
 def communities(doc: Optional[dict], q: Optional[str], ixp: Optional[str], classe: Optional[str], limit: int, offset: int) -> Optional[dict]:

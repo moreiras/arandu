@@ -9,7 +9,7 @@ import { PrefixLengthHistogram }    from '../components/bgp/PrefixLengthHistogra
 import { MoreSpecificsSection }     from '../components/bgp/MoreSpecificsSection'
 import { AggregationTable }         from '../components/bgp/AggregationTable'
 import { RegistroBrCoverageTable }  from '../components/bgp/RegistroBrCoverageTable'
-import { MoasTable }                from '../components/bgp/MoasTable'
+import { MOAS_INDISPONIVEL }        from '../features/prefixo/blocks/MoasBloco'
 import { TooSpecificTable }         from '../components/bgp/TooSpecificTable'
 import { AsPathSection }            from '../components/bgp/AsPathSection'
 import { StabilitySection }         from '../components/bgp/StabilitySection'
@@ -40,9 +40,9 @@ const ABAS_BGP = [
   { id: 'visao-geral', rotulo: 'Visão geral', descricao: 'Números centrais, composição dos prefixos brasileiros e distribuição por tamanho' },
   { id: 'prefixos', rotulo: 'Prefixos', descricao: 'Mais específicos e prefixos potencialmente filtráveis' },
   { id: 'agregacao', rotulo: 'Agregação e cobertura', descricao: 'Potencial de agregação por ASN e cobertura dos blocos do Registro.br' },
-  { id: 'moas', rotulo: 'MOAS', descricao: 'Prefixos com mais de um ASN de origem' },
   { id: 'caminhos', rotulo: 'Caminhos', descricao: 'AS_PATH, prepending e communities' },
   { id: 'estabilidade', rotulo: 'Estabilidade', descricao: 'ASes com volume desproporcional de updates BGP' },
+  { id: 'moas', rotulo: 'MOAS (indisponível)', descricao: 'Origem múltipla: a tabela usada não permite detectar' },
 ]
 
 export function BGP() {
@@ -202,7 +202,7 @@ export function BGP() {
       {/* Cobertura Registro.br */}
       <Section
         title="Cobertura dos blocos alocados pelo Registro.br"
-        desc="Para cada bloco IP alocado pelo Registro.br a um ASN brasileiro, verifica se há rotas na tabela global que cobrem aquele espaço. 'Não anunciado' pode indicar recurso não utilizado, anunciado apenas internamente ou visível somente por coletores não utilizados nesta análise. 'Parcial' indica que apenas parte do bloco está roteada. 'Completo com agregado' é a configuração mais eficiente. 'Multi-origem' (MOAS) merece verificação; pode ser uso legítimo de anycast ou um possível sequestro de prefixo."
+        desc="Para cada bloco IP alocado pelo Registro.br a um ASN brasileiro, verifica se há rotas na tabela global que cobrem aquele espaço. 'Não anunciado' pode indicar recurso não utilizado, anunciado apenas internamente ou visível somente por coletores não utilizados nesta análise. 'Parcial' indica que apenas parte do bloco está roteada. 'Completo com agregado' é a configuração mais eficiente. 'Coberto por várias origens, sem agregado' quer dizer que o bloco está todo coberto por rotas mais específicas de origens diferentes e nenhuma rota cobre o bloco inteiro; descreve a forma do anúncio, não a causa."
       >
         <RegistroBrCoverageTable data={data.registro_br_coverage} date={date ?? undefined} />
       </Section>
@@ -211,10 +211,10 @@ export function BGP() {
       {aba === 'moas' && <>
       {/* MOAS */}
       <Section
-        title="MOAS: Prefixos com múltiplos ASNs de origem"
-        desc="Multiple Origin AS: quando um mesmo prefixo é anunciado por mais de um ASN de origem diferente simultaneamente. Pode ser completamente legítimo: anycast (ex: servidores DNS raiz), acordos de CDN, redundância entre operadores parceiros. Também pode indicar um sequestro de rota (BGP hijack), especialmente quando as origens são de países diferentes ou sem relação aparente. A presença nesta lista é um indicador de que o prefixo merece verificação, não uma confirmação de problema."
+        title="MOAS: prefixos com mais de um ASN de origem"
+        desc="Multiple Origin AS: o mesmo prefixo anunciado por mais de um ASN de origem."
       >
-        <MoasTable data={data.moas} date={date ?? undefined} />
+        <p className="text-sm text-gray-600" data-testid="moas-indisponivel">{MOAS_INDISPONIVEL}</p>
       </Section>
 
       </>}

@@ -27,6 +27,7 @@ from ipaddress import collapse_addresses, ip_network
 from pathlib import Path
 
 from core.common import configure_logging, data_dir, normalized_path, now_iso, published_path, read_json_gz, today_str
+from core.moas import MOTIVO as MOAS_MOTIVO
 from products.routing_analysis.mais_especificos import _classify_pbr
 from products.routing_analysis.rpki import _build_rpki_index, _rpki_status
 
@@ -96,9 +97,10 @@ def montar(date_str: str, pbr_v4: list[dict], pbr_v6: list[dict], rpki_index: di
         "rpki": {"v6": estado_rpki(pbr_v6, rpki_index, "v6"), "v4": estado_rpki(pbr_v4, rpki_index, "v4")},
         "saude": {
             **saude,
-            # Cópia da análise completa. A contagem sai sempre 0: origin-prefixes-{afi} traz uma origem por prefixo,
-            # então `_moas_analysis` não encontra prefixo com duas. A interface não mostra o número até a entrada ser corrigida.
-            "moas": None if moas is None else {"prefixos": len(moas), "lista_truncada": len(moas) >= moas_limite},
+            # Nulo, com o motivo: origin-prefixes-{afi} traz uma origem por prefixo e a contagem sairia sempre 0 (core/moas.py).
+            # `moas` e `moas_limite` ficam na assinatura para quem chama com a análise antiga; não entram no resultado.
+            "moas": None,
+            "moas_indisponivel": MOAS_MOTIVO,
         },
         "limites": "Um bloco pode ter rotas em mais de um estado, então os espaços por estado não somam o total. "
                    "Sem ROA (not_found) não é inválido: só não há ROA que cubra o prefixo.",

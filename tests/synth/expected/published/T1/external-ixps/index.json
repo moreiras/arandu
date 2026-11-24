@@ -8,7 +8,10 @@
    "last_updated": "2026-09-20",
    "member_count": 5,
    "name": "IX Externo Fictício",
-   "pdb_ix_id": 99001
+   "pdb_ix_id": 99001,
+   "portas": 6,
+   "redes": 5,
+   "redes_br": 3
   }
  ],
  "snapshot_date": "2026-09-20"

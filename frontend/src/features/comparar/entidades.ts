@@ -5,6 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { ASNDocument, PerfilMunicipio, PerfilOperadora } from '../../types/api'
 import type { Selo } from '../../components/entidade'
+import { provedoresTransitoV4 } from '../asn/sintese'
 
 /** Tipos que o comparador genérico entende; `ixp` é o comparador de PTTs, a aba padrão de `/comparar`. */
 export type TipoComparacao = 'ixp' | 'asn' | 'operadora' | 'municipio' | 'grupo'
@@ -71,7 +72,8 @@ export function compararAs(docs: ASNDocument[]): Comparacao {
       linha('ptts', 'PTTs com sessão direta', (d) => n(d.ixps_direct?.length)),
       linha('usuarios', 'Usuários estimados (APNIC)', (d) => n(d.apnic_users), 'estimado', 'estimativa da APNIC; um AS pode compartilhar usuários com outros da mesma operadora'),
       linha('v6usuarios', 'Usuários com IPv6', (d) => d1(d.apnic_v6_pct_as, '%'), 'estimado'),
-      linha('transito', 'Provedores de trânsito IPv4 (inferido)', (d) => n(d.upstreams_v4?.length), 'inferido', 'relações provedor–cliente inferidas pelas rotas observadas; não é contrato'),
+      linha('transito', 'Provedores de trânsito IPv4 (ARC, nível provável ou superior)', (d) => { const t = provedoresTransitoV4(d); return t.semRelacoes ? null : n(t.fortes.length) }, 'inferido',
+        'relações inferidas do AS_PATH visto em poucos coletores, sem o próprio AS nem irmãos; não provam contrato'),
       linha('rpki', 'ROAs cadastrados', (d) => n(d.roa_list?.length)),
       linha('aspa', 'Provedores declarados em ASPA', (d) => n(d.aspa_providers?.length)),
     ].filter(comDado),

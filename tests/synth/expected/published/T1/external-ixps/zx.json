@@ -35,8 +35,17 @@
    "is_br": false,
    "name": "Foreign Net 2 Inc, DE",
    "speed": 10000
+  },
+  {
+   "asn": 64496,
+   "is_br": true,
+   "name": "Provedor 01 Telecom Ltda, BR",
+   "speed": 100000
   }
  ],
  "name": "IX Externo Fictício",
- "pdb_ix_id": 99001
+ "pdb_ix_id": 99001,
+ "portas": 6,
+ "redes": 5,
+ "redes_br": 3
 }

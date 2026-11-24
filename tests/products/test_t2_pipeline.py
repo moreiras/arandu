@@ -216,7 +216,17 @@ def test_ixp_externo_cruza_membros_br_com_o_ixbr(pipeline):
     zx = load(base, T1, "external-ixps", "zx.json")
     assert zx["code"] == "zx" and zx["member_count"] == 5
     br = [m for m in zx["members"] if m.get("is_br")]
-    assert len(br) == 3
+    assert len(br) == 4                                                   # 3 redes BR, uma com duas portas
+
+
+def test_ixp_externo_conta_redes_distintas_e_portas_a_parte(pipeline):
+    """IXE-E1: uma rede com duas portas conta uma vez; `member_count`/`br_member_count` são alias de `redes`/`redes_br`."""
+    base, _ = pipeline
+    zx = load(base, T1, "external-ixps", "zx.json")
+    assert (zx["redes"], zx["redes_br"], zx["portas"]) == (5, 3, 6)
+    assert (zx["member_count"], zx["br_member_count"]) == (zx["redes"], zx["redes_br"])
+    idx = next(i for i in load(base, T1, "external-ixps", "index.json")["ixps"] if i["code"] == "zx")
+    assert (idx["redes"], idx["redes_br"], idx["portas"], idx["member_count"], idx["br_member_count"]) == (5, 3, 6, 5, 3)
 
 
 def test_sem_vazamento_de_arquivos_inesperados(pipeline):

@@ -32,7 +32,10 @@ describe('comparar entidades', () => {
     expect(c.colunas.map((x) => x.to)).toEqual(['/asn/1', '/asn/2'])
     const u = c.linhas.find((l) => l.id === 'usuarios')!
     expect(u.celulas).toEqual(['1.000', null]); expect(u.selo).toBe('estimado')
-    expect(c.linhas.find((l) => l.id === 'transito')!.selo).toBe('inferido')
+    expect(c.linhas.find((l) => l.id === 'transito')).toBeUndefined()                  // sem `relacoes`, nada: `upstreams_v4` (deprecado) não conta
+    const claro = compararAs([{ asn: 28573, name: 'C', is_br: true, upstreams_v4: [28573], relacoes: { provedores: [{ asn: 28573, nivel: 'provavel', p: 0.9, afi: ['v4'] }, { asn: 3356, nivel: 'provavel', p: 0.9, afi: ['v4'] }], irmaos: [], multihomed: { v4: false } } }] as any)
+    const t = claro.linhas.find((l) => l.id === 'transito')!
+    expect(t.selo).toBe('inferido'); expect(t.celulas).toEqual(['1'])                  // CMP-E5: a Claro não conta a si mesma
     expect(c.linhas.find((l) => l.id === 'aspa')).toBeUndefined()
   })
 

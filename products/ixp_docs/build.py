@@ -47,13 +47,11 @@ def publicar_external_ixps(base: Path, date_str: str, br_asns: set[int], log, lo
         cfg = cfg_map.get(code, {})
         members_raw = ixp_data.get("members", [])
 
+        # `members` tem uma linha por porta (netixlan do PeeringDB); uma rede com duas portas conta uma vez em `redes`
         members = []
-        br_count = 0
         for m in members_raw:
             asn = m["asn"]
             is_br = asn in br_asns
-            if is_br:
-                br_count += 1
             members.append({
                 "asn":   asn,
                 "name":  nomes.get(str(asn), ""),
@@ -67,11 +65,14 @@ def publicar_external_ixps(base: Path, date_str: str, br_asns: set[int], log, lo
             "city":           ixp_data.get("city", cfg.get("city", "")),
             "country":        ixp_data.get("country", cfg.get("country", "")),
             "pdb_ix_id":      ixp_data.get("pdb_ix_id", cfg.get("pdb_ix_id")),
-            "member_count":   len(members),
-            "br_member_count": br_count,
+            "redes":          len({m["asn"] for m in members}),
+            "redes_br":       len({m["asn"] for m in members if m["is_br"]}),
+            "portas":         len(members),
             "last_updated":   date_str,
             "members":        members,
         }
+        # nomes antigos, mantidos como alias de `redes` e `redes_br` (até 2026-11 contavam portas)
+        doc["member_count"], doc["br_member_count"] = doc["redes"], doc["redes_br"]
         (out_dir / f"{code}.json").write_text(
             json.dumps(doc, ensure_ascii=False), encoding="utf-8"
         )
@@ -82,6 +83,9 @@ def publicar_external_ixps(base: Path, date_str: str, br_asns: set[int], log, lo
             "city":           doc["city"],
             "country":        doc["country"],
             "pdb_ix_id":      doc["pdb_ix_id"],
+            "redes":          doc["redes"],
+            "redes_br":       doc["redes_br"],
+            "portas":         doc["portas"],
             "member_count":   doc["member_count"],
             "br_member_count": doc["br_member_count"],
             "last_updated":   date_str,
@@ -156,7 +160,9 @@ def publicar_ixp_index(
             br_origin_union = v4_br_orig | v6_br_orig
 
             entry["asn_direct_union_count"] = len(direct_union)
-            entry["asn_origin_union_count"] = max(
+            # união IPv6 ∪ IPv4 gravada pelas métricas do PTT; documento anterior a ela cai no maior dos dois (aproximação antiga)
+            uniao = doc.get("asn_origin_union_count")
+            entry["asn_origin_union_count"] = uniao if isinstance(uniao, int) else max(
                 v4_data.get("asn_origin_count", 0) if v4_ok else 0,
                 v6_data.get("asn_origin_count", 0) if v6_ok else 0,
             )

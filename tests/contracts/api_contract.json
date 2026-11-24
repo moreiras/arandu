@@ -1138,7 +1138,10 @@
     "member_count",
     "members",
     "name",
-    "pdb_ix_id"
+    "pdb_ix_id",
+    "portas",
+    "redes",
+    "redes_br"
    ],
    "status": 200,
    "tipo": "objeto"
@@ -1538,6 +1541,7 @@
   "GET /api/v1/ixps/{code}": {
    "chaves": [
     "asn_members",
+    "asn_origin_union_count",
     "generated_at",
     "ixbr_members_count",
     "ixp",

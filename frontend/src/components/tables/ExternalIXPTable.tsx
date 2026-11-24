@@ -150,16 +150,16 @@ export function ExternalIXPTable({ ixps }: Props) {
               PTT
             </th>
             <th colSpan={3} scope="colgroup" className="px-3 py-1.5 text-center font-semibold text-gray-500 border-l border-b border-gray-200 bg-gray-50">
-              Membros (PeeringDB)
+              Redes (PeeringDB)
             </th>
           </tr>
           <tr className="border-b border-gray-200">
             <Th label="PTT" tooltip="Nome do PTT (IXP)" sortKey="name" {...thProps} align="left" className="text-left" />
             <Th label="Localização" tooltip="Cidade e país" sortKey="location" {...thProps} align="left" className="text-left" />
             <Th label="Região" tooltip="Região geográfica" sortKey="region" {...thProps} align="left" className="text-left" />
-            <Th label="Total" tooltip="Total de membros declarados no PeeringDB" sortKey="member_count" {...thProps} className="border-l border-gray-200" />
-            <Th label="Do Brasil" tooltip="Membros com ASN do Brasil" sortKey="br_member_count" {...thProps} />
-            <Th label="% do Brasil" tooltip="Membros com ASN do Brasil ÷ total de membros" sortKey="pct_br" {...thProps} />
+            <Th label="Total" tooltip="Redes (ASNs distintos) declaradas no PeeringDB; uma rede com duas portas conta uma vez (snapshots anteriores a 2026-11 contavam portas)" sortKey="member_count" {...thProps} className="border-l border-gray-200" />
+            <Th label="Do Brasil" tooltip="Redes com ASN delegado pela LACNIC ao Brasil" sortKey="br_member_count" {...thProps} />
+            <Th label="% do Brasil" tooltip="Redes brasileiras ÷ redes" sortKey="pct_br" {...thProps} />
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">

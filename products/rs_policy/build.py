@@ -185,7 +185,9 @@ def calcular(f_doc: Optional[dict], c_doc: Optional[dict], comm_doc: Optional[di
         for c, n in (v.get("comunidades") or {}).items():
             soma_por[(c, v["ixp"], v["asn"])] += n
     por_comm: dict[str, dict] = {}
+    asns_da: dict[str, set[int]] = defaultdict(set)
     for (c, ixp, asn), n in soma_por.items():
+        asns_da[c].add(asn)
         e = por_comm.get(c)
         if e is None:
             e = por_comm[c] = {**{k: x for k, x in dic.classificar(c).items() if k != "community"}, "community": c, "ixps": {}}
@@ -198,7 +200,11 @@ def calcular(f_doc: Optional[dict], c_doc: Optional[dict], comm_doc: Optional[di
         for u in e["ixps"].values():
             u["top"].sort(key=lambda x: (-x["rotas"], x["asn"]))
             u["top"] = u["top"][:TOP_ASNS_COMMUNITY]
-        e["asns_total"] = sum(u["asns"] for u in e["ixps"].values())
+        # o mesmo membro em vários PTTs conta uma vez em `asns_total`; a soma por PTT fica em `asns_soma_ptts`. As rotas só têm contagem
+        # por (PTT, ASN), sem o prefixo: `rotas_total` é soma por PTT (a mesma rota anunciada em dois PTTs conta duas vezes)
+        e["asns_total"] = len(asns_da[c])
+        e["asns_soma_ptts"] = sum(u["asns"] for u in e["ixps"].values())
+        e["ptts"] = len(e["ixps"])
         e["rotas_total"] = sum(u["rotas"] for u in e["ixps"].values())
         comunidades.append(e)
     comunidades.sort(key=lambda e: (-e["asns_total"], -e["rotas_total"], e["community"]))

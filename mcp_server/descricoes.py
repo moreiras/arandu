@@ -214,7 +214,7 @@ DESCRICOES: dict[str, str] = {
         'aggregate [{"fn":"count"},{"fn":"sum","field":"apnic_users"}].'
     ),
     'rota_analise': (
-        'Análise da tabela global para prefixos brasileiros: tamanhos de prefixo, more specifics, agregação, MOAS, AS_PATH. '
+        'Análise da tabela global para prefixos brasileiros: tamanhos de prefixo, more specifics, agregação, AS_PATH (MOAS indisponível: moas nulo). '
         'Sem secao devolve o índice das seções; depois peça a seção. Args: secao, limit, offset.'
     ),
     'rota_estabilidade': (

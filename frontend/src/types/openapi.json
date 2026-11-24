@@ -486,7 +486,7 @@
         "type": "null"
        }
       ],
-      "description": "Relações inferidas do AS (ARC v1): `provedores`, `clientes`, `pares`, `irmaos` e `sem_classificacao`, cada item com {asn, p, nivel, afi}; `n_provedores` (nível confirmado ou superior), `visibilidade` e `single_homed`/`multihomed` por família (null = indeterminado por falta de visibilidade). É inferência com probabilidade e nível, não contrato. Ausente em snapshots anteriores ao ARC; `upstreams_*` e `downstreams_*` seguem como adjacência observada (alias deprecado).",
+      "description": "Relações inferidas do AS (ARC v1): `provedores`, `clientes`, `pares`, `irmaos` e `sem_classificacao`, cada item com {asn, p, nivel, afi}; `n_provedores` (nível confirmado ou superior), `n_provedores_provavel` (provável ou superior, sem irmãos), `visibilidade` e `single_homed`/`multihomed` por família (null = indeterminado por falta de visibilidade). É inferência com probabilidade e nível, não contrato. Ausente em snapshots anteriores ao ARC; `upstreams_*` e `downstreams_*` seguem como adjacência observada (alias deprecado).",
       "title": "Relacoes"
      },
      "rir_prefixes_v4": {
@@ -1413,6 +1413,18 @@
       "description": "ASNs membros registrados no IX.br (ixbr_members.json).",
       "title": "Asn Members"
      },
+     "asn_origin_union_count": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "ASNs originadores no PTT, todos os países (união v6 ∪ v4); ausente em snapshots anteriores a 2026-11.",
+      "title": "Asn Origin Union Count"
+     },
      "generated_at": {
       "examples": [
        "2026-06-06T13:20:43+00:00"
@@ -1508,7 +1520,7 @@
         "type": "null"
        }
       ],
-      "description": "ASNs originadores de prefixos — aproximação de max(v6, v4)",
+      "description": "ASNs originadores de prefixos, todos os países (união v6 ∪ v4; snapshots anteriores a 2026-11 gravavam o maior dos dois)",
       "examples": [
        23104
       ],
@@ -15991,7 +16003,7 @@
   },
   "/api/v1/routing-analysis": {
    "get": {
-    "description": "Retorna análise completa da tabela de roteamento global com foco em ASNs e\nprefixos brasileiros (P_BR). Inclui composição de P_BR, histograma de\nprefix length, more specifics, potencial de agregação, cobertura Registro.br,\nMOAS e prefixos potencialmente filtráveis.\n\nQuando `has_path_data` é `true`, o campo `as_path_stats` é preenchido com\nestatísticas de AS_PATH, prepending, upstream aparente, higiene e communities.",
+    "description": "Retorna análise completa da tabela de roteamento global com foco em ASNs e\nprefixos brasileiros (P_BR). Inclui composição de P_BR, histograma de\nprefix length, more specifics, potencial de agregação, cobertura Registro.br,\nprefixos potencialmente filtráveis. `moas` vem nulo, com o motivo em `moas_indisponivel`: a tabela usada guarda uma origem por\nprefixo e não detecta origem múltipla.\n\nQuando `has_path_data` é `true`, o campo `as_path_stats` é preenchido com\nestatísticas de AS_PATH, prepending, upstream aparente, higiene e communities.",
     "operationId": "get_routing_analysis_api_v1_routing_analysis_get",
     "parameters": [
      {
