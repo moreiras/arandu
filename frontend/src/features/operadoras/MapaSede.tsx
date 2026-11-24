@@ -126,13 +126,14 @@ export function MapaSede({ servico, date, uf, comAsn, moldura }: { servico: Serv
 
   const conteudo = (
     <>
-      <div ref={mapRef} className="w-full h-full" />
+      {/* A alternativa em texto é a lista de outorgas da página, com os mesmos filtros (UF, com AS) */}
+      <div ref={mapRef} className="w-full h-full" role="group" aria-label={`Mapa das sedes das outorgadas ${servico.rotulo}, com e sem AS; a lista da página traz as mesmas empresas`} />
       <div className="absolute bottom-8 right-3 flex gap-2 text-xs bg-white/90 backdrop-blur px-3 py-2 rounded shadow-sm border border-gray-200">
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-full inline-block" style={{ background: MAP_COLORS.scmWithoutAsn }} /> {servico.rotulo} sem AS
+          <span className="w-3 h-3 rounded-full inline-block" style={{ background: MAP_COLORS.scmWithoutAsn }} aria-hidden="true" /> {servico.rotulo} sem AS
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-full inline-block" style={{ background: MAP_COLORS.scmWithAsn }} /> {servico.rotulo} com AS
+          <span className="w-3 h-3 rounded-full inline-block" style={{ background: MAP_COLORS.scmWithAsn }} aria-hidden="true" /> {servico.rotulo} com AS
         </span>
       </div>
     </>
