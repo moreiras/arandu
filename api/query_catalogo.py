@@ -1200,7 +1200,7 @@ SCHEMA["transferencias_ipv4"] = {
     "description": (
         "Operações de transferência de IPv4 em que o Brasil é origem ou destino (listas do Registro.br e log do LACNIC). Uma operação é o mesmo dia e as mesmas partes: um lote de blocos é UMA "
         "operação (`n_blocos`, `enderecos`). É o que as listas DECLARAM, na data que declaram, sem causa nem intenção (não diga 'venda' nem 'aluguel'). Nome de pessoa física provável vem omitido "
-        "('Pessoa física'). `primeira_vez_visto` é a primeira data de snapshot em que a lista mostrou a operação; `anterior_a_coleta` = já estava na primeira lista coletada (junho de 2026), então "
+        "('Pessoa física'). `primeira_vez_visto` é a primeira data de snapshot em que a lista mostrou a operação; `anterior_a_coleta` = já estava na primeira lista coletada (a coleta começou em 2026-11-01), então "
         "a defasagem não existe. `asn_destino` é o ASN atual do bloco, quando o destino é brasileiro e o bloco é alocado a um ASN."
     ),
     "fields": [
