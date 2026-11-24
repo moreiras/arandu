@@ -128,4 +128,7 @@ html.leitura-confortavel main table p, html.leitura-confortavel main table li { 
   /* o layout usa min-h-screen: na impressão isso vira uma segunda folha em branco */
   html, body, #root, .min-h-screen { min-height: 0 !important; height: auto !important; }
   [data-testid="relatorio"] { max-width: none; font-size: 11px; }
+  /* o ponto do selo é fundo colorido: sem isto, "imprimir sem fundos" o apaga (o rótulo em texto fica de qualquer jeito) */
+  [data-testid="relatorio"] { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  [data-testid="relatorio"] tr, [data-testid="relatorio"] li { break-inside: avoid; }
 }

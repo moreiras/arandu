@@ -20,6 +20,12 @@ import { asnValido, cnpjValido } from '../lib/identificadores'
 
 interface Relatorio { titulo: string; subtitulo?: string; frases: Array<{ id: string; texto: string; selo: Selo }>; quadro: Comparacao; fontes: string[]; snapshot: string | null; caminho: string }
 const COR_SELO = { fato: 'bg-fato-600', inferido: 'bg-inferido-600', estimado: 'bg-estimado-600' } as const
+const TEXTO_SELO = { fato: 'text-fato-700', inferido: 'text-inferido-700', estimado: 'text-estimado-700' } as const
+
+/** Selo em texto (WCAG 1.4.1): a cor do ponto é reforço; o rótulo fica visível na tela, no leitor de tela e no papel sem fundos. */
+function SeloTexto({ selo }: { selo: Selo }) {
+  return <span className={`mr-1.5 rounded border border-current px-1 text-[10px] font-medium uppercase leading-4 ${TEXTO_SELO[selo]}`} title={DESCRICAO_SELO[selo]} data-selo={selo}>{ROTULO_SELO[selo]}</span>
+}
 const TIPOS = ['asn', 'operadora', 'municipio', 'grupo'] as const
 type Tipo = (typeof TIPOS)[number]
 const n = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits: 0 })
@@ -92,14 +98,14 @@ export function RelatorioPage() {
       </header>
       {r.frases.length > 0 && (
         <section aria-label="Síntese"><ul className="space-y-1">
-          {r.frases.map((f) => <li key={f.id} className="flex gap-2"><span className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${COR_SELO[f.selo]}`} aria-hidden="true" /><span><span className="sr-only">{ROTULO_SELO[f.selo]}: </span>{f.texto}</span></li>)}
+          {r.frases.map((f) => <li key={f.id} className="flex gap-2"><span className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${COR_SELO[f.selo]}`} aria-hidden="true" /><span><SeloTexto selo={f.selo} />{f.texto}</span></li>)}
         </ul></section>
       )}
       <section aria-label="Indicadores"><table className="w-full text-sm" data-tabela="grade"><tbody>
         {r.quadro.linhas.map((l) => (
           <tr key={l.id} className="border-b border-gray-100 align-top">
             <th scope="row" className="w-1/2 py-1 pr-3 text-left font-normal text-gray-700">
-              <span className={`mr-1.5 inline-block h-2 w-2 rounded-full ${COR_SELO[l.selo]}`} title={DESCRICAO_SELO[l.selo]} aria-hidden="true" />{l.rotulo}
+              <span className={`mr-1.5 inline-block h-2 w-2 rounded-full ${COR_SELO[l.selo]}`} aria-hidden="true" /><SeloTexto selo={l.selo} />{l.rotulo}
               {l.nota && <span className="block text-xs text-gray-400">{l.nota}</span>}
             </th>
             <td className="py-1 tabular-nums">{l.celulas[0] ?? '—'}</td>
