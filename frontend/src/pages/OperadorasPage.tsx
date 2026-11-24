@@ -30,11 +30,11 @@ function MapaServico({ servico, date, uf, comAsn }: { servico: Servico; date?: s
   const [modo, setModo] = useState<'sede' | 'sici'>('sici')
   if (!servico.temSici) return <MapaSede servico={servico} date={date} uf={uf} comAsn={comAsn} moldura />
   const botao = (m: 'sede' | 'sici', texto: string) => (
-    <button onClick={() => setModo(m)} className={`px-3 py-1.5 font-medium transition-colors ${modo === m ? 'bg-gray-700 text-white' : 'text-gray-600 hover:bg-gray-50'}`}>{texto}</button>
+    <button type="button" aria-pressed={modo === m} onClick={() => setModo(m)} className={`px-3 py-1.5 font-medium transition-colors ${modo === m ? 'bg-gray-700 text-white' : 'text-gray-600 hover:bg-gray-50'}`}>{texto}</button>
   )
   return (
     <div className="relative rounded-lg border border-gray-200 overflow-hidden" style={{ height: 420 }}>
-      <div className="absolute top-3 left-3 z-10 flex text-xs bg-white/95 backdrop-blur rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div role="group" aria-label="Camada do mapa" className="absolute top-3 left-3 z-10 flex text-xs bg-white/95 backdrop-blur rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         {botao('sede', 'Sede')}
         {botao('sici', 'Acessos (SICI)')}
       </div>
@@ -168,11 +168,15 @@ function ListaServico({ servico }: { servico: Servico }) {
           </>
         )}
         {(servico.temSici || servico.id === 'todas') && (
-          <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none" title={servico.dicaOperacao}>
-            <input type="checkbox" checked={soAtivos} className="rounded"
-              onChange={(e) => definir('ativo', e.target.checked === servico.soAtivosPadrao ? null : e.target.checked ? '1' : '0')} />
-            Apenas em operação
-          </label>
+          <span className="flex items-center gap-1">
+            <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+              <input type="checkbox" checked={soAtivos} className="rounded"
+                onChange={(e) => definir('ativo', e.target.checked === servico.soAtivosPadrao ? null : e.target.checked ? '1' : '0')} />
+              Apenas em operação
+            </label>
+            {/* a explicação ficava só no title do rótulo (teclado e toque não alcançam) */}
+            {servico.dicaOperacao && <Dica texto={servico.dicaOperacao} rotulo="Apenas em operação" />}
+          </span>
         )}
         {data && (
           <span className="text-xs text-gray-400 ml-auto">

@@ -3,6 +3,8 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
@@ -93,6 +95,23 @@ describe('página /operadoras', () => {
     expect(screen.getByText('1 resultado')).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'SCM' })).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByTestId('mapa-acessos')).toBeInTheDocument()   // SCM abre na aba de acessos (SICI)
+  })
+
+  it('alternância Sede/Acessos com aria-pressed e explicação do filtro fora do title (OPERADORA-E4, OPERADORA-E5)', async () => {
+    montar('/operadoras?servico=scm')
+    await screen.findByText('Prov')
+    const camada = screen.getByRole('group', { name: 'Camada do mapa' })
+    const sede = within(camada).getByRole('button', { name: 'Sede' })
+    const acessos = within(camada).getByRole('button', { name: 'Acessos (SICI)' })
+    expect(acessos).toHaveAttribute('aria-pressed', 'true')
+    expect(sede).toHaveAttribute('aria-pressed', 'false')
+    fireEvent.click(sede)
+    expect(sede).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByTestId('mapa-sede')).toBeInTheDocument()
+    expect(screen.getByLabelText('Apenas em operação').closest('label')).not.toHaveAttribute('title')
+    expect(screen.getByRole('button', { name: 'Sobre: Apenas em operação' })).toBeInTheDocument()
+    // o mapa de acessos é MapLibre (sem jsdom): o "×" do painel precisa de nome acessível
+    expect(readFileSync(resolve(__dirname, '../features/operadoras/MapaAcessos.tsx'), 'utf-8')).toMatch(/<button type="button" aria-label="Fechar painel"/)
   })
 
   it('?servico=stfc mostra a lista de STFC, sem filtro de operação e só com o mapa de sede', async () => {
