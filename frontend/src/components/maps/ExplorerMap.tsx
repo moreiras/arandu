@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import type { MapQueryBody } from '../../services/api'
+import { AccessError, type MapQueryBody } from '../../services/api'
+import { estadoDoErro, formatarEspera } from '../ui/EstadoDados'
 import { useAuth } from '../../auth/AuthContext'
 import { baixarCsv } from './explorer/csv'
 import { Legend } from './explorer/Legenda'
@@ -46,6 +47,13 @@ export function ExplorerMap({ date }: { date?: string }) {
     corpoSedes: () => dados.specs.find(sp => sp.id === 'asns_geo')?.key[3] as MapQueryBody | undefined,
   })
   const { loadingLabels, errors, activeData, doneCount } = dados
+  // A causa do erro das camadas (orçamento, login, taxa) muda a ação: "falha" só quando é falha mesmo.
+  const causa = errors.map((id) => dados.resultById[id]?.error).find((e) => e instanceof AccessError) as AccessError | undefined
+  const tipoErro = causa ? estadoDoErro(causa) : 'falha'
+  const prefixoErro = tipoErro === 'orcamento' ? 'O tempo de uso sem login acabou; entre para ver'
+    : tipoErro === 'login' ? 'Exige login'
+    : tipoErro === 'taxa' ? `Muitas consultas em pouco tempo; tente de novo${causa?.retryAfter != null ? ` em ${formatarEspera(causa.retryAfter)}` : ' em instantes'}`
+    : 'Falha ao carregar'
 
   return (
     <div className="absolute inset-0">
@@ -65,8 +73,8 @@ export function ExplorerMap({ date }: { date?: string }) {
 
       {errors.length > 0 && loadingLabels.length === 0 && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-          <div className="bg-perigo-50 border border-perigo-200 text-xs text-perigo-700 rounded-full px-3 py-1 shadow">
-            Falha ao carregar: {errors.map(id => LAYER_BY_ID[id].label).join(', ')}
+          <div className="bg-perigo-50 border border-perigo-200 text-xs text-perigo-700 rounded-full px-3 py-1 shadow" role="status">
+            {prefixoErro}: {errors.map(id => LAYER_BY_ID[id].label).join(', ')}
           </div>
         </div>
       )}

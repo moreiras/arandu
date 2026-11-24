@@ -6,6 +6,7 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchCommunities } from '../services/api'
+import { EstadoDados } from '../components/ui/EstadoDados'
 
 const POR_PAGINA = 25
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
@@ -51,7 +52,7 @@ export function CommunitiesPage() {
           </select></label>
       </div>
       {r.isLoading && <p className="text-sm text-gray-500">Carregando…</p>}
-      {r.isError && <p className="text-sm text-gray-600">Communities dos route servers ainda não estão disponíveis neste snapshot.</p>}
+      {r.isError && <EstadoDados erro={r.error} oQue="as communities" mensagem="Communities dos route servers ainda não estão disponíveis neste snapshot." aoTentarDeNovo={() => void r.refetch()} />}
       {d && (
         <>
           <p className="text-xs text-gray-600" data-testid="resumo-communities">

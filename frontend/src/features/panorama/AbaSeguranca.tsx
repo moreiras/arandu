@@ -7,6 +7,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ComoLer, Kpi } from '../../components/ui'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../../components/ui/EstadoDados'
 import { SegurancaSection } from '../../components/stats/SegurancaSection'
 import { fetchProntidaoResumo } from '../../services/api'
 import type { EstadoRpkiFamilia } from '../../types/api'
@@ -126,6 +127,8 @@ function SaudeTabela() {
 function Manrs() {
   const q = useQuery({ queryKey: ['prontidao-resumo'], queryFn: () => fetchProntidaoResumo(), staleTime: 10 * 60 * 1000, retry: false })
   const m = q.data?.manrs
+  // Sem resposta por acesso, taxa ou rede o bloco avisa em vez de sumir (sumir parece "sem MANRS no snapshot").
+  if (q.isError && ehErroDeAcessoOuFalha(q.error)) return <EstadoDados erro={q.error} oQue="a participação no MANRS" />
   if (!m || m.brasil.suprimido) return null
   const b = m.brasil
   return (

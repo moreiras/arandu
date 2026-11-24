@@ -11,6 +11,7 @@ import { isHistoricalDate } from '../../auth/accessPolicy'
 import { ROTULO_METRICA, TIPOS_DA_PAGINA } from '../historico/rotulos'
 import { useOrdenacao } from '../../lib/ordenacao'
 import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
+import { EstadoDados } from '../../components/ui/EstadoDados'
 
 const fmt = (n: number) => n.toLocaleString('pt-BR')
 const ROTULO: Record<string, string> = { ...ROTULO_METRICA, n_asns: 'ASNs brasileiros (por UF da sede)', ptts_coletados: 'PTTs coletados por inteiro', ptts_membros: 'Membros cadastrados nos PTTs' }
@@ -54,7 +55,7 @@ export function ComparaDatas() {
       </div>
       {A === B && <p className="text-sm text-gray-500">Escolha duas datas diferentes.</p>}
       {diff.isLoading && <p className="text-sm text-gray-400" role="status">Carregando…</p>}
-      {diff.isError && <p className="text-sm text-gray-500" role="status">Não há histórico guardado em uma das datas escolhidas.</p>}
+      {diff.isError && <EstadoDados erro={diff.error} oQue="a comparação entre as datas" mensagem="Não há histórico guardado em uma das datas escolhidas." aoTentarDeNovo={() => void diff.refetch()} />}
       {diff.data && (
         <>
           <table className="text-sm bg-white border border-gray-200 rounded-lg">

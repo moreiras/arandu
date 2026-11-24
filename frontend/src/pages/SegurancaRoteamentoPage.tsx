@@ -14,6 +14,7 @@ import { ComoLer } from '../components/ui/ComoLer'
 import { Dica } from '../components/ui/Dica'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { EstadoDados } from '../components/ui/EstadoDados'
 import { useOrdenacao } from '../lib/ordenacao'
 
 import { EstadoRpkiRotas, RpkiPublicacao } from '../features/panorama/AbaSeguranca'
@@ -161,7 +162,9 @@ export function SegurancaRoteamentoPage() {
   const [pesoUsuarios, setPesoUsuarios] = useState(false)
   const [mapa, setMapa] = useState('indice')
   const r = q.data
-  if (!r) return <p className="text-sm text-gray-500">{q.isError ? 'A prontidão em segurança de roteamento não foi publicada neste snapshot.' : 'Carregando…'}</p>
+  if (!r) return q.isError
+    ? <EstadoDados variante="pagina" erro={q.error} oQue="a prontidão em segurança de roteamento" mensagem="A prontidão em segurança de roteamento não foi publicada neste snapshot." aoTentarDeNovo={() => void q.refetch()} />
+    : <p className="text-sm text-gray-500">Carregando…</p>
   const br = r.agregado
   const ufs = Object.entries(r.por_uf ?? {}).sort((a, b) => ordem === 'media' ? (b[1].media_ponderada_usuarios ?? -1) - (a[1].media_ponderada_usuarios ?? -1) : b[1].asns - a[1].asns)
   const portes = Object.entries(r.por_faixa_porte ?? {}).sort((a, b) => ORDEM_PORTE.indexOf(a[0]) - ORDEM_PORTE.indexOf(b[0]))

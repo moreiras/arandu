@@ -9,6 +9,7 @@ type StabilitySummary = { epppd: number | null; epppd_v4: number | null; epppd_v
 import { useAuth } from '../auth/AuthContext'
 import { PREVIEW_LIMIT } from '../auth/accessPolicy'
 import { Dica } from '../components/ui/Dica'
+import { EstadoDados } from '../components/ui/EstadoDados'
 import { OrganizacoesVariosAsns } from '../components/stats/OrganizacoesVariosAsns'
 
 // ─── Column definitions ───────────────────────────────────────────────────────
@@ -429,7 +430,7 @@ export function ASes() {
     setPage(1)
   }
 
-  const { data, isLoading, isFetching, isError } = useQuery({
+  const { data, isLoading, isFetching, isError, error } = useQuery({
     queryKey: ['ases-table', date, page, sortBy, sortDesc, !!user, tamanho],
     queryFn: () =>
       fetchASNs({
@@ -516,8 +517,8 @@ export function ASes() {
                 ))
               ) : isError ? (
                 <tr>
-                  <td colSpan={cols.length} className="px-4 py-8 text-center text-perigo-500 text-sm">
-                    Erro ao carregar lista de ASes. Tente novamente.
+                  <td colSpan={cols.length} className="px-4 py-8 text-sm">
+                    <EstadoDados erro={error} oQue="a lista de ASes" mensagem="A lista de ASes não está publicada neste snapshot." />
                   </td>
                 </tr>
               ) : items.length === 0 ? (

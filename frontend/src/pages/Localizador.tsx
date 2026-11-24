@@ -12,6 +12,7 @@ import { PainelEntidades } from '../features/localizador/PainelEntidades'
 import { geocodeQuery, useLocalizadorDados } from '../features/localizador/useLocalizadorDados'
 import { useMapaLocalizador } from '../features/localizador/useMapaLocalizador'
 import { Link } from 'react-router-dom'
+import { EstadoDados } from '../components/ui/EstadoDados'
 
 /**
  * Localizador de Redes (/localizador): ASes, prefixos, SCMs e usuários SICI num raio em volta de um ponto.
@@ -27,6 +28,7 @@ export function Localizador() {
   const setShow = useCallback((p: Partial<typeof show>) => setShowState(s => ({ ...s, ...p })), [])
   const [search, setSearch] = useState('')
   const [searching, setSearching] = useState(false)
+  const [erroBusca, setErroBusca] = useState<{ erro: unknown; termo: string } | null>(null)
   const [copied, setCopied] = useState(false)
   const [modal, setModal] = useState<{ title: string; html: string } | null>(null)
 
@@ -80,12 +82,15 @@ export function Localizador() {
   const handleSearch = useCallback(async () => {
     if (!search.trim()) return
     setSearching(true)
+    setErroBusca(null)
     try {
       const pos = await geocodeQuery(search.trim(), date)
       if (pos) {
         setMarkerPos(pos)
         mapRef.current?.flyTo({ center: [pos[1], pos[0]], zoom: 11 })
-      }
+      } else setErroBusca({ erro: new Error('HTTP 404: não encontrado'), termo: search.trim() })
+    } catch (e) {
+      setErroBusca({ erro: e, termo: search.trim() })
     } finally {
       setSearching(false)
     }
@@ -167,6 +172,9 @@ export function Localizador() {
           temPresenca={!!ixPresence} tagsDoAs={tagsDoAs}
         />
       </div>
+
+      {erroBusca && <EstadoDados erro={erroBusca.erro} oQue={'a busca por "' + erroBusca.termo + '"'} mensagem={'Lugar não encontrado: "' + erroBusca.termo + '". Tente o nome do município (ex.: Vitória).'} />}
+      {dados.erro && <EstadoDados erro={dados.erro} oQue="algumas camadas do mapa" />}
 
       {/* os municípios e as UFs da área, com link para as páginas deles. */}
       {markerPos && siciMunInRadius.length > 0 && (

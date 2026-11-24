@@ -11,6 +11,7 @@ import { UFS } from '../lib/ufs'
 import { AtribuicaoPeeringDb, LinkInstalacao, SeloCadastro, localDe, n } from '../features/instalacoes/comum'
 import { MapaInstalacoes } from '../features/instalacoes/MapaInstalacoes'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { EstadoDados } from '../components/ui/EstadoDados'
 import type { Sentido } from '../lib/ordenacao'
 
 const POR_PAGINA = 100       // a prévia aberta: acima disso (ou página 2) a API exige login
@@ -29,7 +30,7 @@ export function FacilitiesPage() {
   const [comPtt, setComPtt] = useState(false)
   const [ordem, setOrdem] = useState('redes')
   const [pagina, setPagina] = useState(1)
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['facilities', date, q, uf, cadastro, comPtt, ordem, pagina],
     queryFn: () => fetchFacilities({ date: date ?? undefined, q: q || undefined, uf: uf || undefined, cadastro: cadastro || undefined, com_ptt: comPtt || undefined, ordem, limit: POR_PAGINA, page: pagina }),
     staleTime: 5 * 60 * 1000, placeholderData: (anterior) => anterior,
@@ -75,7 +76,7 @@ export function FacilitiesPage() {
       </div>
 
       {isLoading && <p className="text-sm text-gray-400">Carregando…</p>}
-      {isError && <p className="text-sm text-gray-500">Instalações do PeeringDB indisponíveis neste snapshot.</p>}
+      {isError && <EstadoDados erro={error} oQue="as instalações do PeeringDB" mensagem="Instalações do PeeringDB indisponíveis neste snapshot." />}
       {data && (
         <>
           <p className="text-xs text-gray-500" data-testid="total-instalacoes">

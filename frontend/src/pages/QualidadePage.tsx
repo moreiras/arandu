@@ -7,6 +7,7 @@ import { lazy, Suspense, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router-dom'
 import { fetchConsumidorMarcas, fetchConsumidorResumo, fetchQualidadePrestadoras, fetchQualidadeResumo, fetchQualidadeSerie, fetchReclamacoesMarcas, fetchReclamacoesResumo } from '../services/api'
+import { EstadoDados } from '../components/ui/EstadoDados'
 import type { QualIndicador } from '../types/api'
 import { BulletPrestadoras } from '../features/qualidade/BulletPrestadoras'
 import { arquivo, dec, inteiro, NotaQualidade, referencia } from '../features/qualidade/blocos'
@@ -52,7 +53,7 @@ function Indicadores() {
     queryFn: () => fetchQualidadeSerie({ servico, indicador: ind, uf: uf || undefined }), staleTime, retry: false,
   })
   const r = resumo.data
-  if (!r) return <p className="text-sm text-gray-500">{resumo.isError ? 'RQUAL não publicado neste snapshot.' : 'Carregando…'}</p>
+  if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="os indicadores do RQUAL" mensagem="RQUAL não publicado neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
   const eixo: 'mes' | 'ano' = uf ? 'ano' : 'mes'
   const periodos = [...new Set((serie.data?.items ?? []).map((x) => String((x as unknown as Record<string, unknown>)[eixo])))].sort().slice(-12)
   const nomes = [...new Set((serie.data?.items ?? []).map((x) => x.prestadora))].sort()
@@ -130,7 +131,7 @@ function Reclamacoes() {
     queryFn: () => fetchReclamacoesMarcas({ servico: servico || undefined, q: q || undefined, limit: 25, page }), staleTime, retry: false,
   })
   const r = resumo.data
-  if (!r) return <p className="text-sm text-gray-500">{resumo.isError ? 'Reclamações não publicadas neste snapshot.' : 'Carregando…'}</p>
+  if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="as reclamações" mensagem="Reclamações não publicadas neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
   const anos = [...new Set(r.por_ano_servico.map((x) => x.ano))].sort((a, b) => b - a).slice(0, 8)
   const servicos = SERVICOS_RECL.filter((s) => r.por_ano_servico.some((x) => x.servico === s))
   const cel = (ano: number, s: string) => r.por_ano_servico.find((x) => x.ano === ano && x.servico === s)?.reclamacoes ?? 0
@@ -205,7 +206,7 @@ function Consumidor() {
     queryFn: () => fetchConsumidorMarcas({ uf: uf || undefined, q: q || undefined, limit: 25, page }), staleTime, retry: false,
   })
   const r = resumo.data
-  if (!r) return <p className="text-sm text-gray-500">{resumo.isError ? 'Consumidor.gov.br não publicado neste snapshot.' : 'Carregando…'}</p>
+  if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="os dados do Consumidor.gov.br" mensagem="Consumidor.gov.br não publicado neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
   const ultima = Math.max(1, Math.ceil((lista.data?.total ?? 0) / 25))
   const meses = r.setor_por_mes.slice(-12)
   return (

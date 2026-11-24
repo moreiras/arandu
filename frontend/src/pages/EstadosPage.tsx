@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 import { CartogramaUfs } from '../features/estados/CartogramaUfs'
 import { MapaSobDemanda } from '../features/estados/MapaSobDemanda'
 import { useUfs } from '../hooks/entidades'
+import { EstadoDados } from '../components/ui/EstadoDados'
 import { REGIOES, nomeUf } from '../lib/ufs'
 
 const fmt = (n: number) => n.toLocaleString('pt-BR')
@@ -25,6 +26,7 @@ export function EstadosPage() {
         <h1 className="text-titulo-1 text-gray-900">Estados</h1>
         <p className="text-sm text-gray-500 mt-1">Escolha uma UF para ver seus PTTs, os maiores municípios em banda larga, os que ficam longe de um PTT e as operadoras sediadas nela.</p>
       </div>
+      {q.isError && <EstadoDados erro={q.error} oQue="os números por UF" mensagem="Os números por UF não estão publicados neste snapshot." aoTentarDeNovo={() => void q.refetch()} />}
       {ufs.length > 0 && <CartogramaUfs ufs={ufs} />}
       <MapaSobDemanda />
       {REGIOES.map((r) => (

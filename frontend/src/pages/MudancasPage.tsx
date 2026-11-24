@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchMudancas, fetchMudancasResumo, fetchSnapshots } from '../services/api'
 import { useAuth } from '../auth/AuthContext'
+import { EstadoDados } from '../components/ui/EstadoDados'
 import { fraseEvento, ROTULO_ESTADO, TIPOS_DA_PAGINA } from '../features/historico/rotulos'
 import { UFS, nomeUf } from '../lib/ufs'
 
@@ -92,8 +93,9 @@ export function MudancasPage() {
           {resumo.data.snapshots_com_historico} snapshots com histórico · {Object.keys(resumo.data.por_data).length} datas com mudanças · {total.toLocaleString('pt-BR')} resultados com este filtro.
         </p>
       )}
+      {resumo.isError && !lista.isError && <EstadoDados erro={resumo.error} oQue="o resumo das mudanças" mensagem="O resumo das mudanças não está publicado." />}
       {lista.isLoading && <p className="text-sm text-gray-400" role="status">Carregando…</p>}
-      {lista.isError && <p className="text-sm text-gray-500" role="status">Não foi possível carregar as mudanças agora.</p>}
+      {lista.isError && <EstadoDados erro={lista.error} oQue="as mudanças" mensagem="Não há mudanças publicadas para este filtro." aoTentarDeNovo={() => void lista.refetch()} />}
       {!lista.isLoading && !lista.isError && itens.length === 0 && <p className="text-sm text-gray-500" role="status">Nenhuma mudança com este filtro nos snapshots com histórico.</p>}
       {itens.length > 0 && (
         <div className="space-y-3" data-testid="mudancas-por-tipo">

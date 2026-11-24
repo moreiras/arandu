@@ -11,6 +11,7 @@ import type { Ipv4Direcao, Ipv4Operacao } from '../types/api'
 import { CLASSES_ESPACO } from '../features/ipv4/blocos'
 import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 
 const ABAS = [
   { id: 'transferencias', rotulo: 'Transferências' },
@@ -57,6 +58,7 @@ function Transferencias() {
   const total = lista.data?.total ?? 0
   return (
     <div className="space-y-4">
+      {mercado.isError && ehErroDeAcessoOuFalha(mercado.error) && <EstadoDados erro={mercado.error} oQue="o resumo das transferências" />}
       {m && (
         <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
           <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
@@ -92,7 +94,8 @@ function Transferencias() {
           <label className="text-sm text-gray-600 flex flex-col">Parte
             <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1) }} placeholder="nome" className="border border-gray-300 rounded px-2 py-1.5 text-sm" /></label>
         </div>
-        <div className="overflow-x-auto">
+        {lista.isError && <EstadoDados erro={lista.error} oQue="a lista de transferências" mensagem="A lista de transferências não está publicada neste snapshot." aoTentarDeNovo={() => void lista.refetch()} />}
+        <div className="overflow-x-auto" hidden={lista.isError}>
           <table className="text-xs min-w-full">
             <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Data</th><th className="text-left px-2 py-1">Origem</th><th className="text-left px-2 py-1">Destino</th><th className="text-right px-2 py-1">Blocos</th><th className="text-right px-2 py-1">Endereços</th>
               <th className="text-left px-2 py-1">ASN atual</th><th className="text-left px-2 py-1">Visto na lista</th></tr></thead>
@@ -110,12 +113,19 @@ function Transferencias() {
         </div>
         <div className="flex items-center gap-3 text-sm text-gray-600">
           <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="px-2 py-1 border border-gray-300 rounded disabled:opacity-40">Anterior</button>
-          <span>{inteiro(total)} operações · página {page} de {Math.max(1, Math.ceil(total / 25))}</span>
+          {!lista.isError && <span>{inteiro(total)} operações · página {page} de {Math.max(1, Math.ceil(total / 25))}</span>}
           <button disabled={page * 25 >= total} onClick={() => setPage(page + 1)} className="px-2 py-1 border border-gray-300 rounded disabled:opacity-40">Próxima</button>
         </div>
       </section>
     </div>
   )
+}
+
+/** Aba sem dado: carregando, erro com causa ou "não publicado" (só para 404); antes a aba sumia em branco. */
+function EstadoAba({ q, oQue }: { q: { isLoading: boolean; isError: boolean; error: unknown; refetch: () => unknown }; oQue: string }) {
+  if (q.isLoading) return <EstadoDados estado="carregando" />
+  if (!q.isError) return null
+  return <EstadoDados erro={q.error} oQue={oQue} mensagem={`Sem dado publicado neste snapshot para ${oQue}.`} aoTentarDeNovo={() => void q.refetch()} />
 }
 
 function Recuperacao() {
@@ -134,7 +144,7 @@ function Recuperacao() {
     recuperacao: (m) => q.data?.eventos_por_mes[m].recuperacao ?? 0,
     liberacao: (m) => q.data?.eventos_por_mes[m].liberacao ?? 0,
   })
-  if (!q.data) return null
+  if (!q.data) return <EstadoAba q={q} oQue="os recursos em recuperação" />
   const r = q.data
   const meses = porMes.ordenados.slice(0, 18)
   return (
@@ -186,7 +196,7 @@ function EspacoSemUso() {
     enderecos: ([, v]) => v.enderecos,
     pct: ([, v]) => v.enderecos,
   })
-  if (!d) return null
+  if (!d) return <EstadoAba q={q} oQue="o espaço IPv4 alocado" />
   const r = d.resumo
   const ufs = Object.keys(r.por_uf).filter((u) => u !== 'sem_asn').sort()
   return (
@@ -245,7 +255,7 @@ function UsoPorTerceiros() {
   const [page, setPage] = useState(1)
   const q = useQuery({ queryKey: ['ipv4-uso', sinal, confianca, page], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4UsoPorTerceiros({ sinal: sinal || undefined, confianca: confianca || undefined, limit: 25, page }) })
   const d = q.data
-  if (!d) return null
+  if (!d) return <EstadoAba q={q} oQue="o uso por terceiros" />
   return (
     <div className="space-y-4">
       <section className="bg-aviso-50 border border-aviso-200 rounded-lg p-3 text-sm text-aviso-900">
@@ -292,7 +302,7 @@ const VALIDACOES_ROTULO: Record<string, string> = { receptor_origina: 'origina',
 function Subasignacoes() {
   const q = useQuery({ queryKey: ['ipv4-subasignacoes'], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4Subasignacoes({ limit: 100 }) })
   const d = q.data
-  if (!d) return null
+  if (!d) return <EstadoAba q={q} oQue="as sub-asignações" />
   return (
     <div className="space-y-4">
       {d.aguardando && (

@@ -12,6 +12,7 @@ import { Resultado, type RespostaConsulta } from '../features/explorar/Resultado
 import { deUrl, estadoDeReceita, estadoInicial, montarCorpo, paraUrl, type EstadoConsulta, type SchemaConsulta } from '../features/explorar/consulta'
 import { useActiveDate } from '../hooks/useSnapshot'
 import { AccessError, fetchCaminho, queryColecao } from '../services/api'
+import { EstadoDados } from '../components/ui/EstadoDados'
 
 /** O corpo do erro da API vem como `HTTP 400: {"detail": "..."}`; mostra só o detalhe. */
 export function detalheDoErro(e: Error | null): string {
@@ -100,11 +101,11 @@ export function ExplorarPage() {
         </>
       )}
 
-      {resultado.isError && (
+      {resultado.isError && (erro instanceof AccessError ? <EstadoDados erro={erro} oQue="a consulta" /> : (
         <p className="text-sm text-perigo-700 bg-perigo-50 border border-perigo-200 rounded px-3 py-2" role="alert">
-          {erro instanceof AccessError ? erro.message : `A consulta não pôde ser executada: ${detalheDoErro(erro)}`}
+          {`A consulta não pôde ser executada: ${detalheDoErro(erro)}`}
         </p>
-      )}
+      ))}
       {resultado.data && daUrl && (
         <Resultado colecao={daUrl.colecao} resposta={resultado.data} pagina={daUrl.pagina} onPagina={(p) => executar({ ...daUrl, pagina: p })}
           ordem={daUrl.ordem} onOrdem={(o) => executar({ ...daUrl, ordem: o, pagina: 1 })}

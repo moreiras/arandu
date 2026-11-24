@@ -10,6 +10,7 @@ import { useActiveDate } from '../../../hooks/useSnapshot'
 import type { BlocoProps } from '../../entidade/registry'
 import type { MunicipioCtx } from '../contexto'
 import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../../../components/ui/EstadoDados'
 import { useOrdenacao } from '../../../lib/ordenacao'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR', { maximumFractionDigits: 0 }))
@@ -31,7 +32,7 @@ export function SemelhantesBloco({ dados }: BlocoProps<MunicipioCtx>) {
     km: { valor: (m) => m.km_ptt, primeiro: 'asc' },
   })
   if (q.isLoading) return <div className="h-24 bg-gray-50 rounded animate-pulse" />
-  if (!r) return null
+  if (!r) return q.isError && ehErroDeAcessoOuFalha(q.error) ? <EstadoDados erro={q.error} oQue="a comparação com municípios do mesmo porte" /> : null
   const pos = (p: { posicao: number; de: number } | null) => (p ? `${p.posicao}º de ${p.de}` : 'sem dado')
   return (
     <div className="space-y-2 text-sm" data-testid="semelhantes">

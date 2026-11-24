@@ -10,6 +10,7 @@ import { useActiveDate } from '../hooks/useSnapshot'
 import { useAsnPerfil, useFontes } from '../hooks/entidades'
 import type { WeekSeries } from '../components/bgp/HourlyActivityChart'
 import { EntityPage } from '../features/entidade/EntityPage'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import { CabecalhoAsn } from '../features/asn/CabecalhoAsn'
 import { FichaAsn } from '../features/asn/FichaAsn'
 import type { AsnCtx } from '../features/asn/contexto'
@@ -27,7 +28,7 @@ export function ASNPage() {
   const { fontes } = useFontes()
 
   // Perfil consolidado: documento, caminhos, pares nos PTTs diretos e estabilidade BGP do AS numa chamada (eram 4).
-  const { data: perfil, isLoading, isError } = useAsnPerfil(asn)
+  const { data: perfil, isLoading, isError, error, refetch } = useAsnPerfil(asn)
   const { doc, referencias, pathsData, ixpPeerStats, estab, historico, seguranca, prontidao, routeServers, politicaRs, organizacao, abuso, bloqueios, radar, exposicao, transito, facilities, peering } = useMemo(() => {
     if (!perfil) return { doc: undefined, referencias: undefined, pathsData: undefined, ixpPeerStats: undefined, estab: undefined, historico: undefined, seguranca: undefined, prontidao: undefined, routeServers: undefined, politicaRs: undefined, organizacao: undefined, abuso: undefined, bloqueios: undefined, radar: undefined, exposicao: undefined, transito: undefined, facilities: undefined, peering: undefined }
     const { referencias, paths, ixp_peers, estabilidade, historico, seguranca, prontidao, route_servers, politica_rs, organizacao, abuso, bloqueios, radar, exposicao, transito, facilities, peering, ...resto } = perfil
@@ -57,12 +58,17 @@ export function ASNPage() {
     )
   }
 
+  // Erro de acesso, de taxa ou de rede não é 404: a página não pode afirmar que o AS não existe.
+  if (isError && ehErroDeAcessoOuFalha(error)) {
+    return <EstadoDados variante="pagina" erro={error} oQue={`o perfil do AS${asn}`} aoTentarDeNovo={() => void refetch()} className="mt-8 max-w-2xl mx-auto" />
+  }
+
   if (isError || !doc) {
     return (
       <div className="text-center mt-16">
         <div className="text-3xl mb-3">404</div>
         <p className="text-gray-500 text-sm">
-          ASN <code className="font-mono">AS{asn}</code> não encontrado no snapshot atual.
+          ASN <code className="font-mono">AS{asn}</code> não encontrado no snapshot {date ?? 'atual'}.
         </p>
         <Link to="/" className="mt-4 inline-block text-sm text-primario-600 hover:underline">
           ← Voltar ao início

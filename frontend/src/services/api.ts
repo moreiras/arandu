@@ -166,15 +166,34 @@ export function onLoginRequired(cb: LoginRequiredListener): () => void {
 }
 
 /** Erro de acesso (login exigido ou orçamento esgotado) — as telas distinguem
- * de falha de rede para mostrar um aviso em vez de "erro ao carregar". */
+ * de falha de rede para mostrar um aviso em vez de "erro ao carregar" (`components/ui/EstadoDados`). */
 export class AccessError extends Error {
-  /** `taxa`: 429 do orçamento por cliente ou da cota de contatos (a mensagem da API diz qual limite e quanto esperar). */
+  /** `taxa`: 429 do orçamento por cliente ou da cota de contatos (a mensagem da API diz qual limite e quanto esperar).
+   *  `limit`: orçamento anônimo das páginas avançadas esgotado (403 `anon_limit_reached` ou o 429 equivalente). */
   kind: 'login' | 'limit' | 'taxa'
-  constructor(kind: 'login' | 'limit' | 'taxa', message: string) {
+  /** Segundos até poder tentar de novo, quando a API manda `Retry-After`. */
+  retryAfter: number | null
+  /** Motivo do 401 (`lista-expandida`, `historico`, `contatos`…), quando a API informa. */
+  reason: string | null
+  constructor(kind: 'login' | 'limit' | 'taxa', message: string, opts: { retryAfter?: number | null; reason?: string | null } = {}) {
     super(message)
     this.name = 'AccessError'
     this.kind = kind
+    this.retryAfter = opts.retryAfter ?? null
+    this.reason = opts.reason ?? null
   }
+}
+
+/** `Retry-After` em segundos (número ou data HTTP); sem cabeçalho, o `retry_after` do corpo do limitador. */
+function segundosParaTentar(res: Response, body: { retry_after?: unknown } | null): number | null {
+  const h = res.headers.get('Retry-After')
+  if (h) {
+    const n = Number(h)
+    if (Number.isFinite(n) && n >= 0) return Math.ceil(n)
+    const quando = Date.parse(h)
+    if (Number.isFinite(quando)) return Math.max(0, Math.ceil((quando - Date.now()) / 1000))
+  }
+  return typeof body?.retry_after === 'number' && body.retry_after >= 0 ? Math.ceil(body.retry_after) : null
 }
 
 function checkAnonLimitHeader(res: Response): void {
@@ -190,7 +209,7 @@ function baseHeaders(): Record<string, string> {
 /** Converte respostas 401/403 de política em AccessError e notifica ouvintes. */
 async function failure(res: Response): Promise<never> {
   const text = await res.text().catch(() => '')
-  let body: { login_required?: boolean; anon_limit_reached?: boolean; reason?: string; detail?: unknown } | null = null
+  let body: { login_required?: boolean; anon_limit_reached?: boolean; reason?: string; detail?: unknown; retry_after?: unknown } | null = null
   try {
     body = text ? JSON.parse(text) : null
   } catch {
@@ -201,15 +220,18 @@ async function failure(res: Response): Promise<never> {
   if (res.status === 401) {
     const reason = body?.reason ?? (res.url.endsWith('/contacts') ? 'contatos' : null)
     loginRequiredListeners.forEach((cb) => cb(reason))
-    throw new AccessError('login', 'Esta ação exige login. Entre para continuar.')
+    throw new AccessError('login', 'Esta ação exige login. Entre para continuar.', { reason })
+  }
+  // O orçamento anônimo esgotado pode vir como 403 ou como 429 com Retry-After: as duas formas são o mesmo estado para a tela.
+  const orcamentoEsgotado = !!body?.anon_limit_reached || res.headers.get(ANON_LIMIT_HEADER) === 'true'
+  if ((res.status === 403 || res.status === 429) && orcamentoEsgotado) {
+    anonLimitListeners.forEach((cb) => cb())
+    throw new AccessError('limit', 'O tempo de uso das páginas avançadas sem login acabou. Entre para continuar.',
+      { retryAfter: segundosParaTentar(res, body) })
   }
   if (res.status === 429) {
     const msg = typeof body?.detail === 'string' ? body.detail : 'Muitas consultas em pouco tempo. Tente novamente em instantes.'
-    throw new AccessError('taxa', msg)
-  }
-  if (res.status === 403 && body?.anon_limit_reached) {
-    anonLimitListeners.forEach((cb) => cb())
-    throw new AccessError('limit', 'O tempo de uso das páginas avançadas sem login acabou. Entre para continuar.')
+    throw new AccessError('taxa', msg, { retryAfter: segundosParaTentar(res, body) })
   }
   throw new Error(`HTTP ${res.status}${text ? ': ' + text : ''}`)
 }

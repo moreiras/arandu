@@ -8,6 +8,7 @@ import { cdnSlug } from '../lib/cdn'
 import type { CDNRow, CDNMatrixColumn } from '../types/api'
 import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { EstadoDados } from '../components/ui/EstadoDados'
 
 // ─── CDN categories ───────────────────────────────────────────────────────────
 
@@ -447,11 +448,7 @@ export function CDNPage() {
 
       {isLoading && <div className="h-64 bg-gray-100 rounded-lg animate-pulse" />}
 
-      {error && (
-        <div className="py-12 text-center text-gray-400 text-sm">
-          Dados de CDNs não disponíveis neste snapshot.
-        </div>
-      )}
+      {error && <EstadoDados erro={error} oQue="os dados de CDNs" mensagem="Dados de CDNs não disponíveis neste snapshot." className="my-6" />}
 
       {data && (
         <div className="space-y-3">

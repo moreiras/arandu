@@ -14,6 +14,7 @@ import { CLASSES, inteiro as inteiroDO, intervaloRazao, razao } from '../feature
 import { SITE } from '../lib/site'
 import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 
 const PESQUISAS = [
   { id: 'domicilios', rotulo: 'TIC Domicílios', descricao: 'Uso de internet e equipamentos nos domicílios brasileiros' },
@@ -48,7 +49,7 @@ function EstimativasUf() {
     grupo: (l) => l.g.grupo, proporcao: (l) => (l.e.suprimido ? null : l.e.proporcao), margem: (l) => (l.e.suprimido ? null : l.e.margem),
     total: (l) => l.e.total, n: (l) => l.g.n,
   })
-  if (!q.data) return null
+  if (!q.data) return q.isError && ehErroDeAcessoOuFalha(q.error) ? <EstadoDados erro={q.error} oQue="as estimativas por UF" /> : null
   const c = q.data
   const grupos = c.items
   return (
@@ -108,7 +109,7 @@ function DemandaOfertaUfs() {
     grupo: (g) => g.id, demanda: (g) => g.l.demanda_domicilios, oferta: (g) => g.l.oferta_acessos_pf, razao: (g) => g.l.razao,
     intervalo: (g) => g.l.razao_min, nao_visto: (g) => g.l.nao_visto, leitura: (g) => CLASSES[g.l.classe].rotulo,
   })
-  if (!q.data) return null
+  if (!q.data) return q.isError && ehErroDeAcessoOuFalha(q.error) ? <EstadoDados erro={q.error} oQue="a demanda e a oferta por UF" /> : null
   const d = q.data
   return (
     <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
@@ -200,7 +201,7 @@ export function UsoInternetPage() {
         </label>
       </div>
 
-      {tabelas.isError && <p className="text-sm text-gray-600">As tabelas do Cetic.br não estão publicadas neste snapshot.</p>}
+      {tabelas.isError && <EstadoDados erro={tabelas.error} oQue="as tabelas do Cetic.br" mensagem="As tabelas do Cetic.br não estão publicadas neste snapshot." aoTentarDeNovo={() => void tabelas.refetch()} />}
       {escolhida && (
         <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
           <div>

@@ -12,6 +12,7 @@ import { BarraDeAbas } from '../features/entidade/EntityPage'
 import { DICA_PREFIXOS_LIMITE } from '../lib/textos'
 import { Dica } from '../components/ui/Dica'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { EstadoDados } from '../components/ui/EstadoDados'
 import { alternarOrdem, type Ordem } from '../lib/ordenacao'
 
 const POR_PAGINA = 25
@@ -176,7 +177,7 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
         </p>
       )}
       {ativa.isLoading && <p className="text-sm text-gray-400" role="status">Carregando…</p>}
-      {ativa.isError && <p className="text-sm text-gray-500" role="status">Não foi possível carregar a lista agora.</p>}
+      {ativa.isError && <EstadoDados erro={ativa.error} oQue="a lista" mensagem="Esta lista não está publicada neste snapshot." aoTentarDeNovo={() => void ativa.refetch()} />}
       {aba === 'operadoras' && ops.data && (
         <Tabela cab={['#', 'Operadora', 'Acessos', 'Parcela', ...(uf ? [] : ['12 meses', 'Queda seguida'])]}
           ord={{ Acessos: thOp('acessos'), Parcela: thOp('share'), '12 meses': thOp('var_aa_pct'), 'Queda seguida': thOp('declinio') }}>

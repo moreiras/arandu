@@ -11,6 +11,7 @@ import { EntityPage } from '../features/entidade/EntityPage'
 import { useFontes, useGrupoDetalhe } from '../hooks/entidades'
 import { AccessPanel } from '../components/AccessPanel'
 import { AccessError } from '../services/api'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import type { GrupoCtx } from '../features/grupo/contexto'
 import '../features/grupo'
 
@@ -28,6 +29,8 @@ export function GrupoPage() {
   const g = q.data
   // 401/403 da política não é "grupo inexistente": mostra o painel de login (o <P> da rota cobre a carga inicial)
   if (q.error instanceof AccessError && q.error.kind !== 'taxa') return <AccessPanel reason={q.error.kind === 'limit' ? 'esgotado' : 'geral'} />
+  // 429 e falha de rede também não são "grupo inexistente"
+  if (q.isError && ehErroDeAcessoOuFalha(q.error)) return <EstadoDados variante="pagina" erro={q.error} oQue="o grupo" aoTentarDeNovo={() => void q.refetch()} />
   if (!g) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-6">

@@ -10,6 +10,7 @@ import { useAcoesPerfil, usePerfil } from '../features/perfil/api'
 import { SITE } from '../lib/site'
 import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { EstadoDados } from '../components/ui/EstadoDados'
 
 const dataBr = (d: string) => d.split('-').reverse().join('/')
 
@@ -88,6 +89,13 @@ export function Perfil() {
   const q = usePerfil(!loading && !!user)
   const { sairDeTodos, excluir } = useAcoesPerfil()
   if (loading) return <p className="text-sm text-gray-400" role="status">Carregando…</p>
+  // Só o 401 quer dizer "sem perfil" (acesso por rede autorizada); 429, 5xx e falha de rede são do momento.
+  if (user && q.isError && q.error.message !== 'login') return (
+    <div className="max-w-xl space-y-2">
+      <h1 className="text-titulo-1 text-gray-900">Perfil</h1>
+      <EstadoDados erro={q.error} oQue="o seu perfil" aoTentarDeNovo={() => void q.refetch()} />
+    </div>
+  )
   if (!user || q.isError) return (
     <div className="max-w-xl space-y-2">
       <h1 className="text-titulo-1 text-gray-900">Perfil</h1>
