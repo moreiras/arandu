@@ -773,8 +773,8 @@ def test_feed_atom_das_mudancas_so_confirmadas_sem_provedor_e_aberto(api):
     texto = r.text.lower()
     assert "provedor" not in texto and "@" not in texto and "não indica causa" in texto
     conf = api.get("/api/v1/changes", params={"limit": 500, "from": "2000-01-01"}, headers=ALLOWED).json()["items"]
-    esperadas = {(e["data"], e["tipo"]) for e in conf if not e["tipo"].startswith("provedor")}
-    assert len(entradas) == len(esperadas) > 0                                   # uma entrada por (data, tipo) confirmado
+    esperadas = {(e["confirmado_em"], e["tipo"]) for e in conf if not e["tipo"].startswith("provedor")}
+    assert len(entradas) == len(esperadas) > 0                                   # uma entrada por (data de confirmação, tipo)
 
 
 def test_historico_para_anonimo_so_a_partir_dos_snapshots_atuais(api):

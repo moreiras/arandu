@@ -254,20 +254,28 @@ def perfil(repo: HistoricoRepo, escopo: str, chave: str, completo: bool, recente
             "serie": serie, "eventos": eventos, "eventos_total": len(todos)}
 
 
-# ── Feed Atom ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-# Uma entrada por (data, tipo) com as contagens e até ITENS_POR_ENTRADA eventos. Só eventos CONFIRMADOS, só as datas atuais (o feed é aberto: a série
-# antiga exige login) e sem provedor (inferência do ARC v1). Linguagem de evidência: diferença observada, sem causa, intenção ou nome de empresa.
+# ── Feed Atom ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+# Uma entrada por (data de confirmação, tipo) com as contagens e até ITENS_POR_ENTRADA eventos. Só eventos CONFIRMADOS cuja confirmação caiu numa
+# das datas atuais (o feed é aberto: a série antiga exige login), e sem provedor (inferência do ARC v1). A entrada nasce na data em que o evento
+# pôde ser afirmado (`confirmado_em`), nunca com `updated` retroativo. Linguagem de evidência: diferença observada, sem causa, intenção ou nome
+# de empresa.
 ITENS_POR_ENTRADA = 25
 _DESCRICAO = {
     "asn_novo": "ASes passaram a aparecer na tabela de roteamento", "asn_sumido": "ASes deixaram de aparecer na tabela de roteamento",
-    "ixp_entrada": "ASes passaram a constar como membros de PTTs", "ixp_saida": "ASes deixaram de constar como membros de PTTs",
-    "ixp_entrada_observada": "ASes passaram a ser vistos em par direto em PTTs", "ixp_saida_observada": "ASes deixaram de ser vistos em par direto em PTTs",
     "mudanca_origem": "prefixos mudaram de origem", "roa_ganho": "ASes passaram a ter ROA", "roa_perdido": "ASes deixaram de ter ROA",
     "aspa_ganho": "ASes passaram a publicar ASPA", "aspa_perdido": "ASes deixaram de publicar ASPA",
     "rpki_invalido_novo": "ASes passaram a ter prefixo com RPKI inválido", "rpki_invalido_resolvido": "ASes deixaram de ter prefixo com RPKI inválido",
     "outorga_nova": "novas outorgas no cadastro da Anatel", "outorga_baixa": "outorgas deixaram de constar no cadastro da Anatel",
     "alerta_novo": "novos pontos de atenção", "alerta_resolvido": "pontos de atenção deixaram de aparecer",
 }
+# Tipos em que um AS gera um evento por PTT: o título conta eventos (pares AS-PTT) e, à parte, os ASes distintos.
+_DESCRICAO_POR_PAR = {
+    "ixp_entrada": "entradas de AS como membro de PTT", "ixp_saida": "saídas de AS do cadastro de membros de PTT",
+    "ixp_entrada_observada": "entradas de AS em par direto em PTT", "ixp_saida_observada": "saídas de AS de par direto em PTT",
+}
+_TIPOS_FEED = set(_DESCRICAO) | set(_DESCRICAO_POR_PAR)
+# Maior janela de confirmação entre os tipos do feed (2 snapshots): um evento confirmado numa data atual nasceu no máximo um snapshot antes.
+_JANELA_MAX_FEED = 2
 
 
 def _item_feed(e: dict) -> str:
@@ -278,26 +286,53 @@ def _item_feed(e: dict) -> str:
     return f"{base} ({e['chave']})" if e["chave"] and e["tipo"] not in ("outorga_nova", "outorga_baixa") else base
 
 
-def feed_atom(repo: HistoricoRepo, recentes: list[str], base_url: str) -> str:
-    from xml.sax.saxutils import escape
+def _link_entidade(entidade: str, base_url: str) -> Optional[str]:
+    tipo, _, valor = entidade.partition(":")
+    caminho = {"asn": "asn", "cnpj": "operadora", "prefixo": "prefixo", "ixp": "ixp"}.get(tipo)
+    return f"{base_url}/{caminho}/{valor}" if caminho and valor else None
 
-    datas = [d for d in reversed(repo.datas()) if d in recentes]
-    entradas = []
-    for d in datas:
-        por_tipo: dict[str, list[dict]] = {}
+
+def feed_atom(repo: HistoricoRepo, recentes: list[str], base_url: str) -> str:
+    from xml.sax.saxutils import escape, quoteattr
+
+    todas = repo.datas()
+    atuais = [d for d in todas if d in recentes]
+    if atuais:
+        i0 = todas.index(atuais[0])
+        lidas = todas[max(0, i0 - (_JANELA_MAX_FEED - 1)):]
+    else:
+        lidas = []
+    por_chave: dict[tuple[str, str], list[dict]] = {}
+    for d in lidas:
         for e in repo.eventos(d):
-            if e["estado"] == "confirmado" and e["tipo"] in _DESCRICAO:
-                por_tipo.setdefault(e["tipo"], []).append(e)
-        for tipo in sorted(por_tipo):
-            evs = sorted(por_tipo[tipo], key=lambda e: (e["entidade"], e["chave"]))
-            itens = "".join(f"<li>{escape(_item_feed(e))}</li>" for e in evs[:ITENS_POR_ENTRADA])
+            c = e.get("confirmado_em")
+            if e["estado"] == "confirmado" and e["tipo"] in _TIPOS_FEED and c in atuais:
+                por_chave.setdefault((c, e["tipo"]), []).append(e)
+    entradas = []
+    for c in reversed(atuais):
+        for tipo in sorted(t for (dc, t) in por_chave if dc == c):
+            evs = sorted(por_chave[(c, tipo)], key=lambda e: (e["entidade"], e["chave"]))
+            entidades = sorted({e["entidade"] for e in evs})
+            if tipo in _DESCRICAO_POR_PAR:
+                titulo = f"{len(evs)} {_DESCRICAO_POR_PAR[tipo]} ({len(entidades)} ASes) ({c})"
+            else:
+                titulo = f"{len(evs)} {_DESCRICAO[tipo]} ({c})"
+
+            def _li(e: dict) -> str:
+                texto = escape(_item_feed(e)) + (f" (observado em {e['data']})" if e["data"] != c else "")
+                href = _link_entidade(e["entidade"], base_url)
+                return f"<li><a href={quoteattr(href)}>{texto}</a></li>" if href else f"<li>{texto}</li>"
+
+            itens = "".join(_li(e) for e in evs[:ITENS_POR_ENTRADA])
             resto = f"<p>e mais {len(evs) - ITENS_POR_ENTRADA}.</p>" if len(evs) > ITENS_POR_ENTRADA else ""
-            corpo = (f"<p>Diferença observada entre o snapshot anterior e o de {d}; não indica causa nem intenção.</p><ul>{itens}</ul>{resto}"
+            corpo = (f"<p>Diferença observada entre snapshots, confirmada no de {c}; não indica causa nem intenção.</p><ul>{itens}</ul>{resto}"
                      f"<p><a href=\"{base_url}/mudancas\">Ver em O que mudou</a></p>")
+            link = (_link_entidade(entidades[0], base_url) if len(entidades) == 1 else None) or f"{base_url}/mudancas"
             entradas.append(
-                f"<entry><title>{escape(f'{len(evs)} {_DESCRICAO[tipo]} ({d})')}</title><id>tag:{_autoridade_tag()},{d}:mudancas/{tipo}</id>"
-                f"<updated>{d}T00:00:00Z</updated><link href=\"{base_url}/mudancas\"/><content type=\"html\">{escape(corpo)}</content></entry>")
-    atualizado = f"{datas[0]}T00:00:00Z" if datas else "1970-01-01T00:00:00Z"
+                f"<entry><title>{escape(titulo)}</title><id>tag:{_autoridade_tag()},{c}:mudancas/{tipo}</id>"
+                f"<updated>{c}T00:00:00Z</updated><link href={quoteattr(link)}/><category term=\"{tipo}\"/>"
+                f"<content type=\"html\">{escape(corpo)}</content></entry>")
+    atualizado = f"{atuais[-1]}T00:00:00Z" if atuais else "1970-01-01T00:00:00Z"
     return ("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<feed xmlns=\"http://www.w3.org/2005/Atom\">"
             f"<title>{escape(SITE.nome)} — O que mudou</title><subtitle>Diferenças observadas entre snapshots da Internet brasileira, só as confirmadas. "
             "Sem causa nem intenção atribuída.</subtitle>"

@@ -8367,7 +8367,7 @@
   },
   "/api/v1/feed/mudancas.atom": {
    "get": {
-    "description": "Feed Atom com as diferenças **observadas** entre snapshots, uma entrada por data e tipo, só as confirmadas e só as dos 2 snapshots mais recentes\n(a série antiga exige login). Não traz eventos de provedor (inferência) nem nomes de empresas, e não atribui causa nem intenção.",
+    "description": "Feed Atom com as diferenças **observadas** entre snapshots, uma entrada por data de confirmação e tipo, só as confirmadas num dos 2 snapshots\nmais recentes (a série antiga exige login); `updated` é a data em que o evento se confirmou. Em entrada e saída de PTT o título conta pares AS-PTT\ne, à parte, os ASes distintos. Não traz eventos de provedor (inferência) nem nomes de empresas, e não atribui causa nem intenção.",
     "operationId": "feed_mudancas_api_v1_feed_mudancas_atom_get",
     "responses": {
      "200": {

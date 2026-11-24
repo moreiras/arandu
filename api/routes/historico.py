@@ -168,8 +168,9 @@ def pede_historico(extras) -> Optional[bool]:
     "/feed/mudancas.atom",
     summary="Feed Atom: o que mudou (só eventos confirmados dos snapshots atuais)",
     description="""
-Feed Atom com as diferenças **observadas** entre snapshots, uma entrada por data e tipo, só as confirmadas e só as dos 2 snapshots mais recentes
-(a série antiga exige login). Não traz eventos de provedor (inferência) nem nomes de empresas, e não atribui causa nem intenção.
+Feed Atom com as diferenças **observadas** entre snapshots, uma entrada por data de confirmação e tipo, só as confirmadas num dos 2 snapshots
+mais recentes (a série antiga exige login); `updated` é a data em que o evento se confirmou. Em entrada e saída de PTT o título conta pares AS-PTT
+e, à parte, os ASes distintos. Não traz eventos de provedor (inferência) nem nomes de empresas, e não atribui causa nem intenção.
 """,
     response_class=Response,
 )
