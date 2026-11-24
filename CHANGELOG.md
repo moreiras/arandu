@@ -25,6 +25,14 @@ parênteses remetem à análise.
   legenda única dos cartogramas; "Data no cadastro" das outorgas; dica de "Dir. IX.br" como sessão com o route server; telas
   públicas sem instruções de operação (TRANSV-E7, MUD-E1, IPV4-E4, PANORAMA-E3, PANORAMA-E4, CDN-E2, CDNS-E1, GRUPO-E4, LOC-E2,
   IXE-E3, SNAP-E1, SNAP-E2, TRANSV-E15, HOME-E10, EST-E3, OPERADORAS-E6, ASES-E2).
+- **Acessibilidade e 404 real (PT-29).** Endereço inexistente passa a responder 404 de verdade, com página e título próprios
+  (antes toda URL respondia 200). O nginx do frontend lista as rotas da SPA (`map $rota_spa`); rota nova precisa entrar nele, e
+  `components/layout/rotas.test.ts` confere (guia do desenvolvedor, seção Frontend). Quem usa leitor de tela ou só o teclado lê o
+  estado de filtros e botões (`aria-pressed`, `aria-expanded`), expande linhas e seleciona grupos, e tem em tabela ("Ver dados") os
+  números de mapas e cartogramas que antes só existiam como cor ou dica. Tabelas com `caption` e `scope`; o selo do relatório (fato,
+  inferido, estimado) aparece escrito, também impresso; a contagem animada do PTT respeita movimento reduzido; selo SCM do
+  localizador e erro do login passam de 4,5:1 de contraste (INST-E2, INST-E3, LOC-E8, INST-E10, IXP-E11, REL-E9, CDNS-E7, SEG-E1,
+  EST-E7, OPERADORA-E3, OPERADORA-E4, OPERADORA-E5, GRUPO-E1, GRUPOS-E2, ASES-E8, USO-E13).
 
 ## v2.1.3
 
