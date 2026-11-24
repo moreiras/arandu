@@ -4,6 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { HistoricoEvento } from '../../types/api'
+import { formatarData } from '../../lib/datas'
 
 /**
  * Rótulos do histórico. Linguagem de evidência: o evento é uma DIFERENÇA OBSERVADA entre snapshots, sem causa, intenção nem
@@ -55,3 +56,10 @@ export function fraseEvento(e: HistoricoEvento): string {
 export const ROTULO_ESTADO: Record<HistoricoEvento['estado'], string> = {
   confirmado: 'confirmado', pendente: 'em confirmação', revertido: 'revertido',
 }
+
+/** Data do primeiro snapshot publicado (DD/MM/AAAA), lida da lista de `/snapshots`; vazio enquanto a lista não chega. */
+export function inicioDosSnapshots(datas: readonly string[] | undefined): string {
+  const primeira = [...(datas ?? [])].sort()[0]
+  return primeira ? formatarData(primeira) : ''
+}
+

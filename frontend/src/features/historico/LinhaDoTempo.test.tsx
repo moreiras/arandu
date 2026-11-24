@@ -8,7 +8,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import type { HistoricoBloco } from '../../types/api'
 import { LinhaDoTempo } from './LinhaDoTempo'
-import { fraseEvento, TIPOS_DA_PAGINA } from './rotulos'
+import { fraseEvento, inicioDosSnapshots, TIPOS_DA_PAGINA } from './rotulos'
 
 const historico: HistoricoBloco = {
   completo: true, snapshots_com_historico: 3, colunas: ['users', 'p4', 'n_roa'],
@@ -44,6 +44,7 @@ describe('LinhaDoTempo', () => {
   it('sem histórico mostra uma explicação, não um erro', () => {
     ver(null)
     expect(screen.getByText(/Ainda não há histórico guardado/)).toBeTruthy()
+    expect(document.body.textContent).not.toMatch(/outubro de 2026/)
     ver({ ...historico, serie: [] })
   })
 
@@ -68,5 +69,12 @@ describe('rótulos do histórico', () => {
       const f = fraseEvento({ data: '2026-10-31', tipo: t, entidade: 'asn:1', chave: 'x', estado: 'confirmado' })
       expect(f, t).not.toMatch(/sequestr|hijack|ataque|culp|fraude|ilegal/i)
     }
+  })
+
+  it('a data inicial é a do primeiro snapshot da lista, não uma data fixa', () => {
+    expect(inicioDosSnapshots(['2026-11-22', '2026-06-28', '2026-11-15'])).toBe('28/06/2026')
+    expect(inicioDosSnapshots(['2027-01-03'])).toBe('03/01/2027')
+    expect(inicioDosSnapshots([])).toBe('')
+    expect(inicioDosSnapshots(undefined)).toBe('')
   })
 })
