@@ -70,7 +70,7 @@ describe('página de prefixo', () => {
     montar('/prefixo/198.18.0.0/24')
     const aviso = await screen.findByTestId('moas-indisponivel')
     expect(aviso.textContent).toMatch(/não está disponível/)
-    expect(aviso.textContent).toMatch(/não indica ausência de MOAS/)
+    expect(aviso.textContent).toMatch(/limite da coleta, não ausência de eventos/)
     expect(document.body.textContent).not.toMatch(/Nenhuma origem múltipla/)
     expect(chamadas).toBe(0)
   })

@@ -36,9 +36,10 @@ parênteses remetem à análise.
 - **Cálculos de rede corrigidos (PT-04).** Números publicados que mudam:
   - interconexão do ASN (REST e MCP `asn_interconexao`): o carregador é o AS vizinho ao PTT (último do caminho gravado), e caminhos
     de um AS contam; antes se tomava o primeiro elemento de um caminho invertido e se atribuía entrega a AS sem sessão no PTT;
-  - MOAS deixa de ser publicado (`moas: null` com `moas_indisponivel`) em `/routing-analysis`, `/brasil/indicadores`, MCP e telas,
-    inclusive para snapshots antigos: a coleta guarda uma rota por prefixo e o número era sempre 0; a categoria da cobertura passa a
-    "Várias origens, sem agregado";
+  - MOAS deixa de ser publicado como número (`moas: null` com `moas_indisponivel`) em `/routing-analysis`, `/brasil/indicadores`,
+    MCP e telas, inclusive para snapshots antigos: a coleta da tabela global guarda uma origem por prefixo e não permitia detectar
+    MOAS, então o 0 publicado era limite da coleta, não ausência de eventos (MOAS é raro, mas existe); a medição volta quando a coleta
+    guardar todas as origens por prefixo e por coletor; a categoria da cobertura passa a "Várias origens, sem agregado";
   - profundidade de mais-específicos pelo pai imediato (era sempre 1); a lista de filtráveis mostra tudo por padrão;
   - originadores por PTT são a união IPv6 ∪ IPv4 (era o maior dos dois) em `ixps/index.json`, `ixp_lista`, `query(ixps)` e na série;
   - PTTs externos contam redes distintas (`redes`, `redes_br`, `portas`; `member_count` e `br_member_count` viram alias): decix-rj

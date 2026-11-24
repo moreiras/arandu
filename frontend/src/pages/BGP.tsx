@@ -42,7 +42,7 @@ const ABAS_BGP = [
   { id: 'agregacao', rotulo: 'Agregação e cobertura', descricao: 'Potencial de agregação por ASN e cobertura dos blocos do Registro.br' },
   { id: 'caminhos', rotulo: 'Caminhos', descricao: 'AS_PATH, prepending e communities' },
   { id: 'estabilidade', rotulo: 'Estabilidade', descricao: 'ASes com volume desproporcional de updates BGP' },
-  { id: 'moas', rotulo: 'MOAS (indisponível)', descricao: 'Origem múltipla: a tabela usada não permite detectar' },
+  { id: 'moas', rotulo: 'MOAS (não medido)', descricao: 'Origem múltipla: a coleta atual não permite detectar' },
 ]
 
 export function BGP() {

@@ -97,7 +97,7 @@ def montar(date_str: str, pbr_v4: list[dict], pbr_v6: list[dict], rpki_index: di
         "rpki": {"v6": estado_rpki(pbr_v6, rpki_index, "v6"), "v4": estado_rpki(pbr_v4, rpki_index, "v4")},
         "saude": {
             **saude,
-            # Nulo, com o motivo: origin-prefixes-{afi} traz uma origem por prefixo e a contagem sairia sempre 0 (core/moas.py).
+            # Nulo, com o motivo: origin-prefixes-{afi} traz uma origem por prefixo e a contagem sairia 0 por limite da coleta, não por ausência de MOAS (core/moas.py).
             # `moas` e `moas_limite` ficam na assinatura para quem chama com a análise antiga; não entram no resultado.
             "moas": None,
             "moas_indisponivel": MOAS_MOTIVO,
