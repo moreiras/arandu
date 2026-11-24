@@ -22,8 +22,8 @@ const comData = (Secao: (p: { date?: string }) => JSX.Element | null) => functio
 export const ABAS_MERCADO: AbaPanorama[] = [
   { id: 'banda-larga-fixa', rotulo: 'Banda larga fixa', descricao: 'Acessos fixos declarados à Anatel (SICI): tecnologia, velocidade, maiores operadoras e evolução.', Conteudo: comData(BandaLargaFixaSection) },
   { id: 'banda-larga-movel', rotulo: 'Banda larga móvel', descricao: 'Acessos móveis (SMP) declarados à Anatel, por operadora e tecnologia.', Conteudo: comData(BandaLargaMovelSection) },
-  { id: 'telefonia-fixa', rotulo: 'Telefonia fixa', descricao: 'Acessos de telefonia fixa (STFC) declarados à Anatel.', Conteudo: comData(TelefoniaFixaSection) },
-  { id: 'tv-por-assinatura', rotulo: 'TV por assinatura', descricao: 'Assinantes de TV por assinatura (SeAC) declarados à Anatel.', Conteudo: comData(TvPorAssinaturaSection) },
+  { id: 'telefonia-fixa', rotulo: 'Telefonia fixa', descricao: 'Prestadoras com outorga de STFC no cadastro da Anatel. Esta página não traz acessos de STFC.', Conteudo: comData(TelefoniaFixaSection) },
+  { id: 'tv-por-assinatura', rotulo: 'TV por assinatura', descricao: 'Prestadoras com outorga de SeAC no cadastro da Anatel. Esta página não traz assinantes de SeAC.', Conteudo: comData(TvPorAssinaturaSection) },
   { id: 'maiores', rotulo: 'Maiores', descricao: 'Posição mês a mês das maiores operadoras de banda larga fixa e as maiores empresas ou grupos por acessos.', Conteudo: MaioresMercado },
   { id: 'concentracao', rotulo: 'Concentração', descricao: 'HHI do mercado fixo por CNPJ e por grupo econômico, por UF, e quantos municípios mudam de faixa.', Conteudo: ConcentracaoPanorama },
 ]

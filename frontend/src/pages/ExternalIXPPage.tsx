@@ -10,6 +10,7 @@ import type { ExternalIXPMember } from '../types/api'
 import { ExternalIXPRouteServer, type ExternalIXPComRouteServer } from './ExternalIXPRouteServer'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { useOrdenacao } from '../lib/ordenacao'
+import { formatarData } from '../lib/datas'
 
 const FLAG: Record<string, string> = {
   BR: '🇧🇷', AR: '🇦🇷', CL: '🇨🇱', CO: '🇨🇴', PE: '🇵🇪',
@@ -84,7 +85,7 @@ export function ExternalIXPPage() {
           { label: 'Total de membros', value: data.member_count.toLocaleString('pt-BR') },
           { label: 'Membros BR', value: data.br_member_count.toLocaleString('pt-BR') },
           { label: '% BR', value: data.member_count > 0 ? `${((data.br_member_count / data.member_count) * 100).toFixed(1)}%` : '—' },
-          { label: 'Atualizado em', value: data.last_updated },
+          { label: 'Snapshot', value: formatarData(data.last_updated) },
         ].map(({ label, value }) => (
           <div key={label} className="bg-white rounded-lg border border-gray-200 px-4 py-3">
             <div className="text-xs text-gray-500 mb-1">{label}</div>

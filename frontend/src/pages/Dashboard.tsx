@@ -73,20 +73,10 @@ export function Dashboard() {
   if (noData) {
     return (
       <div className="max-w-xl mx-auto mt-16 text-center">
-        <div className="text-4xl mb-4">📭</div>
         <h1 className="text-xl font-semibold text-gray-800 mb-2">Nenhum snapshot disponível</h1>
         <p className="text-gray-500 text-sm mb-6">
-          O pipeline ainda não publicou nenhum snapshot. Execute os módulos de coleta e análise.
+          Ainda não há snapshot publicado neste site.
         </p>
-        <div className="bg-gray-50 rounded-lg p-4 text-left font-mono text-xs text-gray-600 space-y-0.5">
-          <div className="text-gray-400 mb-1"># Pipeline completo:</div>
-          <div>docker compose run --rm worker python -m collector.lg_ixbr</div>
-          <div>docker compose run --rm worker python -m collector.fulltable</div>
-          <div>docker compose run --rm worker python -m collector.registro_br</div>
-          <div>docker compose run --rm worker python -m analysis.bgp_parser</div>
-          <div>docker compose run --rm worker python -m analysis.metrics</div>
-          <div>docker compose run --rm worker python -m publish.snapshot_builder</div>
-        </div>
         <Link to="/sobre" className="mt-4 inline-block text-sm text-primario-600 hover:underline">
           Ver documentação →
         </Link>

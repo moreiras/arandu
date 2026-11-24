@@ -41,4 +41,17 @@ describe('página O que mudou', () => {
     expect(tipoPedido).not.toContain('provedor')
     expect(screen.getByText(/sem causa nem intenção atribuída/)).toBeTruthy()
   })
+
+  it('tira a data inicial da lista de snapshots e explica a confirmação por tipo', async () => {
+    server.use(
+      http.get('*/api/v1/snapshots', () => HttpResponse.json({ count: 3, latest: '2026-11-22', snapshots: ['2026-06-28', '2026-11-15', '2026-11-22'] })),
+      http.get('*/api/v1/changes/summary', () => HttpResponse.json({ total: 0, por_tipo: {}, por_data: {}, snapshots_com_historico: 3 })),
+      http.get('*/api/v1/changes', () => HttpResponse.json({ total: 0, limit: 100, offset: 0, items: [] })),
+    )
+    montar(<MudancasPage />)
+    await waitFor(() => expect(screen.getByText(/Os snapshots publicados começam em 28\/06\/2026\./)).toBeTruthy())
+    const texto = document.body.textContent ?? ''
+    expect(texto).toContain('contam como confirmados no snapshot em que aparecem')
+    expect(texto).not.toMatch(/outubro de 2026|persistiu por mais de um/)
+  })
 })

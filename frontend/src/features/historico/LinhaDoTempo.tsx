@@ -40,12 +40,12 @@ function Evento({ e }: { e: HistoricoEvento }) {
 
 /**
  * Linha do tempo de uma entidade: miniaturas das métricas principais, uma por snapshot com histórico, e os eventos recentes.
- * Eventos são diferenças OBSERVADAS entre snapshots, sem causa nem intenção. O histórico começou a ser guardado em 2026-10: poucos pontos no início.
+ * Eventos são diferenças OBSERVADAS entre snapshots, sem causa nem intenção.
  * `escopo` escolhe as métricas desenhadas.
  */
 export function LinhaDoTempo({ historico, escopo }: { historico?: HistoricoBloco | null; escopo: 'asn' | 'ixp' | 'operadora' | 'uf' }) {
   if (!historico || historico.serie.length === 0) {
-    return <p className="text-sm text-gray-500">Ainda não há histórico guardado para esta entidade (a camada de histórico começou em outubro de 2026).</p>
+    return <p className="text-sm text-gray-500">Ainda não há histórico guardado para esta entidade.</p>
   }
   const datasEvento = new Set(historico.eventos.filter((e) => e.estado !== 'revertido').map((e) => e.data))
   const metricas = METRICAS_ESCOPO[escopo].filter((m) => historico.colunas.includes(m))

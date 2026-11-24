@@ -44,7 +44,7 @@ Transferências diretas do Registro.br (com o conjunto original e a data do regi
 
 ## Limites
 
-As listas do Registro.br só têm a versão atual: o histórico anterior à nossa coleta (junho de 2026) não existe, e `primeira_vez_visto` de registros antigos é a primeira data coletada. O log do LACNIC tem as datas de transferência.
+As listas do Registro.br só têm a versão atual: o histórico anterior à nossa coleta (iniciada em 2026-11-01; `resumo.primeira_data_coletada`) não existe, e `primeira_vez_visto` de registros antigos é a primeira data coletada. O log do LACNIC tem as datas de transferência.
 
 ## Retenção
 

@@ -57,7 +57,7 @@ TEMAS: tuple[tuple[str, str, str, tuple[str, ...]], ...] = (
     ("Mercado de endereços IPv4", "/mercado-ipv4", "Transferências e preço de blocos IPv4", ("ipv4", "transferencia", "transferencias", "leilao", "mercado ipv4", "esgotamento")),
     ("Estabilidade BGP", "/bgp", "Flaps, EPPPD e estabilidade das rotas", ("bgp", "estabilidade", "flap", "epppd")),
     ("Rankings do SICI", "/rankings", "Maiores operadoras por acessos", ("ranking", "rankings", "sici", "maiores", "assinantes")),
-    ("Grupos econômicos", "/grupos", "Quem controla quem entre as operadoras", ("grupo economico", "grupos", "holding", "controladora")),
+    ("Grupos econômicos", "/grupos", "Empresas ligadas por sócios em comum ou participação societária", ("grupo economico", "grupos", "holding", "controladora")),
     ("Operadoras", "/operadoras", "Provedores e operadoras outorgados pela Anatel", ("operadoras", "provedores", "provedor", "scm", "smp", "stfc", "seac")),
     ("O que mudou", "/mudancas", "Mudanças entre snapshots", ("mudancas", "mudou", "novidades", "diff")),
     ("Mapa", "/mapa", "Mapa da Internet brasileira", ("mapa", "mapas")),

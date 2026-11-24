@@ -17,7 +17,7 @@ from typing import Optional
 LIMITES_OPORTUNIDADES = ("Só o que os dados públicos mostram: originação vista no looking glass do IX.br, sessões dos route servers (Alice-LG) e rejeições e communities coletadas. "
                          "Peering bilateral (sessão direta entre dois ASes) não aparece nesses dados: nada aqui diz com quem o AS troca ou deixa de trocar tráfego, nem que uma sessão ausente seja um problema. "
                          "Cada item é um fato observado na data da coleta, não uma recomendação.")
-LIMITES_ALCANCE = ("Fração dos usuários estimados pela APNIC (ASes do Brasil, por UF da sede do AS) em ASes membros de algum PTT do IX.br onde a CDN tem peering direto observado. "
+LIMITES_ALCANCE = ("Fração dos usuários estimados pela APNIC (ASes do Brasil, por UF da sede do AS) em ASes membros de algum PTT do IX.br onde a CDN também é membro (lista de membros do IX.br). "
                    "Estimativa: usuários se repetem entre ASes da mesma operadora, membro registrado não quer dizer que o tráfego da CDN passe ali, e não mede tráfego nem qualidade.")
 
 

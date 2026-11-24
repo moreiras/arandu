@@ -141,7 +141,7 @@ export function AppLayout() {
       {/* Status bar quando API está offline ou sem dados */}
       {health && health.snapshots_available === 0 && (
         <div className="bg-aviso-50 border-b border-aviso-200 px-4 py-2 text-xs text-aviso-700 text-center">
-          Nenhum snapshot publicado disponível. Execute o pipeline completo para gerar dados.
+          Nenhum snapshot publicado disponível no momento.
         </div>
       )}
 

@@ -1146,7 +1146,7 @@ export interface GrupoCnpjEntry {
  *  ("grupo de uma empresa só"). */
 export type GrupoClassificacao = 'total' | 'misto' | 'parcial' | 'individual'
 
-/** Tipo de relação DIRETA (nunca transitiva) entre duas empresas. */
+/** Tipo de relação direta entre duas empresas (par a par, não a cadeia do grupo). */
 export type TipoRelacaoSocietaria =
   | 'quadro_identico'
   | 'controle_exclusivo_exercido'
@@ -1214,7 +1214,7 @@ export interface GrupoDetalhe {
   limites: string
 }
 
-/** Empresa relacionada a um CNPJ com evidência DIRETA (nunca transitiva). */
+/** Empresa relacionada a um CNPJ com evidência direta (par a par, não a cadeia do grupo). */
 export interface EmpresaRelacionada {
   cnpj: string
   empresa: string

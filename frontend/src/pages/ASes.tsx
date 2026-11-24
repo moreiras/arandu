@@ -81,7 +81,7 @@ const COLS: ColDef[] = [
   {
     key: 'ixps_direct_count',
     label: 'Dir. IX.br',
-    tooltip: 'Número de IXPs do IX.br onde este AS aparece como participante direto (peering via Route Server ou bilateral)',
+    tooltip: 'Número de PTTs do IX.br em que este AS tem sessão BGP com o route server e anuncia rotas por ele (primeiro AS do caminho nas rotas coletadas). Sessões bilaterais não são observáveis aqui, e membro sem sessão no route server não conta.',
     align: 'right',
     w: 'w-[58px]',
   },

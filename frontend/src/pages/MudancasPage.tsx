@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchMudancas, fetchMudancasResumo, fetchSnapshots } from '../services/api'
 import { useAuth } from '../auth/AuthContext'
 import { EstadoDados } from '../components/ui/EstadoDados'
-import { fraseEvento, ROTULO_ESTADO, TIPOS_DA_PAGINA } from '../features/historico/rotulos'
+import { fraseEvento, inicioDosSnapshots, ROTULO_ESTADO, TIPOS_DA_PAGINA } from '../features/historico/rotulos'
 import { UFS, nomeUf } from '../lib/ufs'
 
 const POR_PAGINA = 100
@@ -34,6 +34,7 @@ export function MudancasPage() {
   const [pagina, setPagina] = useState(0)
   const snaps = useQuery({ queryKey: ['snapshots'], queryFn: fetchSnapshots, staleTime: Infinity, gcTime: Infinity })
   const recentes = (snaps.data?.snapshots ?? []).slice(-2)
+  const inicio = inicioDosSnapshots(snaps.data?.snapshots)
   const limitado = !!anon
   const from = limitado ? recentes[0] : undefined
   const pronto = !loading && !!snaps.data
@@ -58,8 +59,9 @@ export function MudancasPage() {
         <h1 className="text-titulo-1 text-gray-900">O que mudou</h1>
         <p className="text-sm text-gray-500 mt-1">
           Diferenças observadas entre snapshots consecutivos: ASes que passaram a aparecer ou sumiram, entradas e saídas de PTTs, prefixos cuja origem mudou,
-          ROAs, RPKI e outorgas. Cada item é o que as duas fotografias mostram, sem causa nem intenção atribuída. Só entra o que persistiu por mais de um
-          snapshot (confirmado); o histórico começou em outubro de 2026, então há poucas datas no início.{' '}
+          ROAs, RPKI e outorgas. Cada item é o que as duas fotografias mostram, sem causa nem intenção atribuída. Por padrão só entram os confirmados:
+          entradas e saídas do cadastro de PTTs, ROAs ganhos ou perdidos, ASPA e outorgas novas contam como confirmados no snapshot em que aparecem;
+          os demais tipos, quando o novo estado se mantém no snapshot seguinte.{inicio && ` Os snapshots publicados começam em ${inicio}.`}{' '}
           <a href="/api/v1/feed/mudancas.atom" className="text-primario-600 hover:underline">Assinar por feed (Atom)</a>.
         </p>
       </div>

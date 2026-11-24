@@ -1191,8 +1191,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Alcance de cada CDN por peering: fração dos usuários BR em ASes membros dos PTTs onde ela está
-         * @description Por CDN: a fração dos usuários estimados pela APNIC, nos ASes do Brasil, que estão em ASes **membros de algum PTT do IX.br onde a CDN tem peering direto observado**, no país e por UF da sede
+         * Alcance de cada CDN por PTT: fração dos usuários BR em ASes membros dos PTTs onde ela é membro
+         * @description Por CDN: a fração dos usuários estimados pela APNIC, nos ASes do Brasil, que estão em ASes **membros de algum PTT do IX.br onde a CDN também é membro** (lista de membros do IX.br, não sessão observada), no país e por UF da sede
          *     do AS. Estimativa: usuários se repetem entre ASes da mesma operadora, membro registrado não quer dizer que o tráfego da CDN passe ali, e não mede tráfego nem qualidade.
          */
         get: operations["cdns_alcance_api_v1_cdns_alcance_get"];
@@ -2940,7 +2940,7 @@ export interface paths {
          *     | `scm_mode` | string | Para `outorgas_scm`: `todas` (default), `com_asn`, `sem_asn` |
          *     | `ix_apply_filter` | bool | Prefixos do PTT só com origem no recorte de ASes (default `false`) |
          *
-         *     A camada `scms` retorna as outorgas SCM **sem ASN** (operadores licenciados ausentes do BGP);
+         *     A camada `scms` retorna as outorgas SCM **sem ASN** (nenhum ASN no Registro.br com o mesmo CNPJ);
          *     a interseção AS∩SCM aparece via `asns_geo` com `color_by="outorga"`. A camada
          *     `outorgas_scm` traz todas as outorgas (com `has_asn`); as com ASN respeitam o
          *     recorte, as sem ASN só aparecem sem filtro por atributos (a proximidade é aplicada

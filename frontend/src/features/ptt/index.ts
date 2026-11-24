@@ -63,7 +63,7 @@ def({ id: 'instalacoes', titulo: 'Instalações (PeeringDB)', ordem: 57, depende
 def({ id: 'mapa', semTitulo: true, titulo: 'Distribuição geográfica', ordem: 60, depende: ['ixp-geo'], fontes: ['prefix_geo', 'curada_pix'], selo: 'inferido', nota: 'geolocalização por prefixo, com confiança variável', Componente: MapaGeoBloco })
 def({ id: 'hilbert-v6', semTitulo: true, titulo: 'Espaço IPv6 — Curva de Hilbert', ordem: 70, depende: ['useIxp', 'ixp-members'], fontes: ['lg_ixbr', 'registro_br'], selo: 'fato', aplicavel: (c) => !!c.v6, Componente: HilbertV6Bloco })
 def({ id: 'hilbert-v4', semTitulo: true, titulo: 'Espaço IPv4 — Curva de Hilbert', ordem: 80, depende: ['useIxp', 'ixp-members'], fontes: ['lg_ixbr', 'registro_br'], selo: 'fato', aplicavel: (c) => !!c.v4, Componente: HilbertV4Bloco })
-def({ id: 'linha-do-tempo', titulo: 'Linha do tempo', ordem: 85, depende: ['useIxpPerfil'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr', 'rpki_collector', 'apnic_pop'], selo: 'fato', nota: 'diferenças observadas entre snapshots; o histórico começou em 2026-10',
+def({ id: 'linha-do-tempo', titulo: 'Linha do tempo', ordem: 85, depende: ['useIxpPerfil'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr', 'rpki_collector', 'apnic_pop'], selo: 'fato', nota: 'diferenças observadas entre snapshots',
   aplicavel: (c) => !!c.historico, Componente: LinhaDoTempoPtt })
 def({ id: 'membros-sem-direto', semTitulo: true, titulo: 'Membros registrados sem peering direto', ordem: 90, depende: ['useIxp', 'ixp-members', 'asn-names'], fontes: ['ixbr_api', 'lg_ixbr', 'asn_names'], selo: 'fato',
   aplicavel: (c) => c.membersWithoutDirect.length > 0, Componente: MembrosSemDiretoBloco })
@@ -75,6 +75,6 @@ def({ id: 'peers-v4', semTitulo: true, titulo: 'ASNs em peering direto — IPv4'
 def({ id: 'participantes-filtrados', titulo: 'Participantes e filtros', ordem: 88, depende: ['useIxp', 'ixp-members', 'useIxpPerfil'], fontes: ['ixbr_api', 'lg_ixbr', 'ixbr_alice', 'asn_names'], selo: 'fato',
   nota: 'família de IP: peering direto observado nas rotas coletadas; "sem sessão" é o cruzamento com o cadastro do IX.br e pode ser peering bilateral', Componente: ParticipantesFiltradosBloco })
 def({ id: 'entrou-saiu', titulo: 'Quem entrou e quem saiu', ordem: 89, depende: ['useMudancas'], fontes: ['ixbr_api', 'lg_ixbr'], selo: 'fato',
-  nota: 'diferenças entre snapshots com histórico (a partir de 2026-10); saída observada só vale depois da janela de confirmação', Componente: EntrouSaiuBloco })
-def({ id: 'conteudo', titulo: 'CDNs e conteúdo no PTT', ordem: 95, depende: ['cdns-presence', 'useIxp'], fontes: ['curada_cdns', 'lg_ixbr'], selo: 'inferido',
-  nota: 'presença pelo peering direto de ASNs de CDN nas rotas coletadas; não mede tráfego', Componente: ConteudoBloco })
+  nota: 'diferenças entre snapshots com histórico; saída observada só vale depois da janela de confirmação', Componente: EntrouSaiuBloco })
+def({ id: 'conteudo', titulo: 'CDNs e conteúdo no PTT', ordem: 95, depende: ['cdns-presence', 'useIxp'], fontes: ['curada_cdns', 'ixbr_api', 'lg_ixbr'], selo: 'inferido',
+  nota: 'presença pela lista de membros do IX.br; a sessão com o route server vem das rotas coletadas; não mede tráfego', Componente: ConteudoBloco })

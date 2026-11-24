@@ -25,9 +25,9 @@ _ALCANCE_CACHE: dict = {}
 
 @router.get(
     "/cdns/alcance",
-    summary="Alcance de cada CDN por peering: fração dos usuários BR em ASes membros dos PTTs onde ela está",
+    summary="Alcance de cada CDN por PTT: fração dos usuários BR em ASes membros dos PTTs onde ela é membro",
     description="""
-Por CDN: a fração dos usuários estimados pela APNIC, nos ASes do Brasil, que estão em ASes **membros de algum PTT do IX.br onde a CDN tem peering direto observado**, no país e por UF da sede
+Por CDN: a fração dos usuários estimados pela APNIC, nos ASes do Brasil, que estão em ASes **membros de algum PTT do IX.br onde a CDN também é membro** (lista de membros do IX.br, não sessão observada), no país e por UF da sede
 do AS. Estimativa: usuários se repetem entre ASes da mesma operadora, membro registrado não quer dizer que o tráfego da CDN passe ali, e não mede tráfego nem qualidade.
 """,
 )

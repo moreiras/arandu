@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchDiffSnapshots, fetchSnapshots } from '../../services/api'
 import { useAuth } from '../../auth/AuthContext'
 import { isHistoricalDate } from '../../auth/accessPolicy'
-import { ROTULO_METRICA, TIPOS_DA_PAGINA } from '../historico/rotulos'
+import { inicioDosSnapshots, ROTULO_METRICA, TIPOS_DA_PAGINA } from '../historico/rotulos'
 import { useOrdenacao } from '../../lib/ordenacao'
 import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 import { EstadoDados } from '../../components/ui/EstadoDados'
@@ -24,6 +24,7 @@ export function ComparaDatas() {
   const { requireLogin } = useAuth()
   const { data } = useQuery({ queryKey: ['snapshots'], queryFn: fetchSnapshots, staleTime: Infinity, gcTime: Infinity })
   const datas = data?.snapshots ?? []
+  const inicio = inicioDosSnapshots(datas)
   const [a, setA] = useState('')
   const [b, setB] = useState('')
   const A = a || datas[datas.length - 2] || '', B = b || datas[datas.length - 1] || ''
@@ -42,7 +43,7 @@ export function ComparaDatas() {
   const eventos = Object.entries(diff.data?.eventos.por_tipo ?? {}).filter(([t]) => TIPOS_DA_PAGINA.includes(t))
   return (
     <div className="space-y-5">
-      <p className="text-sm text-gray-500">Compare os totais do Brasil em duas datas e veja quantas mudanças foram observadas entre elas. Só há comparação para datas com histórico guardado (desde outubro de 2026).</p>
+      <p className="text-sm text-gray-500">Compare os totais do Brasil em duas datas e veja quantas mudanças foram observadas entre elas. Só há comparação para datas com histórico guardado.{inicio && ` Os snapshots publicados começam em ${inicio}.`}</p>
       <div className="flex flex-wrap gap-4 text-sm">
         {([['Data A', A, setA], ['Data B', B, setB]] as const).map(([rotulo, valor, set]) => (
           <label key={rotulo} className="flex flex-col gap-0.5">

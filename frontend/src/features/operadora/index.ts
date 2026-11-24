@@ -83,7 +83,7 @@ def({ id: 'smp', semTitulo: true, titulo: 'SMP (telefonia móvel)', ordem: 40, d
   nota: 'duas datas: o snapshot e o mês de referência da declaração ao SICI móvel', aplicavel: (c) => !!c.dataMovel, Componente: SmpBloco })
 def({ id: 'stfc', semTitulo: true, titulo: 'STFC (telefonia fixa comutada)', ordem: 50, depende: ['operadora-stfc'], fontes: ['anatel_outorgas'], selo: 'fato', aplicavel: (c) => c.hasStfc, Componente: StfcBloco })
 def({ id: 'seac', semTitulo: true, titulo: 'SeAC (TV por assinatura)', ordem: 60, depende: ['operadora-seac'], fontes: ['anatel_outorgas'], selo: 'fato', aplicavel: (c) => c.hasSeac, Componente: SeacBloco })
-def({ id: 'linha-do-tempo', titulo: 'Linha do tempo', ordem: 70, depende: ['useOperadoraPerfil'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr', 'rpki_collector', 'apnic_pop'], selo: 'fato', nota: 'diferenças observadas entre snapshots; o histórico começou em 2026-10',
+def({ id: 'linha-do-tempo', titulo: 'Linha do tempo', ordem: 70, depende: ['useOperadoraPerfil'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr', 'rpki_collector', 'apnic_pop'], selo: 'fato', nota: 'diferenças observadas entre snapshots',
   aplicavel: (c) => !!c.historico, Componente: LinhaDoTempoOperadora })
 
 def({ id: 'sobreposicao', titulo: 'Quem aparece nos mesmos municípios', ordem: 55, depende: ['useOperadoraPerfil'], fontes: ['anatel_sici', 'socios_grupos'], selo: 'fato',

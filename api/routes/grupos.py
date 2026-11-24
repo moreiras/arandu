@@ -156,7 +156,7 @@ def get_grupo(
             "valor_homologado": _soma(c.get("valor_homologado") for c in lidas),
             "natureza": "resultados de itens publicados no PNCP, não contratos assinados nem pagamentos; coleta em rodízio, só o CNPJ de matriz e só a Lei 14.133",
         },
-        "limites": "Soma das empresas do grupo que têm o dado; as contagens `empresas_*` dizem quantas têm. A composição do grupo é inferida do quadro societário da Receita (evidência direta, nunca transitiva) e não é pública em nomes de sócios.",
+        "limites": "Soma das empresas do grupo que têm o dado; as contagens `empresas_*` dizem quantas têm. A composição do grupo é inferida do quadro societário da Receita: cada ligação entre duas empresas é direta, e o grupo reúne as empresas ligadas em cadeia (duas podem estar no grupo sem ligação direta entre si); nomes de sócios não são públicos.",
     }
     extras = {x.strip() for x in (include or "").split(",") if x.strip()}
     if "regulatorio" in extras:

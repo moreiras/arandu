@@ -83,3 +83,11 @@ def test_concentracao_junta_grafias_do_mesmo_nome():
     m = B.mercado([mk("TIM S.A.", 256), mk("TIM SA", 512), mk("Tim S/A", 256), mk("OUTRA LTDA", 300)])
     assert m["concentracao"]["top_destinos"][0] == {"nome": "TIM S.A.", "enderecos": 1024, "pct": 77.4} or m["concentracao"]["top_destinos"][0]["enderecos"] == 1024
     assert len(m["concentracao"]["top_destinos"]) == 2
+
+
+def test_limites_citam_a_primeira_data_coletada_e_nao_uma_data_fixa():
+    resumo = {"resumo": {"transferencias_registrobr": {"primeira_data_coletada": "2026-11-01"}}, "transferencias_registrobr": []}
+    assert "início da nossa coleta (01/11/2026)" in B.limites(resumo)
+    sem_resumo = {"resumo": {}, "transferencias_registrobr": [{"primeira_vez_visto": "2026-11-10"}, {"primeira_vez_visto": "2026-11-03"}]}
+    assert "(03/11/2026)" in B.limites(sem_resumo)
+    assert "coleta, então" in B.limites({}) and "junho" not in B.limites({})

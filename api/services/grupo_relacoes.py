@@ -64,7 +64,7 @@ def relacoes_do_grupo(g: dict, socios: Optional[dict], nome: Callable[[str], str
         "ligacoes": ligacoes, "tipos": TIPOS,
         "fora_do_grupo": {"total": len(fora_lista), "itens": fora_lista[:LIMITE_FORA]},
         "controladoras_externas": sorted(({**h, "controla": sorted(set(h["controla"]))} for h in holdings.values()), key=lambda h: (h["razao_social"] or "").lower()),
-        "natureza": "inferido do quadro societário da Receita Federal (evidência direta, nunca transitiva)",
+        "natureza": "inferido do quadro societário da Receita Federal: relações diretas entre pares; o grupo reúne as empresas ligadas por cadeia de relações",
         "limites": "Só a estrutura entre empresas (PJ) e a contagem de sócios que sustenta cada ligação; nome e CPF de sócio pessoa física não são mostrados. A ligação é um indício societário: "
                    "não prova que as empresas operam juntas nem que o controle é exercido. Ordem alfabética, sem ranking.",
     }
