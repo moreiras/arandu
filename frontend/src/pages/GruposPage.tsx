@@ -464,23 +464,31 @@ export function GruposPage() {
             </h2>
             <p className="text-xs text-gray-400">
               Clique no nome para abrir a página do grupo, com indicadores técnicos e de mercado. Clique num cabeçalho para ordenar;
-              passe o mouse numa linha para vê-la no mapa e no gráfico acima e clique na linha para fixar a seleção.
+              clique na linha ou use "Ver no mapa" (Enter ou Espaço) para mostrá-la no mapa e no gráfico acima.
+            </p>
+            {/* anuncia a seleção feita pelo botão ou pelo clique (o mapa e o gráfico mudam fora do foco) */}
+            <p className="sr-only" aria-live="polite" data-testid="grupo-selecionado">
+              {(() => { const g = selectedId ? todos.find(x => x.grupo_id === selectedId) : null; return g ? `Grupo selecionado: ${nomeGrupo(g)}, ${g.tamanho} empresa${g.tamanho === 1 ? '' : 's'}` : '' })()}
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <input
-              type="search"
-              value={busca}
-              onChange={e => { setBusca(e.target.value); setLimite(PAGE_SIZE) }}
-              placeholder="Empresa, CNPJ ou ASN"
-              className="text-xs border border-gray-200 rounded px-2 py-1 w-48"
-            />
-            <div className="inline-flex rounded border border-gray-200 overflow-hidden text-xs">
+            <label className="flex items-center gap-1 text-xs text-gray-600">
+              Buscar
+              <input
+                type="search"
+                value={busca}
+                onChange={e => { setBusca(e.target.value); setLimite(PAGE_SIZE) }}
+                placeholder="Empresa, CNPJ ou ASN"
+                className="text-xs border border-gray-200 rounded px-2 py-1 w-48"
+              />
+            </label>
+            <div role="group" aria-label="Escopo da tabela" className="inline-flex rounded border border-gray-200 overflow-hidden text-xs">
               {(Object.keys(ESCOPO_LABEL) as Escopo[]).map(e => (
                 <button
                   key={e}
                   type="button"
                   onClick={() => { setEscopo(e); setLimite(PAGE_SIZE) }}
+                  aria-pressed={escopo === e}
                   className={`px-2 py-1 ${escopo === e ? 'bg-primario-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
                 >
                   {ESCOPO_LABEL[e]}
@@ -518,6 +526,11 @@ export function GruposPage() {
                         {nomeGrupo(g)}
                       </Link>
                       {g.cnpjs.length > 1 && <span className="ml-1 text-xs text-gray-500">e mais {g.cnpjs.length - 1}</span>}
+                      {/* O clique na linha não chega ao teclado: este botão faz a mesma seleção (WCAG 2.1.1). */}
+                      <button type="button" aria-pressed={isSelected} onClick={e => { e.stopPropagation(); setSelectedId(g.grupo_id) }}
+                        className="ml-2 text-xs text-primario-700 underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primario-500">
+                        Ver no mapa<span className="sr-only">: {nomeGrupo(g)}</span>
+                      </button>
                     </td>
                     <td className="px-4 py-2.5 whitespace-nowrap"><ClassificacaoBadge c={g.classificacao} /></td>
                     <td className="px-4 py-2.5 text-right tabular-nums text-gray-700">{g.tamanho}</td>
