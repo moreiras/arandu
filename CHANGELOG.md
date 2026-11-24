@@ -16,6 +16,15 @@ parênteses remetem à análise.
   brasileiros pela LACNIC ou pelo Registro.br, PTTs, participantes por sessão, cadastro ou originação, declarantes do SICI,
   municípios, usuários APNIC por AS, por UF, união ou soma por PTT), com origem no código e valor medido. É a base dos rótulos únicos
   da tela (PT-15).
+- **Textos e rótulos que diziam outra coisa (PT-03).** O histórico mostra a data real do primeiro snapshot, lida da lista de
+  snapshots, e /mudancas diz a janela de confirmação de cada tipo de evento (sete tipos entram com um snapshot só). O mercado de IPv4
+  cita o início real da coleta das listas (2026-11-01, era "junho de 2026"). O panorama de mercado descreve o cruzamento de outorgas
+  com ASN como coincidência de CNPJ, e as abas STFC e SeAC deixam de prometer acessos. Presença de CDN descrita como adesão à lista de
+  membros do IX.br; grupos societários como ligações diretas e grupo por cadeia, sem "quem controla quem"; localizador como
+  originação vista no route server; PTT externo com "Snapshot" no lugar de "Atualizado em"; contagens de /snapshots conforme o campo;
+  legenda única dos cartogramas; "Data no cadastro" das outorgas; dica de "Dir. IX.br" como sessão com o route server; telas
+  públicas sem instruções de operação (TRANSV-E7, MUD-E1, IPV4-E4, PANORAMA-E3, PANORAMA-E4, CDN-E2, CDNS-E1, GRUPO-E4, LOC-E2,
+  IXE-E3, SNAP-E1, SNAP-E2, TRANSV-E15, HOME-E10, EST-E3, OPERADORAS-E6, ASES-E2).
 
 ## v2.1.3
 
