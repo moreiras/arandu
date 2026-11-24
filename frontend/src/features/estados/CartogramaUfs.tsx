@@ -6,7 +6,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { ResumoUf } from '../../types/api'
-import { corDaEscala, ESCALA_SEQUENCIAL } from '../../lib/escalasMapa'
+import { corDaEscala, ESCALA_SEQUENCIAL, LEGENDA_SEQUENCIAL } from '../../lib/escalasMapa'
 
 /** Posição (coluna, linha) de cada UF numa grade que lembra o mapa do Brasil — todas do mesmo tamanho, para a área não distorcer a comparação. */
 export const POSICAO_UF: Record<string, [number, number]> = {
@@ -42,7 +42,7 @@ export const METRICAS: MetricaUf[] = [
   { id: 'penetracao', rotulo: 'Acessos por 100 domicílios', valor: (u) => (u.penetracao == null ? null : u.penetracao * 100), texto: n0, normalizada: true,
     nota: 'Acessos fixos declarados à Anatel ÷ domicílios projetados do IBGE, por 100. Estimativa: um domicílio pode ter vários acessos ou nenhum, e o Censo é de 2022.' },
   { id: 'longe', rotulo: '% de municípios longe de PTT', valor: (u) => (u.municipios ? (100 * u.municipios_sem_ptt) / u.municipios : null), texto: (v) => `${n0(v)}%`, normalizada: true,
-    nota: 'Municípios a mais de 100 km em linha reta de um PTT do IX.br, entre os que declaram acessos ao SICI. Mais escuro = mais isolamento.' },
+    nota: 'Municípios a mais de 100 km em linha reta de um PTT do IX.br, entre os que declaram acessos ao SICI.' },
 ]
 
 /** Métricas normalizadas, para comparar UFs de tamanhos muito diferentes (usadas na home). */
@@ -119,9 +119,9 @@ export function CartogramaUfs({ ufs, metricas, titulo = 'Brasil por UF', inicial
         <span className="h-2 flex-1 rounded" style={{ background: `linear-gradient(to right, ${ESCALA_SEQUENCIAL.join(', ')})` }} />
         <span>maior</span>
       </div>
-      {metrica.nota && <p className="mt-2 text-xs text-gray-600">{metrica.nota}{pequeno ? ' Cada quadrado é uma UF no lugar aproximado do mapa; mais claro, maior.' : ''}</p>}
+      {metrica.nota && <p className="mt-2 text-xs text-gray-600">{metrica.nota}{pequeno ? ` Cada quadrado é uma UF no lugar aproximado do mapa. ${LEGENDA_SEQUENCIAL}` : ''}</p>}
       {!pequeno && <p className="mt-3 text-xs text-gray-500">
-        Cada quadrado é uma UF no lugar aproximado do mapa (mesmo tamanho para todas); quanto mais escuro, maior a métrica. Acessos e fibra: SICI/Anatel,
+        Cada quadrado é uma UF no lugar aproximado do mapa (mesmo tamanho para todas). {LEGENDA_SEQUENCIAL} Acessos e fibra: SICI/Anatel,
         banda larga fixa; usuários: estimativa APNIC dos ASNs da UF (não é censo); PTTs: IX.br com coleta.
       </p>}
     </section>

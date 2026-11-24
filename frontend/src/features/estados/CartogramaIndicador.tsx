@@ -49,7 +49,7 @@ export function CartogramaIndicador({ titulo, indicadores, verDados, inicial }: 
         <span>{maximo > 0 ? ind.texto(maximo) : '—'}</span>
       </div>
       {ind.nota && <p className="text-xs text-gray-600">{ind.nota}</p>}
-      <p className="text-xs text-gray-500">Cada quadrado é uma UF no lugar aproximado do mapa (mesmo tamanho para todas); mais escuro = menor, mais claro = maior. Cinza = sem dado ou suprimido.</p>
+      <p className="text-xs text-gray-500">Cada quadrado é uma UF no lugar aproximado do mapa (mesmo tamanho para todas). Cor do roxo (menor valor) ao amarelo (maior valor); cinza = sem dado ou suprimido.</p>
       {verDados && (
         <details className="text-sm">
           <summary className="cursor-pointer text-primario-600 hover:underline">Ver dados (tabela)</summary>
