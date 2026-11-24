@@ -1,5 +1,18 @@
 # Notas de versão
 
+## Não lançado (correções OBINT)
+
+Correções e melhorias da análise do OBINT (instância pública), integradas na branch `correcoes-obint`. Os identificadores entre
+parênteses remetem à análise.
+
+- **Estado de erro e de acesso (PT-01).** Quando o tempo de uso sem login acaba, quando é preciso entrar, quando há consultas demais
+  ou quando a API ou a rede falha, as páginas passam a dizer a causa e o que fazer ("Entrar", "Tentar de novo", "volte em N"). Antes,
+  essas situações apareciam como "não encontrado", "sem dado neste snapshot", zeros ou seções que sumiam, em mais de 20 páginas
+  (entidades, listas, comparador, mudanças, panorama, mercado de IPv4, território). "Não encontrado" e "sem dado publicado" ficam
+  só para o 404 real. O front aceita o orçamento anônimo esgotado como 403 ou como 429 com `Retry-After`. Componente
+  `components/ui/EstadoDados.tsx`; `AccessError` guarda `retryAfter` e o motivo do 401 (TRANSV-E1, ASN-E9, OPERADORA-E1,
+  IPV4-E1, MUN-E11, UF-E1, EST-E5, MUNS-E7, LOC-E5, USO-E4, MAPA-E6).
+
 ## v2.1.3
 
 O software ganha logotipo, em `marca/`: globo ortográfico com o sul para cima, centrado no Brasil (Natural Earth 1:110m), com uma rota
