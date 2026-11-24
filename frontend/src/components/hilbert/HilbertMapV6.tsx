@@ -6,6 +6,7 @@ import { useState, useRef, useLayoutEffect } from 'react'
 import { V6_BLOCKS } from './hilbert'
 import { HilbertMapV6Block, V6_LAYER_META, type V6LayerKey, type V6BlockData } from './HilbertMapV6Block'
 import type { HilbertV6Data } from '../../types/api'
+import { corLegivel } from '../../lib/contraste'
 
 interface HilbertMapV6Props {
   data: HilbertV6Data | null
@@ -42,13 +43,15 @@ export function HilbertMapV6({ data, blockWidth: blockWidthProp = 160 }: Hilbert
           return (
             <button
               key={key}
+              type="button"
+              aria-pressed={active}
               onClick={() => setActiveLayer(key)}
               className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
                 active
                   ? 'text-white border-transparent'
                   : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
               }`}
-              style={active ? { backgroundColor: meta.color, borderColor: meta.color } : undefined}
+              style={active ? { backgroundColor: corLegivel(meta.color), borderColor: corLegivel(meta.color) } : undefined}
               title={meta.description}
             >
               {meta.label}

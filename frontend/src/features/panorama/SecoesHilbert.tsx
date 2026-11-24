@@ -10,6 +10,7 @@ import { useActiveDate } from '../../hooks/useSnapshot'
 import { HilbertMap16, LAYER_META } from '../../components/hilbert/HilbertMap16'
 import type { LayerKey } from '../../components/hilbert/HilbertMap16'
 import { HilbertMapV6 } from '../../components/hilbert/HilbertMapV6'
+import { corLegivel } from '../../lib/contraste'
 
 /** Espaço IPv6 em curva de Hilbert (resolução /32), a mesma seção da Visão geral; só busca o dado quando é montada (aba aberta). */
 export function SecaoHilbertV6() {
@@ -45,9 +46,9 @@ export function SecaoHilbertV4() {
           const meta = LAYER_META[key]
           const active = activeLayer === key
           return (
-            <button key={key} onClick={() => setActiveLayer(key)} title={meta.description} aria-pressed={active}
+            <button key={key} type="button" onClick={() => setActiveLayer(key)} title={meta.description} aria-pressed={active}
               className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${active ? 'text-white border-transparent' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'}`}
-              style={active ? { backgroundColor: meta.color, borderColor: meta.color } : undefined}>
+              style={active ? { backgroundColor: corLegivel(meta.color), borderColor: corLegivel(meta.color) } : undefined}>
               {meta.label}
             </button>
           )
