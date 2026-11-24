@@ -60,6 +60,18 @@ def test_mascara_de_pessoa_fisica_so_para_nome_brasileiro_sem_marcador_de_empres
     assert L.mascarar_nome("ALFA TELECOM LTDA", "BR") == "ALFA TELECOM LTDA" and L.mascarar_nome("Maria Souza", "AR") == "Maria Souza" and L.mascarar_nome("SetarNet", "BR") == "SetarNet"
 
 
+def test_cpf_embutido_no_nome_sai_mascarado_em_qualquer_parte():
+    """IPV4-E14: a parte estrangeira não passa pela heurística de pessoa física, mas o CPF embutido (regra de `core.cpf`) vale para todas;
+    no `blocos_br` o nome vai dentro de uma linha em lista, que a máscara da publicação não percorre."""
+    assert L.mascarar_nome("JOAO DA SILVA 12345678909", "BR") == "JOAO DA SILVA ***456789**"
+    assert L.mascarar_nome("JOAO DA SILVA 12345678909", "US") == "JOAO DA SILVA ***456789**"
+    assert L.mascarar_nome("EXAMPLE NETWORKS LLC 12345678900", "US") == "EXAMPLE NETWORKS LLC 12345678900"      # DV inválido: não é CPF
+    from products.ipv4.build import blocos_br
+    estado = {"blocos": {"b": {"inicio": "198.18.0.0", "quantidade": 256, "status": "allocated", "cc": "BR", "data": "2020-01-01", "opaque": "o1"}}}
+    linha = blocos_br(estado, {"198.18.0.0/24": {"asn": 64496, "org": "JOAO DA SILVA 12345678909"}})[0]
+    assert linha[5:] == [64496, "JOAO DA SILVA ***456789**"]
+
+
 def _bruto(base, fx, data, sem_ultima=False):
     pasta = base / "raw" / data / "summary"
     pasta.mkdir(parents=True)
