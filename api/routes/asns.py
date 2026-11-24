@@ -22,16 +22,14 @@ from api.respostas import JSONResponse
 from api.auth.deps import require_user
 from api.ratelimit import limiter, LIMIT_CONTACTS, LIMIT_HEAVY
 from api import contatos_cota
+from api.outorgas_store import strip_contacts
+from api.privacidade import geo_org_publico
 from api.schemas import PaginatedASNsResponse, ASNDocumentResponse
 from api.store import Store
 
 router = APIRouter()
 
 _log = logging.getLogger("arandurape")
-
-# Campos de contato das outorgas SCM removidos do documento público (info de
-# outorga permanece; valores de contato só via /asns/{asn}/contacts).
-_SCM_CONTACT_FIELDS = ("telefone", "email")
 
 
 def _consolidate_contacts(scm_data: list[dict], pdb_contacts: list[dict], geo_org: dict, rdap_contacts: Optional[list[dict]] = None) -> list[dict]:
@@ -448,16 +446,20 @@ def documento_asn(store: Store, date_str: str, asn: int) -> Optional[dict]:
 
     # `geo_prefixes_v4/v6` guardam a posição de cada prefixo (lat/lon/cidade): ficam no publicado, mas não saem.
     doc = {k: v for k, v in doc.items() if k not in ("geo_prefixes_v4", "geo_prefixes_v6")}
+    # O `geo_org` publicado traz o cadastro inteiro da Receita (telefone, endereço, coordenada): a REST o descarta no modelo de resposta,
+    # mas o MCP serve este documento; sai só a projeção pública, como em /prefixes/lookup (D1).
+    if "geo_org" in doc:
+        doc["geo_org"] = geo_org_publico(doc["geo_org"])
     # Documento público: dados de outorga SEM contatos (telefone/email só via
-    # /asns/{asn}/contacts, protegido por login).
+    # /asns/{asn}/contacts, protegido por login) e sem endereço nem coordenada da sede (D1).
     if scm_data:
-        doc["scm"] = [{k: v for k, v in r.items() if k not in _SCM_CONTACT_FIELDS} for r in scm_data]
+        doc["scm"] = [strip_contacts(r) for r in scm_data]
     if smp_data:
-        doc["smp"] = [{k: v for k, v in r.items() if k not in _SCM_CONTACT_FIELDS} for r in smp_data]
+        doc["smp"] = [strip_contacts(r) for r in smp_data]
     if stfc_data:
-        doc["stfc"] = [{k: v for k, v in r.items() if k not in _SCM_CONTACT_FIELDS} for r in stfc_data]
+        doc["stfc"] = [strip_contacts(r) for r in stfc_data]
     if seac_data:
-        doc["seac"] = [{k: v for k, v in r.items() if k not in _SCM_CONTACT_FIELDS} for r in seac_data]
+        doc["seac"] = [strip_contacts(r) for r in seac_data]
 
     # Possui outorga SCM/SMP/STFC/SeAC? (CNPJ cruza com Anatel)
     doc["has_scm"] = bool(scm_data)

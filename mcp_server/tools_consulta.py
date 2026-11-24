@@ -134,7 +134,7 @@ def get_asns(asns: list, fields: Optional[list[str]] = None, date: Optional[str]
 
 @mcp.tool()
 def resolve_place(place: str, date: Optional[str] = None) -> dict:
-    """Resolve um município em coordenadas (centroide das organizações geolocalizadas).
+    """Resolve um município em coordenadas (centroide do IBGE; sem ele, a mediana das sedes arredondada a 0,1°; `posicao` diz qual).
 
     Útil para alimentar `near.point` ou consultas geográficas por cidade.
 

@@ -166,8 +166,8 @@ def _consultar(request: Request, collection: str, body: dict, date: Optional[str
 @router.get(
     "/resolve/place",
     summary="Resolve um lugar (município) em coordenadas",
-    description="Centroide (mediana) das organizações geolocalizadas no município. "
-                "Use o resultado em `near.point` ou diretamente para consultas geográficas.",
+    description="Centroide do município (IBGE); sem o nome na tabela do IBGE, a mediana das sedes geolocalizadas no município "
+                "arredondada a 0,1° (`posicao` diz qual). Use o resultado em `near.point` ou diretamente para consultas geográficas.",
     tags=["resolve"],
 )
 def resolve_place(

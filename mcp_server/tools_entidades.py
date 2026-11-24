@@ -106,6 +106,31 @@ def get_ixp(code: str, date: Optional[str] = None) -> dict:
     return slim
 
 
+def _sede_do_asn(d: str, asn: int) -> dict:
+    """Município e UF da sede e o centroide do município: a coordenada geocodificada do endereço não sai (D1)."""
+    from api.privacidade import geo_org_publico
+    from core.geoip import centroide_municipio
+
+    org = geo_org_publico((_store.asn_detail(d, asn) or {}).get("geo_org")) or {}
+    cadastro = (_store._load_geo_orgs(d) or {}).get(asn) or {}
+    municipio = org.get("municipio") or org.get("city") or cadastro.get("city")
+    uf = org.get("uf") or cadastro.get("uf")
+    ibge = org.get("codigo_municipio_ibge")
+    ponto = None
+    if ibge and (c := _store.municipio_centroide(str(ibge))):
+        ponto = (c[1], c[0])
+    elif municipio and uf and (c := centroide_municipio(municipio, uf)):
+        ponto, municipio = (c[0], c[1]), c[2]
+    return {
+        "asn": asn,
+        "name": _store.asn_map(d).get(asn, {}).get("name"),
+        "municipio": municipio, "uf": uf, "codigo_municipio_ibge": ibge,
+        "lat": ponto[0] if ponto else None, "lon": ponto[1] if ponto else None,
+        "posicao": "centroide do município da sede (IBGE)" if ponto else None,
+        "source": "Registro.br/CNPJ → Receita (município da sede)" if municipio else None,
+    }
+
+
 @mcp.tool()
 def geo_coords(
     asn: Optional[int] = None,
@@ -115,9 +140,9 @@ def geo_coords(
     """Coordenadas (lat/lon) de um AS e/ou de um PTT, sem GeoJSON/Hilbert.
 
     Resposta enxuta para perguntas de localização textual ("onde fica o AS X / o
-    PTT Y?"), evitando os blobs de visualização. Coordenadas de AS vêm do endereço
-    da organização (Registro.br/CNPJ → BrasilAPI → Nominatim); de PTT, das
-    localizações dos PIX do IX.br.
+    PTT Y?"), evitando os blobs de visualização. De AS: município e UF da sede
+    (Registro.br/CNPJ → Receita) e o centroide do município (IBGE); o endereço e a
+    posição exata da sede não são servidos. De PTT, as localizações dos PIX do IX.br.
 
     Args:
         asn: Número do AS para localizar (opcional).
@@ -130,17 +155,7 @@ def geo_coords(
     result: dict = {"snapshot_date": d}
 
     if asn is not None:
-        coords = _store.asn_coords(d, asn)
-        row = _store.asn_map(d).get(asn, {})
-        result["asn"] = {
-            "asn": asn,
-            "name": row.get("name"),
-            "lat": coords[0] if coords else None,
-            "lon": coords[1] if coords else None,
-            "source": (
-                "Registro.br/CNPJ → BrasilAPI → Nominatim" if coords else None
-            ),
-        }
+        result["asn"] = _sede_do_asn(d, asn)
 
     if ixp is not None:
         code = ixp.lower()

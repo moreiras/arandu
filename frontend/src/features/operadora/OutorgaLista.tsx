@@ -23,7 +23,7 @@ export function OutorgaListSection({
   outorgas: (STFCRecord | SEACRecord)[]
 }) {
   const { ordenados, props } = useOrdenacao(outorgas, {
-    endereco: (o) => o.logradouro, municipio: (o) => (o.municipio ? `${o.municipio}${o.uf ? `/${o.uf}` : ''}` : o.uf),
+    municipio: (o) => (o.municipio ? `${o.municipio}${o.uf ? `/${o.uf}` : ''}` : o.uf),
     data: { valor: (o) => dataOrdenavel(o.data_outorga), primeiro: 'asc' }, situacao: (o) => o.situacao,
   })
   return (
@@ -37,8 +37,7 @@ export function OutorgaListSection({
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-xs text-gray-400 bg-gray-50 border-b border-gray-100">
-              <ThOrdenavel {...props('endereco')} className="px-4 py-2">Endereço</ThOrdenavel>
-              <ThOrdenavel {...props('municipio')} className="px-4 py-2 w-36">Município / UF</ThOrdenavel>
+              <ThOrdenavel {...props('municipio')} className="px-4 py-2">Município / UF</ThOrdenavel>
               <ThOrdenavel {...props('data')} className="px-4 py-2 w-28">Data Outorga</ThOrdenavel>
               <ThOrdenavel {...props('situacao')} className="px-4 py-2 w-16">Sit.</ThOrdenavel>
             </tr>
@@ -46,11 +45,6 @@ export function OutorgaListSection({
           <tbody className="divide-y divide-gray-50">
             {ordenados.map((o, i) => (
               <tr key={`${o.cnpj}-${i}`} className="hover:bg-gray-50">
-                <td className="px-4 py-2 text-xs text-gray-500">
-                  {o.logradouro
-                    ? <>{o.logradouro}{o.numero ? `, ${o.numero}` : ''}{o.bairro ? ` — ${o.bairro}` : ''}{o.cep ? ` · CEP ${o.cep}` : ''}</>
-                    : '—'}
-                </td>
                 <td className="px-4 py-2 text-gray-600 text-sm">
                   {o.municipio}{o.uf ? `/${o.uf}` : ''}
                 </td>

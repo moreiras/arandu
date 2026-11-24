@@ -20,7 +20,7 @@ from tests.products.api_contract import ALLOWED, ANON, discover, request_for
 
 CONTRACT = Path(__file__).resolve().parents[1] / "contracts" / "api_contract.json"
 PII_KEYS = {"email", "telefone", "phone"}                       # nunca em resposta pública
-ADDRESS_KEYS = {"logradouro", "cep"}                            # endereço de pessoa jurídica (cadastro público)
+ADDRESS_KEYS = {"logradouro", "cep", "bairro", "complemento"}   # endereço da sede (D1: não sai para nenhum titular)
 
 
 def _golden() -> dict:
@@ -240,10 +240,10 @@ def test_nenhuma_rota_publica_expoe_email_ou_telefone(api, ctx, pipeline):
     assert expostas == {}
 
 
-def test_rotas_que_expoem_endereco_de_pessoa_juridica_sao_conhecidas(api, ctx):
-    """Endereço (logradouro/CEP) sai do cadastro público de outorgas/CNPJ e pode ser exposto nas rotas
-    abaixo. A lista é fixa: rota nova que exponha endereço falha aqui
-    e exige decisão consciente."""
+def test_nenhuma_rota_publica_expoe_endereco_da_sede(api, ctx):
+    """Endereço (logradouro/CEP) do cadastro de outorgas e da Receita não sai em rota pública, para nenhum titular (decisão D1,
+    2026-11-24): ficam município e UF. Antes, as rotas de outorga e o documento do ASN o serviam. A varredura com dado plantado,
+    inclusive a coordenada, está em `test_privacidade_sede.py`."""
     expostas = []
     for k in _operations(api):
         if k.endswith("/contacts"):
@@ -251,13 +251,7 @@ def test_rotas_que_expoem_endereco_de_pessoa_juridica_sao_conhecidas(api, ctx):
         r = _call(api, k, ctx, ANON)
         if r.status_code == 200 and "json" in r.headers.get("content-type", "") and ADDRESS_KEYS & _keys(r.json()):
             expostas.append(k)
-    assert sorted(expostas) == sorted([
-        "GET /api/v1/acessos/operadora/{cnpj}", "GET /api/v1/asns/{asn}", "GET /api/v1/scms",
-        "GET /api/v1/scms/{cnpj}", "GET /api/v1/seacs", "GET /api/v1/seacs/{cnpj}", "GET /api/v1/smps",
-        "GET /api/v1/smps/{cnpj}", "GET /api/v1/stfcs", "GET /api/v1/stfcs/{cnpj}",
-        "GET /api/v1/outorgas/{cnpj}",      # as mesmas outorgas de /scms/{cnpj} etc., num contrato só
-        "GET /api/v1/operadoras/{cnpj}",    # consolida as outorgas das rotas acima; mesmo dado, nenhum endereço novo
-    ])
+    assert expostas == []
 
 
 # ── cache e paginação ──────────────────────────────────────────────────────

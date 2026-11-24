@@ -3937,7 +3937,7 @@ export interface paths {
         };
         /**
          * Resolve um lugar (município) em coordenadas
-         * @description Centroide (mediana) das organizações geolocalizadas no município. Use o resultado em `near.point` ou diretamente para consultas geográficas.
+         * @description Centroide do município (IBGE); sem o nome na tabela do IBGE, a mediana das sedes geolocalizadas no município arredondada a 0,1° (`posicao` diz qual). Use o resultado em `near.point` ou diretamente para consultas geográficas.
          */
         get: operations["resolve_place_api_v1_resolve_place_get"];
         put?: never;
