@@ -195,6 +195,17 @@ def test_por_asn_agrupa_papeis_e_cria_os_dois_lados():
     assert [x["asn"] for x in d["sem_classificacao"]] == [400]
     assert doc[10]["clientes"][0]["asn"] == 100 and doc[200]["provedores"][0]["asn"] == 100
     assert d["n_provedores"] == {"v4": 1, "v6": 0}                              # só confirmado conta em n_provedores
+    assert d["n_provedores_provavel"] == {"v4": 2, "v6": 0}                     # provável ou superior: 10 e 11
+
+
+def test_n_provedores_provavel_exclui_irmaos_e_possiveis():
+    """ASN-E4: provável ou superior, sem irmão inferido; `possivel` não conta (a frase diz quantos são só possíveis)."""
+    from products.as_relationships.por_asn import por_asn
+
+    doc = por_asn([_linha(174, 13357), _linha(3356, 13357), _linha(14840, 13357, nivel="possivel"), _linha(28158, 13357, nivel="provavel"),
+                   _linha(28158, 13357, "s2s", "possivel")], CFG, {"v4": True})
+    d = doc[13357]
+    assert d["n_provedores_provavel"] == {"v4": 2, "v6": 0} and d["n_provedores"] == {"v4": 0, "v6": 0}
 
 
 def test_single_homed_so_com_visibilidade_e_sem_provedor_fraco():

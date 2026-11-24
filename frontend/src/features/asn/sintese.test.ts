@@ -5,7 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { describe, expect, it } from 'vitest'
 import type { ASNDocument, ReferenciasAsn } from '../../types/api'
-import { kpisAs, REGRAS_VERSAO, sinteseAs } from './sintese'
+import { fraseTransito, kpisAs, provedoresTransitoV4, REGRAS_VERSAO, sinteseAs } from './sintese'
 
 const base = {
   asn: 64496, name: 'Provedor 01 Telecom Ltda', is_br: true, global_prefixes_v4_count: 3, global_prefixes_v6_count: 1, global_prefixes_v4: ['a', 'b', 'c'], global_prefixes_v6: ['d'],
@@ -16,16 +16,16 @@ const ref: ReferenciasAsn = { universo: 'x', total: 1136, usuarios_posicao: 12, 
 const ids = (d: ASNDocument, r?: ReferenciasAsn) => sinteseAs(d, r).map((f) => f.id)
 
 describe('frase-síntese do AS (regras versionadas)', () => {
-  it('tem versão das regras', () => expect(REGRAS_VERSAO).toBe('sintese-as-1'))
+  it('tem versão das regras', () => expect(REGRAS_VERSAO).toBe('sintese-as-2'))
 
   it('AS completo: anúncio, PTTs, RPKI, usuários com posição; cada frase com selo', () => {
     const f = sinteseAs(base, ref)
-    expect(f.map((x) => x.id)).toEqual(['anuncio', 'ptts', 'rpki', 'usuarios'])
+    expect(f.map((x) => x.id)).toEqual(['anuncio', 'ptts', 'rpki', 'usuarios', 'transito'])
     expect(f[0].texto).toBe('AS64496 (Provedor 01 Telecom Ltda) anuncia 1 prefixo IPv6 e 3 prefixos IPv4 na tabela de roteamento global.')
     expect(f[1].texto).toBe('Está em 2 PTTs do IX.br com sessão direta e aparece como originador em 3 PTTs.')
     expect(f[2].texto).toBe('2 de 4 prefixos anunciados têm ROA válido; 1 está inválido.')
     expect(f[3]).toMatchObject({ selo: 'estimado', texto: 'Estimativa do APNIC: cerca de 3.068 usuários (12º entre 900 ASes brasileiros com estimativa).' })
-    expect(f.filter((x) => x.id !== 'usuarios').every((x) => x.selo === 'fato')).toBe(true)
+    expect(f.filter((x) => !['usuarios', 'transito'].includes(x.id)).every((x) => x.selo === 'fato')).toBe(true)
   })
 
   it('sem referência do servidor, a frase de usuários não inventa posição', () => {
@@ -35,16 +35,39 @@ describe('frase-síntese do AS (regras versionadas)', () => {
   it('regra sem dado não gera frase (nada de palpite)', () => {
     const vazio = { ...base, global_prefixes_v4_count: 0, global_prefixes_v6_count: 0, ixps_direct: [], ixps_origin: [], rpki_validation: {}, apnic_users: null } as unknown as ASNDocument
     const f = sinteseAs(vazio)
-    expect(f.map((x) => x.id)).toEqual(['anuncio', 'ptts'])
+    expect(f.map((x) => x.id)).toEqual(['anuncio', 'ptts', 'transito'])
+    expect(f[2].texto).toBe('Sem inferência de provedores de trânsito neste snapshot.')
     expect(f[0].texto).toContain('não aparece com prefixos')
     expect(f[1].texto).toContain('Não aparece em PTTs')
   })
 
-  it('trânsito é inferência e só aparece com o dado do grafo', () => {
-    expect(ids(base)).not.toContain('transito')
-    const f = sinteseAs({ ...base, single_upstream_v4: 64500 } as ASNDocument)
-    expect(f.find((x) => x.id === 'transito')).toMatchObject({ selo: 'inferido', texto: expect.stringContaining('único provedor de trânsito IPv4 (AS64500)') })
-    expect(sinteseAs({ ...base, is_multihomed_v4: true } as ASNDocument).find((x) => x.id === 'transito')!.texto).toContain('mais de um provedor')
+  it('trânsito sai das relações (ARC), nunca dos campos deprecados de adjacência', () => {
+    const f = sinteseAs({ ...base, single_upstream_v4: 64500, is_multihomed_v4: true, upstreams_v4: [64496, 64500] } as ASNDocument)
+    expect(f.find((x) => x.id === 'transito')).toMatchObject({ selo: 'inferido', texto: 'Sem inferência de provedores de trânsito neste snapshot.' })
+    expect(ids(base)).toContain('transito')
+  })
+
+  const rel = (provedores: Array<[number, string]>, extra: object = {}) => ({
+    algoritmo: 'ARC v2', provedores: provedores.map(([asn, nivel]) => ({ asn, nivel, p: 0.9, afi: ['v4'] })), clientes: [], pares: [], irmaos: [], sem_classificacao: [],
+    n_provedores: { v4: 0, v6: 0 }, visibilidade: { v4: { vps: 5, ptts: 1, coletores: true }, v6: { vps: 0, ptts: 0, coletores: true } },
+    multihomed: { v4: true, v6: null }, single_homed: { v4: false, v6: null }, ...extra,
+  })
+
+  it('ASN-E4: AS13357 com 2 prováveis e 4 possíveis; o irmão do mesmo CNPJ fica de fora', () => {
+    const d = { ...base, asn: 13357, same_cnpj_asns: [{ asn: 28158, name: 'Irmã' }],
+      relacoes: rel([[174, 'provavel'], [3356, 'provavel'], [28158, 'provavel'], [14840, 'possivel'], [6057, 'possivel'], [137409, 'possivel'], [35280, 'possivel']]) } as unknown as ASNDocument
+    expect(provedoresTransitoV4(d)).toMatchObject({ fortes: [174, 3356], possiveis: [14840, 6057, 137409, 35280], irmaos: [28158] })
+    expect(fraseTransito(d)).toBe('Pelas relações inferidas, tem 2 provedores de trânsito IPv4 de nível provável ou superior (AS174, AS3356) e 4 de nível possível. AS28158, do mesmo CNPJ ou organização, fica de fora.')
+  })
+
+  it('nunca conta o próprio AS; só possíveis não vira multihoming; multihomed nulo sem relação é visibilidade insuficiente', () => {
+    const proprio = { ...base, asn: 28573, relacoes: rel([[28573, 'provavel']], { multihomed: { v4: null, v6: null } }) } as unknown as ASNDocument
+    expect(fraseTransito(proprio)).toBe('Visibilidade insuficiente para inferir provedores de trânsito IPv4.')
+    const so = { ...base, relacoes: rel([[1, 'possivel'], [2, 'possivel']], { multihomed: { v4: null, v6: null } }) } as unknown as ASNDocument
+    expect(fraseTransito(so)).toBe('Sem provedor de trânsito IPv4 de nível provável neste snapshot; 2 relações possíveis.')
+    expect(fraseTransito(so)).not.toMatch(/mais de um provedor/)
+    const um = { ...base, relacoes: rel([[3356, 'confirmado']], { multihomed: { v4: false, v6: null } }) } as unknown as ASNDocument
+    expect(fraseTransito(um)).toBe('Pelas relações inferidas, tem um provedor de trânsito IPv4 de nível provável ou superior (AS3356).')
   })
 
   it('singular e plural: 1 prefixo, 1 de 1 prefixo anunciado tem ROA', () => {

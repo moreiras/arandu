@@ -17,6 +17,23 @@ import { fmtN, RoaTable, AspaProvidersTable, AspaCustomersTable, Kpi, PrefixBox 
 /** Página de uma CDN/CAP (/cdncap/:slug): a página busca os ASNs do grupo e compõe os componentes de `features/cdncap/`. */
 // ─── página ─────────────────────────────────────────────────────────────────
 
+/**
+ * Presença de um grupo de ASNs (uma CDN) no IX.br por três critérios: `membro` (cadastro de participantes, a coluna `ixbr` de
+ * `cdns.json`), `sessao` (algum ASN com sessão no route server, IPv6 ou IPv4) e `terceiros` (prefixos do grupo vistos no PTT sem
+ * nenhum ASN do grupo com sessão: entregues por outro participante).
+ */
+export function presencaIxbr(docs: Array<Pick<ASNDocument, 'ixp_presence'>>, membro: string[]): { membro: number; sessao: number; terceiros: number } {
+  const sessao = new Set<string>()
+  const origem = new Set<string>()
+  for (const d of docs) {
+    for (const [code, p] of Object.entries(d.ixp_presence ?? {})) {
+      if (p?.v4?.direct || p?.v6?.direct) sessao.add(code)
+      if (p?.v4?.origin || p?.v6?.origin) origem.add(code)
+    }
+  }
+  return { membro: new Set(membro).size, sessao: sessao.size, terceiros: [...origem].filter((c) => !sessao.has(c)).length }
+}
+
 export function CDNCapPage() {
   const { slug } = useParams<{ slug: string }>()
   const date = useActiveDate()
@@ -82,12 +99,14 @@ export function CDNCapPage() {
     })
   }, [docs, pathsDocs, asns])
 
+  // Três critérios de presença no IX.br, cada um no seu indicador (CDN-E1): nunca a soma de sessão e origem num número só
+  const presenca = useMemo(() => presencaIxbr(docs, row?.ixbr ?? []), [docs, row])
+
   // Agregações sobre os ASNs do grupo
   const agg = useMemo(() => {
     const rirV4 = new Set<string>(), rirV6 = new Set<string>()
     const gV4 = new Set<string>(), gV6 = new Set<string>()
     const external = new Set<string>()
-    const ixpCodes = new Set<string>()
     const roaMap = new Map<string, RoaEntry>()
     const rpki: Record<string, string> = {}
     // ASPA: deduplica por provider+tal e por customer+tal
@@ -103,7 +122,6 @@ export function CDNCapPage() {
       if (d.has_ipv6) hasIPv6 = true
       if (d.is_br) isBr = true
       for (const c of d.external_ixps ?? []) external.add(c)
-      for (const code of Object.keys(d.ixp_presence)) ixpCodes.add(code)
       for (const r of d.roa_list ?? []) roaMap.set(`${r.prefix}|${r.maxLength}|${r.ta}`, r)
       for (const [p, status] of Object.entries(d.rpki_validation ?? {})) rpki[p] = status
       for (const a of d.aspa_providers ?? []) {
@@ -122,7 +140,6 @@ export function CDNCapPage() {
       rirV4: [...rirV4].sort(), rirV6: [...rirV6].sort(),
       gV4: [...gV4].sort(), gV6: [...gV6].sort(),
       external: [...external].sort(),
-      ixpCount: ixpCodes.size,
       hasIPv6, isBr,
       roaList: [...roaMap.values()].sort((a, b) => a.prefix.localeCompare(b.prefix)),
       rpki,
@@ -160,9 +177,9 @@ export function CDNCapPage() {
 
   const pdb = useOrdenacao(useMemo(() => docs.filter((d) => d.pdb), [docs]), {
     asn: { valor: (d) => d.asn, primeiro: 'asc' },
-    tipo: (d) => d.pdb!.network_type,
-    trafego: (d) => d.pdb!.traffic_class,
-    politica: (d) => d.pdb!.peering_policy,
+    tipo: (d) => d.pdb!.info_type,
+    trafego: (d) => d.pdb!.info_traffic,
+    politica: (d) => d.pdb!.policy_general,
     irr: (d) => d.pdb!.irr_as_set,
   })
 
@@ -231,16 +248,13 @@ export function CDNCapPage() {
 
       {/* Hero de métricas agregadas */}
       <div className="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white px-4 py-3">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-2 divide-x divide-gray-200">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-2 divide-x divide-gray-200">
           <Kpi value={fmtN(asns.length)} label="ASNs no grupo" color="#2563eb" />
           <Kpi value={fmtN(agg.gV6.length)} label="prefixos IPv6" sub="na tabela global" color="#8b5cf6" />
           <Kpi value={fmtN(agg.gV4.length)} label="prefixos IPv4" sub="na tabela global" color="#0891b2" />
-          <Kpi
-            value={fmtN(agg.ixpCount)}
-            label="IXPs do IX.br"
-            sub={`+ ${fmtN(agg.external.length)} IXPs externos`}
-            color="#d97706"
-          />
+          <Kpi value={fmtN(presenca.membro)} label="PTTs do IX.br: membro" sub="cadastro de participantes do IX.br" color="#d97706" />
+          <Kpi value={fmtN(presenca.sessao)} label="PTTs do IX.br: sessão" sub="com sessão no route server (coleta)" color="#b45309" />
+          <Kpi value={fmtN(presenca.terceiros)} label="PTTs do IX.br: só por terceiros" sub={`prefixos vistos sem sessão própria · + ${fmtN(agg.external.length)} IXPs externos (PeeringDB)`} color="#92400e" />
         </div>
       </div>
 
@@ -400,9 +414,9 @@ export function CDNCapPage() {
                     <td className="px-3 py-2">
                       <Link to={`/asn/${d.asn}`} className="font-mono text-primario-700 hover:underline">AS{d.asn}</Link>
                     </td>
-                    <td className="px-3 py-2 text-gray-700">{d.pdb!.network_type ?? '—'}</td>
-                    <td className="px-3 py-2 text-gray-700">{d.pdb!.traffic_class ?? '—'}</td>
-                    <td className="px-3 py-2 text-gray-700">{d.pdb!.peering_policy ?? '—'}</td>
+                    <td className="px-3 py-2 text-gray-700">{d.pdb!.info_type ?? '—'}</td>
+                    <td className="px-3 py-2 text-gray-700">{d.pdb!.info_traffic ?? '—'}</td>
+                    <td className="px-3 py-2 text-gray-700">{d.pdb!.policy_general ?? '—'}</td>
                     <td className="px-3 py-2 text-gray-500 font-mono text-xs">{d.pdb!.irr_as_set ?? '—'}</td>
                   </tr>
                 ))}

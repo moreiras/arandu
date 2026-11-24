@@ -3960,7 +3960,8 @@ export interface paths {
          * @description Retorna análise completa da tabela de roteamento global com foco em ASNs e
          *     prefixos brasileiros (P_BR). Inclui composição de P_BR, histograma de
          *     prefix length, more specifics, potencial de agregação, cobertura Registro.br,
-         *     MOAS e prefixos potencialmente filtráveis.
+         *     prefixos potencialmente filtráveis. `moas` vem nulo, com o motivo em `moas_indisponivel`: a tabela usada guarda uma origem por
+         *     prefixo e não detecta origem múltipla.
          *
          *     Quando `has_path_data` é `true`, o campo `as_path_stats` é preenchido com
          *     estatísticas de AS_PATH, prepending, upstream aparente, higiene e communities.
@@ -4811,7 +4812,7 @@ export interface components {
             pdb_registered?: boolean | null;
             /**
              * Relacoes
-             * @description Relações inferidas do AS (ARC v1): `provedores`, `clientes`, `pares`, `irmaos` e `sem_classificacao`, cada item com {asn, p, nivel, afi}; `n_provedores` (nível confirmado ou superior), `visibilidade` e `single_homed`/`multihomed` por família (null = indeterminado por falta de visibilidade). É inferência com probabilidade e nível, não contrato. Ausente em snapshots anteriores ao ARC; `upstreams_*` e `downstreams_*` seguem como adjacência observada (alias deprecado).
+             * @description Relações inferidas do AS (ARC v1): `provedores`, `clientes`, `pares`, `irmaos` e `sem_classificacao`, cada item com {asn, p, nivel, afi}; `n_provedores` (nível confirmado ou superior), `n_provedores_provavel` (provável ou superior, sem irmãos), `visibilidade` e `single_homed`/`multihomed` por família (null = indeterminado por falta de visibilidade). É inferência com probabilidade e nível, não contrato. Ausente em snapshots anteriores ao ARC; `upstreams_*` e `downstreams_*` seguem como adjacência observada (alias deprecado).
              */
             relacoes?: {
                 [key: string]: unknown;
@@ -5236,6 +5237,11 @@ export interface components {
              * @description ASNs membros registrados no IX.br (ixbr_members.json).
              */
             asn_members?: number[] | null;
+            /**
+             * Asn Origin Union Count
+             * @description ASNs originadores no PTT, todos os países (união v6 ∪ v4); ausente em snapshots anteriores a 2026-11.
+             */
+            asn_origin_union_count?: number | null;
             /** Generated At */
             generated_at: string;
             /**
@@ -5274,7 +5280,7 @@ export interface components {
             asn_direct_union_count?: number | null;
             /**
              * Asn Origin Union Count
-             * @description ASNs originadores de prefixos — aproximação de max(v6, v4)
+             * @description ASNs originadores de prefixos, todos os países (união v6 ∪ v4; snapshots anteriores a 2026-11 gravavam o maior dos dois)
              */
             asn_origin_union_count?: number | null;
             /**
