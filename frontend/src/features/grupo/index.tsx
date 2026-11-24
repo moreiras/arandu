@@ -33,7 +33,7 @@ function Composicao({ dados }: BlocoProps<GrupoCtx>) {
   })
   return (
     <div className="space-y-3">
-      <p className="text-sm text-gray-600">{CLASSES[g.classificacao]} A composição é inferida do quadro societário da Receita Federal (evidência direta, nunca transitiva); <strong>só a estrutura entre empresas é mostrada</strong>.</p>
+      <p className="text-sm text-gray-600">{CLASSES[g.classificacao]} A composição é inferida do quadro societário da Receita Federal: cada ligação entre duas empresas tem evidência direta (sócios em comum ou participação de uma na outra), e o grupo reúne as empresas ligadas em cadeia, então duas empresas podem estar no mesmo grupo sem ligação direta entre si; <strong>só a estrutura entre empresas é mostrada</strong>.</p>
       <table className="w-full text-sm" aria-label="Empresas do grupo">
         <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><ThOrdenavel {...props('empresa')} className="py-1 pr-3">Empresa</ThOrdenavel><ThOrdenavel {...props('cnpj')} className="pr-3">CNPJ</ThOrdenavel><th scope="col" className="pr-3">Serviços</th><ThOrdenavel {...props('assinantes')} alinhar="right" className="pr-3 text-right">Acessos fixos</ThOrdenavel><ThOrdenavel {...props('asns')}>ASNs</ThOrdenavel></tr></thead>
         <tbody>

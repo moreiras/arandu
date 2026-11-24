@@ -89,6 +89,8 @@ describe('/grupo/:id', () => {
     cleanup()
     montar('g1')
     expect(await screen.findByText(/só a estrutura entre empresas é mostrada/)).toBeInTheDocument()
+    expect(document.body.textContent).toContain('o grupo reúne as empresas ligadas em cadeia')
+    expect(document.body.textContent).not.toMatch(/nunca transitiva/)
     expect(document.body.textContent).not.toMatch(/CPF|sócio pessoa|\d{3}\.\d{3}\.\d{3}-\d{2}/)
   })
 

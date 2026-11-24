@@ -123,7 +123,7 @@ export function compararGrupos(gs: GrupoComparavel[]): Comparacao {
   return {
     colunas: gs.map((g) => ({ id: g.grupo.grupo_id, nome: g.grupo.tamanho > 1 ? `Grupo de ${nome(g)}` : nome(g), detalhe: `${g.grupo.empresas} ${g.grupo.empresas === 1 ? 'empresa' : 'empresas'}`, to: `/grupo/${g.grupo.grupo_id}` })),
     linhas: [
-      linha('composicao', 'Composição', (g) => g.grupo.classificacao, 'inferido', 'inferida do quadro societário (evidência direta, nunca transitiva)'),
+      linha('composicao', 'Composição', (g) => g.grupo.classificacao, 'inferido', 'inferida do quadro societário: ligações diretas entre pares, grupo reunido pela cadeia de ligações'),
       linha('cnpjs', 'CNPJs com acessos declarados', (g) => (g.mercado ? `${n(g.mercado.cnpjs_com_acessos)} de ${n(g.mercado.cnpjs_total)}` : null)),
       linha('acessos', 'Acessos fixos declarados', (g) => n(g.grupo.assinantes), 'fato', 'soma das empresas do grupo; SICI, banda larga fixa'),
       linha('parcela', 'Parcela dos acessos fixos do país', (g) => d1(g.mercado?.serie[g.mercado.serie.length - 1]?.parcela, '%'), 'inferido'),
