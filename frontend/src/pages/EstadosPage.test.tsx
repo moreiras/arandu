@@ -88,6 +88,7 @@ describe('alternativa textual do cartograma (EST-E7)', () => {
   it('"Ver dados" traz uma linha por UF com todas as métricas, ordenável', async () => {
     montar()
     const ver = await screen.findByTestId('ver-dados')
+    ;(ver as HTMLDetailsElement).open = true
     const tabela = within(ver).getByRole('table', { name: 'Ver dados (tabela das UFs)' })
     const cab = within(tabela).getAllByRole('columnheader').map((th) => th.textContent?.replace(/[▲▼↕]/g, '').trim())
     expect(cab).toEqual(['UF', 'Nome', 'Acessos fixos (SICI)', 'Fibra (% dos acessos)', 'Usuários estimados (APNIC)', 'PTTs (IX.br)',

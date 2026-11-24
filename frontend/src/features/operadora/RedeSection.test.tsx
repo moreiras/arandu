@@ -25,6 +25,7 @@ describe('RedeSection: estado e informação acessíveis (OPERADORA-E4, OPERADOR
     const item = screen.getByTestId('alerta-categoria')
     expect(item.tagName).toBe('DETAILS')
     expect(item).not.toHaveAttribute('title')
+    ;(item as HTMLDetailsElement).open = true
     expect(within(item).getByText(/Prefixo sem ROA/)).toBeInTheDocument()
     expect(within(item).getByRole('link', { name: 'AS64501' })).toHaveAttribute('href', '/asn/64501')
   })
