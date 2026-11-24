@@ -340,7 +340,7 @@
         "type": "null"
        }
       ],
-      "description": "True se o CNPJ deste AS possui outorga SMP na Anatel",
+      "description": "True se o CNPJ deste AS possui outorga SMP na Anatel (credenciamento de rede virtual sem outorga própria não conta)",
       "title": "Has Smp"
      },
      "has_stfc": {
@@ -646,7 +646,7 @@
         "type": "null"
        }
       ],
-      "description": "Outorgas SMP (Serviço Móvel Pessoal) da Anatel vinculadas ao CNPJ deste AS",
+      "description": "Outorgas SMP (Serviço Móvel Pessoal) da Anatel vinculadas ao CNPJ deste AS; inclui o registro de credenciamento de rede virtual (`rede_virtual.papel = credenciada`, situação 'sem outorga SMP própria'), que não é outorga",
       "title": "Smp"
      },
      "snapshot_date": {
@@ -948,7 +948,7 @@
         "type": "null"
        }
       ],
-      "description": "True se o AS possui outorga SMP na Anatel (cruzamento por CNPJ)",
+      "description": "True se o AS possui outorga SMP na Anatel (cruzamento por CNPJ; credenciamento de rede virtual sem outorga própria não conta)",
       "title": "Has Smp"
      },
      "has_stfc": {
@@ -2154,7 +2154,7 @@
    "url": "http://localhost/fontes"
   },
   "title": "Arandurapé",
-  "version": "2.1.0"
+  "version": "2.1.3"
  },
  "openapi": "3.1.0",
  "paths": {
@@ -3441,7 +3441,7 @@
       }
      },
      {
-      "description": "Só operadoras que declaram acesso.",
+      "description": "true = só quem declara acesso no mês; false = só quem não declara. Omitido: `fixa` = true (a lista do SICI fixo); `movel` = todas (outorgadas e credenciadas do SMP, com e sem declaração).",
       "in": "query",
       "name": "ativo",
       "required": false,
@@ -3454,8 +3454,7 @@
          "type": "null"
         }
        ],
-       "default": true,
-       "description": "Só operadoras que declaram acesso.",
+       "description": "true = só quem declara acesso no mês; false = só quem não declara. Omitido: `fixa` = true (a lista do SICI fixo); `movel` = todas (outorgadas e credenciadas do SMP, com e sem declaração).",
        "title": "Ativo"
       }
      },
@@ -13288,7 +13287,7 @@
   },
   "/api/v1/omissao-sici": {
    "get": {
-    "description": "`tipo=outorga_sem_declaracao` (padrão): CNPJs com outorga SCM sem acessos declarados no mês de referência, em ordem de usuários estimados (APNIC) dos\nASNs do CNPJ, com a `classe` (`com_usuarios_apnic`, `sem_usuarios`, `nao_comparavel` = CNPJ sem ASN) e `grupo_declara` (outro CNPJ do grupo\ndeclarou). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar. É a descrição de um fato sobre a\ndeclaração, sem causa nem intenção. Metodologia na página Rankings.",
+    "description": "`tipo=outorga_sem_declaracao` (padrão): CNPJs com outorga SCM sem acessos declarados no mês de referência, em ordem de usuários estimados (APNIC) dos\nASNs do CNPJ, com a `classe` (`com_usuarios_apnic`, `sem_usuarios`, `nao_comparavel` = CNPJ sem ASN) e `grupo_declara` (outro CNPJ do grupo\ndeclarou; ausente = CNPJ sem grupo societário). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar. É a descrição de um fato sobre a\ndeclaração, sem causa nem intenção. Metodologia na página Rankings.",
     "operationId": "omissao_sici_api_v1_omissao_sici_get",
     "parameters": [
      {
@@ -13318,6 +13317,7 @@
       }
      },
      {
+      "description": "UF da sede (cadastro SCM). Em `parou_de_declarar`, 400 se o snapshot não tem a UF.",
       "in": "query",
       "name": "uf",
       "required": false,
@@ -13330,6 +13330,7 @@
          "type": "null"
         }
        ],
+       "description": "UF da sede (cadastro SCM). Em `parou_de_declarar`, 400 se o snapshot não tem a UF.",
        "title": "Uf"
       }
      },
@@ -13350,18 +13351,20 @@
       }
      },
      {
+      "description": "`true` (outro CNPJ do grupo declarou), `false` (tem grupo e nenhum outro declarou) ou `desconhecido` (CNPJ sem grupo societário). Omitido = todos.",
       "in": "query",
       "name": "grupo_declara",
       "required": false,
       "schema": {
        "anyOf": [
         {
-         "type": "boolean"
+         "type": "string"
         },
         {
          "type": "null"
         }
        ],
+       "description": "`true` (outro CNPJ do grupo declarou), `false` (tem grupo e nenhum outro declarou) ou `desconhecido` (CNPJ sem grupo societário). Omitido = todos.",
        "title": "Grupo Declara"
       }
      },
@@ -13536,7 +13539,7 @@
   },
   "/api/v1/outorgas": {
    "get": {
-    "description": "Uma linha por CNPJ que tem outorga de qualquer serviço, com `servicos` (os que ele tem), `outorgas`, sede, `asns`, `porte`\n(declarado ao SICI) e os acessos declarados (`acessos_fixo`, `acessos_movel`, `acessos`; `ativo` = declarou algum).\n\n`data_outorga` é a mais antiga entre os serviços (`data_outorga_por_servico` traz cada uma); `pj_*`, `municipios_*` e\n`tecnologia_fixo` vêm do SICI.\n\n`servico` aceita vários valores (`SCM,SMP`): o CNPJ entra se tem **qualquer** um deles; com `todos=true`, só se tem **todos**.\nOs demais filtros se combinam (E). Sem contatos: os valores ficam em `/asns/{asn}/contacts` e `/acessos/operadora/{cnpj}/contacts`\n(com login).",
+    "description": "Uma linha por CNPJ que tem outorga de qualquer serviço, com `servicos` (os que ele tem), `outorgas`, sede, `asns`, `porte`\n(declarado ao SICI) e os acessos declarados (`acessos_fixo`, `acessos_movel`, `acessos`; `ativo` = declarou algum). O filtro\n`ativo` com um só serviço (SCM ou SMP) olha o acesso daquele serviço.\n\n`data_outorga` é a mais antiga entre os serviços (`data_outorga_por_servico` traz cada uma); `pj_*`, `municipios_*` e\n`tecnologia_fixo` vêm do SICI.\n\n`servico` aceita vários valores (`SCM,SMP`): o CNPJ entra se tem **qualquer** um deles; com `todos=true`, só se tem **todos**.\nOs demais filtros se combinam (E). Sem contatos: os valores ficam em `/asns/{asn}/contacts` e `/acessos/operadora/{cnpj}/contacts`\n(com login).",
     "operationId": "listar_outorgas_api_v1_outorgas_get",
     "parameters": [
      {
@@ -13683,7 +13686,7 @@
       }
      },
      {
-      "description": "true = só quem declara acessos ao SICI (fixo ou móvel).",
+      "description": "true = só quem declara acessos ao SICI; false = só quem não declara. Com `servico=SCM` sozinho conta só o acesso fixo; com `servico=SMP` sozinho, só o móvel; nos demais casos, fixo ou móvel.",
       "in": "query",
       "name": "ativo",
       "required": false,
@@ -13696,7 +13699,7 @@
          "type": "null"
         }
        ],
-       "description": "true = só quem declara acessos ao SICI (fixo ou móvel).",
+       "description": "true = só quem declara acessos ao SICI; false = só quem não declara. Com `servico=SCM` sozinho conta só o acesso fixo; com `servico=SMP` sozinho, só o móvel; nos demais casos, fixo ou móvel.",
        "title": "Ativo"
       }
      },
@@ -15925,18 +15928,38 @@
   },
   "/api/v1/resolve/place": {
    "get": {
-    "description": "Centroide (mediana) das organizações geolocalizadas no município. Use o resultado em `near.point` ou diretamente para consultas geográficas.",
+    "description": "Centroide (mediana) das organizações geolocalizadas no município. A UF vem de `uf` ou do próprio `q` (`Bom Jesus/PI`, `Bom Jesus, PI`). Sem UF, um nome que existe em mais de uma UF não é resolvido: a resposta traz `ambiguo: true`, `ufs` (organizações por UF) e `lat`/`lon` nulos, em vez de misturar os homônimos. Use o resultado em `near.point` ou diretamente para consultas geográficas.",
     "operationId": "resolve_place_api_v1_resolve_place_get",
     "parameters": [
      {
-      "description": "Nome do município (ex.: Vitória).",
+      "description": "Nome do município (ex.: Vitória ou Bom Jesus/PI).",
       "in": "query",
       "name": "q",
       "required": true,
       "schema": {
-       "description": "Nome do município (ex.: Vitória).",
+       "description": "Nome do município (ex.: Vitória ou Bom Jesus/PI).",
        "title": "Q",
        "type": "string"
+      }
+     },
+     {
+      "description": "UF do município (sigla).",
+      "in": "query",
+      "name": "uf",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 2,
+         "minLength": 2,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "UF do município (sigla).",
+       "title": "Uf"
       }
      },
      {
