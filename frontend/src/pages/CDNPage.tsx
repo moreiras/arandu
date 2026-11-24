@@ -151,6 +151,7 @@ function PresenceMatrix({
   return (
     <div className="overflow-x-auto border border-gray-200 rounded-lg">
       <table className="text-xs border-collapse" style={{ minWidth: columns.length * 28 + 240 }}>
+        <caption className="sr-only">Presença de cada CDN ou CAP (linhas) em cada PTT (colunas)</caption>
         <thead>
           <tr>
             <ThOrdenavel {...props('nome')} className="sticky left-0 z-10 bg-gray-50 border-b border-r border-gray-200 px-3 py-2 text-left font-medium text-gray-600 min-w-[220px]">
@@ -163,6 +164,7 @@ function PresenceMatrix({
               return (
                 <th
                   key={col.code}
+                  scope="col"
                   className="border-b border-r border-gray-100 bg-gray-50 p-0"
                   style={{ width: 28, minWidth: 28 }}
                   title={col.origin === 'ixbr'
@@ -187,6 +189,8 @@ function PresenceMatrix({
                     >
                       {col.name}
                     </Link>
+                    {/* região e contagem também fora do title (teclado e toque não o alcançam) */}
+                    <span className="sr-only">{` · ${col.origin === 'ixbr' ? IXBR_ROTULO : region ?? ''} · ${col.cdn_count} CDNs`}</span>
                   </div>
                   {/* Region stripe at BOTTOM of header cell */}
                   {stripeCls && (
@@ -210,7 +214,7 @@ function PresenceMatrix({
             return (
               <tr key={cdn.name} className={rowBg}>
                 {/* Sticky left cell: explicit solid bg matching the row, never transparent */}
-                <td className={`sticky left-0 z-10 border-r border-b border-gray-100 px-3 py-1.5 whitespace-nowrap ${rowBg}`}>
+                <th scope="row" className={`sticky left-0 z-10 border-r border-b border-gray-100 px-3 py-1.5 whitespace-nowrap text-left font-normal ${rowBg}`}>
                   <Link to={`/cdncap/${cdnSlug(cdn.name)}`} className="font-medium text-primario-700 hover:underline">
                     {cdn.name}
                   </Link>
@@ -218,17 +222,18 @@ function PresenceMatrix({
                   <div className="text-gray-400 font-normal text-xs mt-0.5">
                     {cdn.asns.map(a => `AS${a}`).join(' · ')}
                   </div>
-                </td>
+                </th>
                 {columns.map(col => (
                   <td
                     key={col.code}
                     className="border-r border-b border-gray-100 text-center p-0"
                     style={{ width: 28 }}
                   >
+                    {/* estado em texto para o leitor de tela; "●" e "·" são só reforço visual */}
                     {presence.has(col.code) ? (
-                      <span className="text-ok-500 text-base leading-none">●</span>
+                      <><span className="text-ok-600 text-base leading-none" aria-hidden="true">●</span><span className="sr-only">{`${cdn.name} em ${col.name}: presente`}</span></>
                     ) : (
-                      <span className="text-gray-100 text-base leading-none">·</span>
+                      <><span className="text-gray-400 text-base leading-none" aria-hidden="true">·</span><span className="sr-only">{`${cdn.name} em ${col.name}: ausente`}</span></>
                     )}
                   </td>
                 ))}
@@ -241,9 +246,9 @@ function PresenceMatrix({
         </tbody>
         <tfoot>
           <tr className="bg-gray-50 border-t border-gray-200">
-            <td className="sticky left-0 bg-gray-50 border-r border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-500">
+            <th scope="row" className="sticky left-0 bg-gray-50 border-r border-gray-200 px-3 py-1.5 text-left text-xs font-semibold text-gray-600">
               CDNs presentes
-            </td>
+            </th>
             {columns.map(col => (
               <td key={col.code} className="border-r border-gray-100 text-center py-1.5">
                 <span className="text-xs font-semibold text-gray-600">{col.cdn_count}</span>
@@ -268,13 +273,14 @@ function CategoryLegend({
 }) {
   return (
     <div className="flex flex-wrap gap-2 items-center">
-      <span className="text-xs text-gray-400 mr-1">Categoria:</span>
+      <span className="text-xs text-gray-500 mr-1">Categoria:</span>
       {(Object.entries(CATEGORY_STYLE) as [CDNCategory, { label: string; cls: string }][]).map(([cat, { label, cls }]) => (
         <button
           key={label}
           type="button"
           onClick={() => onToggle(cat)}
-          className={`text-xs font-semibold px-1.5 py-0.5 rounded transition-opacity ${cls} ${active.has(cat) ? '' : 'opacity-30'}`}
+          aria-pressed={active.has(cat)}
+          className={`text-xs font-semibold px-1.5 py-0.5 rounded transition-opacity ${cls} ${active.has(cat) ? '' : 'opacity-30 line-through'}`}
         >
           {label}
         </button>
@@ -304,9 +310,10 @@ function RegionLegend({
             key={region}
             type="button"
             onClick={() => onToggle(region)}
-            className={`flex items-center gap-1 text-xs transition-opacity ${active.has(region) ? '' : 'opacity-30'}`}
+            aria-pressed={active.has(region)}
+            className={`flex items-center gap-1 text-xs transition-opacity ${active.has(region) ? '' : 'opacity-30 line-through'}`}
           >
-            <span className={`inline-block w-4 h-1.5 rounded-sm ${stripeCls}`} />
+            <span className={`inline-block w-4 h-1.5 rounded-sm ${stripeCls}`} aria-hidden="true" />
             <span className={textCls}>{region}</span>
           </button>
         )
@@ -423,6 +430,7 @@ export function CDNPage() {
         <button
           type="button"
           onClick={() => setShowIxbr(v => !v)}
+          aria-pressed={showIxbr}
           className={`px-4 py-1.5 text-sm font-medium rounded-full border transition-colors ${
             showIxbr
               ? 'bg-primario-50 border-primario-300 text-primario-700'
@@ -435,6 +443,7 @@ export function CDNPage() {
         <button
           type="button"
           onClick={() => setShowExternal(v => !v)}
+          aria-pressed={showExternal}
           className={`px-4 py-1.5 text-sm font-medium rounded-full border transition-colors ${
             showExternal
               ? 'bg-primario-50 border-primario-300 text-primario-700'
