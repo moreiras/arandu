@@ -70,8 +70,9 @@ Resumo do que mais quebra (o completo está nas diretrizes do guia):
   "Arandurapé" e `arandurape://` servem de marcador que `core.site.com_identidade` troca na saída (OpenAPI, catálogo, MCP). Nos
   artefatos do pipeline "Arandurapé" é o software e fica, mas não chega a quem consulta: as respostas da API (`api/respostas.py`) e as
   das tools e resources do MCP (`_com_identidade` em `mcp_server/app.py`) levam o nome do site; no front, o `catalogo.json` passa por
-  `comIdentidade` (`lib/site.ts`). `tests/unit/test_identidade_site.py` confere. O software não tem logotipo: `frontend/public/` traz
-  um "A"; símbolo e ícones da instância ficam em `instancia/marca/`, fora do git (`instancia/README.md`).
+  `comIdentidade` (`lib/site.ts`). `tests/unit/test_identidade_site.py` confere. O logotipo do **software** fica em `marca/` (README do
+  repositório e prévia social do GitHub) e não vai para o site: `frontend/public/` traz um "A"; símbolo e ícones da instância ficam em
+  `instancia/marca/`, fora do git (`instancia/README.md`).
 
 ## 4. Política de acesso (a parte que mais quebra por descuido)
 

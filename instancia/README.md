@@ -1,7 +1,7 @@
 # Arquivos da instância
 
 O Arandurapé é o software; o site que o roda tem nome, endereço e contato próprios (`SITE_*` no `.env`, `core/site.py`) e também marca
-própria. A marca da instância fica nesta pasta, **fora do repositório** (só este README é versionado), e entra na imagem do frontend na
+própria, distinta do logotipo do software (`marca/`, na raiz do repositório). A marca da instância fica nesta pasta, **fora do repositório** (só este README é versionado), e entra na imagem do frontend na
 compilação (`Dockerfile.frontend`).
 
 `instancia/marca/` substitui os arquivos de mesmo nome em `frontend/public/`:

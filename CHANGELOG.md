@@ -1,5 +1,13 @@
 # Notas de versão
 
+## v2.1.3
+
+O software ganha logotipo, em `marca/`: globo ortográfico com o sul para cima, centrado no Brasil (Natural Earth 1:110m), com uma rota
+simbólica, e o nome em contorno (Lato Semibold). `arandurape-logo.svg` (com o nome) aparece no topo do README;
+`arandurape-simbolo.svg` é só o globo; `arandurape-previa-social.png` (1280×640, de `gerar_previa_social.py`) é a imagem para
+Settings → Social preview do GitHub, que se envia à mão. O site não muda: segue com o "A" do software ou com a marca da instância
+(`instancia/marca/`). Revê a decisão da v2.0.37 de o software não ter logotipo.
+
 ## v2.1.2
 
 `/localizador`: o subtítulo acompanha o título novo ("Escolha um ponto no Brasil e veja as redes, os provedores e os acessos de

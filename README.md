@@ -1,3 +1,5 @@
+<p align="center"><img src="marca/arandurape-logo.svg" alt="Arandurapé" width="260"></p>
+
 # Arandurapé
 
 **Arandurapé** mapeia a Internet brasileira em *snapshots* datados e imutáveis: BGP do IX.br e da tabela global, Registro.br e LACNIC,
