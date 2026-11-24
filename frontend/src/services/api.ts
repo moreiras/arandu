@@ -1321,7 +1321,7 @@ export interface MudancasResposta {
   items: Array<HistoricoEvento & { asn?: number; uf?: string; natureza: 'observado' | 'inferido'; confirmado_em?: string }>
 }
 /** `GET /changes`: eventos entre snapshots (padrão: confirmados). `from` é obrigatório para quem não tem login (o servidor limita a série). */
-export function fetchMudancas(opts: { from?: string; tipo?: string; uf?: string; ixp?: string; estado?: string; limit?: number; offset?: number }): Promise<MudancasResposta> {
+export function fetchMudancas(opts: { from?: string; to?: string; tipo?: string; uf?: string; ixp?: string; estado?: string; limit?: number; offset?: number }): Promise<MudancasResposta> {
   return get('/api/v1/changes', opts)
 }
 export interface MudancasResumo {
@@ -1348,13 +1348,13 @@ export function fetchDiffSnapshots(a: string, b: string): Promise<DiffSnapshots>
 export function fetchRankingOperadoras(opts: { uf?: string; ordem?: string; asc?: boolean; limit?: number; page?: number }): Promise<RankingOperadoras> {
   return get('/api/v1/ranking/operadoras', opts)
 }
-export function fetchRankingMunicipios(opts: { uf?: string; ordem?: string; asc?: boolean; limit?: number; page?: number }): Promise<RankingMunicipios> {
+export function fetchRankingMunicipios(opts: { date?: string; uf?: string; ordem?: string; asc?: boolean; limit?: number; page?: number }): Promise<RankingMunicipios> {
   return get('/api/v1/ranking/municipios', opts)
 }
 export function fetchOmissaoSici(opts: { tipo?: string; uf?: string; classe?: string; grupo_declara?: boolean; limit?: number; page?: number }): Promise<OmissaoSici> {
   return get('/api/v1/omissao-sici', opts)
 }
-export function fetchTerritorioRanking(opts: { campo?: string; uf?: string; asc?: boolean; sem_ptt_proximo?: boolean; min_domicilios?: number; limit?: number; page?: number }): Promise<RankingTerritorio> {
+export function fetchTerritorioRanking(opts: { date?: string; campo?: string; uf?: string; asc?: boolean; sem_ptt_proximo?: boolean; min_domicilios?: number; limit?: number; page?: number }): Promise<RankingTerritorio> {
   return get('/api/v1/territorio/ranking', opts)
 }
 export function fetchMunicipiosSemelhantes(ibge: string, date?: string): Promise<MunicipiosSemelhantes | null> {
@@ -1369,13 +1369,13 @@ export function fetchCommunities(opts: { date?: string; q?: string; ixp?: string
   return get('/api/v1/communities', opts)
 }
 
-export function fetchCeticTabelas(opts: { pesquisa: string }): Promise<CeticTabelas> {
+export function fetchCeticTabelas(opts: { date?: string; pesquisa: string }): Promise<CeticTabelas> {
   return get('/api/v1/cetic/tabelas', opts)
 }
-export function fetchCeticEstimativas(opts: { tipo?: string } = {}): Promise<CeticEstimativas> {
+export function fetchCeticEstimativas(opts: { date?: string; tipo?: string } = {}): Promise<CeticEstimativas> {
   return get('/api/v1/cetic/estimativas', opts)
 }
-export function fetchCeticIndicadores(opts: { pesquisa: string; tabela: string; limit?: number }): Promise<CeticIndicadores> {
+export function fetchCeticIndicadores(opts: { date?: string; pesquisa: string; tabela: string; limit?: number }): Promise<CeticIndicadores> {
   return get('/api/v1/cetic/indicadores', { limit: 1000, ...opts })
 }
 
@@ -1401,27 +1401,27 @@ export function fetchSegurancaResumo(opts: { date?: string; uf?: string }): Prom
   return get('/api/v1/seguranca/resumo', opts)
 }
 
-export function fetchDemandaOferta(): Promise<DemandaOferta> {
-  return get('/api/v1/mercado/demanda-oferta', {})
+export function fetchDemandaOferta(date?: string): Promise<DemandaOferta> {
+  return get('/api/v1/mercado/demanda-oferta', { date })
 }
 
-export function fetchFustResumo(): Promise<FustResumo> {
-  return get('/api/v1/fust/resumo')
+export function fetchFustResumo(date?: string): Promise<FustResumo> {
+  return get('/api/v1/fust/resumo', { date })
 }
 
-export function fetchMultasResumo(): Promise<MultasResumo> {
-  return get('/api/v1/multas/resumo')
+export function fetchMultasResumo(date?: string): Promise<MultasResumo> {
+  return get('/api/v1/multas/resumo', { date })
 }
 
-export function fetchMultasEmpresas(opts: { grupo?: string; q?: string; ordem?: string; limit?: number; page?: number } = {}): Promise<MultasEmpresas> {
+export function fetchMultasEmpresas(opts: { date?: string; grupo?: string; q?: string; ordem?: string; limit?: number; page?: number } = {}): Promise<MultasEmpresas> {
   return get('/api/v1/multas/empresas', opts)
 }
 
-export function fetchQualidadeResumo(): Promise<QualidadeResumo> {
-  return get('/api/v1/qualidade/resumo')
+export function fetchQualidadeResumo(date?: string): Promise<QualidadeResumo> {
+  return get('/api/v1/qualidade/resumo', { date })
 }
 
-export function fetchQualidadePrestadoras(opts: { servico: string; indicador: string; uf?: string }): Promise<QualidadePrestadoras> {
+export function fetchQualidadePrestadoras(opts: { date?: string; servico: string; indicador: string; uf?: string }): Promise<QualidadePrestadoras> {
   return get('/api/v1/qualidade/prestadoras', opts)
 }
 
@@ -1434,45 +1434,45 @@ export interface QualidadeMapa {
 export function fetchQualidadeMapa(opts: { servico: string; indicador: string; date?: string }): Promise<QualidadeMapa> {
   return get('/api/v1/qualidade/mapa', opts)
 }
-export function fetchQualidadeSerie(opts: { servico: string; indicador: string; prestadora?: string; uf?: string }): Promise<QualidadeSerie> {
+export function fetchQualidadeSerie(opts: { date?: string; servico: string; indicador: string; prestadora?: string; uf?: string }): Promise<QualidadeSerie> {
   return get('/api/v1/qualidade/serie', opts)
 }
 
-export function fetchReclamacoesResumo(): Promise<ReclamacoesResumo> {
-  return get('/api/v1/reclamacoes/resumo')
+export function fetchReclamacoesResumo(date?: string): Promise<ReclamacoesResumo> {
+  return get('/api/v1/reclamacoes/resumo', { date })
 }
 
-export function fetchReclamacoesMarcas(opts: { servico?: string; ano?: number; q?: string; com_cnpj?: boolean; limit?: number; page?: number } = {}): Promise<ReclamacoesMarcas> {
+export function fetchReclamacoesMarcas(opts: { date?: string; servico?: string; ano?: number; q?: string; com_cnpj?: boolean; limit?: number; page?: number } = {}): Promise<ReclamacoesMarcas> {
   return get('/api/v1/reclamacoes/marcas', opts)
 }
 
-export function fetchConsumidorResumo(): Promise<ConsumidorResumo> {
-  return get('/api/v1/consumidor/resumo')
+export function fetchConsumidorResumo(date?: string): Promise<ConsumidorResumo> {
+  return get('/api/v1/consumidor/resumo', { date })
 }
 
-export function fetchConsumidorMarcas(opts: { uf?: string; q?: string; com_cnpj?: boolean; limit?: number; page?: number } = {}): Promise<ConsumidorMarcas> {
+export function fetchConsumidorMarcas(opts: { date?: string; uf?: string; q?: string; com_cnpj?: boolean; limit?: number; page?: number } = {}): Promise<ConsumidorMarcas> {
   return get('/api/v1/consumidor/marcas', opts)
 }
 
-export function fetchEspectroResumo(): Promise<EspectroResumo> {
-  return get('/api/v1/espectro/resumo')
+export function fetchEspectroResumo(date?: string): Promise<EspectroResumo> {
+  return get('/api/v1/espectro/resumo', { date })
 }
 
-export function fetchEspectroFaixas(opts: { de?: number; ate?: number; servico?: string; carater?: string; limit?: number; page?: number } = {}): Promise<EspectroFaixas> {
+export function fetchEspectroFaixas(opts: { date?: string; de?: number; ate?: number; servico?: string; carater?: string; limit?: number; page?: number } = {}): Promise<EspectroFaixas> {
   return get('/api/v1/espectro/faixas', opts)
 }
 
 /** Sobe quando o corpo de `/satelites/resumo` muda (2: `ngeo_sistemas`, REGULATORIO-E1): troca a URL guardada em cache. */
 const ESQUEMA_SATELITES = 2
-export function fetchSatelitesResumo(): Promise<SatelitesResumo> {
-  return get('/api/v1/satelites/resumo', { esquema: ESQUEMA_SATELITES })
+export function fetchSatelitesResumo(date?: string): Promise<SatelitesResumo> {
+  return get('/api/v1/satelites/resumo', { date, esquema: ESQUEMA_SATELITES })
 }
 
-export function fetchSatelitesDireitos(opts: { operadora?: string; tipo?: string; status?: string; limit?: number; page?: number } = {}): Promise<SatelitesDireitos> {
+export function fetchSatelitesDireitos(opts: { date?: string; operadora?: string; tipo?: string; status?: string; limit?: number; page?: number } = {}): Promise<SatelitesDireitos> {
   return get('/api/v1/satelites/direitos', opts)
 }
 
-export function fetchFustMunicipios(opts: { uf?: string; programa?: string; ordem?: string; limit?: number } = {}): Promise<FustMunicipios> {
+export function fetchFustMunicipios(opts: { date?: string; uf?: string; programa?: string; ordem?: string; limit?: number } = {}): Promise<FustMunicipios> {
   return get('/api/v1/fust/municipios', opts)
 }
 
@@ -1480,32 +1480,32 @@ export function fetchErbsMunicipios(opts: { uf?: string; geracao?: string; ordem
   return get('/api/v1/erbs/municipios', opts)
 }
 
-export function fetchIpv4Transferencias(opts: { ano?: string; direcao?: string; q?: string; asn?: number; limit?: number; page?: number } = {}): Promise<Ipv4Transferencias> {
+export function fetchIpv4Transferencias(opts: { date?: string; ano?: string; direcao?: string; q?: string; asn?: number; limit?: number; page?: number } = {}): Promise<Ipv4Transferencias> {
   return get('/api/v1/ipv4/transferencias', opts)
 }
-export function fetchIpv4Mercado(): Promise<Ipv4Mercado> {
-  return get('/api/v1/ipv4/transferencias/resumo', {})
+export function fetchIpv4Mercado(date?: string): Promise<Ipv4Mercado> {
+  return get('/api/v1/ipv4/transferencias/resumo', { date })
 }
-export function fetchIpv4Recuperacao(): Promise<Ipv4Recuperacao> {
-  return get('/api/v1/ipv4/recuperacao', {})
+export function fetchIpv4Recuperacao(date?: string): Promise<Ipv4Recuperacao> {
+  return get('/api/v1/ipv4/recuperacao', { date })
 }
 /** Ciclo de vida de um bloco IPv4; 204 = nenhum registro do Brasil para o bloco. */
 export function fetchIpv4CicloDeVida(bloco: string, date?: string): Promise<Ipv4CicloDeVida | null> {
   return get(`/api/v1/ipv4/blocos/${bloco}/ciclo-de-vida`, { date, opcional: true })
 }
 
-export function fetchIpv4Espaco(opts: { classe?: string; asn?: number; cnpj?: string; uf?: string; limit?: number; page?: number } = {}): Promise<Ipv4Espaco> {
+export function fetchIpv4Espaco(opts: { date?: string; classe?: string; asn?: number; cnpj?: string; uf?: string; limit?: number; page?: number } = {}): Promise<Ipv4Espaco> {
   return get('/api/v1/ipv4/espaco', opts)
 }
-export function fetchIpv4UsoPorTerceiros(opts: { sinal?: string; confianca?: string; asn?: number; cnpj?: string; limit?: number; page?: number } = {}): Promise<Ipv4Uso> {
+export function fetchIpv4UsoPorTerceiros(opts: { date?: string; sinal?: string; confianca?: string; asn?: number; cnpj?: string; limit?: number; page?: number } = {}): Promise<Ipv4Uso> {
   return get('/api/v1/ipv4/uso-por-terceiros', opts)
 }
 /** Recursos IPv4 de um ASN; 204 = nenhum bloco, bloco fora da plena divulgação ou sinal para o ASN. */
-export function fetchIpv4Asn(asn: number | string): Promise<Ipv4RecursosAsn | null> {
-  return get(`/api/v1/ipv4/asns/${asn}`, { opcional: true })
+export function fetchIpv4Asn(asn: number | string, date?: string): Promise<Ipv4RecursosAsn | null> {
+  return get(`/api/v1/ipv4/asns/${asn}`, { date, opcional: true })
 }
 
-export function fetchIpv4Subasignacoes(opts: { asn?: number; conforme?: boolean; limit?: number; page?: number } = {}): Promise<Ipv4Subasignacoes> {
+export function fetchIpv4Subasignacoes(opts: { date?: string; asn?: number; conforme?: boolean; limit?: number; page?: number } = {}): Promise<Ipv4Subasignacoes> {
   return get('/api/v1/ipv4/subasignacoes', opts)
 }
 

@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { Fragment } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from './LinkDatado'
 import { GRUPOS_MENU } from './menu'
 
 export interface Migalha { rotulo: string; to?: string; mono?: boolean }

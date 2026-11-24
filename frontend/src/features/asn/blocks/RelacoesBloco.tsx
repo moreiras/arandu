@@ -4,7 +4,8 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { Link } from '../../../components/layout/LinkDatado'
 import { ASRelationsGraph } from '../../../components/graphs/ASRelationsGraph'
 import type { AsnRelacoes, EstratoRelacao, NivelRelacao, RelacaoItem, TransitoAsn } from '../../../types/api'
 import type { BlocoProps } from '../../entidade/registry'

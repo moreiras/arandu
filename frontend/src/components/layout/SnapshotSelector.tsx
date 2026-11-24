@@ -19,12 +19,16 @@ export function SnapshotSelector() {
     const val = e.target.value
     // Snapshots antigos (histórico) exigem login; o seletor volta ao atual.
     if (isHistoricalDate(val, data?.snapshots) && !requireLogin('historico')) return
+    // Entrada nova no histórico (sem `replace`): o Voltar do navegador desfaz a troca de data.
+    const novos = new URLSearchParams(params)
     if (val === data?.latest) {
-      params.delete('date')
+      novos.delete('date')
+      // `semData`: o AppLayout não devolve a data anterior à URL; a pessoa escolheu o snapshot mais recente.
+      setParams(novos, { state: { semData: true } })
     } else {
-      params.set('date', val)
+      novos.set('date', val)
+      setParams(novos)
     }
-    setParams(params, { replace: true })
   }
 
   return (

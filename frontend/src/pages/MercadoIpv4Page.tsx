@@ -3,9 +3,10 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { fetchIpv4Espaco, fetchIpv4Subasignacoes, fetchIpv4Mercado, fetchIpv4Recuperacao, fetchIpv4Transferencias, fetchIpv4UsoPorTerceiros } from '../services/api'
 import type { Ipv4Direcao, Ipv4Operacao } from '../types/api'
 import { CLASSES_ESPACO } from '../features/ipv4/blocos'
@@ -24,25 +25,40 @@ const DIRECOES: Record<Ipv4Direcao, string> = { br_br: 'Brasil → Brasil', br_e
 const TAMANHOS: Record<string, string> = { ate_24: 'até /24', '22_a_23': '/23 a /22', '20_a_21': '/21 a /20', '19_ou_maior': '/19 ou maior' }
 import { formatarData } from '../lib/datas'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
+import { useActiveDate } from '../hooks/useSnapshot'
+import { manterData } from '../lib/dataAtiva'
 
 /** Ordem dos tipos de recurso no resumo da recuperação: IPv6 antes de IPv4. */
 const ORDEM_TIPO: Record<string, number> = { asn: 0, bloco6: 1, bloco: 2 }
 const inteiro = (v?: number | null) => (v == null ? '—' : Math.round(v).toLocaleString('pt-BR'))
 const data = formatarData
 
+/**
+ * Filtros e página de uma aba na URL (`?aba=espaco&uf=RJ&p=2&date=…`): o endereço reabre a mesma lista no mesmo snapshot.
+ * Mudar um filtro volta à primeira página.
+ */
+function useFiltrosNaUrl() {
+  const [sp, setSp] = useSearchParams()
+  const valor = (k: string) => sp.get(k) ?? ''
+  const muda = (k: string, v: string) => { const x = new URLSearchParams(sp); if (v) x.set(k, v); else x.delete(k); if (k !== 'p') x.delete('p'); setSp(x, { replace: true }) }
+  const page = Math.max(1, Number(sp.get('p') ?? 1) || 1)
+  const setPage = (n: number) => muda('p', n > 1 ? String(n) : '')
+  return { valor, muda, page, setPage }
+}
+
 function Parte({ p }: { p: Ipv4Operacao['origem'] }) {
   return <span>{p.nome ?? '—'}<span className="text-gray-400"> · {p.pais ?? '?'}</span></span>
 }
 
 function Transferencias() {
-  const [ano, setAno] = useState('')
-  const [direcao, setDirecao] = useState('')
-  const [q, setQ] = useState('')
-  const [page, setPage] = useState(1)
-  const mercado = useQuery({ queryKey: ['ipv4-mercado'], queryFn: fetchIpv4Mercado, staleTime: 10 * 60 * 1000, retry: false })
+  const date = useActiveDate() ?? undefined
+  const { valor, muda, page, setPage } = useFiltrosNaUrl()
+  const ano = valor('ano'), direcao = valor('direcao'), q = valor('q')
+  const setAno = (v: string) => muda('ano', v), setDirecao = (v: string) => muda('direcao', v), setQ = (v: string) => muda('q', v)
+  const mercado = useQuery({ queryKey: ['ipv4-mercado', date], queryFn: () => fetchIpv4Mercado(date), staleTime: 10 * 60 * 1000, retry: false })
   const lista = useQuery({
-    queryKey: ['ipv4-transferencias', ano, direcao, q, page], retry: false, staleTime: 10 * 60 * 1000,
-    queryFn: () => fetchIpv4Transferencias({ ano: ano || undefined, direcao: direcao || undefined, q: q || undefined, limit: 25, page }),
+    queryKey: ['ipv4-transferencias', date, ano, direcao, q, page], retry: false, staleTime: 10 * 60 * 1000,
+    queryFn: () => fetchIpv4Transferencias({ date, ano: ano || undefined, direcao: direcao || undefined, q: q || undefined, limit: 25, page }),
   })
   const m = mercado.data
   const anos = m ? Object.keys(m.por_ano).sort().reverse() : []
@@ -88,11 +104,11 @@ function Transferencias() {
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
         <div className="flex flex-wrap items-end gap-3">
           <label className="text-sm text-gray-600 flex flex-col">Ano
-            <select value={ano} onChange={(e) => { setAno(e.target.value); setPage(1) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">todos</option>{anos.map((a) => <option key={a} value={a}>{a}</option>)}</select></label>
+            <select value={ano} onChange={(e) => { setAno(e.target.value) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">todos</option>{anos.map((a) => <option key={a} value={a}>{a}</option>)}</select></label>
           <label className="text-sm text-gray-600 flex flex-col">Direção
-            <select value={direcao} onChange={(e) => { setDirecao(e.target.value); setPage(1) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">todas</option>{(Object.keys(DIRECOES) as Ipv4Direcao[]).map((d) => <option key={d} value={d}>{DIRECOES[d]}</option>)}</select></label>
+            <select value={direcao} onChange={(e) => { setDirecao(e.target.value) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">todas</option>{(Object.keys(DIRECOES) as Ipv4Direcao[]).map((d) => <option key={d} value={d}>{DIRECOES[d]}</option>)}</select></label>
           <label className="text-sm text-gray-600 flex flex-col">Parte
-            <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1) }} placeholder="nome" className="border border-gray-300 rounded px-2 py-1.5 text-sm" /></label>
+            <input value={q} onChange={(e) => { setQ(e.target.value) }} placeholder="nome" className="border border-gray-300 rounded px-2 py-1.5 text-sm" /></label>
         </div>
         {lista.isError && <EstadoDados erro={lista.error} oQue="a lista de transferências" mensagem="A lista de transferências não está publicada neste snapshot." aoTentarDeNovo={() => void lista.refetch()} />}
         <div className="overflow-x-auto" hidden={lista.isError}>
@@ -129,7 +145,8 @@ function EstadoAba({ q, oQue }: { q: { isLoading: boolean; isError: boolean; err
 }
 
 function Recuperacao() {
-  const q = useQuery({ queryKey: ['ipv4-recuperacao'], queryFn: fetchIpv4Recuperacao, staleTime: 10 * 60 * 1000, retry: false })
+  const date = useActiveDate() ?? undefined
+  const q = useQuery({ queryKey: ['ipv4-recuperacao', date], queryFn: () => fetchIpv4Recuperacao(date), staleTime: 10 * 60 * 1000, retry: false })
   const TIPO_ROTULO: Record<string, string> = { bloco: 'IPv4', bloco6: 'IPv6', asn: 'ASN' }
   const itens = useOrdenacao(q.data?.em_recuperacao.itens, {
     tipo: (i) => TIPO_ROTULO[i.tipo] ?? i.tipo,
@@ -184,10 +201,11 @@ function Recuperacao() {
 }
 
 function EspacoSemUso() {
-  const [classe, setClasse] = useState('')
-  const [uf, setUf] = useState('')
-  const [page, setPage] = useState(1)
-  const q = useQuery({ queryKey: ['ipv4-espaco', classe, uf, page], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4Espaco({ classe: classe || undefined, uf: uf || undefined, limit: 25, page }) })
+  const date = useActiveDate() ?? undefined
+  const { valor, muda, page, setPage } = useFiltrosNaUrl()
+  const classe = valor('classe'), uf = valor('uf')
+  const setClasse = (v: string) => muda('classe', v), setUf = (v: string) => muda('uf', v)
+  const q = useQuery({ queryKey: ['ipv4-espaco', date, classe, uf, page], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4Espaco({ date, classe: classe || undefined, uf: uf || undefined, limit: 25, page }) })
   const d = q.data
   const classes = useMemo(() => Object.entries(d?.resumo.por_classe ?? {}), [d])
   const porClasse = useOrdenacao(classes, {
@@ -220,9 +238,9 @@ function EspacoSemUso() {
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
         <div className="flex flex-wrap items-end gap-3">
           <label className="text-sm text-gray-600 flex flex-col">Situação
-            <select value={classe} onChange={(e) => { setClasse(e.target.value); setPage(1) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">todas</option>{Object.entries(CLASSES_ESPACO).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
+            <select value={classe} onChange={(e) => { setClasse(e.target.value) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">todas</option>{Object.entries(CLASSES_ESPACO).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
           <label className="text-sm text-gray-600 flex flex-col">UF do titular
-            <select value={uf} onChange={(e) => { setUf(e.target.value); setPage(1) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">todas</option>{ufs.map((u) => <option key={u} value={u}>{u}</option>)}</select></label>
+            <select value={uf} onChange={(e) => { setUf(e.target.value) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">todas</option>{ufs.map((u) => <option key={u} value={u}>{u}</option>)}</select></label>
         </div>
         <div className="overflow-x-auto">
           <table className="text-xs min-w-full">
@@ -250,10 +268,11 @@ function EspacoSemUso() {
 }
 
 function UsoPorTerceiros() {
-  const [sinal, setSinal] = useState('')
-  const [confianca, setConfianca] = useState('')
-  const [page, setPage] = useState(1)
-  const q = useQuery({ queryKey: ['ipv4-uso', sinal, confianca, page], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4UsoPorTerceiros({ sinal: sinal || undefined, confianca: confianca || undefined, limit: 25, page }) })
+  const date = useActiveDate() ?? undefined
+  const { valor, muda, page, setPage } = useFiltrosNaUrl()
+  const sinal = valor('sinal'), confianca = valor('confianca')
+  const setSinal = (v: string) => muda('sinal', v), setConfianca = (v: string) => muda('confianca', v)
+  const q = useQuery({ queryKey: ['ipv4-uso', date, sinal, confianca, page], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4UsoPorTerceiros({ date, sinal: sinal || undefined, confianca: confianca || undefined, limit: 25, page }) })
   const d = q.data
   if (!d) return <EstadoAba q={q} oQue="o uso por terceiros" />
   return (
@@ -273,9 +292,9 @@ function UsoPorTerceiros() {
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
         <div className="flex flex-wrap items-end gap-3">
           <label className="text-sm text-gray-600 flex flex-col">Sinal
-            <select value={sinal} onChange={(e) => { setSinal(e.target.value); setPage(1) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">todos</option>{['S1', 'S2', 'S3', 'S4'].map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
+            <select value={sinal} onChange={(e) => { setSinal(e.target.value) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">todos</option>{['S1', 'S2', 'S3', 'S4'].map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
           <label className="text-sm text-gray-600 flex flex-col">Confiança
-            <select value={confianca} onChange={(e) => { setConfianca(e.target.value); setPage(1) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">todas</option>{['alta', 'media', 'baixa'].map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
+            <select value={confianca} onChange={(e) => { setConfianca(e.target.value) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">todas</option>{['alta', 'media', 'baixa'].map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
         </div>
         <ul className="text-xs divide-y divide-gray-100">
           {d.items.map((i) => (
@@ -300,7 +319,8 @@ const VALIDACOES_ROTULO: Record<string, string> = { receptor_origina: 'origina',
 
 /** Sub-asignações (aluguel regulado, LAC-2025-5): enquanto não houver bitácora oficial, explica o que falta e mostra o vigia dos diretórios; com a fonte, lista os registros com as validações. */
 function Subasignacoes() {
-  const q = useQuery({ queryKey: ['ipv4-subasignacoes'], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4Subasignacoes({ limit: 100 }) })
+  const date = useActiveDate() ?? undefined
+  const q = useQuery({ queryKey: ['ipv4-subasignacoes', date], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4Subasignacoes({ date, limit: 100 }) })
   const d = q.data
   if (!d) return <EstadoAba q={q} oQue="as sub-asignações" />
   return (
@@ -346,14 +366,15 @@ function Subasignacoes() {
 export function MercadoIpv4Page() {
   const [params, setParams] = useSearchParams()
   const aba = ABAS.some((a) => a.id === params.get('aba')) ? params.get('aba')! : 'transferencias'
-  const meta = useQuery({ queryKey: ['ipv4-mercado'], queryFn: fetchIpv4Mercado, staleTime: 10 * 60 * 1000, retry: false })
+  const date = useActiveDate() ?? undefined
+  const meta = useQuery({ queryKey: ['ipv4-mercado', date], queryFn: () => fetchIpv4Mercado(date), staleTime: 10 * 60 * 1000, retry: false })
   return (
     <div className="space-y-5">
       <div>
         <h1 className="text-titulo-1 text-gray-900">Mercado secundário de IPv4</h1>
         <p className="text-sm text-gray-500">Transferências de blocos IPv4 com o Brasil, recursos em recuperação e o ciclo de vida de cada bloco. Fontes: Registro.br e LACNIC.</p>
       </div>
-      <BarraDeAbas abas={ABAS} ativa={aba} aoEscolher={(id) => setParams({ aba: id })} rotulo="Seções do Mercado IPv4" />
+      <BarraDeAbas abas={ABAS} ativa={aba} aoEscolher={(id) => setParams(manterData(params, { aba: id }))} rotulo="Seções do Mercado IPv4" />
       <div role="tabpanel" id={`painel-${aba}`} aria-labelledby={`aba-${aba}`} className="space-y-5">
       {aba === 'transferencias' && <Transferencias />}
       {aba === 'recuperacao' && <Recuperacao />}

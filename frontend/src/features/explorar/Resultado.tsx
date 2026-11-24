@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import type { ColumnDef } from '@tanstack/react-table'
 import { DataTable, EmptyState } from '../../components/entidade'
 import type { OrdemServidor } from '../../components/ui/TabelaDados'

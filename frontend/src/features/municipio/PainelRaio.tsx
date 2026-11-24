@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { Suspense, lazy, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import { fmtKm, type LonLat } from '../../lib/geo'
 import type { PerfilMunicipio } from '../../types/api'
 import { fmt } from './ui'

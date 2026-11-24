@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurapé.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { Link } from 'react-router-dom'
+import { Link } from '../../../components/layout/LinkDatado'
 import { useGrupoBloco } from '../../../hooks/entidades/entidades'
 import type { BlocoProps } from '../../entidade/registry'
 import type { GrupoCtx } from '../contexto'

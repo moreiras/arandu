@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { Migalhas } from '../../components/layout/Migalhas'
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import { EntityHeader } from '../../components/entidade'
 import { AcoesEntidade } from '../../components/entidade/AcoesEntidade'
 import { ContactsReveal } from '../../components/ContactsReveal'

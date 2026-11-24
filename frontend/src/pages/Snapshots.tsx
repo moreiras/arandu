@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { fetchSnapshot, fetchRpkiSummary, fetchOutorgasStats } from '../services/api'
 import { useActiveDate, useSnapshots } from '../hooks/useSnapshot'
 import { useState } from 'react'

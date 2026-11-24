@@ -6,6 +6,7 @@
 // Cartões do route server do DE-CIX na página do IXP externo: sessões, ASNs diretos e de origem (piso), cobertura da leitura e comparação com o IX.br da cidade.
 // Dado do Alice-LG do DE-CIX (`route_server` de GET /external-ixps/{code}); o PeeringDB continua sendo a fonte da tabela de membros.
 import type { ExternalIXPDocument } from '../types/api'
+import { Link } from '../components/layout/LinkDatado'
 
 export interface DecixRouteServer {
   snapshot_date?: string
@@ -155,7 +156,7 @@ export function ExternalIXPRouteServer({ rs }: { rs: DecixRouteServer }) {
             <p className="text-xs text-gray-600">
               Com sessão no DE-CIX e sem direto no IX.br:{' '}
               {comp.no_decix_sem_ixbr.asns.slice(0, 20).map((a, i) => (
-                <span key={a}>{i > 0 ? ', ' : ''}<a href={`/asn/${a}`} className="text-primario-600 hover:underline font-mono">AS{a}</a></span>
+                <span key={a}>{i > 0 ? ', ' : ''}<Link to={`/asn/${a}`} className="text-primario-600 hover:underline font-mono">AS{a}</Link></span>
               ))}
               {comp.no_decix_sem_ixbr.total > 20 ? ` e mais ${n(comp.no_decix_sem_ixbr.total - 20)}` : ''}.
             </p>

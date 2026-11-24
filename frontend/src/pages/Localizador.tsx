@@ -11,7 +11,7 @@ import { PainelControles } from '../features/localizador/PainelControles'
 import { PainelEntidades } from '../features/localizador/PainelEntidades'
 import { LugarAmbiguo, geocodeQuery, useLocalizadorDados } from '../features/localizador/useLocalizadorDados'
 import { useMapaLocalizador } from '../features/localizador/useMapaLocalizador'
-import { Link } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { EstadoDados } from '../components/ui/EstadoDados'
 
 /**

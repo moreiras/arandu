@@ -3,9 +3,11 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { fetchCommunities } from '../services/api'
+import { useActiveDate } from '../hooks/useSnapshot'
 import { EstadoDados } from '../components/ui/EstadoDados'
 
 const POR_PAGINA = 25
@@ -22,13 +24,14 @@ const CLASSES: Record<string, string> = {
  */
 export function CommunitiesPage() {
   const [sp, setSp] = useSearchParams()
+  const date = useActiveDate() ?? undefined
   const q = sp.get('q') ?? ''
   const ixp = sp.get('ixp') ?? ''
   const classe = sp.get('classe') ?? ''
   const pagina = Math.max(1, Number(sp.get('p') ?? 1) || 1)
   const muda = (k: string, v: string) => { const x = new URLSearchParams(sp); if (v) x.set(k, v); else x.delete(k); if (k !== 'p') x.delete('p'); setSp(x, { replace: true }) }
-  const r = useQuery({ queryKey: ['communities', q, ixp, classe, pagina], retry: false, staleTime: 5 * 60 * 1000,
-    queryFn: () => fetchCommunities({ q: q || undefined, ixp: ixp || undefined, classe: classe || undefined, limit: POR_PAGINA, page: pagina }) })
+  const r = useQuery({ queryKey: ['communities', date, q, ixp, classe, pagina], retry: false, staleTime: 5 * 60 * 1000,
+    queryFn: () => fetchCommunities({ date, q: q || undefined, ixp: ixp || undefined, classe: classe || undefined, limit: POR_PAGINA, page: pagina }) })
   const d = r.data
   const paginas = d ? Math.max(1, Math.ceil(d.total / POR_PAGINA)) : 1
   return (

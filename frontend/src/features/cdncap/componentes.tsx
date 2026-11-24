@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 /** Tabelas de ROA e ASPA, KPI e caixa de prefixos da página de CDN/CAP. */
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import { useState } from 'react'
 import type { RoaEntry, AspaProviderEntry, AspaCustomerEntry } from '../../types/api'
 import { corLegivel } from '../../lib/contraste'

@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 
 /**
  * Três portas por público (EXPERIMENTO, a medir com pesquisa de uso). Cada porta tem três caminhos para páginas que já existem.

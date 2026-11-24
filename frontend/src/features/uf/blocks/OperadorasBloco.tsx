@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '../../../components/layout/LinkDatado'
 import type { BlocoProps } from '../../entidade/registry'
 import type { UfCtx } from '../contexto'
 import { fmt, fmtCnpj } from '../../municipio/ui'

@@ -3,7 +3,8 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { useParams, Link, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { useMemo } from 'react'
 import type { ASNDocument } from '../types/api'
 import { useActiveDate } from '../hooks/useSnapshot'

@@ -5,7 +5,8 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { lazy, Suspense, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { fetchConsumidorMarcas, fetchConsumidorResumo, fetchQualidadePrestadoras, fetchQualidadeResumo, fetchQualidadeSerie, fetchReclamacoesMarcas, fetchReclamacoesResumo } from '../services/api'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import type { QualIndicador } from '../types/api'
@@ -13,6 +14,8 @@ import { BulletPrestadoras } from '../features/qualidade/BulletPrestadoras'
 import { arquivo, dec, inteiro, NotaQualidade, referencia } from '../features/qualidade/blocos'
 import { CabecalhoMetricas, CelulasMetricas, NotaConsumidor } from '../features/qualidade/consumidor'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
+import { useActiveDate } from '../hooks/useSnapshot'
+import { manterData } from '../lib/dataAtiva'
 
 const ABAS = [
   { id: 'indicadores', rotulo: 'Indicadores (RQUAL)' },
@@ -41,16 +44,17 @@ function Indicadores() {
   const [servico, setServico] = useState(SERVICOS[0])
   const [indicador, setIndicador] = useState('')
   const [uf, setUf] = useState('')
-  const resumo = useQuery({ queryKey: ['qualidade-resumo'], queryFn: fetchQualidadeResumo, staleTime, retry: false })
+  const date = useActiveDate() ?? undefined
+  const resumo = useQuery({ queryKey: ['qualidade-resumo', date], queryFn: () => fetchQualidadeResumo(date), staleTime, retry: false })
   const inds = useMemo(() => (resumo.data?.indicadores ?? []).filter((i) => i.servico === servico), [resumo.data, servico])
   const ind = indicador && inds.some((i) => i.codigo === indicador) ? indicador : (inds[0]?.codigo ?? '')
   const pres = useQuery({
-    queryKey: ['qualidade-prestadoras', servico, ind, uf], enabled: !!ind,
-    queryFn: () => fetchQualidadePrestadoras({ servico, indicador: ind, uf: uf || undefined }), staleTime, retry: false,
+    queryKey: ['qualidade-prestadoras', date, servico, ind, uf], enabled: !!ind,
+    queryFn: () => fetchQualidadePrestadoras({ date, servico, indicador: ind, uf: uf || undefined }), staleTime, retry: false,
   })
   const serie = useQuery({
-    queryKey: ['qualidade-serie', servico, ind, uf], enabled: !!ind,
-    queryFn: () => fetchQualidadeSerie({ servico, indicador: ind, uf: uf || undefined }), staleTime, retry: false,
+    queryKey: ['qualidade-serie', date, servico, ind, uf], enabled: !!ind,
+    queryFn: () => fetchQualidadeSerie({ date, servico, indicador: ind, uf: uf || undefined }), staleTime, retry: false,
   })
   const r = resumo.data
   if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="os indicadores do RQUAL" mensagem="RQUAL não publicado neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
@@ -125,10 +129,11 @@ function Reclamacoes() {
   const [servico, setServico] = useState('')
   const [q, setQ] = useState('')
   const [page, setPage] = useState(1)
-  const resumo = useQuery({ queryKey: ['reclamacoes-resumo'], queryFn: fetchReclamacoesResumo, staleTime, retry: false })
+  const date = useActiveDate() ?? undefined
+  const resumo = useQuery({ queryKey: ['reclamacoes-resumo', date], queryFn: () => fetchReclamacoesResumo(date), staleTime, retry: false })
   const lista = useQuery({
-    queryKey: ['reclamacoes-marcas', servico, q, page], enabled: !!resumo.data,
-    queryFn: () => fetchReclamacoesMarcas({ servico: servico || undefined, q: q || undefined, limit: 25, page }), staleTime, retry: false,
+    queryKey: ['reclamacoes-marcas', date, servico, q, page], enabled: !!resumo.data,
+    queryFn: () => fetchReclamacoesMarcas({ date, servico: servico || undefined, q: q || undefined, limit: 25, page }), staleTime, retry: false,
   })
   const r = resumo.data
   if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="as reclamações" mensagem="Reclamações não publicadas neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
@@ -200,10 +205,11 @@ function Consumidor() {
   const [uf, setUf] = useState('')
   const [q, setQ] = useState('')
   const [page, setPage] = useState(1)
-  const resumo = useQuery({ queryKey: ['consumidor-resumo'], queryFn: fetchConsumidorResumo, staleTime, retry: false })
+  const date = useActiveDate() ?? undefined
+  const resumo = useQuery({ queryKey: ['consumidor-resumo', date], queryFn: () => fetchConsumidorResumo(date), staleTime, retry: false })
   const lista = useQuery({
-    queryKey: ['consumidor-marcas', uf, q, page], enabled: !!resumo.data,
-    queryFn: () => fetchConsumidorMarcas({ uf: uf || undefined, q: q || undefined, limit: 25, page }), staleTime, retry: false,
+    queryKey: ['consumidor-marcas', date, uf, q, page], enabled: !!resumo.data,
+    queryFn: () => fetchConsumidorMarcas({ date, uf: uf || undefined, q: q || undefined, limit: 25, page }), staleTime, retry: false,
   })
   const r = resumo.data
   if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="os dados do Consumidor.gov.br" mensagem="Consumidor.gov.br não publicado neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
@@ -270,7 +276,7 @@ export function QualidadePage() {
         <p className="text-sm text-gray-500">Indicadores de qualidade (RQUAL), reclamações de consumidores registradas na Anatel e reclamações finalizadas no Consumidor.gov.br. Fatos com fonte e período, sem ranking nem veredito.</p>
       </div>
       {/* a barra de abas única do site (setas do teclado, estado em ?aba=). */}
-      <BarraDeAbas abas={ABAS} ativa={aba} aoEscolher={(id) => setParams(id === 'indicadores' ? {} : { aba: id })} rotulo="Seções de Qualidade" />
+      <BarraDeAbas abas={ABAS} ativa={aba} aoEscolher={(id) => setParams(manterData(params, id === 'indicadores' ? {} : { aba: id }))} rotulo="Seções de Qualidade" />
       <div role="tabpanel" id={`painel-${aba}`} aria-labelledby={`aba-${aba}`}>
         {aba === 'indicadores' ? <Indicadores /> : aba === 'reclamacoes' ? <Reclamacoes /> : <Consumidor />}
       </div>

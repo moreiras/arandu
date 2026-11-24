@@ -3,9 +3,10 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { Link } from 'react-router-dom'
+import { Link } from '../../../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { fetchMudancas } from '../../../services/api'
+import { useActiveDate } from '../../../hooks/useSnapshot'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
 
@@ -20,7 +21,9 @@ const ROTULO: Record<string, string> = {
  */
 export function EntrouSaiuBloco({ dados }: BlocoProps<PttCtx>) {
   const { code, nameMap } = dados
-  const q = useQuery({ queryKey: ['ptt-entrou-saiu', code], queryFn: () => fetchMudancas({ tipo: TIPOS, ixp: code, estado: 'confirmado', limit: 100 }), staleTime: 10 * 60 * 1000 })
+  // Até o snapshot em exibição: com `?date=` antigo, eventos posteriores a ele não entram.
+  const date = useActiveDate() ?? undefined
+  const q = useQuery({ queryKey: ['ptt-entrou-saiu', code, date], queryFn: () => fetchMudancas({ to: date, tipo: TIPOS, ixp: code, estado: 'confirmado', limit: 100 }), staleTime: 10 * 60 * 1000 })
   const itens = q.data?.items ?? []
   if (q.isLoading) return <div className="h-20 bg-gray-50 rounded animate-pulse" />
   if (itens.length === 0) return <p className="text-sm text-gray-500">Nenhuma entrada ou saída confirmada neste PTT no histórico disponível.</p>

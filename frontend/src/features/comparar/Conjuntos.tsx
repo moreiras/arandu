@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 /** Diagrama de Venn, gráfico UpSet e tabela de participantes (comparação entre 2 ou mais IXPs). */
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import type { IXPCompareParticipant } from '../../types/api'
 import { SET_COLORS } from './MetricasAfi'
 import { nomeArquivo } from '../../lib/site'

@@ -11,6 +11,7 @@ import { ExternalIXPRouteServer, RedesBrPorFonte, contagemRedes, type ExternalIX
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { useOrdenacao } from '../lib/ordenacao'
 import { formatarData } from '../lib/datas'
+import { Link } from '../components/layout/LinkDatado'
 
 const FLAG: Record<string, string> = {
   BR: '🇧🇷', AR: '🇦🇷', CL: '🇨🇱', CO: '🇨🇴', PE: '🇵🇪',
@@ -145,9 +146,9 @@ export function ExternalIXPPage() {
               {ordenados.slice(0, 500).map((m, i) => (
                 <tr key={`${m.asn}-${i}`} className="hover:bg-gray-50">
                   <td className="px-4 py-2">
-                    <a href={`/asn/${m.asn}`} className="text-primario-600 hover:underline font-mono">
+                    <Link to={`/asn/${m.asn}`} className="text-primario-600 hover:underline font-mono">
                       AS{m.asn}
-                    </a>
+                    </Link>
                   </td>
                   <td className="px-4 py-2 text-gray-700 max-w-xs truncate">
                     {nomes[String(m.asn)] || m.name || '—'}

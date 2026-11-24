@@ -26,7 +26,7 @@ const schema: SchemaConsulta = {
     ixps: { key: 'code', description: 'PTTs', fields: [{ name: 'code', type: 'string' }, { name: 'uf', type: 'string' }] },
   },
 }
-const corpos: Array<{ colecao: string; corpo: any }> = []
+const corpos: Array<{ colecao: string; corpo: any; date?: string | null }> = []
 
 function Local() { const l = useLocation(); return <div data-testid="onde">{l.search}</div> }
 const montar = (url = '/explorar') => render(
@@ -42,7 +42,7 @@ beforeEach(() => {
     http.get('*/api/v1/schema', () => HttpResponse.json(schema)),
     http.get('*/api/v1/query/:colecao', ({ params, request }) => {
       const corpo = JSON.parse(new URL(request.url).searchParams.get('corpo') || '{}') as any
-      corpos.push({ colecao: String(params.colecao), corpo })
+      corpos.push({ colecao: String(params.colecao), corpo, date: new URL(request.url).searchParams.get('date') })
       if (corpo.aggregate) return HttpResponse.json({ mode: 'aggregate', matched: 10, groups: [{ key: { meio: 'Fibra' }, count: 7 }, { key: { meio: 'Rádio' }, count: 3 }], snapshot_date: '2026-09-20' })
       return HttpResponse.json({ mode: 'list', total: 2, page: 1, pages: 1, snapshot_date: '2026-09-20', items: [{ cnpj: '11111111000111', empresa: 'Fibra Vix', acessos: 12345 }, { cnpj: '22222222000122', empresa: 'Rede Sul', acessos: 800 }] })
     }),
@@ -63,9 +63,25 @@ describe('/explorar', () => {
     expect(await screen.findByText('Fibra Vix')).toBeInTheDocument()
     expect(corpos[corpos.length - 1]).toMatchObject({ colecao: 'operadoras', corpo: { filter: { field: 'acessos', op: 'gte', value: 5000 }, sort: [{ field: 'acessos', dir: 'desc' }], limit: 25 } })
     expect(screen.getByTestId('onde').textContent).toMatch(/^\?c=operadoras&q=/)
-    expect(screen.getByRole('link', { name: '11111111000111' })).toHaveAttribute('href', '/operadora/11111111000111')
+    expect(screen.getByRole('link', { name: '11111111000111' })).toHaveAttribute('href', '/operadora/11111111000111?date=2026-09-20')
     expect(screen.getByText(/2 resultados/)).toBeInTheDocument()
     expect(screen.getByLabelText('Corpo da consulta').textContent).toContain('/api/v1/query/operadoras')
+  })
+
+  it('grava a data do snapshot no link e no curl; o link reabre a mesma data (PT-02, TRANSV-E2)', async () => {
+    const primeira = montar('/explorar?date=2026-09-13')
+    await screen.findByRole('form', { name: 'Construtor de consulta' })
+    fireEvent.click(screen.getByRole('button', { name: 'Executar' }))
+    await waitFor(() => expect(screen.getByTestId('onde').textContent).toMatch(/^\?c=operadoras&q=.*&date=2026-09-13$/))
+    await waitFor(() => expect(corpos[corpos.length - 1]?.date).toBe('2026-09-13'))
+    expect(screen.getByLabelText('Corpo da consulta').textContent).toContain('/api/v1/query/operadoras?date=2026-09-13')
+
+    primeira.unmount()
+    const e = estadoInicial('ixps')
+    corpos.length = 0
+    montar(`/explorar?${paraUrl(e, '2026-09-13')}`)
+    await waitFor(() => expect(corpos.length).toBe(1))
+    expect(corpos[0].date).toBe('2026-09-13')
   })
 
   it('abrir um link com a consulta na URL carrega o construtor e já executa', async () => {

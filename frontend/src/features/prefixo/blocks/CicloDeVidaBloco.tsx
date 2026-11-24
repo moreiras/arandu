@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link } from '../../../components/layout/LinkDatado'
 import { fetchIpv4CicloDeVida } from '../../../services/api'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PrefixoCtx } from '../contexto'

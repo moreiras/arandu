@@ -3,7 +3,8 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { fetchRankingMunicipios, fetchTerritorioRanking } from '../services/api'
 import { useAuth } from '../auth/AuthContext'
@@ -12,6 +13,7 @@ import { UFS, nomeUf } from '../lib/ufs'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
 import { Dica } from '../components/ui/Dica'
 import { EstadoDados } from '../components/ui/EstadoDados'
+import { useActiveDate } from '../hooks/useSnapshot'
 
 const POR_PAGINA = 25
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
@@ -75,6 +77,7 @@ const CAMPOS_TERRITORIO: Record<string, string> = {
 export function MunicipiosPage() {
   const [sp, setSp] = useSearchParams()
   const { anon } = useAuth()
+  const date = useActiveDate() ?? undefined
   const lente = (LENTES.find((l) => l.id === sp.get('lente'))?.id ?? 'mercado') as Lente
   const uf = sp.get('uf') ?? ''
   const ordem = sp.get('ordem') ?? ''
@@ -91,14 +94,20 @@ export function MunicipiosPage() {
   }
   const ativaT = (chave: string) => chave === campo || (chave === 'populacao_estimada' && campo === 'populacao')
   const muda = (k: string, v: string) => { const q = new URLSearchParams(sp); if (v) q.set(k, v); else q.delete(k); if (k !== 'p') q.delete('p'); setSp(q, { replace: true }) }
+  // Lente nova: ordem, sentido e página são da lente anterior; UF, porte e data do snapshot continuam.
+  const trocaLente = (id: string) => {
+    const q = new URLSearchParams({ lente: id })
+    for (const k of ['uf', 'dom', 'date']) { const v = sp.get(k); if (v) q.set(k, v) }
+    setSp(q, { replace: true })
+  }
   const base = { retry: false, staleTime: 5 * 60 * 1000 }
 
-  const mercado = useQuery({ queryKey: ['mun-mercado', uf, ordem, asc, pagina], enabled: lente === 'mercado', ...base,
-    queryFn: () => fetchRankingMunicipios({ uf: uf || undefined, ordem: ordem || undefined, asc: asc || undefined, limit: POR_PAGINA, page: pagina }) })
-  const terr = useQuery({ queryKey: ['mun-terr', lente, uf, campo, asc, minDom, pagina], enabled: lente !== 'mercado', ...base,
+  const mercado = useQuery({ queryKey: ['mun-mercado', date, uf, ordem, asc, pagina], enabled: lente === 'mercado', ...base,
+    queryFn: () => fetchRankingMunicipios({ date, uf: uf || undefined, ordem: ordem || undefined, asc: asc || undefined, limit: POR_PAGINA, page: pagina }) })
+  const terr = useQuery({ queryKey: ['mun-terr', date, lente, uf, campo, asc, minDom, pagina], enabled: lente !== 'mercado', ...base,
     queryFn: () => fetchTerritorioRanking(lente === 'sem-ptt'
-      ? { uf: uf || undefined, campo, asc: asc || undefined, sem_ptt_proximo: true, min_domicilios: minDom, limit: POR_PAGINA, page: pagina }
-      : { uf: uf || undefined, campo, asc: asc || undefined, min_domicilios: minDom, limit: POR_PAGINA, page: pagina }) })
+      ? { date, uf: uf || undefined, campo, asc: asc || undefined, sem_ptt_proximo: true, min_domicilios: minDom, limit: POR_PAGINA, page: pagina }
+      : { date, uf: uf || undefined, campo, asc: asc || undefined, min_domicilios: minDom, limit: POR_PAGINA, page: pagina }) })
   const ativa = lente === 'mercado' ? mercado : terr
   const total = ativa.data?.total ?? 0
   const descricao = LENTES.find((l) => l.id === lente)!.descricao
@@ -110,7 +119,7 @@ export function MunicipiosPage() {
         <p className="text-sm text-gray-500 mt-1">Os municípios do Brasil ordenados por um critério de dado <strong>declarado</strong> à Anatel (SICI, banda larga fixa) ou <strong>estimado</strong> sobre o Censo 2022. A ordem não mede qualidade do serviço.</p>
       </div>
       <MapaSobDemanda />
-      <BarraDeAbas abas={LENTES} ativa={lente} aoEscolher={(id) => setSp(new URLSearchParams(uf ? { lente: id, uf } : { lente: id }), { replace: true })} rotulo="Lentes da lista" />
+      <BarraDeAbas abas={LENTES} ativa={lente} aoEscolher={trocaLente} rotulo="Lentes da lista" />
       <div role="tabpanel" id={`painel-${lente}`} aria-labelledby={`aba-${lente}`} className="space-y-5">
       <p className="text-sm text-gray-500">{descricao}</p>
       <div className="flex flex-wrap items-end gap-3 text-sm">

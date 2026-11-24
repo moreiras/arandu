@@ -1,4 +1,5 @@
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { RankingsSici } from './RankingsPage'
 import { useQuery } from '@tanstack/react-query'
 import { fetchHealth, fetchIXPs, fetchExternalIXPs, fetchSnapshot, fetchAllIXPEstimatedUsers } from '../services/api'

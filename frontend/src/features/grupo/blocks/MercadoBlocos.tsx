@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurapé.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { Link } from 'react-router-dom'
+import { Link } from '../../../components/layout/LinkDatado'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Kpi } from '../../../components/ui'
 import { useGrupoMercado } from '../../../hooks/entidades/entidades'

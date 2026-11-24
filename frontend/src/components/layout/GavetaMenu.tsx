@@ -5,7 +5,8 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+import { Link } from './LinkDatado'
 import { GRUPOS_MENU, ITENS_AVULSOS, grupoAtivo, itemAtivo, type GrupoMenu, type ItemMenu } from './menu'
 
 /**

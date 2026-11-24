@@ -1,4 +1,5 @@
 import type { AsDiagnosis, DeepVerdict } from '../../types/bgpStability'
+import { Link } from '../layout/LinkDatado'
 
 const VERDICT_CFG: Record<DeepVerdict, { label: string; color: string; desc: string }> = {
   upstream_instability: {
@@ -77,12 +78,12 @@ export function DeepDiagnosisPanel({ diagnosis: d }: Props) {
       {d.suspected_upstream_asn && (
         <div className="text-xs text-gray-600 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100">
           <span className="font-medium">Upstream suspeito: </span>
-          <a
-            href={`/asn/${d.suspected_upstream_asn}`}
+          <Link
+            to={`/asn/${d.suspected_upstream_asn}`}
             className="text-primario-600 hover:underline font-mono"
           >
             AS{d.suspected_upstream_asn}
-          </a>
+          </Link>
           {d.suspected_upstream_name && (
             <span className="text-gray-500"> · {d.suspected_upstream_name}</span>
           )}
@@ -111,9 +112,9 @@ export function DeepDiagnosisPanel({ diagnosis: d }: Props) {
                     <td className="py-1.5 pr-2 text-right tabular-nums">{hp.flap_events.toLocaleString('pt-BR')}</td>
                     <td className="py-1.5 pr-2">
                       {hp.dominant_upstream_asn ? (
-                        <a href={`/asn/${hp.dominant_upstream_asn}`} className="text-primario-600 hover:underline font-mono">
+                        <Link to={`/asn/${hp.dominant_upstream_asn}`} className="text-primario-600 hover:underline font-mono">
                           AS{hp.dominant_upstream_asn}
-                        </a>
+                        </Link>
                       ) : <span className="text-gray-400">—</span>}
                       {hp.dominant_upstream_name && (
                         <span className="text-gray-400"> · {hp.dominant_upstream_name}</span>

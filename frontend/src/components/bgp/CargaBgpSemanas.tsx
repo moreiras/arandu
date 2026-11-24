@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurapé.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { Link } from 'react-router-dom'
+import { Link } from '../layout/LinkDatado'
 import type { BgpStabilityCarga, CargaFamilia, CargaSemana } from '../../types/bgpStability'
 import { Tip } from './BgpShared'
 

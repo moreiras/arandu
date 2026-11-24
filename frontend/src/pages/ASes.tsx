@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { fetchASNs } from '../services/api'
 import { useActiveDate } from '../hooks/useSnapshot'

@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import { fetchOperadorasMovel, fetchOutorgas, fetchOutorgasMapa, fetchOutorgasStats, type ServicoOutorga } from '../../services/api'
 import { fmtCnpj, fmtNum } from './formato'
 

@@ -5,8 +5,9 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import { fetchFustMunicipios } from '../../services/api'
+import { useActiveDate } from '../../hooks/useSnapshot'
 import type { BlocoProps } from '../entidade/registry'
 import type { MunicipioCtx } from '../municipio/contexto'
 import type { OperadoraCtx } from '../operadora/contexto'
@@ -76,9 +77,10 @@ export function FustUfBloco({ dados }: BlocoProps<UfCtx>) {
   const [programa, setPrograma] = useState('')
   // A tabela traz só os 10 primeiros: a ordem vai ao servidor (`ordem`), que ordena do maior para o menor.
   const [campo, setCampo] = useState<'compromissos' | 'atendidos' | 'investimento'>('compromissos')
+  const date = useActiveDate() ?? undefined
   const q = useQuery({
-    queryKey: ['fust-municipios', dados.uf, programa, campo], enabled: !!f,
-    queryFn: () => fetchFustMunicipios({ uf: dados.uf, programa: programa || undefined, limit: 10, ...(campo === 'compromissos' ? {} : { ordem: campo }) }), staleTime: 10 * 60 * 1000, retry: false,
+    queryKey: ['fust-municipios', date, dados.uf, programa, campo], enabled: !!f,
+    queryFn: () => fetchFustMunicipios({ date, uf: dados.uf, programa: programa || undefined, limit: 10, ...(campo === 'compromissos' ? {} : { ordem: campo }) }), staleTime: 10 * 60 * 1000, retry: false,
   })
   const th = (c: typeof campo) => ({ campo: c, ordem: { campo, dir: 'desc' as const }, onOrdenar: () => setCampo(c) })
   if (!f) return null

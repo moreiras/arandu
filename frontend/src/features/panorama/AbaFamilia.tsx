@@ -4,12 +4,13 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { Kpi } from '../../components/ui'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../../components/ui/EstadoDados'
 import { AtribuicaoDbIp } from '../../components/ui/AtribuicaoDbIp'
 import { fetchIpv4Espaco, fetchIpv4Mercado, fetchMapPrefixes } from '../../services/api'
+import { useActiveDate } from '../../hooks/useSnapshot'
 import { CartogramaIndicador } from '../estados/CartogramaIndicador'
 import { Ipv6Territorio } from '../rede/PanoramaRede'
 import { nomeUf } from '../../lib/ufs'
@@ -155,8 +156,9 @@ function PrefixosPorUf({ f }: { f: Familia }) {
 
 /** Mercado secundário de IPv4: só os totais, o detalhe fica em /mercado-ipv4. */
 export function MercadoIpv4() {
-  const mercado = useQuery({ queryKey: ['ipv4-mercado'], queryFn: fetchIpv4Mercado, staleTime: 10 * 60 * 1000, retry: false })
-  const espaco = useQuery({ queryKey: ['ipv4-espaco-resumo'], queryFn: () => fetchIpv4Espaco({ limit: 1 }), staleTime: 10 * 60 * 1000, retry: false })
+  const date = useActiveDate() ?? undefined
+  const mercado = useQuery({ queryKey: ['ipv4-mercado', date], queryFn: () => fetchIpv4Mercado(date), staleTime: 10 * 60 * 1000, retry: false })
+  const espaco = useQuery({ queryKey: ['ipv4-espaco-resumo', date], queryFn: () => fetchIpv4Espaco({ date, limit: 1 }), staleTime: 10 * 60 * 1000, retry: false })
   const m = mercado.data
   const naoAnunciado = espaco.data?.resumo.por_classe?.nao_anunciado
   // Erro de acesso, de taxa ou de rede em qualquer das duas consultas não vira "não publicado" nem KPI vazio.

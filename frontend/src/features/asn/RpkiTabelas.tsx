@@ -5,7 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { TA_COLORS, ACCENT, type Accent } from './ui'
 import type { RoaEntry, AspaProviderEntry, AspaCustomerEntry } from '../../types/api'
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 
 export function RoaTable({ title, accent, roaList }: { title: string; accent: Accent; roaList: RoaEntry[] }) {
   const { dot, text } = ACCENT[accent]

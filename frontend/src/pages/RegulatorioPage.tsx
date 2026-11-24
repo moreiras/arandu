@@ -7,7 +7,8 @@ import { MapaSobDemanda } from '../features/estados/MapaSobDemanda'
 import { INDICADORES_FUST } from '../lib/indicadoresMapa'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import {
   fetchEspectroFaixas, fetchEspectroResumo, fetchFustMunicipios, fetchFustResumo, fetchMultasEmpresas, fetchMultasResumo, fetchSatelitesDireitos, fetchSatelitesResumo,
 } from '../services/api'
@@ -17,6 +18,8 @@ import { SITE } from '../lib/site'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { useOrdenacao, type Ordem } from '../lib/ordenacao'
+import { useActiveDate } from '../hooks/useSnapshot'
+import { manterData } from '../lib/dataAtiva'
 
 const ABAS = [
   { id: 'fust', rotulo: 'FUST' },
@@ -55,8 +58,9 @@ function Fust() {
   const [programa, setPrograma] = useState('')
   // Os 15 primeiros vêm da API: a ordem vai ao servidor para o corte sair da lista inteira.
   const [ordemMun, setOrdemMun] = useState('compromissos')
-  const resumo = useQuery({ queryKey: ['fust-resumo'], queryFn: fetchFustResumo, staleTime, retry: false })
-  const lista = useQuery({ queryKey: ['fust-municipios-pagina', uf, programa, ordemMun], queryFn: () => fetchFustMunicipios({ uf: uf || undefined, programa: programa || undefined, limit: 15, ...(ordemMun === 'compromissos' ? {} : { ordem: ordemMun }) }), staleTime, retry: false, placeholderData: (prev) => prev })
+  const date = useActiveDate() ?? undefined
+  const resumo = useQuery({ queryKey: ['fust-resumo', date], queryFn: () => fetchFustResumo(date), staleTime, retry: false })
+  const lista = useQuery({ queryKey: ['fust-municipios-pagina', date, uf, programa, ordemMun], queryFn: () => fetchFustMunicipios({ date, uf: uf || undefined, programa: programa || undefined, limit: 15, ...(ordemMun === 'compromissos' ? {} : { ordem: ordemMun }) }), staleTime, retry: false, placeholderData: (prev) => prev })
   const r = resumo.data
   const programas = useOrdenacao(r?.programas, { programa: (p) => p.codigo, compromissos: (p) => p.compromissos, atendidos: (p) => p.atendidos, municipios: (p) => p.municipios, previsto: (p) => p.investimento })
   const editais = useOrdenacao(r?.editais, { origem: (e) => e.origem, compromissos: (e) => e.compromissos, municipios: (e) => e.municipios, previsto: (e) => e.investimento })
@@ -120,8 +124,9 @@ function Multas() {
   const [page, setPage] = useState(1)
   // Lista paginada pela API: a ordem vai ao servidor e volta à primeira página.
   const [ordem, setOrdem] = useState('saldo')
-  const resumo = useQuery({ queryKey: ['multas-resumo'], queryFn: fetchMultasResumo, staleTime, retry: false })
-  const lista = useQuery({ queryKey: ['multas-empresas', grupo, q, page, ordem], queryFn: () => fetchMultasEmpresas({ grupo: grupo || undefined, q: q || undefined, limit: 20, page, ...(ordem === 'saldo' ? {} : { ordem }) }), staleTime, retry: false })
+  const date = useActiveDate() ?? undefined
+  const resumo = useQuery({ queryKey: ['multas-resumo', date], queryFn: () => fetchMultasResumo(date), staleTime, retry: false })
+  const lista = useQuery({ queryKey: ['multas-empresas', date, grupo, q, page, ordem], queryFn: () => fetchMultasEmpresas({ date, grupo: grupo || undefined, q: q || undefined, limit: 20, page, ...(ordem === 'saldo' ? {} : { ordem }) }), staleTime, retry: false })
   const th = thServidor(ordem, (c) => { setOrdem(c); setPage(1) })
   const r = resumo.data
   if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="as multas" mensagem="Multas não publicadas neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
@@ -179,11 +184,12 @@ function Espectro() {
   const [ate, setAte] = useState('')
   const [servico, setServico] = useState('')
   const [page, setPage] = useState(1)
-  const resumo = useQuery({ queryKey: ['espectro-resumo'], queryFn: fetchEspectroResumo, staleTime, retry: false })
+  const date = useActiveDate() ?? undefined
+  const resumo = useQuery({ queryKey: ['espectro-resumo', date], queryFn: () => fetchEspectroResumo(date), staleTime, retry: false })
   const refs = useOrdenacao(resumo.data?.referencias, { faixa: (f) => f.nome, mhz: { valor: (f) => f.ini_mhz, primeiro: 'asc' } })
   const lista = useQuery({
-    queryKey: ['espectro-faixas', de, ate, servico, page], staleTime, retry: false,
-    queryFn: () => fetchEspectroFaixas({ de: de ? Number(de.replace(',', '.')) : undefined, ate: ate ? Number(ate.replace(',', '.')) : undefined, servico: servico || undefined, limit: 25, page }),
+    queryKey: ['espectro-faixas', date, de, ate, servico, page], staleTime, retry: false,
+    queryFn: () => fetchEspectroFaixas({ date, de: de ? Number(de.replace(',', '.')) : undefined, ate: ate ? Number(ate.replace(',', '.')) : undefined, servico: servico || undefined, limit: 25, page }),
   })
   const r = resumo.data
   if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="as faixas de espectro" mensagem="Faixas não publicadas neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
@@ -231,10 +237,10 @@ function Satelites() {
   const [operadora, setOperadora] = useState('')
   const [tipo, setTipo] = useState('')
   const [page, setPage] = useState(1)
-  const resumo = useQuery({ queryKey: ['satelites-resumo'], queryFn: fetchSatelitesResumo, staleTime, retry: false })
-  // um por sistema (`ngeo_sistemas`); a tabela da Anatel tem um registro por sistema e ano de agenda, e cópias (REGULATORIO-E1)
+  const date = useActiveDate() ?? undefined
+  const resumo = useQuery({ queryKey: ['satelites-resumo', date], queryFn: () => fetchSatelitesResumo(date), staleTime, retry: false })
   const ngeo = useOrdenacao(resumo.data?.ngeo_sistemas, { sistema: (n) => n.objeto, prestadora: (n) => n.prestadora, orbita: (n) => n.orbita, satelites: (n) => n.constelacao, situacao: (n) => n.status })
-  const lista = useQuery({ queryKey: ['satelites-direitos', operadora, tipo, page], queryFn: () => fetchSatelitesDireitos({ operadora: operadora || undefined, tipo: tipo || undefined, limit: 20, page }), staleTime, retry: false })
+  const lista = useQuery({ queryKey: ['satelites-direitos', date, operadora, tipo, page], queryFn: () => fetchSatelitesDireitos({ date, operadora: operadora || undefined, tipo: tipo || undefined, limit: 20, page }), staleTime, retry: false })
   const r = resumo.data
   if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="os satélites" mensagem="Satélites não publicados neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
   const s = r.resumo
@@ -291,7 +297,7 @@ export function RegulatorioPage() {
         <h1 className="text-titulo-1 text-gray-900">Regulatório</h1>
         <p className="text-sm text-gray-500">FUST, multas constituídas, quadro de frequências e satélites com direito de exploração no Brasil. Fonte: dados abertos da Anatel.</p>
       </div>
-      <BarraDeAbas abas={ABAS} ativa={aba} aoEscolher={(id) => setParams({ aba: id })} rotulo="Seções do Regulatório" />
+      <BarraDeAbas abas={ABAS} ativa={aba} aoEscolher={(id) => setParams(manterData(params, { aba: id }))} rotulo="Seções do Regulatório" />
       <div role="tabpanel" id={`painel-${aba}`} aria-labelledby={`aba-${aba}`} className="space-y-5">
       {aba === 'fust' && <Fust />}
       {aba === 'multas' && <Multas />}
