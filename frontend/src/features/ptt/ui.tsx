@@ -17,11 +17,13 @@ export function pct(v: number | null | undefined, decimals = 2): string {
   return `${v.toFixed(decimals)}%`
 }
 
-/** Anima de 0 até o alvo (easeOutCubic). Reinicia quando o alvo muda. */
+/** Anima de 0 até o alvo (easeOutCubic). Reinicia quando o alvo muda; com `prefers-reduced-motion: reduce` vai direto ao alvo. */
 export function useCountUp(target: number | null | undefined, duration = 900): number {
   const [val, setVal] = useState(0)
   useEffect(() => {
     if (target == null) { setVal(0); return }
+    // Movimento reduzido (WCAG 2.2, 2.3.3): o número final, sem animar.
+    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { setVal(target); return }
     let raf = 0
     const start = performance.now()
     const tick = (now: number) => {
