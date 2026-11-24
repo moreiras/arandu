@@ -13,6 +13,7 @@ import { AtribuicaoPeeringDb, PttRotulo, SeloCadastro, dataCurta, localDe, n } f
 import { MapaInstalacoes } from '../features/instalacoes/MapaInstalacoes'
 import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 
 /**
  * `/instalacao/:id` — uma instalação do PeeringDB: localização, PTTs, carriers, campus e as redes que declaram estar nela.
@@ -22,7 +23,7 @@ export function FacilityPage() {
   const { id = '' } = useParams<{ id: string }>()
   const date = useActiveDate()
   const [soBr, setSoBr] = useState(false)
-  const { data: f, isLoading, isError } = useQuery({ queryKey: ['facility', id, date], queryFn: () => fetchFacility(id, date ?? undefined), enabled: idInstalacaoValido(id), staleTime: Infinity, gcTime: Infinity, retry: false })
+  const { data: f, isLoading, isError, error, refetch } = useQuery({ queryKey: ['facility', id, date], queryFn: () => fetchFacility(id, date ?? undefined), enabled: idInstalacaoValido(id), staleTime: Infinity, gcTime: Infinity, retry: false })
   const redesFiltradas = useMemo(() => (f?.redes ?? []).filter((r) => !soBr || r.is_br), [f, soBr])
   // Ordena todas as redes e só depois corta nas 500 exibidas.
   const { ordenados, props } = useOrdenacao(redesFiltradas, {
@@ -32,6 +33,9 @@ export function FacilityPage() {
   })
 
   if (isLoading) return <div className="text-sm text-gray-400">Carregando…</div>
+  if (isError && ehErroDeAcessoOuFalha(error)) {
+    return <EstadoDados variante="pagina" erro={error} oQue={`a instalação ${id}`} aoTentarDeNovo={() => void refetch()} />
+  }
   if (isError || !f) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-6">

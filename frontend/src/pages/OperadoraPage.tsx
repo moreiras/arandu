@@ -9,6 +9,7 @@ import { fetchEmpresasRelacionadas, fetchOperadoraContacts, fetchOperadoraMovelC
 import { useActiveDate } from '../hooks/useSnapshot'
 import { useCadastroOperadora, useContratosOperadora, useFinanciamentoOperadora, useFontes, useOperadoraPerfil } from '../hooks/entidades'
 import { EntityPage } from '../features/entidade/EntityPage'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import { CabecalhoOperadora } from '../features/operadora/CabecalhoOperadora'
 import { FichaOperadora } from '../features/operadora/FichaOperadora'
 import type { OperadoraCtx } from '../features/operadora/contexto'
@@ -40,6 +41,10 @@ export function OperadoraPage() {
   const relacionadas = useQuery({ queryKey: ['empresas-relacionadas', cnpj, dataAtiva], queryFn: () => fetchEmpresasRelacionadas(cnpj!, dataAtiva ?? undefined), enabled: temGrupo && !!cnpj && !!dataAtiva, staleTime: Infinity, retry: false })
 
   if (q.isLoading) return <div className="text-sm text-gray-400">Carregando…</div>
+  // "Não há informação" só para 404/204: erro de acesso, de taxa ou de rede não diz nada sobre o CNPJ.
+  if (q.isError && ehErroDeAcessoOuFalha(q.error)) {
+    return <EstadoDados variante="pagina" erro={q.error} oQue={`o perfil do CNPJ ${fmtCnpj(cnpj ?? '')}`} aoTentarDeNovo={() => void q.refetch()} />
+  }
   if (!data && !dataMovel && !dataStfc?.outorgas.length && !dataSeac?.outorgas.length && !q.dados?.perfil?.multas) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -88,6 +93,10 @@ export function OperadoraPage() {
         grupoCnpjs={grupoCnpjs} grupoId={relacionadas.data?.grupo_id ?? undefined} contactsAvailable={contactsAvailable} fetchContacts={fetchContacts} asns={asns} snapshot={snapshot}
       />
       {!versaoAntiga && <FichaOperadora nome={nome} ctx={ctx} />}
+      {/* cadastro, crédito/sanções e contratos somem quando não há registro (404); com erro de acesso ou rede, a página avisa */}
+      {[cadastro, financiamento, contratos].map((c) => c.error).filter(ehErroDeAcessoOuFalha).slice(0, 1).map((e, i) => (
+        <EstadoDados key={i} erro={e} oQue="os blocos de cadastro, crédito público, sanções e contratos" />
+      ))}
       <EntityPage entidade="operadora" rotulo={`${nome} (CNPJ ${fmtCnpj(cnpjFinal)})`} dados={ctx} snapshot={snapshot ?? null} fontes={fontes} espacamento="space-y-5" />
     </div>
   )

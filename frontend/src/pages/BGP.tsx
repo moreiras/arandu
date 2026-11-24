@@ -14,6 +14,7 @@ import { TooSpecificTable }         from '../components/bgp/TooSpecificTable'
 import { AsPathSection }            from '../components/bgp/AsPathSection'
 import { StabilitySection }         from '../components/bgp/StabilitySection'
 import { AccessError } from '../services/api'
+import { EstadoDados } from '../components/ui/EstadoDados'
 import { AccessPanel } from '../components/AccessPanel'
 import { useSearchParams } from 'react-router-dom'
 import { ComoLer } from '../components/ui/ComoLer'
@@ -125,6 +126,7 @@ export function BGP() {
   }
 
   if (isError && error instanceof AccessError) {
+    if (error.kind === 'taxa') return <EstadoDados variante="pagina" erro={error} oQue="a análise BGP" />
     return <AccessPanel reason={error.kind === 'limit' ? 'esgotado' : 'geral'} />
   }
 

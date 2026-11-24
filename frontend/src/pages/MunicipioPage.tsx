@@ -6,6 +6,7 @@
 import { useCallback, useMemo } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { EntityPage } from '../features/entidade/EntityPage'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import { CabecalhoMunicipio } from '../features/municipio/CabecalhoMunicipio'
 import { FichaMunicipio } from '../features/municipio/FichaMunicipio'
 import type { MunicipioCtx } from '../features/municipio/contexto'
@@ -52,6 +53,10 @@ export function MunicipioPage() {
   }, [perfilCentral, vizinhos, viz.perfis])
 
   if (q.isLoading) return <div className="text-sm text-gray-400">Carregando…</div>
+  // Erro de acesso, de taxa ou de rede não é "município não encontrado".
+  if (q.isError && ehErroDeAcessoOuFalha(q.error)) {
+    return <EstadoDados variante="pagina" erro={q.error} oQue={`o perfil do município ${ibge}`} aoTentarDeNovo={() => void q.refetch()} />
+  }
   const base = d?.fixo ?? d?.movel
   if (!d || !base) {
     return (
@@ -87,6 +92,7 @@ export function MunicipioPage() {
             </div>
           )}
           {!versaoAntiga && !somando && <FichaMunicipio nome={base.nome} ctx={ctx} />}
+          {regiao.isError && ehErroDeAcessoOuFalha(regiao.error) && <EstadoDados erro={regiao.error} oQue="os blocos de provedores, PTTs, trânsito e segurança da região" />}
           <EntityPage entidade="municipio" rotulo={`Município de ${base.nome}/${base.uf}`} dados={ctx} snapshot={base.snapshot_date} fontes={fontes} espacamento="space-y-5" />
         </>
       )}

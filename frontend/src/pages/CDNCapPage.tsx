@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState, useRef, useLayoutEffect } from 'react'
 import { fetchCDNPresence, fetchASNsLote, fetchIXPs } from '../services/api'
 import { useActiveDate } from '../hooks/useSnapshot'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import { cdnSlug } from '../lib/cdn'
 import { CDNIXPPresenceGraph } from '../components/graphs/CDNIXPPresenceGraph'
 import type { CDNAsnPresenceData } from '../components/graphs/CDNIXPPresenceGraph'
@@ -21,7 +22,7 @@ export function CDNCapPage() {
   const date = useActiveDate()
   const navigate = useNavigate()
 
-  const { data: presence, isLoading: loadingPresence } = useQuery({
+  const { data: presence, isLoading: loadingPresence, error: erroPresence, refetch: refetchPresence } = useQuery({
     queryKey: ['cdns', date],
     queryFn: () => fetchCDNPresence(date ?? undefined),
     staleTime: Infinity, gcTime: Infinity,
@@ -174,6 +175,11 @@ export function CDNCapPage() {
     )
   }
 
+  // Erro de acesso, de taxa ou de rede na lista de CDNs não é "CDN não encontrada".
+  if (!presence && ehErroDeAcessoOuFalha(erroPresence)) {
+    return <EstadoDados variante="pagina" erro={erroPresence} oQue="a lista de CDNs" aoTentarDeNovo={() => void refetchPresence()} className="mt-8 max-w-2xl mx-auto" />
+  }
+
   if (!row) {
     return (
       <div className="text-center mt-16">
@@ -291,7 +297,7 @@ export function CDNCapPage() {
                 height={Math.round(presenceColW * 420 / 560)}
               />
             ) : (
-              <div className="text-sm text-gray-400">{loadingDocs ? 'Carregando…' : 'Sem dados.'}</div>
+              loteQ.isError ? <EstadoDados erro={loteQ.error} oQue="os documentos dos ASNs" /> : <div className="text-sm text-gray-400">{loadingDocs ? 'Carregando…' : 'Sem dados.'}</div>
             )}
           </div>
           <div className="overflow-hidden">
@@ -306,7 +312,7 @@ export function CDNCapPage() {
                 height={Math.round(presenceColW * 420 / 560)}
               />
             ) : (
-              <div className="text-sm text-gray-400">{loadingDocs ? 'Carregando…' : 'Sem dados.'}</div>
+              loteQ.isError ? <EstadoDados erro={loteQ.error} oQue="os documentos dos ASNs" /> : <div className="text-sm text-gray-400">{loadingDocs ? 'Carregando…' : 'Sem dados.'}</div>
             )}
           </div>
         </div>
@@ -352,7 +358,7 @@ export function CDNCapPage() {
                 height={Math.round(relColW * 380 / 520)}
               />
             ) : (
-              <div className="text-sm text-gray-400">{loadingDocs ? 'Carregando…' : 'Sem dados.'}</div>
+              loteQ.isError ? <EstadoDados erro={loteQ.error} oQue="os documentos dos ASNs" /> : <div className="text-sm text-gray-400">{loadingDocs ? 'Carregando…' : 'Sem dados.'}</div>
             )}
           </div>
           <div className="overflow-hidden">
@@ -367,7 +373,7 @@ export function CDNCapPage() {
                 height={Math.round(relColW * 380 / 520)}
               />
             ) : (
-              <div className="text-sm text-gray-400">{loadingDocs ? 'Carregando…' : 'Sem dados.'}</div>
+              loteQ.isError ? <EstadoDados erro={loteQ.error} oQue="os documentos dos ASNs" /> : <div className="text-sm text-gray-400">{loadingDocs ? 'Carregando…' : 'Sem dados.'}</div>
             )}
           </div>
         </div>

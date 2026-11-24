@@ -7,6 +7,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchASNsLote, fetchGrupo, fetchMunicipioPerfil, fetchOperadoraPerfil } from '../services/api'
 import { useActiveDate } from '../hooks/useSnapshot'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import { DESCRICAO_SELO, ROTULO_SELO, type Selo } from '../components/entidade'
 import { linkPermanente, montarCitacao } from '../components/entidade/citacao'
 import { compararAs, compararMunicipios, compararOperadoras, type Comparacao } from '../features/comparar/entidades'
@@ -72,6 +73,8 @@ export function RelatorioPage() {
   const q = useQuery({ queryKey: ['relatorio', tipo, id, date], enabled: !!tipo && idValido, queryFn: () => carregar(tipo!, id, date ?? undefined), staleTime: 10 * 60 * 1000, retry: false })
   if (!tipo) return <p className="text-sm text-gray-500">Relatório disponível para AS, operadora, município e grupo.</p>
   if (q.isLoading) return <div className="h-64 bg-gray-50 rounded animate-pulse" />
+  // Login (snapshot histórico), orçamento, taxa ou rede: o relatório não carregou, o que não diz nada sobre a entidade.
+  if (q.isError && ehErroDeAcessoOuFalha(q.error)) return <EstadoDados variante="pagina" erro={q.error} oQue="o relatório" aoTentarDeNovo={() => void q.refetch()} className="mx-auto max-w-3xl" />
   const r = q.data
   if (!r) return <p className="text-sm text-gray-500">Sem dado para esta entidade neste snapshot. <Link to="/" className="text-primario-600 hover:underline">Voltar ao início</Link></p>
   const url = linkPermanente(window.location.origin, r.caminho, '', r.snapshot)

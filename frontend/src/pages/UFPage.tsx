@@ -8,6 +8,7 @@ import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { EntityHeader } from '../components/entidade'
 import { EntityPage } from '../features/entidade/EntityPage'
+import { EstadoDados } from '../components/ui/EstadoDados'
 import type { MunicipioUf, UfCtx } from '../features/uf/contexto'
 import '../features/uf'
 import { useCadastroMercadoUf, useFontes, useUfPerfil } from '../hooks/entidades'
@@ -42,6 +43,11 @@ export function UFPage() {
     )
   }
   if (perfilQ.isLoading) return <div className="text-sm text-gray-400">Carregando…</div>
+  // Sem perfil não há painel: os totais de reserva abaixo virariam "0" na tela.
+  if (perfilQ.isError) {
+    return <EstadoDados variante="pagina" erro={perfilQ.error} oQue={`o perfil de ${nomeUf(uf)}`} snapshot={date}
+      mensagem={`O perfil de ${nomeUf(uf)} não está publicado neste snapshot.`} aoTentarDeNovo={() => void perfilQ.refetch()} />
+  }
 
   const ctx: UfCtx = {
     uf,
