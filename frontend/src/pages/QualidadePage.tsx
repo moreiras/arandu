@@ -85,9 +85,9 @@ function Indicadores() {
         {pres.data && refInd && <BulletPrestadoras indicador={refInd} linhas={pres.data.items.map((x) => ({ prestadora: x.prestadora, valor: x.media_ponderada ?? x.media ?? null }))} />}
         {pres.data && (
           <div className="overflow-x-auto">
-            <table className="text-xs min-w-full">
-              <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Prestadora (alfabética)</th><th className="text-left px-2 py-1">{uf ? 'Ano' : 'Mês'}</th><th className="text-right px-2 py-1">Municípios medidos</th><th className="text-right px-2 py-1">Medidas</th>
-                <th className="text-right px-2 py-1">Média ponderada</th><th className="text-right px-2 py-1">Média simples</th><th className="text-right px-2 py-1">Mediana</th><th className="text-left px-2 py-1">CNPJ</th></tr></thead>
+            <table className="text-xs min-w-full"><caption className="sr-only">Indicador por prestadora</caption>
+              <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Prestadora (alfabética)</th><th scope="col" className="text-left px-2 py-1">{uf ? 'Ano' : 'Mês'}</th><th scope="col" className="text-right px-2 py-1">Municípios medidos</th><th scope="col" className="text-right px-2 py-1">Medidas</th>
+                <th scope="col" className="text-right px-2 py-1">Média ponderada</th><th scope="col" className="text-right px-2 py-1">Média simples</th><th scope="col" className="text-right px-2 py-1">Mediana</th><th scope="col" className="text-left px-2 py-1">CNPJ</th></tr></thead>
               <tbody>
                 {pres.data.items.map((x) => {
                   const p = r.prestadoras.find((y) => y.servico === servico && y.prestadora === x.prestadora)
@@ -107,8 +107,8 @@ function Indicadores() {
         {periodos.length > 0 && (
           <details className="text-xs"><summary className="cursor-pointer text-gray-600">Série ({uf ? 'anual da UF' : 'mensal nacional'}, últimos {periodos.length} períodos, média ponderada)</summary>
             <div className="overflow-x-auto">
-              <table className="text-xs min-w-full">
-                <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Período</th>{nomes.map((n) => <th key={n} className="text-right px-2 py-1">{n}</th>)}</tr></thead>
+              <table className="text-xs min-w-full"><caption className="sr-only">Série do indicador por prestadora</caption>
+                <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Período</th>{nomes.map((n) => <th scope="col" key={n} className="text-right px-2 py-1">{n}</th>)}</tr></thead>
                 <tbody>{periodos.map((per) => <tr key={per} className="border-t border-gray-100"><td className="px-2 py-1">{per}</td>{nomes.map((n) => <td key={n} className="px-2 py-1 text-right tabular-nums">{dec(valor(n, per), 2)}</td>)}</tr>)}</tbody>
               </table>
             </div>
@@ -145,8 +145,8 @@ function Reclamacoes() {
         </div>
         <p className="text-xs text-gray-600">Só agregados da própria Anatel: nenhum texto livre nem dado de quem reclamou. Sem ranking: a lista de marcas é alfabética e o número de reclamações depende do tamanho da base de clientes; reclamação não é prova de falha da empresa.</p>
         <div className="overflow-x-auto">
-          <table className="text-xs min-w-full">
-            <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Ano</th>{servicos.map((s) => <th key={s} className="text-right px-2 py-1">{s}</th>)}</tr></thead>
+          <table className="text-xs min-w-full"><caption className="sr-only">Reclamações por ano e serviço</caption>
+            <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Ano</th>{servicos.map((s) => <th scope="col" key={s} className="text-right px-2 py-1">{s}</th>)}</tr></thead>
             <tbody>{anos.map((a) => <tr key={a} className="border-t border-gray-100"><td className="px-2 py-1">{a}</td>{servicos.map((s) => <td key={s} className="px-2 py-1 text-right tabular-nums">{inteiro(cel(a, s))}</td>)}</tr>)}</tbody>
           </table>
         </div>
@@ -162,8 +162,8 @@ function Reclamacoes() {
         </div>
         {lista.data && (
           <div className="overflow-x-auto">
-            <table className="text-xs min-w-full">
-              <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Marca</th><th className="text-right px-2 py-1">Reclamações</th><th className="text-left px-2 py-1">Por serviço</th><th className="text-left px-2 py-1">CNPJ ligado</th><th className="text-right px-2 py-1">Por mil acessos</th></tr></thead>
+            <table className="text-xs min-w-full"><caption className="sr-only">Reclamações por marca</caption>
+              <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Marca</th><th scope="col" className="text-right px-2 py-1">Reclamações</th><th scope="col" className="text-left px-2 py-1">Por serviço</th><th scope="col" className="text-left px-2 py-1">CNPJ ligado</th><th scope="col" className="text-right px-2 py-1">Por mil acessos</th></tr></thead>
               <tbody>
                 {lista.data.items.map((m) => (
                   <tr key={m.marca} className="border-t border-gray-100">
@@ -218,8 +218,8 @@ function Consumidor() {
         </div>
         <p className="text-xs text-gray-600">Reclamações finalizadas no Consumidor.gov.br (Senacon), só agregados: sexo e faixa etária de quem reclamou não são guardados. Sem ranking: a lista é alfabética, o número de reclamações depende do tamanho da base de clientes e só empresas que aderiram à plataforma aparecem. Índice de solução, tempo e nota só com 30 ou mais casos.</p>
         <div className="overflow-x-auto">
-          <table className="text-xs min-w-full">
-            <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Mês (todas as operadoras)</th><CabecalhoMetricas /></tr></thead>
+          <table className="text-xs min-w-full"><caption className="sr-only">Consumidor.gov.br por mês</caption>
+            <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Mês (todas as operadoras)</th><CabecalhoMetricas /></tr></thead>
             <tbody>{meses.map((x) => <tr key={x.mes} className="border-t border-gray-100"><td className="px-2 py-1">{x.mes}</td><CelulasMetricas x={x} /></tr>)}</tbody>
           </table>
         </div>
@@ -234,8 +234,8 @@ function Consumidor() {
         </div>
         {lista.data && (
           <div className="overflow-x-auto">
-            <table className="text-xs min-w-full">
-              <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Empresa</th><CabecalhoMetricas /><th className="text-left px-2 py-1">CNPJ ligado</th></tr></thead>
+            <table className="text-xs min-w-full"><caption className="sr-only">Consumidor.gov.br por empresa</caption>
+              <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Empresa</th><CabecalhoMetricas /><th scope="col" className="text-left px-2 py-1">CNPJ ligado</th></tr></thead>
               <tbody>
                 {lista.data.items.map((m) => (
                   <tr key={m.marca} className="border-t border-gray-100">

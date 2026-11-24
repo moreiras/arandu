@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { GrupoPrefixoGeoFeature } from '../../services/api'
+import { VerDados } from '../ui/VerDados'
 import {
   MAP_COLORS,
   STATE_OUTLINE_PAINT,
@@ -115,18 +116,34 @@ export function GrupoPrefixosGeoMap({
     src?.setData(fc)
   }, [fc, ready])
 
+  // Alternativa em texto (NBR 17225 5.2.4): blocos por cidade, IPv6 antes de IPv4.
+  const alternativa = useMemo(() => {
+    const porLocal = new Map<string, { cidade: string; uf: string; v6: number; v4: number }>()
+    for (const f of features) {
+      const { city = '', uf = '', afi, block_count } = f.properties
+      const k = `${uf}|${city}`
+      const l = porLocal.get(k) ?? { cidade: city || '—', uf: uf || '—', v6: 0, v4: 0 }
+      l[afi] += block_count ?? 1
+      porLocal.set(k, l)
+    }
+    return [...porLocal.values()].sort((a, b) => b.v6 + b.v4 - (a.v6 + a.v4))
+  }, [features])
+  const rotuloMapa = `Mapa dos blocos IP geolocalizados dos ASNs do grupo em ${alternativa.length.toLocaleString('pt-BR')} localidades (os números estão em "Ver dados")`
+
   return (
     <div>
-      <div ref={container} style={{ height }} className="w-full rounded-lg overflow-hidden border border-gray-200" />
-      <div className="text-xs text-gray-400 mt-1 flex items-center gap-3">
+      <div ref={container} style={{ height }} role="group" aria-label={rotuloMapa}
+        className="w-full rounded-lg overflow-hidden border border-gray-200" />
+      <div className="text-xs text-gray-500 mt-1 flex items-center gap-3">
         <span className="flex items-center gap-1">
-          <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: MAP_COLORS.v4Strong }} /> IPv4
+          <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: MAP_COLORS.v6Strong }} aria-hidden="true" /> IPv6
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: MAP_COLORS.v6Strong }} /> IPv6
+          <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: MAP_COLORS.v4Strong }} aria-hidden="true" /> IPv4
         </span>
         <span>— sem acessos declarados ao SICI; mostrando blocos IP dos ASNs do grupo</span>
       </div>
+      <VerDados dados={alternativa} campos={['cidade', 'uf', 'v6', 'v4']} rotulos={{ cidade: 'Cidade', uf: 'UF', v6: 'Blocos IPv6', v4: 'Blocos IPv4' }} titulo="Ver dados (blocos por cidade)" />
     </div>
   )
 }

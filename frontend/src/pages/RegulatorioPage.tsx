@@ -73,7 +73,7 @@ function Fust() {
           <div className="text-gray-600">Atendidos {inteiro(b.atendidos)} · A vencer {inteiro(b.a_vencer)} · Em apuração {inteiro(b.em_apuracao)}</div>
         </div>
         <div className="overflow-x-auto">
-          <table className="text-xs min-w-full">
+          <table className="text-xs min-w-full"><caption className="sr-only">Compromissos por programa</caption>
             <thead className="text-gray-500"><tr><ThOrdenavel {...programas.props('programa')} className="text-left px-2 py-1">Programa</ThOrdenavel><ThOrdenavel {...programas.props('compromissos')} alinhar="right" className="text-right px-2 py-1">Compromissos</ThOrdenavel><ThOrdenavel {...programas.props('atendidos')} alinhar="right" className="text-right px-2 py-1">Atendidos</ThOrdenavel><ThOrdenavel {...programas.props('municipios')} alinhar="right" className="text-right px-2 py-1">Municípios</ThOrdenavel><ThOrdenavel {...programas.props('previsto')} alinhar="right" className="text-right px-2 py-1">Previsto</ThOrdenavel></tr></thead>
             <tbody>
               {programas.ordenados.map((p) => (
@@ -87,7 +87,7 @@ function Fust() {
       <MapaSobDemanda indicadores={INDICADORES_FUST} titulo="Mapa do FUST por município" chamada="Compromissos do FUST por 10 mil habitantes em cada município, sobre a malha do IBGE. Carrega cerca de 0,5 MB." />
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-2">
         <h2 className="text-sm font-semibold text-gray-700">Editais e projetos de origem</h2>
-        <table className="text-xs min-w-full">
+        <table className="text-xs min-w-full"><caption className="sr-only">Editais e projetos de origem</caption>
           <thead className="text-gray-500"><tr><ThOrdenavel {...editais.props('origem')} className="text-left px-2 py-1">Origem</ThOrdenavel><ThOrdenavel {...editais.props('compromissos')} alinhar="right" className="text-right px-2 py-1">Compromissos</ThOrdenavel><ThOrdenavel {...editais.props('municipios')} alinhar="right" className="text-right px-2 py-1">Municípios</ThOrdenavel><ThOrdenavel {...editais.props('previsto')} alinhar="right" className="text-right px-2 py-1">Previsto</ThOrdenavel></tr></thead>
           <tbody>{editais.ordenados.map((e) => <tr key={e.origem} className="border-t border-gray-100"><td className="px-2 py-1">{e.origem}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(e.compromissos)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(e.municipios)}</td><td className="px-2 py-1 text-right tabular-nums">{reais(e.investimento)}</td></tr>)}</tbody>
         </table>
@@ -102,7 +102,7 @@ function Fust() {
         </div>
         {lista.isError && <EstadoDados erro={lista.error} oQue="a lista" mensagem="A lista não está publicada neste snapshot." aoTentarDeNovo={() => void lista.refetch()} />}
         {lista.data && (
-          <table className="text-xs min-w-full">
+          <table className="text-xs min-w-full"><caption className="sr-only">Municípios com mais compromissos</caption>
             <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Município</th><ThOrdenavel {...thMun('compromissos')} alinhar="right" className="text-right px-2 py-1">Compromissos</ThOrdenavel><ThOrdenavel {...thMun('atendidos')} alinhar="right" className="text-right px-2 py-1">Atendidos</ThOrdenavel><ThOrdenavel {...thMun('investimento')} alinhar="right" className="text-right px-2 py-1">Previsto</ThOrdenavel></tr></thead>
             <tbody>{lista.data.items.map((m) => <tr key={m.ibge} className="border-t border-gray-100"><td className="px-2 py-1"><Link to={`/municipio/${m.ibge}`} className="text-primario-600 hover:underline">{m.nome ?? m.ibge}</Link> <span className="text-gray-400">{m.uf}</span></td>
               <td className="px-2 py-1 text-right tabular-nums">{inteiro(m.compromissos)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(m.atendidos)}</td><td className="px-2 py-1 text-right tabular-nums">{reais(m.investimento)}</td></tr>)}</tbody>
@@ -138,8 +138,8 @@ function Multas() {
             <div key={g} className="border border-gray-100 rounded p-2 text-sm"><div className="font-medium">{g}</div><div className="tabular-nums">{inteiro(r.por_grupo[g].multas)} multas</div><div className="text-xs text-gray-500">{inteiro(r.por_grupo[g].empresas)} empresas · saldo {reais(r.por_grupo[g].saldo)}</div></div>
           ))}
         </div>
-        <table className="text-xs min-w-full">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Ano da sanção</th>{GRUPOS.map((g) => <th key={g} className="text-right px-2 py-1">{g}</th>)}<th className="text-right px-2 py-1">Total</th></tr></thead>
+        <table className="text-xs min-w-full"><caption className="sr-only">Multas por ano da sanção e serviço</caption>
+          <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Ano da sanção</th>{GRUPOS.map((g) => <th scope="col" key={g} className="text-right px-2 py-1">{g}</th>)}<th scope="col" className="text-right px-2 py-1">Total</th></tr></thead>
           <tbody>{anos.map((a) => <tr key={a.ano} className="border-t border-gray-100"><td className="px-2 py-1 font-medium">{a.ano}</td>{GRUPOS.map((g) => <td key={g} className="px-2 py-1 text-right tabular-nums">{inteiro(a[g] ?? 0)}</td>)}<td className="px-2 py-1 text-right tabular-nums">{inteiro(a.total)}</td></tr>)}</tbody>
         </table>
       </section>
@@ -154,7 +154,7 @@ function Multas() {
         {lista.data && (
           <>
             <div className="overflow-x-auto">
-              <table className="text-xs min-w-full">
+              <table className="text-xs min-w-full"><caption className="sr-only">Multas por empresa e serviço</caption>
                 <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Empresa</th><th scope="col" className="text-left px-2 py-1">Serviço</th><ThOrdenavel {...th('multas')} alinhar="right" className="text-right px-2 py-1">Multas</ThOrdenavel><th scope="col" className="text-right px-2 py-1">Devedor</th><ThOrdenavel {...th('saldo')} alinhar="right" className="text-right px-2 py-1">Saldo atualizado</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Anos</th></tr></thead>
                 <tbody>{lista.data.items.map((e) => (
                   <tr key={`${e.raiz}-${e.grupo}`} className="border-t border-gray-100">
@@ -192,7 +192,7 @@ function Espectro() {
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-2">
         <h2 className="text-sm font-semibold text-gray-700">Faixas de interesse para a Internet</h2>
         <div className="overflow-x-auto">
-          <table className="text-xs min-w-full">
+          <table className="text-xs min-w-full"><caption className="sr-only">Faixas de interesse para a Internet</caption>
             <thead className="text-gray-500"><tr><ThOrdenavel {...refs.props('faixa')} className="text-left px-2 py-1">Faixa</ThOrdenavel><ThOrdenavel {...refs.props('mhz')} alinhar="right" className="text-right px-2 py-1">MHz</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Destinação (primária primeiro)</th></tr></thead>
             <tbody>{refs.ordenados.map((f) => (
               <tr key={f.nome} className="border-t border-gray-100 align-top"><td className="px-2 py-1 font-medium whitespace-nowrap">{f.nome}</td><td className="px-2 py-1 text-right tabular-nums whitespace-nowrap">{mhz(f.ini_mhz)}–{mhz(f.fim_mhz)}</td>
@@ -211,8 +211,8 @@ function Espectro() {
         {lista.isError && <EstadoDados erro={lista.error} oQue="a lista" mensagem="A lista não está publicada neste snapshot." aoTentarDeNovo={() => void lista.refetch()} />}
         {lista.data && (
           <>
-            <table className="text-xs min-w-full">
-              <thead className="text-gray-500"><tr><th className="text-right px-2 py-1">Faixa (MHz)</th><th className="text-left px-2 py-1">Destinação</th><th className="text-left px-2 py-1">Atribuição</th></tr></thead>
+            <table className="text-xs min-w-full"><caption className="sr-only">Quadro de atribuição e destinação</caption>
+              <thead className="text-gray-500"><tr><th scope="col" className="text-right px-2 py-1">Faixa (MHz)</th><th scope="col" className="text-left px-2 py-1">Destinação</th><th scope="col" className="text-left px-2 py-1">Atribuição</th></tr></thead>
               <tbody>{lista.data.items.map((f) => (
                 <tr key={`${f.ini_mhz}-${f.fim_mhz}`} className="border-t border-gray-100 align-top"><td className="px-2 py-1 text-right tabular-nums whitespace-nowrap">{mhz(f.ini_mhz)}–{mhz(f.fim_mhz)}</td>
                   <td className="px-2 py-1">{f.destinacao.map((s) => <span key={s.servico} className={`inline-block mr-2 ${s.carater === 'Primário' ? '' : 'text-gray-400'}`}>{s.servico}</span>)}</td>
@@ -246,7 +246,7 @@ function Satelites() {
           <div className="text-gray-600">{inteiro(s.vencidos_na_data)} com validade vencida na data do snapshot</div>
         </div>
         <h2 className="text-sm font-semibold text-gray-700 pt-2">Constelações de órbita não geoestacionária ({inteiro(s.ngeo)})</h2>
-        <div className="overflow-x-auto"><table className="text-xs min-w-full">
+        <div className="overflow-x-auto"><table className="text-xs min-w-full"><caption className="sr-only">Constelações de órbita não geoestacionária</caption>
           <thead className="text-gray-500"><tr><ThOrdenavel {...ngeo.props('sistema')} className="text-left px-2 py-1">Sistema</ThOrdenavel><ThOrdenavel {...ngeo.props('prestadora')} className="text-left px-2 py-1">Prestadora</ThOrdenavel><ThOrdenavel {...ngeo.props('orbita')} className="text-left px-2 py-1">Órbita</ThOrdenavel><ThOrdenavel {...ngeo.props('satelites')} alinhar="right" className="text-right px-2 py-1">Satélites</ThOrdenavel><ThOrdenavel {...ngeo.props('situacao')} className="text-left px-2 py-1">Situação</ThOrdenavel></tr></thead>
           <tbody>{ngeo.ordenados.map((n, i) => <tr key={`${n.estacao}-${i}`} className="border-t border-gray-100"><td className="px-2 py-1">{n.objeto}</td><td className="px-2 py-1">{n.prestadora}</td><td className="px-2 py-1">{n.orbita}</td>
             <td className="px-2 py-1 text-right tabular-nums">{inteiro(n.constelacao)}</td><td className="px-2 py-1">{n.status}</td></tr>)}</tbody>
@@ -261,8 +261,8 @@ function Satelites() {
         {lista.isError && <EstadoDados erro={lista.error} oQue="a lista" mensagem="A lista não está publicada neste snapshot." aoTentarDeNovo={() => void lista.refetch()} />}
         {lista.data && (
           <>
-            <div className="overflow-x-auto"><table className="text-xs min-w-full">
-              <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Operadora</th><th className="text-left px-2 py-1">Satélite</th><th className="text-left px-2 py-1">Posição</th><th className="text-left px-2 py-1">Banda</th><th className="text-left px-2 py-1">Tipo</th><th className="text-left px-2 py-1">Status</th><th className="text-left px-2 py-1">Validade</th></tr></thead>
+            <div className="overflow-x-auto"><table className="text-xs min-w-full"><caption className="sr-only">Direitos de exploração de satélite</caption>
+              <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Operadora</th><th scope="col" className="text-left px-2 py-1">Satélite</th><th scope="col" className="text-left px-2 py-1">Posição</th><th scope="col" className="text-left px-2 py-1">Banda</th><th scope="col" className="text-left px-2 py-1">Tipo</th><th scope="col" className="text-left px-2 py-1">Status</th><th scope="col" className="text-left px-2 py-1">Validade</th></tr></thead>
               <tbody>{lista.data.items.map((d, i) => <tr key={`${d.codigo}-${d.banda}-${i}`} className="border-t border-gray-100"><td className="px-2 py-1">{d.operadora}</td><td className="px-2 py-1">{d.satelite}</td><td className="px-2 py-1">{d.posicao}</td>
                 <td className="px-2 py-1">{d.banda}</td><td className="px-2 py-1">{d.tipo}</td><td className="px-2 py-1">{d.status}</td><td className={`px-2 py-1 ${d.vencido ? 'text-perigo-700' : ''}`}>{data(d.validade)}{d.vencido ? ' (vencida)' : ''}</td></tr>)}</tbody>
             </table></div>

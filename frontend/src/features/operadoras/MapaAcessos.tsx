@@ -52,7 +52,7 @@ export function MapaAcessos({ servico, date }: { servico: Servico; date?: string
                 </>
               )}
             </div>
-            <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-700 text-lg leading-none px-1">×</button>
+            <button type="button" aria-label="Fechar painel" onClick={() => setSelected(null)} className="text-gray-500 hover:text-gray-700 text-lg leading-none px-1"><span aria-hidden="true">×</span></button>
           </div>
           {detalhe && (
             <div className="divide-y divide-gray-50">

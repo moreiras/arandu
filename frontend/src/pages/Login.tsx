@@ -35,14 +35,14 @@ export function Login() {
         </div>
 
         {errorMsg && (
-          <div className="mb-5 text-sm text-perigo-600 bg-perigo-50 rounded-lg px-4 py-2 text-center">
+          <div role="alert" className="mb-5 text-sm text-perigo-700 bg-perigo-50 rounded-lg px-4 py-2 text-center">
             {errorMsg}
           </div>
         )}
 
-        <p className="text-xs text-gray-400 text-center mb-4 leading-relaxed">
+        <p className="text-xs text-gray-600 text-center mb-4 leading-relaxed">
           Ao entrar, você concorda com a{' '}
-          <a href="/privacidade" className="underline hover:text-gray-600">política de privacidade</a>,
+          <a href="/privacidade" className="underline hover:text-gray-800">política de privacidade</a>,
           incluindo o recebimento de comunicações e ofertas.
         </p>
 
@@ -56,10 +56,7 @@ export function Login() {
           </a>
           <a
             href={`/auth/linkedin?next=${encodeURIComponent(next)}`}
-            className="flex items-center justify-center gap-3 w-full px-4 py-3 rounded-lg text-sm text-white transition-colors"
-            style={{ backgroundColor: '#0A66C2' }}
-            onMouseOver={e => (e.currentTarget.style.backgroundColor = '#004182')}
-            onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0A66C2')}
+            className="flex items-center justify-center gap-3 w-full px-4 py-3 rounded-lg text-sm text-white transition-colors bg-[#0A66C2] hover:bg-[#004182] focus-visible:bg-[#004182]"
           >
             <LinkedInIcon />
             Continuar com LinkedIn

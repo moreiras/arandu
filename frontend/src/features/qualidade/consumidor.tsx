@@ -77,7 +77,7 @@ export function ConsumidorOperadoraBloco({ dados }: BlocoProps<OperadoraCtx>) {
     <div className="space-y-3">
       <p className="text-sm text-gray-600">Empresas do Consumidor.gov.br ligadas a este CNPJ: {c.marcas.map((m) => `${m.marca} (${m.casamento ?? 'sem ligação'})`).join(', ')}.</p>
       <div className="overflow-x-auto">
-        <table className="text-xs min-w-full">
+        <table className="text-xs min-w-full"><caption className="sr-only">Empresas do Consumidor.gov.br ligadas a este CNPJ</caption>
           <thead className="text-gray-500"><tr><ThOrdenavel {...props('marca')} className="text-left px-2 py-1">Empresa (últimos 12 meses)</ThOrdenavel><CabecalhoMetricas props={props} /></tr></thead>
           <tbody>
             {ordenados.map((m) => <tr key={m.marca} className="border-t border-gray-100"><td className="px-2 py-1">{m.marca}</td><CelulasMetricas x={m.janela!} /></tr>)}
@@ -87,8 +87,8 @@ export function ConsumidorOperadoraBloco({ dados }: BlocoProps<OperadoraCtx>) {
       {c.marcas.map((m) => (
         <details key={m.marca} className="text-xs">
           <summary className="cursor-pointer text-gray-600">{m.marca}: série mensal ({m.por_mes.length} meses)</summary>
-          <div className="overflow-x-auto"><table className="text-xs min-w-full">
-            <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Mês</th><CabecalhoMetricas /></tr></thead>
+          <div className="overflow-x-auto"><table className="text-xs min-w-full"><caption className="sr-only">Série mensal da empresa no Consumidor.gov.br</caption>
+            <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Mês</th><CabecalhoMetricas /></tr></thead>
             <tbody>{m.por_mes.slice(-12).map((x) => <tr key={x.mes} className="border-t border-gray-100"><td className="px-2 py-1">{x.mes}</td><CelulasMetricas x={x} /></tr>)}</tbody>
           </table></div>
         </details>
@@ -112,8 +112,8 @@ export function ConsumidorMunicipioBloco({ dados }: BlocoProps<MunicipioCtx>) {
   return (
     <div className="space-y-2">
       <div className="overflow-x-auto">
-        <table className="text-xs min-w-full">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Empresa (alfabética)</th><CabecalhoMetricas /></tr></thead>
+        <table className="text-xs min-w-full"><caption className="sr-only">Empresas do Consumidor.gov.br no município</caption>
+          <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Empresa (alfabética)</th><CabecalhoMetricas /></tr></thead>
           <tbody>
             <tr className="border-t border-gray-100 font-medium"><td className="px-2 py-1">Todas as operadoras</td><CelulasMetricas x={c.total} /></tr>
             {itens.map((x) => <tr key={x.marca} className="border-t border-gray-100"><td className="px-2 py-1">{x.marca}</td><CelulasMetricas x={x} /></tr>)}
@@ -133,8 +133,8 @@ export function ConsumidorUfBloco({ dados }: BlocoProps<UfCtx>) {
   return (
     <div className="space-y-2">
       <div className="overflow-x-auto">
-        <table className="text-xs min-w-full">
-          <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Empresa (alfabética)</th><CabecalhoMetricas /></tr></thead>
+        <table className="text-xs min-w-full"><caption className="sr-only">Empresas do Consumidor.gov.br na UF</caption>
+          <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Empresa (alfabética)</th><CabecalhoMetricas /></tr></thead>
           <tbody>{c.itens.map((x) => <tr key={x.marca} className="border-t border-gray-100"><td className="px-2 py-1">{x.marca}</td><CelulasMetricas x={x} /></tr>)}</tbody>
         </table>
       </div>

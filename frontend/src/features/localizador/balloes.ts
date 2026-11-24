@@ -7,12 +7,12 @@
  * Feições GeoJSON de cada camada do Localizador, com o HTML do balão (`tip`) e do modal de agregados (`modalHtml`) já montados.
  * Funções puras de dados → feições (as camadas do MapLibre só recebem o resultado); testadas em balloes.test.ts.
  */
-import { SCM_HQ_COLOR, SCM_SEM_AS_COLOR, CNPJ_COLOR, HQ_COLOR, fmtBR, formatCnpj, parseAsns, prefixColor } from './tipos'
+import { SCM_HQ_COLOR, SCM_SELO, SCM_SEM_AS_COLOR, CNPJ_COLOR, HQ_COLOR, fmtBR, formatCnpj, parseAsns, prefixColor } from './tipos'
 import type { AsnDot, Bubble, InfoAsn, MunicipioSici, ScmGeoFeature } from './tipos'
 import type { GrupoCoord } from './calculos'
 import { escapar } from '../../lib/html'
 
-const SCM_TAG = `<span style="background:#a855f7;color:white;font-size:10px;padding:0 5px;border-radius:9999px">SCM</span>`
+const SCM_TAG = `<span style="background:${escapar(SCM_SELO)};color:white;font-size:10px;padding:0 5px;border-radius:9999px">SCM</span>`
 
 /** Bolhas de prefixos agrupadas por coordenada exata (evita sobreposição); grupos com vários ASes viram um modal. */
 export function featuresBolhas(prefixBubbles: Bubble[], asnNameMap: Map<number, InfoAsn>, asnToCnpj: Map<number, string>): GeoJSON.Feature[] {

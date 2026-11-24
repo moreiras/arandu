@@ -13,9 +13,12 @@ import {
   MARKER_RADIUS_EXPR,
   MARKER_OPACITY,
 } from '../maps/mapTheme'
+import { VerDados } from '../ui/VerDados'
 
 const BR_STATES_URL = '/br-states.geojson'
 const CENTROIDS_URL = '/municipios-centroides.json'
+/** Linhas da tabela alternativa: o bastante para os maiores sem pôr milhares de linhas no DOM de cada perfil. */
+const MAX_TABELA = 500
 
 /** Shape mínima usada pelo mapa — SiciMunicipioRow e MovelMunicipioRow (fixa/móvel)
  *  satisfazem ambas estruturalmente, sem precisar de conversão no chamador. */
@@ -201,13 +204,23 @@ export function AccessMunicipioMap({
     ? municipios.filter(m => !centroids[m.ibge]).length
     : 0
 
+  // Alternativa em texto do mapa (NBR 17225 5.2.4): os municípios com mais acessos, com os mesmos números das bolhas.
+  const alternativa = useMemo(() => [...municipios].sort((a, b) => b.acessos - a.acessos).slice(0, MAX_TABELA)
+    .map((m) => ({ municipio: m.nome, uf: m.uf, acessos: m.acessos, share: m.share ?? null })), [municipios])
+  const comParcela = alternativa.some((m) => m.share != null)
+  const rotuloMapa = `Mapa de bolhas: acessos declarados em ${municipios.length.toLocaleString('pt-BR')} municípios (os números estão em "Ver dados")`
+
   return (
     <div>
-      <div ref={container} style={{ height }} className="w-full rounded-lg overflow-hidden border border-gray-200" />
-      <div className="text-xs text-gray-400 mt-1">
+      <div ref={container} style={{ height }} role="group" aria-label={rotuloMapa}
+        className="w-full rounded-lg overflow-hidden border border-gray-200" />
+      <div className="text-xs text-gray-500 mt-1">
         Bolha proporcional aos acessos declarados no município.
         {semCoordenada > 0 && ` ${semCoordenada} município(s) sem coordenada.`}
       </div>
+      <VerDados dados={alternativa} campos={comParcela ? ['municipio', 'uf', 'acessos', 'share'] : ['municipio', 'uf', 'acessos']}
+        rotulos={{ municipio: 'Município', uf: 'UF', acessos: 'Acessos', share: 'Parcela no município (%)' }}
+        titulo={municipios.length > MAX_TABELA ? `Ver dados (${MAX_TABELA} municípios com mais acessos, de ${municipios.length.toLocaleString('pt-BR')})` : 'Ver dados (tabela dos municípios)'} />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { AccessError, fetchAsnsPorOrganizacao } from '../../services/api'
@@ -31,6 +31,7 @@ function YesNo({ v }: { v: boolean | null }) {
 
 function LinhaOrganizacao({ group, rank }: { group: OrganizacaoVariosAsns; rank: number }) {
   const [open, setOpen] = useState(false)
+  const idDetalhe = useId()
   const { ordenados: asns, props } = useOrdenacao(group.asns, {
     asn: { valor: (a) => a.asn, primeiro: 'asc' },
     nome: (a) => a.name || null,
@@ -51,7 +52,13 @@ function LinhaOrganizacao({ group, rank }: { group: OrganizacaoVariosAsns; rank:
         <td className="px-3 py-1.5 text-gray-400 tabular-nums w-8 text-right">{rank}</td>
         <td className="px-3 py-1.5">
           <div className="flex items-center gap-1.5">
-            <span className={`text-gray-400 transition-transform ${open ? 'rotate-90' : ''}`}>▸</span>
+            {/* o clique na linha não chega ao teclado: o botão faz o mesmo, com o estado anunciado */}
+            <button type="button" aria-expanded={open} aria-controls={open ? idDetalhe : undefined}
+              onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+              className="rounded text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primario-500">
+              <span aria-hidden="true" className={`inline-block transition-transform ${open ? 'rotate-90' : ''}`}>▸</span>
+              <span className="sr-only">{`ASNs de ${group.razao_social || fmtCnpj(group.cnpj)}`}</span>
+            </button>
             <div className="min-w-0">
               <div className="font-medium text-gray-900 truncate">{group.razao_social || '—'}</div>
               <div className="text-xs text-gray-400 font-mono">
@@ -70,10 +77,11 @@ function LinhaOrganizacao({ group, rank }: { group: OrganizacaoVariosAsns; rank:
         <td className="px-3 py-1.5 text-right tabular-nums text-gray-600">{fmtN(group.total_v4_blocks)}</td>
       </tr>
       {open && (
-        <tr className="bg-gray-50/60">
+        <tr className="bg-gray-50/60" id={idDetalhe}>
           <td />
           <td colSpan={5} className="px-3 py-2">
             <table className="w-full text-xs">
+              <caption className="sr-only">{`ASNs de ${group.razao_social || fmtCnpj(group.cnpj)}`}</caption>
               <thead>
                 <tr className="text-gray-400">
                   <ThOrdenavel {...props('asn')} className="text-left font-medium py-1 pr-2">ASN</ThOrdenavel>
@@ -153,14 +161,15 @@ export function OrganizacoesVariosAsns({ date, ancorar = false }: { date?: strin
       ) : outroErro ? <EstadoDados erro={outroErro} oQue="a lista de organizações" /> : data && (
       <div className="overflow-x-auto lg:overflow-x-clip rounded-lg border border-gray-200 bg-white">
         <table className="w-full table-fixed text-xs min-w-[680px]">
+          <caption className="sr-only">Organizações com vários ASNs</caption>
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200 text-gray-500">
-              <th className="px-3 py-1.5 text-right font-medium w-8">#</th>
-              <th className="px-3 py-1.5 text-left font-medium">Organização (CNPJ)</th>
-              <th className="px-3 py-1.5 text-right font-medium w-20">ASNs</th>
-              <th className="px-3 py-1.5 text-right font-medium w-28">Usuários</th>
-              <th className="px-3 py-1.5 text-right font-medium w-24">Blocos v6</th>
-              <th className="px-3 py-1.5 text-right font-medium w-24">Blocos v4</th>
+              <th scope="col" className="px-3 py-1.5 text-right font-medium w-8">#</th>
+              <th scope="col" className="px-3 py-1.5 text-left font-medium">Organização (CNPJ)</th>
+              <th scope="col" className="px-3 py-1.5 text-right font-medium w-20">ASNs</th>
+              <th scope="col" className="px-3 py-1.5 text-right font-medium w-28">Usuários</th>
+              <th scope="col" className="px-3 py-1.5 text-right font-medium w-24">Blocos v6</th>
+              <th scope="col" className="px-3 py-1.5 text-right font-medium w-24">Blocos v4</th>
             </tr>
           </thead>
           <tbody>

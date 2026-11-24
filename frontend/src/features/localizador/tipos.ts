@@ -88,6 +88,8 @@ export const SCM_HQ_COLOR = MAP_COLORS.scmWithAsn // SCM com AS
 export const CNPJ_COLOR = MAP_COLORS.cnpj  // cor do CNPJ nos tooltips
 export const SICI_COLOR = MAP_COLORS.sici  // usuários declarados ao SICI, por município
 export const SCM_SEM_AS_COLOR = MAP_COLORS.scmWithoutAsn
+// Selo "SCM" com texto branco: a cor do mapa (#a855f7) dá 3,96:1; esta (purple-700) passa de 4,5:1 (NBR 17225 5.11.3).
+export const SCM_SELO = '#7e22ce'
 
 export function prefixColor(afi: number, own: boolean): string {
   if (afi === 6) return own ? V6_STRONG : V6_WEAK

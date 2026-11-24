@@ -7,6 +7,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { ResumoUf } from '../../types/api'
 import { corDaEscala, ESCALA_SEQUENCIAL, LEGENDA_SEQUENCIAL } from '../../lib/escalasMapa'
+import { nomeUf } from '../../lib/ufs'
+import { VerDados } from '../../components/ui/VerDados'
 
 /** Posição (coluna, linha) de cada UF numa grade que lembra o mapa do Brasil — todas do mesmo tamanho, para a área não distorcer a comparação. */
 export const POSICAO_UF: Record<string, [number, number]> = {
@@ -91,7 +93,8 @@ export function GradeUfs({ valores, maximo, texto, rotulo, pequeno = false, mini
 
 /**
  * Cartograma das 27 UFs: uma célula por UF no lugar aproximado do mapa, colorida pela métrica escolhida.
- * Mostra de relance onde estão os acessos, a fibra, os usuários e os PTTs; a lista abaixo da página é o caminho por teclado.
+ * Mostra de relance onde estão os acessos, a fibra, os usuários e os PTTs. As células são decorativas: a alternativa em texto é a
+ * tabela "Ver dados" com todas as métricas das 27 UFs (NBR 17225 5.2.4), alcançável por teclado.
  */
 export function CartogramaUfs({ ufs, metricas, titulo = 'Brasil por UF', inicial, compacto: pequeno = false, destaque }: { ufs: ResumoUf[]; metricas?: string[]; titulo?: string; inicial?: string; compacto?: boolean; destaque?: string }) {
   const lista = metricas ? metricas.flatMap((id) => METRICAS.filter((m) => m.id === id)) : METRICAS.filter((m) => ['acessos', 'fibra', 'usuarios', 'ptts'].includes(m.id))
@@ -124,8 +127,22 @@ export function CartogramaUfs({ ufs, metricas, titulo = 'Brasil por UF', inicial
         Cada quadrado é uma UF no lugar aproximado do mapa (mesmo tamanho para todas). {LEGENDA_SEQUENCIAL} Acessos e fibra: SICI/Anatel,
         banda larga fixa; usuários: estimativa APNIC dos ASNs da UF (não é censo); PTTs: IX.br com coleta.
       </p>}
+      <VerDados dados={linhasTabela(ufs)} rotulos={ROTULOS_TABELA} campos={Object.keys(ROTULOS_TABELA)} titulo="Ver dados (tabela das UFs)" />
     </section>
   )
+}
+
+// Cabeçalhos com a unidade; diferentes dos botões de métrica, para o nome acessível de cada controle ser único.
+const ROTULOS_TABELA: Record<string, string> = {
+  uf: 'UF', nome: 'Nome', acessos: 'Acessos fixos (SICI)', fibra: 'Fibra (% dos acessos)', usuarios: 'Usuários estimados (APNIC)', ptts: 'PTTs (IX.br)',
+  penetracao: 'Acessos / 100 domicílios', longe: 'Municípios longe de PTT (%)', municipios: 'Municípios com acessos', asns: 'ASNs',
+}
+
+/** Linhas da tabela alternativa: os mesmos números do cartograma, todas as métricas de uma vez, na ordem alfabética das UFs. */
+function linhasTabela(ufs: ResumoUf[]): Record<string, string | number | null>[] {
+  return [...ufs].sort((a, b) => a.uf.localeCompare(b.uf)).map((u) => ({
+    uf: u.uf, nome: nomeUf(u.uf), ...Object.fromEntries(METRICAS.map((m) => [m.id, m.valor(u)])), municipios: u.municipios, asns: u.asns,
+  }))
 }
 
 /** Posição de uma UF entre as que têm valor na métrica: 1 = maior valor. `null` se a UF não tem valor. */

@@ -57,6 +57,7 @@ const Mapa           = lazy(() => import('./pages/Mapa').then(m => ({ default: m
 const Privacidade    = lazy(() => import('./pages/Privacidade').then(m => ({ default: m.Privacidade })))
 const RelatorioPage = lazy(() => import('./pages/RelatorioPage').then(m => ({ default: m.RelatorioPage })))
 const GrupoPage      = lazy(() => import('./pages/GrupoPage').then(m => ({ default: m.GrupoPage })))
+const PaginaNaoEncontrada = lazy(() => import('./pages/PaginaNaoEncontrada').then(m => ({ default: m.PaginaNaoEncontrada })))
 const MunicipiosPage = lazy(() => import('./pages/MunicipiosPage').then(m => ({ default: m.MunicipiosPage })))
 const Perfil         = lazy(() => import('./pages/Perfil').then(m => ({ default: m.Perfil })))
 const UsoAceitavel   = lazy(() => import('./pages/UsoAceitavel').then(m => ({ default: m.UsoAceitavel })))
@@ -149,12 +150,7 @@ createRoot(document.getElementById('root')!).render(
 
                 <Route
                   path="*"
-                  element={
-                    <div className="text-center py-24">
-                      <div className="text-4xl mb-3">404</div>
-                      <p className="text-gray-500 text-sm">Página não encontrada.</p>
-                    </div>
-                  }
+                  element={<PaginaNaoEncontrada />}
                 />
               </Route>
             </Routes>

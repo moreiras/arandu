@@ -6,7 +6,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { server } from '../test/server'
 import { UsoInternetPage } from './UsoInternetPage'
@@ -45,6 +45,14 @@ describe('página Uso da Internet', () => {
     await waitFor(() => expect(screen.getByText('31,7')).toBeTruthy())
     expect(screen.getByText('25,4')).toBeTruthy()
     expect(screen.getAllByText('±1,3').length).toBeGreaterThan(0)
+    // acessibilidade (USO-E13): estado do botão, descrição visível, caption e cabeçalhos de linha e coluna
+    expect(screen.getByRole('button', { name: 'TIC Domicílios' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'TIC Provedores' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByText('Uso de internet e equipamentos nos domicílios brasileiros', { selector: 'p' })).toBeTruthy()
+    ;(screen.getByText(/^Tabela completa/).closest('details') as HTMLDetailsElement).open = true   // fechada no celular; o papel da tabela só conta aberta
+    const oficial = screen.getByRole('table', { name: 'A1: Domicílios com computador' })
+    expect(within(oficial).getAllByRole('columnheader').every((th) => th.getAttribute('scope') === 'col')).toBe(true)
+    expect(within(oficial).getByRole('rowheader', { name: /Região: Norte/ })).toBeTruthy()
     expect(screen.getByText(/Fonte: Cetic.br\|NIC.br, TIC Domicílios 2025/)).toBeTruthy()
     expect(screen.getByText(/licença CC BY 4.0/)).toBeTruthy()
     expect(screen.getByText(/não são contagens/)).toBeTruthy()

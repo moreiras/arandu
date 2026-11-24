@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { Link } from 'react-router-dom'
-import { IX_TAG_CLASS, SICI_COLOR, V4_STRONG, V6_STRONG, fmtBR } from './tipos'
+import { IX_TAG_CLASS, SCM_SELO, SICI_COLOR, V4_STRONG, V6_STRONG, fmtBR } from './tipos'
 import type { Entity, TagIx } from './tipos'
 
 /** Painel direito: resumo do raio, participação em IXes e a lista de entidades (ASes e SCMs deduplicados por CNPJ). */
@@ -125,8 +125,8 @@ export function PainelEntidades({ className, entities, entityCounts, markerPos, 
                         <span className="font-mono text-xs text-v6-600 leading-tight pt-0.5">{e.cnpj}</span>
                       )}
                       {hasAsn && !e.fromHq && (e.v4 || e.v6) && (
-                        <span className="text-xs text-gray-400" title="Sem sede no raio — presente via prefixo">
-                          ⬡
+                        <span className="text-xs text-gray-600" title="Sem sede no raio — presente via prefixo">
+                          <span aria-hidden="true">⬡</span><span className="sr-only">Sem sede no raio, presente via prefixo</span>
                         </span>
                       )}
                       <span className="ml-auto flex items-center gap-1 flex-shrink-0">
@@ -134,20 +134,20 @@ export function PainelEntidades({ className, entities, entityCounts, markerPos, 
                           <span className="text-xs px-1.5 rounded-full text-white bg-primario-600" title="Possui ASN">ASN</span>
                         )}
                         {e.scm && (
-                          <span className="text-xs px-1.5 rounded-full text-white" style={{ background: '#a855f7' }} title="Possui outorga SCM">SCM</span>
-                        )}
-                        {e.v4 && (
-                          <span className="text-xs font-mono px-1 rounded text-white" style={{ background: V4_STRONG }} title="Prefixos IPv4 na região">v4</span>
+                          <span className="text-xs px-1.5 rounded-full text-white" style={{ background: SCM_SELO }} title="Possui outorga SCM">SCM</span>
                         )}
                         {e.v6 && (
                           <span className="text-xs font-mono px-1 rounded text-white" style={{ background: V6_STRONG }} title="Prefixos IPv6 na região">v6</span>
                         )}
+                        {e.v4 && (
+                          <span className="text-xs font-mono px-1 rounded text-white" style={{ background: V4_STRONG }} title="Prefixos IPv4 na região">v4</span>
+                        )}
                       </span>
                     </div>
                     {e.name && <span className="text-xs text-gray-600 truncate leading-tight">{e.name}</span>}
-                    {hasAsn && e.cnpj && <span className="text-xs text-gray-400 font-mono leading-tight">{e.cnpj}</span>}
+                    {hasAsn && e.cnpj && <span className="text-xs text-gray-600 font-mono leading-tight">{e.cnpj}</span>}
                     {(e.city || e.uf) && (
-                      <span className="text-xs text-gray-400 leading-tight">{[e.city, e.uf].filter(Boolean).join(', ')}</span>
+                      <span className="text-xs text-gray-600 leading-tight">{[e.city, e.uf].filter(Boolean).join(', ')}</span>
                     )}
                     {e.sici && (
                       <span className="text-xs leading-tight" style={{ color: SICI_COLOR }}>

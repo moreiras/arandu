@@ -179,7 +179,7 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
       {ativa.isLoading && <p className="text-sm text-gray-400" role="status">Carregando…</p>}
       {ativa.isError && <EstadoDados erro={ativa.error} oQue="a lista" mensagem="Esta lista não está publicada neste snapshot." aoTentarDeNovo={() => void ativa.refetch()} />}
       {aba === 'operadoras' && ops.data && (
-        <Tabela cab={['#', 'Operadora', 'Acessos', 'Parcela', ...(uf ? [] : ['12 meses', 'Queda seguida'])]}
+        <Tabela legenda="Operadoras por acessos fixos declarados (SICI)" cab={['#', 'Operadora', 'Acessos', 'Parcela', ...(uf ? [] : ['12 meses', 'Queda seguida'])]}
           ord={{ Acessos: thOp('acessos'), Parcela: thOp('share'), '12 meses': thOp('var_aa_pct'), 'Queda seguida': thOp('declinio') }}>
           {ops.data.items.map((r) => (
             <tr key={r.cnpj}>
@@ -195,7 +195,7 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
       )}
       {aba === 'route-servers' && rsq.data && (
         <>
-          <Tabela cab={['#', 'Membro', 'PTT', 'Sessões up', 'Down', 'Maior tempo de queda (dias)', 'Prefixos / limite']} dicas={{ 'Prefixos / limite': DICA_PREFIXOS_LIMITE }}
+          <Tabela legenda="Sessões nos route servers do IX.br por membro" cab={['#', 'Membro', 'PTT', 'Sessões up', 'Down', 'Maior tempo de queda (dias)', 'Prefixos / limite']} dicas={{ 'Prefixos / limite': DICA_PREFIXOS_LIMITE }}
             ord={{ Down: thRs('sessoes_down'), 'Maior tempo de queda (dias)': thRs('dias_down'), 'Prefixos / limite': thRs('uso_limite') }}>
             {rsq.data.items.map((r) => (
               <tr key={`${r.ixp}-${r.asn}`}>
@@ -213,7 +213,7 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
         </>
       )}
       {aba === 'omissao' && om.data && tipo === 'outorga_sem_declaracao' && (
-        <Tabela cab={['#', 'Outorgada (SCM)', 'UF', 'Usuários estimados (APNIC)', 'Classe', 'Grupo']}>
+        <Tabela legenda="Outorgas SCM sem acessos declarados" cab={['#', 'Outorgada (SCM)', 'UF', 'Usuários estimados (APNIC)', 'Classe', 'Grupo']}>
           {om.data.items.map((r) => (
             <tr key={r.cnpj}>
               <td className="px-2 py-1 text-gray-400 tabular-nums">{r.posicao}</td>
@@ -227,7 +227,7 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
         </Tabela>
       )}
       {aba === 'omissao' && om.data && tipo === 'parou_de_declarar' && (
-        <Tabela cab={['#', 'CNPJ', 'Último mês declarado', 'Meses sem declarar', 'Acessos no último mês']}>
+        <Tabela legenda="CNPJs que pararam de declarar" cab={['#', 'CNPJ', 'Último mês declarado', 'Meses sem declarar', 'Acessos no último mês']}>
           {om.data.items.map((r) => (
             <tr key={r.cnpj}>
               <td className="px-2 py-1 text-gray-400 tabular-nums">{r.posicao}</td>
@@ -287,7 +287,7 @@ function ThOrdenavelComDica({ o, rotulo, dica, className }: { o: PropsOrdem; rot
   )
 }
 
-function Tabela({ cab, dicas = {}, ord = {}, children }: { cab: string[]; dicas?: Record<string, string>; ord?: Record<string, PropsOrdem>; children: React.ReactNode }) {
+function Tabela({ cab, dicas = {}, ord = {}, legenda, children }: { cab: string[]; dicas?: Record<string, string>; ord?: Record<string, PropsOrdem>; legenda: string; children: React.ReactNode }) {
   const th = (c: string, i: number) => {
     const cls = `px-2 py-1.5 font-medium ${i > 1 ? 'text-right' : 'text-left'}`
     const o = ord[c]
@@ -298,6 +298,7 @@ function Tabela({ cab, dicas = {}, ord = {}, children }: { cab: string[]; dicas?
   return (
     <div className="overflow-x-auto bg-white border border-gray-200 rounded-lg">
       <table className="min-w-full text-sm">
+        <caption className="sr-only">{legenda}</caption>
         <thead className="bg-gray-50 text-xs text-gray-500"><tr>{cab.map(th)}</tr></thead>
         <tbody className="divide-y divide-gray-100">{children}</tbody>
       </table>

@@ -8,8 +8,9 @@ export function OutorgaBadge({ label }: { label: string }) {
   )
 }
 
-/** Badge "ASN" — o CNPJ tem ao menos um sistema autônomo associado. O título
- *  lista os números; com um único ASN, o badge leva à página do AS. */
+/** Badge "ASN": o CNPJ tem ao menos um sistema autônomo associado. Os números
+ *  vão no título e em texto para o leitor de tela (o title não chega ao teclado
+ *  nem ao toque); com um único ASN, o badge leva à página do AS. */
 export function AsnBadge({ asns }: { asns?: number[] | null }) {
   if (!asns || asns.length === 0) return null
   const cls = 'text-xs font-semibold bg-mercado-100 text-mercado-700 rounded px-1.5 py-0.5'
@@ -17,11 +18,11 @@ export function AsnBadge({ asns }: { asns?: number[] | null }) {
   if (asns.length === 1) {
     return (
       <Link to={`/asn/${asns[0]}`} title={title} onClick={e => e.stopPropagation()} className={`${cls} hover:bg-mercado-200`}>
-        ASN
+        ASN<span className="sr-only"> {title}</span>
       </Link>
     )
   }
-  return <span title={title} className={cls}>ASN ×{asns.length}</span>
+  return <span title={title} className={cls}>ASN ×{asns.length}<span className="sr-only">: {title}</span></span>
 }
 
 export interface OutorgaFlags {

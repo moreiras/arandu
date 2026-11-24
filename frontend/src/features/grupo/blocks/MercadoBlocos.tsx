@@ -23,7 +23,7 @@ const GRAU_FAIXA: Record<string, number> = { competitivo: 0, moderado: 1, concen
 function TabelaSerie({ serie }: { serie: GrupoMercadoFixo['serie'] }) {
   const { ordenados, props } = useOrdenacao(serie, { mes: { valor: (s) => s.mes, primeiro: 'asc' }, acessos: (s) => s.acessos, parcela: (s) => s.parcela })
   return (
-    <div className="overflow-x-auto mt-2"><table className="text-xs min-w-full" data-tabela="grade"><thead className="text-gray-500"><tr>
+    <div className="overflow-x-auto mt-2"><table className="text-xs min-w-full" aria-label="Série mensal de acessos do grupo" data-tabela="grade"><thead className="text-gray-500"><tr>
       <ThOrdenavel {...props('mes')} className="text-left px-2 py-1">Mês</ThOrdenavel><ThOrdenavel {...props('acessos')} alinhar="right" className="text-right px-2 py-1">Acessos</ThOrdenavel><ThOrdenavel {...props('parcela')} alinhar="right" className="text-right px-2 py-1">Parcela</ThOrdenavel></tr></thead>
       <tbody>{ordenados.map((s) => <tr key={s.mes} className="border-t border-gray-100"><td className="px-2 py-1">{s.mes}</td><td className="px-2 py-1 text-right tabular-nums">{n(s.acessos)}</td><td className="px-2 py-1 text-right tabular-nums">{pct(s.parcela)}</td></tr>)}</tbody></table></div>
   )
@@ -106,7 +106,7 @@ export function ConcorrentesBloco({ dados }: BlocoProps<GrupoCtx>) {
       <p className="text-sm text-gray-700">O grupo declara acessos em <strong>{n(m.sobreposicao_interna.municipios)}</strong> municípios; em <strong>{n(m.sobreposicao_interna.com_mais_de_um_cnpj)}</strong> deles mais de um CNPJ do grupo atua ao mesmo tempo (é onde juntar os CNPJs muda a concentração).</p>
       {m.concorrentes.length === 0 ? <p className="text-sm text-gray-500">Sem outras empresas com presença conjunta registrada.</p> : (
         <div className="overflow-x-auto"><table className="text-sm min-w-full" aria-label="Empresas presentes nos mesmos municípios" data-tabela="grade">
-          <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th className="py-1 pr-3">Empresa</th><th className="pr-3 text-right">Municípios em comum</th><th className="text-right">Acessos dela nesses municípios</th></tr></thead>
+          <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th scope="col" className="py-1 pr-3">Empresa</th><th scope="col" className="pr-3 text-right">Municípios em comum</th><th scope="col" className="text-right">Acessos dela nesses municípios</th></tr></thead>
           <tbody>{m.concorrentes.map((c) => <tr key={c.cnpj} className="border-b border-gray-100"><td className="py-1 pr-3"><Link to={`/operadora/${c.cnpj}`} className="text-primario-600 hover:underline">{c.empresa || c.cnpj}</Link></td><td className="pr-3 text-right tabular-nums">{n(c.municipios_em_comum)}</td><td className="text-right tabular-nums">{n(c.acessos_dele_nos_comuns)}</td></tr>)}</tbody></table></div>
       )}
       <p className="text-xs text-gray-500">Presença nos mesmos municípios, não rivalidade: a lista mostra quem mais aparece junto, em ordem de municípios em comum (sem ranking de desempenho). Para cada empresa vale a maior sobreposição com um CNPJ do grupo, não a união. Natureza: {m.natureza}.</p>

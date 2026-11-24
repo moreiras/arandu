@@ -83,3 +83,22 @@ describe('mapa dos municípios sob demanda', () => {
     expect(await screen.findByTestId('mapa-municipios-duplo')).toBeInTheDocument()
   })
 })
+
+describe('alternativa textual do cartograma (EST-E7)', () => {
+  it('"Ver dados" traz uma linha por UF com todas as métricas, ordenável', async () => {
+    montar()
+    const ver = await screen.findByTestId('ver-dados')
+    ;(ver as HTMLDetailsElement).open = true
+    const tabela = within(ver).getByRole('table', { name: 'Ver dados (tabela das UFs)' })
+    const cab = within(tabela).getAllByRole('columnheader').map((th) => th.textContent?.replace(/[▲▼↕]/g, '').trim())
+    expect(cab).toEqual(['UF', 'Nome', 'Acessos fixos (SICI)', 'Fibra (% dos acessos)', 'Usuários estimados (APNIC)', 'PTTs (IX.br)',
+      'Acessos / 100 domicílios', 'Municípios longe de PTT (%)', 'Municípios com acessos', 'ASNs'])
+    const linhas = within(tabela).getAllByRole('row').slice(1)
+    expect(linhas.map((l) => l.querySelector('td')?.textContent)).toEqual(['AC', 'ES', 'SP'])
+    expect(linhas[2]).toHaveTextContent('São Paulo')
+    expect(linhas[2]).toHaveTextContent('9.000.000')
+    expect(linhas[2]).toHaveTextContent('82,4')
+    fireEvent.click(within(tabela).getByRole('button', { name: 'Acessos fixos (SICI)' }))
+    expect(within(tabela).getByRole('columnheader', { name: /Acessos fixos \(SICI\)/ })).toHaveAttribute('aria-sort', expect.stringMatching(/ascending|descending/))
+  })
+})
