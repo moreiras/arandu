@@ -12,6 +12,10 @@ parênteses remetem à análise.
   só para o 404 real. O front aceita o orçamento anônimo esgotado como 403 ou como 429 com `Retry-After`. Componente
   `components/ui/EstadoDados.tsx`; `AccessError` guarda `retryAfter` e o motivo do 401 (TRANSV-E1, ASN-E9, OPERADORA-E1,
   IPV4-E1, MUN-E11, UF-E1, EST-E5, MUNS-E7, LOC-E5, USO-E4, MAPA-E6).
+- **Glossário de contagens (V3).** `docs/glossario-contagens.md` descreve cada universo que aparece com o mesmo nome (ASNs
+  brasileiros pela LACNIC ou pelo Registro.br, PTTs, participantes por sessão, cadastro ou originação, declarantes do SICI,
+  municípios, usuários APNIC por AS, por UF, união ou soma por PTT), com origem no código e valor medido. É a base dos rótulos únicos
+  da tela (PT-15).
 
 ## v2.1.3
 
