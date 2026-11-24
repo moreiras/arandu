@@ -14,7 +14,7 @@
   {
    "rotulo": "Tabela BGP",
    "caminho": "/bgp",
-   "descricao": "Análises da tabela global: agregação, MOAS e estabilidade"
+   "descricao": "Análises da tabela global: agregação, cobertura e estabilidade"
   },
   {
    "rotulo": "Segurança de roteamento",

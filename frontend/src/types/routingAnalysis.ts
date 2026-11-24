@@ -200,7 +200,9 @@ export interface RoutingAnalysis {
   top_asns_more_specifics: TopAsnMoreSpecifics[]
   aggregation_by_asn: AggregationEntry[]
   registro_br_coverage: RegistroBrCoverage[]
-  moas: MoasEntry[]
+  /** Sempre nulo: a coleta guarda uma origem por prefixo e não detecta MOAS (motivo em `moas_indisponivel`). */
+  moas: MoasEntry[] | null
+  moas_indisponivel?: string
   too_specific: { v4: TooSpecificEntry[]; v6: TooSpecificEntry[] }
   global_comparison: { v4: GlobalComparison; v6: GlobalComparison }
   as_path_stats: AsPathStats | null

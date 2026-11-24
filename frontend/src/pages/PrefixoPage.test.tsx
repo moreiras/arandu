@@ -64,15 +64,15 @@ describe('página de prefixo', () => {
     expect(await screen.findByText('Prefixo não encontrado')).toBeInTheDocument()
   })
 
-  it('MOAS só busca a análise (14 MB) quando o usuário pede', async () => {
+  it('MOAS: indisponível, sem afirmar ausência e sem baixar a análise de roteamento (PFX-E3)', async () => {
     let chamadas = 0
-    server.use(http.get('*/api/v1/routing-analysis', () => { chamadas += 1; return HttpResponse.json({ moas: [{ prefix: '198.18.0.0/24', afi: 'v4', origins: [64496, 64500], br_origins: [64496], is_prefix_br: true }] }) }))
+    server.use(http.get('*/api/v1/routing-analysis', () => { chamadas += 1; return HttpResponse.json({ moas: null }) }))
     montar('/prefixo/198.18.0.0/24')
-    const botao = await screen.findByRole('button', { name: /Verificar na análise de roteamento/ })
+    const aviso = await screen.findByTestId('moas-indisponivel')
+    expect(aviso.textContent).toMatch(/não está disponível/)
+    expect(aviso.textContent).toMatch(/não indica ausência de MOAS/)
+    expect(document.body.textContent).not.toMatch(/Nenhuma origem múltipla/)
     expect(chamadas).toBe(0)
-    fireEvent.click(botao)
-    expect(await screen.findByText(/2 ASes/)).toBeInTheDocument()
-    expect(chamadas).toBe(1)
   })
 })
 

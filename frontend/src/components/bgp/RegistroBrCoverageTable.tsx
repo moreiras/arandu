@@ -32,9 +32,9 @@ const CATEGORY_BADGE: Record<string, { label: string; cls: string; tooltip: stri
     tooltip: 'O espaço total está coberto, mas por múltiplos prefixos mais específicos sem um agregado único. Poderia ser simplificado.',
   },
   multi_origin:     {
-    label: 'Multi-origem',
+    label: 'Várias origens, sem agregado',
     cls: 'bg-v6-100 text-v6-700',
-    tooltip: 'O bloco é anunciado por mais de um ASN de origem diferente (MOAS). Pode ser legítimo ou indicar sequestro de prefixo.',
+    tooltip: 'O bloco está todo coberto por rotas mais específicas de origens diferentes e nenhuma rota cobre o bloco inteiro.',
   },
 }
 

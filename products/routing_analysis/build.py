@@ -25,6 +25,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 from core.common import configure_logging, data_dir, normalized_path, now_iso, published_path, read_json_gz, today_str
+from core.moas import MOTIVO as MOAS_MOTIVO
 
 from products.routing_analysis.agregacao import _aggregation_savings_by_origin, _aggregation_table  # noqa: F401
 from products.routing_analysis.as_path import _as_path_stats, _community_stats, _hygiene_issues, _top_prependers, _upstream_diversity  # noqa: F401
@@ -155,8 +156,7 @@ def run(date_str: str, base: Path, log) -> bool:
     rpki_index = _build_rpki_index(vrp_list)
     reg_coverage = _registro_br_coverage(pbr_v4, pbr_v6, registro_br, asn_names, cnpj_by_asn, rpki_index)
 
-    # ---- MOAS ----
-    log.info("computing moas")
+    # Trie do Registro.br (usada pelos prefixos específicos demais)
     reg_trie_v4 = _PrefixTrie()
     reg_trie_v6 = _PrefixTrie()
     for asn_obj in registro_br.get("asns", []):
@@ -167,7 +167,6 @@ def run(date_str: str, base: Path, log) -> bool:
     reg_trie_v4._build()
     reg_trie_v6._build()
 
-    moas = _moas_analysis(op_v4, op_v6, br_asns, reg_trie_v4, reg_trie_v6)
 
     # ---- Too specific ----
     log.info("computing too-specific prefixes")
@@ -229,7 +228,9 @@ def run(date_str: str, base: Path, log) -> bool:
         "top_asns_more_specifics": top_ms,
         "aggregation_by_asn":  agg_table,
         "registro_br_coverage": reg_coverage,
-        "moas":                 moas,
+        # MOAS fica nulo, com o motivo, até a coleta guardar mais de uma origem por prefixo (core/moas.py)
+        "moas":                 None,
+        "moas_indisponivel":    MOAS_MOTIVO,
         "too_specific":         too_specific,
         "global_comparison":    global_comparison,
         "as_path_stats":        as_path_stats_out,
@@ -244,7 +245,7 @@ def run(date_str: str, base: Path, log) -> bool:
     # Resumo de poucos KB para o Panorama técnico (a API não carrega os ~14 MB para servir os totais).
     resumo_rotas.gravar(pub, resumo_rotas.montar(
         date_str, pbr_v4, pbr_v6, rpki_index, summary=summary, more_specifics=more_specifics,
-        too_specific=too_specific, moas=moas, vrps=len(vrp_list)))
+        too_specific=too_specific, vrps=len(vrp_list)))
     log.info("routing_analysis written", path=str(out_path),
              pbr_v4=len(pbr_v4), pbr_v6=len(pbr_v6),
              has_path_data=has_path_data)

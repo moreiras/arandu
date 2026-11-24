@@ -18,15 +18,17 @@ export function TooSpecificTable({ v4, v6, date }: Props) {
   // IPv6 primeiro como padrão
   const [afi, setAfi]               = useState<'v6' | 'v4'>('v6')
   const [page, setPage]             = useState(0)
-  const [sortKey, setSortKey]       = useState<SortKey>('prefix')
+  // "sem agregado" primeiro: é o caso em que filtrar o prefixo tira o bloco da tabela
+  const [sortKey, setSortKey]       = useState<SortKey>('has_covering')
   const [sortDir, setSortDir]       = useState<SortDir>('asc')
-  const [showBlackhole, setShowBlackhole] = useState(false)
+  // a lista mostra tudo por padrão (o total do cartão é o da tabela); o filtro opcional oculta só rotas de host (/128 e /32)
+  const [ocultarHost, setOcultarHost] = useState(false)
   const PAGE = 25
 
   const threshold = afi === 'v4' ? '/24' : '/48'
 
-  function isBlackholeLength(prefix: string, a: 'v4' | 'v6') {
-    return a === 'v4' ? prefix.endsWith('/32') : prefix.endsWith('/64')
+  function isHostLength(prefix: string, a: 'v4' | 'v6') {
+    return a === 'v4' ? prefix.endsWith('/32') : prefix.endsWith('/128')
   }
 
   function handleSort(key: SortKey) {
@@ -39,14 +41,14 @@ export function TooSpecificTable({ v4, v6, date }: Props) {
     setPage(0)
   }
 
-  const blackholeCount = useMemo(() => {
+  const hostCount = useMemo(() => {
     const rows = afi === 'v4' ? v4 : v6
-    return rows.filter((r) => isBlackholeLength(r.prefix, afi)).length
+    return rows.filter((r) => isHostLength(r.prefix, afi)).length
   }, [afi, v4, v6])
 
   const sorted = useMemo(() => {
     const rows = (afi === 'v4' ? v4 : v6).filter(
-      (r) => showBlackhole || !isBlackholeLength(r.prefix, afi)
+      (r) => !ocultarHost || !isHostLength(r.prefix, afi)
     )
     rows.sort((a, b) => {
       let aVal: string | number | boolean
@@ -65,7 +67,7 @@ export function TooSpecificTable({ v4, v6, date }: Props) {
       return sortDir === 'asc' ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number)
     })
     return rows
-  }, [afi, v4, v6, sortKey, sortDir, showBlackhole])
+  }, [afi, v4, v6, sortKey, sortDir, ocultarHost])
 
   const visible = sorted.slice(page * PAGE, (page + 1) * PAGE)
 
@@ -98,11 +100,10 @@ export function TooSpecificTable({ v4, v6, date }: Props) {
           <h3 className="text-sm font-medium text-gray-700">
             Prefixos potencialmente filtráveis (mais específicos que {threshold})
           </h3>
-          {!showBlackhole && blackholeCount > 0 && (
-            <p className="text-xs text-gray-400 mt-0.5">
-              {fmt(blackholeCount)} prefixos {afi === 'v4' ? '/32' : '/64'} ocultados (comuns em blackhole/RTBH)
-            </p>
-          )}
+          <p className="text-xs text-gray-400 mt-0.5" data-testid="too-specific-contagem">
+            {fmt(sorted.length)} de {fmt((afi === 'v4' ? v4 : v6).length)} prefixos
+            {ocultarHost && hostCount > 0 && ` · ${fmt(hostCount)} rotas de host (${afi === 'v4' ? '/32' : '/128'}) ocultadas`}
+          </p>
         </div>
         <div className="flex flex-col items-end gap-1">
           {/* IPv6 primeiro */}
@@ -110,7 +111,7 @@ export function TooSpecificTable({ v4, v6, date }: Props) {
             {(['v6', 'v4'] as const).map((a) => (
               <button
                 key={a}
-                onClick={() => { setAfi(a); setPage(0); setSortKey('prefix'); setSortDir('asc') }}
+                onClick={() => { setAfi(a); setPage(0); setSortKey('has_covering'); setSortDir('asc') }}
                 className={`text-xs px-2 py-0.5 rounded ${afi === a ? 'bg-primario-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
               >
                 {a.toUpperCase()} ({fmt(a === 'v4' ? v4.length : v6.length)})
@@ -118,10 +119,10 @@ export function TooSpecificTable({ v4, v6, date }: Props) {
             ))}
           </div>
           <button
-            onClick={() => { setShowBlackhole((s) => !s); setPage(0) }}
+            onClick={() => { setOcultarHost((s) => !s); setPage(0) }}
             className="text-xs px-2 py-0.5 rounded border border-gray-200 text-gray-500 hover:bg-gray-50"
           >
-            {showBlackhole ? 'Ocultar IPv6 /64 e IPv4 /32' : 'Mostrar também IPv6 /64 e IPv4 /32'}
+            {ocultarHost ? 'Mostrar também rotas de host (IPv6 /128, IPv4 /32)' : 'Ocultar rotas de host (IPv6 /128, IPv4 /32)'}
           </button>
         </div>
       </div>

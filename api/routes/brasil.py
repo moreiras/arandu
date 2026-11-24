@@ -21,6 +21,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from api.store import Store
+from core import moas
 
 router = APIRouter()
 _CACHE: dict[tuple, dict] = {}
@@ -65,7 +66,8 @@ def indicadores(store: Store, date_str: str) -> dict:
     from api.routes.rpki import montar_resumo
     publicacao = montar_resumo(store, date_str)
     publicacao.pop("snapshot_date", None)
-    out["rpki"] = {"publicacao": publicacao, "rotas": store._read_json(store._pub(date_str) / "routing_analysis_resumo.json")}
+    # `saude.moas` sai nulo também nos snapshots que gravaram 0 (a coleta não detecta MOAS, ver core/moas.py)
+    out["rpki"] = {"publicacao": publicacao, "rotas": moas.retirar_do_resumo(store._read_json(store._pub(date_str) / "routing_analysis_resumo.json"))}
     if len(_CACHE) > 16:
         _CACHE.clear()
     _CACHE[chave] = out

@@ -2,7 +2,7 @@
 id: routing_analysis
 nome: Análise de roteamento BGP do Brasil
 descricao: Composição do espaço BR na tabela global (estrito, só origem, só prefixo), distribuição de
-  tamanhos, mais-específicos, agregação possível, cobertura do Registro.br, MOAS e prefixos específicos
+  tamanhos, mais-específicos, agregação possível, cobertura do Registro.br e prefixos específicos
   demais.
 modulo: products.routing_analysis.build
 entradas:
@@ -32,10 +32,11 @@ campos:
   tratamento: Estimativa teórica; agregação real depende de política.
   publicado_em:
   - routing_analysis → routing_analysis.json#aggregation_by_asn
-- nome: moas
-  tipo: list
-  significado: Prefixos com mais de uma origem observada.
-  tratamento: Pode ser legítimo (anycast, DDoS mitigation).
+- nome: moas / moas_indisponivel
+  tipo: null / str
+  significado: Prefixos com mais de uma origem observada. Indisponível; `moas_indisponivel` traz o motivo.
+  tratamento: Sempre nulo até a coleta guardar mais de uma origem por prefixo (a tabela usada guarda uma, e a contagem sairia
+    sempre 0, o que não é ausência de MOAS).
   publicado_em:
   - routing_analysis → routing_analysis.json#moas
 - nome: too_specific
@@ -113,8 +114,8 @@ campos:
   - routing_analysis → routing_analysis_resumo.json#rpki
 - nome: saude.{v6,v4}.mais_especificos / filtraveis; saude.moas
   tipo: dict
-  significado: Totais de saúde da tabela para o Panorama técnico (mais-específicos, prefixos filtráveis, MOAS), copiados da análise
-    completa.
+  significado: Totais de saúde da tabela para o Panorama técnico (mais-específicos, prefixos filtráveis), copiados da análise
+    completa. `saude.moas` é nulo, com o motivo em `saude.moas_indisponivel`.
   publicado_em:
   - routing_analysis → routing_analysis_resumo.json#saude
 cenarios_de_teste:
