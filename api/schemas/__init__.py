@@ -260,7 +260,7 @@ class ASNIndexEntry(BaseModel):
     has_aspa: Optional[bool] = Field(None, description="True se o AS possui pelo menos um objeto ASPA publicado no RPKI")
     pdb_registered: Optional[bool] = Field(None, description="True se o AS tem cadastro no PeeringDB")
     has_scm: Optional[bool] = Field(None, description="True se o AS possui outorga SCM na Anatel (cruzamento por CNPJ)")
-    has_smp: Optional[bool] = Field(None, description="True se o AS possui outorga SMP na Anatel (cruzamento por CNPJ)")
+    has_smp: Optional[bool] = Field(None, description="True se o AS possui outorga SMP na Anatel (cruzamento por CNPJ; credenciamento de rede virtual sem outorga própria não conta)")
     has_stfc: Optional[bool] = Field(None, description="True se o AS possui outorga STFC na Anatel (cruzamento por CNPJ)")
     has_seac: Optional[bool] = Field(None, description="True se o AS possui outorga SeAC na Anatel (cruzamento por CNPJ)")
     cnpj: Optional[str] = Field(None, description="CNPJ da organização do AS (Registro.br), 14 dígitos sem formatação")
@@ -490,10 +490,11 @@ class ASNDocumentResponse(BaseModel):
     )
     smp: Optional[list[dict]] = Field(
         None,
-        description="Outorgas SMP (Serviço Móvel Pessoal) da Anatel vinculadas ao CNPJ deste AS",
+        description="Outorgas SMP (Serviço Móvel Pessoal) da Anatel vinculadas ao CNPJ deste AS; inclui o registro de credenciamento de "
+                    "rede virtual (`rede_virtual.papel = credenciada`, situação 'sem outorga SMP própria'), que não é outorga",
     )
     has_smp: Optional[bool] = Field(
-        None, description="True se o CNPJ deste AS possui outorga SMP na Anatel",
+        None, description="True se o CNPJ deste AS possui outorga SMP na Anatel (credenciamento de rede virtual sem outorga própria não conta)",
     )
     stfc: Optional[list[dict]] = Field(
         None,

@@ -80,7 +80,7 @@ def({ id: 'consumidor', titulo: 'Reclamações no Consumidor.gov.br', ordem: 46.
 def({ id: 'prontidao', titulo: 'Prontidão em segurança de roteamento', ordem: 47, depende: ['useOperadoraPerfil'], fontes: ['apnic_irov', 'bogons', 'caida_spoofer', 'irr_route_objects', 'peeringdb_networks', 'rpki_collector'], selo: 'estimado',
   nota: 'agregado dos ASNs do CNPJ; soma ponderada de medições de terceiros, não veredito sobre a empresa', aplicavel: (c) => !!c.prontidao, Componente: ProntidaoOperadoraBloco })
 def({ id: 'smp', semTitulo: true, titulo: 'SMP (telefonia móvel)', ordem: 40, depende: ['useOperadoraPerfil'], fontes: ['anatel_outorgas', 'anatel_sici_movel'], selo: 'fato',
-  nota: 'duas datas: o snapshot e o mês de referência da declaração ao SICI móvel', aplicavel: (c) => !!c.dataMovel, Componente: SmpBloco })
+  nota: 'duas datas: o snapshot e o mês de referência da declaração ao SICI móvel', aplicavel: (c) => (c.servicos ?? []).some((s) => s.sigla === 'SMP') || c.dataMovel?.acessos != null, Componente: SmpBloco })
 def({ id: 'stfc', semTitulo: true, titulo: 'STFC (telefonia fixa comutada)', ordem: 50, depende: ['operadora-stfc'], fontes: ['anatel_outorgas'], selo: 'fato', aplicavel: (c) => c.hasStfc, Componente: StfcBloco })
 def({ id: 'seac', semTitulo: true, titulo: 'SeAC (TV por assinatura)', ordem: 60, depende: ['operadora-seac'], fontes: ['anatel_outorgas'], selo: 'fato', aplicavel: (c) => c.hasSeac, Componente: SeacBloco })
 def({ id: 'linha-do-tempo', titulo: 'Linha do tempo', ordem: 70, depende: ['useOperadoraPerfil'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr', 'rpki_collector', 'apnic_pop'], selo: 'fato', nota: 'diferenças observadas entre snapshots; o histórico começou em 2026-10',

@@ -38,6 +38,12 @@ describe('comparar entidades', () => {
 
   it('operadora e município montam o quadro com os números do perfil', () => {
     const o = compararOperadoras([{ cnpj: '1', indicadores: { empresa: 'Alfa', acessos: 5000, share_br: 1.25, posicao_br: 7, var_aa: { pct: 3.5 } }, scm: { asns: [1, 2], municipios: 10 } }, { cnpj: '2', indicadores: { empresa: 'Beta', acessos: 100 } }] as any)
+    // REL-E4: grupo declarado ao SICI ("OUTROS" no caso Ampernet) é fato com nota do SICI, não grupo societário inferido
+    const g = compararOperadoras([{ cnpj: '3', indicadores: { empresa: 'Ampernet' }, scm: { grupo: 'OUTROS' } }] as any).linhas.find((l) => l.id === 'grupo')!
+    expect(g).toMatchObject({ rotulo: 'Grupo econômico (declarado ao SICI)', celulas: ['OUTROS'], selo: 'fato' })
+    expect(g.nota).toMatch(/declara à Anatel/); expect(g.nota).not.toMatch(/^grupo por quadro/)
+    // REL-E5: o mês do SICI na própria linha
+    expect(compararOperadoras([{ cnpj: '4', indicadores: { empresa: 'X', acessos: 1, mes_referencia: '2026-09' } }] as any).linhas.find((l) => l.id === 'acessos')!.nota).toBe('declarado ao SICI, mês de referência 2026-09')
     expect(o.colunas[0].nome).toBe('Alfa'); expect(o.linhas.find((l) => l.id === 'var')!.celulas).toEqual(['+3,5%', null]); expect(o.linhas.find((l) => l.id === 'posicao')!.celulas[0]).toBe('7º')
     const m = compararMunicipios([{ ibge: '1', nome: 'X', uf: 'SP', indicadores: { acessos: 1000, hhi: 2500, n_operadoras: 4 }, territorio: { penetracao: 0.8, km_ptt: 12 } }, { ibge: '2', nome: 'Y', uf: 'RJ', fixo: { acessos: 50, hhi: 10000, operadores_count: 1 } }] as any)
     expect(m.linhas.find((l) => l.id === 'penetracao')!.celulas).toEqual(['80', null])

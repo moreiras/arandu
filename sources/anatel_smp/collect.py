@@ -141,7 +141,7 @@ def _apply_rede_virtual(records: list[dict], log) -> list[dict]:
             "razao_social": c["credenciada_nome"],
             "nome_fantasia": "",
             "data_outorga": "",
-            "situacao": "Credenciada de Rede Virtual (sem outorga SMP própria)",
+            "situacao": "Credenciada de Rede Virtual (sem outorga SMP própria)",   # marca lida por core.outorgas.eh_outorga
             "rede_virtual": {
                 "papel": "credenciada",
                 "prestadora_origem_cnpj": c["prestadora_origem_cnpj"],

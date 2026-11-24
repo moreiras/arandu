@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from api.repos.base import ArtifactRepo
-from core.outorgas import SERVICOS as _REGISTRO
+from core.outorgas import SERVICOS as _REGISTRO, eh_outorga
 
 _log = logging.getLogger("arandurape")
 
@@ -106,7 +106,8 @@ class OutorgasPublicadas(ArtifactRepo):
         data = self.load(date_str)
         asns: set[int] = set()
         if data:
-            licensed = data.get("by_cnpj", {})
+            # credenciada de rede virtual sem outorga própria não conta como outorgada (`core.outorgas.eh_outorga`)
+            licensed = {c for c, recs in data.get("by_cnpj", {}).items() if any(eh_outorga(r) for r in recs)}
             for cnpj, asn_list in data.get("cnpj_to_asns", {}).items():
                 if cnpj in licensed:
                     asns.update(asn_list)

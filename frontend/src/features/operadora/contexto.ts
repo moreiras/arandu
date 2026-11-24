@@ -3,7 +3,8 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import type { SobreposicaoOperadora, HistoricoBloco, ErbsOperadora, MultasOperadora, ProntidaoOperadora, IndicadoresOperadora, QualidadeOperadora, ReclamacoesOperadora, ConsumidorOperadora, OperadoraDetalhe, OperadoraMovelDetalhe, OperadoraRede, STFCDetailResponse, SEACDetailResponse , CadastroOperadora, FinanciamentoOperadora, ContratosOperadora } from '../../types/api'
+import type { SobreposicaoOperadora, HistoricoBloco, ErbsOperadora, MultasOperadora, ProntidaoOperadora, IndicadoresOperadora, QualidadeOperadora, ReclamacoesOperadora, ConsumidorOperadora, OperadoraDetalhe, OperadoraMovelDetalhe, OperadoraRede, STFCDetailResponse, SEACDetailResponse , CadastroOperadora, FinanciamentoOperadora, ContratosOperadora, SCMRecord } from '../../types/api'
+import { servicosDaOperadora, temOutorga, type FontesServicos, type ServicoOperadora } from './servicos'
 
 /** O que um bloco da página de operadora recebe: as quatro respostas (SCM/SICI, SMP/SICI móvel, STFC, SeAC) e o que a página deriva delas. */
 export interface OperadoraCtx {
@@ -17,6 +18,8 @@ export interface OperadoraCtx {
   hasSici: boolean
   hasStfc: boolean
   hasSeac: boolean
+  /** Serviços pelo cadastro de outorgas (`servicosDaOperadora`): a única fonte para dizer que a empresa tem outorga. */
+  servicos: ServicoOperadora[]
   b2cPct: number
   historico?: HistoricoBloco | null
   /** Parcela, posição, variações e a situação da declaração ao SICI (`include=indicadores`). */
@@ -41,4 +44,21 @@ export interface OperadoraCtx {
   financiamento?: FinanciamentoOperadora | null
   /** Contratos públicos (PNCP) da operadora, em rodízio de coleta (`/contratos/operadoras/{cnpj}`). */
   contratos?: ContratosOperadora | null
+}
+
+/** O que a página e o relatório derivam das respostas, pela mesma regra: outorga só com registro de outorga (`servicosDaOperadora`),
+ * SICI só com acessos declarados, B2C sobre os acessos fixos declarados. */
+export function derivarOperadora(f: Omit<FontesServicos, 'data'> & { data?: { outorgas_scm?: SCMRecord[]; acessos?: number | null; pf?: number | null } | null }) {
+  const servicos = servicosDaOperadora(f)
+  const acessos = f.data?.acessos
+  const hasSici = acessos != null
+  return {
+    servicos,
+    hasScm: temOutorga(servicos, 'SCM'),
+    hasSmp: temOutorga(servicos, 'SMP'),
+    hasStfc: temOutorga(servicos, 'STFC'),
+    hasSeac: temOutorga(servicos, 'SeAC'),
+    hasSici,
+    b2cPct: hasSici && acessos ? (100 * (f.data?.pf ?? 0)) / acessos : 0,
+  }
 }

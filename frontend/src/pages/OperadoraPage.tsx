@@ -12,7 +12,8 @@ import { EntityPage } from '../features/entidade/EntityPage'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import { CabecalhoOperadora } from '../features/operadora/CabecalhoOperadora'
 import { FichaOperadora } from '../features/operadora/FichaOperadora'
-import type { OperadoraCtx } from '../features/operadora/contexto'
+import { derivarOperadora, type OperadoraCtx } from '../features/operadora/contexto'
+import { credenciamentoSmp } from '../features/operadora/servicos'
 import { fmtCnpj, mergeGrupoCnpjs } from '../features/operadora/ui'
 import '../features/operadora'
 
@@ -62,12 +63,8 @@ export function OperadoraPage() {
 
   const outorga = data?.outorgas_scm?.[0]
   const outorgaSmp = dataMovel?.outorgas_smp?.[0]
-  const hasScm = !!(data?.outorgas_scm?.length)
-  const hasSmp = !!(dataMovel?.outorgas_smp?.length)
-  const hasStfc = !!(dataStfc?.outorgas.length)
-  const hasSeac = !!(dataSeac?.outorgas.length)
-  const hasSici = data?.acessos != null
-  const b2cPct = hasSici && data?.acessos ? (100 * (data.pf ?? 0)) / data.acessos : 0
+  // serviços e selos pela regra única (`servicosDaOperadora`): a mesma do relatório
+  const { servicos, hasScm, hasSmp, hasStfc, hasSeac, hasSici, b2cPct } = derivarOperadora({ data, dataMovel, dataStfc, dataSeac })
   const outorgaStfc = dataStfc?.outorgas[0]
   const outorgaSeac = dataSeac?.outorgas[0]
   const nome = data?.empresa || outorga?.razao_social || dataMovel?.empresa || outorgaSmp?.razao_social
@@ -82,13 +79,13 @@ export function OperadoraPage() {
   const fetchContacts = data
     ? () => fetchOperadoraContacts(cnpjFinal)
     : () => fetchOperadoraMovelContacts(cnpjFinal)
-  const ctx: OperadoraCtx = { data, dataMovel, dataStfc, dataSeac, rede, historico: q.dados?.perfil?.historico, indicadores: q.dados?.perfil?.indicadores, sobreposicao: q.dados?.perfil?.mercado_grupos, erbs: q.dados?.perfil?.erbs, multas: q.dados?.perfil?.multas, prontidao: q.dados?.perfil?.prontidao, qualidade: q.dados?.perfil?.qualidade, reclamacoes: q.dados?.perfil?.reclamacoes, consumidor: q.dados?.perfil?.consumidor, cadastro: cadastro.data ?? null, financiamento: financiamento.data ?? null, contratos: contratos.data ?? null, cnpjFinal, hasScm, hasSici, hasStfc, hasSeac, b2cPct }
+  const ctx: OperadoraCtx = { data, dataMovel, dataStfc, dataSeac, rede, historico: q.dados?.perfil?.historico, indicadores: q.dados?.perfil?.indicadores, sobreposicao: q.dados?.perfil?.mercado_grupos, erbs: q.dados?.perfil?.erbs, multas: q.dados?.perfil?.multas, prontidao: q.dados?.perfil?.prontidao, qualidade: q.dados?.perfil?.qualidade, reclamacoes: q.dados?.perfil?.reclamacoes, consumidor: q.dados?.perfil?.consumidor, cadastro: cadastro.data ?? null, financiamento: financiamento.data ?? null, contratos: contratos.data ?? null, cnpjFinal, hasScm, hasSici, hasStfc, hasSeac, servicos, b2cPct }
   const snapshot = data?.snapshot_date ?? dataMovel?.snapshot_date ?? dataStfc?.snapshot_date ?? dataSeac?.snapshot_date ?? q.dados?.perfil?.snapshot_date
 
   return (
     <div className="space-y-5">
       <CabecalhoOperadora
-        nome={nome} grupo={grupo} porte={porte} hasScm={hasScm} hasSmp={hasSmp} hasStfc={hasStfc} hasSeac={hasSeac}
+        nome={nome} grupo={grupo} porte={porte} hasScm={hasScm} hasSmp={hasSmp} hasStfc={hasStfc} hasSeac={hasSeac} credenciadaSmp={credenciamentoSmp(servicos)}
         razaoSocial={outorga?.razao_social} cnpjFinal={cnpjFinal} municipio={outorga?.municipio} uf={outorga?.uf}
         grupoCnpjs={grupoCnpjs} grupoId={relacionadas.data?.grupo_id ?? undefined} contactsAvailable={contactsAvailable} fetchContacts={fetchContacts} asns={asns} snapshot={snapshot}
       />

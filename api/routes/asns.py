@@ -24,6 +24,7 @@ from api.ratelimit import limiter, LIMIT_CONTACTS, LIMIT_HEAVY
 from api import contatos_cota
 from api.schemas import PaginatedASNsResponse, ASNDocumentResponse
 from api.store import Store
+from core.outorgas import eh_outorga
 
 router = APIRouter()
 
@@ -461,7 +462,7 @@ def documento_asn(store: Store, date_str: str, asn: int) -> Optional[dict]:
 
     # Possui outorga SCM/SMP/STFC/SeAC? (CNPJ cruza com Anatel)
     doc["has_scm"] = bool(scm_data)
-    doc["has_smp"] = bool(smp_data)
+    doc["has_smp"] = any(eh_outorga(r) for r in smp_data or [])          # credenciada de rede virtual sem outorga própria não é SMP
     doc["has_stfc"] = bool(stfc_data)
     doc["has_seac"] = bool(seac_data)
 

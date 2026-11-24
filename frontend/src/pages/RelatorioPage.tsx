@@ -13,6 +13,7 @@ import { linkPermanente, montarCitacao } from '../components/entidade/citacao'
 import { compararAs, compararMunicipios, compararOperadoras, type Comparacao } from '../features/comparar/entidades'
 import { sinteseAs } from '../features/asn/sintese'
 import { sinteseOperadora } from '../features/operadora/sintese'
+import { derivarOperadora, type OperadoraCtx } from '../features/operadora/contexto'
 import { sinteseMunicipio } from '../features/municipio/sintese'
 import type { GrupoDetalhe } from '../types/api'
 import { SITE } from '../lib/site'
@@ -46,7 +47,9 @@ async function carregar(tipo: Tipo, id: string, date?: string): Promise<Relatori
     const p = await fetchOperadoraPerfil(id, date)
     if (!p) return null
     const nome = p.indicadores?.empresa ?? p.scm?.empresa ?? p.smp?.empresa ?? p.cnpj
-    const ctx = { data: p.scm ? { ...p.scm, snapshot_date: p.snapshot_date, cnpj: p.cnpj } : undefined, dataMovel: p.smp ?? undefined, indicadores: p.indicadores, hasScm: !!p.scm, hasStfc: !!p.stfc, hasSeac: !!p.seac, hasSici: !!p.scm?.acessos, b2cPct: 0 } as any
+    // mesma derivação da página (`derivarOperadora`): outorga só com registro, B2C sobre os acessos fixos declarados
+    const fontes = { data: p.scm ?? undefined, dataMovel: p.smp ?? undefined, dataStfc: p.stfc ?? undefined, dataSeac: p.seac ?? undefined }
+    const ctx = { ...fontes, data: p.scm ? { ...p.scm, snapshot_date: p.snapshot_date, cnpj: p.cnpj } : undefined, indicadores: p.indicadores, ...derivarOperadora(fontes) } as unknown as OperadoraCtx
     return { titulo: nome, subtitulo: `CNPJ ${p.cnpj}`, frases: sinteseOperadora(nome, ctx), quadro: compararOperadoras([p]), fontes: ['anatel_sici', 'anatel_outorgas', 'registro_br'], snapshot: p.snapshot_date, caminho: `/operadora/${p.cnpj}` }
   }
   if (tipo === 'municipio') {

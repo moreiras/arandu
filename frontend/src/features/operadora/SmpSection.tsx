@@ -8,6 +8,8 @@ import { AccessHistoryChart } from '../../components/acessos/AccessHistoryChart'
 import { AccessMunicipioMap } from '../../components/acessos/AccessMunicipioMap'
 import type { OperadoraMovelDetalhe } from '../../types/api'
 import { Barras, KPI, fmt } from './ui'
+import { ehOutorgaSmp } from './servicos'
+import { somaValores } from '../../lib/acessos'
 
 /**
  * Seção SMP: outorga móvel + acessos declarados ao SICI móvel. Aparece junto da
@@ -15,7 +17,9 @@ import { Barras, KPI, fmt } from './ui'
  * (ASNs) não se repete aqui porque é a mesma agregação, já mostrada acima.
  */
 export function SmpSection({ dataMovel }: { dataMovel: OperadoraMovelDetalhe }) {
-  const outorgaSmp = dataMovel.outorgas_smp?.[0]
+  // a outorga própria vem antes do registro sintético de credenciamento (`ehOutorgaSmp`)
+  const outorgaSmp = dataMovel.outorgas_smp?.find(ehOutorgaSmp) ?? dataMovel.outorgas_smp?.[0]
+  const propria = !!outorgaSmp && ehOutorgaSmp(outorgaSmp)
   const hasSici = dataMovel.acessos != null
   const b2cPct = hasSici && dataMovel.acessos ? (100 * (dataMovel.pf ?? 0)) / dataMovel.acessos : 0
 
@@ -23,13 +27,13 @@ export function SmpSection({ dataMovel }: { dataMovel: OperadoraMovelDetalhe }) 
     <div className="space-y-5">
       <div>
         <h2 className="text-base font-semibold text-gray-800 mb-1">
-          SMP (telefonia móvel){outorgaSmp && !hasSici && (
+          SMP (telefonia móvel){propria && !hasSici && (
             <span className="ml-2 text-xs font-normal text-gray-400">outorgada, sem declaração ao SICI</span>
           )}
         </h2>
         {outorgaSmp && (
           <p className="text-xs text-gray-400">
-            {outorgaSmp.data_outorga ? <>Outorga SMP desde {outorgaSmp.data_outorga}</> : 'Sem outorga SMP própria'}
+            {!propria ? 'Sem outorga SMP própria' : outorgaSmp.data_outorga ? <>Outorga SMP desde {outorgaSmp.data_outorga}</> : 'Outorga SMP sem data no cadastro'}
             {outorgaSmp.municipio && <> · sede em {outorgaSmp.municipio}/{outorgaSmp.uf}</>}
           </p>
         )}
@@ -43,6 +47,7 @@ export function SmpSection({ dataMovel }: { dataMovel: OperadoraMovelDetalhe }) 
                   {outorgaSmp.rede_virtual.prestadora_origem_nome}
                 </Link>
               ) : outorgaSmp.rede_virtual.prestadora_origem_nome}
+              {!hasSici && '; os acessos de credenciada são declarados pela prestadora de origem (RGST, Resolução Anatel nº 777/2025)'}
             </span>
           </p>
         )}
@@ -95,12 +100,12 @@ export function SmpSection({ dataMovel }: { dataMovel: OperadoraMovelDetalhe }) 
       {hasSici && (
         <div className="grid md:grid-cols-2 gap-4">
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Geração de rede</h3>
-            <Barras dados={dataMovel.por_geracao ?? {}} total={dataMovel.acessos ?? 0} />
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Geração de rede <span className="font-normal text-gray-500">(todas as linhas, inclusive M2M)</span></h3>
+            <Barras dados={dataMovel.por_geracao ?? {}} total={somaValores(dataMovel.por_geracao)} />
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Modalidade de cobrança</h3>
-            <Barras dados={dataMovel.por_modalidade ?? {}} total={dataMovel.acessos ?? 0} />
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Modalidade de cobrança <span className="font-normal text-gray-500">(todas as linhas, inclusive M2M)</span></h3>
+            <Barras dados={dataMovel.por_modalidade ?? {}} total={somaValores(dataMovel.por_modalidade)} />
           </div>
         </div>
       )}

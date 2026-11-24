@@ -17,6 +17,7 @@ from typing import Optional
 
 from api.store import _log, _strip_scm_contacts
 from core.cpf import sem_socios_pessoa_fisica
+from core.outorgas import eh_outorga
 
 
 class OperadorasService:
@@ -265,7 +266,8 @@ class OperadorasService:
         publicada, sem nova estrutura de dados."""
         return {
             "has_scm": cnpj in (self._load_scm(date_str) or {}).get("by_cnpj", {}),
-            "has_smp": cnpj in (self._load_smp(date_str) or {}).get("by_cnpj", {}),
+            # credenciamento de rede virtual não é outorga SMP (`core.outorgas.eh_outorga`)
+            "has_smp": any(eh_outorga(r) for r in (self._load_smp(date_str) or {}).get("by_cnpj", {}).get(cnpj, [])),
             "has_stfc": cnpj in (self._load_stfc(date_str) or {}).get("by_cnpj", {}),
             "has_seac": cnpj in (self._load_seac(date_str) or {}).get("by_cnpj", {}),
         }

@@ -53,6 +53,13 @@ def outorgas(world: World) -> dict[str, list[dict]]:
         out["stfc"].append(outorga_record(op, i, "171 - SERVICO TELEFONICO FIXO COMUTADO"))
     for i, op in enumerate(ops[34:37]):
         out["smp"].append(outorga_record(op, i, "010 - SERVIÇO MOVEL PESSOAL"))
+    # credenciada de rede virtual sem outorga SMP própria (com ASN e SCM, sem SICI móvel): o registro que
+    # `sources.anatel_smp.collect._apply_rede_virtual` acrescenta; não é outorga SMP (OPERADORA-E8/E9, OPERADORAS-E2)
+    cred, host = ops[33], ops[34]
+    out["smp"].append({**outorga_record(cred, 3, ""), "data_outorga": "", "num_servico": "",
+                       "situacao": "Credenciada de Rede Virtual (sem outorga SMP própria)",
+                       "rede_virtual": {"papel": "credenciada", "prestadora_origem_cnpj": host["cnpj"],
+                                        "prestadora_origem_nome": host["razao_social"]}})
     return out
 
 

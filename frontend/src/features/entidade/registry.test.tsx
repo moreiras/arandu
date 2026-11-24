@@ -87,7 +87,10 @@ describe('blocos de operadora', () => {
   })
 
   it('cada bloco só aparece se a fonte correspondente existir (CNPJ só com SMP não mostra SCM)', () => {
-    expect(ap({ dataMovel: {}, hasStfc: false, hasSeac: false })).toEqual(['empresas-relacionadas', 'smp'])
+    expect(ap({ dataMovel: {}, servicos: [{ sigla: 'SMP', tipo: 'outorga', desde: null, registros: 1 }], hasStfc: false, hasSeac: false })).toEqual(['empresas-relacionadas', 'smp'])
+    // OPERADORA-E8: o documento móvel existe só porque o CNPJ tem ASN; sem outorga, credenciamento nem acesso não há bloco SMP
+    expect(ap({ dataMovel: { asns: [64500], outorgas_smp: [] }, servicos: [], hasStfc: false, hasSeac: false })).toEqual(['empresas-relacionadas'])
+    expect(ap({ dataMovel: { asns: [], outorgas_smp: [], acessos: 10 }, servicos: [], hasStfc: false, hasSeac: false })).toEqual(['empresas-relacionadas', 'smp'])
     expect(ap({ data: {}, rede: {}, hasStfc: true, hasSeac: true })).toEqual(['rede', 'empresas-relacionadas', 'scm', 'stfc', 'seac'])
   })
 
