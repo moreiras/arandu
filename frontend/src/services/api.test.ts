@@ -74,6 +74,37 @@ describe('tratamento de acesso (regra: qualquer 401 abre o modal, nunca erro cru
     off()
   })
 
+  it('429 com anon_limit_reached (orçamento, D9) é o mesmo estado do 403: AccessError(limit), avisa o limite e guarda o Retry-After', async () => {
+    const limite = vi.fn()
+    const login = vi.fn()
+    const offL = onAnonLimitReached(limite)
+    const offG = onLoginRequired(login)
+    server.use(http.get('*/api/v1/asns/:asn', () => HttpResponse.json(
+      { detail: 'Limite de navegação anônima atingido.', anon_limit_reached: true }, { status: 429, headers: { 'Retry-After': '3600' } })))
+    await expect(fetchASN(64496)).rejects.toMatchObject({ name: 'AccessError', kind: 'limit', retryAfter: 3600 })
+    expect(limite).toHaveBeenCalled()
+    expect(login).not.toHaveBeenCalled()
+    offL(); offG()
+  })
+
+  it('429 de taxa guarda o Retry-After (segundos ou data HTTP); sem cabeçalho usa o retry_after do corpo', async () => {
+    server.use(http.get('*/api/v1/asns/:asn', () => HttpResponse.json({ detail: 'Tente novamente em 42 s.' }, { status: 429, headers: { 'Retry-After': '42' } })))
+    await expect(fetchASN(64496)).rejects.toMatchObject({ kind: 'taxa', retryAfter: 42 })
+    const daqui = new Date(Date.now() + 120_000).toUTCString()
+    server.use(http.get('*/api/v1/asns/:asn', () => new HttpResponse('slow down', { status: 429, headers: { 'Retry-After': daqui } })))
+    const e = await fetchASN(64496).catch((x) => x)
+    expect(e.retryAfter).toBeGreaterThan(100)
+    expect(e.retryAfter).toBeLessThanOrEqual(120)
+    server.use(http.get('*/api/v1/asns/:asn', () => HttpResponse.json({ detail: 'x', retry_after: 7 }, { status: 429 })))
+    await expect(fetchASN(64496)).rejects.toMatchObject({ kind: 'taxa', retryAfter: 7 })
+    server.use(http.get('*/api/v1/asns/:asn', () => new HttpResponse('slow down', { status: 429 })))
+    await expect(fetchASN(64496)).rejects.toMatchObject({ kind: 'taxa', retryAfter: null })
+  })
+
+  it('401 guarda o motivo da API no erro', async () => {
+    await expect(fetchASNs({ page: 2, limit: 10 })).rejects.toMatchObject({ kind: 'login', reason: 'lista-expandida' })
+  })
+
   it('erro 500 não vira AccessError nem abre login', async () => {
     const cb = vi.fn()
     const off = onLoginRequired(cb)
