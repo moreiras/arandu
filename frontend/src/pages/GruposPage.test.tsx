@@ -52,6 +52,7 @@ describe('/grupos: seleção por teclado e controles com estado (GRUPOS-E2, OPER
     // <button type="button">: o navegador ativa com Enter e Espaço e o põe na ordem de tabulação (o <tr onClick> não tinha nada disso)
     expect(beta.tagName).toBe('BUTTON')
     expect(beta).toHaveAttribute('type', 'button')
+    expect(beta).toHaveClass('min-h-6')
     expect(beta).toHaveAttribute('aria-pressed', 'false')
     fireEvent.click(beta)
     expect(beta).toHaveAttribute('aria-pressed', 'true')
