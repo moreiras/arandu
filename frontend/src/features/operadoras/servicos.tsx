@@ -22,7 +22,7 @@ export interface Coluna {
 
 /** Explicações das colunas das listas de outorgas, por chave (tabelas com Dica). */
 export const DICAS_COLUNA: Record<string, string> = {
-  data_outorga: 'Data da outorga do serviço, segundo a Anatel.',
+  data_outorga: 'Data registrada no cadastro de outorgas da Anatel (no SCM, a data de inclusão da outorga no cadastro). Pode ser a de um recadastramento, não a da outorga original.',
   acessos_fixo: 'Acessos fixos declarados ao SICI (Anatel) no mês de referência. Ter outorga não significa estar operando.',
   acessos_movel: 'Acessos móveis declarados à Anatel no mês de referência.',
   pj_fixo: 'Acessos fixos de pessoa jurídica declarados ao SICI.',
@@ -88,7 +88,7 @@ const colunasPrestadora = (sigla: ServicoOutorga): Coluna[] => [
   },
   { key: 'uf', label: 'UF', w: 'w-16', ordenavel: true, render: (r) => <span className="text-gray-600">{r.uf ?? '—'}</span> },
   { key: 'municipio', label: 'Município', w: 'w-40', ordenavel: true, render: (r) => <span className="text-gray-600 truncate">{r.municipio ?? '—'}</span> },
-  { key: 'data_outorga', label: 'Outorga', w: 'w-24', ordenavel: true, render: (r) => <span className="text-gray-500">{r.data_outorga_por_servico?.[sigla] ?? '—'}</span> },
+  { key: 'data_outorga', label: 'Data no cadastro', w: 'w-24', ordenavel: true, render: (r) => <span className="text-gray-500">{r.data_outorga_por_servico?.[sigla] ?? '—'}</span> },
   { key: 'asns', label: 'ASN(s)', w: 'w-32', ordenavel: true, render: asnsCell },
 ]
 
@@ -116,7 +116,7 @@ export const SERVICOS: Record<ServicoId, Servico> = {
         ) },
       { key: 'municipio', label: 'Município / UF', w: 'w-40', ordenavel: true,
         render: (r) => <span className="text-gray-600 truncate">{r.municipio && <span>{r.municipio}</span>}{r.uf && <span className="ml-1 text-gray-400">/{r.uf}</span>}</span> },
-      { key: 'data_outorga', label: 'Outorga', w: 'w-24', ordenavel: true, render: (r) => <span className="text-gray-500">{r.data_outorga_por_servico?.SCM ?? '—'}</span> },
+      { key: 'data_outorga', label: 'Data no cadastro', w: 'w-24', ordenavel: true, render: (r) => <span className="text-gray-500">{r.data_outorga_por_servico?.SCM ?? '—'}</span> },
       { key: 'acessos_fixo', label: 'Acessos', w: 'w-24', ordenavel: true,
         render: (r) => r.acessos_fixo > 0
           ? <Link to={`/operadora/${r.cnpj}`} className="block text-right tabular-nums text-primario-600 hover:underline">{fmtNum(r.acessos_fixo)}</Link>

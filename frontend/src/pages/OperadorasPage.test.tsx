@@ -11,7 +11,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { server } from '../test/server'
 import { useAppStore } from '../store/app'
 import { OperadorasPage, RedirecionaServico } from './OperadorasPage'
-import { ORDEM_SERVICOS, SERVICOS, servicoDe } from '../features/operadoras/servicos'
+import { DICAS_COLUNA, ORDEM_SERVICOS, SERVICOS, servicoDe } from '../features/operadoras/servicos'
 
 // jsdom não tem WebGL: os mapas são testados no E2E
 vi.mock('../features/operadoras/MapaSede', () => ({ MapaSede: () => <div data-testid="mapa-sede" /> }))
@@ -76,10 +76,15 @@ describe('configuração dos serviços', () => {
   })
 
   it('colunas: as mesmas das páginas antigas', () => {
-    expect(SERVICOS.scm.colunas.map((c) => c.label)).toEqual(['CNPJ', 'Razão Social / Nome Fantasia', 'Município / UF', 'Outorga', 'Acessos', 'B2B', 'Munic.', 'ASN(s)'])
+    expect(SERVICOS.scm.colunas.map((c) => c.label)).toEqual(['CNPJ', 'Razão Social / Nome Fantasia', 'Município / UF', 'Data no cadastro', 'Acessos', 'B2B', 'Munic.', 'ASN(s)'])
     expect(SERVICOS.smp.colunas.map((c) => c.label)).toEqual(['Operadora', 'UF sede', 'Acessos', 'B2B', 'Munic.', 'Geração', 'ASN(s)', 'Rede virtual'])
-    expect(SERVICOS.stfc.colunas.map((c) => c.label)).toEqual(['Prestadora', 'UF', 'Município', 'Outorga', 'ASN(s)'])
+    expect(SERVICOS.stfc.colunas.map((c) => c.label)).toEqual(['Prestadora', 'UF', 'Município', 'Data no cadastro', 'ASN(s)'])
     expect(SERVICOS.smp.colunas.filter((c) => !c.ordenavel).map((c) => c.key)).toEqual(['geracao', 'asns', 'rede_virtual'])
+  })
+
+  it('a data da coluna é a do cadastro da Anatel, não a da outorga original', () => {
+    expect(DICAS_COLUNA.data_outorga).toMatch(/cadastro de outorgas da Anatel/)
+    expect(DICAS_COLUNA.data_outorga).not.toMatch(/^Data da outorga/)
   })
 })
 
