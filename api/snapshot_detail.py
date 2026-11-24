@@ -130,6 +130,7 @@ def manifest_meta(manifest: Optional[dict], base: Optional[Path] = None, date_st
         "coleta": manifest.get("coleta"),
         "coleta_ok": manifest.get("coleta_ok"),
         "checks": manifest.get("checks"),
+        "comparado_com": manifest.get("comparado_com"),       # snapshot usado na variação da home
     }
 
 
@@ -141,6 +142,14 @@ def read_sidecar(base: Path, date_str: str) -> Optional[dict]:
     if not (isinstance(d, dict) and d.get("versao") == SIDECAR_VERSION and "summary" in d):
         return None
     d["summary"] = com_os_dois_nomes(d["summary"])     # detalhe gravado antes dos nomes `registro_br_` só tem os `m3_`
+    meta = d.get("manifest")
+    if isinstance(meta, dict) and "comparado_com" not in meta:
+        # Detalhe gravado antes de o campo ser repassado: completa na leitura, sem regravar o publicado.
+        try:
+            manifest = json.loads((Path(base) / "published" / date_str / "manifest.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            manifest = None
+        meta["comparado_com"] = manifest.get("comparado_com") if isinstance(manifest, dict) else None
     return d
 
 
