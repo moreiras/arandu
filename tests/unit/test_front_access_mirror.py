@@ -57,6 +57,10 @@ def test_rota_medida_do_spa_passa_pelo_protectedroute():
     abertas, login = _set("OPEN_EXACT"), _set("LOGIN_EXACT")
     sem_porta = []
     for caminho, elemento in re.findall(r'<Route\s+path="([^"]+)"\s+element=\{(.*?)\}\s*/>', main):
+        if caminho == "*":
+            # rota curinga (página "não encontrada"): não chama a API ao abrir; passar pelo <P> mostraria o aviso de orçamento
+            # esgotado no lugar do 404
+            continue
         pagina = "/" + re.sub(r":[^/]+|\*", "x", caminho)
         if pagina in abertas or pagina in login:
             continue
