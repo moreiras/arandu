@@ -29,6 +29,7 @@ class PerfisService:
         self._outorgas_unif: dict[str, list[dict]] = {}
         self._ptts_pontos: dict[str, list[dict]] = {}
         self._resumo_ufs: dict[str, list[dict]] = {}
+        self._operadoras_por_uf: dict[str, dict[str, list[dict]]] = {}
         self._territorio_linhas: dict[str, list[dict]] = {}
 
     def __getattr__(self, nome):
@@ -286,8 +287,8 @@ class PerfisService:
         return round(100 * fibra / total, 1) if total else None
 
     def perfil_uf(self, date_str: str, uf: str, blocos: Optional[set[str]] = None) -> dict:
-        """Perfil da UF: totais (acessos, fibra, usuários), PTTs, municípios com a distância ao PTT, operadoras sediadas
-        (as 10 maiores) e ASNs. `blocos`: ptts, municipios, operadoras (None = todos); os totais vêm sempre."""
+        """Perfil da UF: totais (acessos, fibra, usuários), PTTs, municípios com a distância ao PTT, operadoras presentes na UF
+        (`operadoras_presentes`, acessos na UF) e sediadas (`operadoras`, acessos no país), as 10 maiores de cada, e ASNs. `blocos`: ptts, municipios, operadoras (None = todos); os totais vêm sempre."""
         quer = lambda b: blocos is None or b in blocos  # noqa: E731
         municipios = self._municipios_da_uf(date_str, uf)
         fixos = self.sici_municipios(date_str)
@@ -311,7 +312,41 @@ class PerfisService:
         if quer("operadoras"):
             ops = [r for r in self.operadora_index(date_str) if r.get("ativo") and (r.get("uf_sede") or "").upper() == uf]
             ops.sort(key=lambda r: -(r.get("acessos") or 0))
-            out["operadoras"] = {"total": len(ops), "items": ops[:10]}
+            out["operadoras"] = {"total": len(ops), "items": ops[:10]}          # sediadas, acessos no país (como antes)
+            presentes = self.operadoras_presentes_uf(date_str).get(uf, [])
+            out["operadoras_presentes"] = {"total": len(presentes), "acessos": sum(r["acessos"] for r in presentes), "items": presentes[:10]}
+        return out
+
+    def operadoras_presentes_uf(self, date_str: str) -> dict[str, list[dict]]:
+        """Por UF, os CNPJs com acesso fixo declarado ao SICI em algum município da UF, com os acessos **na UF** (`acessos`), a parcela
+        sobre a soma da UF (`share`, %), os municípios da UF e os acessos no país (`acessos_brasil`); em ordem de acessos na UF (UF-E2: o
+        bloco listava só as sediadas, com acessos nacionais). Um CNPJ, uma linha, mesmo com vários ASNs. Cacheado por data."""
+        if date_str in self._operadoras_por_uf:
+            return self._operadoras_por_uf[date_str]
+        sici = (self._load_sici(date_str) or {}).get("cnpjs", {})
+        sede = {r["cnpj"]: r for r in self.operadora_index(date_str)}
+        por_uf: dict[str, dict[str, list[int]]] = {}
+        for cnpj, agg in sici.items():
+            for m in (agg.get("por_municipio") or {}).values():
+                if m.get("acessos"):
+                    u = (m.get("uf") or "").upper()
+                    par = por_uf.setdefault(u, {}).setdefault(cnpj, [0, 0])
+                    par[0] += m["acessos"]
+                    par[1] += 1
+        out: dict[str, list[dict]] = {}
+        for u, ops in por_uf.items():
+            total = sum(a for a, _ in ops.values()) or 1
+            linhas = []
+            for cnpj, (ac, nmun) in ops.items():
+                agg, s = sici[cnpj], sede.get(cnpj) or {}
+                linhas.append({"cnpj": cnpj, "empresa": agg.get("empresa") or s.get("razao_social") or "", "razao_social": s.get("razao_social", ""),
+                               "uf_sede": s.get("uf_sede", ""), "acessos": ac, "share": round(100 * ac / total, 2), "municipios": nmun,
+                               "acessos_brasil": agg.get("acessos", 0), "asns": agg.get("asns") or s.get("asns") or []})
+            linhas.sort(key=lambda r: (-r["acessos"], r["cnpj"]))
+            out[u] = linhas
+        if len(self._operadoras_por_uf) >= 2:
+            self._operadoras_por_uf.pop(next(iter(self._operadoras_por_uf)))
+        self._operadoras_por_uf[date_str] = out
         return out
 
     def resumo_ufs(self, date_str: str) -> list[dict]:

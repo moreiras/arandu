@@ -9,7 +9,7 @@ import { KPI, fmt } from '../../municipio/ui'
 import { RAIO_SEM_PTT_KM } from '../contexto'
 
 export function PainelBloco({ dados }: BlocoProps<UfCtx>) {
-  const { ixps, municipios, totais, operadorasTotal, semCentroides } = dados
+  const { ixps, municipios, totais, operadorasTotal, operadorasPresentesTotal, semCentroides } = dados
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
@@ -17,7 +17,7 @@ export function PainelBloco({ dados }: BlocoProps<UfCtx>) {
         <KPI label="Acessos fixos" value={fmt(totais.acessos)} hint={`${fmt(totais.municipios)} municípios com banda larga`} />
         <KPI label="Fibra" value={totais.fibra_pct == null ? '—' : `${totais.fibra_pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`} hint="dos acessos fixos (FTTH/FTTB)" />
         <KPI label="Usuários estimados" value={fmt(totais.usuarios)} hint={`${fmt(totais.asns)} ASNs BR sediados (APNIC)`} />
-        <KPI label="Operadoras" value={fmt(operadorasTotal)} hint="com sede na UF e acesso declarado" />
+        <KPI label="Operadoras com acesso na UF" value={fmt(operadorasPresentesTotal)} hint={`CNPJs com acesso fixo declarado na UF; ${fmt(operadorasTotal)} com sede na UF`} />
       </div>
       {!semCentroides && <FaixasDistancia municipios={municipios} />}
     </div>

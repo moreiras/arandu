@@ -968,8 +968,17 @@ export interface PerfilUf {
     ibge: string; nome: string; acessos: number; operadores: number; hhi: number; fibra_pct?: number | null
     km_ptt: number | null; ptt: string | null; ptt_codigo: string | null
   }>
+  /** Sediadas na UF, com acessos declarados no país. */
   operadoras?: { total: number; items: OperadoraRow[] }
+  /** CNPJs com acesso fixo declarado em algum município da UF, com os acessos na UF (UF-E2); `acessos` = soma da UF. */
+  operadoras_presentes?: { total: number; acessos: number; items: OperadoraPresenteUf[] }
   historico?: HistoricoBloco | null
+}
+
+export interface OperadoraPresenteUf {
+  cnpj: string; empresa: string; razao_social: string; uf_sede: string
+  /** Acessos declarados na UF; `share` é a parcela (%) na soma da UF; `acessos_brasil`, os do país. */
+  acessos: number; share: number; municipios: number; acessos_brasil: number; asns: number[]
 }
 
 /** `GET /operadoras/{cnpj}`: um bloco por serviço (nulo se o CNPJ não o tem) e a rede uma vez no topo. */

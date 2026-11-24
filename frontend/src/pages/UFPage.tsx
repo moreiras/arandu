@@ -59,6 +59,8 @@ export function UFPage() {
     asns: perfil ? { quantidade: perfil.totais.asns, usuarios: perfil.totais.usuarios } : undefined,
     operadoras: perfil?.operadoras?.items ?? [],
     operadorasTotal: perfil?.operadoras?.total ?? 0,
+    operadorasPresentes: perfil?.operadoras_presentes?.items ?? [],
+    operadorasPresentesTotal: perfil?.operadoras_presentes?.total ?? 0,
     mesReferencia: perfil?.mes_referencia ?? undefined,
     historico: perfil?.historico,
     territorio: perfil?.territorio,

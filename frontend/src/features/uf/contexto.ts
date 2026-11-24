@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import type { RedeTerritorioUf, MercadoGruposUf, CeticEstimativasUf, DemandaOfertaUf, ErbsUf, FustUf, QualidadeUf, ReclamacoesUf, ConsumidorUf, TransitoUf, RadarUf, ExposicaoUf, ProntidaoUf, HistoricoBloco, TerritorioUf, IXPIndexEntry, OperadoraRow, PerfilUf , CadastroMercadoUf } from '../../types/api'
+import type { RedeTerritorioUf, MercadoGruposUf, CeticEstimativasUf, DemandaOfertaUf, ErbsUf, FustUf, QualidadeUf, ReclamacoesUf, ConsumidorUf, TransitoUf, RadarUf, ExposicaoUf, ProntidaoUf, HistoricoBloco, TerritorioUf, IXPIndexEntry, OperadoraRow, OperadoraPresenteUf, PerfilUf , CadastroMercadoUf } from '../../types/api'
 
 export const RAIO_SEM_PTT_KM = 100
 
@@ -28,8 +28,12 @@ export interface UfCtx {
   semCentroides: boolean
   totais: PerfilUf['totais']
   asns?: { quantidade: number; usuarios: number }
+  /** Sediadas na UF (acessos no país). */
   operadoras: OperadoraRow[]
   operadorasTotal: number
+  /** Com acesso declarado na UF, com os acessos na UF (UF-E2). */
+  operadorasPresentes: OperadoraPresenteUf[]
+  operadorasPresentesTotal: number
   mesReferencia?: string
   historico?: HistoricoBloco | null
   /** População, domicílios, penetração e mercado não visto da UF (`include=territorio`). */

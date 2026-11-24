@@ -241,7 +241,7 @@ describe('página de UF', () => {
     const semPtt = screen.getByRole('region', { name: 'Municípios a mais de 100 km de um PTT' })
     expect(within(semPtt).getByRole('link', { name: 'Distante' })).toHaveAttribute('href', '/municipio/3203205')
     expect(within(semPtt).queryByRole('link', { name: 'Vitória' })).toBeNull()      // Vitória tem PTT a poucos km
-    expect(screen.getByRole('heading', { name: 'Maiores operadoras com sede na UF' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Operadoras na UF' })).toBeInTheDocument()
     expect(await screen.findByText('Usuários estimados')).toBeInTheDocument()
     expect(screen.getByText('345.678')).toBeInTheDocument()
     expect(screen.getByText('78,5%')).toBeInTheDocument()
@@ -258,7 +258,7 @@ describe('página de UF', () => {
       http.get('*/api/v1/map/pix', () => { chamadas.push('pix'); return HttpResponse.json(pix) }),
     )
     montar('/uf/:uf', '/uf/es', <UFPage />)
-    await screen.findByRole('heading', { name: 'Maiores operadoras com sede na UF' })
+    await screen.findByRole('heading', { name: 'Operadoras na UF' })
     expect(chamadas).toEqual(['/api/v1/ufs/ES'])
   })
 

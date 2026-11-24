@@ -953,8 +953,10 @@ export function fetchUfs(date?: string): Promise<{ snapshot_date: string; mes_re
 }
 
 /** Perfil consolidado da UF numa chamada. */
+/** Sobe quando o corpo de `/ufs/{uf}` muda (2: `operadoras_presentes`, UF-E2): a URL com `date` é imutável no cache. */
+const ESQUEMA_UF = 2
 export function fetchUfPerfil(uf: string, date?: string, historicoCompleto = false): Promise<PerfilUf> {
-  return get(`/api/v1/ufs/${uf}`, { date, include: `${blocoHistorico(historicoCompleto)},territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio` })
+  return get(`/api/v1/ufs/${uf}`, { date, esquema: ESQUEMA_UF, include: `${blocoHistorico(historicoCompleto)},territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio` })
 }
 
 export function fetchAcessosMunicipios(opts: {

@@ -2736,6 +2736,7 @@
     "mes_referencia",
     "municipios",
     "operadoras",
+    "operadoras_presentes",
     "snapshot_date",
     "totais",
     "uf"
