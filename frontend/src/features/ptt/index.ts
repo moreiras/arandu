@@ -76,5 +76,5 @@ def({ id: 'participantes-filtrados', titulo: 'Participantes e filtros', ordem: 8
   nota: 'família de IP: peering direto observado nas rotas coletadas; "sem sessão" é o cruzamento com o cadastro do IX.br e pode ser peering bilateral', Componente: ParticipantesFiltradosBloco })
 def({ id: 'entrou-saiu', titulo: 'Quem entrou e quem saiu', ordem: 89, depende: ['useMudancas'], fontes: ['ixbr_api', 'lg_ixbr'], selo: 'fato',
   nota: 'diferenças entre snapshots com histórico; saída observada só vale depois da janela de confirmação', Componente: EntrouSaiuBloco })
-def({ id: 'conteudo', titulo: 'CDNs e conteúdo no PTT', ordem: 95, depende: ['cdns-presence', 'useIxp'], fontes: ['curada_cdns', 'lg_ixbr'], selo: 'inferido',
-  nota: 'presença pelo peering direto de ASNs de CDN nas rotas coletadas; não mede tráfego', Componente: ConteudoBloco })
+def({ id: 'conteudo', titulo: 'CDNs e conteúdo no PTT', ordem: 95, depende: ['cdns-presence', 'useIxp'], fontes: ['curada_cdns', 'ixbr_api', 'lg_ixbr'], selo: 'inferido',
+  nota: 'presença pela lista de membros do IX.br; a sessão com o route server vem das rotas coletadas; não mede tráfego', Componente: ConteudoBloco })
