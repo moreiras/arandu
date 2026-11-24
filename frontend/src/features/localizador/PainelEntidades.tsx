@@ -79,8 +79,8 @@ export function PainelEntidades({ className, entities, entityCounts, markerPos, 
               <span className="font-medium">{ixLabel(nearestIx)}</span>
             </div>
             <div>
-              <span className="font-semibold text-gray-700">{ixCounts.nearOrigin}</span> anunciam prefixos em{' '}
-              {ixLabel(nearestIx)}
+              <span className="font-semibold text-gray-700">{ixCounts.nearOrigin}</span> têm prefixos vistos nos route servers de{' '}
+              {ixLabel(nearestIx)} (anunciados pelo próprio AS ou por terceiros)
             </div>
             <div>
               <span className="font-semibold text-gray-700">{ixCounts.anyMember}</span> participam de algum IX do IX.br

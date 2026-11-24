@@ -202,6 +202,8 @@ describe('painéis do Localizador', () => {
     expect(screen.getByText('1.500 acessos · 2 municípios no raio')).toBeTruthy()
     expect(screen.getByTitle('Prefixos IPv4 na região')).toBeTruthy()
     expect(screen.getAllByText(/participam de/).length).toBeGreaterThan(0)
+    expect(screen.getByText(/têm prefixos vistos nos route servers de/)).toBeTruthy()      // originação vista, não anúncio próprio
+    expect(document.body.textContent).not.toMatch(/anunciam prefixos em/)
   })
 
   it('copiar e CSV chamam os callbacks; sem ponto de referência mostra a orientação', () => {
