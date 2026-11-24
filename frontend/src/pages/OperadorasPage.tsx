@@ -257,14 +257,13 @@ function VisaoSici({ visao }: { visao: 'ranking' | 'omissao' }) {
 
 /** `/operadoras?servico=scm|smp|stfc|seac`: as quatro páginas de outorga numa só, com abas por serviço. */
 export function OperadorasPage() {
+  // todos os hooks antes de qualquer `return`: a rota não remonta quando só a query muda (OPERADORAS-E3)
   const [params] = useSearchParams()
+  const navigate = useNavigate()
   const visao = params.get('visao')
   if (visao === 'ranking' || visao === 'omissao') return <VisaoSici visao={visao} />
   const servico = servicoDe(params.get('servico'))
-  const outros = new URLSearchParams(params)
-  outros.delete('servico')
   const aba = (id: ServicoId) => `/operadoras?servico=${id}`
-  const navigate = useNavigate()
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
       {/* a barra de abas única do site (setas do teclado); trocar de aba troca a URL. */}

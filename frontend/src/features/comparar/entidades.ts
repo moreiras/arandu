@@ -80,20 +80,27 @@ export function compararAs(docs: ASNDocument[]): Comparacao {
   }
 }
 
+/** Nota da linha de acessos com o mês do SICI na própria linha (REL-E5), um só quando todas as colunas são do mesmo mês. */
+function notaMes(meses: Array<string | null | undefined>): string {
+  const m = [...new Set(meses.filter((x): x is string => !!x))]
+  return m.length ? `declarado ao SICI, mês de referência ${m.join(' e ')}` : 'declarado ao SICI'
+}
+
 export function compararOperadoras(perfis: PerfilOperadora[]): Comparacao {
   const linha = (id: string, rotulo: string, f: (p: PerfilOperadora) => string | null, selo: Selo = 'fato', nota?: string): LinhaComparada => ({ id, rotulo, celulas: perfis.map(f), selo, nota })
   const nome = (p: PerfilOperadora) => p.indicadores?.empresa ?? p.scm?.empresa ?? p.smp?.empresa ?? p.cnpj
   return {
     colunas: perfis.map((p) => ({ id: p.cnpj, nome: nome(p), detalhe: p.cnpj, to: `/operadora/${p.cnpj}` })),
     linhas: [
-      linha('acessos', 'Acessos fixos declarados', (p) => n(p.indicadores?.acessos), 'fato', 'declarado ao SICI; mês de referência na página da operadora'),
+      linha('acessos', 'Acessos fixos declarados', (p) => n(p.indicadores?.acessos), 'fato', notaMes(perfis.map((p) => p.indicadores?.mes_referencia))),
       linha('share', 'Parcela dos acessos do país', (p) => d1(p.indicadores?.share_br, '%')),
       linha('posicao', 'Posição por acessos', (p) => (p.indicadores?.posicao_br ? `${n(p.indicadores.posicao_br)}º` : null)),
       linha('var', 'Variação em 12 meses', (p) => sinal(p.indicadores?.var_aa?.pct)),
       linha('municipios', 'Municípios com acessos', (p) => n(p.scm?.municipios)),
       linha('asns', 'ASNs', (p) => n(p.scm?.asns?.length ?? p.smp?.asns?.length), 'fato', 'ASNs ligados ao CNPJ pelo Registro.br'),
       linha('porte', 'Porte', (p) => p.scm?.porte ?? p.smp?.porte ?? null),
-      linha('grupo', 'Grupo', (p) => p.scm?.grupo ?? p.smp?.grupo ?? null, 'inferido', 'grupo por quadro societário em comum'),
+      // o valor é a coluna "Grupo Econômico" que a prestadora declara ao SICI, não o grupo societário inferido do QSA (REL-E4)
+      linha('grupo', 'Grupo econômico (declarado ao SICI)', (p) => p.scm?.grupo ?? p.smp?.grupo ?? null, 'fato', 'como a prestadora o declara à Anatel; não é o grupo por quadro societário'),
     ].filter(comDado),
   }
 }

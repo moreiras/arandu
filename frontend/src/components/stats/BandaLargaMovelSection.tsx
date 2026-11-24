@@ -5,6 +5,7 @@ import {
   PieChart, Pie, Legend,
 } from 'recharts'
 import { fetchOutorgasStats, fetchAcessosMovelStats } from '../../services/api'
+import { somaValores } from '../../lib/acessos'
 import { AccessHistoryChart } from '../acessos/AccessHistoryChart'
 import { UF_REGION, REGION_ORDER } from '../../utils/regioes'
 import type { SiciSeriePoint, SMPStats, SiciMovelStats } from '../../types/api'
@@ -182,8 +183,9 @@ export function BandaLargaMovelSection({ date }: { date?: string }) {
     { name: 'Sem ASN no mesmo CNPJ', value: withoutAsn, color: COLOR_WITHOUT_ASN },
   ]
 
+  // a série nacional só traz o total por mês: sem divisão PF/PJ (soTotal), nada de área "B2C" igual ao total nem "B2B 0" (PANORAMA-E2)
   const serie: SiciSeriePoint[] = acessos
-    ? acessos.serie_total.map(p => [p.mes, p.acessos, p.acessos, 0])
+    ? acessos.serie_total.map(p => [p.mes, p.acessos, 0, 0])
     : []
   const b2cPct = acessos?.total_acessos ? (100 * acessos.acessos_pf) / acessos.total_acessos : 0
 
@@ -210,12 +212,13 @@ export function BandaLargaMovelSection({ date }: { date?: string }) {
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-3">
-              <StatCard value={fmt(licensed)} label="Operadores licenciados" sub="CNPJs únicos com outorga SMP" accent={SECTION_COLOR} />
+              <StatCard value={fmt(licensed)} label="Operadores licenciados" sub={smp.rede_virtual ? `CNPJs com outorga SMP ou credenciamento de rede virtual (${fmt(smp.rede_virtual.credenciadas_sem_outorga_propria)} credenciadas sem outorga própria)` : 'CNPJs com outorga SMP ou credenciamento de rede virtual'} accent={SECTION_COLOR} />
               <StatCard value={fmt(withAsn)} label="…com ASN" sub="ASN no Registro.br com o mesmo CNPJ" accent={COLOR_WITH_ASN} />
               <StatCard value={fmt(withoutAsn)} label="…sem ASN" sub="nenhum ASN no Registro.br com o mesmo CNPJ" accent={COLOR_WITHOUT_ASN} />
               <StatCard value={fmtPct(pctComAsn)} label="Parcela com ASN" sub="licenciados com ASN no mesmo CNPJ" />
+              {/* sem a razão sobre os licenciados (PANORAMA-E5): o cadastro inclui credenciadas de rede virtual, que não declaram por conta própria */}
               <StatCard value={fmt(cobertura?.informaram_sici)} label="…informaram no SICI"
-                         sub={cobertura ? `${fmtPct(cobertura.pct_informaram_sici)} dos licenciados` : undefined} />
+                         sub={`declararam acessos móveis${acessos?.mes_referencia ? ` em ${acessos.mes_referencia}` : ''}; acessos de credenciada de rede virtual vêm na declaração da prestadora de origem`} />
               <StatCard value={fmt(acessos?.acessos_m2m)} label="Acessos M2M" sub="chips máquina-a-máquina, fora do total" />
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-3 flex flex-col">
@@ -298,7 +301,7 @@ export function BandaLargaMovelSection({ date }: { date?: string }) {
             Evolução nacional de acessos móveis
             <span className="font-normal text-gray-400">{' '}· {serie[0][0]} a {serie[serie.length - 1][0]}</span>
           </h3>
-          <AccessHistoryChart serie={serie} meses={serie.length} />
+          <AccessHistoryChart serie={serie} meses={serie.length} soTotal />
         </div>
       )}
 
@@ -306,12 +309,14 @@ export function BandaLargaMovelSection({ date }: { date?: string }) {
       {acessos && (
         <div className="grid md:grid-cols-2 gap-4">
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Geração de rede</h3>
-            <Barras dados={acessos.por_geracao} total={acessos.total_acessos} />
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Geração de rede <span className="font-normal text-gray-500">(todas as linhas, inclusive M2M e ponto de serviço)</span></h3>
+            <Barras dados={acessos.por_geracao} total={somaValores(acessos.por_geracao)} />
+            <p className="mt-1 text-xs text-gray-500">Base: {fmt(somaValores(acessos.por_geracao))} linhas; o total de acessos acima ({fmt(acessos.total_acessos)}) conta só o produto padrão.</p>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Modalidade de cobrança</h3>
-            <Barras dados={acessos.por_modalidade} total={acessos.total_acessos} />
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Modalidade de cobrança <span className="font-normal text-gray-500">(todas as linhas, inclusive M2M e ponto de serviço)</span></h3>
+            <Barras dados={acessos.por_modalidade} total={somaValores(acessos.por_modalidade)} />
+            <p className="mt-1 text-xs text-gray-500">Base: {fmt(somaValores(acessos.por_modalidade))} linhas.</p>
           </div>
         </div>
       )}

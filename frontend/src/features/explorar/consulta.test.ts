@@ -149,3 +149,33 @@ describe('resultado', () => {
     expect(formatarCelula([1, 2, 3, 4, 5, 6, 7, 8])).toBe('1, 2, 3, 4, 5, 6 … (+2)')
   })
 })
+
+describe('float, array sem tipo interno e list (EXP-E1, EXP-E2)', () => {
+  const f = (name: string, type: string, extra: Record<string, unknown> = {}) => ({ name, type, ...extra })
+  it('float é número: operadores de comparação e valor numérico (receita 20: penetracao lt 0.5)', () => {
+    expect(familia('float')).toBe('numero')
+    expect(operadoresDoCampo(f('penetracao', 'float'))).toContain('lt')
+    expect(converterValor(f('penetracao', 'float'), 'lt', '0.5')).toBe(0.5)
+    expect(converterValor(f('rov_validates_pct', 'float'), 'gt', '90')).toBe(90)
+  })
+  it('bordas do float: vírgula decimal, lista `in` com números, valor vazio e texto inválido', () => {
+    expect(converterValor(f('penetracao', 'float'), 'lt', '0,5')).toBe(0.5)
+    expect(converterValor(f('penetracao', 'float'), 'in', '0.5, 1')).toEqual([0.5, 1])
+    expect(() => converterValor(f('penetracao', 'float'), 'lt', '')).toThrow(/informe um valor/)
+    expect(() => converterValor(f('penetracao', 'float'), 'lt', 'abc')).toThrow(/não é um número/)
+  })
+  it('array sem tipo interno: inteiro vira número (omissao_sici.asns contém 28198), o resto fica texto', () => {
+    expect(converterValor(f('asns', 'array'), 'contains', '28198')).toBe(28198)
+    expect(converterValor(f('sinais', 'array'), 'contains', 'S1')).toBe('S1')
+    expect(converterValor(f('asns', 'array[int]'), 'contains', '28198')).toBe(28198)
+    expect(converterValor(f('raizes', 'array[string]'), 'contains', '01234567')).toBe('01234567')
+  })
+  it('o exemplo do catálogo dá o tipo interno de um array sem tipo', () => {
+    expect(converterValor(f('raizes', 'array', { example: ['01234567'] }), 'contains', '01234567')).toBe('01234567')
+    expect(converterValor(f('asns', 'array', { example: [64500] }), 'contains', '64501')).toBe(64501)
+  })
+  it('list é lista: `contém` disponível', () => {
+    expect(familia('list')).toBe('lista')
+    expect(operadoresDoCampo(f('prefixos_amostra', 'list'))).toEqual(['contains', 'ncontains', 'exists'])
+  })
+})

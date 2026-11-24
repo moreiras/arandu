@@ -82,13 +82,16 @@ def ranking_municipios(
     description="""
 `tipo=outorga_sem_declaracao` (padrão): CNPJs com outorga SCM sem acessos declarados no mês de referência, em ordem de usuários estimados (APNIC) dos
 ASNs do CNPJ, com a `classe` (`com_usuarios_apnic`, `sem_usuarios`, `nao_comparavel` = CNPJ sem ASN) e `grupo_declara` (outro CNPJ do grupo
-declarou). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar. É a descrição de um fato sobre a
+declarou; ausente = CNPJ sem grupo societário). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar. É a descrição de um fato sobre a
 declaração, sem causa nem intenção. Metodologia na página Rankings.
 """,
 )
 def omissao_sici(
     request: Request, date: Optional[str] = Query(None), tipo: str = Query("outorga_sem_declaracao"),
-    uf: Optional[str] = Query(None), classe: Optional[str] = Query(None), grupo_declara: Optional[bool] = Query(None),
+    uf: Optional[str] = Query(None, description="UF da sede (cadastro SCM). Em `parou_de_declarar`, 400 se o snapshot não tem a UF."),
+    classe: Optional[str] = Query(None),
+    grupo_declara: Optional[str] = Query(None, description="`true` (outro CNPJ do grupo declarou), `false` (tem grupo e nenhum outro "
+                                         "declarou) ou `desconhecido` (CNPJ sem grupo societário). Omitido = todos."),
     limit: int = Query(25, ge=1, le=500), page: int = Query(1, ge=1),
 ) -> dict:
     ind, om = _docs(request, date, omissao=True)

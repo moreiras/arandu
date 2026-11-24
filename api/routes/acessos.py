@@ -177,7 +177,9 @@ def acessos_operadoras(
     uf: Optional[str] = Query(None, description="UF da sede (cadastro SCM)."),
     q: Optional[str] = Query(None, description="Busca por empresa, razão social ou CNPJ."),
     com_asn: Optional[bool] = Query(None, description="Filtra por ter/não ter ASN."),
-    ativo: Optional[bool] = Query(True, description="Só operadoras que declaram acesso."),
+    ativo: Optional[bool] = Query(None, description="true = só quem declara acesso no mês; false = só quem não declara. "
+                                  "Omitido: `fixa` = true (a lista do SICI fixo); `movel` = todas (outorgadas e credenciadas "
+                                  "do SMP, com e sem declaração)."),
     min_acessos: Optional[int] = Query(None, ge=0),
     tecnologia: Optional[str] = Query(None, description="Tecnologia predominante (ex: FTTH)."),
     sort_by: str = Query("acessos", description=f"Um de: {', '.join(sorted(_OPERADORA_SORT))}"),
@@ -185,8 +187,11 @@ def acessos_operadoras(
     servico: str = Query("fixa", pattern="^(fixa|movel)$", description="`fixa` (banda larga fixa, padrão) ou `movel` (telefonia móvel, SMP): o mesmo contrato para os dois."),
 ) -> dict:
     if servico == "movel":
+        # o padrão `true` da lista fixa não vale para o móvel: omitido = o universo (OPERADORAS-E2, a aba SMP mostrava 17 de 256)
         from api.routes import acessos_movel as _m
         return _m.acessos_movel_operadoras(request, date, page, limit, uf, q, com_asn, ativo, min_acessos, sort_by, sort_desc)
+    if ativo is None:
+        ativo = True
     store: Store = request.app.state.store
     date_str = store.resolve_date(date)
     if date_str is None:

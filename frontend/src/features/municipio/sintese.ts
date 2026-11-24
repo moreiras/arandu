@@ -27,7 +27,12 @@ export function sinteseMunicipio(nome: string, c: MunicipioCtx): Frase[] {
     if (x.fibra_pct != null) f.push({ id: 'fibra', selo: 'fato', texto: `${p1(x.fibra_pct)}% dos acessos fixos são em fibra.` })
   }
   const t = c.territorio
-  if (t?.penetracao != null) f.push({ id: 'penetracao', selo: 'estimado', texto: `Estimativa: ${n(t.penetracao * 100)} acessos fixos para cada 100 domicílios (domicílios projetados a partir do Censo 2022).` })
+  if (t?.penetracao != null) {
+    // uma casa decimal: sem ela 0,33 por 100 saía "0" (MUN-E8); abaixo de 0,05 por 100 diz "menos de 0,1" em vez de um zero falso
+    const v = t.penetracao * 100
+    const txt = v > 0 && v < 0.05 ? 'menos de 0,1 acesso fixo' : `${p1(v)} ${v < 2 ? 'acesso fixo' : 'acessos fixos'}`
+    f.push({ id: 'penetracao', selo: 'estimado', texto: `Estimativa: ${txt} para cada 100 domicílios (domicílios projetados a partir do Censo 2022).` })
+  }
   if (c.movel) f.push({ id: 'movel', selo: 'fato', texto: `Há ${n(c.movel.acessos)} acessos móveis declarados ao SICI, de ${plural(c.movel.operadores_count, 'operadora', 'operadoras')}.` })
   const ptt = c.proximos[0]
   if (ptt) f.push({ id: 'ptt', selo: 'estimado', texto: `O PTT do IX.br mais próximo é ${ptt.nome}, a cerca de ${n(ptt.km)} km em linha reta do centróide do município.` })

@@ -53,6 +53,13 @@ def outorgas(world: World) -> dict[str, list[dict]]:
         out["stfc"].append(outorga_record(op, i, "171 - SERVICO TELEFONICO FIXO COMUTADO"))
     for i, op in enumerate(ops[34:37]):
         out["smp"].append(outorga_record(op, i, "010 - SERVIÇO MOVEL PESSOAL"))
+    # credenciada de rede virtual sem outorga SMP própria (com ASN e SCM, sem SICI móvel): o registro que
+    # `sources.anatel_smp.collect._apply_rede_virtual` acrescenta; não é outorga SMP (OPERADORA-E8/E9, OPERADORAS-E2)
+    cred, host = ops[33], ops[34]
+    out["smp"].append({**outorga_record(cred, 3, ""), "data_outorga": "", "num_servico": "",
+                       "situacao": "Credenciada de Rede Virtual (sem outorga SMP própria)",
+                       "rede_virtual": {"papel": "credenciada", "prestadora_origem_cnpj": host["cnpj"],
+                                        "prestadora_origem_nome": host["razao_social"]}})
     return out
 
 
@@ -248,7 +255,11 @@ def satelites(world: World, d: str) -> dict:
                 dr("SATELITE BRASILEIRO SA", "BR-SAT 2", "-65KaB", "65ºO", "Ka", "Brasileiro", "operação comercial", "2020-05-10", "2026-01-31", False),
                 dr("CONSTELACAO NOVA INC", "Sistema Novo", "SMB-X", "NGEO", "Q/V", "Estrangeiro", "pendente licença", None, None, False)]
     ngeo = [{"cnpj": "04399863000134", "prestadora": "IRIDIUM SERVIÇOS DE SATÉLITES S.A", "lancamento": "2017-01-14", "estacao": "IRD", "objeto": "Iridium", "status": "OPERAÇÃO COMERCIAL",
-             "orbita": "BAIXA (LEO)", "planos": 6, "constelacao": 66}]
+             "orbita": "BAIXA (LEO)", "planos": 6, "constelacao": 66, "agenda_ano": 2026, "nu_estacao": "900001"}]
+    # REGULATORIO-E1: um sistema com um registro por ano de agenda (satélites declarados crescendo) e uma cópia exata da origem
+    for ano, qt in ((2024, 120), (2025, 480), (2026, 960), (2026, 960)):
+        ngeo.append({"cnpj": None, "prestadora": "CONSTELACAO NOVA INC", "lancamento": "2024-02-01", "estacao": "CNV", "objeto": "Sistema Novo LEO",
+                     "status": "OPERAÇÃO COMERCIAL", "orbita": "BAIXA (LEO)", "planos": 12, "constelacao": qt, "agenda_ano": ano, "nu_estacao": "900002"})
     operando = [{"satelite": "ALFA-1", "posicao": "3ºO", "bandas": "C, Ku", "tipo": "Estrangeiro", "operadora": "OPERADORA SAT ALFA LTD"},
                 {"satelite": "BR-SAT 2", "posicao": "65ºO", "bandas": "Ka", "tipo": "Brasileiro", "operadora": "SATELITE BRASILEIRO SA"}]
     return {"snapshot_date": d, "generated_at": "2026-01-01T00:00:00+00:00", "fonte": "sintético", "url": "", "data_arquivo": "Mon, 02 Nov 2026 10:30:10 GMT", "sha256": "0" * 64,

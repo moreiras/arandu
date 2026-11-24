@@ -93,8 +93,8 @@ def({ id: 'municipios', titulo: 'Maiores municípios em banda larga fixa', ordem
   nota: 'duas datas: o snapshot e o mês de referência da declaração ao SICI', aplicavel: (c) => c.municipios.length > 0, Componente: MunicipiosBloco })
 def({ id: 'sem-ptt', titulo: 'Municípios a mais de 100 km de um PTT', ordem: 40, depende: ['useUfPerfil'], fontes: ['anatel_sici', 'curada_pix'], selo: 'estimado',
   nota: 'distância em linha reta até o centróide; não é o trajeto de fibra', aplicavel: (c) => !c.semCentroides && c.municipios.some((m) => m.kmPtt != null && m.kmPtt > 100), Componente: SemPttBloco })
-def({ id: 'operadoras', titulo: 'Maiores operadoras com sede na UF', ordem: 50, depende: ['acessos-operadoras'], fontes: ['anatel_sici', 'anatel_outorgas', 'registro_br'], selo: 'fato',
-  nota: 'duas datas: o snapshot e o mês de referência da declaração ao SICI', aplicavel: (c) => c.operadoras.length > 0, Componente: OperadorasBloco })
+def({ id: 'operadoras', titulo: 'Operadoras na UF', ordem: 50, depende: ['acessos-operadoras'], fontes: ['anatel_sici', 'anatel_outorgas', 'registro_br'], selo: 'fato',
+  nota: 'duas datas: o snapshot e o mês de referência da declaração ao SICI; parcela sobre acessos declarados na UF, não sobre receita', aplicavel: (c) => c.operadorasPresentes.length > 0 || c.operadoras.length > 0, Componente: OperadorasBloco })
 def({ id: 'linha-do-tempo', titulo: 'Linha do tempo', ordem: 60, depende: ['useUfPerfil'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr', 'rpki_collector', 'apnic_pop'], selo: 'fato', nota: 'diferenças observadas entre snapshots',
   aplicavel: (c) => !!c.historico, Componente: LinhaDoTempoUf })
 

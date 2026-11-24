@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 /** CSV da lista de entidades do Localizador (com participação em IXes). `montarCsv` é puro e testado. */
-import { MAJOR_IX } from './tipos'
+import { MAJOR_IX, asnsDoRaio } from './tipos'
 import type { Entity } from './tipos'
 import type { PresencaIx } from './calculos'
 
@@ -28,12 +28,14 @@ export function montarCsv(entities: Entity[], ixOf: (asn: number) => PresencaIx,
   const named = new Set<string>([...(nearestIx ? [nearestIx] : []), ...MAJOR_IX])
   const rows = entities.map(e => {
     const hasAsn = e.asns.length > 0
-    const m = [...new Set(e.asns.flatMap(a => ixOf(a).m))]
-    const o = [...new Set(e.asns.flatMap(a => ixOf(a).o))]
+    // presença em PTT só dos ASNs no raio: os do mesmo CNPJ fora dele não entram (LOC-E3)
+    const doRaio = asnsDoRaio(e)
+    const m = [...new Set(doRaio.flatMap(a => ixOf(a).m))]
+    const o = [...new Set(doRaio.flatMap(a => ixOf(a).o))]
     const ms = new Set(m)
     const ynAs = (b: boolean) => (hasAsn ? yn(b) : '')
     return [
-      e.asns.join(' '), e.cnpj ?? '', e.name ?? '', e.uf ?? '', e.city ?? '',
+      doRaio.join(' '), e.cnpj ?? '', e.name ?? '', e.uf ?? '', e.city ?? '',
       yn(hasAsn), yn(e.scm), yn(e.fromHq), yn(e.scmHq),
       yn(e.v4), yn(e.v6), e.sici?.acessos ?? '', e.sici?.municipios ?? '',
       hasAsn && nearestIx ? ixLabel(nearestIx) : '',

@@ -95,21 +95,49 @@ def ranking_municipios(ind: dict, uf: Optional[str], ordem: str, asc: bool, limi
             "total": len(linhas), "items": _paginar(linhas, limit, offset)}
 
 
-def omissao(om: dict, ind: dict, tipo: str, uf: Optional[str], classe: Optional[str], grupo_declara: Optional[bool], limit: int, offset: int) -> dict:
+GRUPO_DECLARA = ("true", "false", "desconhecido")
+
+
+def _filtro_grupo_declara(valor) -> Optional[object]:
+    """`grupo_declara` com semântica exata (RANKINGS-E2): `true`, `false` ou `desconhecido` (CNPJ sem grupo societário, campo ausente).
+    Aceita também bool (chamadas internas). None = sem filtro. O "false" de antes incluía os desconhecidos."""
+    if valor is None or valor == "":
+        return None
+    if isinstance(valor, bool):
+        return valor
+    v = str(valor).strip().lower()
+    if v in ("true", "1"):
+        return True
+    if v in ("false", "0"):
+        return False
+    if v == "desconhecido":
+        return "desconhecido"
+    raise IndicadoresErro(400, f"grupo_declara inválido: {valor}. Use: {' | '.join(GRUPO_DECLARA)}")
+
+
+def omissao(om: dict, ind: dict, tipo: str, uf: Optional[str], classe: Optional[str], grupo_declara, limit: int, offset: int) -> dict:
     uf = uf.upper() if uf else None
+    gd = _filtro_grupo_declara(grupo_declara)
     meta = {"snapshot_date": om["snapshot_date"], "mes_referencia": om["mes_referencia"], "fonte": om["fonte"], "metodologia": METODOLOGIA,
             "parametros": om["parametros"]}
     if tipo == "parou_de_declarar":
         linhas = [{"cnpj": c, **v} for c, v in ind["parou_de_declarar"].items()]
+        if uf:
+            # a UF (sede no cadastro SCM) só existe nos snapshots gerados depois da correção; sem ela, recusar em vez de devolver o
+            # total nacional rotulado como da UF (RANKINGS-E4)
+            if linhas and not any("uf" in r for r in linhas):
+                raise IndicadoresErro(400, "este snapshot não tem a UF de quem parou de declarar; consulte sem `uf`.")
+            linhas = [r for r in linhas if (r.get("uf") or "") == uf]
         linhas.sort(key=lambda r: (-r["acessos_no_ultimo_mes"], r["cnpj"]))
-        return {**meta, "tipo": tipo, "criterio": "Acessos no último mês declarado (decrescente)", "total": len(linhas), "items": _paginar(linhas, limit, offset)}
+        return {**meta, "tipo": tipo, "escopo": {"uf": uf} if uf else {"pais": "BR"}, "criterio": "Acessos no último mês declarado (decrescente)",
+                "total": len(linhas), "items": _paginar(linhas, limit, offset)}
     if tipo != "outorga_sem_declaracao":
         raise IndicadoresErro(400, "tipo inválido. Use: outorga_sem_declaracao | parou_de_declarar")
     if classe and classe not in CLASSES:
         raise IndicadoresErro(400, f"classe inválida: {classe}. Use: {', '.join(CLASSES)}")
     linhas = [{"cnpj": c, **v} for c, v in om["itens"].items()
               if (not uf or v["uf"] == uf) and (not classe or v["classe"] == classe)
-              and (grupo_declara is None or bool(v.get("grupo_declara")) is grupo_declara)]
+              and (gd is None or (v.get("grupo_declara") is None if gd == "desconhecido" else v.get("grupo_declara") is gd))]
     linhas.sort(key=lambda r: (-(r["usuarios_apnic"] or 0), r["cnpj"]))
     por_uf = om["por_uf"] if not uf else {uf: om["por_uf"].get(uf, {})}
     return {**meta, "tipo": tipo, "escopo": {"uf": uf} if uf else {"pais": "BR"},

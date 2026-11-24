@@ -3347,7 +3347,7 @@ export interface paths {
          * Outorgas SCM sem acessos declarados ao SICI no mês
          * @description `tipo=outorga_sem_declaracao` (padrão): CNPJs com outorga SCM sem acessos declarados no mês de referência, em ordem de usuários estimados (APNIC) dos
          *     ASNs do CNPJ, com a `classe` (`com_usuarios_apnic`, `sem_usuarios`, `nao_comparavel` = CNPJ sem ASN) e `grupo_declara` (outro CNPJ do grupo
-         *     declarou). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar. É a descrição de um fato sobre a
+         *     declarou; ausente = CNPJ sem grupo societário). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar. É a descrição de um fato sobre a
          *     declaração, sem causa nem intenção. Metodologia na página Rankings.
          */
         get: operations["omissao_sici_api_v1_omissao_sici_get"];
@@ -3394,7 +3394,8 @@ export interface paths {
         /**
          * Outorgas da Anatel (SCM, SMP, STFC, SeAC): uma linha por CNPJ
          * @description Uma linha por CNPJ que tem outorga de qualquer serviço, com `servicos` (os que ele tem), `outorgas`, sede, `asns`, `porte`
-         *     (declarado ao SICI) e os acessos declarados (`acessos_fixo`, `acessos_movel`, `acessos`; `ativo` = declarou algum).
+         *     (declarado ao SICI) e os acessos declarados (`acessos_fixo`, `acessos_movel`, `acessos`; `ativo` = declarou algum). O filtro
+         *     `ativo` com um só serviço (SCM ou SMP) olha o acesso daquele serviço.
          *
          *     `data_outorga` é a mais antiga entre os serviços (`data_outorga_por_servico` traz cada uma); `pj_*`, `municipios_*` e
          *     `tecnologia_fixo` vêm do SICI.
@@ -3937,7 +3938,7 @@ export interface paths {
         };
         /**
          * Resolve um lugar (município) em coordenadas
-         * @description Centroide (mediana) das organizações geolocalizadas no município. Use o resultado em `near.point` ou diretamente para consultas geográficas.
+         * @description Centroide (mediana) das organizações geolocalizadas no município. A UF vem de `uf` ou do próprio `q` (`Bom Jesus/PI`, `Bom Jesus, PI`). Sem UF, um nome que existe em mais de uma UF não é resolvido: a resposta traz `ambiguo: true`, `ufs` (organizações por UF) e `lat`/`lon` nulos, em vez de misturar os homônimos. Use o resultado em `near.point` ou diretamente para consultas geográficas.
          */
         get: operations["resolve_place_api_v1_resolve_place_get"];
         put?: never;
@@ -4743,7 +4744,7 @@ export interface components {
             has_seac?: boolean | null;
             /**
              * Has Smp
-             * @description True se o CNPJ deste AS possui outorga SMP na Anatel
+             * @description True se o CNPJ deste AS possui outorga SMP na Anatel (credenciamento de rede virtual sem outorga própria não conta)
              */
             has_smp?: boolean | null;
             /**
@@ -4878,7 +4879,7 @@ export interface components {
             single_upstream_v6?: number | null;
             /**
              * Smp
-             * @description Outorgas SMP (Serviço Móvel Pessoal) da Anatel vinculadas ao CNPJ deste AS
+             * @description Outorgas SMP (Serviço Móvel Pessoal) da Anatel vinculadas ao CNPJ deste AS; inclui o registro de credenciamento de rede virtual (`rede_virtual.papel = credenciada`, situação 'sem outorga SMP própria'), que não é outorga
              */
             smp?: {
                 [key: string]: unknown;
@@ -5007,7 +5008,7 @@ export interface components {
             has_seac?: boolean | null;
             /**
              * Has Smp
-             * @description True se o AS possui outorga SMP na Anatel (cruzamento por CNPJ)
+             * @description True se o AS possui outorga SMP na Anatel (cruzamento por CNPJ; credenciamento de rede virtual sem outorga própria não conta)
              */
             has_smp?: boolean | null;
             /**
@@ -6059,7 +6060,7 @@ export interface operations {
                 q?: string | null;
                 /** @description Filtra por ter/não ter ASN. */
                 com_asn?: boolean | null;
-                /** @description Só operadoras que declaram acesso. */
+                /** @description true = só quem declara acesso no mês; false = só quem não declara. Omitido: `fixa` = true (a lista do SICI fixo); `movel` = todas (outorgadas e credenciadas do SMP, com e sem declaração). */
                 ativo?: boolean | null;
                 min_acessos?: number | null;
                 /** @description Tecnologia predominante (ex: FTTH). */
@@ -10631,9 +10632,11 @@ export interface operations {
             query?: {
                 date?: string | null;
                 tipo?: string;
+                /** @description UF da sede (cadastro SCM). Em `parou_de_declarar`, 400 se o snapshot não tem a UF. */
                 uf?: string | null;
                 classe?: string | null;
-                grupo_declara?: boolean | null;
+                /** @description `true` (outro CNPJ do grupo declarou), `false` (tem grupo e nenhum outro declarou) ou `desconhecido` (CNPJ sem grupo societário). Omitido = todos. */
+                grupo_declara?: string | null;
                 limit?: number;
                 page?: number;
             };
@@ -10725,7 +10728,7 @@ export interface operations {
                 q?: string | null;
                 /** @description true = só com ASN; false = só sem ASN. */
                 com_asn?: boolean | null;
-                /** @description true = só quem declara acessos ao SICI (fixo ou móvel). */
+                /** @description true = só quem declara acessos ao SICI; false = só quem não declara. Com `servico=SCM` sozinho conta só o acesso fixo; com `servico=SMP` sozinho, só o móvel; nos demais casos, fixo ou móvel. */
                 ativo?: boolean | null;
                 /** @description Porte declarado ao SICI (ex.: Pequeno Porte, Grande Porte). */
                 porte?: string | null;
@@ -11668,8 +11671,10 @@ export interface operations {
     resolve_place_api_v1_resolve_place_get: {
         parameters: {
             query: {
-                /** @description Nome do município (ex.: Vitória). */
+                /** @description Nome do município (ex.: Vitória ou Bom Jesus/PI). */
                 q: string;
+                /** @description UF do município (sigla). */
+                uf?: string | null;
                 /** @description Data do snapshot (YYYY-MM-DD). */
                 date?: string | null;
             };

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from typing import Optional
 
 from fastapi import APIRouter, Body, HTTPException, Query, Request
@@ -163,26 +164,41 @@ def _consultar(request: Request, collection: str, body: dict, date: Optional[str
 # Resolvers
 # ---------------------------------------------------------------------------
 
+_UFS = frozenset("AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO".split())
+_NOME_UF = re.compile(r"^(.*?)\s*(?:/|,|-|\()\s*([A-Za-z]{2})\s*\)?$")
+
+
 @router.get(
     "/resolve/place",
     summary="Resolve um lugar (município) em coordenadas",
-    description="Centroide (mediana) das organizações geolocalizadas no município. "
+    description="Centroide (mediana) das organizações geolocalizadas no município. A UF vem de `uf` ou do próprio `q` "
+                "(`Bom Jesus/PI`, `Bom Jesus, PI`). Sem UF, um nome que existe em mais de uma UF não é resolvido: a resposta "
+                "traz `ambiguo: true`, `ufs` (organizações por UF) e `lat`/`lon` nulos, em vez de misturar os homônimos. "
                 "Use o resultado em `near.point` ou diretamente para consultas geográficas.",
     tags=["resolve"],
 )
 def resolve_place(
     request: Request,
-    q_: str = Query(..., alias="q", description="Nome do município (ex.: Vitória)."),
+    q_: str = Query(..., alias="q", description="Nome do município (ex.: Vitória ou Bom Jesus/PI)."),
+    uf: Optional[str] = Query(None, min_length=2, max_length=2, description="UF do município (sigla)."),
     date: Optional[str] = Query(None, description="Data do snapshot (YYYY-MM-DD)."),
 ) -> dict:
     store: Store = request.app.state.store
     date_str = store.resolve_date(date)
     if date_str is None:
         raise HTTPException(404, "Nenhum snapshot disponível")
-    r = store.resolve_place(date_str, q_)
+    nome, sigla = q_.strip(), (uf or "").upper() or None
+    m = _NOME_UF.match(nome)
+    if m and sigla is None and m.group(2).upper() in _UFS:
+        nome, sigla = m.group(1).strip(), m.group(2).upper()
+    if sigla is None:
+        ufs = store.place_ufs(date_str, nome)
+        if len(ufs) > 1:                        # homônimos (LOC-E4): a mediana de pontos de UFs diferentes caía a centenas de km de todos
+            return {"snapshot_date": date_str, "place": q_, "ambiguo": True, "ufs": ufs, "lat": None, "lon": None, "n": sum(ufs.values())}
+    r = store.resolve_place(date_str, nome, sigla)
     if r is None:
         raise HTTPException(404, f"Local '{q_}' não encontrado")
-    return {"snapshot_date": date_str, "place": q_, **r}
+    return {"snapshot_date": date_str, "place": q_, **({"uf": sigla} if sigla else {}), **r}
 
 
 @router.get(

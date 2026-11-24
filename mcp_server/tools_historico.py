@@ -92,7 +92,8 @@ def historico_mudancas(
     culpa nem motivo. `estado`: `confirmado` (padrão; o novo estado persistiu pela janela), `pendente`, `revertido` ou `todos`.
 
     Eventos de provedor (`provedor_novo`, `provedor_perdido`) vêm de uma inferência (ARC v1), saem com `natureza: "inferido"` e variam entre
-    snapshots: diga "provável" e prefira não citá-los como fato. `resumo=True` devolve só as contagens por tipo e estado. `comparar=AAAA-MM-DD`
+    snapshots: diga "provável" e prefira não citá-los como fato. `resumo=True` devolve só as contagens por tipo e estado, com os mesmos filtros
+    `tipo`, `uf` e `asn` da listagem. `comparar=AAAA-MM-DD`
     devolve a variação agregada (Brasil) entre essa data e `ate` (padrão: o snapshot com histórico mais recente), com o resumo dos eventos entre elas.
 
     Args:
@@ -113,5 +114,5 @@ def historico_mudancas(
             raise ValueError("Ainda não há snapshot com histórico.")
         return _chama(h.diferenca, comparar, final)
     if resumo:
-        return _chama(h.mudancas_resumo, de, ate)
+        return _chama(h.mudancas_resumo, de, ate, tipo, uf, asn)
     return _chama(h.mudancas, de, ate, tipo, uf, asn, estado, max(1, min(limit, 500)), 0)

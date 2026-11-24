@@ -953,8 +953,10 @@ export function fetchUfs(date?: string): Promise<{ snapshot_date: string; mes_re
 }
 
 /** Perfil consolidado da UF numa chamada. */
+/** Sobe quando o corpo de `/ufs/{uf}` muda (2: `operadoras_presentes`, UF-E2): a URL com `date` é imutável no cache. */
+const ESQUEMA_UF = 2
 export function fetchUfPerfil(uf: string, date?: string, historicoCompleto = false): Promise<PerfilUf> {
-  return get(`/api/v1/ufs/${uf}`, { date, include: `${blocoHistorico(historicoCompleto)},territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio` })
+  return get(`/api/v1/ufs/${uf}`, { date, esquema: ESQUEMA_UF, include: `${blocoHistorico(historicoCompleto)},territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio` })
 }
 
 export function fetchAcessosMunicipios(opts: {
@@ -1106,9 +1108,14 @@ export function fetchIXPresence(date?: string): Promise<IXPresenceResponse> {
 export interface ResolvePlaceResult {
   snapshot_date: string
   place: string
-  lat: number
-  lon: number
+  /** Nulos quando o nome existe em mais de uma UF e nenhuma foi dada (`ambiguo`). */
+  lat: number | null
+  lon: number | null
   n: number
+  uf?: string
+  /** Homônimos sem UF (LOC-E4): `ufs` = organizações por UF; informe "Nome/UF". */
+  ambiguo?: boolean
+  ufs?: Record<string, number>
 }
 
 export function fetchResolvePlace(q: string, date?: string): Promise<ResolvePlaceResult> {
@@ -1398,8 +1405,10 @@ export function fetchEspectroFaixas(opts: { de?: number; ate?: number; servico?:
   return get('/api/v1/espectro/faixas', opts)
 }
 
+/** Sobe quando o corpo de `/satelites/resumo` muda (2: `ngeo_sistemas`, REGULATORIO-E1): troca a URL guardada em cache. */
+const ESQUEMA_SATELITES = 2
 export function fetchSatelitesResumo(): Promise<SatelitesResumo> {
-  return get('/api/v1/satelites/resumo')
+  return get('/api/v1/satelites/resumo', { esquema: ESQUEMA_SATELITES })
 }
 
 export function fetchSatelitesDireitos(opts: { operadora?: string; tipo?: string; status?: string; limit?: number; page?: number } = {}): Promise<SatelitesDireitos> {

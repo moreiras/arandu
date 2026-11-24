@@ -2425,6 +2425,7 @@
     "limites",
     "natureza",
     "ngeo",
+    "ngeo_sistemas",
     "operando",
     "resumo",
     "snapshot_date"
@@ -2740,6 +2741,7 @@
     "mes_referencia",
     "municipios",
     "operadoras",
+    "operadoras_presentes",
     "snapshot_date",
     "totais",
     "uf"

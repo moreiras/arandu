@@ -21,6 +21,7 @@ from pathlib import Path
 from core.common import normalized_path, now_iso, published_path
 from core.fust import STATUS
 from core.pdff import REFERENCIAS
+from core.satelites import sem_copias, sistemas_ngeo
 from core.jsonio import carregar_json_gz, gravar_json_gz
 
 LIMITES_FUST = (
@@ -126,11 +127,15 @@ def calcular_faixas(faixas: list[dict]) -> dict:
 
 def calcular_satelites(tabelas: dict, data: str) -> dict:
     d = tabelas["direitos"]
+    tabelas = {**tabelas, "ngeo": sem_copias(tabelas["ngeo"])}          # normalizado antigo ainda traz as cópias exatas da origem
     vencidos = [x for x in d if x["validade"] and x["validade"] < data]
     resumo = {"direitos": len(d), "operadoras": len({x["operadora"] for x in d}), "satelites": len({x["satelite"] for x in d}), "por_tipo": dict(Counter(x["tipo"] for x in d)),
               "por_status": dict(Counter(x["status"] for x in d)), "vencidos_na_data": len(vencidos), "ngeo": len(tabelas["ngeo"]), "operando": len(tabelas["operando"]),
               "ngeo_por_orbita": dict(Counter(x["orbita"] for x in tabelas["ngeo"]))}
-    return {"resumo": resumo, "direitos": d, "ngeo": tabelas["ngeo"], "operando": tabelas["operando"]}
+    # `ngeo` é registro (um por sistema e ano de agenda); `ngeo_sistemas`, um por sistema (REGULATORIO-E1)
+    sistemas = sistemas_ngeo(tabelas["ngeo"])
+    resumo["ngeo_sistemas"] = len(sistemas)
+    return {"resumo": resumo, "direitos": d, "ngeo": tabelas["ngeo"], "ngeo_sistemas": sistemas, "operando": tabelas["operando"]}
 
 
 def publicar_regulatorio(base: Path, date_str: str, log) -> dict:

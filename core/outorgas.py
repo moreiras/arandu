@@ -36,6 +36,16 @@ class Servico:
         return self.reconhece_nome(valor.lower())
 
 
+# Marca do registro sintético que `sources.anatel_smp.collect._apply_rede_virtual` cria para a credenciada de rede virtual sem
+# outorga SMP própria: ele materializa o credenciamento (RGST, Res. Anatel 777/2025), não é outorga.
+SEM_OUTORGA_PROPRIA = "sem outorga smp própria"
+
+
+def eh_outorga(rec: dict) -> bool:
+    """O registro é outorga do serviço (e não o registro sintético de credenciamento de rede virtual)."""
+    return SEM_OUTORGA_PROPRIA not in (rec.get("situacao") or "").lower()
+
+
 SERVICOS: dict[str, Servico] = {s.sigla: s for s in (
     Servico("scm", "scms", "45", lambda n: "multim" in n),
     Servico("smp", "smps", "10", lambda n: "movel pessoal" in n and "satelite" not in n and "especializado" not in n,

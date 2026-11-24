@@ -129,14 +129,16 @@ export const SERVICOS: Record<ServicoId, Servico> = {
     ],
   },
   smp: {
-    id: 'smp', rotulo: 'SMP', titulo: 'Operadoras SMP', chaveLista: 'operadoras-movel', temSici: true, soAtivosPadrao: true,
+    // padrão: o universo (outorgadas e credenciadas, com e sem declaração); o filtro visível restringe (OPERADORAS-E2)
+    id: 'smp', rotulo: 'SMP', titulo: 'Operadoras SMP', chaveLista: 'operadoras-movel', temSici: true, soAtivosPadrao: false,
     descricao: <>Serviço Móvel Pessoal — dados abertos da {Anatel}, cruzados com ASNs do Registro.br por CNPJ. Universo pequeno: as grandes operadoras móveis e MVNOs/M2M.</>,
     dicaOperacao: 'Ter outorga não significa estar operando',
     ordenacaoPadrao: { campo: 'acessos', desc: true }, primeiroCliqueDesc: true, unidade: 'operadoras',
     indisponivel: 'Dados de SMP não disponíveis para este snapshot. Rode as etapas anatel_smp, smp_geo e anatel_sici_movel para coletar os dados da Anatel.',
     stats: (d) => fetchOutorgasStats('SMP', d), mapa: (o) => fetchOutorgasMapa('SMP', o),
+    // `ativo` só vai quando o filtro está ligado: omitido, a API devolve o universo móvel
     listar: (o) => fetchOperadorasMovel({
-      date: o.date, page: o.page, limit: o.limit, uf: o.uf, q: o.q, com_asn: o.comAsn || undefined, ativo: o.soAtivos || undefined,
+      date: o.date, page: o.page, limit: o.limit, uf: o.uf, q: o.q, com_asn: o.comAsn || undefined, ativo: o.soAtivos ? true : undefined,
       sort_by: o.sortBy || undefined, sort_desc: o.sortDesc,
     }),
     colunas: [
@@ -167,8 +169,13 @@ export const SERVICOS: Record<ServicoId, Servico> = {
               </span>
             )}
             {r.rede_virtual?.papel === 'credenciada' && (
-              <Link to={`/operadora/${r.rede_virtual.prestadora_origem_cnpj}`} title={`Credenciada de ${r.rede_virtual.prestadora_origem_nome}`}
-                className="px-1.5 py-0.5 rounded bg-v6-100 text-v6-800 font-medium whitespace-nowrap hover:bg-v6-200">MVNO</Link>
+              <>
+                {/* com data de outorga a empresa tem outorga SMP própria e também é credenciada: os dois fatos (OPERADORAS-E12) */}
+                {r.data_outorga && <span className="block text-gray-600 whitespace-nowrap">Outorga própria</span>}
+                <Link to={`/operadora/${r.rede_virtual.prestadora_origem_cnpj}`} title={`Credenciada de ${r.rede_virtual.prestadora_origem_nome}`}
+                  className="px-1.5 py-0.5 rounded bg-v6-100 text-v6-800 font-medium whitespace-nowrap hover:bg-v6-200">MVNO</Link>
+                {!r.data_outorga && <span className="block text-gray-500 whitespace-nowrap">sem outorga SMP própria</span>}
+              </>
             )}
             {!r.rede_virtual && traco}
           </>

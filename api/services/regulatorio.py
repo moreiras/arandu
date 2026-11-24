@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import Optional
 
+from core.satelites import sistemas_ngeo
+
 _META = ("natureza", "fonte", "data_arquivo", "limites", "snapshot_date")
 ORDENS_MULTAS = ("saldo", "multas", "original", "pago")
 CARATERES = ("Primário", "Secundário")
@@ -101,7 +103,13 @@ def faixas_resumo(doc: dict) -> dict:
 # ── satélites ───────────────────────────────────────────────────────────────
 
 def satelites_resumo(doc: dict) -> dict:
-    return {**_meta(doc), "resumo": doc["resumo"], "ngeo": doc["ngeo"], "operando": doc["operando"]}
+    """`ngeo` são os registros como a Anatel publica (um por sistema e ano de agenda); `ngeo_sistemas`, um por sistema. Snapshot gravado
+    antes de `ngeo_sistemas` existir: agrupado aqui, dos mesmos registros (REGULATORIO-E1)."""
+    sistemas = doc.get("ngeo_sistemas")
+    if sistemas is None:
+        sistemas = sistemas_ngeo(doc["ngeo"])
+    resumo = {**doc["resumo"], "ngeo_sistemas": len(sistemas)}
+    return {**_meta(doc), "resumo": resumo, "ngeo": doc["ngeo"], "ngeo_sistemas": sistemas, "operando": doc["operando"]}
 
 
 def linhas_satelites(doc: Optional[dict]) -> list[dict]:

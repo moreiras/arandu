@@ -12,9 +12,10 @@ import { ContactsReveal, type ContactsAvailable } from '../../components/Contact
 import { OutorgaBadge, OutorgaBadges } from '../../components/OutorgaBadge'
 import type { GrupoCnpjEntry } from '../../types/api'
 import { fmtCnpj } from './ui'
+import type { ServicoOperadora } from './servicos'
 
 /** Cabeçalho da página de operadora: nome com selos de outorga, grupo, porte, razão social/CNPJ/sede, outros CNPJs do grupo, contatos e ASNs. */
-export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc, hasSeac, razaoSocial, cnpjFinal, municipio, uf, grupoCnpjs, grupoId, contactsAvailable, fetchContacts, asns, snapshot }: {
+export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc, hasSeac, credenciadaSmp, razaoSocial, cnpjFinal, municipio, uf, grupoCnpjs, grupoId, contactsAvailable, fetchContacts, asns, snapshot }: {
   nome: string
   grupo?: string
   porte?: string
@@ -22,6 +23,8 @@ export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc
   hasSmp: boolean
   hasStfc: boolean
   hasSeac: boolean
+  /** Credenciamento de rede virtual no SMP (sem outorga própria): selo "MVNO", nunca "SMP". */
+  credenciadaSmp?: ServicoOperadora
   razaoSocial?: string
   cnpjFinal: string
   municipio?: string
@@ -48,6 +51,11 @@ export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc
           {porte && <span className="text-xs text-gray-400">{porte}</span>}
           {hasScm && <OutorgaBadge label="SCM" />}
           {hasSmp && <OutorgaBadge label="SMP" />}
+          {!hasSmp && credenciadaSmp && (
+            <span className="text-xs font-semibold bg-v6-100 text-v6-800 rounded px-1.5 py-0.5">
+              MVNO<span className="sr-only">: credenciada de rede virtual no SMP{credenciadaSmp.origem?.nome ? ` de ${credenciadaSmp.origem.nome}` : ''}, sem outorga SMP própria</span>
+            </span>
+          )}
           {hasStfc && <OutorgaBadge label="STFC" />}
           {hasSeac && <OutorgaBadge label="SeAC" />}
         </>

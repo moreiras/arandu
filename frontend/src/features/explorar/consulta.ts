@@ -51,10 +51,11 @@ export const ROTULO_OP: Record<Operador, string> = {
   in: 'está entre (lista)', nin: 'não está entre (lista)', contains: 'contém', ncontains: 'não contém', exists: 'tem valor',
 }
 
-/** Famílias de tipo do schema: `string`, `int`, `number`, `bool`, `array[...]`, `object`. */
+/** Famílias de tipo do schema: `string`, `int`, `float`, `number`, `bool`, `array[...]` (ou `array`/`list` sem tipo interno), `object`.
+ * `float` caía em texto e o valor ia como string ("0.5"), o que dava zero falso (EXP-E1). */
 export function familia(tipo: string): 'texto' | 'numero' | 'bool' | 'lista' | 'objeto' {
-  if (tipo.startsWith('array')) return 'lista'
-  if (tipo === 'int' || tipo === 'number') return 'numero'
+  if (tipo.startsWith('array') || tipo === 'list') return 'lista'
+  if (tipo === 'int' || tipo === 'float' || tipo === 'number') return 'numero'
   if (tipo === 'bool') return 'bool'
   if (tipo === 'object') return 'objeto'
   return 'texto'
@@ -71,10 +72,28 @@ export function operadoresDoCampo(c: CampoSchema | undefined): Operador[] {
   }
 }
 
+/** Tipo dos itens de um campo lista: o de `array[T]`; sem ele (`array`, `list`), o do `example` do catálogo; senão `undefined` (inferir). */
+function tipoInterno(c: CampoSchema): string | undefined {
+  const m = /^array\[(.+)\]$/.exec(c.type)
+  if (m) return m[1]
+  const ex = Array.isArray(c.example) ? c.example[0] : undefined
+  if (typeof ex === 'number') return 'number'
+  if (typeof ex === 'string') return 'string'
+  return undefined
+}
+
 function escalar(texto: string, c: CampoSchema | undefined, tipoLista?: string): string | number | boolean {
-  const fam = tipoLista ? familia(tipoLista) : c ? familia(c.type) : 'texto'
+  const lista = !!c && familia(c.type) === 'lista'
   const t = texto.trim()
-  if (fam === 'numero') { const n = Number(t.replace(',', '.')); if (!Number.isFinite(n)) throw new Error(`"${texto}" não é um número`); return n }
+  // item de lista sem tipo declarado: inteiro vira número (ASNs em `omissao_sici.asns`, EXP-E2), o resto fica texto
+  if (lista && !tipoLista) return /^-?\d+$/.test(t) ? Number(t) : t
+  const fam = tipoLista ? familia(tipoLista) : c ? familia(c.type) : 'texto'
+  if (fam === 'numero') {
+    // vírgula decimal ("0,5") aceita; separador de milhar não (ambíguo)
+    const n = t === '' ? NaN : Number(t.replace(',', '.'))
+    if (!Number.isFinite(n)) throw new Error(`"${texto}" não é um número`)
+    return n
+  }
   if (fam === 'bool') return /^(true|sim|1|verdadeiro)$/i.test(t)
   return t
 }
@@ -82,7 +101,7 @@ function escalar(texto: string, c: CampoSchema | undefined, tipoLista?: string):
 /** Valor digitado → valor do predicado (número, booleano, lista…). Lança `Error` com mensagem para o usuário se não converter. */
 export function converterValor(c: CampoSchema | undefined, op: Operador, texto: string): unknown {
   if (op === 'exists') return !/^(false|não|nao|0)$/i.test(texto.trim() || 'true')
-  const interno = c && familia(c.type) === 'lista' ? c.type.replace(/^array\[|\]$/g, '') : undefined
+  const interno = c && familia(c.type) === 'lista' ? tipoInterno(c) : undefined
   if (op === 'in' || op === 'nin') {
     const itens = texto.split(',').map((x) => x.trim()).filter(Boolean)
     if (itens.length === 0) throw new Error('informe ao menos um valor na lista')

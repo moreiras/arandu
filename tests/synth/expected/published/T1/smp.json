@@ -1,5 +1,37 @@
 {
  "by_cnpj": {
+  "90000102000108": [
+   {
+    "asns": [
+     4200000002
+    ],
+    "bairro": "Centro",
+    "cep": "99000003",
+    "cnpj": "90000102000108",
+    "codigo_ibge": "9900003",
+    "complemento": "",
+    "data_outorga": "",
+    "email": "contato3@example.org",
+    "geo_confidence": "city_centroid",
+    "geo_source": "nominatim",
+    "lat": -25.45,
+    "logradouro": "Rua do Exemplo 4",
+    "lon": -49.3,
+    "municipio": "Guaraniópolis",
+    "nome_fantasia": "Trânsito Nacional 3 S.A.",
+    "num_servico": "",
+    "numero": "103",
+    "razao_social": "Trânsito Nacional 3 S.A.",
+    "rede_virtual": {
+     "papel": "credenciada",
+     "prestadora_origem_cnpj": "90000103000144",
+     "prestadora_origem_nome": "Trânsito Nacional 4 S.A."
+    },
+    "situacao": "Credenciada de Rede Virtual (sem outorga SMP própria)",
+    "telefone": "(11) 90003-0000",
+    "uf": "PR"
+   }
+  ],
   "90000103000144": [
    {
     "asns": [
@@ -186,7 +218,7 @@
    4200000003
   ]
  },
- "matched_asns": 1,
+ "matched_asns": 2,
  "smps": [
   {
    "asns": [
@@ -258,9 +290,39 @@
    "situacao": "",
    "telefone": "(11) 90002-0000",
    "uf": "RS"
+  },
+  {
+   "asns": [
+    4200000002
+   ],
+   "bairro": "Centro",
+   "cep": "99000003",
+   "cnpj": "90000102000108",
+   "codigo_ibge": "9900003",
+   "complemento": "",
+   "data_outorga": "",
+   "email": "contato3@example.org",
+   "geo_confidence": "city_centroid",
+   "geo_source": "nominatim",
+   "lat": -25.45,
+   "logradouro": "Rua do Exemplo 4",
+   "lon": -49.3,
+   "municipio": "Guaraniópolis",
+   "nome_fantasia": "Trânsito Nacional 3 S.A.",
+   "num_servico": "",
+   "numero": "103",
+   "razao_social": "Trânsito Nacional 3 S.A.",
+   "rede_virtual": {
+    "papel": "credenciada",
+    "prestadora_origem_cnpj": "90000103000144",
+    "prestadora_origem_nome": "Trânsito Nacional 4 S.A."
+   },
+   "situacao": "Credenciada de Rede Virtual (sem outorga SMP própria)",
+   "telefone": "(11) 90003-0000",
+   "uf": "PR"
   }
  ],
  "snapshot_date": "2026-09-20",
- "total": 3,
- "unique_cnpjs": 3
+ "total": 4,
+ "unique_cnpjs": 4
 }

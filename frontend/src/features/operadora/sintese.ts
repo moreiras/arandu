@@ -5,23 +5,30 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { Selo } from '../../components/entidade'
 import type { OperadoraCtx } from './contexto'
+import { credenciamentoSmp, siglasComOutorga } from './servicos'
 
 /**
  * Frase-síntese da operadora: regras fixas, sem modelo de linguagem, como a do AS (`features/asn/sintese.ts`). Cada frase sai de campos do snapshot, leva o selo e
  * a versão das regras. Regra sem dado não gera frase. **Nunca** diz que uma empresa "tem problema": só o que a fonte declara ou mede.
  */
-export const REGRAS_VERSAO = 'sintese-operadora-1'
+export const REGRAS_VERSAO = 'sintese-operadora-2'
 
 export interface Frase { id: string; texto: string; selo: Selo }
 
 const n = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits: 0 })
 const p1 = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })
+const lista = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} e ${xs[xs.length - 1]}`)
 const plural = (q: number, um: string, varios: string) => `${n(q)} ${q === 1 ? um : varios}`
 
 export function sinteseOperadora(nome: string, c: OperadoraCtx): Frase[] {
   const f: Frase[] = []
-  const servicos = [c.hasScm && 'SCM', !!c.dataMovel && 'SMP', c.hasStfc && 'STFC', c.hasSeac && 'SeAC'].filter(Boolean) as string[]
-  if (servicos.length) f.push({ id: 'outorgas', selo: 'fato', texto: `${nome} tem outorga da Anatel para ${servicos.join(', ')}.` })
+  // sintese-operadora-2: serviços só pelo cadastro de outorgas (`servicosDaOperadora`); ASN ou acesso declarado não é outorga, e
+  // credenciamento de rede virtual vira frase própria, nunca "outorga SMP".
+  const servicos = siglasComOutorga(c.servicos ?? [])
+  const cred = credenciamentoSmp(c.servicos ?? [])
+  if (servicos.length) f.push({ id: 'outorgas', selo: 'fato', texto: `${nome} tem outorga da Anatel para ${lista(servicos)}.` })
+  if (cred) f.push({ id: 'rede-virtual', selo: 'fato', texto: `No SMP, é credenciada de rede virtual${cred.origem?.nome ? ` de ${cred.origem.nome}` : ''} (sem outorga SMP própria).` })
+  if (!servicos.length && !cred) f.push({ id: 'sem-outorga', selo: 'fato', texto: 'Sem outorga registrada na Anatel neste snapshot.' })
   const i = c.indicadores
   if (i?.acessos != null) {
     f.push({

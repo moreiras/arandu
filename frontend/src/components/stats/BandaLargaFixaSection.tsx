@@ -371,8 +371,9 @@ export function BandaLargaFixaSection({ date }: { date?: string }) {
 
   const maxMuni = Math.max(1, ...(scm?.top_municipios ?? []).map(m => m.count))
 
+  // a série nacional só traz o total por mês: sem divisão PF/PJ (soTotal), nada de área "B2C" igual ao total nem "B2B 0" (PANORAMA-E2)
   const serie: SiciSeriePoint[] = acessos
-    ? acessos.serie_total.map(p => [p.mes, p.acessos, p.acessos, 0])
+    ? acessos.serie_total.map(p => [p.mes, p.acessos, 0, 0])
     : []
   const b2cPct = acessos?.total_acessos ? (100 * acessos.acessos_pf) / acessos.total_acessos : 0
 
@@ -470,7 +471,7 @@ export function BandaLargaFixaSection({ date }: { date?: string }) {
             Evolução nacional de acessos
             <span className="font-normal text-gray-400">{' '}· {serie[0][0]} a {serie[serie.length - 1][0]}</span>
           </h3>
-          <AccessHistoryChart serie={serie} meses={serie.length} />
+          <AccessHistoryChart serie={serie} meses={serie.length} soTotal />
         </div>
       )}
 

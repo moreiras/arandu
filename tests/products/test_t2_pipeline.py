@@ -131,7 +131,7 @@ def test_publica_os_artefatos_de_mercado(pipeline):
     r = res[T1]
     assert r["scm_total"] == 43 and r["scm_matched_asns"] == 35      # 35 CNPJs com ASN + 8 sem ASN
     assert r["sici_cnpjs"] == 42 and r["sici_mes_referencia"] == "2026-08"
-    assert (r["smp_total"], r["stfc_total"], r["seac_total"]) == (3, 3, 6)
+    assert (r["smp_total"], r["stfc_total"], r["seac_total"]) == (4, 3, 6)          # 3 outorgas SMP + o registro de credenciada de rede virtual (PT-05)
     assert r["sici_movel_cnpjs"] == 3 and r["grupos_societarios_total"] == 3
 
 

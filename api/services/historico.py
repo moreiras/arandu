@@ -138,16 +138,25 @@ def mudancas(repo: HistoricoRepo, de=None, ate=None, tipo: Optional[str] = None,
     return {"total": len(itens), "limit": limit, "offset": offset, "items": itens[offset:offset + limit]}
 
 
-def mudancas_resumo(repo: HistoricoRepo, de=None, ate=None) -> dict:
-    itens = eventos_brutos(repo, de, ate, None, None, None, None)
+def mudancas_resumo(repo: HistoricoRepo, de=None, ate=None, tipo: Optional[str] = None, uf: Optional[str] = None,
+                    asn: Optional[int] = None) -> dict:
+    """Contagens por tipo, estado e data. `tipo`, `uf` e `asn` filtram como em `mudancas` (UF-E7: o MCP os recebia e ignorava); o estado
+    não filtra, porque a contagem já sai por estado. Com filtro, `filtros` repete o que foi aplicado."""
+    tipos = {t.strip() for t in (tipo or "").split(",") if t.strip()} or None
+    sigla = uf.strip().upper() if uf else None
+    itens = eventos_brutos(repo, de, ate, tipos, sigla, asn, None)
     por_tipo: dict[str, dict[str, int]] = {}
     por_data: dict[str, int] = {}
     for e in itens:
         t = por_tipo.setdefault(e["tipo"], {"confirmado": 0, "pendente": 0, "revertido": 0})
         t[e["estado"]] += 1
         por_data[e["data"]] = por_data.get(e["data"], 0) + 1
-    return {"total": len(itens), "por_tipo": dict(sorted(por_tipo.items())), "por_data": dict(sorted(por_data.items())),
-            "snapshots_com_historico": len(_recorte(repo.datas(), de, ate))}
+    out = {"total": len(itens), "por_tipo": dict(sorted(por_tipo.items())), "por_data": dict(sorted(por_data.items())),
+           "snapshots_com_historico": len(_recorte(repo.datas(), de, ate))}
+    filtros = {k: v for k, v in (("tipo", ",".join(sorted(tipos)) if tipos else None), ("uf", sigla), ("asn", asn)) if v is not None}
+    if filtros:
+        out["filtros"] = filtros
+    return out
 
 
 _SOMAS_UF = ["n_asns", "users", "v6users", "p4", "p6", "n_roa", "rpki_valid", "rpki_invalid", "rpki_not_found"]

@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { Link } from 'react-router-dom'
-import { IX_TAG_CLASS, SCM_SELO, SICI_COLOR, V4_STRONG, V6_STRONG, fmtBR } from './tipos'
+import { IX_TAG_CLASS, SCM_SELO, SICI_COLOR, V4_STRONG, V6_STRONG, asnsDoRaio, fmtBR } from './tipos'
 import type { Entity, TagIx } from './tipos'
 
 /** Painel direito: resumo do raio, participação em IXes e a lista de entidades (ASes e SCMs deduplicados por CNPJ). */
@@ -12,7 +12,7 @@ export function PainelEntidades({ className, entities, entityCounts, markerPos, 
   copied, onCopy, onCsv, temPresenca, tagsDoAs }: {
   className: string
   entities: Entity[]
-  entityCounts: { asns: number; scms: number }
+  entityCounts: { asns: number; cnpjsComAsn: number; scms: number }
   markerPos: [number, number] | null
   stats: { sedesAsn: number; asnsComPrefixo: number; sedesScm: number; scmsComUsuarios: number }
   filteredAsnsCount: number
@@ -31,10 +31,10 @@ export function PainelEntidades({ className, entities, entityCounts, markerPos, 
       <div className="px-3 py-2 border-b border-gray-100 flex-shrink-0 space-y-1.5">
         <div className="flex items-start justify-between">
           <span className="text-sm font-semibold text-gray-700">
-            {entities.length > 0 ? `${entities.length} entidade${entities.length !== 1 ? 's' : ''}` : 'Entidades'}
+            {entities.length > 0 ? `${entities.length} entidade${entities.length !== 1 ? 's' : ''} (CNPJ ou AS sem CNPJ)` : 'Entidades'}
             {entities.length > 0 && (
               <span className="block text-xs font-normal text-gray-500">
-                {entityCounts.asns} AS{entityCounts.asns !== 1 ? 'es' : ''}, {entityCounts.scms} SCM{entityCounts.scms !== 1 ? 's' : ''}
+                {entityCounts.asns} ASN{entityCounts.asns !== 1 ? 's' : ''} no raio, em {entityCounts.cnpjsComAsn} entidade{entityCounts.cnpjsComAsn !== 1 ? 's' : ''}; {entityCounts.scms} com SCM
               </span>
             )}
           </span>
@@ -104,10 +104,13 @@ export function PainelEntidades({ className, entities, entityCounts, markerPos, 
           <ul className="divide-y divide-gray-50">
             {entities.map(e => {
               const hasAsn = e.asns.length > 0
-              // AS → página do ASN; só-SCM → página da operadora.
-              const to = hasAsn ? `/asn/${e.asns[0]}` : `/operadora/${e.cnpj}`
+              // ASNs do mesmo CNPJ fora do raio ficam recolhidos e fora das etiquetas (LOC-E3)
+              const doRaio = asnsDoRaio(e)
+              const fora = e.asnsNoRaio.length ? e.asns.length - e.asnsNoRaio.length : 0
+              // CNPJ → página da operadora (todos os ASNs dele); AS sem CNPJ → página do ASN.
+              const to = e.cnpj ? `/operadora/${e.cnpj}` : `/asn/${e.asns[0]}`
               const tags = hasAsn && temPresenca
-                ? [...new Map(e.asns.flatMap(a => tagsDoAs(a)).map(t => [`${t.kind}|${t.code}|${t.label}`, t])).values()]
+                ? [...new Map(doRaio.flatMap(a => tagsDoAs(a)).map(t => [`${t.kind}|${t.code}|${t.label}`, t])).values()]
                     .filter((t, _, arr) => t.kind !== 'none' || arr.every(x => x.kind === 'none'))
                 : []
               return (
@@ -119,7 +122,8 @@ export function PainelEntidades({ className, entities, entityCounts, markerPos, 
                     <div className="flex items-start gap-1.5">
                       {hasAsn ? (
                         <span className="font-mono text-xs font-semibold text-primario-700 group-hover:text-primario-900 break-all">
-                          {e.asns.map(a => `AS${a}`).join(', ')}
+                          {doRaio.map(a => `AS${a}`).join(', ')}
+                          {fora > 0 && <span className="block font-sans font-normal text-gray-500">mais {fora} ASN{fora !== 1 ? 's' : ''} do mesmo CNPJ fora do raio</span>}
                         </span>
                       ) : (
                         <span className="font-mono text-xs text-v6-600 leading-tight pt-0.5">{e.cnpj}</span>

@@ -160,12 +160,24 @@ describe('lista de entidades', () => {
     expect(e[0]).toMatchObject({ asns: [1, 2], scm: true, scmHq: true, fromHq: true })
     expect(e[1]).toMatchObject({ asns: [4], scm: false, cnpj: undefined })
     expect(e[2]).toMatchObject({ asns: [], scm: true, scmHq: true, name: 'Provedor B' })
-    expect(contagemEntidades(e)).toEqual({ asns: 2, scms: 2 })
+    expect(contagemEntidades(e)).toEqual({ asns: 3, cnpjsComAsn: 2, scms: 2 })     // ASNs no raio (1, 2, 4), não entidades (LOC-E3)
     // sem a camada SCM a outorga sem ASN não aparece, mas o AS ainda sabe que tem outorga
     const sem = montarEntidades({ filteredAsns: r.filteredAsns, scmsInRadius: sc, asnToCnpj: idx.asnToCnpj, cnpjAllAsns: idx.cnpjAllAsns, scmCnpjs: idx.scmCnpjs,
       asnNameMap: nomes, showScms: false, showSici: false, siciOperadores: [] })
     expect(sem.map(x => x.key)).toEqual([`cnpj:${CNPJ_A}`, 'asn:4'])
     expect(sem[0]).toMatchObject({ scm: true, scmHq: false })
+  })
+
+  it('ASN do mesmo CNPJ fora do raio não conta, não vira etiqueta nem entra no CSV (LOC-E3)', () => {
+    const r = filtrarNoRaio({ markerPos: SP, radius: 50, showAsns: true, showPrefixes: false, asnGeo, prefixGeo, asnNameMap: nomes })
+    const e = montarEntidades({ filteredAsns: r.filteredAsns, scmsInRadius: [], asnToCnpj: idx.asnToCnpj, cnpjAllAsns: idx.cnpjAllAsns, scmCnpjs: idx.scmCnpjs,
+      asnNameMap: nomes, showScms: false, showSici: false, siciOperadores: [] })
+    expect(e[0]).toMatchObject({ key: `cnpj:${CNPJ_A}`, asns: [1, 2], asnsNoRaio: [1] })      // AS2 (Campinas, ~85 km) fora do raio de 50 km
+    expect(contagemEntidades(e)).toEqual({ asns: 2, cnpjsComAsn: 2, scms: 1 })
+    const ixOf = (a: number) => ({ m: a === 2 ? ['rj'] : ['sp'], o: [] as string[] })
+    const linha = montarCsv(e, ixOf as never, null, (c) => c).split('\n')[1]
+    expect(linha.startsWith('1,')).toBe(true)                        // só o AS1 na coluna de ASNs
+    expect(linha).not.toMatch(/rj/)                                  // a presença do AS2 (fora do raio) não entra
   })
 
   it('SICI acrescenta operadores com acessos e marca como SCM', () => {
@@ -211,8 +223,8 @@ describe('participação em IXes', () => {
 describe('CSV da lista', () => {
   it('uma linha por entidade, com sim/não e participação em IXes; vírgula e aspas escapadas', () => {
     const entities = [
-      { key: 'a', cnpj: CNPJ_A, asns: [1, 2], name: 'Prov, "A"', city: 'Cidade', uf: 'SP', fromHq: true, v4: true, v6: false, scm: true, scmHq: false },
-      { key: 'b', cnpj: CNPJ_B, asns: [], name: 'Só SCM', fromHq: false, v4: false, v6: false, scm: true, scmHq: true, sici: { acessos: 50, municipios: 2 } },
+      { key: 'a', cnpj: CNPJ_A, asns: [1, 2], asnsNoRaio: [1, 2], name: 'Prov, "A"', city: 'Cidade', uf: 'SP', fromHq: true, v4: true, v6: false, scm: true, scmHq: false },
+      { key: 'b', cnpj: CNPJ_B, asns: [], asnsNoRaio: [], name: 'Só SCM', fromHq: false, v4: false, v6: false, scm: true, scmHq: true, sici: { acessos: 50, municipios: 2 } },
     ]
     const pres: Record<number, { m: string[]; o: string[] }> = { 1: { m: ['sp', 'mg'], o: ['sp'] }, 2: { m: ['sp'], o: [] } }
     const csv = montarCsv(entities, a => pres[a] ?? { m: [], o: [] }, 'sp', c => `IX ${c}`)

@@ -61,16 +61,22 @@ describe('Regulatório', () => {
     await waitFor(() => expect(servicoPedido).toBe('fixo'))
   })
 
-  it('aba Satélites: direito vencido aparece marcado', async () => {
+  it('aba Satélites: direito vencido aparece marcado; NGEO um sistema por linha com a faixa declarada (REGULATORIO-E1)', async () => {
+    const reg = (objeto: string, agenda_ano: number, constelacao: number) => ({ cnpj: null, prestadora: 'P', lancamento: null, estacao: objeto.slice(0, 3), objeto, status: 'OPERAÇÃO COMERCIAL', orbita: 'BAIXA (LEO)', planos: 6, constelacao, agenda_ano })
     server.use(
-      http.get('*/api/v1/satelites/resumo', () => HttpResponse.json({ ...meta, resumo: { direitos: 4, operadoras: 3, satelites: 3, por_tipo: { Estrangeiro: 3, Brasileiro: 1 }, por_status: {}, vencidos_na_data: 1, ngeo: 1, operando: 2, ngeo_por_orbita: {} },
-        ngeo: [{ cnpj: null, prestadora: 'IRIDIUM', lancamento: null, estacao: 'IRD', objeto: 'Iridium', status: 'OPERAÇÃO COMERCIAL', orbita: 'BAIXA (LEO)', planos: 6, constelacao: 66 }], operando: [] })),
+      http.get('*/api/v1/satelites/resumo', () => HttpResponse.json({ ...meta, resumo: { direitos: 4, operadoras: 3, satelites: 3, por_tipo: { Estrangeiro: 3, Brasileiro: 1 }, por_status: {}, vencidos_na_data: 1, ngeo: 6, ngeo_sistemas: 2, operando: 2, ngeo_por_orbita: {} },
+        ngeo: [reg('Iridium', 2026, 66), ...[[2022, 2661], [2023, 4408], [2024, 4408], [2025, 7184], [2026, 9857]].map(([a, c]) => reg('Starlink', a, c))],
+        ngeo_sistemas: [{ ...reg('Iridium', 2026, 66), registros: 1, anos_agenda: [2026], constelacao_min: 66, constelacao_max: 66 },
+          { ...reg('Starlink', 2026, 9857), registros: 5, anos_agenda: [2022, 2023, 2024, 2025, 2026], constelacao_min: 2661, constelacao_max: 9857 }], operando: [] })),
       http.get('*/api/v1/satelites/direitos', () => HttpResponse.json({ ...meta, operadora: null, tipo: null, status: null, total: 1, limit: 20, offset: 0,
         items: [{ operadora: 'SATELITE BRASILEIRO SA', satelite: 'BR-SAT 2', codigo: 'x', posicao: '65ºO', banda: 'Ka', tipo: 'Brasileiro', status: 'operação comercial', lancamento: '2020-05-10', validade: '2026-01-31', prorrogado: false, vencido: true }] })),
     )
     montar('/regulatorio?aba=satelites')
     await waitFor(() => expect(screen.getByText(/\(vencida\)/)).toBeTruthy())
     expect(screen.getByText('Iridium')).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'Sistemas de órbita não geoestacionária (2)' })).toBeTruthy()
+    expect(screen.getAllByText('Starlink')).toHaveLength(1)
+    expect(screen.getByText('2.661 a 9.857 em 5 registros')).toBeTruthy()
   })
 
   it('aba FUST: programas, editais e municípios; sem executora', async () => {

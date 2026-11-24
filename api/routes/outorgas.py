@@ -87,7 +87,10 @@ def montar_lista(store: Store, date_str: str, *, servico: Optional[str] = None, 
     if com_asn is not None:
         linhas = [r for r in linhas if bool(r["asns"]) is com_asn]
     if ativo is not None:
-        linhas = [r for r in linhas if r["ativo"] is ativo]
+        # com um só serviço, "declara" é o acesso daquele serviço: SCM = fixo, SMP = móvel. Sem isso a aba SCM contava quem só
+        # declara móvel (9.919 contra 9.917 CNPJs com SCM no SICI fixo). Com vários ou nenhum, fixo ou móvel (`ativo`).
+        campo = {("SCM",): "acessos_fixo", ("SMP",): "acessos_movel"}.get(tuple(quer), "acessos")
+        linhas = [r for r in linhas if (r[campo] > 0) is ativo]
     if porte:
         linhas = [r for r in linhas if r["porte"].lower() == porte.lower()]
     if min_acessos is not None:
@@ -121,7 +124,8 @@ def montar_do_cnpj(store: Store, date_str: str, cnpj: str, servico: Optional[str
     summary="Outorgas da Anatel (SCM, SMP, STFC, SeAC): uma linha por CNPJ",
     description="""
 Uma linha por CNPJ que tem outorga de qualquer serviço, com `servicos` (os que ele tem), `outorgas`, sede, `asns`, `porte`
-(declarado ao SICI) e os acessos declarados (`acessos_fixo`, `acessos_movel`, `acessos`; `ativo` = declarou algum).
+(declarado ao SICI) e os acessos declarados (`acessos_fixo`, `acessos_movel`, `acessos`; `ativo` = declarou algum). O filtro
+`ativo` com um só serviço (SCM ou SMP) olha o acesso daquele serviço.
 
 `data_outorga` é a mais antiga entre os serviços (`data_outorga_por_servico` traz cada uma); `pj_*`, `municipios_*` e
 `tecnologia_fixo` vêm do SICI.
@@ -142,7 +146,9 @@ def listar_outorgas(
     municipio: Optional[str] = Query(None, description="Município da sede (substring)."),
     q: Optional[str] = Query(None, description="Razão social, nome fantasia ou CNPJ."),
     com_asn: Optional[bool] = Query(None, description="true = só com ASN; false = só sem ASN."),
-    ativo: Optional[bool] = Query(None, description="true = só quem declara acessos ao SICI (fixo ou móvel)."),
+    ativo: Optional[bool] = Query(None, description="true = só quem declara acessos ao SICI; false = só quem não declara. "
+                                  "Com `servico=SCM` sozinho conta só o acesso fixo; com `servico=SMP` sozinho, só o móvel; "
+                                  "nos demais casos, fixo ou móvel."),
     porte: Optional[str] = Query(None, description="Porte declarado ao SICI (ex.: Pequeno Porte, Grande Porte)."),
     min_acessos: Optional[int] = Query(None, ge=0),
     sort_by: str = Query("acessos", description=f"Um de: {', '.join(sorted(_SORT))}"),

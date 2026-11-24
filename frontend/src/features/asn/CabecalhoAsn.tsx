@@ -34,6 +34,8 @@ function LinkGrupo({ cnpj }: { cnpj: string }) {
 
 /** Cabeçalho da página de ASN: nome, selos (Brasil/IPv6/IPv4), CNPJ com outorgas, ASNs do mesmo CNPJ, nomes alternativos, PeeringDB e contatos. */
 export function CabecalhoAsn({ doc }: { doc: ASNDocument }) {
+  // credenciamento de rede virtual no SMP sem outorga própria: selo "MVNO", nunca "SMP" (REL-E3)
+  const credenciada = !doc.has_smp && !!doc.smp?.some((r) => r.rede_virtual?.papel === 'credenciada')
   return (
     <EntityHeader
       trilha={<Migalhas grupo="rede" itens={[{ rotulo: 'ASes', to: '/ases' }, { rotulo: `AS${doc.asn}`, mono: true }]} />}
@@ -57,9 +59,10 @@ export function CabecalhoAsn({ doc }: { doc: ASNDocument }) {
             </span>
             {doc.has_scm && <OutorgaBadge label="SCM" />}
             {doc.has_smp && <OutorgaBadge label="SMP" />}
+            {!doc.has_smp && credenciada && <OutorgaBadge label="MVNO" />}
             {doc.has_stfc && <OutorgaBadge label="STFC" />}
             {doc.has_seac && <OutorgaBadge label="SeAC" />}
-            {!doc.has_scm && !doc.has_smp && !doc.has_stfc && !doc.has_seac && (
+            {!doc.has_scm && !doc.has_smp && !credenciada && !doc.has_stfc && !doc.has_seac && (
               <span className="text-xs font-medium bg-gray-100 text-gray-500 rounded px-1.5 py-0.5">sem outorga Anatel</span>
             )}
           </div>

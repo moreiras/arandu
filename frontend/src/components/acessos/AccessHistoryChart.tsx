@@ -13,10 +13,13 @@ export function AccessHistoryChart({
   serie,
   height = 180,
   meses = 24,
+  soTotal = false,
 }: {
   serie: SiciSeriePoint[]
   height?: number
   meses?: number
+  /** A série só tem o total do mês (sem PF/PJ): sem área nem legenda B2C e sem B2C/B2B na dica (PANORAMA-E2). */
+  soTotal?: boolean
 }) {
   const [hover, setHover] = useState<number | null>(null)
   const pts = useMemo(() => serie.slice(-meses), [serie, meses])
@@ -54,7 +57,7 @@ export function AccessHistoryChart({
                   fontSize={10} fill="#9ca3af">{fmt(Math.round(max * f))}</text>
           </g>
         ))}
-        <path d={areaPf} fill="#3b82f6" fillOpacity={0.18} />
+        {!soTotal && <path d={areaPf} fill="#3b82f6" fillOpacity={0.18} />}
         <path d={path} fill="none" stroke="#1d4ed8" strokeWidth={1.8} />
         {pts.map((p, i) => (
           <rect key={p[0]} x={xs[i] - 6} y={PAD.top} width={12} height={ih}
@@ -70,10 +73,10 @@ export function AccessHistoryChart({
       </svg>
       <div className="text-xs text-gray-500 flex gap-4 mt-0.5">
         <span><span className="inline-block w-2.5 h-2.5 align-middle mr-1 rounded-sm" style={{ background: '#1d4ed8' }} />total</span>
-        <span><span className="inline-block w-2.5 h-2.5 align-middle mr-1 rounded-sm" style={{ background: '#3b82f6', opacity: 0.35 }} />B2C (pessoa física)</span>
+        {!soTotal && <span><span className="inline-block w-2.5 h-2.5 align-middle mr-1 rounded-sm" style={{ background: '#3b82f6', opacity: 0.35 }} />B2C (pessoa física)</span>}
         {h && (
           <span className="ml-auto tabular-nums text-gray-700">
-            {h[0]}: <strong>{fmt(h[1])}</strong> · B2C {fmt(h[2])} · B2B {fmt(h[3])}
+            {h[0]}: <strong>{fmt(h[1])}</strong>{!soTotal && <> · B2C {fmt(h[2])} · B2B {fmt(h[3])}</>}
           </span>
         )}
       </div>
