@@ -72,7 +72,9 @@ def test_faixas_de_interesse_pelas_que_se_sobrepoem():
 def test_satelites_resumo_conta_vencidos_na_data_do_snapshot():
     d = lambda op, sat, tipo, status, val: {"operadora": op, "satelite": sat, "tipo": tipo, "status": status, "validade": val}      # noqa: E731
     t = {"direitos": [d("A", "S1", "Estrangeiro", "operação comercial", "2030-01-01"), d("A", "S1", "Estrangeiro", "operação comercial", "2030-01-01"), d("B", "S2", "Brasileiro", "operação comercial", "2026-01-31"),
-                      d("C", "S3", "Estrangeiro", "pendente", None)], "ngeo": [{"orbita": "BAIXA (LEO)"}, {"orbita": "BAIXA (LEO)"}, {"orbita": "MÉDIA (MEO)"}], "operando": [{}, {}]}
+                      d("C", "S3", "Estrangeiro", "pendente", None)], "ngeo": [{"objeto": "L1", "orbita": "BAIXA (LEO)"}, {"objeto": "L2", "orbita": "BAIXA (LEO)"}, {"objeto": "M1", "orbita": "MÉDIA (MEO)"},
+                                                       {"objeto": "M1", "orbita": "MÉDIA (MEO)"}], "operando": [{}, {}]}        # a última é cópia exata: sai
     r = calcular_satelites(t, "2026-11-02")["resumo"]
     assert (r["direitos"], r["operadoras"], r["satelites"], r["vencidos_na_data"], r["ngeo"], r["operando"]) == (4, 3, 3, 1, 3, 2)
     assert r["por_tipo"] == {"Estrangeiro": 3, "Brasileiro": 1} and r["ngeo_por_orbita"] == {"BAIXA (LEO)": 2, "MÉDIA (MEO)": 1}
+    assert r["ngeo_sistemas"] == 3

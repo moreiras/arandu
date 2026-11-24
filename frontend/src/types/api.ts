@@ -2248,10 +2248,14 @@ export interface EspectroFaixas extends RegMeta {
   de: number | null; ate: number | null; servico: string | null; carater: string | null; total: number; limit: number; offset: number; items: Faixa[]; referencias: FaixaReferencia[] | null
 }
 export interface SatelitesResumo extends RegMeta {
-  resumo: { direitos: number; operadoras: number; satelites: number; por_tipo: Record<string, number>; por_status: Record<string, number>; vencidos_na_data: number; ngeo: number; operando: number; ngeo_por_orbita: Record<string, number> }
-  ngeo: Array<{ cnpj: string | null; prestadora: string; lancamento: string | null; estacao: string; objeto: string; status: string; orbita: string; planos: number | null; constelacao: number | null }>
+  resumo: { direitos: number; operadoras: number; satelites: number; por_tipo: Record<string, number>; por_status: Record<string, number>; vencidos_na_data: number; ngeo: number; ngeo_sistemas?: number; operando: number; ngeo_por_orbita: Record<string, number> }
+  /** Registros como a Anatel publica: um por sistema e ano de agenda (`agenda_ano`, quando o arquivo traz). */
+  ngeo: Array<NgeoRegistro & { agenda_ano?: number | null; nu_estacao?: string }>
+  /** Um por sistema (REGULATORIO-E1): campos do registro mais recente e a faixa de satélites declarada nos registros. */
+  ngeo_sistemas: Array<NgeoRegistro & { registros: number; anos_agenda: number[]; constelacao_min: number | null; constelacao_max: number | null }>
   operando: Array<{ satelite: string; posicao: string; bandas: string; tipo: string; operadora: string }>
 }
+interface NgeoRegistro { cnpj: string | null; prestadora: string; lancamento: string | null; estacao: string; objeto: string; status: string; orbita: string; planos: number | null; constelacao: number | null }
 export interface SateliteDireito {
   operadora: string; satelite: string; codigo: string; posicao: string; banda: string; tipo: string; status: string; lancamento: string | null; validade: string | null; prorrogado: boolean; vencido: boolean
 }

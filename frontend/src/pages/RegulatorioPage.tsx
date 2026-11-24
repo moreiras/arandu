@@ -232,7 +232,8 @@ function Satelites() {
   const [tipo, setTipo] = useState('')
   const [page, setPage] = useState(1)
   const resumo = useQuery({ queryKey: ['satelites-resumo'], queryFn: fetchSatelitesResumo, staleTime, retry: false })
-  const ngeo = useOrdenacao(resumo.data?.ngeo, { sistema: (n) => n.objeto, prestadora: (n) => n.prestadora, orbita: (n) => n.orbita, satelites: (n) => n.constelacao, situacao: (n) => n.status })
+  // um por sistema (`ngeo_sistemas`); a tabela da Anatel tem um registro por sistema e ano de agenda, e cópias (REGULATORIO-E1)
+  const ngeo = useOrdenacao(resumo.data?.ngeo_sistemas, { sistema: (n) => n.objeto, prestadora: (n) => n.prestadora, orbita: (n) => n.orbita, satelites: (n) => n.constelacao, situacao: (n) => n.status })
   const lista = useQuery({ queryKey: ['satelites-direitos', operadora, tipo, page], queryFn: () => fetchSatelitesDireitos({ operadora: operadora || undefined, tipo: tipo || undefined, limit: 20, page }), staleTime, retry: false })
   const r = resumo.data
   if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="os satélites" mensagem="Satélites não publicados neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
@@ -245,11 +246,13 @@ function Satelites() {
           <div className="text-gray-600">{Object.entries(s.por_tipo).map(([k, v]) => `${k} ${inteiro(v)}`).join(' · ')}</div>
           <div className="text-gray-600">{inteiro(s.vencidos_na_data)} com validade vencida na data do snapshot</div>
         </div>
-        <h2 className="text-sm font-semibold text-gray-700 pt-2">Constelações de órbita não geoestacionária ({inteiro(s.ngeo)})</h2>
+        <h2 className="text-sm font-semibold text-gray-700 pt-2">Sistemas de órbita não geoestacionária ({inteiro(r.ngeo_sistemas.length)})</h2>
+        <p className="text-xs text-gray-500">Um sistema por linha, com a situação e o número de satélites do registro mais recente; a Anatel publica um registro por sistema e por ano de agenda ({inteiro(s.ngeo)} registros distintos), e a faixa mostra o que foi declarado em cada ano.</p>
         <div className="overflow-x-auto"><table className="text-xs min-w-full">
           <thead className="text-gray-500"><tr><ThOrdenavel {...ngeo.props('sistema')} className="text-left px-2 py-1">Sistema</ThOrdenavel><ThOrdenavel {...ngeo.props('prestadora')} className="text-left px-2 py-1">Prestadora</ThOrdenavel><ThOrdenavel {...ngeo.props('orbita')} className="text-left px-2 py-1">Órbita</ThOrdenavel><ThOrdenavel {...ngeo.props('satelites')} alinhar="right" className="text-right px-2 py-1">Satélites</ThOrdenavel><ThOrdenavel {...ngeo.props('situacao')} className="text-left px-2 py-1">Situação</ThOrdenavel></tr></thead>
           <tbody>{ngeo.ordenados.map((n, i) => <tr key={`${n.estacao}-${i}`} className="border-t border-gray-100"><td className="px-2 py-1">{n.objeto}</td><td className="px-2 py-1">{n.prestadora}</td><td className="px-2 py-1">{n.orbita}</td>
-            <td className="px-2 py-1 text-right tabular-nums">{inteiro(n.constelacao)}</td><td className="px-2 py-1">{n.status}</td></tr>)}</tbody>
+            <td className="px-2 py-1 text-right tabular-nums">{inteiro(n.constelacao)}{n.registros > 1 && n.constelacao_min != null && n.constelacao_max != null && n.constelacao_min !== n.constelacao_max && (
+              <span className="block text-gray-500">{inteiro(n.constelacao_min)} a {inteiro(n.constelacao_max)} em {inteiro(n.registros)} registros</span>)}</td><td className="px-2 py-1">{n.status}</td></tr>)}</tbody>
         </table></div>
       </section>
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">

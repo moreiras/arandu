@@ -1433,7 +1433,7 @@ def test_multas_espectro_e_satelites(api):
     assert api.post("/api/v1/query/faixas_espectro", json={"limit": 100}, headers=ALLOWED).json()["total"] == 5
 
     s = api.get("/api/v1/satelites/resumo", headers=ALLOWED).json()
-    assert s["resumo"]["direitos"] == 4 and s["resumo"]["vencidos_na_data"] == 1 and s["resumo"]["por_tipo"] == {"Estrangeiro": 3, "Brasileiro": 1} and len(s["ngeo"]) == 1
+    assert s["resumo"]["direitos"] == 4 and s["resumo"]["vencidos_na_data"] == 1 and s["resumo"]["por_tipo"] == {"Estrangeiro": 3, "Brasileiro": 1} and len(s["ngeo"]) == 4 and len(s["ngeo_sistemas"]) == 2
     d = api.get("/api/v1/satelites/direitos", params={"tipo": "Brasileiro"}, headers=ALLOWED).json()
     assert d["total"] == 1 and d["items"][0]["vencido"] is True
     assert api.get("/api/v1/satelites/direitos", params={"operadora": "alfa"}, headers=ALLOWED).json()["total"] == 2

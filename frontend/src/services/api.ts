@@ -1404,8 +1404,10 @@ export function fetchEspectroFaixas(opts: { de?: number; ate?: number; servico?:
   return get('/api/v1/espectro/faixas', opts)
 }
 
+/** Sobe quando o corpo de `/satelites/resumo` muda (2: `ngeo_sistemas`, REGULATORIO-E1): troca a URL guardada em cache. */
+const ESQUEMA_SATELITES = 2
 export function fetchSatelitesResumo(): Promise<SatelitesResumo> {
-  return get('/api/v1/satelites/resumo')
+  return get('/api/v1/satelites/resumo', { esquema: ESQUEMA_SATELITES })
 }
 
 export function fetchSatelitesDireitos(opts: { operadora?: string; tipo?: string; status?: string; limit?: number; page?: number } = {}): Promise<SatelitesDireitos> {
