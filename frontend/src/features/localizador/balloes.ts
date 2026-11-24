@@ -12,7 +12,7 @@ import type { AsnDot, Bubble, InfoAsn, MunicipioSici, ScmGeoFeature } from './ti
 import type { GrupoCoord } from './calculos'
 import { escapar } from '../../lib/html'
 
-const SCM_TAG = `<span style="background:${SCM_SELO};color:white;font-size:10px;padding:0 5px;border-radius:9999px">SCM</span>`
+const SCM_TAG = `<span style="background:${escapar(SCM_SELO)};color:white;font-size:10px;padding:0 5px;border-radius:9999px">SCM</span>`
 
 /** Bolhas de prefixos agrupadas por coordenada exata (evita sobreposição); grupos com vários ASes viram um modal. */
 export function featuresBolhas(prefixBubbles: Bubble[], asnNameMap: Map<number, InfoAsn>, asnToCnpj: Map<number, string>): GeoJSON.Feature[] {

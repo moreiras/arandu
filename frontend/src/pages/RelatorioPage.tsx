@@ -24,7 +24,7 @@ const TEXTO_SELO = { fato: 'text-fato-700', inferido: 'text-inferido-700', estim
 
 /** Selo em texto (WCAG 1.4.1): a cor do ponto é reforço; o rótulo fica visível na tela, no leitor de tela e no papel sem fundos. */
 function SeloTexto({ selo }: { selo: Selo }) {
-  return <span className={`mr-1.5 rounded border border-current px-1 text-[10px] font-medium uppercase leading-4 ${TEXTO_SELO[selo]}`} title={DESCRICAO_SELO[selo]} data-selo={selo}>{ROTULO_SELO[selo]}</span>
+  return <span className={`mr-1.5 rounded border border-current px-1 text-xs font-medium uppercase leading-4 ${TEXTO_SELO[selo]}`} title={DESCRICAO_SELO[selo]} data-selo={selo}>{ROTULO_SELO[selo]}</span>
 }
 const TIPOS = ['asn', 'operadora', 'municipio', 'grupo'] as const
 type Tipo = (typeof TIPOS)[number]

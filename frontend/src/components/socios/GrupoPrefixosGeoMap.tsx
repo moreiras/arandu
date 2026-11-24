@@ -128,10 +128,11 @@ export function GrupoPrefixosGeoMap({
     }
     return [...porLocal.values()].sort((a, b) => b.v6 + b.v4 - (a.v6 + a.v4))
   }, [features])
+  const rotuloMapa = `Mapa dos blocos IP geolocalizados dos ASNs do grupo em ${alternativa.length.toLocaleString('pt-BR')} localidades (os números estão em "Ver dados")`
 
   return (
     <div>
-      <div ref={container} style={{ height }} role="group" aria-label={`Mapa dos blocos IP geolocalizados dos ASNs do grupo em ${alternativa.length.toLocaleString('pt-BR')} localidades (os números estão em "Ver dados")`}
+      <div ref={container} style={{ height }} role="group" aria-label={rotuloMapa}
         className="w-full rounded-lg overflow-hidden border border-gray-200" />
       <div className="text-xs text-gray-500 mt-1 flex items-center gap-3">
         <span className="flex items-center gap-1">

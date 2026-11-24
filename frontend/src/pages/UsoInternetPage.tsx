@@ -69,6 +69,7 @@ function EstimativasUf() {
         verDados={
       <div className="overflow-x-auto">
         <table className="text-xs min-w-full">
+          <caption className="sr-only">Estimativa por grupo</caption>
           <thead className="text-gray-500"><tr><ThOrdenavel {...props('grupo')} className="text-left px-2 py-1">Grupo</ThOrdenavel><ThOrdenavel {...props('proporcao')} alinhar="right" className="text-right px-2 py-1">%</ThOrdenavel><ThOrdenavel {...props('margem')} alinhar="right" className="text-right px-2 py-1">Margem (95%)</ThOrdenavel><ThOrdenavel {...props('total')} alinhar="right" className="text-right px-2 py-1">Domicílios estimados</ThOrdenavel><ThOrdenavel {...props('n')} alinhar="right" className="text-right px-2 py-1">Entrevistados</ThOrdenavel></tr></thead>
           <tbody>
             {ordenados.map(({ g, e }) => {
@@ -124,6 +125,7 @@ function DemandaOfertaUfs() {
         verDados={
       <div className="overflow-x-auto">
         <table className="text-xs min-w-full">
+          <caption className="sr-only">Demanda e oferta por grupo</caption>
           <thead className="text-gray-500"><tr><ThOrdenavel {...props('grupo')} className="text-left px-2 py-1">Grupo</ThOrdenavel><ThOrdenavel {...props('demanda')} alinhar="right" className="text-right px-2 py-1">Demanda (domicílios)</ThOrdenavel><ThOrdenavel {...props('oferta')} alinhar="right" className="text-right px-2 py-1">Oferta (acessos PF)</ThOrdenavel><ThOrdenavel {...props('razao')} alinhar="right" className="text-right px-2 py-1">Razão</ThOrdenavel><ThOrdenavel {...props('intervalo')} alinhar="right" className="text-right px-2 py-1">Intervalo (95%)</ThOrdenavel><ThOrdenavel {...props('nao_visto')} alinhar="right" className="text-right px-2 py-1">Não visto</ThOrdenavel><ThOrdenavel {...props('leitura')} className="text-left px-2 py-1">Leitura</ThOrdenavel></tr></thead>
           <tbody>
             {ordenados.map(({ id, tipo, l }) => (

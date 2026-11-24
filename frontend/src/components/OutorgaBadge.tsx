@@ -8,7 +8,7 @@ export function OutorgaBadge({ label }: { label: string }) {
   )
 }
 
-/** Badge "ASN" — o CNPJ tem ao menos um sistema autônomo associado. Os números
+/** Badge "ASN": o CNPJ tem ao menos um sistema autônomo associado. Os números
  *  vão no título e em texto para o leitor de tela (o title não chega ao teclado
  *  nem ao toque); com um único ASN, o badge leva à página do AS. */
 export function AsnBadge({ asns }: { asns?: number[] | null }) {

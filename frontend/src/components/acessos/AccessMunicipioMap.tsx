@@ -208,10 +208,11 @@ export function AccessMunicipioMap({
   const alternativa = useMemo(() => [...municipios].sort((a, b) => b.acessos - a.acessos).slice(0, MAX_TABELA)
     .map((m) => ({ municipio: m.nome, uf: m.uf, acessos: m.acessos, share: m.share ?? null })), [municipios])
   const comParcela = alternativa.some((m) => m.share != null)
+  const rotuloMapa = `Mapa de bolhas: acessos declarados em ${municipios.length.toLocaleString('pt-BR')} municípios (os números estão em "Ver dados")`
 
   return (
     <div>
-      <div ref={container} style={{ height }} role="group" aria-label={`Mapa de bolhas: acessos declarados em ${municipios.length.toLocaleString('pt-BR')} municípios (os números estão em "Ver dados")`}
+      <div ref={container} style={{ height }} role="group" aria-label={rotuloMapa}
         className="w-full rounded-lg overflow-hidden border border-gray-200" />
       <div className="text-xs text-gray-500 mt-1">
         Bolha proporcional aos acessos declarados no município.
