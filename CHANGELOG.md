@@ -33,6 +33,25 @@ parênteses remetem à análise.
   inferido, estimado) aparece escrito, também impresso; a contagem animada do PTT respeita movimento reduzido; selo SCM do
   localizador e erro do login passam de 4,5:1 de contraste (INST-E2, INST-E3, LOC-E8, INST-E10, IXP-E11, REL-E9, CDNS-E7, SEG-E1,
   EST-E7, OPERADORA-E3, OPERADORA-E4, OPERADORA-E5, GRUPO-E1, GRUPOS-E2, ASES-E8, USO-E13).
+- **Cálculos de rede corrigidos (PT-04).** Números publicados que mudam:
+  - interconexão do ASN (REST e MCP `asn_interconexao`): o carregador é o AS vizinho ao PTT (último do caminho gravado), e caminhos
+    de um AS contam; antes se tomava o primeiro elemento de um caminho invertido e se atribuía entrega a AS sem sessão no PTT;
+  - MOAS deixa de ser publicado (`moas: null` com `moas_indisponivel`) em `/routing-analysis`, `/brasil/indicadores`, MCP e telas,
+    inclusive para snapshots antigos: a coleta guarda uma rota por prefixo e o número era sempre 0; a categoria da cobertura passa a
+    "Várias origens, sem agregado";
+  - profundidade de mais-específicos pelo pai imediato (era sempre 1); a lista de filtráveis mostra tudo por padrão;
+  - originadores por PTT são a união IPv6 ∪ IPv4 (era o maior dos dois) em `ixps/index.json`, `ixp_lista`, `query(ixps)` e na série;
+  - PTTs externos contam redes distintas (`redes`, `redes_br`, `portas`; `member_count` e `br_member_count` viram alias): decix-rj
+    passa de 16 a 14 membros;
+  - communities dos route servers contam ASNs distintos (`asns_total`; a soma por PTT fica em `asns_soma_ptts`): `65000:6939` passa
+    de 1.382 a 769;
+  - mapeamento PeeringDB dos PTTs: `ria` → 1847 e `rao` → 4862 (estavam trocados), sem `santa-maria`; com a próxima coleta as
+    instalações vão para os PTTs certos (38 de 40);
+  - trânsito do AS pela inferência de relações (regra `sintese-as-2`, sem o próprio AS, irmãos e ASNs do mesmo CNPJ), com campo
+    novo `n_provedores_provavel` (`n_provedores` segue contando confirmado ou acima); bloco PeeringDB do ASN e da CDN lê os campos
+    que a API envia; presença de CDN nos PTTs em três critérios (membro, sessão, só por terceiros).
+  Parâmetro `esquema` de `routing-analysis` e `brasil/indicadores` passa a 3 (ASN-E1, ASN-E2, ASN-E4, CMP-E5, BGP-E2, PFX-E3,
+  BGP-E5, BGP-E4, BGP-E8, IXP-E3, IXPS-E1, IXE-E1, IXE-E2, COMM-E1, INST-E2, IXPS-E2, PANT-E1, IXPS-E3, CDN-E1).
 
 ## v2.1.3
 
