@@ -6,10 +6,12 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { DistribVelocidade } from '../../types/api'
 import { SpeedDistributionChart } from './SpeedDistributionChart'
 
+// o recharts (ResponsiveContainer) usa ResizeObserver, que o jsdom não tem
+beforeAll(() => { vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} unobserve() {} }) })
 describe('panorama: alternâncias com estado (OPERADORA-E5, PANORAMA)', () => {
   it('PF/PJ da distribuição de velocidade são botões com aria-pressed', () => {
     const distrib = { SP: { pf: { '12Mbps a 34Mbps': 10 }, pj: { '12Mbps a 34Mbps': 5 } } } as unknown as DistribVelocidade

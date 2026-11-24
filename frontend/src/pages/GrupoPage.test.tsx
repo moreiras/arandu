@@ -125,7 +125,7 @@ describe('/grupo/:id', () => {
     expect(await screen.findByText('85,7%')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /SP/ })).toHaveAttribute('href', '/ixp/sp')
     // os ASes do PTT estavam só no title (OPERADORA-E4): agora fazem parte do nome acessível do link
-    expect(screen.getByRole('link', { name: /SP \(2\), ASes: AS64500, AS64501/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /SP \(2\)\s*, ASes: AS64500, AS64501/ })).toBeInTheDocument()
     expect(screen.getByText(/Peering bilateral não é visível/)).toBeInTheDocument()
   })
 

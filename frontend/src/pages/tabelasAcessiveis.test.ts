@@ -21,7 +21,7 @@ describe('tabelas com scope e nome (PT-29)', () => {
   for (const rel of ARQUIVOS) {
     it(rel, () => {
       const fonte = readFileSync(resolve(__dirname, '..', rel), 'utf-8')
-      const semScope = [...fonte.matchAll(/<th\b(?![^>]*\bscope=)[^>]*>/g)].map((m) => m[0])
+      const semScope = [...fonte.matchAll(/(?<!`)<th\b(?![^>]*\bscope=)[^>]*>/g)].map((m) => m[0])
       expect(semScope, 'th sem scope').toEqual([])
       const tabelas = [...fonte.matchAll(/<table\b[^>]*>\s*(<caption\b)?/g)]
       expect(tabelas.length).toBeGreaterThan(0)

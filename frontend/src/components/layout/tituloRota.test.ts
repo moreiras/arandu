@@ -17,6 +17,6 @@ describe('tituloDaRota', () => {
   })
   it('prefixo com barra e rota desconhecida', () => {
     expect(tituloDaRota('/prefixo/198.18.0.0/24')).toBe('Prefixo 198.18.0.0/24 · Arandurapé')
-    expect(tituloDaRota('/nao-existe')).toBe('Arandurapé')
+    expect(tituloDaRota('/nao-existe')).toBe('Página não encontrada · Arandurapé')
   })
 })

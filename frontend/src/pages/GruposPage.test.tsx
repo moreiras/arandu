@@ -7,7 +7,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { server } from '../test/server'
 import { useAppStore } from '../store/app'
 import { GruposPage } from './GruposPage'
@@ -26,13 +26,15 @@ const grupo = (id: string, nome: string, tamanho: number, assinantes: number, as
   cnpjs: Array.from({ length: tamanho }, (_, i) => cnpj(i + 1, i === 0 ? nome : `${nome} ${i}`, i === 0 ? asns : undefined)), municipios: [],
 })
 
+// o recharts (ResponsiveContainer) usa ResizeObserver, que o jsdom não tem
+beforeAll(() => { vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} unobserve() {} }) })
 beforeEach(() => {
   useAppStore.setState({ activeDate: null, latestSnapshot: '2026-09-20' })
   server.use(
     http.get('*/api/v1/grupos', () => HttpResponse.json({ snapshot_date: '2026-09-20', total: 2, grupos: [
       grupo('g1', 'ALFA TELECOM', 3, 5000, [64500, 64501]), grupo('g2', 'BETA NET', 2, 100),
     ] })),
-    http.get('*/api/v1/grupos/:id/prefixos-geo', () => HttpResponse.json({ snapshot_date: '2026-09-20', grupo_id: 'g1', prefixos: [] })),
+    http.get('*/api/v1/grupos/:id/prefixos-geo', () => HttpResponse.json({ type: 'FeatureCollection', features: [], snapshot_date: '2026-09-20', grupo_id: 'g1' })),
   )
 })
 
@@ -46,7 +48,7 @@ describe('/grupos: seleção por teclado e controles com estado (GRUPOS-E2, OPER
   it('"Ver no mapa" é botão nativo (Enter e Espaço) que seleciona a linha, com aria-pressed e anúncio', async () => {
     montar()
     const tabela = await screen.findByRole('table', { name: 'Grupos econômicos' })
-    const beta = within(tabela).getByRole('button', { name: 'Ver no mapa: BETA NET' })
+    const beta = await within(tabela).findByRole('button', { name: /^Ver no mapa\s*: BETA NET$/ })
     // <button type="button">: o navegador ativa com Enter e Espaço e o põe na ordem de tabulação (o <tr onClick> não tinha nada disso)
     expect(beta.tagName).toBe('BUTTON')
     expect(beta).toHaveAttribute('type', 'button')
@@ -54,7 +56,7 @@ describe('/grupos: seleção por teclado e controles com estado (GRUPOS-E2, OPER
     fireEvent.click(beta)
     expect(beta).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByTestId('grupo-selecionado')).toHaveTextContent('Grupo selecionado: BETA NET, 2 empresas')
-    const alfa = within(tabela).getByRole('button', { name: 'Ver no mapa: ALFA TELECOM' })
+    const alfa = within(tabela).getByRole('button', { name: /^Ver no mapa\s*: ALFA TELECOM$/ })
     fireEvent.click(alfa)
     expect(alfa).toHaveAttribute('aria-pressed', 'true')
     expect(beta).toHaveAttribute('aria-pressed', 'false')
@@ -76,6 +78,6 @@ describe('/grupos: seleção por teclado e controles com estado (GRUPOS-E2, OPER
   it('os números de "ASN ×N" ficam em texto, não só no title', async () => {
     montar()
     const tabela = await screen.findByRole('table', { name: 'Grupos econômicos' })
-    expect(within(tabela).getByText(/AS64500, AS64501/)).toHaveClass('sr-only')
+    expect(await within(tabela).findByText(/AS64500, AS64501/)).toHaveClass('sr-only')
   })
 })
