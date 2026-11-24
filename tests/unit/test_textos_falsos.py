@@ -25,6 +25,8 @@ PROIBIDOS: list[tuple[str, tuple[str, ...], str]] = [
      ("frontend/src",), "TRANSV-E7: a data inicial vem da lista de snapshots"),
     (r"persistiu por mais de um",
      ("frontend/src",), "MUD-E1: tipos de janela 1 nascem confirmados"),
+    (r"coleta \(junho de 2026\)",
+     ("products/ipv4", "catalog/sources/ipv4_listas.yaml", "docs/fontes/ipv4_listas.md"), "IPV4-E4: a coleta das listas começou em 2026-11-01"),
 ]
 
 

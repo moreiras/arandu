@@ -28,10 +28,20 @@ from core.ipv4_listas import mascarar_nome, sem_acento, tipo_pessoa
 from core.jsonio import carregar_json, carregar_json_gz, gravar_json_gz
 
 LIMITES = (
-    "Transferências são o que o Registro.br e o LACNIC declaram, na data que declaram; o histórico do Registro.br só existe desde o início da nossa coleta (junho de 2026), então "
+    "Transferências são o que o Registro.br e o LACNIC declaram, na data que declaram; o histórico do Registro.br só existe desde o início da nossa coleta{inicio}, então "
     "'primeira vez visto' de registros antigos é a primeira data coletada. Uma operação reúne os blocos do mesmo dia e das mesmas partes. O casamento com o ASN usa os blocos que o "
     "Registro.br aloca ao ASN no snapshot (organização sem ASN fica sem casamento). Nome de pessoa física provável é omitido. Não se atribui causa nem intenção."
 )
+
+
+def limites(listas: dict) -> str:
+    """`LIMITES` com a primeira data coletada das listas do Registro.br, lida do normalizado (resumo ou, sem ele, o registro mais antigo)."""
+    trs = listas.get("transferencias_registrobr") or []
+    primeira = ((listas.get("resumo") or {}).get("transferencias_registrobr") or {}).get("primeira_data_coletada") \
+        or min((r["primeira_vez_visto"] for r in trs if r.get("primeira_vez_visto")), default=None)
+    return LIMITES.format(inicio=f" ({primeira[8:10]}/{primeira[5:7]}/{primeira[:4]})" if primeira else "")
+
+
 CLASSES = (("ate_24", 256), ("22_a_23", 1024), ("20_a_21", 4096))
 
 
@@ -261,7 +271,7 @@ def publicar_ipv4(base: Path, date_str: str, log) -> dict:
     evs = eventos_br(base, date_str)
     destino = pub / "ipv4"
     destino.mkdir(parents=True, exist_ok=True)
-    meta = {"snapshot_date": date_str, "generated_at": now_iso(), "natureza": "observado", "fonte": "Registro.br e LACNIC (listas de numeração e delegated-extended)", "limites": LIMITES}
+    meta = {"snapshot_date": date_str, "generated_at": now_iso(), "natureza": "observado", "fonte": "Registro.br e LACNIC (listas de numeração e delegated-extended)", "limites": limites(listas)}
     m = mercado(ops)
     gravar_json_gz(destino / "transferencias.json.gz", {**meta, "total": len(ops), "operacoes": ops})
     gravar_json_gz(destino / "mercado.json.gz", {**meta, "periodo": [min((o["data"] for o in ops), default=None), max((o["data"] for o in ops), default=None)], **m})

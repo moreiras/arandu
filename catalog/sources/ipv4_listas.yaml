@@ -47,7 +47,7 @@ campos:
 - nome: resumo
   tipo: dict
   significado: Por lista, registros lidos, linhas ignoradas, primeira data coletada e novos na data.
-limites: 'As listas do Registro.br só têm a versão atual: o histórico anterior à nossa coleta (junho de 2026) não existe, e `primeira_vez_visto` de registros antigos é a primeira data coletada.
+limites: 'As listas do Registro.br só têm a versão atual: o histórico anterior à nossa coleta (iniciada em 2026-11-01; `resumo.primeira_data_coletada`) não existe, e `primeira_vez_visto` de registros antigos é a primeira data coletada.
   O log do LACNIC tem as datas de transferência.'
 pendencias:
 - 'Termos de uso das listas do Registro.br e do LACNIC não declarados nos diretórios; confirmar com o NIC.br e o LACNIC (decisão do mantenedor de 2026-11-02: publicar derivados enquanto isso).'
