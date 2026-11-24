@@ -19,8 +19,11 @@ const { AxeBuilder } = require('@axe-core/playwright')
 
 const BASE = process.env.BASE_URL || 'http://localhost:18080'
 const MENU = fs.readFileSync(__dirname + '/../../frontend/src/components/layout/menu.ts', 'utf8')
-const ROTAS = ['/', ...[...MENU.matchAll(/to: '([^']+)'/g)].map((m) => m[1]).filter((r) => !r.includes('sitemap')),
-  '/asn/28573', '/ixp/sp', '/operadora/02558157000162', '/municipio/3550308', '/uf/SP', '/login', '/privacidade', '/acessibilidade']
+// Além do menu: uma página de cada entidade, as que o menu não lista (relatório, CDN, prefixo, panorama IPv6, políticas) e a 404.
+const ROTAS = [...new Set(['/', ...[...MENU.matchAll(/to: '([^']+)'/g)].map((m) => m[1]).filter((r) => !r.includes('sitemap')),
+  '/asn/28573', '/ixp/sp', '/operadora/02558157000162', '/municipio/3550308', '/uf/SP', '/login', '/privacidade', '/acessibilidade',
+  '/uso-da-internet', '/estados', '/cdns', '/grupos', '/relatorio/asn/28573', '/cdncap/google', '/prefixo/2001:12ff::/32', '/panorama/ipv6',
+  '/uso-aceitavel', '/pagina-que-nao-existe'])]
 
 // Exceções: mapas e curvas de Hilbert ficam fora; o seletor de camadas do Mapa é parte do mapa.
 const EXCECOES = [
@@ -45,6 +48,26 @@ const exceto = (rota, regra) => EXCECOES.some((e) => e.rota === rota && e.regra 
       } else console.log(`ok   ${r}: axe sem violação séria`)
     } catch (e) { falhas++; console.log(`ERRO ${r}: ${String(e).slice(0, 160)}`) }
   }
+
+  // 404 (INST-E2, INST-E3): status 404 do servidor e página com h1 próprio.
+  try {
+    const resp = await p.goto(BASE + '/pagina-que-nao-existe', { waitUntil: 'networkidle', timeout: 60000 })
+    const h1 = (await p.locator('h1').first().textContent({ timeout: 10000 }).catch(() => '')) ?? ''
+    if (resp.status() !== 404 || !/não encontrada/i.test(h1)) { falhas++; console.log(`ERRO 404: status ${resp.status()}, h1 "${h1.trim()}"`) }
+    else console.log('ok   404: status 404 e h1 próprio')
+  } catch (e) { falhas++; console.log(`ERRO 404: ${String(e).slice(0, 160)}`) }
+
+  // Teclado (GRUPOS-E2): em /grupos, "Ver no mapa" recebe foco e seleciona o grupo com Enter.
+  try {
+    await p.goto(BASE + '/grupos', { waitUntil: 'networkidle', timeout: 60000 })
+    const botao = p.getByRole('button', { name: /^Ver no mapa/ }).nth(1)
+    await botao.focus()
+    await p.keyboard.press('Enter')
+    const estado = await botao.getAttribute('aria-pressed')
+    if (estado !== 'true') { falhas++; console.log(`ERRO /grupos teclado: aria-pressed=${estado} depois do Enter`) }
+    else console.log('ok   /grupos: seleção por teclado')
+  } catch (e) { falhas++; console.log(`ERRO /grupos teclado: ${String(e).slice(0, 160)}`) }
+
   await largo.close()
 
   const celular = await b.newContext({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true })
