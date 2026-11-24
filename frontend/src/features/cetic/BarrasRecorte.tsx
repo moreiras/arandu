@@ -4,6 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { CeticLinha } from '../../types/api'
+import { TEXTO_ZERO_REGISTRADO, estadoMargem } from './margem'
 
 export interface Recorte { dimensao: string; recorte: string; valor: number | null; margem: number | null }
 
@@ -40,22 +41,26 @@ export function BarrasRecorte({ recortes, medida, coluna }: { recortes: Recorte[
           {d !== 'Total' && <h3 className="mb-1 text-xs font-semibold text-gray-600">{d}</h3>}
           <ul className="space-y-1">
             {recortes.filter((r) => r.dimensao === d).map((r) => {
-              const m = r.margem
+              const estado = estadoMargem(r.valor, r.margem, medida)
+              const m = estado === 'zero_registrado' ? null : r.margem
+              const nota = estado === 'zero_registrado' ? `, ${TEXTO_ZERO_REGISTRADO}` : estado === 'precisao_baixa' ? ', precisão baixa' : ''
               return (
                 <li key={`${d}|${r.recorte}`} className="grid grid-cols-[1fr_auto] items-center gap-x-2 gap-y-0.5 text-xs sm:grid-cols-[minmax(6rem,11rem)_1fr_9rem]">
                   <span className="order-1 truncate text-gray-700" title={r.recorte}>{r.recorte}</span>
-                  <span role="img" aria-label={r.valor == null ? `${r.recorte}: sem valor` : `${r.recorte}: ${fmt(r.valor, medida)}${m != null ? `, margem de ${fmt(m, medida)}` : ''}`} className="relative order-3 col-span-2 block h-4 rounded-sm bg-gray-100 sm:order-2 sm:col-span-1">
+                  <span role="img" aria-label={r.valor == null ? `${r.recorte}: sem valor` : `${r.recorte}: ${fmt(r.valor, medida)}${m != null ? `, margem de ${fmt(m, medida)}` : ''}${nota}`} className="relative order-3 col-span-2 block h-4 rounded-sm bg-gray-100 sm:order-2 sm:col-span-1">
                     {r.valor != null && <span className="absolute inset-y-0.5 left-0 rounded-sm bg-slate-600" style={{ width: largura(r.valor) }} aria-hidden="true" />}
                     {r.valor != null && m != null && <span className="absolute top-1/2 h-0.5 -translate-y-1/2 bg-gray-900" style={{ left: largura(Math.max(0, r.valor - m)), width: `calc(${largura(Math.min(maximo, r.valor + m))} - ${largura(Math.max(0, r.valor - m))})` }} aria-hidden="true" />}
                   </span>
-                  <span className="order-2 text-right tabular-nums text-gray-700 sm:order-3">{r.valor == null ? '—' : fmt(r.valor, medida)}{r.valor != null && m != null && <span className="text-gray-400"> ±{fmt(m, medida)}</span>}</span>
+                  <span className="order-2 text-right tabular-nums text-gray-700 sm:order-3">{r.valor == null ? '—' : fmt(r.valor, medida)}{r.valor != null && m != null && <span className="text-gray-500"> ±{fmt(m, medida)}</span>}
+                    {estado === 'zero_registrado' && <span className="text-gray-500" title={TEXTO_ZERO_REGISTRADO}> ±—<span className="sr-only"> ({TEXTO_ZERO_REGISTRADO})</span></span>}
+                    {estado === 'precisao_baixa' && <span className="text-aviso-900"> · precisão baixa</span>}</span>
                 </li>
               )
             })}
           </ul>
         </div>
       ))}
-      <figcaption className="text-xs text-gray-500">Barra = valor estimado; traço preto = margem de erro. Pesquisa amostral: se as margens de duas barras se sobrepõem, a diferença pode ser acaso. Ordem da planilha, sem ranking.</figcaption>
+      <figcaption className="text-xs text-gray-500">Barra = valor estimado; traço preto = margem de erro. Pesquisa amostral: se as margens de duas barras se sobrepõem, a diferença pode ser acaso. "±—": {TEXTO_ZERO_REGISTRADO}; "precisão baixa": margem de pelo menos metade do valor. Ordem da planilha, sem ranking.</figcaption>
     </figure>
   )
 }
