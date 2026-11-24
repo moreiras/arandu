@@ -8,6 +8,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { fetchSegurancaResumo } from '../../services/api'
 import type { AgregadoSinal } from '../../types/api'
 import { VerDados } from '../ui/VerDados'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../ui/EstadoDados'
 
 const FAIXAS = [
   { chave: 'ate_10', rotulo: 'até 10%', cor: '#9ca3af' },
@@ -24,6 +25,7 @@ function dadosPorUf(por: Record<string, { rov: AgregadoSinal }>) {
 export function SegurancaSection({ date, semResumo = false }: { date?: string; semResumo?: boolean }) {
   const q = useQuery({ queryKey: ['seguranca-resumo', date ?? 'atual'], queryFn: () => fetchSegurancaResumo({ date }), staleTime: Infinity, gcTime: Infinity, retry: false })
   if (q.isLoading) return null
+  if (q.isError && ehErroDeAcessoOuFalha(q.error)) return <EstadoDados erro={q.error} oQue="a validação RPKI por UF" />
   if (q.isError || !q.data?.por_uf) return null
   const r = q.data
   const porUf = q.data.por_uf

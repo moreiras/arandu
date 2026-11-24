@@ -7,6 +7,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Kpi } from '../../components/ui'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../../components/ui/EstadoDados'
 import { AtribuicaoDbIp } from '../../components/ui/AtribuicaoDbIp'
 import { fetchIpv4Espaco, fetchIpv4Mercado, fetchMapPrefixes } from '../../services/api'
 import { CartogramaIndicador } from '../estados/CartogramaIndicador'
@@ -141,6 +142,7 @@ function PrefixosPorUf({ f }: { f: Familia }) {
   }
   const { ordenados: linhas, props } = useOrdenacao(Object.entries(porUf).sort((a, b) => b[1] - a[1]), { uf: ([uf]) => uf, prefixos: ([, n]) => n })
   if (q.isLoading) return <div className="h-40 animate-pulse rounded bg-gray-50" />
+  if (q.isError && ehErroDeAcessoOuFalha(q.error)) return <EstadoDados erro={q.error} oQue="a geolocalização dos prefixos" aoTentarDeNovo={() => void q.refetch()} />
   if (!q.data) return <p className="text-sm text-gray-500">A geolocalização dos prefixos não está disponível.</p>
   return (
     <CartogramaIndicador titulo={`Prefixos ${NOME[f]} geolocalizados, por UF`} indicadores={[{ id: f, rotulo: 'Prefixos', valor: (uf) => porUf[uf] ?? null, texto: (v) => v.toLocaleString('pt-BR') }]}
@@ -150,11 +152,14 @@ function PrefixosPorUf({ f }: { f: Familia }) {
 }
 
 /** Mercado secundário de IPv4: só os totais, o detalhe fica em /mercado-ipv4. */
-function MercadoIpv4() {
+export function MercadoIpv4() {
   const mercado = useQuery({ queryKey: ['ipv4-mercado'], queryFn: fetchIpv4Mercado, staleTime: 10 * 60 * 1000, retry: false })
   const espaco = useQuery({ queryKey: ['ipv4-espaco-resumo'], queryFn: () => fetchIpv4Espaco({ limit: 1 }), staleTime: 10 * 60 * 1000, retry: false })
   const m = mercado.data
   const naoAnunciado = espaco.data?.resumo.por_classe?.nao_anunciado
+  // Erro de acesso, de taxa ou de rede em qualquer das duas consultas não vira "não publicado" nem KPI vazio.
+  const erro = [mercado.error, espaco.error].find(ehErroDeAcessoOuFalha)
+  if (erro) return <EstadoDados erro={erro} oQue="o mercado de IPv4" />
   if (mercado.isError && espaco.isError) return <p className="text-sm text-gray-500">O mercado de IPv4 não está publicado neste snapshot.</p>
   return (
     <Grade>

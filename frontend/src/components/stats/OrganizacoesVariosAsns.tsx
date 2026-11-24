@@ -5,6 +5,7 @@ import { AccessError, fetchAsnsPorOrganizacao } from '../../services/api'
 import { useOrcamentoAvancado } from '../../auth/AuthContext'
 import type { OrganizacaoVariosAsns, AsnsPorOrganizacaoResponse } from '../../types/api'
 import { ThOrdenavel } from '../ui/ThOrdenavel'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../ui/EstadoDados'
 import { useOrdenacao } from '../../lib/ordenacao'
 
 const SECTION_COLOR = '#0e7490'
@@ -129,9 +130,11 @@ export function OrganizacoesVariosAsns({ date, ancorar = false }: { date?: strin
   })
   const secao = useRef<HTMLElement>(null)
   useEffect(() => { if (ancorar && data) secao.current?.scrollIntoView({ block: 'start' }) }, [ancorar, data])
-  const bloqueado = esgotado || error instanceof AccessError
+  const bloqueado = esgotado || (error instanceof AccessError && error.kind === 'limit')
+  // Login, taxa ou falha de rede: avisa em vez de sumir (sumir parece "nenhuma organização com vários ASNs").
+  const outroErro = !bloqueado && isError && ehErroDeAcessoOuFalha(error) ? error : null
 
-  if (!bloqueado && (isError || !data || data.groups.length === 0)) return null
+  if (!bloqueado && !outroErro && (isError || !data || data.groups.length === 0)) return null
 
   return (
     <section ref={secao} id="organizacoes" className="space-y-3 scroll-mt-4" aria-labelledby="organizacoes-titulo">
@@ -147,7 +150,7 @@ export function OrganizacoesVariosAsns({ date, ancorar = false }: { date?: strin
         <p className="text-sm text-aviso-700 bg-aviso-50 border border-aviso-200 rounded px-3 py-2" role="status">
           Esta lista usa páginas avançadas e o tempo de uso sem login acabou. Entre para ver.
         </p>
-      ) : data && (
+      ) : outroErro ? <EstadoDados erro={outroErro} oQue="a lista de organizações" /> : data && (
       <div className="overflow-x-auto lg:overflow-x-clip rounded-lg border border-gray-200 bg-white">
         <table className="w-full table-fixed text-xs min-w-[680px]">
           <thead>

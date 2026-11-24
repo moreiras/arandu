@@ -5,6 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { AccessError } from '../../services/api'
 
 export interface PerfilConta {
   email: string
@@ -21,6 +22,10 @@ const ACAO = { 'X-Arandu-Acao': '1', 'Content-Type': 'application/json' }
 
 async function chamar<T>(caminho: string, metodo = 'GET', corpo?: unknown): Promise<T> {
   const r = await fetch(`${BASE}/auth/perfil${caminho}`, { method: metodo, credentials: 'include', headers: metodo === 'GET' ? undefined : ACAO, body: corpo === undefined ? undefined : JSON.stringify(corpo) })
+  if (r.status === 429) {
+    const espera = Number(r.headers.get('Retry-After'))
+    throw new AccessError('taxa', 'Muitas consultas em pouco tempo. Tente novamente em instantes.', { retryAfter: Number.isFinite(espera) && espera > 0 ? espera : null })
+  }
   if (!r.ok) throw new Error(r.status === 401 ? 'login' : `HTTP ${r.status}`)
   return r.json()
 }

@@ -10,6 +10,7 @@ import {
 import type { IXPresenceResponse } from '../../services/api'
 import type { SiciMunicipiosMapaResponse } from '../../types/api'
 import type { AsnFeature, PixFeature, PrefixFeature, ScmGeoFeature } from './tipos'
+import { ehErroDeAcessoOuFalha, ehNaoEncontrado } from '../../components/ui/EstadoDados'
 
 const PARA_SEMPRE = { staleTime: Infinity, gcTime: Infinity } as const
 
@@ -66,6 +67,8 @@ export function useLocalizadorDados(date: string | undefined, showPrefixes: bool
   return {
     asnGeo: asnGeo.data, prefixGeo: prefixGeo.data, ixList: ixList.data, ixPresence: ixPresence.data, pixGeo: pixGeo.data,
     scmGeo: scmGeo.data, siciMunData: siciMunData.data, municipioCentroids: municipioCentroids.data,
+    // Primeira camada que não veio por acesso, taxa ou rede (o 404 de uma camada opcional não é aviso): a página diz a causa.
+    erro: [asnGeo, prefixGeo, ixList, ixPresence, pixGeo, scmGeo, siciMunData].map((q) => q.error).find(ehErroDeAcessoOuFalha) ?? null,
   }
 }
 
@@ -73,6 +76,9 @@ export async function geocodeQuery(query: string, date?: string): Promise<[numbe
   try {
     const r = await fetchResolvePlace(query, date)
     if (r?.lat != null && r?.lon != null) return [r.lat, r.lon]
-  } catch {}
+  } catch (e) {
+    // Só "não encontrado" vira null; acesso, taxa e rede sobem para a página dizer a causa.
+    if (!ehNaoEncontrado(e)) throw e
+  }
   return null
 }

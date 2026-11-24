@@ -9,6 +9,7 @@ import { useQueries, useQuery } from '@tanstack/react-query'
 import { fetchASNsLote, fetchBusca, fetchGrupoComparavel, fetchMunicipioPerfil, fetchOperadoraPerfil, type ItemBusca } from '../../services/api'
 import { useActiveDate } from '../../hooks/useSnapshot'
 import { CitarDado } from '../../components/entidade/CitarDado'
+import { EstadoDados, ehErroDeAcessoOuFalha } from '../../components/ui/EstadoDados'
 import { DESCRICAO_SELO, ROTULO_SELO } from '../../components/entidade'
 import { compararAs, compararGrupos, compararMunicipios, compararOperadoras, idValido, MAX_ENTIDADES, MIN_ENTIDADES, TIPOS, urlComparar, type Comparacao, type TipoComparacao } from './entidades'
 
@@ -106,6 +107,11 @@ export function CompararEntidades({ tipo }: { tipo: TipoGenerico }) {
   if (tipo === 'operadora') { const ok = opq.map((q) => q.data).filter((d): d is NonNullable<typeof d> => !!d); comp = compararOperadoras(ok); faltam = ids.filter((c) => !ok.some((o) => o.cnpj === c)) }
   if (tipo === 'municipio') { const ok = muq.map((q) => q.data).filter((d): d is NonNullable<typeof d> => !!d); comp = compararMunicipios(ok); faltam = ids.filter((i) => !ok.some((o) => o.ibge === i)) }
   if (tipo === 'grupo') { const ok = grq.map((q) => q.data).filter((d): d is NonNullable<typeof d> => !!d); comp = compararGrupos(ok); faltam = ids.filter((i) => !ok.some((o) => o.grupo.grupo_id === i)) }
+  // Erro de acesso, de taxa ou de rede não é "sem dado": a entidade sai de `faltam` e o quadro avisa por que não carregou.
+  const porId: { isError: boolean; error: unknown }[] = tipo === 'operadora' ? opq : tipo === 'grupo' ? grq : tipo === 'municipio' ? muq : []
+  const bloqueados = tipo === 'asn' ? (asq.isError && ehErroDeAcessoOuFalha(asq.error) ? ids : []) : ids.filter((_, i) => porId[i]?.isError && ehErroDeAcessoOuFalha(porId[i].error))
+  const erroBloqueio = tipo === 'asn' ? (bloqueados.length ? asq.error : null) : porId.find((q) => q.isError && ehErroDeAcessoOuFalha(q.error))?.error
+  faltam = faltam.filter((x) => !bloqueados.includes(x))
   const pronto = !!comp && comp.colunas.length >= MIN_ENTIDADES
   const rotuloTipo = TIPOS.find((t) => t.id === tipo)!.rotulo.toLowerCase()
   const snapshot = (asq.data?.snapshot_date ?? opq.find((q) => q.data)?.data?.snapshot_date ?? muq.find((q) => q.data)?.data?.snapshot_date ?? grq.find((q) => q.data)?.data?.grupo.snapshot_date) ?? date
@@ -114,6 +120,8 @@ export function CompararEntidades({ tipo }: { tipo: TipoGenerico }) {
     <div className="space-y-4" data-testid={`comparar-${tipo}`}>
       <Escolha tipo={tipo} ids={ids} aoMudar={mudar} />
       {faltam.length > 0 && <p className="text-sm text-aviso-700 bg-aviso-50 border border-aviso-200 rounded px-3 py-2" role="status">Sem dado neste snapshot para: {faltam.join(', ')}. {faltam.length > 0 && 'Elas ficam de fora do quadro.'}</p>}
+      {erroBloqueio != null && <EstadoDados erro={erroBloqueio} oQue={`os dados de ${bloqueados.join(', ')}`} />}
+      {erroBloqueio != null && bloqueados.length < ids.length && <p className="text-xs text-gray-600">Não carregados agora (ficam fora do quadro): {bloqueados.join(', ')}.</p>}
       {ids.length < MIN_ENTIDADES && <p className="text-sm text-gray-500">Escolha pelo menos {MIN_ENTIDADES} {rotuloTipo} para comparar (até {MAX_ENTIDADES}).</p>}
       {carregando && ids.length >= MIN_ENTIDADES && <div className="h-32 bg-gray-50 rounded animate-pulse" />}
       {pronto && !carregando && comp && (

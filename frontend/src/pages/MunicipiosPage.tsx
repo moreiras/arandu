@@ -11,6 +11,7 @@ import { MapaSobDemanda } from '../features/estados/MapaSobDemanda'
 import { UFS, nomeUf } from '../lib/ufs'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
 import { Dica } from '../components/ui/Dica'
+import { EstadoDados } from '../components/ui/EstadoDados'
 
 const POR_PAGINA = 25
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
@@ -134,7 +135,7 @@ export function MunicipiosPage() {
         )}
       </div>
       {ativa.isLoading && <p className="text-sm text-gray-400" role="status">Carregando…</p>}
-      {ativa.isError && <p className="text-sm text-gray-500" role="status">Não foi possível carregar a lista agora.</p>}
+      {ativa.isError && <EstadoDados erro={ativa.error} oQue="a lista de municípios" mensagem="A lista de municípios não está publicada neste snapshot." aoTentarDeNovo={() => void ativa.refetch()} />}
       {ativa.data && <p className="text-xs text-gray-500">{ativa.data.criterio ?? ''} · {n(total)} municípios · snapshot {ativa.data.snapshot_date}{'mes_referencia' in ativa.data && ativa.data.mes_referencia ? ` · SICI ${ativa.data.mes_referencia}` : ''}</p>}
       {lente === 'mercado' && mercado.data && (
         <div className="overflow-x-auto bg-white border border-gray-200 rounded-lg">

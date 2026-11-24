@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchQualidadeMapa } from '../../services/api'
+import { EstadoDados } from '../../components/ui/EstadoDados'
 import { Coropletico } from '../../components/maps/Coropletico'
 import { LegendaQuebras } from '../../components/maps/LegendaQuebras'
 import { COR_SEM_DADO, coresDasClasses, expressaoCor } from '../../components/maps/coresCoropletico'
@@ -51,7 +52,7 @@ export default function MapaQualidade({ servico, indicador }: { servico: string;
           </div>
         )}
       </div>
-      {q.isError && <p className="text-sm text-gray-500" role="status">Este indicador não tem resultado municipal neste snapshot.</p>}
+      {q.isError && <EstadoDados erro={q.error} oQue="o mapa deste indicador" mensagem="Este indicador não tem resultado municipal neste snapshot." />}
       <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_16rem] items-start">
         <Coropletico cor={mapa?.cor ?? COR_SEM_DADO} nivel="municipio" altura={420}
           descricao={`Mapa dos municípios do Brasil colorido pelo indicador ${indicador.codigo} do RQUAL (${indicador.descricao}). Os mesmos resultados estão na página de cada município.`}

@@ -6,6 +6,7 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Kpi } from '../../components/ui'
+import { EstadoDados } from '../../components/ui/EstadoDados'
 import { fetchCDNPresence, fetchIXPs } from '../../services/api'
 import { CoberturaIxbr } from './CoberturaIxbr'
 import { useResumo } from './useResumo'
@@ -51,7 +52,7 @@ export function AbaInterconexao() {
           <h2 className="text-titulo-3 text-gray-800">CDNs e conteúdo</h2>
           <Link to="/cdns" className="text-sm text-primario-700 hover:underline">Presença por PTT →</Link>
         </div>
-        {cdns.isError ? <p className="text-sm text-gray-500">A presença de CDNs não está disponível neste snapshot.</p> : (
+        {cdns.isError ? <EstadoDados erro={cdns.error} oQue="a presença de CDNs" mensagem="A presença de CDNs não está disponível neste snapshot." /> : (
           <>
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               <Kpi rotulo="CDNs e CAPs em PTTs do IX.br" valor={cdnsNoIxbr == null ? null : `${num(cdnsNoIxbr)} de ${num(c?.cdns.length)}`}

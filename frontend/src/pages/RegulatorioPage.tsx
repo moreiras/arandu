@@ -11,6 +11,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import {
   fetchEspectroFaixas, fetchEspectroResumo, fetchFustMunicipios, fetchFustResumo, fetchMultasEmpresas, fetchMultasResumo, fetchSatelitesDireitos, fetchSatelitesResumo,
 } from '../services/api'
+import { EstadoDados } from '../components/ui/EstadoDados'
 import type { GrupoServico, RegMeta } from '../types/api'
 import { SITE } from '../lib/site'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
@@ -60,7 +61,7 @@ function Fust() {
   const programas = useOrdenacao(r?.programas, { programa: (p) => p.codigo, compromissos: (p) => p.compromissos, atendidos: (p) => p.atendidos, municipios: (p) => p.municipios, previsto: (p) => p.investimento })
   const editais = useOrdenacao(r?.editais, { origem: (e) => e.origem, compromissos: (e) => e.compromissos, municipios: (e) => e.municipios, previsto: (e) => e.investimento })
   const thMun = thServidor(ordemMun, setOrdemMun)
-  if (!r) return <p className="text-sm text-gray-500">{resumo.isError ? 'FUST não publicado neste snapshot.' : 'Carregando…'}</p>
+  if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="os dados do FUST" mensagem="FUST não publicado neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
   const b = r.brasil
   const ufs = Object.entries(r.ufs).sort((a, c) => c[1].compromissos - a[1].compromissos)
   return (
@@ -99,6 +100,7 @@ function Fust() {
           <label className="text-sm text-gray-600 flex flex-col">Programa
             <select value={programa} onChange={(e) => setPrograma(e.target.value)} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">Todos</option>{r.programas.map((p) => <option key={p.codigo} value={p.codigo}>{p.codigo} · {p.nome}</option>)}</select></label>
         </div>
+        {lista.isError && <EstadoDados erro={lista.error} oQue="a lista" mensagem="A lista não está publicada neste snapshot." aoTentarDeNovo={() => void lista.refetch()} />}
         {lista.data && (
           <table className="text-xs min-w-full">
             <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Município</th><ThOrdenavel {...thMun('compromissos')} alinhar="right" className="text-right px-2 py-1">Compromissos</ThOrdenavel><ThOrdenavel {...thMun('atendidos')} alinhar="right" className="text-right px-2 py-1">Atendidos</ThOrdenavel><ThOrdenavel {...thMun('investimento')} alinhar="right" className="text-right px-2 py-1">Previsto</ThOrdenavel></tr></thead>
@@ -122,7 +124,7 @@ function Multas() {
   const lista = useQuery({ queryKey: ['multas-empresas', grupo, q, page, ordem], queryFn: () => fetchMultasEmpresas({ grupo: grupo || undefined, q: q || undefined, limit: 20, page, ...(ordem === 'saldo' ? {} : { ordem }) }), staleTime, retry: false })
   const th = thServidor(ordem, (c) => { setOrdem(c); setPage(1) })
   const r = resumo.data
-  if (!r) return <p className="text-sm text-gray-500">{resumo.isError ? 'Multas não publicadas neste snapshot.' : 'Carregando…'}</p>
+  if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="as multas" mensagem="Multas não publicadas neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
   const anos = [...r.por_ano].reverse().slice(0, 12)
   return (
     <div className="space-y-4">
@@ -148,6 +150,7 @@ function Multas() {
           <label className="text-sm text-gray-600 flex flex-col">Empresa ou raiz do CNPJ
             <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm" /></label>
         </div>
+        {lista.isError && <EstadoDados erro={lista.error} oQue="a lista" mensagem="A lista não está publicada neste snapshot." aoTentarDeNovo={() => void lista.refetch()} />}
         {lista.data && (
           <>
             <div className="overflow-x-auto">
@@ -183,7 +186,7 @@ function Espectro() {
     queryFn: () => fetchEspectroFaixas({ de: de ? Number(de.replace(',', '.')) : undefined, ate: ate ? Number(ate.replace(',', '.')) : undefined, servico: servico || undefined, limit: 25, page }),
   })
   const r = resumo.data
-  if (!r) return <p className="text-sm text-gray-500">{resumo.isError ? 'Faixas não publicadas neste snapshot.' : 'Carregando…'}</p>
+  if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="as faixas de espectro" mensagem="Faixas não publicadas neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
   return (
     <div className="space-y-4">
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-2">
@@ -205,6 +208,7 @@ function Espectro() {
           <label className="text-sm text-gray-600 flex flex-col">Até (MHz)<input value={ate} onChange={(e) => { setAte(e.target.value); setPage(1) }} inputMode="decimal" className="border border-gray-300 rounded px-2 py-1.5 text-sm w-28" /></label>
           <label className="text-sm text-gray-600 flex flex-col">Serviço<input value={servico} onChange={(e) => { setServico(e.target.value); setPage(1) }} placeholder="ex.: móvel pessoal" className="border border-gray-300 rounded px-2 py-1.5 text-sm" /></label>
         </div>
+        {lista.isError && <EstadoDados erro={lista.error} oQue="a lista" mensagem="A lista não está publicada neste snapshot." aoTentarDeNovo={() => void lista.refetch()} />}
         {lista.data && (
           <>
             <table className="text-xs min-w-full">
@@ -231,7 +235,7 @@ function Satelites() {
   const ngeo = useOrdenacao(resumo.data?.ngeo, { sistema: (n) => n.objeto, prestadora: (n) => n.prestadora, orbita: (n) => n.orbita, satelites: (n) => n.constelacao, situacao: (n) => n.status })
   const lista = useQuery({ queryKey: ['satelites-direitos', operadora, tipo, page], queryFn: () => fetchSatelitesDireitos({ operadora: operadora || undefined, tipo: tipo || undefined, limit: 20, page }), staleTime, retry: false })
   const r = resumo.data
-  if (!r) return <p className="text-sm text-gray-500">{resumo.isError ? 'Satélites não publicados neste snapshot.' : 'Carregando…'}</p>
+  if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="os satélites" mensagem="Satélites não publicados neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
   const s = r.resumo
   return (
     <div className="space-y-4">
@@ -254,6 +258,7 @@ function Satelites() {
           <label className="text-sm text-gray-600 flex flex-col">Tipo
             <select value={tipo} onChange={(e) => { setTipo(e.target.value); setPage(1) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">Todos</option>{Object.keys(s.por_tipo).map((t) => <option key={t} value={t}>{t}</option>)}</select></label>
         </div>
+        {lista.isError && <EstadoDados erro={lista.error} oQue="a lista" mensagem="A lista não está publicada neste snapshot." aoTentarDeNovo={() => void lista.refetch()} />}
         {lista.data && (
           <>
             <div className="overflow-x-auto"><table className="text-xs min-w-full">
