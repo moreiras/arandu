@@ -92,12 +92,23 @@ def _tendencia(serie: list, mes_ref: str) -> dict:
     return out
 
 
-def calcular_indicadores(mes_ref: str, meses: dict[str, dict], series: dict[str, list], nomes_extra: Optional[dict[str, str]] = None) -> dict:
+def calcular_indicadores(mes_ref: str, meses: dict[str, dict], series: dict[str, list], nomes_extra: Optional[dict[str, str]] = None,
+                         ufs_extra: Optional[dict[str, str]] = None) -> dict:
     """`meses`: {mes: cnpjs do cache} com `mes_ref`, o anterior e o de um ano antes (os dois últimos podem faltar).
-    `series`: `serie_por_cnpj` do sici.json.gz. `nomes_extra`: razão social por CNPJ (cadastro SCM) para quem parou de declarar e não está no mês."""
+    `series`: `serie_por_cnpj` do sici.json.gz. `nomes_extra`: razão social por CNPJ (cadastro SCM) para quem não está no mês.
+    `ufs_extra`: UF da sede por CNPJ (cadastro SCM), gravada em `parou_de_declarar[].uf`."""
     atual = meses[mes_ref]
     ant, ano = meses.get(somar_meses(mes_ref, -1)), meses.get(somar_meses(mes_ref, -12))
+    # nome de quem não declarou no mês (ganho e perda em 12 meses, MUN-E1): o do mês de um ano antes ou do anterior (como declarou ao
+    # SICI) e, na falta, a razão social do cadastro SCM; nunca vazio quando alguma fonte tem o nome
     nomes = {c: a.get("empresa", "") for c, a in atual.items()}
+    for m in (ano, ant):
+        for c, a in (m or {}).items():
+            if not nomes.get(c) and a.get("empresa"):
+                nomes[c] = a["empresa"]
+    for c, n in (nomes_extra or {}).items():
+        if not nomes.get(c) and n:
+            nomes[c] = n
     total_br = sum(a["acessos"] for a in atual.values()) or 1
 
     operadoras: dict[str, dict] = {}
@@ -129,6 +140,8 @@ def calcular_indicadores(mes_ref: str, meses: dict[str, dict], series: dict[str,
             ult = t["ultimo_mes_declarado"]
             ponto = next(p for p in serie if p[0] == ult)
             parou[cnpj] = {"empresa": (nomes_extra or {}).get(cnpj, ""), "ultimo_mes_declarado": ult, "meses_sem_declarar": t["meses_sem_declarar"], "acessos_no_ultimo_mes": ponto[1]}
+            if ufs_extra is not None:                       # UF da sede no cadastro SCM: permite filtrar por UF (RANKINGS-E4)
+                parou[cnpj]["uf"] = ufs_extra.get(cnpj, "")
 
     mun_a, info = _por_municipio(atual)
     mun_p, _ = _por_municipio(ant) if ant is not None else ({}, {})
@@ -214,6 +227,7 @@ def serie_municipios(mes_ref: str, meses: list[str], leitor, nomes_extra: Option
     `meses`: os meses da janela em ordem crescente (o último é `mes_ref`); `leitor(mes)` devolve os `cnpjs` do cache do mês ou `None` (mês ausente: ponto
     vazio, nunca zero). Um mês de cada vez na memória. Participação é sobre acessos declarados, não sobre receita."""
     por_mes: dict[str, dict[str, dict[str, int]]] = {}
+    declarantes: dict[str, set[str]] = {}
     nomes: dict[str, str] = dict(nomes_extra or {})
     for m in meses:
         cn = leitor(m)
@@ -221,6 +235,7 @@ def serie_municipios(mes_ref: str, meses: list[str], leitor, nomes_extra: Option
             continue
         por, _ = _por_municipio(cn)
         por_mes[m] = por
+        declarantes[m] = set(cn)
         for c, a in cn.items():
             if a.get("empresa"):
                 nomes[c] = a["empresa"]
@@ -237,7 +252,10 @@ def serie_municipios(mes_ref: str, meses: list[str], leitor, nomes_extra: Option
             hhi.append(round(sum((100 * a / tot) ** 2 for a in ops.values())) if tot else None)
         out[ibge] = {"acessos": acessos, "hhi": hhi, "lideres": [
             {"cnpj": c, "empresa": nomes.get(c, ""),
-             "share": [round(100 * ops.get(c, 0) / sum(ops.values()), 2) if (ops := (por_mes.get(m) or {}).get(ibge)) and sum(ops.values()) else None for m in meses]}
+             # sem ponto (None) quando o CNPJ não declarou no mês, em nenhum município: zero só se declarou e não tinha acesso aqui (MUN-E2)
+             "share": [round(100 * ops.get(c, 0) / sum(ops.values()), 2)
+                       if c in declarantes.get(m, ()) and (ops := (por_mes.get(m) or {}).get(ibge)) and sum(ops.values()) else None
+                       for m in meses]}
             for c in lideres]}
     return out
 
@@ -344,7 +362,11 @@ def publicar_sici_indicadores(base: Path, date_str: str, log) -> dict:
         log.warning("mês de referência %s fora do cache do SICI: indicadores não gerados", mes_ref)
         return {}
     nomes_scm = {s["cnpj"]: s.get("razao_social", "") for s in scm.get("scms", []) if s.get("cnpj")}
-    ind = calcular_indicadores(mes_ref, meses, sici.get("serie_por_cnpj", {}), nomes_scm)
+    ufs_scm: dict[str, str] = {}
+    for s in scm.get("scms", []):
+        if s.get("cnpj") and s.get("uf") and not ufs_scm.get(s["cnpj"]):
+            ufs_scm[s["cnpj"]] = s["uf"]
+    ind = calcular_indicadores(mes_ref, meses, sici.get("serie_por_cnpj", {}), nomes_scm, ufs_scm)
     meta = {
         "snapshot_date": date_str, "generated_at": now_iso(), "mes_referencia": mes_ref,
         "mes_anterior": somar_meses(mes_ref, -1) if somar_meses(mes_ref, -1) in meses else None,
