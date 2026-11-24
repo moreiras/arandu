@@ -36,11 +36,11 @@ describe('coleta por família do PTT (IXP-E1, IXPS-E4)', () => {
   it('na lista de PTTs a família vazia mostra "zero rotas", sem porcentagem, e fica no fim da ordenação nas duas direções', () => {
     const ixps = [ptt('fec', afi(0, null, 'vazia')), ptt('ba', afi(900, 20, 'ok')), ptt('ce', afi(241338, 60, 'ok'))]
     render(<MemoryRouter initialEntries={['/ixps?colunas=ipv6']}><IXPTable ixps={ixps} /></MemoryRouter>)
-    const linhas = () => screen.getAllByRole('row').slice(1).map((l) => within(l).getAllByRole('link')[0].textContent)
+    const linhas = () => Array.from(document.querySelectorAll('tbody tr')).map((l) => l.querySelector('a')?.textContent)
     const fec = screen.getAllByRole('row').find((l) => l.textContent?.includes('FEC'))!
     expect(within(fec).getByText('zero rotas')).toBeInTheDocument()
     expect(fec.textContent).not.toMatch(/0[,.]0%/)
-    const cobertura = screen.getByRole('button', { name: /Cobertura Registro\.br/ })
+    const cobertura = screen.getAllByRole('button', { name: /Cobertura Registro\.br/ })[0]      // o botão de ordenar vem antes do ⓘ
     fireEvent.click(cobertura)
     expect(linhas()).toEqual(['BA', 'CE', 'FEC'])
     fireEvent.click(cobertura)

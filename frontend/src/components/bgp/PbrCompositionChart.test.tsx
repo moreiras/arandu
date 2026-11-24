@@ -4,9 +4,12 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { RoutingAnalysis } from '../../types/routingAnalysis'
 import { PbrCompositionChart } from './PbrCompositionChart'
+
+// recharts (ResponsiveContainer) mede o contêiner com ResizeObserver, que o jsdom não tem
+beforeAll(() => { vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} }) })
 
 const e = (routes: number, asns: number) => ({ routes, asns })
 const apoio = (routes: number, asns: number) => ({ routes, asns, fora_do_total: true })
