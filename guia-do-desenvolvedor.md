@@ -415,6 +415,17 @@ estão em `consolidadas.py`. `guia.py` é a tabela *tarefa → tool* que gera as
 React, Vite, TypeScript e Tailwind. Consome a API REST; o build estático é servido pelo nginx do contêiner `frontend`. As páginas de
 entidade são compostas por blocos que declaram de que dado dependem e de que fontes vêm (`features/<entidade>/index.ts`).
 
+**Rota nova da SPA e o 404 real.** O nginx (`docker/nginx-frontend.conf`) só responde 200 com o `index.html` quando o primeiro
+segmento do caminho é uma rota da SPA, listada no `map $uri $rota_spa`; qualquer outro caminho recebe o mesmo `index.html` com status
+404, e a SPA mostra a página "não encontrada". Sem essa lista, toda URL inventada respondia 200 (*soft 404*): buscadores indexavam
+páginas vazias, verificadores de link não achavam link quebrado e a resposta HTTP contradizia a tela. O nginx não executa o
+roteador do React, então a lista das rotas válidas tem de estar nele. Ao criar uma rota em `frontend/src/main.tsx`, acrescente o
+primeiro segmento dela à expressão do `map`; `frontend/src/components/layout/rotas.test.ts` compara as duas listas nos dois sentidos e falha se uma
+rota de `main.tsx` faltar no `map` (ou sobrar no `map` sem rota). Caminhos com `location` própria (`/api/`, `/auth/`, `/mcp`,
+`/health`, `/tiles/`, `/meta/`, sitemaps, `robots.txt`, `llms.txt`, `/.well-known/`) e arquivos que existem no build não passam
+pelo `map`. Conferir depois de mudar: `bash tests/nginx/test_gate.sh` e as páginas de `config/paginas_publicas.json` respondendo
+200.
+
 ---
 
 ## Configuração
