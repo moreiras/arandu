@@ -53,6 +53,21 @@ parênteses remetem à análise.
     que a API envia; presença de CDN nos PTTs em três critérios (membro, sessão, só por terceiros).
   Parâmetro `esquema` de `routing-analysis` e `brasil/indicadores` passa a 3 (ASN-E1, ASN-E2, ASN-E4, CMP-E5, BGP-E2, PFX-E3,
   BGP-E5, BGP-E4, BGP-E8, IXP-E3, IXPS-E1, IXE-E1, IXE-E2, COMM-E1, INST-E2, IXPS-E2, PANT-E1, IXPS-E3, CDN-E1).
+- **Cálculos de mercado e território (PT-05).** Serviços da operadora só pelas outorgas: SMP só com outorga SMP; credenciamento
+  de rede virtual tem rótulo próprio (acessos do credenciado são declarados pela prestadora de origem, RGST, Res. Anatel 777/2025);
+  `has_smp` deixa de valer para credenciada sem outorga própria; relatório sem `b2cPct: 0` fixo nem outorga afirmada sem registro.
+  `/operadoras`: aba SMP mostra o universo com o filtro desligado (eram 17 de 256), e `ativo` vale por serviço (aba SCM: 9.917
+  declarantes, eram 9.919 por contar acesso móvel). `/omissao-sici`: `grupo_declara` exato (`true`, `false`, `desconhecido`) e filtro
+  de UF para quem parou de declarar. UF ganha `operadoras_presentes` (quem tem acesso na UF, com acessos na UF; antes só as sediadas).
+  Município: nome de quem não declarou no mês e `None` em vez de 0 na série; penetração sem arredondar a zero. Regulatório: um sistema
+  NGEO por linha, sem as cópias por ano de agenda (`ngeo_sistemas`). Panorama móvel: barras de geração e modalidade com a base de
+  todas as linhas, série nacional sem área "B2C" igual ao total, sem a razão de declarantes sobre licenciados. Home: destaque de
+  divergências com a regra do panorama. Explorar: `float` e listas com tipo, receitas 24 e de macro-região corrigidas. Localizador:
+  conta ASNs no raio e `/resolve/place` aceita UF (homônimo sem UF devolve `ambiguo`). MCP: `historico_mudancas(resumo=true)` aplica
+  `uf`, `tipo` e `asn`; `uf_detalhe` ganha `operadoras_presentes`; `list_outorgas` muda a semântica de `ativo`. `esquema` de
+  `/ufs/{uf}` e `/satelites/resumo` passa a 2 (OPERADORA-E8, OPERADORA-E9, REL-E1 a REL-E5, OPERADORAS-E2, OPERADORAS-E3,
+  OPERADORAS-E8, OPERADORAS-E12, RANKINGS-E2, RANKINGS-E4, PANORAMA-E1, PANORAMA-E2, PANORAMA-E5, REGULATORIO-E1, MUN-E1, MUN-E2,
+  MUN-E8, UF-E2, UF-E7, HOME-E3, EXP-E1, EXP-E2, EXP-E5, EXP-E7, LOC-E3, LOC-E4).
 
 ## v2.1.3
 
