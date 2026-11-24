@@ -36,9 +36,21 @@ def prefixos_globais(doc: dict) -> list[str]:
     return list(doc.get("global_prefixes_v4") or []) + list(doc.get("global_prefixes_v6") or [])
 
 
+def presenca(doc: dict) -> dict[str, bool]:
+    """Quais campos-fonte de RPKI e ASPA o documento traz. A etapa de saúde (`products/asn_saude`) só grava `roa_list` e
+    `rpki_validation` quando há algo a dizer e `aspa_providers` quando há ASPA, mas grava sempre `alerts`: com `tem_saude`, campo
+    ausente é zero de fato; sem ele e sem o campo, o snapshot não cobriu o ASN (ex.: estrangeiros a partir de 2026-07-05)."""
+    return {"tem_roa_list": "roa_list" in doc, "tem_rpki_validation": "rpki_validation" in doc,
+            "tem_aspa_providers": "aspa_providers" in doc, "tem_saude": "alerts" in doc}
+
+
 def linha_asn(doc: dict) -> dict:
     """Linha enxuta (sem campos None) do ASN; ordem dos campos fixa pelo esquema."""
     prov = provedores_firmes(doc)
+    tem = presenca(doc)
+    cobre_roa = tem["tem_roa_list"] or tem["tem_saude"]
+    cobre_rpki = tem["tem_rpki_validation"] or tem["tem_saude"]
+    cobre_aspa = tem["tem_aspa_providers"] or tem["tem_saude"]
     rpki = doc.get("rpki_validation") if isinstance(doc.get("rpki_validation"), dict) else {}
     estados = list(rpki.values())
     alertas = doc.get("alerts")
@@ -56,11 +68,12 @@ def linha_asn(doc: dict) -> dict:
         n_ixd=len(ixd),
         n_ixm=len(ixm),
         n_provedores=None if prov is None else len(prov),
-        n_roa=len(doc.get("roa_list") or []),
-        n_aspa=len(doc.get("aspa_providers") or []),
-        rpki_valid=estados.count("valid"),
-        rpki_invalid=estados.count("invalid"),
-        rpki_not_found=estados.count("not_found"),
+        n_roa=len(doc.get("roa_list") or []) if cobre_roa else None,
+        n_aspa=len(doc.get("aspa_providers") or []) if cobre_aspa else None,
+        rpki_valid=estados.count("valid") if cobre_rpki else None,
+        rpki_invalid=estados.count("invalid") if cobre_rpki else None,
+        rpki_not_found=estados.count("not_found") if cobre_rpki else None,
+        **tem,
         n_alertas=None if alertas is None else len(alertas),
         hash_alertas=None if alertas is None else hash_conjunto(a["id"] for a in alertas),
         hash_relacoes=None if prov is None else hash_conjunto(prov),

@@ -10501,9 +10501,18 @@
           "sensivel": false
         },
         {
-          "nome": "n_roa / rpki_valid / rpki_invalid / rpki_not_found",
+          "nome": "n_roa / n_aspa / rpki_valid / rpki_invalid / rpki_not_found",
           "tipo": "int",
-          "significado": "ROAs do AS e prefixos por estado de validação RPKI.",
+          "significado": "ROAs do AS, objetos ASPA publicados por ele e prefixos por estado de validação RPKI (etapa de saúde).",
+          "tratamento": "Ausentes quando o documento não traz o campo-fonte nem passou pela etapa de saúde (hoje, os ASNs estrangeiros); ausência de cobertura nunca vira zero.",
+          "publicado_em": [],
+          "sensivel": false
+        },
+        {
+          "nome": "tem_roa_list / tem_rpki_validation / tem_aspa_providers / tem_saude",
+          "tipo": "bool",
+          "significado": "Presença do campo-fonte no documento publicado (roa_list, rpki_validation, aspa_providers) e se o documento passou pela etapa de saúde (tem alerts), que grava esses campos sempre que há algo a dizer. Um campo está coberto quando está presente ou tem_saude é verdadeiro.",
+          "tratamento": "Linha gravada antes dos marcadores (regra 1) é refeita do documento publicado antes de servir de comparação; sem documento, fica sem cobertura.",
           "publicado_em": [],
           "sensivel": false
         },
@@ -10541,14 +10550,14 @@
           "nome": "events/{date}.jsonl.gz (id, data, tipo, entidade, chave, de, para, janela, estado, confirmado, confirmado_em, revertido_em, destaque, detalhe)",
           "tipo": "dict",
           "significado": "Diferença observada entre este snapshot e o anterior com histórico. estado é pendente até o novo estado persistir por `janela` snapshots (contando o de origem), depois confirmado; revertido se um snapshot seguinte o desmente. Tipos e janelas (snapshots) — asn_novo/asn_sumido 2; ixp_entrada/ixp_saida (cadastral) 1; ixp_entrada_observada/ixp_saida_observada 2; provedor_novo/provedor_perdido 3; mudanca_origem 2; roa_ganho/roa_perdido 1; aspa_ganho/aspa_perdido 1; rpki_invalido_novo/rpki_invalido_resolvido 2; outorga_nova 1, outorga_baixa 2; alerta_novo/alerta_resolvido 2.",
-          "tratamento": "Snapshot de coleta parcial não gera evento negativo e não confirma nem desmente evento. Evento observado de PTT só se o PTT foi coletado por inteiro nos dois snapshots. Alertas só se comparam com o mesmo rules_version. mudanca_origem exige origem única (sem MOAS) e uma ponta brasileira; destaque quando o novo estado é RPKI inválido. provedor_* é inferência (ARC). O evento descreve a diferença, sem causa nem intenção, e leva só a chave (ASN, PTT, CNPJ, prefixo), nunca nome de empresa.",
+          "tratamento": "Regra versionada (eventos_regra no índice; 2 desde 2026-11-24). roa_*, aspa_* e rpki_invalido_* só se geram, confirmam ou desmentem com o campo-fonte coberto nos dois snapshots (na regra 1 a ausência contava como zero, e em 2026-07-05 o fim da cobertura de roa_list dos ASNs estrangeiros virou 50.127 roa_perdido). Snapshot de coleta parcial não gera evento negativo e não confirma nem desmente evento. Evento observado de PTT só se o PTT foi coletado por inteiro nos dois snapshots. Alertas só se comparam com o mesmo rules_version. mudanca_origem exige origem única (sem MOAS) e uma ponta brasileira; destaque quando o novo estado é RPKI inválido. provedor_* é inferência (ARC). O evento descreve a diferença, sem causa nem intenção, e leva só a chave (ASN, PTT, CNPJ, prefixo), nunca nome de empresa.",
           "publicado_em": [],
           "sensivel": false
         },
         {
           "nome": "index.json",
           "tipo": "dict",
-          "significado": "Snapshots com histórico, estado da coleta (coleta, coleta_ok), PTTs coletados e falhos, rules_version, linhas, sha256 do conteúdo e built_at.",
+          "significado": "Snapshots com histórico, estado da coleta (coleta, coleta_ok), PTTs coletados e falhos, rules_version, linhas, sha256 do conteúdo, eventos_regra (versão da regra de eventos), eventos_regenerados_em (quando a camada foi refeita por `python -m products.history.regenerar_eventos`) e built_at.",
           "publicado_em": [],
           "sensivel": false
         }
