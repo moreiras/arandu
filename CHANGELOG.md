@@ -175,6 +175,21 @@ parênteses remetem à análise.
   CDNs separa membro com sessão, membro sem sessão e presença só via outro AS; `/ases` separa "membro" de "sessão RS"
   (`ixps_membro_count`). Esquemas do front: `/ixps` 4, `/cdns/presence` 2, `/facilities` 3 (IXP 5.5, IXPS 5.1 e 5.4, CDNS 5.1,
   INSTALACAO 5.1, INSTALACOES 5.1, ASES 5.1).
+- **Conformidade com regra de referência (PT-26, D11, D12).** Faixas de HHI aparecem como "método do projeto" (abaixo de 1.500,
+  1.500 a 2.499, 2.500 ou mais), sem cor de juízo, citando o Guia H do CADE (2016); HHI por município e UF é cálculo do projeto. A
+  coleta de acessos cita o sistema Coleta de Dados da Anatel (Res. 774/2025); o rótulo "SICI" permanece. Município ganha faixa de
+  fatos de declaração e a UF um bloco de contagens "sem declaração"; as listas mostram o grupo e a causa "credenciada de rede virtual"
+  só onde há contrato (RGST, Res. 777/2025). A página do AS mostra situação cadastral do CNPJ quando não ativa, ASN em recuperação e o
+  texto do selo "sem outorga"; multas têm síntese com situação, ano parcial marcado e a regra de atualização (Selic, 0,33% ao dia até
+  20%). Mapa e Localizador mostram a declaração das outorgas SCM com o mês. A camada `maps/scms.geojson` traz o mês de referência
+  também para outorgas sem declaração (snapshots novos). `esquema`: perfis de município 5, UF 3, ASN 3; instalações 4.
+- **Séries e comparabilidade (PT-28).** Regra única (`core/comparabilidade.py`): a variação não é calculada quando muda a base, o
+  método ou a cobertura da coleta (25% ou mais, limiar do projeto), nem atravessa a data atípica de 2026-07-05 (D7); a tela mostra o
+  corte, o motivo e o "Como ler". Novas séries com tabela, selo e fonte: estado RPKI das rotas brasileiras e prontidão, ROV e
+  DNSSEC. Panorama técnico: variação em p.p. dos usuários com IPv6 desde o snapshot anterior. `/snapshots/diff` ganha `razoes` e
+  `comparabilidade` (`variacao` pode ser nula); novas `GET /history/brasil/series` e `GET /cdns/mudancas` ("Mudanças entre
+  snapshots" em /cdns).
+- **Acessibilidade.** Alvo de 24 px nos links de PTT de /instalacoes e links sublinhados no quadro de /dados (PT-29).
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
