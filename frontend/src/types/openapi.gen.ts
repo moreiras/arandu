@@ -4175,8 +4175,9 @@ export interface paths {
          * @description Lista, por collection, os campos consultáveis, tipos e descrições, além dos operadores
          *     e funções de agregação suportados pela query DSL (`POST /query/{collection}`).
          *
-         *     Use `?collection=asns` para obter apenas uma collection. Collections disponíveis:
-         *     `asns`, `ixps`, `external_ixps`, `cdns`, `prefixes`.
+         *     Use `?collection=asns` para obter apenas uma collection. Cada collection traz `fontes` (id, licença e uso
+         *     comercial de cada uma), `selo` (`fato`, `inferido` ou `estimado`; padrão dos campos), `selos_campo` (campos de outra
+         *     natureza, quando há) e `uso_comercial_efetivo` (o pior caso entre as fontes).
          */
         get: operations["get_schema_api_v1_schema_get"];
         put?: never;

@@ -16726,7 +16726,7 @@
   },
   "/api/v1/schema": {
    "get": {
-    "description": "Lista, por collection, os campos consultáveis, tipos e descrições, além dos operadores\ne funções de agregação suportados pela query DSL (`POST /query/{collection}`).\n\nUse `?collection=asns` para obter apenas uma collection. Collections disponíveis:\n`asns`, `ixps`, `external_ixps`, `cdns`, `prefixes`.",
+    "description": "Lista, por collection, os campos consultáveis, tipos e descrições, além dos operadores\ne funções de agregação suportados pela query DSL (`POST /query/{collection}`).\n\nUse `?collection=asns` para obter apenas uma collection. Cada collection traz `fontes` (id, licença e uso\ncomercial de cada uma), `selo` (`fato`, `inferido` ou `estimado`; padrão dos campos), `selos_campo` (campos de outra\nnatureza, quando há) e `uso_comercial_efetivo` (o pior caso entre as fontes).",
     "operationId": "get_schema_api_v1_schema_get",
     "parameters": [
      {
