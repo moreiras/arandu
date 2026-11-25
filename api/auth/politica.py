@@ -10,9 +10,9 @@ vigente quando a pessoa entrou; não define nem altera o texto da política (red
 """
 from __future__ import annotations
 
-# TODO(mantenedor): valor inicial provisório (data da decisão D10). Defina o identificador da versão e mude-o a cada revisão da política
-# que o público veja; quem já aceitou uma versão anterior passa a constar com a nova no próximo login.
-POLITICA_VERSAO_VIGENTE = "2026-11-24"
+# Mude o identificador a cada revisão da política que o público veja; quem já aceitou uma versão anterior passa a constar com a nova
+# no próximo login.
+POLITICA_VERSAO_VIGENTE = "2026-11-25"
 
 # Contas criadas antes do registro: a versão do aceite não é conhecida até o próximo login.
 POLITICA_NAO_REGISTRADA = "não registrada"

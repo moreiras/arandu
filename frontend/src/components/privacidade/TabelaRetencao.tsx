@@ -9,7 +9,7 @@ type Linha = { id: string; registro: string; contem_ip: boolean; prazo: string; 
 
 /**
  * Tabela de retenção gerada das constantes do código (`scripts/gen_retencao.py`, `lib/retencao.gen.json`).
- * Não está ligada à página `/privacidade`: a política tem redação do mantenedor (ver `EXIBIR_TABELA_RETENCAO` em `Privacidade.tsx`).
+ * Exibida em `/privacidade` (`EXIBIR_TABELA_RETENCAO` em `Privacidade.tsx`), com a redação aprovada pelo mantenedor (PT-13b).
  * `linhas` existe para testes; a página usa o JSON gerado.
  */
 export function TabelaRetencao({ linhas = retencao.linhas as Linha[] }: { linhas?: Linha[] }) {

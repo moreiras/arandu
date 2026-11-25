@@ -6,10 +6,10 @@
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 """Gera `frontend/src/lib/retencao.gen.json`: a tabela de retenção da política de privacidade, derivada das constantes do código
 (`api/uso_conta.py`, `api/usage_log.py`, `api/auth/storage.py`, `api/auth/contas.py`, `api/auth/anon_session.py`, `api/auth/jwt_utils.py`,
-`api/limites.py`, `mcp_server/chave.py`) e do `docker-compose.prod.yml` (rotação dos registros do servidor web).
+`api/limites.py`, `mcp_server/chave.py`).
 
-Cada linha traz o valor numérico, o prazo em texto e a `fonte` (arquivo e constante). O texto de `prazo` é PROPOSTA de redação: a página
-`/privacidade` só o exibe se o mantenedor ligar `EXIBIR_TABELA_RETENCAO` (ver `Privacidade.tsx`, `TODO(mantenedor)`).
+Cada linha traz o valor numérico, o prazo em texto e a `fonte` (arquivo e constante). O texto de `prazo` é o aprovado pelo mantenedor (PT-13b) e é exibido na página
+`/privacidade` (`EXIBIR_TABELA_RETENCAO` em `Privacidade.tsx`).
 `tests/unit/test_retencao_politica.py` confere que o arquivo está em dia e que a tabela bate com as constantes.
 
     python3 scripts/gen_retencao.py          # regrava
@@ -23,7 +23,6 @@ import re
 import sys
 from pathlib import Path
 
-import yaml
 from limits import parse_many
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,7 +33,6 @@ from api.auth import anon_session, contas, jwt_utils, storage  # noqa: E402
 from mcp_server import chave  # noqa: E402
 
 SAIDA = ROOT / "frontend" / "src" / "lib" / "retencao.gen.json"
-COMPOSE_PROD = ROOT / "docker-compose.prod.yml"
 _JANELA = {"minute": "minuto", "hour": "hora", "day": "dia"}
 _CHAVES_LOCALSTORAGE = {
     "frontend/src/lib/buscaRecentes.ts": r"CHAVE_RECENTES\s*=\s*'([^']+)'",
@@ -48,23 +46,16 @@ def _tetos(spec: str) -> dict[str, int]:
     return {_JANELA[i.GRANULARITY.name]: i.amount for i in parse_many(spec)}
 
 
-def rotacao_servidor_web() -> dict:
-    """Rotação por tamanho do registro do contêiner do servidor web (`frontend`), lida do compose de produção."""
-    op = yaml.safe_load(COMPOSE_PROD.read_text(encoding="utf-8"))["services"]["frontend"]["logging"]["options"]
-    return {"tamanho_mb": int(str(op["max-size"]).rstrip("mM")), "arquivos": int(op["max-file"])}
-
-
 def chaves_localstorage() -> list[str]:
     return sorted(re.search(rx, (ROOT / arq).read_text(encoding="utf-8")).group(1) for arq, rx in _CHAVES_LOCALSTORAGE.items())
 
 
 def linhas() -> list[dict]:
-    rot = rotacao_servidor_web()
     mcp = limites.PADROES["mcp"]
     return [
         {"id": "log_servidor_web", "registro": "Registro de acesso do servidor web", "contem_ip": True,
-         "valor": rot, "prazo": f"sem prazo fixo; rotação por tamanho ({rot['tamanho_mb']} MB, {rot['arquivos']} arquivos)",
-         "fonte": "docker-compose.prod.yml (serviço frontend, logging); docker/nginx-frontend.conf (log_format temporizado)"},
+         "valor": {"prazo": "indeterminado"}, "prazo": "tempo indeterminado",
+         "fonte": "docker/nginx-frontend.conf (log_format temporizado); docker-compose.prod.yml (serviço frontend, logging)"},
         {"id": "log_acesso_conta", "registro": "Registro de páginas visitadas por quem tem conta (identificador interno e IP)", "contem_ip": True,
          "valor": {"meses": storage.RETENCAO_LOG_MESES}, "prazo": f"{storage.RETENCAO_LOG_MESES} meses (o mês corrente conta como o primeiro)",
          "fonte": "api/auth/storage.py (RETENCAO_LOG_MESES, log_access)"},
