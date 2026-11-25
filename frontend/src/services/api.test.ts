@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-  AccessError, fetchASN, fetchASNContacts, fetchASNs, fetchIXP, fetchSnapshots, onAnonLimitReached,
+  AccessError, fetchASN, fetchASNContacts, fetchASNs, fetchDiffSnapshots, fetchIXP, fetchSnapshots, onAnonLimitReached,
   onLoginRequired, queryColecao, setCurrentArea,
 } from './api'
 import { fixtures, seenHeaders, server } from '../test/server'
@@ -176,5 +176,21 @@ describe('consulta genérica (queryColecao)', () => {
     const grande = { filter: { field: 'cnpj', op: 'in', value: Array.from({ length: 800 }, (_, i) => String(10000000000000 + i)) } }
     await queryColecao('operadoras', grande, '2026-11-15')
     expect(vistos[1].metodo).toBe('POST')
+  })
+})
+
+describe('diferença entre snapshots como bloco acessório', () => {
+  it('com `opcional` pede ?opcional e trata o 204 como ausência, sem 404 no console', async () => {
+    let url = ''
+    server.use(http.get('*/api/v1/snapshots/diff', ({ request }) => { url = request.url; return new HttpResponse(null, { status: 204 }) }))
+    await expect(fetchDiffSnapshots('2026-09-13', '2026-09-20', { opcional: true })).rejects.toThrow('HTTP 404')
+    expect(new URL(url).searchParams.get('opcional')).toBeTruthy()
+  })
+
+  it('sem `opcional` (Comparar datas) não acrescenta o parâmetro', async () => {
+    let url = ''
+    server.use(http.get('*/api/v1/snapshots/diff', ({ request }) => { url = request.url; return HttpResponse.json({}) }))
+    await fetchDiffSnapshots('2026-09-13', '2026-09-20')
+    expect(new URL(url).searchParams.has('opcional')).toBe(false)
   })
 })

@@ -1403,8 +1403,9 @@ export function fetchCdnMudancas(a: string, b: string): Promise<CdnMudancas> {
 export function fetchSerieNacional(familia: 'roteamento' | 'seguranca', from?: string): Promise<SerieNacional> {
   return get('/api/v1/history/brasil/series', { familia, from })
 }
-export function fetchDiffSnapshots(a: string, b: string): Promise<DiffSnapshots> {
-  return get('/api/v1/snapshots/diff', { a, b })
+/** `opcional` (bloco acessório, como a variação do panorama): sem histórico nas duas datas a API responde 204, sem erro no console. */
+export function fetchDiffSnapshots(a: string, b: string, opts: { opcional?: boolean } = {}): Promise<DiffSnapshots> {
+  return get('/api/v1/snapshots/diff', { a, b, ...(opts.opcional ? { opcional: true } : {}) })
 }
 
 /** `esquema` 2 (PT-17, D6): `ranking/operadoras` ganhou `base_aa` e `base_pequena` e as listas deixam de esconder quem não tem percentual (vão para o fim); `multas/empresas` tem a ordem padrão alfabética. */

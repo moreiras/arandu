@@ -43,7 +43,7 @@ export function ResumoTecnico() {
   // Variação do percentual de usuários com IPv6 desde o snapshot anterior, calculada pela API na mesma base (regra de comparabilidade, PT-28)
   const snaps = (useSnapshots().data?.snapshots ?? [])
   const anterior = snaps.length >= 2 && date === snaps[snaps.length - 1] ? snaps[snaps.length - 2] : null
-  const diff = useQuery({ queryKey: ['diff', anterior, date], queryFn: () => fetchDiffSnapshots(anterior as string, date as string), enabled: !!anterior && !!date, staleTime: Infinity, gcTime: Infinity, retry: false })
+  const diff = useQuery({ queryKey: ['diff', anterior, date], queryFn: () => fetchDiffSnapshots(anterior as string, date as string, { opcional: true }), enabled: !!anterior && !!date, staleTime: Infinity, gcTime: Infinity, retry: false })
   const razao = diff.data?.razoes?.ipv6_pct_usuarios
   const variacaoV6 = razao?.comparavel && razao.variacao_pp != null
     ? { texto: `${razao.variacao_pp >= 0 ? '+' : ''}${razao.variacao_pp.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} p.p. desde ${anterior} (série semanal)` }
