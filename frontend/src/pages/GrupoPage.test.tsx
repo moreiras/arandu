@@ -159,14 +159,14 @@ describe('/grupo/:id', () => {
 describe('/grupo/:id: D5 (PT-10)', () => {
   const comNome = { ...grupo, nome: 'PROVEDOR 01', nome_regra: 'maior_acesso_sici', nome_regra_texto: 'nome do CNPJ do grupo com mais acessos fixos declarados ao SICI', nome_base: '90000001000129' }
 
-  it('mostra o nome do grupo com a regra que o escolheu, sem dizer quem controla quem', async () => {
+  it('mostra o nome do grupo com a regra que o escolheu, sem afirmar controle', async () => {
     server.use(http.get('*/api/v1/grupos/g1', () => HttpResponse.json(comNome)))
     montar('g1')
     expect(await screen.findByRole('heading', { level: 1, name: /Grupo de PROVEDOR 01/ })).toBeInTheDocument()
     const regra = await screen.findByTestId('grupo-nome-regra')
     expect(regra).toHaveTextContent('Nome do grupo: nome do CNPJ do grupo com mais acessos fixos declarados ao SICI')
     expect(regra).toHaveTextContent('Identificador estável: g1')
-    expect(regra).toHaveTextContent(/não indica quem controla quem/)
+    expect(regra).toHaveTextContent(/não afirma controle de uma empresa sobre outra/)
     expect(document.body.textContent).not.toMatch(/grupo econômico verdadeiro/i)
   })
 

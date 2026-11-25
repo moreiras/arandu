@@ -358,7 +358,7 @@ export function GruposPage() {
         <p className="text-xs text-gray-500 mt-1" data-testid="grupos-regras">
           Só sócio com participação societária liga empresas: administrador, diretor e presidente sem participação não ligam (em sociedade anônima o quadro traz a diretoria, não os
           acionistas). O grupo é inferido e reúne as empresas ligadas em cadeia; a força de cada ligação está na página do grupo. O nome do grupo vem da marca curada, se houver, e
-          senão do nome do CNPJ com mais acessos fixos declarados ao SICI: é um rótulo de navegação, não indica quem controla quem. O identificador do grupo é o menor CNPJ básico do
+          senão do nome do CNPJ com mais acessos fixos declarados ao SICI: é um rótulo de navegação, não afirma controle de uma empresa sobre outra. O identificador do grupo é o menor CNPJ básico do
           conjunto; links com identificadores antigos são redirecionados.
         </p>
       </div>

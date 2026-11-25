@@ -56,7 +56,7 @@ export function GrupoPage() {
       >
         {g.nome_regra_texto && (
           <p className="text-xs text-gray-500 mt-1" data-testid="grupo-nome-regra">
-            Nome do grupo: {g.nome_regra_texto}. É um rótulo de navegação do conjunto inferido, não indica quem controla quem. Identificador estável: {g.grupo_id}.
+            Nome do grupo: {g.nome_regra_texto}. É um rótulo de navegação do conjunto inferido, não afirma controle de uma empresa sobre outra. Identificador estável: {g.grupo_id}.
           </p>
         )}
       </EntityHeader>

@@ -11,7 +11,7 @@ Duas regras, nesta ordem, e o resultado diz qual valeu:
      a que cobre mais raízes e, em empate, a primeira da tabela. Marca que cobre só parte das raízes de um conjunto maior não nomeia um grupo menor.
   2. `maior_acesso_sici`: o nome do CNPJ do grupo com mais acessos fixos declarados ao SICI; em empate (ou sem acesso declarado nenhum), o de menor CNPJ.
 
-O nome é um rótulo de navegação do conjunto inferido: não afirma quem controla quem nem que o grupo é "o" grupo econômico da marca.
+O nome é um rótulo de navegação do conjunto inferido: não afirma controle de uma empresa sobre outra nem que o grupo é "o" grupo econômico da marca.
 """
 from __future__ import annotations
 
