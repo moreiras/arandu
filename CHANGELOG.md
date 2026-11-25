@@ -125,6 +125,16 @@ parênteses remetem à análise.
   leitura mais antiga com D dias"). Instalações: o selo de cadastro mostra as datas do PeeringDB como vêm (registro e último vínculo),
   sem inferir a razão delas (decisão de 2026-11-25). Id `rpki` do bloco de grupo corrigido para `rpki_collector` (SNAP 5.1, SNAP 5.3,
   TRANSV-E9, FONT-E1 a FONT-E5, IXP-E4, COMM-E4, INS-E1, INST-E3).
+- **Política editorial (PT-17; D6, D12).** "Omissão" sai do site, da API, do MCP e da documentação: o termo é "sem declaração ao SICI
+  em AAAA-MM". A collection `omissao_sici` passa a `sem_declaracao_sici`, a rota `/omissao-sici` a `/sem-declaracao-sici` e
+  `?visao=omissao` a `?visao=sem-declaracao`; os nomes antigos seguem como alias, com aviso de depreciação. Rankings não escondem
+  linhas: a variação em 12 meses mostra a base (com "base pequena" abaixo de 1.000 acessos), pode ser ordenada pela variação absoluta, e
+  quem não tem percentual vai para o fim. /ases e as páginas de PTT e BGP usam paleta neutra, sem verde e vermelho de juízo; %IPv6 com
+  menos de 1.000 usuários estimados leva o selo "amostra pequena". Agregados por UF e município (prontidão, ROV, MANRS, HHI) mostram o
+  número de casos e o peso do maior, com aviso em vez de supressão. Listas nominais em ordem neutra (route servers por PTT e ASN; multas
+  em ordem alfabética, com "Multa constituída não é condenação definitiva"). O alerta de PTT próximo deixa de trazer recomendação de
+  negócio, e o diagnóstico de BGP deixa de presumir causa (IXP-E10, ASES-E9, ASES-E10, BGP-E9, RANKINGS-E6, ASN-E6, IPV4-E15, SEG-E5,
+  SEG-E11, OPERADORA-E12, OPERADORAS-E18).
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
