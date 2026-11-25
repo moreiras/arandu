@@ -47,6 +47,13 @@ CAMPOS_DE_COORDENADA = frozenset({"lat", "lon", "latitude", "longitude"})
 CAMPOS_DA_SEDE = CAMPOS_DE_ENDERECO | CAMPOS_DE_COORDENADA
 
 
+# Raio mínimo do `near` e do `within_radius` nas coleções com posição de sede (PT-11): sem ele, consultas com raio de dezenas de metros localizam o
+# endereço que não é servido. A posição de EI/MEI já é o centróide do município (`core.pessoa_natural`); o ponto de PJ não muda (D1 deixa a posição
+# de PJ "a reconciliar"), então o piso é a mitigação possível sem alterar dado publicado. Resíduo: várias consultas com centros diferentes ainda
+# estreitam a posição por interseção de círculos; o limite de uso por conta e por rede é o que as encarece.
+RAIO_MINIMO_SEDE_KM = 2.0
+
+
 def sem_endereco(registro: Any) -> Any:
     """Cópia de um registro de cadastro (outorga, linha de operadora) sem endereço nem coordenada da sede; só o primeiro nível."""
     if not isinstance(registro, dict):

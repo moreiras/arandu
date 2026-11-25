@@ -166,18 +166,32 @@ def _estilo(texto: str) -> dict:
     return kw
 
 
-def _mascarar_bytes(dados: bytes) -> Optional[bytes]:
-    """JSON em bytes com o CPF dos campos de nome mascarado, no mesmo estilo; None se nada mudou."""
-    if not pode_ter_cpf(dados):
+#: acima disto, o documento só é percorrido para a regra de pessoa natural se tiver nome de titular (as camadas de prefixo e de rodovia, de dezenas de MB, não têm)
+_GRANDE = 16 * 1024 * 1024
+_MARCAS_DE_TITULAR = (b"razao_social", b"nome_fantasia", b'"cnpj"', b'"empresa"')
+
+
+def _mascarar_bytes(dados: bytes, indice=None) -> Optional[bytes]:
+    """JSON em bytes com o CPF dos campos de nome mascarado e, com `indice` (`core.pessoa_natural.Indice`), o nome e a posição dos titulares de
+    pessoa natural no padrão público (D1), no mesmo estilo; None se nada mudou."""
+    pessoa = bool(indice) and (len(dados) <= _GRANDE or any(m in dados for m in _MARCAS_DE_TITULAR))
+    if not pessoa and not pode_ter_cpf(dados):
         return None
     try:
         texto = dados.decode("utf-8")
         doc = json.loads(texto)
     except (UnicodeDecodeError, ValueError):
         return None
+    mudou = False
+    if pessoa:
+        from core.pessoa_natural import aplicar
+
+        novo = aplicar(doc, indice)
+        mudou = novo is not doc
+        doc = novo
     n: list = []
     mascarar_cpf_em(doc, n)
-    if not n[0]:
+    if not n[0] and not mudou:
         return None
     return (json.dumps(doc, **_estilo(texto)) + ("\n" if texto.endswith("\n") else "")).encode("utf-8")
 
@@ -199,12 +213,15 @@ def _sha(dados: bytes) -> str:
     return "sha256:" + hashlib.sha256(dados).hexdigest()
 
 
-def mascarar_snapshot(diretorio: Path, *, gravar: bool = True, copia_em: Optional[Path] = None) -> dict[str, str]:
+def mascarar_snapshot(diretorio: Path, *, gravar: bool = True, copia_em: Optional[Path] = None, indice=None) -> dict[str, str]:
     """Mascara o CPF embutido nos campos de nome de todos os artefatos de `published/<data>/` (JSON, GeoJSON, `.json.gz` e as entradas do
     `asns.zip` do formato compactado), regravando de forma atômica só o que muda. Devolve {caminho como no manifesto: novo checksum}
     (as entradas do ZIP aparecem como `asns/<arquivo>`, como nos checksums). Roda no fechamento do snapshot
     (`publish.coleta_checks.refresh_manifest`, antes dos checksums): a API serve o que está publicado, sem mascarar na leitura.
-    `gravar=False` só conta; `copia_em` guarda os originais. Idempotente: o CPF mascarado (`***456789**`) não casa de novo."""
+    `gravar=False` só conta; `copia_em` guarda os originais. Idempotente: o CPF mascarado (`***456789**`) não casa de novo.
+
+    Com `indice` (`core.pessoa_natural.indice_do_snapshot`), aplica também a regra de pessoa natural (D1, PT-11): nome fantasia ou rótulo no lugar do nome
+    civil de EI/MEI e posição reduzida ao centróide do município, em todo documento JSON do snapshot (não só nos que têm CPF)."""
     alterados: dict[str, str] = {}
     for caminho in sorted(diretorio.rglob("*")):
         if not caminho.is_file() or caminho.name in _NAO_TOCAR or caminho.name.endswith((".tmp", ".tmp-cpf")):
@@ -213,16 +230,16 @@ def mascarar_snapshot(diretorio: Path, *, gravar: bool = True, copia_em: Optiona
         nome = caminho.name
         novo = None
         if nome.endswith((".json", ".geojson")):
-            novo = _mascarar_bytes(caminho.read_bytes())
+            novo = _mascarar_bytes(caminho.read_bytes(), indice)
         elif nome.endswith((".json.gz", ".geojson.gz")):
             try:
                 cru = gzip.decompress(caminho.read_bytes())
             except (OSError, EOFError):
                 continue
-            m = _mascarar_bytes(cru)
+            m = _mascarar_bytes(cru, indice)
             novo = gzip.compress(m, compresslevel=6, mtime=0) if m is not None else None
         elif nome.endswith(".zip"):
-            alterados.update(_mascarar_zip(caminho, rel, gravar, copia_em))
+            alterados.update(_mascarar_zip(caminho, rel, gravar, copia_em, indice))
             continue
         if novo is not None:
             if gravar:
@@ -231,7 +248,7 @@ def mascarar_snapshot(diretorio: Path, *, gravar: bool = True, copia_em: Optiona
     return alterados
 
 
-def _mascarar_zip(caminho: Path, rel: str, gravar: bool, copia_em: Optional[Path]) -> dict[str, str]:
+def _mascarar_zip(caminho: Path, rel: str, gravar: bool, copia_em: Optional[Path], indice=None) -> dict[str, str]:
     """`asns.zip` (formato compactado, core/layout.py): regrava o ZIP inteiro se alguma entrada mudar. Devolve {`asns/<entrada>`: checksum}."""
     try:
         with zipfile.ZipFile(caminho) as z:
@@ -241,7 +258,7 @@ def _mascarar_zip(caminho: Path, rel: str, gravar: bool, copia_em: Optional[Path
     prefixo = rel[:-len(".zip")]
     mudou, saida = {}, []
     for info, dados in entradas:
-        novo = _mascarar_bytes(dados) if info.filename.endswith(".json") else None
+        novo = _mascarar_bytes(dados, indice) if info.filename.endswith(".json") else None
         if novo is not None:
             mudou[f"{prefixo}/{info.filename}"] = _sha(novo)
         saida.append((info, novo if novo is not None else dados))

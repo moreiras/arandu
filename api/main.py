@@ -240,6 +240,17 @@ app = FastAPI(
 
 from core.site import com_identidade  # noqa: E402
 
+
+def _indice_pessoa_natural():
+    """Titulares EI/MEI do `Store` do app (D1, PT-11), para a saída das respostas (`api/respostas.py`); sem `Store` ainda, nada a trocar."""
+    store = getattr(app.state, "store", None)
+    return store.pessoa_natural_indice() if store is not None and hasattr(store, "pessoa_natural_indice") else None
+
+
+from api import respostas as _respostas  # noqa: E402
+
+_respostas.provedor_de_indice = _indice_pessoa_natural
+
 _identidade_aplicada = False
 
 

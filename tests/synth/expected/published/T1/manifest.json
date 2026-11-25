@@ -73,6 +73,12 @@
  "layout_version": 1,
  "m3_prefixes_v4": 77,
  "m3_prefixes_v6": 44,
+ "privacidade": {
+  "criterio": "natureza jurídica 213-5 (empresário individual) ou MEI",
+  "pessoa_natural": 1,
+  "posicao": "municipio",
+  "titulares": 2
+ },
  "registro_br_prefixes_v4": 77,
  "registro_br_prefixes_v6": 44,
  "registro_br_status": "ok",

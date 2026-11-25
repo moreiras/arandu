@@ -18,9 +18,33 @@ from typing import Optional
 
 from cachetools import LRUCache
 
-from api.privacidade import CAMPOS_DA_SEDE, sem_endereco
+from api.privacidade import CAMPOS_DA_SEDE, RAIO_MINIMO_SEDE_KM, sem_endereco
 from api.services import decix_rs as _decix_rs
+from core import pessoa_natural
 from core.cpf import mascarar_cpf_em
+
+
+def _exigir_raio_minimo(body: dict) -> None:
+    """Raio mínimo do `near` e de todo `within_radius` do filtro nas coleções com posição de sede (`RAIO_MINIMO_SEDE_KM`): com raio de metros, um
+    punhado de consultas localiza o endereço que a API não serve (triangulação). Não muda nenhum dado publicado."""
+    from api import query as _q
+
+    def confere(r, onde):
+        if isinstance(r, (int, float)) and not isinstance(r, bool) and r < RAIO_MINIMO_SEDE_KM:
+            raise _q.QueryError(f"{onde}: raio mínimo de {RAIO_MINIMO_SEDE_KM:g} km nas coleções com posição de sede (privacidade do endereço).")
+
+    near = body.get("near")
+    if isinstance(near, dict):
+        confere(near.get("radius_km"), "near.radius_km")
+    pilha = [body.get("filter")]
+    while pilha:
+        f = pilha.pop()
+        if isinstance(f, dict):
+            if f.get("op") == "within_radius":
+                confere(f.get("radius_km"), "within_radius.radius_km")
+            pilha.extend(v for v in f.values() if isinstance(v, (dict, list)))
+        elif isinstance(f, list):
+            pilha.extend(f)
 
 
 class ConsultasService:
@@ -31,6 +55,9 @@ class ConsultasService:
         self._colunares_lock = threading.Lock()
         # Cache: date_str → {int asn: {uf, city, cnpj, lat, lon}} de geo_orgs.json.gz
         self._geo_orgs_cache: dict[str, dict[int, dict]] = {}
+        # Titulares de pessoa natural (EI/MEI) por data (D1, PT-11): `core.pessoa_natural.Indice`, montado de `normalized/`
+        self._pessoa_natural: dict[str, pessoa_natural.Indice] = {}
+        self._pessoa_natural_lock = threading.Lock()
         # Resultados de `query` por (data, collection, corpo): snapshot publicado é imutável, então o resultado nunca envelhece. A home faz 5
         # POST /query iguais a cada visita e cada um custava 0,5–0,8 s sem cache (POST não passa pelo cache de GET do nginx) — 1.4.7.1.
         self._resultados = LRUCache(maxsize=self.RESULTADOS_MAX)
@@ -44,6 +71,26 @@ class ConsultasService:
             raise AttributeError(nome)
         return getattr(self._s, nome)
 
+    def pessoa_natural_indice(self, date_str: Optional[str] = None) -> pessoa_natural.Indice:
+        """Titulares EI/MEI do snapshot (`core.pessoa_natural.indice_do_snapshot`), cacheado por data. A data pedida sem `normalized/` (retenção)
+        usa a mais recente que o tenha: quem é empresário individual não muda de uma semana para outra. Vazio sem nenhuma fonte."""
+        datas = self.list_snapshots()
+        d = date_str or (datas[-1] if datas else None)
+        if d is None:
+            return pessoa_natural.Indice()
+        if d not in self._pessoa_natural:
+            with self._pessoa_natural_lock:
+                if d not in self._pessoa_natural:
+                    idx = pessoa_natural.indice_do_snapshot(self.base, d)
+                    for outra in reversed(datas):
+                        if idx or outra == d:
+                            continue
+                        idx = pessoa_natural.indice_do_snapshot(self.base, outra)
+                    while len(self._pessoa_natural) >= 4:
+                        self._pessoa_natural.pop(next(iter(self._pessoa_natural)))
+                    self._pessoa_natural[d] = idx
+        return self._pessoa_natural[d]
+
     def _load_geo_orgs(self, date_str: str) -> dict[int, dict]:
         """{int asn: {...campos do CNPJ + geo}} de geo_orgs.json.gz. Cacheado.
 
@@ -56,6 +103,8 @@ class ConsultasService:
         # normalized/ não passa pela máscara da publicação (core.cpf.mascarar_snapshot): a razão social de EI/MEI traz o CPF inteiro e vai
         # para a resposta (nome alternativo do AS, perfis). Um arquivo por data, guardado em memória.
         data = mascarar_cpf_em(self._read_json_gz(path) or {})
+        # EI/MEI (D1): nome fantasia ou rótulo no lugar do nome civil, posição no centróide do município e sem endereço (`normalized/` é cru)
+        data = pessoa_natural.aplicar(data, self.pessoa_natural_indice(date_str))
         orgs = data.get("orgs", {}) if isinstance(data, dict) else {}
         out: dict[int, dict] = {}
         for key, org in orgs.items():
@@ -300,6 +349,9 @@ class ConsultasService:
 
         if not rows and not (self._pub(date_str) / "manifest.json").exists():
             return rows                                         # data sem snapshot não fica no cache (seria uma entrada por data inventada)
+        # EI/MEI (D1): o motor filtra, ordena e agrupa sobre a tabela, então o nome civil e o ponto exato saem dela antes (snapshots anteriores à regra
+        # ainda os trazem). Os prefixos têm a posição do IP, não a da sede: só o nome.
+        rows = pessoa_natural.aplicar(rows, self.pessoa_natural_indice(date_str), pontos=collection not in self.COLECOES_SEM_POSICAO)
         self._query_tables[cache_key] = rows
         return rows
 
@@ -398,6 +450,8 @@ class ConsultasService:
                 raise _q.QueryError(
                     f"{', '.join(proibido)}: endereço e posição da sede não são servidos em '{collection}'. "
                     "Use `near` para buscar perto de um lugar, ou filtre e agrupe por município e `uf`.")
+        if collection in self.COLECOES_SEM_SEDE:
+            _exigir_raio_minimo(body)
         near = body.pop("near", None)
         de = body.pop("de", None)
         tab = self.colunar(date_str, collection) if collection in self.COLECOES_COLUNARES else None
