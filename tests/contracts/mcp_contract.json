@@ -842,6 +842,7 @@
     "relacoes",
     "sancoes",
     "snapshot_date",
+    "sociedades_anonimas",
     "tamanho",
     "tecnico",
     "usuarios_apnic",
@@ -1245,6 +1246,7 @@
     "nome_regra_texto",
     "relacionadas",
     "snapshot_date",
+    "sociedades_anonimas",
     "tamanho",
     "usuarios_apnic",
     "visibilidade_bgp"
