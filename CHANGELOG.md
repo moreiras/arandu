@@ -190,6 +190,17 @@ parênteses remetem à análise.
   `comparabilidade` (`variacao` pode ser nula); novas `GET /history/brasil/series` e `GET /cdns/mudancas` ("Mudanças entre
   snapshots" em /cdns).
 - **Acessibilidade.** Alvo de 24 px nos links de PTT de /instalacoes e links sublinhados no quadro de /dados (PT-29).
+- **Onde atua (PT-23).** Operadora: resumo por UF e tabela de todos os municípios com parcela no município, número de declarantes
+  e HHI local, sempre com o mês de referência do SICI; `municipios_detalhe` ganha `share`, `municipio_acessos`,
+  `municipio_operadores`, `municipio_hhi` e `avisos_hhi`, o que também corrige o mapa de parcela, que recebia `share` nulo. Grupo:
+  `GET /grupos/{id}/municipios` e bloco "Onde o conjunto atua", com HHI local por grupo (inferido) e por CNPJ; prévia de 100 linhas.
+  Panorama de mercado: municípios por faixa de HHI local (por CNPJ e por grupo) no país e por UF, e o HHI nacional por CNPJ.
+  `esquema` de grupos 6 e de `/mercado/grupos` 2.
+- **Síntese e portas (PT-22, PT-27).** Home, Panorama técnico e de mercado, UF, Municípios, PTT, IXPs, CDNs, Uso da Internet e
+  Localizador ganham um bloco "Em resumo" com 2 a 4 frases geradas dos números da própria página, cada uma com selo, fonte e data
+  (no Localizador, anunciado a leitores de tela). A Home passa a ter cinco portas por lente (técnico, regulação, jornalismo, política
+  pública, empresa). Nova `GET /territorio/resumo` (agregados por distância ao PTT mais próximo), usada em `/municipios`.
+- **Panorama técnico.** A variação do IPv6 pede `/snapshots/diff` com `opcional`: sem histórico, 204 em vez de erro no console.
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
