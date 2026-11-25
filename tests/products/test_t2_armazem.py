@@ -69,12 +69,18 @@ def test_composicao_duas_fontes_com_cadencias_diferentes_e_uma_atrasada(cat, bas
     assert fontes["registro_br"]["origem"] == "armazem" and fontes["registro_br"]["frescor"] == "ok"
     assert fontes["receita_socios"]["frescor"] == "ok"
     assert fontes["anatel_scm"]["origem"] == "armazem" and fontes["anatel_scm"]["frescor"] == "atrasado"
+    # FONT-E4: a data da verificação (em que o frescor foi medido) e o limite vão junto, para a tela dizer "atrasada (limite N dias)"
+    assert fontes["registro_br"]["verificado_em"] == "2026-11-09" and fontes["registro_br"]["limite_dias"] == 8
+    assert fontes["anatel_scm"]["limite_dias"] is not None and fontes["anatel_scm"]["verificado_em"] <= d
 
 
 def test_fonte_sem_versao_cai_no_legado_e_sem_arquivos_e_ausente(cat, base):
     fontes = {f["id"]: f for f in compor_fontes(cat, base, T1)}
     assert fontes["registro_br"]["origem"] == "legado" and fontes["registro_br"]["legado"] is True
     assert fontes["bgp_stability_deep"]["origem"] == "ausente" and fontes["bgp_stability_deep"]["frescor"] == "ausente"
+    assert fontes["bgp_stability_deep"]["ativa"] is True and "verificado_em" not in fontes["bgp_stability_deep"]       # FONT-E3: ativa sem versão
+    inativas = [s.id for s in cat.sources.values() if not s.ativa and s.tipo != "curada" and s.cadencia.coleta_atual != "manual"]
+    assert inativas and all(fontes[i]["ativa"] is False for i in inativas)                                                 # desativada se distingue de ausente
 
 
 def test_manifesto_do_pipeline_traz_layout_version_e_sources(pipeline):

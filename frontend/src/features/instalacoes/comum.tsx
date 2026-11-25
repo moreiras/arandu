@@ -24,21 +24,23 @@ const COR_CADASTRO: Record<string, string> = {
   parado: 'bg-aviso-50 text-aviso-800 border-aviso-200',
   antigo: 'bg-gray-100 text-gray-700 border-gray-300',
 }
-const ROTULO_CADASTRO: Record<string, string> = { recente: 'cadastro atualizado', parado: 'cadastro parado', antigo: 'cadastro antigo' }
+const ROTULO_CADASTRO: Record<string, string> = { recente: 'cadastro com atividade em até 12 meses', parado: 'sem atividade no cadastro há 1 a 3 anos', antigo: 'sem atividade no cadastro há mais de 3 anos' }
 
 /**
- * Cadastro vivo ou abandonado: leitura INFERIDA da data da última atualização do registro. Mede a manutenção do cadastro no PeeringDB,
- * não a operação da instalação nem da empresa: o texto do `title` diz isso e o selo nunca usa "ativa" ou "abandonada".
+ * Cadastro com atividade ou parado: leitura INFERIDA das datas do cadastro no PeeringDB, a mais recente entre o registro da instalação e os vínculos de rede,
+ * exibidas como vêm. Mede a manutenção do cadastro, não a operação da instalação nem da empresa: o `title` diz isso; o selo nunca usa "ativa" ou "abandonada".
  */
 export function SeloCadastro({ c }: { c: CadastroInferido | null | undefined }) {
   if (!c || !c.classe) return <span className="text-xs text-gray-400">sem data</span>
+  const datas = c.registro_atualizado !== undefined || c.vinculo_atualizado !== undefined
+  const detalhe = datas ? `registro: ${dataCurta(c.registro_atualizado)} · último vínculo de rede: ${dataCurta(c.vinculo_atualizado)}` : dataCurta(c.ultima_atualizacao)
   return (
     <span
       className={`inline-block rounded border px-1.5 py-0.5 text-xs ${COR_CADASTRO[c.classe]}`}
-      title={`Inferido: última atualização do cadastro em ${dataCurta(c.ultima_atualizacao)} (${n(c.dias)} dias antes da coleta). Mede a manutenção do registro no PeeringDB, não a operação da instalação nem da empresa.`}
+      title={`Inferido: data mais recente do cadastro em ${dataCurta(c.ultima_atualizacao)}, ${n(c.dias)} dias antes da coleta. Mede a manutenção do registro no PeeringDB, não a operação da instalação nem da empresa.`}
       data-testid="selo-cadastro"
     >
-      {ROTULO_CADASTRO[c.classe]} · {dataCurta(c.ultima_atualizacao)}
+      {ROTULO_CADASTRO[c.classe]} · {detalhe}
     </span>
   )
 }

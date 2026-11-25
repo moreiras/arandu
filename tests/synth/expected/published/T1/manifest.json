@@ -152,6 +152,7 @@
   },
   {
    "as_of": null,
+   "ativa": true,
    "coletado_em": null,
    "frescor": "ausente",
    "hash": null,
@@ -311,6 +312,7 @@
   },
   {
    "as_of": null,
+   "ativa": true,
    "coletado_em": null,
    "frescor": "ausente",
    "hash": null,
@@ -320,6 +322,7 @@
   },
   {
    "as_of": null,
+   "ativa": true,
    "coletado_em": null,
    "frescor": "ausente",
    "hash": null,
@@ -369,6 +372,7 @@
   },
   {
    "as_of": null,
+   "ativa": true,
    "coletado_em": null,
    "frescor": "ausente",
    "hash": null,
@@ -458,6 +462,7 @@
   },
   {
    "as_of": null,
+   "ativa": true,
    "coletado_em": null,
    "frescor": "ausente",
    "hash": null,
@@ -507,6 +512,7 @@
   },
   {
    "as_of": null,
+   "ativa": false,
    "coletado_em": null,
    "frescor": "ausente",
    "hash": null,
@@ -516,6 +522,7 @@
   },
   {
    "as_of": null,
+   "ativa": true,
    "coletado_em": null,
    "frescor": "ausente",
    "hash": null,
@@ -535,6 +542,7 @@
   },
   {
    "as_of": null,
+   "ativa": false,
    "coletado_em": null,
    "frescor": "ausente",
    "hash": null,
@@ -544,6 +552,7 @@
   },
   {
    "as_of": null,
+   "ativa": true,
    "coletado_em": null,
    "frescor": "ausente",
    "hash": null,
@@ -613,6 +622,7 @@
   },
   {
    "as_of": null,
+   "ativa": true,
    "coletado_em": null,
    "frescor": "ausente",
    "hash": null,
@@ -622,6 +632,7 @@
   },
   {
    "as_of": null,
+   "ativa": true,
    "coletado_em": null,
    "frescor": "ausente",
    "hash": null,
@@ -761,6 +772,7 @@
   },
   {
    "as_of": null,
+   "ativa": true,
    "coletado_em": null,
    "frescor": "ausente",
    "hash": null,

@@ -694,6 +694,8 @@
   "asn_politica": {
    "chaves": [
     "asn",
+    "cobertura_total_nivel2",
+    "cobertura_total_nivel3",
     "coletado_nivel2",
     "coletado_nivel3",
     "evidencia_rs",
@@ -702,6 +704,7 @@
     "limites",
     "nome",
     "parametros",
+    "rs_pulados",
     "snapshot_date",
     "versao_alice"
    ],
@@ -784,6 +787,7 @@
     "redes_declaradas",
     "redes_nota",
     "redes_total",
+    "regra_cadastro",
     "site",
     "snapshot_date",
     "uf"
@@ -800,6 +804,7 @@
     "items",
     "limites",
     "ordem",
+    "regra_cadastro",
     "snapshot_date",
     "total"
    ],
@@ -908,6 +913,8 @@
     "asns_soma_ptts",
     "asns_total",
     "classe",
+    "cobertura_total_nivel2",
+    "cobertura_total_nivel3",
     "coletado_nivel2",
     "coletado_nivel3",
     "community",
@@ -920,6 +927,7 @@
     "ptts",
     "rotas_total",
     "rotulo",
+    "rs_pulados",
     "snapshot_date",
     "versao_alice"
    ],
@@ -1020,6 +1028,8 @@
   },
   "ixp_rejeicoes": {
    "chaves": [
+    "cobertura_total_nivel2",
+    "cobertura_total_nivel3",
     "coletado_nivel2",
     "coletado_nivel3",
     "fonte",
@@ -1029,6 +1039,7 @@
     "parametros",
     "politica",
     "rejeicoes",
+    "rs_pulados",
     "snapshot_date",
     "versao_alice"
    ],

@@ -54,7 +54,7 @@ def test_ptt_externo_nao_exige_login_no_servidor_nem_no_frontend():
 def test_snapshots_da_entrada_nao_chamam_a_rota_login():
     """D9: as páginas abertas usam `/brasil/snapshots`; `/snapshots` (lista inteira) só com login. O frontend não chama `/api/v1/snapshots` sem ser pela lista completa."""
     api = (ROOT / "frontend" / "src" / "services" / "api.ts").read_text(encoding="utf-8")
-    assert "get(completo ? '/api/v1/snapshots' : '/api/v1/brasil/snapshots')" in api and "get(`/api/v1/brasil/snapshots/${date}`)" in api
+    assert "get(completo ? '/api/v1/snapshots' : '/api/v1/brasil/snapshots')" in api and "get(`/api/v1/brasil/snapshots/${date}`" in api      # a chamada leva `esquema` (PT-16), então o parêntese não fecha logo
     calls = json.loads((ROOT / "tests" / "access_entry_calls.json").read_text(encoding="utf-8"))
     for pagina, urls in calls["paginas"].items():
         assert not any(u.startswith("/api/v1/snapshots") for u in urls), (pagina, "chama a rota login /snapshots")

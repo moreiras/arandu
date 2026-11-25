@@ -160,7 +160,7 @@ def({ id: 'outorgas-multas', aba: 'regulatorio', titulo: 'Outorgas e multas', or
   nota: 'registros da Anatel somados por agrupamento inferido; multa constituída não é condenação definitiva', Componente: OutorgasMultasBloco })
 def({ id: 'qualidade-reclamacoes', aba: 'regulatorio', titulo: 'Qualidade e reclamações', ordem: 36, depende: ['useGrupoBloco'], fontes: ['anatel_rqual', 'anatel_reclamacoes', 'consumidor_gov'], selo: 'inferido',
   nota: 'a ligação marca → CNPJ é curada ou por nome fantasia único; sem ranking', Componente: QualidadeReclamacoesBloco })
-def({ id: 'ases-tecnico', aba: 'tecnico', titulo: 'ASes do grupo: IPv6, prefixos e RPKI', ordem: 31, depende: ['useGrupoBloco'], fontes: ['registro_br', 'fulltable_routeviews', 'rpki', 'apnic_pop'], selo: 'estimado',
+def({ id: 'ases-tecnico', aba: 'tecnico', titulo: 'ASes do grupo: IPv6, prefixos e RPKI', ordem: 31, depende: ['useGrupoBloco'], fontes: ['registro_br', 'fulltable_routeviews', 'rpki_collector', 'apnic_pop'], selo: 'estimado',
   nota: 'observações do looking glass e estimativa de usuários APNIC, somadas por agrupamento inferido', Componente: AsesTecnicoBloco })
 def({ id: 'ptts-transito', aba: 'tecnico', titulo: 'Trânsito e presença nos PTTs', ordem: 32, depende: ['useGrupoBloco'], fontes: ['lg_ixbr', 'fulltable_routeviews'], selo: 'fato',
   nota: 'sessões diretas observadas; não mede tráfego', Componente: PttsTransitoBloco })

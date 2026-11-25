@@ -131,3 +131,18 @@ def test_community_conta_asns_distintos_e_ptts_nao_a_soma_por_ptt():
     from api.services.rs_policy import uso_da_community
     um = uso_da_community({"snapshot_date": "2026-01-01", "communities": out["communities"]}, "65000:6939", "za")
     assert (um["asns_total"], um["asns_soma_ptts"], um["ptts"], um["rotas_total"]) == (3, 3, 1, 17)
+
+
+def test_cobertura_do_rodizio_chega_ao_produto_e_soma_os_elegiveis(sint):
+    # COMM-E4 / IXP-E4: `idade_max_dias`, `lidos_na_rodada` e `sem_leitura` saem do coletor e chegam ao produto; lidos + herdados + sem leitura = elegíveis.
+    out = sint[0]
+    for code in ("za", "zb", "zc"):
+        for bloco in ("rejeicoes", "politica"):
+            b = out["ixps"][code][bloco]
+            if b is None:
+                continue
+            c = b["cobertura"]
+            assert {"lidos_na_rodada", "sem_leitura", "idade_max_dias", "pulados_lentos"} <= set(c), (code, bloco)
+            assert c["lidos_na_rodada"] + c["herdados"] + c["sem_leitura"] == c["elegiveis"]
+    assert out["ixps"]["za"]["politica"]["cobertura"]["idade_max_dias"] == 0
+    assert out["ixps"]["zc"]["politica"]["cobertura"]["idade_max_dias"] is None            # sem leitura nenhuma: sem idade, não zero

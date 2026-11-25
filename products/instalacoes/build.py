@@ -29,7 +29,9 @@ from core.jsonio import carregar_json, carregar_json_gz, gravar_json_gz
 # Limiares do indicador de cadastro (dias desde a última atualização de qualquer registro da instalação ou da rede no PeeringDB).
 LIMITE_RECENTE_DIAS = 365
 LIMITE_PARADO_DIAS = 1095
-ROTULOS_CADASTRO = {"recente": "atualizado nos últimos 12 meses", "parado": "sem atualização há 1 a 3 anos", "antigo": "sem atualização há mais de 3 anos"}
+ROTULOS_CADASTRO = {"recente": "cadastro com atividade em até 12 meses", "parado": "sem atividade no cadastro há 1 a 3 anos", "antigo": "sem atividade no cadastro há mais de 3 anos"}
+# Versão da regra do indicador de cadastro: 2 = rótulos sem "atualizado/parado"; a data de cada registro do PeeringDB conta como vem, sem descartar nenhuma.
+REGRA_CADASTRO_VERSAO = 2
 
 LIMITES = ("Cadastro autodeclarado por organizações no PeeringDB, sem verificação independente: instalação ou vínculo (rede, PTT, carrier) pode faltar, sobrar ou estar desatualizado. "
            "Contagens `*_declaradas` são as que o próprio cadastro informa; `n_redes` conta os vínculos que o Arandurapé coletou (só instalações do Brasil). Instalações de outros países "
@@ -197,7 +199,8 @@ def publicar_instalacoes(base: Path, date_str: str, log) -> dict:
     destino = published_path(base, date_str) / "instalacoes"
     destino.mkdir(parents=True, exist_ok=True)
     gravar_json_gz(destino / "instalacoes.json.gz", {**cab, "limites": LIMITES, "cobertura": cobertura, "instalacoes": instalacoes, "carriers": doc["carriers"], "campus": doc["campus"],
-                                                    "limiares_cadastro_dias": {"recente": LIMITE_RECENTE_DIAS, "parado": LIMITE_PARADO_DIAS}})
+                                                    "limiares_cadastro_dias": {"recente": LIMITE_RECENTE_DIAS, "parado": LIMITE_PARADO_DIAS},
+                                                    "regra_cadastro": {"versao": REGRA_CADASTRO_VERSAO}})
     gravar_json_gz(destino / "vinculos.json.gz", {**cab, "limites": LIMITES, **vinculos})
     gravar_json_gz(destino / "atributos_rede.json.gz", {**cab, "limites": LIMITES_ATRIBUTOS, "asns": calcular_atributos(doc, hoje, br_pdb)})
     portas = calcular_portas(ixps_doc, br_pdb or {int(a) for a in doc["redes"]})

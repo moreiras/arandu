@@ -2119,12 +2119,22 @@ export interface RsPolMeta {
   snapshot_date: string
   coletado_nivel2: string | null
   coletado_nivel3: string | null
+  /** Cobertura do rodízio somada nos PTTs, por nível (2 = rejeições, 3 = communities das rotas recebidas). Ausente em snapshot anterior ao PT-16. */
+  cobertura_total_nivel2?: RsPolCobertura | null
+  cobertura_total_nivel3?: RsPolCobertura | null
+  rs_pulados?: { rs: string; motivo?: string }[] | null
   fonte: string | null
   versao_alice: string | null
   parametros: { amostra_prefixos: number; min_rotas_perfil: number; fracao_seletivo: number; fracao_restritivo: number; alvos_restritivo: number }
   limites: string
 }
-export interface RsPolCobertura { elegiveis: number; coletados: number; herdados: number }
+/** `coletados` e `herdados` são os campos de sempre; os demais vêm do rodízio do coletor (só sobre os vizinhos elegíveis) e faltam em coleta antiga. */
+export interface RsPolCobertura {
+  elegiveis: number; coletados: number; herdados: number
+  lidos_na_rodada?: number; sem_leitura?: number; pulados_lentos?: number
+  /** Idade da leitura mais antiga em dias; nulo sem leitura nenhuma. */
+  idade_max_dias?: number | null
+}
 export interface RsPolMotivo { codigo: string; rotulo: string | null; classe: string; rotas: number; amostra: { p: string | null; o: number | null }[] }
 export interface RsPolRejeicoesAsn {
   rotas: number; sessoes: number; afis: string[]; motivos: RsPolMotivo[]; sem_motivo: number; coletado_de: string | null; coletado_ate: string | null; contagem: 'exata' | 'amostra'; herdado?: boolean
@@ -2544,7 +2554,10 @@ export interface ReclamacoesOperadora extends QualMeta {
 }
 
 /** Instalações do PeeringDB: cadastro AUTODECLARADO; `cadastro` é inferência pelas datas de atualização e não diz nada da operação. Sem contatos. */
-export interface FacilityMeta { snapshot_date: string; coletado_em: string | null; fonte: { nome: string; url?: string | null; citacao?: string | null; aup?: string | null; coletado_em?: string | null }; limites: string }
+export interface FacilityMeta {
+  snapshot_date: string; coletado_em: string | null; fonte: { nome: string; url?: string | null; citacao?: string | null; aup?: string | null; coletado_em?: string | null }; limites: string
+  regra_cadastro?: { versao: number }
+}
 export interface CadastroInferido { classe: 'recente' | 'parado' | 'antigo' | null; ultima_atualizacao: string | null; dias: number | null; inferido: true; rotulo?: string; registro_atualizado?: string | null; vinculo_atualizado?: string | null }
 export interface FacilityResumo {
   id: number; nome: string | null; org_nome?: string; cidade?: string; uf?: string; pais?: string; lat?: number; lon?: number; escopo?: 'brasil' | 'ptt_externo'

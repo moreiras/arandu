@@ -207,7 +207,7 @@ def catalogo_publico(cat: Catalog) -> str:
             "origem": ({k: v for k, v in o.model_dump(exclude_none=True).items() if k in ("url", "formato", "licenca", "termos", "uso_comercial", "nota")} if o else {}),
             "cadencia": s.cadencia.model_dump(exclude_none=True) if s.cadencia else {},
             "politica_falha": s.politica_falha, "nao_verificado": nao_verificados(s),
-            "uso_comercial_efetivo": uso_comercial_efetivo(cat, s.id), "campos": [campo(c) for c in s.campos if not c.sensivel],
+            "uso_comercial_efetivo": uso_comercial_efetivo(cat, s.id), "entradas": list(s.entradas), "campos": [campo(c) for c in s.campos if not c.sensivel],
         }
 
     def prod(p) -> dict:

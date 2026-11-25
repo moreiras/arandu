@@ -10,7 +10,7 @@ import { DataTable, EmptyState, EntityHeader, Provenance, Section, formatarRefer
 import type { FonteEntrada } from '.'
 
 const fontes: FonteEntrada[] = [
-  { id: 'anatel_sici', as_of: '2026-08', coletado_em: '2026-10-11', frescor: 'defasada', origem: 'armazem' },
+  { id: 'anatel_sici', as_of: '2026-08', coletado_em: '2026-10-11', frescor: 'atrasado', verificado_em: '2026-10-12', limite_dias: 40, origem: 'armazem' },
   { id: 'apnic_pop', as_of: '2026-10-11', coletado_em: '2026-10-11', frescor: 'ok' },
 ]
 
@@ -23,15 +23,27 @@ describe('proveniência', () => {
   })
 
   it('rotula o frescor e a fonte ausente', () => {
-    expect(rotuloFrescor(fontes[0])).toBe('defasada')
-    expect(rotuloFrescor(undefined)).toMatch(/sem coleta registrada/)
+    expect(rotuloFrescor(fontes[0])).toBe('atrasada (limite 40 dias)')
+    expect(rotuloFrescor({ id: 'x', as_of: null, frescor: 'sem_limite' })).toBe('sem limite de frescor definido')
+    expect(rotuloFrescor({ id: 'x', as_of: null, frescor: 'desconhecido' })).toBe('frescor desconhecido (dado legado)')
+    expect(rotuloFrescor({ id: 'rpki_collector', as_of: '2026-11-13', frescor: 'atrasado' }, { frescor_maximo: '2d' })).toBe('atrasada (limite 2 dias)')
+    expect(rotuloFrescor(undefined)).toMatch(/fora do registro de coleta/)
+  })
+
+  it('FONT-E3: fonte sem entrada no manifesto: desativada, curadoria, coleta manual ou sem versão coletada', () => {
+    expect(rotuloFrescor({ id: 'ioda_outages', as_of: null, frescor: 'ausente', ativa: false })).toBe('fonte desativada')
+    expect(rotuloFrescor({ id: 'ipv4_vigia', as_of: null, frescor: 'ausente', ativa: true })).toBe('sem versão coletada para este snapshot')
+    expect(rotuloFrescor(undefined, { tipo: 'curada', ativa: true })).toBe('curadoria do projeto, fora do registro de coleta')
+    expect(rotuloFrescor(undefined, { tipo: 'bruta', ativa: true, coleta_atual: 'manual' })).toBe('coleta manual, fora do registro de coleta')
+    expect(rotuloFrescor(undefined, { tipo: 'bruta', ativa: false })).toBe('fonte desativada')
+    expect(rotuloFrescor(undefined, { tipo: 'bruta', ativa: true, coleta_atual: 'diaria' })).toBe('sem versão coletada para este snapshot')
   })
 
   it('mostra selo, as duas datas e o frescor quando não está em dia', () => {
     render(<Provenance bloco={{ fontes: ['anatel_sici'], selo: 'estimado' }} fontes={fontes} snapshot="2026-10-11" />)
     const p = screen.getByTestId('proveniencia')
     expect(within(p).getByText('Estimado')).toBeInTheDocument()
-    expect(p).toHaveTextContent('anatel_sici · ref. 08/2026 · coletado em 11/10/2026 · defasada')
+    expect(p).toHaveTextContent('anatel_sici · ref. 08/2026 · coletado em 11/10/2026 · atrasada (limite 40 dias), verificada em 12/10/2026')
     expect(p).toHaveTextContent('snapshot 11/10/2026')
   })
 
@@ -46,7 +58,24 @@ describe('proveniência', () => {
     const { rerender } = render(<Provenance bloco={{ fontes: ['x'] }} />)
     expect(screen.getByTestId('proveniencia')).not.toHaveTextContent('ref.')
     rerender(<Provenance bloco={{ fontes: ['x'] }} fontes={fontes} />)
-    expect(screen.getByTestId('proveniencia')).toHaveTextContent('sem coleta registrada no manifesto')
+    expect(screen.getByTestId('proveniencia')).toHaveTextContent('fora do registro de coleta do manifesto')
+    expect(screen.getByTestId('proveniencia')).not.toHaveTextContent('curada pelo projeto')
+  })
+})
+
+describe('proveniência de snapshot sem registro por fonte (TRANSV-E9)', () => {
+  it('fontes vazio: diz uma vez que a data de coleta não foi registrada e não mostra traço nem data', () => {
+    render(<Provenance bloco={{ fontes: ['anatel_sici', 'apnic_pop'] }} fontes={[]} snapshot="2026-11-15" />)
+    const p = screen.getByTestId('proveniencia')
+    expect(within(p).getByTestId('sem-registro-coleta')).toHaveTextContent('data de coleta por fonte não registrada neste snapshot')
+    expect(p).not.toHaveTextContent('ref.')
+    expect(p).not.toHaveTextContent('sem coleta')
+    expect(p.textContent).not.toMatch(/—/)
+  })
+
+  it('fonte ausente do manifesto mostra o motivo, não "—"', () => {
+    render(<Provenance bloco={{ fontes: ['ioda_outages'] }} fontes={[{ id: 'ioda_outages', as_of: null, frescor: 'ausente', ativa: false }]} />)
+    expect(screen.getByTestId('proveniencia')).toHaveTextContent('ioda_outages · fonte desativada')
   })
 })
 

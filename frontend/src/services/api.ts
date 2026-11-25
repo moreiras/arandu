@@ -312,8 +312,10 @@ export function fetchSnapshots(completo = false): Promise<SnapshotListResponse> 
 
 /** Resumo e manifesto de um snapshot: aberto para as datas atuais, `login` para as anteriores (como `?date=` nas demais rotas). */
 export function fetchSnapshot(date: string): Promise<SnapshotDetails> {
-  return get(`/api/v1/brasil/snapshots/${date}`)
+  return get(`/api/v1/brasil/snapshots/${date}`, { esquema: ESQUEMA_SNAPSHOT })
 }
+/** `esquema` 2: `sources[]` do manifesto ganhou `verificado_em`, `limite_dias` e `ativa` (PT-16). */
+const ESQUEMA_SNAPSHOT = 2
 
 /** Totais dos destaques da home e "O que mudou" na janela dos snapshots atuais: rota fixa e aberta (não gasta o orçamento anônimo). */
 export interface DestaquesHome {
@@ -327,7 +329,8 @@ export function fetchDestaquesHome(date?: string): Promise<DestaquesHome> {
 
 // `coleta` por família (ok, vazia, missing) e `status: partial` com a tabela vazia: a resposta de snapshot publicado mudou e o `?date=` é
 // imutável no cache, então a URL muda junto.
-const ESQUEMA_IXPS = 2
+/** `esquema` 3: a cobertura dos route servers em `rejeicoes` ganhou os campos do rodízio (PT-16). */
+const ESQUEMA_IXPS = 3
 
 export function fetchIXPs(date?: string, status?: string, uf?: string): Promise<IXPListResponse> {
   return get('/api/v1/ixps', { date, status, uf, esquema: ESQUEMA_IXPS })
@@ -431,7 +434,7 @@ export type AsnPerfil = ASNDocument & {
   peering?: PeeringAsn | null
 }
 export function fetchASNPerfil(asn: number | string, date?: string, historicoCompleto = false): Promise<AsnPerfil> {
-  return get(`/api/v1/asns/${asn}`, { date, include: `paths,ixp_peers,estabilidade,${blocoHistorico(historicoCompleto)},seguranca,prontidao,route_servers,politica_rs,organizacao,abuso,bloqueios,radar,exposicao,facilities,peering,transito,referencias`, opcional: true })
+  return get(`/api/v1/asns/${asn}`, { date, include: `paths,ixp_peers,estabilidade,${blocoHistorico(historicoCompleto)},seguranca,prontidao,route_servers,politica_rs,organizacao,abuso,bloqueios,radar,exposicao,facilities,peering,transito,referencias`, opcional: true, esquema: ESQUEMA_INSTALACOES })
 }
 
 export function fetchASNContacts(asn: number | string, date?: string): Promise<ASNContactsResponse> {
@@ -1368,9 +1371,12 @@ export function fetchRankingRouteServers(opts: { date?: string; criterio?: strin
   return get('/api/v1/ranking/route-servers', opts)
 }
 
+/** `esquema` 2: a resposta ganhou a cobertura do rodízio (`cobertura_total_nivel3`, `rs_pulados`; PT-16). */
+const ESQUEMA_COMMUNITIES = 2
+
 /** Explorador de communities dos route servers do IX.br: o que cada uma significa e quem a usa, só das rotas recebidas coletadas. */
 export function fetchCommunities(opts: { date?: string; q?: string; ixp?: string; classe?: string; limit?: number; page?: number }): Promise<CommunitiesResp> {
-  return get('/api/v1/communities', opts)
+  return get('/api/v1/communities', { ...opts, esquema: ESQUEMA_COMMUNITIES })
 }
 
 export function fetchCeticTabelas(opts: { date?: string; pesquisa: string }): Promise<CeticTabelas> {
@@ -1513,15 +1519,18 @@ export function fetchIpv4Subasignacoes(opts: { date?: string; asn?: number; conf
   return get('/api/v1/ipv4/subasignacoes', opts)
 }
 
+/** `esquema` 2: o selo de cadastro das instalações traz as datas de registro e de vínculo e ignora a data de lote (PT-16); vale também onde as instalações vêm embutidas (perfil do ASN). */
+const ESQUEMA_INSTALACOES = 2
+
 /** Instalações do PeeringDB: lista filtrada (a 1ª página, até 100, é aberta; ampliar exige login), uma instalação, as de um PTT e as portas de um PTT externo. */
 export function fetchFacilities(opts: { date?: string; pais?: string; uf?: string; q?: string; ptt?: string; cadastro?: string; com_ptt?: boolean; com_carrier?: boolean; ordem?: string; limit?: number; page?: number }): Promise<FacilitiesLista> {
-  return get('/api/v1/facilities', opts)
+  return get('/api/v1/facilities', { ...opts, esquema: ESQUEMA_INSTALACOES })
 }
 export function fetchFacility(id: number | string, date?: string): Promise<FacilityDetalhe> {
-  return get(`/api/v1/facilities/${id}`, { date, opcional: true })
+  return get(`/api/v1/facilities/${id}`, { date, opcional: true, esquema: ESQUEMA_INSTALACOES })
 }
 export function fetchIxpFacilities(code: string, date?: string): Promise<FacilitiesPtt> {
-  return get(`/api/v1/ixps/${code}/facilities`, { date, opcional: true })
+  return get(`/api/v1/ixps/${code}/facilities`, { date, opcional: true, esquema: ESQUEMA_INSTALACOES })
 }
 export function fetchIxpPortas(code: string, date?: string): Promise<PortasIxp> {
   return get(`/api/v1/ixps/${code}/portas`, { date, opcional: true })

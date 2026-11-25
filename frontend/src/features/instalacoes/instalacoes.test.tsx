@@ -48,6 +48,13 @@ describe('comum', () => {
     expect(document.body.textContent).not.toMatch(/abandonad|inativ|fechad|falid/i)
   })
 
+  it('INST-E3 e P9: o selo mostra as duas datas do PeeringDB como vêm, inclusive 2025-09-26, sem explicar nem inferir a razão da data', () => {
+    render(<SeloCadastro c={{ classe: 'parado', ultima_atualizacao: '2025-09-26', dias: 405, inferido: true, registro_atualizado: '2025-09-26', vinculo_atualizado: null }} />)
+    const t = screen.getByTestId('selo-cadastro').textContent!
+    expect(t).toBe('sem atividade no cadastro há 1 a 3 anos · registro: 2025-09-26 · último vínculo de rede: —')
+    expect(document.body.textContent).not.toMatch(/lote|compartilhad|sem data própria/i)
+  })
+
   it('só vira ponto no mapa a instalação com coordenada, e a classe do cadastro vai para a cor', () => {
     const g = paraGeoJson([f1, { ...f2, lat: undefined, lon: undefined }])
     expect(g.features).toHaveLength(1)

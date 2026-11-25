@@ -8,6 +8,7 @@ import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
 import { useOrdenacao } from '../../../lib/ordenacao'
 import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { descreverCobertura } from '../cobertura'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 const MAX_ASNS = 10
@@ -26,7 +27,7 @@ export function RejeicoesBloco({ dados }: BlocoProps<PttCtx>) {
       {r && (
         <>
           <p className="text-xs text-gray-600">
-            Coletado o nível 2 de {n(r.cobertura.coletados)} dos {n(r.cobertura.elegiveis)} vizinhos com rotas rejeitadas{r.cobertura.herdados ? ` (${n(r.cobertura.herdados)} de rodada anterior)` : ''}:
+            Rejeições (nível 2): {descreverCobertura(r.cobertura, 'vizinhos')}.
             {' '}{n(r.rotas_rejeitadas)} rotas rejeitadas de {n(r.asns_com_rejeicao)} ASNs, {n(r.rotas_com_motivo_decodificado)} com motivo decodificado (uma rota pode ter mais de um motivo: as linhas abaixo somam {n(r.soma_dos_motivos)}).
           </p>
           <table className="min-w-full text-xs">
@@ -54,7 +55,7 @@ export function RejeicoesBloco({ dados }: BlocoProps<PttCtx>) {
       )}
       {p && (
         <p className="text-xs text-gray-600">
-          Política declarada: {n(p.cobertura.coletados)} de {n(p.cobertura.elegiveis)} vizinhos coletados no nível 3 ({n(p.asns_com_dado)} ASNs). Perfis inferidos:{' '}
+          Política declarada (nível 3): {descreverCobertura(p.cobertura, 'vizinhos')}; {n(p.asns_com_dado)} ASNs com dado. Perfis inferidos:{' '}
           {Object.keys(p.perfis).length ? Object.entries(p.perfis).map(([k, v]) => `${n(v)} ${k}`).join(', ') : 'nenhum'}. Blackhole em {n(p.blackhole.asns)} ASNs ({n(p.blackhole.rotas)} rotas).
           {' '}<Link to={`/communities?ixp=${dados.code}`} className="text-primario-600 hover:underline">Communities usadas neste PTT</Link>
         </p>

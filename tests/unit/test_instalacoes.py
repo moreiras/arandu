@@ -87,3 +87,21 @@ def test_blocos_da_api_cobrem_ausencia_e_nao_inventam():
     linhas = svc.linhas_redes_peering(atrib, vinc, {"por_asn": {"64496": {"ext": [10000]}}})
     assert linhas[0]["tem_looking_glass"] is True and linhas[0]["capacidade_externa_mbps"] == 10000 and "looking_glass" not in linhas[0]
     assert svc.linhas_facilities(None) == [] and svc.linhas_facilidades_rede(None, None) == [] and svc.linhas_redes_peering(None, None, None) == []
+
+
+def test_data_de_cadastro_do_peeringdb_conta_como_vem_inclusive_a_de_2025_09_26():
+    # P9: nenhuma data é descartada nem explicada; várias instalações com o mesmo dia de registro seguem a regra de sempre
+    facs = {str(i): {"id": i, "nome": f"I{i}", "pais": "BR", "uf": "SP", "criado": "2024-02-01T00:00:00Z", "atualizado": "2025-09-26T22:40:00Z"} for i in range(1, 9)}
+    doc = {"facilities": facs, "netfac": [[1, 64496, "2016-03-14T00:00:00Z", "2026-11-04T00:00:00Z"]], "ixfac": [], "carrierfac": [], "carriers": {}, "campus": {}}
+    inst, _ = calcular_instalacoes(doc, {}, HOJE, {})
+    c1, c2 = inst["1"]["cadastro"], inst["2"]["cadastro"]
+    assert (c1["classe"], c1["ultima_atualizacao"], c1["registro_atualizado"], c1["vinculo_atualizado"]) == ("recente", "2026-11-04", "2025-09-26", "2026-11-04")
+    assert (c2["classe"], c2["ultima_atualizacao"], c2["registro_atualizado"], c2["vinculo_atualizado"]) == ("parado", "2025-09-26", "2025-09-26", None)
+    assert not {"registro_em_lote", "data_em_lote"} & set(c2)
+    assert calcular_cobertura(inst, {"por_asn": {}}, {}, doc, 0, set())["cadastro_br"] == {"recente": 1, "parado": 7}
+
+
+def test_resumo_leva_as_duas_datas():
+    inst, _ = calcular_instalacoes(DOC, PTTS, HOJE, NOMES)
+    r = svc.resumo(inst["1"])["cadastro"]
+    assert r["registro_atualizado"] == "2026-10-01" and r["vinculo_atualizado"] == "2021-01-02" and r["ultima_atualizacao"] == "2026-10-01"

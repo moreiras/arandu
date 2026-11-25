@@ -86,7 +86,7 @@ describe('hooks por entidade', () => {
     expect(r2.result.current.data).toBeUndefined()
   })
 
-  it('useFontes devolve sources[] do manifesto; sem manifesto, undefined (proveniência não inventa data)', async () => {
+  it('useFontes devolve sources[] do manifesto; snapshot sem manifesto: [] (a proveniência diz que não há registro e não inventa data)', async () => {
     server.use(http.get('*/api/v1/brasil/snapshots/:date', () => HttpResponse.json({ date: DATA, summary: null, manifest: { sources: [{ id: 'x', as_of: DATA }] } })))
     const a = renderHook(() => useFontes(), { wrapper })
     await waitFor(() => expect(a.result.current.fontes?.[0].id).toBe('x'))
@@ -96,7 +96,7 @@ describe('hooks por entidade', () => {
     server.use(http.get('*/api/v1/brasil/snapshots/:date', () => HttpResponse.json({ date: DATA, summary: null, manifest: null })))
     const b = renderHook(() => useFontes(), { wrapper })
     await waitFor(() => expect(qc.getQueryState(chaves.snapshot(DATA))?.status).toBe('success'))
-    expect(b.result.current.fontes).toBeUndefined()
+    expect(b.result.current.fontes).toEqual([])
   })
 
   it('perfil pede a série histórica inteira só com login (outra URL, que a API reserva a quem entrou)', async () => {

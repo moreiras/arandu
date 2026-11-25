@@ -154,6 +154,14 @@ def classificar_perfil(total: int, acoes: dict[str, dict]) -> tuple[Optional[str
     return "aberto", ("nenhuma community de ação de exportação nas rotas" if top[0] is None else f"maior ação ('{top[0]}') em {top[1]:.0%} das rotas, abaixo de {FRACAO_SELETIVO:.0%}")
 
 
+def _cobertura_ptt(doc: Optional[dict], code: str) -> dict:
+    """Cobertura do PTT: os campos de sempre (`elegiveis`, `coletados`, `herdados`) mais os do rodízio (`lidos_na_rodada`, `sem_leitura`, `idade_max_dias`,
+    `pulados_lentos`), que o coletor calcula só sobre os vizinhos elegíveis. Documento sem `cobertura_rodizio` (coleta antiga) não ganha os campos novos: não se inventa idade."""
+    base = ((doc or {}).get("cobertura") or {}).get(code) or {"elegiveis": 0, "coletados": 0, "herdados": 0}
+    rod = (((doc or {}).get("cobertura_rodizio") or {}).get("por_ptt") or {}).get(code)
+    return {**base, **rod} if rod else base
+
+
 def calcular(f_doc: Optional[dict], c_doc: Optional[dict], comm_doc: Optional[dict], rs_doc: Optional[dict], ixps_conhecidos: dict[str, str]) -> dict[str, dict]:
     """Devolve {ixps, asns, communities, grafo, linhas} (cada um já no formato publicado)."""
     dic = Dicionario(comm_doc)
@@ -261,10 +269,10 @@ def calcular(f_doc: Optional[dict], c_doc: Optional[dict], comm_doc: Optional[di
                 x["asns"] += 1
         ixps[code] = {
             "nome": ixps_conhecidos[code],
-            "rejeicoes": {"cobertura": cob_f.get(code) or {"elegiveis": 0, "coletados": 0, "herdados": 0}, "asns_com_rejeicao": len(rs_), "rotas_rejeitadas": total_rej,
+            "rejeicoes": {"cobertura": _cobertura_ptt(f_doc, code), "asns_com_rejeicao": len(rs_), "rotas_rejeitadas": total_rej,
                           "rotas_com_motivo_decodificado": com_motivo, "soma_dos_motivos": soma_motivos, "por_motivo": sorted(motivos.values(), key=lambda m: (-m["rotas"], m["codigo"])),
                           "asns": lista} if code in cob_f or rs_ else None,
-            "politica": {"cobertura": cob_c.get(code) or {"elegiveis": 0, "coletados": 0, "herdados": 0}, "asns_com_dado": len(ps_), "perfis": dict(sorted(perfis.items())),
+            "politica": {"cobertura": _cobertura_ptt(c_doc, code), "asns_com_dado": len(ps_), "perfis": dict(sorted(perfis.items())),
                          "acoes": dict(sorted(acoes_ptt.items())),
                          "blackhole": {"asns": sum(1 for p in ps_.values() if p["blackhole_rotas"]), "rotas": sum(p["blackhole_rotas"] for p in ps_.values())},
                          "rpki": {k: sum(p["rpki"][k] for p in ps_.values()) for k in ("valid", "unknown", "not_checked", "invalid")}} if code in cob_c or ps_ else None,
@@ -302,6 +310,7 @@ def publicar_rs_policy(base: Path, date_str: str, log, ixps_cfg: Optional[list[d
     cab = {"snapshot_date": date_str, "generated_at": now_iso(), "fonte": (f_doc or c_doc or {}).get("fonte"), "versao_alice": (f_doc or c_doc or {}).get("versao_alice"),
            "coletado_nivel2": (f_doc or {}).get("generated_at"), "coletado_nivel3": (c_doc or {}).get("generated_at"),
            "requisicoes_nivel2": (f_doc or {}).get("requisicoes_da_rodada"), "requisicoes_nivel3": (c_doc or {}).get("requisicoes_da_rodada"),
+           "cobertura_total_nivel2": ((f_doc or {}).get("cobertura_rodizio") or {}).get("total"), "cobertura_total_nivel3": ((c_doc or {}).get("cobertura_rodizio") or {}).get("total"),
            "rs_pulados": sorted({x["rs"] for d in (f_doc, c_doc) for x in (d or {}).get("rs_pulados") or []}),
            "parametros": {"amostra_prefixos": AMOSTRA_PREFIXOS, "min_rotas_perfil": MIN_ROTAS_PERFIL, "fracao_seletivo": FRACAO_SELETIVO, "fracao_restritivo": FRACAO_RESTRITIVO,
                           "alvos_restritivo": ALVOS_RESTRITIVO}}

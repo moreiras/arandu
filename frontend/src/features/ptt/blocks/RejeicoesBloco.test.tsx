@@ -23,7 +23,7 @@ const montar = (r: RejeicoesIxp) => render(<MemoryRouter><RejeicoesBloco {...({ 
 describe('bloco Rejeições do PTT', () => {
   it('mostra a cobertura da coleta, os motivos decodificados, os perfis como inferidos e o caminho para o explorador', () => {
     montar(rj)
-    expect(screen.getByText(/Coletado o nível 2 de 100 dos 104 vizinhos/)).toBeTruthy()
+    expect(screen.getByText(/Rejeições \(nível 2\): 100 de 104 vizinhos coletados/)).toBeTruthy()
     expect(screen.getByText('Invalid on RPKI', { exact: false })).toBeTruthy()
     expect(screen.getByText('AS64498').getAttribute('href')).toBe('/asn/64498')
     expect(document.body.textContent).toMatch(/Perfis inferidos: 1 aberto, 1 restritivo, 1 seletivo/)
@@ -34,5 +34,15 @@ describe('bloco Rejeições do PTT', () => {
   it('sem nenhuma coleta diz isso, em vez de mostrar zeros', () => {
     montar({ ...rj, rejeicoes: null, politica: null })
     expect(screen.getByText(/Sem coleta de rotas dos route servers deste PTT/)).toBeTruthy()
+  })
+
+  it('IXP-E4: a faixa diz quantos foram lidos na rodada, quantos vêm de rodadas anteriores e a idade da leitura mais antiga', () => {
+    montar({ ...rj,
+      rejeicoes: { ...rj.rejeicoes!, cobertura: { elegiveis: 80, coletados: 0, herdados: 80, lidos_na_rodada: 0, sem_leitura: 0, idade_max_dias: 12, pulados_lentos: 0 } },
+      politica: { ...rj.politica!, cobertura: { elegiveis: 80, coletados: 60, herdados: 15, lidos_na_rodada: 60, sem_leitura: 5, idade_max_dias: 1, pulados_lentos: 5 } } })
+    const t = document.body.textContent ?? ''
+    expect(t).toMatch(/0 de 80 vizinhos lidos nesta rodada, 80 mantidos de rodadas anteriores, 0 sem leitura \(leitura mais antiga com 12 dias\)/)
+    expect(t).toMatch(/60 de 80 vizinhos lidos nesta rodada, 15 mantidos de rodadas anteriores, 5 sem leitura \(leitura mais antiga com 1 dia; 5 fora da rodada/)
+    expect(t).not.toMatch(/0 de 80 vizinhos coletados/)
   })
 })
