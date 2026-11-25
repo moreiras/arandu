@@ -206,10 +206,10 @@ class IXPAfiFull(BaseModel):
     ixp_space: int = Field(description="Espaço de endereços do IXP (nº de endereços)", examples=[1073741824])
     asn_direct_count: int = Field(examples=[487])
     asn_origin_count: int = Field(examples=[23104])
-    asn_stub_count: int = Field(description="Peers diretos com exatamente 1 ASN originador", examples=[312])
-    asn_direct: list[int] = Field(description="Lista de ASNs em peering direto")
+    asn_stub_count: int = Field(description="Peers com sessão no route server e exatamente 1 ASN originador", examples=[312])
+    asn_direct: list[int] = Field(description="Lista de ASNs com sessão BGP com o route server do PTT (subconjunto do cadastro de participantes)")
     asn_stub: list[int] = Field(description="Subconjunto de asn_direct identificados como stubs")
-    br_asns_direct: list[int] = Field(description="ASNs BR em peering direto")
+    br_asns_direct: list[int] = Field(description="ASNs BR com sessão BGP com o route server do PTT")
     br_asns_direct_count: int = Field(examples=[203])
     br_asns_direct_pct: float = Field(description="% de ASNs BR entre os diretos", examples=[41.68])
     br_asns_origin: list[int] = Field(description="ASNs BR originadores de prefixos visíveis aqui")
@@ -304,7 +304,7 @@ class PaginatedASNsResponse(BaseModel):
 
 
 class IXPPresenceAfi(BaseModel):
-    direct: bool = Field(description="True se o AS faz peering direto neste IXP")
+    direct: bool = Field(description="True se o AS tem sessão BGP com o route server deste IXP (não é o cadastro de participantes)")
     origin: bool = Field(description="True se prefixos do AS são visíveis neste IXP")
     prefixes: list[str] = Field(
         description="Prefixos deste AS observados neste IXP",
@@ -363,7 +363,7 @@ class ASNDocumentResponse(BaseModel):
         examples=[["sp", "rj", "bsb", "curitiba"]],
     )
     ixp_presence: dict[str, IXPPresence] = Field(
-        description="Detalhes por IXP: presença direta/origem e lista de prefixos observados"
+        description="Detalhes por IXP: sessão no route server/origem e lista de prefixos observados"
     )
     upstreams: list[int] = Field(
         description="[Deprecado: use `relacoes`] Vizinhos à esquerda no AS_PATH dos LGs dos IXPs (adjacência, não relação comercial; união IPv6+IPv4, mantido para compatibilidade)",

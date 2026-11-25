@@ -191,7 +191,7 @@ export function Sobre() {
               <code className="font-mono bg-gray-100 px-0.5 rounded">lg.{'{code}'}.ix.br</code>{' '}
               (ex: <code className="font-mono bg-gray-100 px-0.5 rounded">lg.sp.ix.br</code>,{' '}
               <code className="font-mono bg-gray-100 px-0.5 rounded">lg.rj.ix.br</code>). O {SITE.software}
-              abre uma sessão Telnet em cada um dos 40 PTTs ativos, executa o comando
+              abre uma sessão Telnet em cada um dos PTTs ativos, executa o comando
               da tabela BGP IPv6 conforme o firmware (FRR ou Quagga) e o{' '}
               <code className="font-mono bg-gray-100 px-0.5 rounded">show ip bgp</code> (IPv4), e extrai a tabela BGP completa
               dos Route Servers — prefixos anunciados, peers diretos, ASNs de origem e estatísticas de

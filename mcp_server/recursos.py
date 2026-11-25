@@ -31,7 +31,7 @@ Registro.br, e enriquece com PeeringDB, RPKI e estimativas de usuários do APNIC
 Versão do sistema: **{app_version()}** · Snapshot mais recente disponível: **{d}**.
 
 ## Fontes de dados
-- **IX.br LGs (40 PTTs)** — rotas BGP observadas em cada ponto de troca.
+- **IX.br LGs** — rotas BGP observadas em cada ponto de troca.
 - **Registro.br** — prefixos IPv6/IPv4 atribuídos a ASNs brasileiros (autoritativo).
 - **LACNIC delegated** — ASNs alocados ao Brasil.
 - **Tabela global** — tabela de roteamento BGP completa (full table).
@@ -100,7 +100,7 @@ def glossario() -> str:
 
 - **Usuários estimados** — estimativa do APNIC Labs por AS. Por IXP, é a estimativa de
   usuários alcançáveis (IPv4), ponderada pelo espaço visível no PTT, e não é aditiva: o
-  mesmo usuário conta em cada PTT onde o seu AS aparece (a soma dos 40 PTTs passa de
+  mesmo usuário conta em cada PTT onde o seu AS aparece (a soma dos PTTs passa de
   três vezes o total do país). Por UF, vale a UF da sede do AS, não a de quem usa.
 
 - **SCM (Serviço de Comunicação Multimídia)** — serviço de telecomunicação

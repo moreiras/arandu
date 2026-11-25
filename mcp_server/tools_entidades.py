@@ -48,7 +48,7 @@ def get_asn(asn: int, date: Optional[str] = None) -> dict:
     """Documento completo de um ASN — o principal objeto de cruzamento do projeto.
 
     Inclui: prefixos do Registro.br (RIR, autoritativos) vs. prefixos observados na
-    tabela global; presença direta (peering físico) vs. originador em cada IXP do
+    tabela global; sessão RS vs. originador em cada IXP do
     IX.br; validação RPKI; usuários finais estimados (APNIC); presença em IXPs
     externos; nome e CNPJ (ASNs BR); `relacoes` (provedores/clientes/pares inferidos,
     com probabilidade e nível — ver o glossário). `upstreams_*`/`downstreams_*` são só
@@ -273,10 +273,10 @@ def get_asn_paths(asn: int, date: Optional[str] = None) -> dict:
 
 @mcp.tool()
 def get_asn_ixp_peers(asn: int, date: Optional[str] = None) -> dict:
-    """Estatísticas de peering deste AS em cada IXP onde faz peering direto (v6/v4).
+    """Estatísticas de peering deste AS em cada IXP com sessão RS (v6/v4).
 
-    Para cada IXP direto: total_prefixes, own/third_prefixes, origin_asns, espaço /24.
-    `peers` é {} se o AS não tiver peering direto.
+    Para cada IXP: total_prefixes, own/third_prefixes, origin_asns, espaço /24.
+    `peers` é {} se o AS não tiver sessão RS.
 
     Args:
         asn: Número do AS.
@@ -311,7 +311,7 @@ def list_ixps(
     uf: Optional[str] = None,
     date: Optional[str] = None,
 ) -> dict:
-    """Lista os 40 IXPs do IX.br com métricas-resumo por família (v6/v4).
+    """Lista os IXPs do IX.br com métricas-resumo por família (v6/v4).
 
     Cada família traz `coleta`: `ok` (o looking glass devolveu rotas), `vazia` (a coleta funcionou e o looking glass respondeu com a
     tabela vazia: zero rotas coletadas, não zero de cobertura; as porcentagens saem null) ou `missing`. Não atribua causa à tabela vazia.
@@ -359,7 +359,7 @@ def ixp_members(code: str, date: Optional[str] = None) -> dict:
 
 @mcp.tool()
 def ixp_peers(code: str, afi: str = "v4", date: Optional[str] = None) -> dict:
-    """Estatísticas de prefixos por peer direto de um IXP.
+    """Estatísticas de prefixos por peer de um IXP.
 
     Por peer: total_prefixes, own_prefixes, third_prefixes (repassados), origin_asns,
     own_space_24 / third_space_24.

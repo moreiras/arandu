@@ -248,6 +248,7 @@ function IXPsLista() {
           globalTable={summary.global_table}
           ixpAggregate={summary.ixp_aggregate}
           totalBrASNs={summary.total_asns_br}
+          totalIxps={summary.ixps_ok + summary.ixps_partial + summary.ixps_missing}
         />
       )}
 

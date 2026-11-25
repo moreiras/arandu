@@ -1550,7 +1550,7 @@ RECIPES: list[dict] = [
         "pergunta": "ASes a ≤80 km do PTT de Manaus que ainda não participam nem originam prefixos",
         "ferramenta": "ixp_proximos",
         "args": {"code": "mao", "radius_km": 80},
-        "nota": "No resultado, filtre os itens com status == 'absent' (os 'direct'/'origin' já estão presentes).",
+        "nota": "No resultado, filtre os itens com status == 'absent' (os 'direct' = membro do cadastro e 'origin' já estão presentes).",
     },
     {
         "pergunta": "Em quantos PTTs a Globo está e quantos usuários finais alcança por esse caminho",

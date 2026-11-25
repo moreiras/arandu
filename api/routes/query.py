@@ -230,7 +230,7 @@ def resolve_operator(
     summary="ASes com prefixos próximos a um PTT, por status e gap de anúncio",
     description="""
 Para o PTT `code`, lista os ASes cujos prefixos BR geolocalizados estão a ≤ `radius_km`
-de algum PIX, classificados por presença no PTT (direct / origin / absent) e com a
+de algum PIX, classificados por presença no PTT (direct = membro do cadastro, não sessão com o route server / origin / absent) e com a
 contagem de prefixos próximos **ainda não anunciados** no PTT.
 
 Generaliza a seção "Potencial" com raio parametrizável e quebra por AS.

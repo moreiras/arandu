@@ -79,7 +79,7 @@ def asn_rede(asn: int, visao: str = "caminhos", date: Optional[str] = None) -> d
     """Como um AS aparece nos IXPs: caminhos AS_PATH ou estatísticas de peering.
 
     visao="caminhos": cadeias AS_PATH em cada IXP onde o AS é originador (não direto), com metadados dos nós.
-    visao="ixp_peers": estatísticas de peering em cada IXP onde faz peering direto (prefixos próprios/de terceiros, espaço /24).
+    visao="ixp_peers": estatísticas de peering em cada IXP com sessão RS (prefixos próprios/de terceiros, espaço /24).
 
     Args:
         asn: Número do AS.
@@ -94,10 +94,10 @@ def asn_rede(asn: int, visao: str = "caminhos", date: Optional[str] = None) -> d
 
 
 def ixp_participantes(code: str, visao: str = "membros", afi: str = "v4", date: Optional[str] = None) -> dict:
-    """Quem participa de um IXP: listas de membros ou estatísticas por peer direto.
+    """Quem participa de um IXP: listas de membros ou estatísticas por peer (sessão RS).
 
     visao="membros": listas por família (asn_direct, asn_stub, br_asns_direct, br_asns_origin); volumosa nos IXPs grandes.
-    visao="peers": por peer direto, total/próprios/de terceiros, ASes de origem e espaço /24 (usa `afi`).
+    visao="peers": por peer (sessão RS), total/próprios/de terceiros, ASes de origem e espaço /24 (usa `afi`).
 
     Args:
         code: Código do IXP (ex.: "sp").

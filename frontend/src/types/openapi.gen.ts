@@ -341,7 +341,7 @@ export interface paths {
         /**
          * ASes com prefixos próximos a um PTT, por status e gap de anúncio
          * @description Para o PTT `code`, lista os ASes cujos prefixos BR geolocalizados estão a ≤ `radius_km`
-         *     de algum PIX, classificados por presença no PTT (direct / origin / absent) e com a
+         *     de algum PIX, classificados por presença no PTT (direct = membro do cadastro, não sessão com o route server / origin / absent) e com a
          *     contagem de prefixos próximos **ainda não anunciados** no PTT.
          *
          *     Generaliza a seção "Potencial" com raio parametrizável e quebra por AS.
@@ -538,7 +538,7 @@ export interface paths {
          *
          *     **Presença em IXPs (`ixp_presence`):**
          *     Dicionário com código do IXP como chave. Para cada IXP:
-         *     - `direct` — True se o AS faz peering direto (aparece no primeiro hop do AS_PATH)
+         *     - `direct` — True se o AS tem sessão BGP com o route server do PTT (não é o cadastro de participantes, que é um conjunto maior: `ixps_membro`)
          *     - `origin` — True se prefixos do AS são visíveis (pode ser via upstream)
          *     - `prefixes` — lista dos prefixos deste AS observados neste IXP
          *
@@ -740,8 +740,8 @@ export interface paths {
          *     | `ixp_v6` | Prefixos IPv6 por PTT — direto (próprios + clientes) e indireto (só próprios) |
          *
          *     Cada feature tem propriedade `role`: `"own"` (prefixos do próprio AS) ou `"downstream"`
-         *     (prefixos de clientes). Nas camadas de PTT, `direct: true/false` indica presença direta
-         *     no route server.
+         *     (prefixos de clientes). Nas camadas de PTT, `direct: true/false` indica se o AS tem sessão
+         *     com o route server do PTT (não é o cadastro de participantes).
          *
          *     Prefixos são agregados por cidade (granularidade /20 para IPv4). Camadas `fulltable_*`
          *     incluem prefixos de qualquer país, geolocalizados pela base DB-IP City Lite; prefixos de clientes usam apenas dados
@@ -788,16 +788,16 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Estatísticas de peering deste AS em cada IXP direto (batch)
+         * Estatísticas de peering deste AS em cada IXP onde tem sessão com o route server (batch)
          * @description Retorna, em uma única chamada, as estatísticas de peering deste AS em **cada IXP onde
-         *     ele faz peering direto**, para v6 e v4.
+         *     tem sessão com o route server**, para v6 e v4.
          *
          *     Evita o fan-out do frontend, que faria uma requisição por IXP × AFI
          *     (`/ixps/{code}/peers`) só para extrair a linha deste AS — baixando a lista inteira de
          *     peers de cada IXP. Aqui o servidor extrai apenas a linha relevante.
          *
          *     Formato: `peers[code] = {v4?: stats, v6?: stats}` (mesma estrutura de `IXPPeerStats`).
-         *     Sempre HTTP 200; `peers` é `{}` se o AS não tiver peering direto.
+         *     Sempre HTTP 200; `peers` é `{}` se o AS não tiver sessão com route server de nenhum PTT.
          */
         get: operations["get_asn_ixp_peers_api_v1_asns__asn__ixp_peers_get"];
         put?: never;
@@ -2552,7 +2552,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Empresas e assinantes SCM (SICI) dos peers diretos de um IXP
+         * Empresas e assinantes SCM (SICI) dos peers do route server de um IXP
          * @description Para cada ASN com sessão em route server no PTT:
          *
          *     - `asns[asn]` — `cnpj`, `empresa`, badges de outorga (`has_scm`, `has_smp`,
@@ -2762,7 +2762,7 @@ export interface paths {
         /**
          * ASes com prefixos próximos a um PTT, por status e gap de anúncio
          * @description Para o PTT `code`, lista os ASes cujos prefixos BR geolocalizados estão a ≤ `radius_km` de algum PIX, classificados por presença
-         *     no PTT (direct / origin / absent) e com a contagem de prefixos próximos **ainda não anunciados** no PTT. É o detalhamento por AS
+         *     no PTT (direct = membro do cadastro, não sessão com o route server / origin / absent) e com a contagem de prefixos próximos **ainda não anunciados** no PTT. É o detalhamento por AS
          *     do que `/ixps/{code}/potential` resume (raio fixo de 80 km); `/analytics/ixps/{code}/nearby` é o alias antigo.
          */
         get: operations["ixp_nearby_do_ptt_api_v1_ixps__code__nearby_get"];
@@ -2809,7 +2809,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Estatísticas por peer direto de um IXP
+         * Estatísticas por peer do route server de um IXP
          * @description Retorna estatísticas de prefixos por ASN com sessão em route server no PTT.
          *
          *     Para cada peer, inclui:
@@ -5075,7 +5075,7 @@ export interface components {
             ixp_member_codes?: string[] | null;
             /**
              * Ixp Presence
-             * @description Detalhes por IXP: presença direta/origem e lista de prefixos observados
+             * @description Detalhes por IXP: sessão no route server/origem e lista de prefixos observados
              */
             ixp_presence: {
                 [key: string]: components["schemas"]["IXPPresence"];
@@ -5691,7 +5691,7 @@ export interface components {
         IXPPresenceAfi: {
             /**
              * Direct
-             * @description True se o AS faz peering direto neste IXP
+             * @description True se o AS tem sessão BGP com o route server deste IXP (não é o cadastro de participantes)
              */
             direct: boolean;
             /**

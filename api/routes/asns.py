@@ -548,7 +548,7 @@ Retorna o documento completo de um AS com todas as informações disponíveis.
 
 **Presença em IXPs (`ixp_presence`):**
 Dicionário com código do IXP como chave. Para cada IXP:
-- `direct` — True se o AS faz peering direto (aparece no primeiro hop do AS_PATH)
+- `direct` — True se o AS tem sessão BGP com o route server do PTT (não é o cadastro de participantes, que é um conjunto maior: `ixps_membro`)
 - `origin` — True se prefixos do AS são visíveis (pode ser via upstream)
 - `prefixes` — lista dos prefixos deste AS observados neste IXP
 
@@ -762,17 +762,17 @@ def asn_interconexao(asn: int, request: Request, date: Optional[str] = Query(Non
 
 @router.get(
     "/asns/{asn}/ixp-peers",
-    summary="Estatísticas de peering deste AS em cada IXP direto (batch)",
+    summary="Estatísticas de peering deste AS em cada IXP onde tem sessão com o route server (batch)",
     description="""
 Retorna, em uma única chamada, as estatísticas de peering deste AS em **cada IXP onde
-ele faz peering direto**, para v6 e v4.
+tem sessão com o route server**, para v6 e v4.
 
 Evita o fan-out do frontend, que faria uma requisição por IXP × AFI
 (`/ixps/{code}/peers`) só para extrair a linha deste AS — baixando a lista inteira de
 peers de cada IXP. Aqui o servidor extrai apenas a linha relevante.
 
 Formato: `peers[code] = {v4?: stats, v6?: stats}` (mesma estrutura de `IXPPeerStats`).
-Sempre HTTP 200; `peers` é `{}` se o AS não tiver peering direto.
+Sempre HTTP 200; `peers` é `{}` se o AS não tiver sessão com route server de nenhum PTT.
 """,
 )
 def get_asn_ixp_peers(
