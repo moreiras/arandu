@@ -7,6 +7,7 @@ import { registrarAbas, registrarBloco, type BlocoDef } from '../entidade/regist
 import type { PttCtx } from './contexto'
 import { LinhaDoTempoPtt } from '../historico/blocos'
 import { DestaqueBloco } from './blocks/DestaqueBloco'
+import { SinteseBloco } from './blocks/SinteseBloco'
 import { HilbertV4Bloco } from './blocks/HilbertV4Bloco'
 import { HilbertV6Bloco } from './blocks/HilbertV6Bloco'
 import { IndicadoresAsBloco } from './blocks/IndicadoresAsBloco'
@@ -37,7 +38,7 @@ registrarAbas('ixp', [
   { id: 'historico', rotulo: 'Histórico', descricao: 'O que mudou no PTT entre os snapshots.' },
 ])
 const ABA: Record<string, string> = {
-  destaque: 'resumo', potencial: 'resumo', 'indicadores-as': 'resumo',
+  sintese: 'resumo', destaque: 'resumo', potencial: 'resumo', 'indicadores-as': 'resumo',
   'peers-v4': 'participantes', 'peers-v6': 'participantes', participantes: 'participantes', 'entrou-saiu': 'participantes', conteudo: 'conteudo',
   'route-servers': 'route-servers', rejeicoes: 'route-servers',
   'indicadores-v4': 'cobertura', 'indicadores-v6': 'cobertura', 'hilbert-v4': 'cobertura', 'hilbert-v6': 'cobertura',
@@ -46,6 +47,8 @@ const ABA: Record<string, string> = {
 }
 const def = (b: Omit<BlocoDef<PttCtx>, 'entidade'>) => registrarBloco<PttCtx>({ ...base, aba: ABA[b.id], ...b })
 
+def({ id: 'sintese', titulo: 'Em resumo', ordem: 5, depende: ['useIxp', 'ixps'], fontes: ['ixbr_api', 'lg_ixbr', 'apnic_pop'], selo: 'fato', semTitulo: true, plana: true,
+  nota: 'frases geradas por regra a partir dos números da página; a posição entre os PTTs é por ASNs em sessão direta e não mede relevância regional', Componente: SinteseBloco })
 def({ id: 'destaque', titulo: 'Indicadores em destaque', ordem: 10, depende: ['useIxp', 'ixps', 'ixp-est-users', 'snapshot-details'], fontes: ['ixbr_api', 'lg_ixbr', 'registro_br', 'apnic_pop'],
   selo: 'estimado', nota: 'participantes e originadores são medidos; usuários são estimativa APNIC Labs', Componente: DestaqueBloco })
 def({ id: 'indicadores-as', titulo: 'Indicadores de AS', ordem: 20, depende: ['ixps', 'snapshot-details'], fontes: ['ixbr_api', 'lg_ixbr', 'registro_br', 'fulltable_routeviews'], selo: 'fato', Componente: IndicadoresAsBloco })

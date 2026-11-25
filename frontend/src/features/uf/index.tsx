@@ -29,6 +29,8 @@ import { PttsBloco } from './blocks/PttsBloco'
 import { DeclaracaoSiciUfBloco } from './blocks/DeclaracaoSiciUfBloco'
 import { SemPttBloco } from './blocks/SemPttBloco'
 import { SITE } from '../../lib/site'
+import { SinteseTopo } from '../../components/ui/SinteseTopo'
+import { REGRAS_SINTESE_UF, sinteseUf } from './sinteseUf'
 
 /** Blocos da página de UF: painel → PTTs → municípios → municípios sem PTT próximo → operadoras. */
 const base = { entidade: 'uf' as const }
@@ -44,7 +46,7 @@ registrarAbas('uf', [
   { id: 'historico', rotulo: 'Histórico', descricao: 'O que mudou na UF entre os snapshots.' },
 ])
 const ABA: Record<string, string> = {
-  painel: 'resumo', 'mapa-municipios': 'resumo', posicao: 'resumo',
+  sintese: 'resumo', painel: 'resumo', 'mapa-municipios': 'resumo', posicao: 'resumo',
   municipios: 'mercado', operadoras: 'mercado', 'mercado-grupos': 'mercado', penetracao: 'mercado', 'demanda-oferta': 'mercado',
   ptts: 'infraestrutura', 'sem-ptt': 'infraestrutura', 'estacoes-smp': 'infraestrutura',
   prontidao: 'rede', 'rede-territorio': 'rede', transito: 'rede', radar: 'rede', exposicao: 'rede',
@@ -53,6 +55,10 @@ const ABA: Record<string, string> = {
   'linha-do-tempo': 'historico',
 }
 const def = (b: Omit<BlocoDef<UfCtx>, 'entidade'>) => registrarBloco<UfCtx>({ ...base, aba: ABA[b.id], ...b })
+
+def({ id: 'sintese', titulo: 'Em resumo', ordem: 9, depende: ['useUfPerfil'], fontes: ['anatel_sici', 'ibge_censo_pnad', 'curada_pix', 'lg_ixbr', 'registro_br'], selo: 'fato',
+  nota: 'frases geradas por regra a partir dos números do painel; estimativas e inferências levam o selo próprio', semTitulo: true, plana: true,
+  Componente: ({ dados, snapshot }) => <SinteseTopo frases={sinteseUf(dados, snapshot)} snapshot={snapshot} regras={REGRAS_SINTESE_UF} /> })
 
 def({ id: 'mapa-municipios', titulo: 'Mapa dos municípios', ordem: 12, depende: ['useUfPerfil', 'municipios-centroides', 'malha-municipal'], fontes: ['ibge_malha_municipal', 'anatel_sici', 'curada_pix'], selo: 'fato',
   nota: 'indicadores normalizados por município; município sem dado fica cinza; malha: Fonte: IBGE', aplicavel: (c) => c.municipios.length > 0, Componente: ({ dados }) => <MapaUf dados={dados} /> })

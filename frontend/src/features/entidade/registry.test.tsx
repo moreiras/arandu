@@ -64,9 +64,9 @@ describe('blocos de ASN', () => {
 describe('blocos de PTT', () => {
   const ctx = (v4: unknown, v6: unknown) => ({ v4, v6 }) as any
 
-  it('fixa os 17 blocos e a ordem de exibição (a tabela única de participantes substitui "Participantes e filtros" e "Membros sem peering direto")', () => {
+  it('fixa os 18 blocos e a ordem de exibição (a síntese no topo, PT-22; a tabela única de participantes substitui "Participantes e filtros" e "Membros sem peering direto")', () => {
     expect(blocosDe('ixp').map((b) => b.id)).toEqual([
-      'destaque', 'indicadores-as', 'indicadores-v6', 'indicadores-v4', 'potencial', 'route-servers', 'rejeicoes', 'instalacoes', 'mapa', 'hilbert-v6', 'hilbert-v4',
+      'sintese', 'destaque', 'indicadores-as', 'indicadores-v6', 'indicadores-v4', 'potencial', 'route-servers', 'rejeicoes', 'instalacoes', 'mapa', 'hilbert-v6', 'hilbert-v4',
       'linha-do-tempo', 'participantes', 'entrou-saiu', 'conteudo', 'peers-v6', 'peers-v4',
     ])
   })

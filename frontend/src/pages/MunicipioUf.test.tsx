@@ -81,8 +81,8 @@ describe('registro de blocos de município e UF', () => {
   it('município: painel → mercado fixo → mercado móvel → rede → infraestrutura', () => {
     expect(blocosDe('municipio').map((b) => b.id)).toEqual(['painel', 'penetracao', 'semelhantes', 'mercado-fixo', 'mercado-grupos', 'serie-mercado', 'indicadores', 'mercado-movel', 'estacoes-smp', 'fust', 'qualidade', 'reclamacoes', 'consumidor', 'contratos', 'rede-territorio', 'rede', 'regiao-provedores', 'regiao-ptts', 'regiao-transito', 'regiao-carregadores', 'regiao-prontidao', 'infraestrutura'])
   })
-  it('UF: painel → PTTs → municípios → sem PTT → operadoras → linha do tempo', () => {
-    expect(blocosDe('uf').map((b) => b.id)).toEqual(['painel', 'mapa-municipios', 'posicao', 'penetracao', 'tic-domicilios', 'demanda-oferta', 'estacoes-smp', 'fust', 'empresas-telecom', 'declaracao-sici', 'qualidade', 'reclamacoes', 'consumidor', 'prontidao', 'rede-territorio', 'transito', 'radar', 'exposicao', 'ptts', 'mercado-grupos', 'municipios', 'sem-ptt', 'operadoras', 'linha-do-tempo'])
+  it('UF: síntese → painel → PTTs → municípios → sem PTT → operadoras → linha do tempo', () => {
+    expect(blocosDe('uf').map((b) => b.id)).toEqual(['sintese', 'painel', 'mapa-municipios', 'posicao', 'penetracao', 'tic-domicilios', 'demanda-oferta', 'estacoes-smp', 'fust', 'empresas-telecom', 'declaracao-sici', 'qualidade', 'reclamacoes', 'consumidor', 'prontidao', 'rede-territorio', 'transito', 'radar', 'exposicao', 'ptts', 'mercado-grupos', 'municipios', 'sem-ptt', 'operadoras', 'linha-do-tempo'])
   })
 })
 
