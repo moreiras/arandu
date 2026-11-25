@@ -4,7 +4,7 @@ Gerado por `python3 scripts/gen_cobertura.py` a partir do OpenAPI, do MCP, do fr
 Não edite à mão. Rota nova precisa de uma entrada em `serve/capabilities/_manuais.yaml` (ou de uma capacidade declarada); lacuna
 sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rotas que os substituem.
 
-- Rotas de dados (GET, não deprecated): **177**; com tool no MCP: **141**; consumidas pela interface: **145**.
+- Rotas de dados (GET, não deprecated): **178**; com tool no MCP: **141**; consumidas pela interface: **146**.
 - Pendências marcadas (`pendente:`): **0**; lacunas sem justificativa: **0**.
 - Tools do MCP geradas de capacidade declarada: **2** de 58.
 
