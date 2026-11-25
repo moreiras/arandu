@@ -12,7 +12,7 @@ export { EstadoDados, ehErroDeAcessoOuFalha, ehNaoEncontrado, estadoDoErro, form
 export type { EstadoDadosTipo } from './EstadoDados'
 export { FichaEntidade } from './FichaEntidade'
 export type { KpiFicha } from './FichaEntidade'
-export { Kpi } from './Kpi'
+export { Kpi, LinhaProveniencia, textoProveniencia } from './Kpi'
 export type { TomKpi } from './Kpi'
 export { enquadramento, MapaMoldura } from './MapaMoldura'
 export type { ItemLegenda } from './MapaMoldura'

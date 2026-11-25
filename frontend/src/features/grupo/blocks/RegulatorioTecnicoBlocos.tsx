@@ -48,14 +48,14 @@ export function OutorgasMultasBloco({ dados }: BlocoProps<GrupoCtx>) {
   return <Carrega<GrupoRegulatorio> id={dados.grupo.grupo_id} bloco="regulatorio" vazio="Não foi possível ler o regulatório deste grupo no snapshot.">{(r) => (
     <div className="space-y-3" data-testid="grupo-outorgas-multas">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {Object.entries(r.outorgas).map(([s, v]) => <Kpi key={s} rotulo={`Empresas com outorga ${s}`} valor={`${n(v)} de ${n(r.empresas)}`} />)}
+        {Object.entries(r.outorgas).map(([s, v]) => <Kpi key={s} rotulo={`Empresas com outorga ${s}`} valor={`${n(v)} de ${n(r.empresas)}`} selo="inferido" fonte="Anatel (outorgas), empresas do grupo" dataRef={dados.grupo.snapshot_date} />)}
       </div>
       <h3 className="text-sm font-medium text-gray-700">Multas constituídas pela Anatel</h3>
       {r.multas.empresas_com_registro === 0 ? <p className="text-sm text-gray-600">Nenhuma empresa do grupo aparece no arquivo de multas constituídas (ausência não é prova de que nunca houve multa).</p> : (
         <>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <Kpi rotulo="Multas constituídas" valor={n(r.multas.multas)} /><Kpi rotulo="Valor original" valor={reais(r.multas.original)} />
-            <Kpi rotulo="Valor pago" valor={reais(r.multas.pago)} /><Kpi rotulo="Saldo (com atualização)" valor={reais(r.multas.saldo)} />
+            <Kpi rotulo="Multas constituídas" valor={n(r.multas.multas)} selo="inferido" fonte="Anatel (multas), empresas do grupo" dataRef={dados.grupo.snapshot_date} /><Kpi rotulo="Valor original" valor={reais(r.multas.original)} selo="inferido" fonte="Anatel (multas), empresas do grupo" dataRef={dados.grupo.snapshot_date} />
+            <Kpi rotulo="Valor pago" valor={reais(r.multas.pago)} selo="inferido" fonte="Anatel (multas), empresas do grupo" dataRef={dados.grupo.snapshot_date} /><Kpi rotulo="Saldo (com atualização)" valor={reais(r.multas.saldo)} selo="inferido" fonte="Anatel (multas), empresas do grupo" dataRef={dados.grupo.snapshot_date} />
           </div>
           <div className="overflow-x-auto"><table className="text-sm min-w-full" aria-label="Multas por empresa do grupo" data-tabela="grade">
             <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><th scope="col" className="py-1 pr-3">Empresa (ordem alfabética)</th><th scope="col" className="pr-3 text-right">Multas</th><th scope="col" className="pr-3 text-right">Original</th><th scope="col" className="text-right">Saldo</th></tr></thead>
@@ -98,10 +98,10 @@ export function AsesTecnicoBloco({ dados }: BlocoProps<GrupoCtx>) {
   return <Carrega<GrupoTecnico> id={dados.grupo.grupo_id} bloco="tecnico" vazio="Nenhum AS do grupo tem dado técnico neste snapshot.">{(t) => (
     <div className="space-y-3" data-testid="grupo-tecnico">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Kpi rotulo="ASes do grupo" valor={`${n(t.asns_com_dado)} de ${n(t.asns_total)}`} />
-        <Kpi rotulo="Prefixos na tabela BGP (IPv6 / IPv4)" valor={`${n(t.prefixos.v6)} / ${n(t.prefixos.v4)}`} />
-        <Kpi rotulo="Usuários com IPv6 (estimativa APNIC)" valor={pct(t.ipv6.pct_v6)} />
-        <Kpi rotulo="Prefixos com ROA válido" valor={pct(t.rpki.valido_pct)} />
+        <Kpi rotulo="ASes do grupo" valor={`${n(t.asns_com_dado)} de ${n(t.asns_total)}`} selo="inferido" fonte="Registro.br (CNPJ e raiz do CNPJ)" dataRef={dados.grupo.snapshot_date} />
+        <Kpi rotulo="Prefixos na tabela BGP (IPv6 / IPv4)" valor={`${n(t.prefixos.v6)} / ${n(t.prefixos.v4)}`} selo="inferido" fonte="tabela global (RouteViews), ASes do grupo" dataRef={dados.grupo.snapshot_date} />
+        <Kpi rotulo="Usuários com IPv6 (estimativa APNIC)" valor={pct(t.ipv6.pct_v6)} selo="estimado" fonte="APNIC Labs, ASes do grupo" dataRef={dados.grupo.snapshot_date} />
+        <Kpi rotulo="Prefixos com ROA válido" valor={pct(t.rpki.valido_pct)} selo="inferido" fonte="RPKI (Routinator), ASes do grupo" dataRef={dados.grupo.snapshot_date} />
       </div>
       {t.asns_omitidos > 0 && <p className="text-sm text-aviso-700" role="status">Mostrando os {n(t.asns_detalhados)} maiores ASes por usuários estimados; {n(t.asns_omitidos)} ficaram de fora do detalhe.</p>}
       <TabelaAses t={t} />

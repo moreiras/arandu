@@ -28,7 +28,7 @@ export function FichaAsn({ doc, referencias }: { doc: ASNDocument; referencias?:
       </ul>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
         {kpisAs(doc, referencias).map((k) => (
-          <Kpi key={k.id} rotulo={k.rotulo} valor={k.valor == null ? null : `${k.valor.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}${k.sufixo ?? ''}`} referencia={k.referencia} />
+          <Kpi key={k.id} rotulo={k.rotulo} valor={k.valor == null ? null : `${k.valor.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}${k.sufixo ?? ''}`} referencia={k.referencia} selo={k.selo} fonte={k.fonte} dataRef={doc.snapshot_date} />
         ))}
       </div>
       <details className="text-xs text-gray-500">
