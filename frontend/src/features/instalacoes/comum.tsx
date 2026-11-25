@@ -24,27 +24,54 @@ const COR_CADASTRO: Record<string, string> = {
   parado: 'bg-aviso-50 text-aviso-800 border-aviso-200',
   antigo: 'bg-gray-100 text-gray-700 border-gray-300',
 }
-const ROTULO_CADASTRO: Record<string, string> = { recente: 'cadastro atualizado', parado: 'cadastro parado', antigo: 'cadastro antigo' }
+const ROTULO_CADASTRO: Record<string, string> = { recente: 'cadastro com atividade em até 12 meses', parado: 'sem atividade no cadastro há 1 a 3 anos', antigo: 'sem atividade no cadastro há mais de 3 anos' }
+
+/** Qual data decidiu a classe: o vínculo de rede, o registro da instalação ou a criação do registro (quando a data de atualização é de lote e não conta). */
+function origemDaData(c: CadastroInferido): string {
+  if (c.vinculo_atualizado && c.ultima_atualizacao === c.vinculo_atualizado) return 'por vínculo de rede'
+  if (c.registro_atualizado && c.ultima_atualizacao === c.registro_atualizado) return 'pela atualização do registro'
+  return c.registro_em_lote ? 'pela criação do registro' : ''
+}
 
 /**
- * Cadastro vivo ou abandonado: leitura INFERIDA da data da última atualização do registro. Mede a manutenção do cadastro no PeeringDB,
- * não a operação da instalação nem da empresa: o texto do `title` diz isso e o selo nunca usa "ativa" ou "abandonada".
+ * Cadastro com atividade ou parado: leitura INFERIDA das datas do cadastro no PeeringDB, a mais recente entre o registro da instalação e os vínculos de rede
+ * (a data de atualização compartilhada por muitas instalações no mesmo dia, "lote", não conta). Mede a manutenção do cadastro, não a operação da instalação
+ * nem da empresa: o texto visível traz as duas datas e o `title` diz isso; o selo nunca usa "ativa" ou "abandonada".
  */
 export function SeloCadastro({ c }: { c: CadastroInferido | null | undefined }) {
-  if (!c || !c.classe) return <span className="text-xs text-gray-400">sem data</span>
+  if (!c) return <span className="text-xs text-gray-400">sem data</span>
+  const datas = c.registro_atualizado !== undefined || c.vinculo_atualizado !== undefined
+  const detalhe = datas
+    ? `registro: ${dataCurta(c.registro_atualizado)}${c.registro_em_lote ? ' (data de lote)' : ''} · último vínculo de rede: ${dataCurta(c.vinculo_atualizado)}`
+    : dataCurta(c.ultima_atualizacao)
+  if (!c.classe) {
+    return <span className="inline-block rounded border border-gray-300 bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700" data-testid="selo-cadastro"
+      title="Inferido: só há a data de um registro em lote, compartilhada por muitas instalações, que não indica ação da organização. Mede a manutenção do registro no PeeringDB, não a operação da instalação nem da empresa.">sem data própria no cadastro · {detalhe}</span>
+  }
+  const origem = origemDaData(c)
   return (
     <span
       className={`inline-block rounded border px-1.5 py-0.5 text-xs ${COR_CADASTRO[c.classe]}`}
-      title={`Inferido: última atualização do cadastro em ${dataCurta(c.ultima_atualizacao)} (${n(c.dias)} dias antes da coleta). Mede a manutenção do registro no PeeringDB, não a operação da instalação nem da empresa.`}
+      title={`Inferido: data mais recente do cadastro em ${dataCurta(c.ultima_atualizacao)}${origem ? ` (${origem})` : ''}, ${n(c.dias)} dias antes da coleta. Mede a manutenção do registro no PeeringDB, não a operação da instalação nem da empresa.`}
       data-testid="selo-cadastro"
     >
-      {ROTULO_CADASTRO[c.classe]} · {dataCurta(c.ultima_atualizacao)}
+      {ROTULO_CADASTRO[c.classe]}{origem ? ` ${origem}` : ''} · {detalhe}
     </span>
   )
 }
 
+/** Nota sobre a data de registro em lote (várias instalações com o mesmo dia de atualização), com selo de inferido. */
+export function NotaLoteCadastro({ lote }: { lote: { data: string; n: number } | null | undefined }) {
+  if (!lote) return null
+  return (
+    <p className="text-xs text-gray-500" data-testid="nota-lote-cadastro">
+      A data de registro {dataCurta(lote.data)} é compartilhada por {n(lote.n)} instalações e não indica ação da organização (inferido): ela não conta para o selo de cadastro.
+    </p>
+  )
+}
+
 /** Atribuição ao PeeringDB e rótulo de dado autodeclarado, com a data da coleta. */
-export function AtribuicaoPeeringDb({ meta }: { meta: Pick<FacilityMeta, 'coletado_em' | 'fonte' | 'limites'> }) {
+export function AtribuicaoPeeringDb({ meta }: { meta: Pick<FacilityMeta, 'coletado_em' | 'fonte' | 'limites'> & Pick<Partial<FacilityMeta>, 'data_em_lote'> }) {
   return (
     <div className="space-y-0.5" data-testid="atribuicao-peeringdb">
       <p className="text-xs text-gray-500">{meta.limites}</p>
@@ -52,6 +79,7 @@ export function AtribuicaoPeeringDb({ meta }: { meta: Pick<FacilityMeta, 'coleta
         Dado autodeclarado no <a href="https://www.peeringdb.com" target="_blank" rel="noreferrer" className="text-primario-600 hover:underline">PeeringDB</a>
         {' '}(<a href="https://www.peeringdb.com/aup" target="_blank" rel="noreferrer" className="hover:underline">AUP</a>). Coletado em {dataCurta(meta.coletado_em ?? meta.fonte?.coletado_em)}.
       </p>
+      <NotaLoteCadastro lote={meta.data_em_lote} />
     </div>
   )
 }

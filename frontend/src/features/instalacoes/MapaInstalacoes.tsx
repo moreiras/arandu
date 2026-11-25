@@ -110,7 +110,7 @@ export function MapaInstalacoes({ itens, altura = 380 }: { itens: FacilityResumo
     <div className="relative rounded-lg border border-gray-200 overflow-hidden" style={{ height: altura }} data-testid="mapa-instalacoes">
       <div ref={ref} className="w-full h-full" />
       <div className="absolute bottom-8 right-3 flex flex-wrap gap-2 text-xs bg-white/90 backdrop-blur px-3 py-2 rounded shadow-sm border border-gray-200">
-        {([['recente', 'cadastro atualizado'], ['parado', 'parado (1 a 3 anos)'], ['antigo', 'antigo (> 3 anos)']] as const).map(([k, r]) => (
+        {([['recente', 'atividade em até 12 meses'], ['parado', 'sem atividade há 1 a 3 anos'], ['antigo', 'sem atividade há mais de 3 anos']] as const).map(([k, r]) => (
           <span key={k} className="flex items-center gap-1"><span className="w-3 h-3 rounded-full inline-block" style={{ background: COR[k] }} /> {r}</span>
         ))}
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full inline-block bg-tecnico-700/60" /> várias instalações (número no círculo)</span>

@@ -768,6 +768,7 @@
     "cidade",
     "coletado_em",
     "criado",
+    "data_em_lote",
     "escopo",
     "fonte",
     "id",
@@ -787,6 +788,7 @@
     "redes_declaradas",
     "redes_nota",
     "redes_total",
+    "regra_cadastro",
     "site",
     "snapshot_date",
     "uf"
@@ -797,12 +799,14 @@
    "chaves": [
     "cobertura",
     "coletado_em",
+    "data_em_lote",
     "escopo",
     "filtros",
     "fonte",
     "items",
     "limites",
     "ordem",
+    "regra_cadastro",
     "snapshot_date",
     "total"
    ],
