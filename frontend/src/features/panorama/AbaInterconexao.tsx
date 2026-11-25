@@ -36,13 +36,13 @@ export function AbaInterconexao() {
       <section className="space-y-3" aria-label="PTTs e participantes">
         <h2 className="text-titulo-3 text-gray-800">PTTs e participantes</h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Kpi rotulo="PTTs do IX.br" valor={num(ixps.data?.ixps.length)} tom="primario" referencia={s?.ixps_missing ? `${num(s.ixps_missing)} sem dados neste snapshot` : undefined} fonte="looking glasses do IX.br" dataRef={ref} />
-          <Kpi rotulo="Participantes diretos" valor={num(ix?.asn_direct_union_count)} explicacao="ASNs com sessão BGP no route server de algum PTT do IX.br (brasileiros ou não), sem repetição entre PTTs." fonte="looking glasses do IX.br" dataRef={ref} />
-          <Kpi rotulo="ASNs com rotas vistas no IX.br" valor={num(ix?.asn_origin_union_count)} explicacao="ASNs (de qualquer país) que originam prefixos vistos em algum PTT do IX.br, diretamente ou por trânsito." fonte="looking glasses do IX.br" dataRef={ref} />
-          <Kpi rotulo="ASNs BR com rotas vistas no IX.br" valor={num(ix?.br_asns_origin_union_count)} referencia={pct(fracao(ix?.br_asns_origin_union_count, gt?.br_asns_in_ft)) ? `${pct(fracao(ix?.br_asns_origin_union_count, gt?.br_asns_in_ft))} dos visíveis na tabela global` : undefined}
+          <Kpi selo="fato" rotulo="PTTs do IX.br" valor={num(ixps.data?.ixps.length)} tom="primario" referencia={s?.ixps_missing ? `${num(s.ixps_missing)} sem dados neste snapshot` : undefined} fonte="looking glasses do IX.br" dataRef={ref} />
+          <Kpi selo="fato" rotulo="Participantes diretos" valor={num(ix?.asn_direct_union_count)} explicacao="ASNs com sessão BGP no route server de algum PTT do IX.br (brasileiros ou não), sem repetição entre PTTs." fonte="looking glasses do IX.br" dataRef={ref} />
+          <Kpi selo="fato" rotulo="ASNs com rotas vistas no IX.br" valor={num(ix?.asn_origin_union_count)} explicacao="ASNs (de qualquer país) que originam prefixos vistos em algum PTT do IX.br, diretamente ou por trânsito." fonte="looking glasses do IX.br" dataRef={ref} />
+          <Kpi selo="fato" rotulo="ASNs BR com rotas vistas no IX.br" valor={num(ix?.br_asns_origin_union_count)} referencia={pct(fracao(ix?.br_asns_origin_union_count, gt?.br_asns_in_ft)) ? `${pct(fracao(ix?.br_asns_origin_union_count, gt?.br_asns_in_ft))} dos visíveis na tabela global` : undefined}
             explicacao="ASNs do Registro.br que originam prefixos vistos em algum PTT do IX.br, inclusive por trânsito: não é participação direta." fonte="looking glasses do IX.br" dataRef={ref} />
-          <Kpi rotulo="ASNs BR em PTTs fora do IX.br" valor={num(s?.external_ixps_br_asn_union_count)} explicacao="ASNs do Registro.br inscritos no PeeringDB em algum PTT que não é do IX.br, sem repetição." fonte="PeeringDB" dataRef={ref} />
-          <Kpi rotulo="Usuários alcançáveis via IX.br (IPv4, estimativa)" valor={grande(s?.ixp_estimated_users_v4)} tom="estimado"
+          <Kpi selo="fato" rotulo="ASNs BR em PTTs fora do IX.br" valor={num(s?.external_ixps_br_asn_union_count)} explicacao="ASNs do Registro.br inscritos no PeeringDB em algum PTT que não é do IX.br, sem repetição." fonte="PeeringDB" dataRef={ref} />
+          <Kpi selo="estimado" rotulo="Usuários alcançáveis via IX.br (IPv4, estimativa)" valor={grande(s?.ixp_estimated_users_v4)} tom="estimado"
             explicacao="Usuários estimados do APNIC atrás do espaço IPv4 visto na união dos PTTs do IX.br." fonte="APNIC Labs e looking glasses do IX.br" dataRef={ref} />
         </div>
       </section>
@@ -55,9 +55,9 @@ export function AbaInterconexao() {
         {cdns.isError ? <EstadoDados erro={cdns.error} oQue="a presença de CDNs" mensagem="A presença de CDNs não está disponível neste snapshot." /> : (
           <>
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-              <Kpi rotulo="CDNs e CAPs em PTTs do IX.br" valor={cdnsNoIxbr == null ? null : `${num(cdnsNoIxbr)} de ${num(c?.cdns.length)}`}
+              <Kpi selo="inferido" rotulo="CDNs e CAPs em PTTs do IX.br" valor={cdnsNoIxbr == null ? null : `${num(cdnsNoIxbr)} de ${num(c?.cdns.length)}`}
                 explicacao="Provedores de CDN e de conteúdo acompanhados pelo site que participam de ao menos um PTT do IX.br." fonte="IX.br e PeeringDB" dataRef={c?.snapshot_date} />
-              <Kpi rotulo="PTTs do IX.br com alguma CDN" valor={pttsComCdn == null ? null : `${num(pttsComCdn)} de ${num(c?.ixbr_columns.length)}`} fonte="IX.br" dataRef={c?.snapshot_date} />
+              <Kpi selo="inferido" rotulo="PTTs do IX.br com alguma CDN" valor={pttsComCdn == null ? null : `${num(pttsComCdn)} de ${num(c?.ixbr_columns.length)}`} fonte="IX.br" dataRef={c?.snapshot_date} />
             </div>
             {topPtts.length > 0 && (
               <p className="text-sm text-gray-700">PTTs com mais CDNs e CAPs: {topPtts.map((p, i) => <span key={p.code}>{i > 0 && ', '}<Link to={`/ixp/${p.code}`} className="text-primario-700 hover:underline">{p.name}</Link> ({num(p.cdn_count)})</span>)}.</p>

@@ -36,13 +36,13 @@ export function RpkiPublicacao() {
   const ref = data?.snapshot_date
   return (
     <Grade>
-      <Kpi rotulo="ASNs com ROA" valor={pct(fracao(p?.br_asns_with_roa, p?.br_asns_total))} tom="tecnico" referencia={p ? `${num(p.br_asns_with_roa)} de ${num(p.br_asns_total)} ASNs` : undefined}
+      <Kpi selo="fato" rotulo="ASNs com ROA" valor={pct(fracao(p?.br_asns_with_roa, p?.br_asns_total))} tom="tecnico" referencia={p ? `${num(p.br_asns_with_roa)} de ${num(p.br_asns_total)} ASNs` : undefined}
         explicacao="ASNs do Registro.br que publicaram ao menos uma ROA (autorização de origem) no RPKI." fonte="RPKI (Routinator)" dataRef={ref} />
-      <Kpi rotulo="ASNs com ASPA" valor={pct(fracao(p?.br_asns_with_aspa, p?.br_asns_total))} tom="tecnico" referencia={p ? `${num(p.br_asns_with_aspa)} ASNs` : undefined}
+      <Kpi selo="fato" rotulo="ASNs com ASPA" valor={pct(fracao(p?.br_asns_with_aspa, p?.br_asns_total))} tom="tecnico" referencia={p ? `${num(p.br_asns_with_aspa)} ASNs` : undefined}
         explicacao="ASNs do Registro.br que publicaram um objeto ASPA (a lista dos provedores de trânsito autorizados do AS)." fonte="RPKI (Routinator)" dataRef={ref} />
-      <Kpi rotulo="Espaço IPv6 anunciado por ASes com ROA" valor={pct(fracao(p?.br_space_v6_roa_48, p?.br_space_v6_total_48))} tom="v6"
+      <Kpi selo="fato" rotulo="Espaço IPv6 anunciado por ASes com ROA" valor={pct(fracao(p?.br_space_v6_roa_48, p?.br_space_v6_total_48))} tom="v6"
         explicacao="Espaço IPv6 anunciado pelos ASNs BR que publicaram ao menos uma ROA. Não é o espaço coberto por ROA; esse está no estado das rotas, abaixo." fonte="RPKI e RouteViews" dataRef={ref} />
-      <Kpi rotulo="Espaço IPv4 anunciado por ASes com ROA" valor={pct(fracao(p?.br_space_v4_roa_24, p?.br_space_v4_total_24))} tom="v4"
+      <Kpi selo="fato" rotulo="Espaço IPv4 anunciado por ASes com ROA" valor={pct(fracao(p?.br_space_v4_roa_24, p?.br_space_v4_total_24))} tom="v4"
         explicacao="Espaço IPv4 anunciado pelos ASNs BR que publicaram ao menos uma ROA. Não é o espaço coberto por ROA; esse está no estado das rotas, abaixo." fonte="RPKI e RouteViews" dataRef={ref} />
     </Grade>
   )
@@ -96,9 +96,9 @@ function Rov() {
   return (
     <div className="space-y-4">
       <Grade>
-        <Kpi rotulo="Filtragem de rotas inválidas (média ponderada)" valor={pct(r?.media_ponderada_pct)} tom="tecnico" explicacao={EXPLICA.rov} fonte="APNIC Labs" dataRef={ref} />
-        <Kpi rotulo="Mediana dos ASes" valor={pct(r?.mediana_pct)} tom="tecnico" explicacao="Metade dos ASNs medidos filtra em menos que isso. Cada ASN conta igual." fonte="APNIC Labs" dataRef={ref} />
-        <Kpi rotulo="ASes medidos" valor={num(r?.asns)} tom="tecnico" explicacao="ASNs do Brasil com amostra suficiente na medição do APNIC." fonte="APNIC Labs" dataRef={ref} />
+        <Kpi selo="estimado" rotulo="Filtragem de rotas inválidas (média ponderada)" valor={pct(r?.media_ponderada_pct)} tom="tecnico" explicacao={EXPLICA.rov} fonte="APNIC Labs" dataRef={ref} />
+        <Kpi selo="estimado" rotulo="Mediana dos ASes" valor={pct(r?.mediana_pct)} tom="tecnico" explicacao="Metade dos ASNs medidos filtra em menos que isso. Cada ASN conta igual." fonte="APNIC Labs" dataRef={ref} />
+        <Kpi selo="fato" rotulo="ASes medidos" valor={num(r?.asns)} tom="tecnico" explicacao="ASNs do Brasil com amostra suficiente na medição do APNIC." fonte="APNIC Labs" dataRef={ref} />
       </Grade>
       <SegurancaSection date={data?.snapshot_date} semResumo />
     </div>
@@ -114,11 +114,11 @@ function SaudeTabela() {
   const ref = data?.rpki?.rotas?.snapshot_date ?? summary?.snapshot_date
   return (
     <Grade>
-      <Kpi rotulo="Rotas mais-específicas (IPv6 · IPv4)" valor={sa ? `${pct(sa.v6.mais_especificos_pct) ?? '—'} · ${pct(sa.v4.mais_especificos_pct) ?? '—'}` : null}
+      <Kpi selo="inferido" rotulo="Rotas mais-específicas (IPv6 · IPv4)" valor={sa ? `${pct(sa.v6.mais_especificos_pct) ?? '—'} · ${pct(sa.v4.mais_especificos_pct) ?? '—'}` : null}
         explicacao="Rotas brasileiras contidas em outra rota anunciada (desagregação). Nem sempre é problema: pode ser engenharia de tráfego." fonte="RouteViews" dataRef={ref} />
-      <Kpi rotulo="Prefixos filtráveis (IPv6 · IPv4)" valor={sa ? `${num(sa.v6.filtraveis) ?? '—'} · ${num(sa.v4.filtraveis) ?? '—'}` : null}
+      <Kpi selo="fato" rotulo="Prefixos filtráveis (IPv6 · IPv4)" valor={sa ? `${num(sa.v6.filtraveis) ?? '—'} · ${num(sa.v4.filtraveis) ?? '—'}` : null}
         explicacao="Mais específicos que /48 (IPv6) ou /24 (IPv4): muitas redes descartam esses prefixos." fonte="RouteViews" dataRef={ref} />
-      <Kpi rotulo="ASes sem bogon" valor={pct(bogon?.media)} referencia={bogon ? `entre ${num(bogon.asns)} ASNs com ROV medido` : undefined}
+      <Kpi selo="inferido" rotulo="ASes sem bogon" valor={pct(bogon?.media)} referencia={bogon ? `entre ${num(bogon.asns)} ASNs com ROV medido` : undefined}
         explicacao="Parte dos ASNs que não originam prefixo reservado ou não alocado. Só existe para os ASNs com ROV medido (componente do índice de prontidão)." fonte="RouteViews e listas de bogons" dataRef={data?.snapshot_date} />
     </Grade>
   )
@@ -134,8 +134,8 @@ function Manrs() {
   return (
     <div className="space-y-1">
       <Grade>
-        <Kpi rotulo="ASNs em organizações do MANRS" valor={pct(b.pct_asns)} tom="tecnico" referencia={`${num(b.asns_participantes)} de ${num(b.asns)} ASNs`} fonte={m.fonte.descricao} dataRef={m.fonte.medido_em ?? m.snapshot_date} />
-        <Kpi rotulo="Usuários nesses ASNs" valor={pct(b.pct_usuarios)} tom="tecnico" explicacao="Usuários estimados pelo APNIC nos ASNs de organizações participantes." fonte="MANRS e APNIC Labs" dataRef={m.fonte.medido_em ?? m.snapshot_date} />
+        <Kpi selo="fato" rotulo="ASNs em organizações do MANRS" valor={pct(b.pct_asns)} tom="tecnico" referencia={`${num(b.asns_participantes)} de ${num(b.asns)} ASNs`} fonte={m.fonte.descricao} dataRef={m.fonte.medido_em ?? m.snapshot_date} />
+        <Kpi selo="estimado" rotulo="Usuários nesses ASNs" valor={pct(b.pct_usuarios)} tom="tecnico" explicacao="Usuários estimados pelo APNIC nos ASNs de organizações participantes." fonte="MANRS e APNIC Labs" dataRef={m.fonte.medido_em ?? m.snapshot_date} />
       </Grade>
       <p className="text-xs text-gray-500">{m.atribuicao}.</p>
     </div>

@@ -10,6 +10,8 @@ import { http, HttpResponse } from 'msw'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { server } from '../../test/server'
 import { useAppStore } from '../../store/app'
+import { Ipv6Apnic } from './IndicadoresBrasil'
+import { RpkiPublicacao } from './AbaSeguranca'
 import { VisibilidadeGlobal } from './AbaFamilia'
 import { ABA_GRUPOS_MOVIDA, ABAS_MERCADO, PanoramaMercado } from '../../pages/PanoramaMercado'
 import { ABAS_TECNICO, ALIASES_TECNICO } from '../../pages/PanoramaTecnico'
@@ -134,6 +136,42 @@ describe('aba IPv6 do Panorama técnico', () => {
     expect(container).toHaveTextContent('76,3% dos 1.000 visíveis')
     expect(container).toHaveTextContent('88,6%')
     expect(container).not.toHaveTextContent('97,1%')
+  })
+})
+
+describe('selo, fonte e data visíveis nos KPIs do panorama (PT-14)', () => {
+  const ARQUIVOS = ['AbaFamilia', 'AbaInterconexao', 'AbaSeguranca', 'IndicadoresBrasil', 'ResumoTecnico']
+  it('toda chamada de Kpi dos cinco arquivos do panorama declara selo (66 chamadas)', () => {
+    let total = 0
+    const fontes = import.meta.glob('./{AbaFamilia,AbaInterconexao,AbaSeguranca,IndicadoresBrasil,ResumoTecnico}.tsx', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
+    for (const a of ARQUIVOS) {
+      const fonte = fontes[`./${a}.tsx`]
+      expect(fonte, a).toBeTruthy()
+      const chamadas = fonte.match(/<Kpi\s[^>]*?rotulo=/g) ?? []
+      total += chamadas.length
+      for (const c of chamadas) expect(c, `${a}: ${c}`).toMatch(/selo=/)
+      expect((fonte.match(/<Kpi[\s>]/g) ?? []).length, a).toBe(chamadas.length)
+    }
+    expect(total).toBe(66)
+  })
+  beforeEach(() => {
+    useAppStore.setState({ activeDate: '2026-09-20', latestSnapshot: '2026-09-20' })
+    server.use(
+      http.get('*/api/v1/brasil/indicadores', () => HttpResponse.json({ snapshot_date: '2026-09-20',
+        ipv6: { usuarios: 1000, usuarios_ipv6: 412, pct_usuarios_ipv6: 41.2, asns_com_estimativa: 10, asns_com_ipv6: 7, fonte: 'APNIC', nota: '' },
+        rpki: { publicacao: { br_asns_with_roa: 43, br_asns_with_aspa: 2, br_asns_total: 100, br_space_v6_roa_48: 5, br_space_v6_total_48: 10, br_space_v4_roa_24: 5, br_space_v4_total_24: 10 } } })),
+    )
+  })
+  const montarComRotas = (ui: React.ReactElement) => render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter>{ui}</MemoryRouter></QueryClientProvider>)
+  it('aba IPv6: usuários com IPv6 aparecem como Estimado, com fonte e data, em texto', async () => {
+    montarComRotas(<Ipv6Apnic />)
+    expect((await screen.findAllByText('Estimado · APNIC Labs · ref. 2026-09-20', { selector: 'p' })).length).toBeGreaterThan(0)
+    for (const k of screen.getAllByTestId('kpi')) expect(k.querySelector('[data-kpi-selo]'), k.textContent ?? '').not.toBeNull()
+  })
+  it('segurança: ROA é Fato, com RPKI como fonte e a data do snapshot', async () => {
+    montarComRotas(<RpkiPublicacao />)
+    expect(await screen.findAllByText('Fato · RPKI (Routinator) · ref. 2026-09-20')).toHaveLength(2)
+    expect(screen.getAllByText('Fato · RPKI e RouteViews · ref. 2026-09-20')).toHaveLength(2)
   })
 })
 

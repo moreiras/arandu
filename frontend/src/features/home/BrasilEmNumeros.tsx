@@ -18,7 +18,7 @@ function Faixa({ titulo, itens, cor }: { titulo: string; itens: KpiHome[]; cor: 
       <h3 className={`text-xs font-semibold uppercase tracking-wide mb-1.5 ${cor}`}>{titulo}</h3>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {itens.map((k) => (
-          <Kpi key={k.id} rotulo={k.estimado ? `${k.rotulo} (estimativa)` : k.rotulo} valor={k.valor} tom={k.tom} variacao={k.variacao} fonte={k.fonte} dataRef={k.dataRef} />
+          <Kpi key={k.id} rotulo={k.estimado ? `${k.rotulo} (estimativa)` : k.rotulo} valor={k.valor} tom={k.tom} variacao={k.variacao} selo={k.selo} fonte={k.fonte} dataRef={k.dataRef} />
         ))}
       </div>
     </div>
