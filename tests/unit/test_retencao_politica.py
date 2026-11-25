@@ -5,15 +5,12 @@
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 """T0 — a tabela de retenção da política (`frontend/src/lib/retencao.gen.json`) bate com as constantes do código.
 
-Compara a TABELA gerada com o código, não o texto de `Privacidade.tsx` (redação do mantenedor; as divergências do texto atual estão
-registradas como `TODO(mantenedor)` na própria página).
+Compara a TABELA gerada com o código, não o texto de `Privacidade.tsx` (redação do mantenedor, aprovada em PT-13b).
 """
 import importlib.util
 import json
 import re
 from pathlib import Path
-
-import yaml
 
 from api import limites, usage_log, uso_conta
 from api.auth import contas, storage
@@ -52,11 +49,10 @@ def test_tetos_do_mcp_batem_com_limites_e_cota():
     assert v["conta_cota_diaria"] == chave.COTA_DIARIA_PADRAO
 
 
-def test_rotacao_do_servidor_web_bate_com_o_compose():
-    op = yaml.safe_load((ROOT / "docker-compose.prod.yml").read_text(encoding="utf-8"))["services"]["frontend"]["logging"]["options"]
-    v = _tabela()["log_servidor_web"]["valor"]
-    assert f"{v['tamanho_mb']}m" == op["max-size"] and str(v["arquivos"]) == str(op["max-file"])
-    assert _tabela()["log_servidor_web"]["contem_ip"] is True
+def test_servidor_web_tem_prazo_indeterminado_sem_numeros_de_rotacao():
+    l = _tabela()["log_servidor_web"]
+    assert l["prazo"] == "tempo indeterminado" and l["contem_ip"] is True
+    assert not re.search(r"\d", l["prazo"]) and "rotação" not in l["prazo"]
     assert "$remote_addr" in (ROOT / "docker" / "nginx-frontend.conf").read_text(encoding="utf-8")
 
 

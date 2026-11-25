@@ -6,11 +6,10 @@
       "registro": "Registro de acesso do servidor web",
       "contem_ip": true,
       "valor": {
-        "tamanho_mb": 5,
-        "arquivos": 3
+        "prazo": "indeterminado"
       },
-      "prazo": "sem prazo fixo; rotação por tamanho (5 MB, 3 arquivos)",
-      "fonte": "docker-compose.prod.yml (serviço frontend, logging); docker/nginx-frontend.conf (log_format temporizado)"
+      "prazo": "tempo indeterminado",
+      "fonte": "docker/nginx-frontend.conf (log_format temporizado); docker-compose.prod.yml (serviço frontend, logging)"
     },
     {
       "id": "log_acesso_conta",
