@@ -178,7 +178,7 @@ def _ptt(doc, orgs=None):
 
 def test_ptt_proximo_so_diz_o_fato_sem_recomendacao_de_negocio():
     a = next(x for x in _ptt(_doc()) if x["id"] == "ptt_proximo_sem_participar")
-    assert a["detail"].startswith("A sede do AS fica a menos de 80 km de 1 PTT(s) do IX.br onde o AS não consta como participante: sp (")
+    assert a["detail"].startswith("A sede do AS fica a menos de 80 km de 1 PTT do IX.br onde o AS não consta como participante: São Paulo (SP, ")
     assert " km)" in a["detail"] and a["desde_versao"] == 2
     for proibido in ("reduzir", "custo", "latência", "Participar", "benefício"):
         assert proibido not in a["detail"], proibido

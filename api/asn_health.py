@@ -27,6 +27,7 @@ from bisect import bisect_left
 from typing import Optional
 
 from core.alerta_ptt_proximo import deve_avaliar as _ptt_deve_avaliar, detalhe as _ptt_detalhe
+from core import alerta_textos
 from core.geo import haversine_km
 
 # Raio (km) para considerar um AS "próximo" de um PTT onde não participa.
@@ -127,16 +128,12 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
         if unreachable:
             add("prefixo_inalcancavel", "roteamento", "aviso",
                 "Bloco alocado não anunciado",
-                f"{len(unreachable)} bloco(s) atribuído(s) pelo Registro.br não têm "
-                "nenhuma rota (nem agregado que os cubra, nem mais-específico) na "
-                "tabela de roteamento global — espaço alocado mas não anunciado.",
+                alerta_textos.blocos_inalcancaveis(len(unreachable)),
                 {"prefixes": unreachable[:30]})
         if by_other:
             add("anuncio_por_outro_as", "roteamento", "aviso",
                 "Bloco anunciado por outro AS",
-                f"{len(by_other)} prefixo(s) deste AS são originados na full table "
-                "por um ASN diferente. Pode ser anúncio gerenciado por terceiro — "
-                "vale confirmar se é intencional.",
+                alerta_textos.anuncio_por_outro_as(len(by_other)),
                 {"items": by_other[:30]})
     except Exception:
         pass
@@ -151,9 +148,7 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
             if gcount >= DEAGG_MIN and base > 0 and gcount >= DEAGG_RATIO * base:
                 add(f"desagregacao_{afi.lower()}", "roteamento", "info",
                     f"Desagregação {afi} elevada",
-                    f"{gcount} prefixos {afi} anunciados para {base} bloco(s) "
-                    "alocado(s). Anunciar mais-específicos desnecessários infla a "
-                    "tabela global; avalie agregar.",
+                    alerta_textos.desagregacao(gcount, afi, base),
                     {"global_count": gcount, "rir_count": base})
     except Exception:
         pass
@@ -174,9 +169,7 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
         if outside:
             add("prefixo_fora_alocacao", "roteamento", "info",
                 "Prefixo anunciado fora da alocação",
-                f"{len(outside)} prefixo(s) anunciado(s) não estão contidos em "
-                "nenhum bloco atribuído a este AS no Registro.br — pode ser espaço "
-                "sub-alocado por um provedor ou de terceiro.",
+                alerta_textos.fora_da_alocacao(len(outside)),
                 {"prefixes": outside[:30]})
     except Exception:
         pass
@@ -200,9 +193,7 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
             if invalid:
                 add("rpki_invalido", "rpki", "critico",
                     "Anúncio RPKI inválido",
-                    f"{len(invalid)} prefixo(s) anunciado(s) estão como RPKI "
-                    "inválidos (origem/maxLength não batem com os ROAs) e podem ser "
-                    "descartados por redes que validam.",
+                    alerta_textos.rpki_invalido(len(invalid)),
                     {"prefixes": invalid[:30]})
 
             # cobertura parcial: alocações RIR sem nenhum ROA cobrindo
@@ -225,8 +216,7 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
             if uncovered and len(uncovered) < len(rir_v4 + rir_v6):
                 add("rpki_cobertura_parcial", "rpki", "aviso",
                     "Cobertura RPKI parcial",
-                    f"{len(uncovered)} bloco(s) alocado(s) não têm ROA cobrindo — "
-                    "parte do espaço fica sem proteção de origem.",
+                    alerta_textos.cobertura_rpki_parcial(len(uncovered)),
                     {"prefixes": uncovered[:30]})
 
             # maxLength folgado demais
@@ -237,9 +227,7 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
             if loose:
                 add("roa_maxlength_folgado", "rpki", "info",
                     "ROA com maxLength folgado",
-                    f"{len(loose)} ROA(s) com maxLength muito acima do tamanho do "
-                    "prefixo. Isso autoriza mais-específicos não anunciados e amplia "
-                    "a superfície para sequestro por mais-específico.",
+                    alerta_textos.roa_maxlength_folgado(len(loose)),
                     {"items": loose[:30]})
     except Exception:
         pass
@@ -252,11 +240,7 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
         if roa_list and aspa_providers is None:
             add("sem_aspa", "rpki", "aviso",
                 "Sem ASPA",
-                "O AS possui ROAs no RPKI mas não publicou nenhum objeto ASPA "
-                "(Autonomous System Provider Authorization). O ASPA declara os "
-                "upstreams autorizados e permite validação de AS_PATH — sua "
-                "ausência não expõe o AS a risco imediato, mas a publicação é "
-                "recomendada à medida que a adoção cresce.")
+                alerta_textos.sem_aspa())
     except Exception:
         pass
 
@@ -275,15 +259,9 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
         # assimétrico entre as famílias num número relevante de IXPs.
         has_v6 = bool(rir_v6 or glob_v6)
         if has_v6 and (v4_only or v6_only):
-            parts = []
-            if v4_only:
-                parts.append(f"{len(v4_only)} IXP(s) com peering só IPv4")
-            if v6_only:
-                parts.append(f"{len(v6_only)} IXP(s) com peering só IPv6")
             add("politica_v4v6_divergente", "v4v6", "info",
                 "Políticas IPv6 e IPv4 divergentes",
-                "Peering assimétrico entre as famílias: " + "; ".join(parts) +
-                ". Tendo IPv6, o ideal é fazer peering nas duas famílias nos mesmos IXPs.",
+                alerta_textos.politica_v4v6(len(v6_only), len(v4_only)),
                 {"v4_only": sorted(v4_only), "v6_only": sorted(v6_only)})
     except Exception:
         pass
@@ -297,8 +275,7 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
         if member_codes and not pdb_registered:
             add("sem_peeringdb", "presenca", "aviso",
                 "Sem cadastro no PeeringDB",
-                "O AS é membro de PTT(s) do IX.br mas não tem registro no "
-                "PeeringDB, o que dificulta o estabelecimento de peering.")
+                alerta_textos.sem_peeringdb(len(member_codes)))
 
         if pdb_registered and not pdb.get("irr_as_set"):
             add("sem_irr_as_set", "presenca", "info",
@@ -317,21 +294,17 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
                 not_peering.append(code)
         if not_peering:
             add("membro_sem_peering", "presenca", "aviso",
-                "Membro de PTT sem peering observado",
-                f"{len(not_peering)} PTT(s) onde o AS é membro registrado mas não "
-                "aparece fazendo peering no route server — possível "
-                "subaproveitamento ou má configuração.",
+                alerta_textos.TITULO_MEMBRO_SEM_PEERING,
+                alerta_textos.membro_sem_sessao(len(not_peering)),
                 {"ixps": sorted(not_peering)})
 
         su4 = doc.get("single_upstream_v4")
         su6 = doc.get("single_upstream_v6")
         if su4 is not None or su6 is not None:
             add("single_homed", "presenca", "aviso",
-                "Conectividade single-homed",
-                "O AS aparenta depender de um único upstream "
-                + ("(IPv4)" if su4 is not None and su6 is None else
-                   "(IPv6)" if su6 is not None and su4 is None else "(IPv6 e IPv4)")
-                + " na tabela global — risco de resiliência.",
+                alerta_textos.TITULO_SINGLE_HOMED,
+                alerta_textos.single_homed_legado(("(IPv4)" if su4 is not None and su6 is None else
+                   "(IPv6)" if su6 is not None and su4 is None else "(IPv6 e IPv4)")),
                 {"upstream_v4": su4, "upstream_v6": su6})
 
         # declarado no PDB muito abaixo do observado → max-prefix arriscado
@@ -415,11 +388,7 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
             if filterable:
                 add("prefixos_filtraveis", "roteamento", "aviso",
                     "Prefixos potencialmente filtráveis",
-                    f"{len(filterable)} prefixo(s) excedem os limites convencionais "
-                    "(IPv6 >/48, IPv4 >/24) e podem ser descartados por operadores "
-                    "de backbone. Se há um agregado menos específico cobrindo o espaço, "
-                    "o tráfego seria absorvido por ele; do contrário, o descarte "
-                    "causaria blackhole.",
+                    alerta_textos.prefixos_filtraveis(len(filterable)),
                     {"prefixes": filterable[:30]})
 
             # Repetições médias de prepend > 2x e Loop de AS (requerem Fase 2 AS_PATH)
@@ -451,10 +420,7 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
                 if loop_prefixes:
                     add("as_loop_detectado", "roteamento", "aviso",
                         "Loop de AS detectado",
-                        f"{len(loop_prefixes)} prefixo(s) têm AS_PATH com loop "
-                        "(mesmo ASN aparece mais de uma vez de forma não-consecutiva "
-                        "no caminho). Pode indicar má configuração de rota ou "
-                        "manipulação incorreta de AS_PATH.",
+                        alerta_textos.as_loop(len(loop_prefixes)),
                         {"prefixes": loop_prefixes[:30]})
     except Exception:
         pass

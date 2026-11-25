@@ -3,19 +3,19 @@
   {
    "category": "presenca",
    "desde_versao": 2,
-   "detail": "O AS aparenta depender de um único upstream (IPv6 e IPv4) na tabela global — risco de resiliência.",
+   "detail": "O AS parece depender de um único provedor de trânsito (IPv6 e IPv4) na tabela global, o que representa risco de resiliência.",
    "id": "single_homed",
    "refs": {
     "upstream_v4": 4200000002,
     "upstream_v6": 4200000002
    },
    "severity": "aviso",
-   "title": "Conectividade single-homed"
+   "title": "Um único provedor de trânsito visível"
   },
   {
    "category": "roteamento",
    "desde_versao": 1,
-   "detail": "1 bloco(s) atribuído(s) pelo Registro.br não têm nenhuma rota (nem agregado que os cubra, nem mais-específico) na tabela de roteamento global — espaço alocado mas não anunciado.",
+   "detail": "1 bloco atribuído pelo Registro.br não tem nenhuma rota na tabela de roteamento global, nem do próprio bloco, nem de um agregado que o cubra, nem de um mais específico. O espaço está alocado, mas não é anunciado.",
    "id": "prefixo_inalcancavel",
    "refs": {
     "prefixes": [
@@ -28,7 +28,7 @@
   {
    "category": "rpki",
    "desde_versao": 1,
-   "detail": "1 bloco(s) alocado(s) não têm ROA cobrindo — parte do espaço fica sem proteção de origem.",
+   "detail": "1 bloco alocado não tem ROA que o cubra. Parte do espaço fica sem proteção de origem.",
    "id": "rpki_cobertura_parcial",
    "refs": {
     "prefixes": [
@@ -41,7 +41,7 @@
   {
    "category": "rpki",
    "desde_versao": 1,
-   "detail": "O AS possui ROAs no RPKI mas não publicou nenhum objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os upstreams autorizados e permite validação de AS_PATH — sua ausência não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
+   "detail": "O AS tem ROAs no RPKI, mas não publicou objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os provedores de trânsito autorizados e permite validar o AS_PATH. A falta dele não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
    "id": "sem_aspa",
    "refs": {},
    "severity": "aviso",

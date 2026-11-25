@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core import alerta_textos
 
 REGRA = Regra(id="membro_sem_peering", categoria="presenca", severidade="aviso", versao=1,
               descricao="membro (ixp_member_codes) sem peering direto v4 nem v6")
@@ -24,8 +25,6 @@ def avaliar(ctx: Contexto) -> list[dict]:
     if not not_peering:
         return []
     return [achado(
-        "Membro de PTT sem peering observado",
-        f"{len(not_peering)} PTT(s) onde o AS é membro registrado mas não "
-        "aparece fazendo peering no route server — possível "
-        "subaproveitamento ou má configuração.",
+        alerta_textos.TITULO_MEMBRO_SEM_PEERING,
+        alerta_textos.membro_sem_sessao(len(not_peering)),
         {"ixps": sorted(not_peering)})]

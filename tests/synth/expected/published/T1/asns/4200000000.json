@@ -3,7 +3,7 @@
   {
    "category": "rpki",
    "desde_versao": 1,
-   "detail": "O AS possui ROAs no RPKI mas não publicou nenhum objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os upstreams autorizados e permite validação de AS_PATH — sua ausência não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
+   "detail": "O AS tem ROAs no RPKI, mas não publicou objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os provedores de trânsito autorizados e permite validar o AS_PATH. A falta dele não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
    "id": "sem_aspa",
    "refs": {},
    "severity": "aviso",

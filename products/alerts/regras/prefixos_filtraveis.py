@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core import alerta_textos
 from products.alerts.auxiliar import analise_bgp
 from products.alerts.base import net
 
@@ -36,9 +37,5 @@ def avaliar(ctx: Contexto) -> list[dict]:
         return []
     return [achado(
         "Prefixos potencialmente filtráveis",
-        f"{len(filterable)} prefixo(s) excedem os limites convencionais "
-        "(IPv6 >/48, IPv4 >/24) e podem ser descartados por operadores "
-        "de backbone. Se há um agregado menos específico cobrindo o espaço, "
-        "o tráfego seria absorvido por ele; do contrário, o descarte "
-        "causaria blackhole.",
+        alerta_textos.prefixos_filtraveis(len(filterable)),
         {"prefixes": filterable[:30]})]

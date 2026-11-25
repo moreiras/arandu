@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core import alerta_textos
 from products.alerts.auxiliar import blocos_rir
 
 REGRA = Regra(id="prefixo_inalcancavel", categoria="roteamento", severidade="aviso", versao=1,
@@ -19,7 +20,5 @@ def avaliar(ctx: Contexto) -> list[dict]:
         return []
     return [achado(
         "Bloco alocado não anunciado",
-        f"{len(unreachable)} bloco(s) atribuído(s) pelo Registro.br não têm "
-        "nenhuma rota (nem agregado que os cubra, nem mais-específico) na "
-        "tabela de roteamento global — espaço alocado mas não anunciado.",
+        alerta_textos.blocos_inalcancaveis(len(unreachable)),
         {"prefixes": unreachable[:30]})]
