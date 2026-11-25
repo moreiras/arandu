@@ -4,6 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { describe, expect, it } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
 import { render, screen } from '@testing-library/react'
 import { ExternalIXPRouteServer, RedesBrPorFonte, contagemRedes, redesBrPorFonte, type DecixRouteServer } from './ExternalIXPRouteServer'
 
@@ -23,7 +24,7 @@ const base: DecixRouteServer = {
 
 describe('cartões do route server do DE-CIX', () => {
   it('mostra sessões, diretos e origem como piso, com a cobertura e os critérios', () => {
-    render(<ExternalIXPRouteServer rs={base} />)
+    render(<MemoryRouter><ExternalIXPRouteServer rs={base} /></MemoryRouter>)
     expect(screen.getByText('4 / 5')).toBeTruthy()
     expect(screen.getByText('ASNs de origem (piso)')).toBeTruthy()
     expect(screen.getByText(/leitura parcial: é um mínimo/)).toBeTruthy()
@@ -32,7 +33,7 @@ describe('cartões do route server do DE-CIX', () => {
   })
 
   it('compara com o IX.br da cidade sem dizer que é tráfego, e lista os ASNs só do DE-CIX com link', () => {
-    render(<ExternalIXPRouteServer rs={base} />)
+    render(<MemoryRouter><ExternalIXPRouteServer rs={base} /></MemoryRouter>)
     const tabela = screen.getByTestId('comparacao-cidade')
     expect(tabela.textContent).toContain('IX.br SP')
     expect(tabela.textContent).toContain('equinix-sp')
@@ -43,7 +44,7 @@ describe('cartões do route server do DE-CIX', () => {
 
   it('sem PTT do IX.br na cidade não inventa comparação e mostra o aviso de bloqueio', () => {
     const rs = { ...base, bloqueio: { motivo: 'HTTP 429' }, comparacao_cidade: { ...base.comparacao_cidade, ixbr: null, interseccao_direct: undefined, no_decix_sem_ixbr: undefined } }
-    render(<ExternalIXPRouteServer rs={rs} />)
+    render(<MemoryRouter><ExternalIXPRouteServer rs={rs} /></MemoryRouter>)
     expect(screen.getByText(/sinal de bloqueio do servidor \(HTTP 429\)/)).toBeTruthy()
     expect(screen.queryByText(/IX\.br SP/)).toBeNull()
     expect(screen.queryByText(/ASNs estão nos dois/)).toBeNull()

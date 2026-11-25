@@ -58,7 +58,7 @@ export function ExplorarPage() {
   function executar(e: EstadoConsulta) {
     if (!schema) return
     try { montarCorpo(e, schema); setErroValor(null) } catch (err) { setErroValor((err as Error).message); return }
-    setParams(paraUrl(e))
+    setParams(paraUrl(e, date))
   }
 
   function carregarReceita(i: string) {
@@ -114,7 +114,7 @@ export function ExplorarPage() {
       {corpoExecutado && (
         <details className="text-xs text-gray-500">
           <summary className="cursor-pointer">Ver a consulta (para usar na API ou no MCP)</summary>
-          <pre aria-label="Corpo da consulta" className="mt-2 bg-gray-900 text-ok-300 rounded-lg p-3 overflow-x-auto">{`curl -s -X POST ${window.location.origin}/api/v1/query/${daUrl?.colecao} \\\n  -H 'content-type: application/json' \\\n  -d '${JSON.stringify(corpoExecutado)}'`}</pre>
+          <pre aria-label="Corpo da consulta" className="mt-2 bg-gray-900 text-ok-300 rounded-lg p-3 overflow-x-auto">{`curl -s -X POST '${window.location.origin}/api/v1/query/${daUrl?.colecao}${date ? `?date=${date}` : ''}' \\\n  -H 'content-type: application/json' \\\n  -d '${JSON.stringify(corpoExecutado)}'`}</pre>
         </details>
       )}
     </div>

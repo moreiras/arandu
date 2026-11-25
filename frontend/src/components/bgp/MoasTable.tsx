@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '../layout/LinkDatado'
 import type { MoasEntry, MoasResumo } from '../../types/routingAnalysis'
 import { Tip, SortIcon, type SortDir } from './BgpShared'
 import { ordenar } from '../../lib/ordenacao'

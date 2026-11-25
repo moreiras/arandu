@@ -3,7 +3,8 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { useParams, Link, useLocation, useSearchParams } from 'react-router-dom'
+import { useParams, useLocation, useSearchParams } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { fetchIXPPeers } from '../services/api'

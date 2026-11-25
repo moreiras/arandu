@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '../layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { AccessError, fetchAsnsPorOrganizacao } from '../../services/api'
 import { useOrcamentoAvancado } from '../../auth/AuthContext'

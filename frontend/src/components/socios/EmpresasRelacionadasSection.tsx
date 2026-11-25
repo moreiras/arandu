@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '../layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { fetchEmpresasRelacionadas } from '../../services/api'
 import { useActiveDate } from '../../hooks/useSnapshot'

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Outlet, NavLink, useSearchParams, useLocation } from 'react-router-dom'
+import { Outlet, NavLink, useSearchParams, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchHealth } from '../../services/api'
 import { useAppStore } from '../../store/app'
@@ -18,6 +18,10 @@ import { tituloDaRota } from './tituloRota'
 import { useTabelasResponsivas } from './useTabelasResponsivas'
 import { SITE } from '../../lib/site'
 import { LeituraConfortavel } from './LeituraConfortavel'
+import { comData } from '../../lib/dataAtiva'
+
+/** Páginas de entidade da SPA (os links para elas em HTML cru são interceptados para manter a data do snapshot). */
+const ROTA_DE_ENTIDADE = /^\/(asn|ixp|ixp-externo|operadora|instalacao|municipio|uf|grupo|cdncap|relatorio)\//
 
 export function AppLayout() {
   usePageTracker()
@@ -25,6 +29,8 @@ export function AppLayout() {
   const { user, loading: authLoading } = useAuth()
   const [params] = useSearchParams()
   const location = useLocation()
+  const navigate = useNavigate()
+  const tipoNavegacao = useNavigationType()
   const isMapPage = location.pathname === '/mapa'
   const setActiveDate = useAppStore((s) => s.setActiveDate)
   const setLatestSnapshot = useAppStore((s) => s.setLatestSnapshot)
@@ -72,15 +78,46 @@ export function AppLayout() {
   // Link com a data de um snapshot anterior aos atuais, aberto sem login: o aviso vem antes de qualquer chamada à API (que responderia 401 e abriria
   // o modal sem explicação). Enquanto a lista não chega o conteúdo espera, pelo mesmo motivo.
   const dataPedida = params.get('date')
-  const comData = !!dataPedida && DATA_DE_SNAPSHOT.test(dataPedida)
-  const historicoSemLogin = comData && !authLoading && !user && !!snapshotsDaLista && isHistoricalDate(dataPedida, snapshotsDaLista)
-  const aguardaLista = comData && (authLoading || (!user && !snapshotsDaLista && !snaps.isError))
+  const temData = !!dataPedida && DATA_DE_SNAPSHOT.test(dataPedida)
+  const historicoSemLogin = temData && !authLoading && !user && !!snapshotsDaLista && isHistoricalDate(dataPedida, snapshotsDaLista)
+  const aguardaLista = temData && (authLoading || (!user && !snapshotsDaLista && !snaps.isError))
 
-  // Sincroniza ?date → activeDate no Zustand
+  // Sincroniza ?date → activeDate no Zustand. A data escolhida acompanha a navegação: ir a um endereço sem `date` (menu, `navigate`, busca)
+  // a partir de uma página datada devolve a data à URL, em vez de cair no snapshot mais recente sem aviso. Só saem dela o seletor de
+  // snapshot (estado `semData`), o Voltar do navegador (POP: a URL do histórico manda) e uma URL digitada (recarrega a SPA).
+  const dataEscolhida = useRef<string | null>(null)
   useEffect(() => {
     const dateParam = params.get('date')
-    setActiveDate(dateParam)
-  }, [params, setActiveDate])
+    if (dateParam) {
+      dataEscolhida.current = dateParam
+      setActiveDate(dateParam)
+      return
+    }
+    const saiDaData = (location.state as { semData?: boolean } | null)?.semData
+    if (dataEscolhida.current && tipoNavegacao !== 'POP' && !saiDaData) {
+      navigate(comData(location.pathname + location.search + location.hash, dataEscolhida.current), { replace: true, state: location.state })
+      return
+    }
+    dataEscolhida.current = null
+    setActiveDate(null)
+  }, [params, location, tipoNavegacao, navigate, setActiveDate])
+
+  // Links de entidade em HTML cru (balões dos mapas: `setHTML` do MapLibre) recarregariam a SPA e perderiam `?date=`: o clique vira
+  // navegação do roteador com a data. Escuta no `document`, depois do React: o `Link` já chamou `preventDefault` e fica de fora.
+  const dataNaUrl = useRef<string | null>(null)
+  dataNaUrl.current = params.get('date')
+  useEffect(() => {
+    const aoClicar = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+      const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null
+      if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download') || a.origin !== window.location.origin) return
+      if (!ROTA_DE_ENTIDADE.test(a.pathname)) return
+      e.preventDefault()
+      navigate(comData(a.pathname + a.search + a.hash, dataNaUrl.current))
+    }
+    document.addEventListener('click', aoClicar)
+    return () => document.removeEventListener('click', aoClicar)
+  }, [navigate])
 
   // Quando a API responde, registra o snapshot mais recente
   useEffect(() => {

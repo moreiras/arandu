@@ -6,7 +6,7 @@
 import { AcoesEntidade } from '../../components/entidade/AcoesEntidade'
 import { Migalhas } from '../../components/layout/Migalhas'
 import { nomeExibicao } from '../../lib/nomes'
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import { EntityHeader } from '../../components/entidade'
 import { ContactsReveal, type ContactsAvailable } from '../../components/ContactsReveal'
 import { OutorgaBadge, OutorgaBadges } from '../../components/OutorgaBadge'

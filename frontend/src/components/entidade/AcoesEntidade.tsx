@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { Link } from 'react-router-dom'
+import { Link } from '../layout/LinkDatado'
 
 export type TipoAcoes = 'asn' | 'operadora' | 'municipio' | 'ixp' | 'grupo'
 

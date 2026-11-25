@@ -147,12 +147,16 @@ function deBase64Url(s: string): string {
   return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)))
 }
 
-/** Estado → parâmetros de URL (`c` = coleção, `q` = o resto em base64url): a consulta inteira fica no endereço e pode ser compartilhada. */
-export function paraUrl(e: EstadoConsulta): URLSearchParams {
+/**
+ * Estado → parâmetros de URL (`c` = coleção, `q` = o resto em base64url, `date` = snapshot): a consulta inteira fica no endereço e pode ser
+ * compartilhada. Com a data, o link reabre o mesmo snapshot depois que sai um novo.
+ */
+export function paraUrl(e: EstadoConsulta, date?: string | null): URLSearchParams {
   const { colecao, ...resto } = e
   const p = new URLSearchParams()
   p.set('c', colecao)
   p.set('q', paraBase64Url(JSON.stringify(resto)))
+  if (date) p.set('date', date)
   return p
 }
 

@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useId, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import type { OperadoraRede } from '../../types/api'
 import { KPI, fmt } from './ui'
 import { ThOrdenavel } from '../../components/ui/ThOrdenavel'

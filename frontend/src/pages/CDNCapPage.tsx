@@ -1,5 +1,6 @@
 import { VisaoBrasil } from '../features/cdncap/VisaoBrasil'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState, useRef, useLayoutEffect } from 'react'
 import { fetchCDNPresence, fetchASNsLote, fetchIXPs } from '../services/api'

@@ -4,7 +4,8 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useState } from 'react'
-import { useNavigate, Link, Navigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, Navigate, useSearchParams } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useActiveDate } from '../hooks/useSnapshot'
 import { useAuth } from '../auth/AuthContext'

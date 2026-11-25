@@ -1,5 +1,6 @@
 // Histórico na interface: a Linha do tempo aparece, com proveniência, nas páginas de ASN, PTT, operadora e UF; a página O que mudou lista
-// as diferenças observadas (sem eventos de provedor); Comparar aceita duas datas; o menu "Ecossistema" leva a O que mudou.
+// as diferenças observadas (sem eventos de provedor); Comparar aceita duas datas; o menu "Ecossistema" leva a O que mudou; com ?date= de um
+// snapshot anterior as páginas pedem a API na data e a navegação interna a mantém.
 //   BASE_URL=http://host.docker.internal:18080 node historico.js
 const { chromium } = require('playwright')
 
@@ -50,6 +51,51 @@ const ok = (cond, msg) => { console.log(`${cond ? 'ok  ' : 'FAIL'} - ${msg}`); i
   await wait(800)
   const c = (await p.locator('main').innerText()).replace(/\s+/g, ' ')
   ok(/Comparar datas/.test(c) && /Indicador|histórico guardado|Escolha duas datas/.test(c), 'comparar por datas: tabela ou aviso')
+
+  // Data do snapshot preservada (PT-02): com ?date= de um snapshot anterior, as chamadas da página levam a data e a navegação interna
+  // (link de entidade, troca de aba, seletor) a mantém. Usa a penúltima data, que ainda é aberta ao anônimo.
+  const snaps = (await get('/api/v1/snapshots')).snapshots || []
+  if (snaps.length >= 2) {
+    const antiga = snaps[snaps.length - 2]
+    const semData = []
+    const anotar = (r) => {
+      const u = new URL(r.url())
+      if (u.pathname.startsWith('/api/v1/') && !u.pathname.endsWith('/snapshots') && u.searchParams.get('date') !== antiga && u.searchParams.get('to') !== antiga) semData.push(u.pathname + u.search)
+    }
+    p.on('request', anotar)
+    const comData = () => new URL(p.url()).searchParams.get('date') === antiga
+    await p.goto(BASE + `/regulatorio?aba=fust&date=${antiga}`, { waitUntil: 'networkidle' })
+    await p.getByRole('tab', { name: 'Multas' }).click()
+    await p.waitForLoadState('networkidle')
+    ok(comData() && new URL(p.url()).searchParams.get('aba') === 'multas', 'regulatório: trocar de aba mantém a data')
+    await p.goto(BASE + `/qualidade?aba=reclamacoes&date=${antiga}`, { waitUntil: 'networkidle' })
+    await p.getByRole('tab', { name: 'Consumidor.gov.br' }).click()
+    await p.waitForLoadState('networkidle')
+    ok(comData(), 'qualidade: trocar de aba mantém a data')
+    for (const caminho of ['/municipios', '/uso-da-internet', '/mercado-ipv4?aba=espaco', '/communities?q=0:6939']) {
+      await p.goto(BASE + caminho + (caminho.includes('?') ? '&' : '?') + `date=${antiga}`, { waitUntil: 'networkidle' })
+    }
+    p.off('request', anotar)
+    ok(semData.length === 0, `municípios, uso, qualidade, regulatório, IPv4 e communities pedem a API com a data${semData.length ? ': ' + semData.slice(0, 5).join(' ') : ''}`)
+    await p.goto(BASE + `/asn/${asn}?date=${antiga}`, { waitUntil: 'networkidle' })
+    const links = await p.locator('main a[href^="/ixp/"], main a[href^="/asn/"], main a[href^="/operadora/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')))
+    ok(links.length > 0 && links.every((h) => h.includes(`date=${antiga}`)), `asn: links de entidade levam a data (${links.length})`)
+    const rel = p.locator('[data-testid="acoes-entidade"] a', { hasText: 'Relatório' })
+    if (await rel.count()) ok(((await rel.getAttribute('href')) || '').includes(`date=${antiga}`), 'asn: Relatório de uma página leva a data')
+    if (links.length) {
+      await p.locator(`main a[href="${links[0]}"]`).first().click()
+      await p.waitForLoadState('networkidle')
+      ok(comData(), 'asn: clicar num link de entidade mantém a data')
+    }
+    await p.goto(BASE + `/ixps?date=${antiga}`, { waitUntil: 'networkidle' })
+    await p.getByRole('combobox', { name: 'Snapshot' }).first().selectOption(snaps[snaps.length - 1])
+    await p.waitForLoadState('networkidle')
+    ok(!new URL(p.url()).searchParams.get('date'), 'seletor: escolher o atual tira a data')
+    await p.goBack({ waitUntil: 'networkidle' })
+    ok(comData(), 'seletor: Voltar desfaz a troca de data')
+  } else {
+    console.log('skip - data do snapshot: a API tem menos de dois snapshots')
+  }
 
   await p.goto(BASE + '/', { waitUntil: 'networkidle' })
   await p.getByRole('button', { name: 'Ecossistema' }).click()

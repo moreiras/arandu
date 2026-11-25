@@ -7,6 +7,7 @@ import type { BlocoProps } from '../../entidade/registry'
 import type { UfCtx } from '../contexto'
 import type { DemandaOfertaClasse, DemandaOfertaLinha } from '../../../types/api'
 import { SITE } from '../../../lib/site'
+import { Link } from '../../../components/layout/LinkDatado'
 
 export const CLASSES: Record<DemandaOfertaClasse, { rotulo: string; cor: string }> = {
   oferta_abaixo_da_demanda: { rotulo: 'oferta abaixo da demanda', cor: 'text-aviso-700' },
@@ -63,7 +64,7 @@ export function DemandaOfertaUfBloco({ dados }: BlocoProps<UfCtx>) {
       </div>
       <p className="text-xs text-gray-500">
         Estimativa do {SITE.nome} · TIC Domicílios {d.tic_edicao} (Cetic.br|NIC.br, CC BY 4.0), SICI de {d.mes_referencia_sici ?? 's/d'}, domicílios do IBGE. {d.limites}{' '}
-        <a href="/uso-da-internet" className="text-primario-600 hover:underline">Todas as UFs</a>.
+        <Link to="/uso-da-internet" className="text-primario-600 hover:underline">Todas as UFs</Link>.
       </p>
     </div>
   )

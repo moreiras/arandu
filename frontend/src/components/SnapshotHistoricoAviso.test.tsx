@@ -27,6 +27,7 @@ describe('aviso de snapshot histórico (D3)', () => {
     expect(aviso.textContent).toMatch(/Snapshot histórico: 08\/11\/2026/)
     expect(aviso.textContent).toMatch(/15\/11\/2026 e 22\/11\/2026/)
     expect(aviso.textContent).toMatch(/Isto não é um erro/)
+    expect(aviso.textContent).toMatch(/Navegar em datas antigas é possível com o login gratuito\./)
     expect(screen.getByRole('link', { name: /Entrar/ }).getAttribute('href')).toContain('/login?next=')
     fireEvent.click(screen.getByRole('button', { name: 'Ir para o snapshot atual' }))
     expect(screen.getByTestId('local').textContent).toBe('/municipio/4114351?aba=mercado')
@@ -52,6 +53,27 @@ describe('aviso de snapshot histórico (D3)', () => {
     expect(screen.queryByTestId('pagina')).toBeNull()
     expect(chamadas).toEqual([])
     expect(screen.queryByText('Entre para continuar')).toBeNull()
+  })
+
+  it('"Ir para o snapshot atual" sai da data mesmo com o AppLayout que reaplica a data da navegação', async () => {
+    server.use(
+      http.get('*/auth/me', () => HttpResponse.json({ authenticated: false, anon: { active_seconds: 0, limit_seconds: 600, limit_reached: false, heartbeat_interval_seconds: 15, inactivity_timeout_seconds: 45 } })),
+      http.get('*/api/v1/brasil/snapshots', () => HttpResponse.json({ count: 2, latest: '2026-11-22', snapshots: ['2026-11-15', '2026-11-22'] })),
+    )
+    render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <MemoryRouter initialEntries={['/municipio/4114351?aba=mercado&date=2026-11-08']}>
+          <AuthProvider>
+            <Routes><Route element={<AppLayout />}><Route path="/municipio/:ibge" element={<><p data-testid="pagina">página do município</p><Local /></>} /></Route></Routes>
+          </AuthProvider>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+    await waitFor(() => expect(screen.getByTestId('snapshot-historico')).toBeTruthy())
+    fireEvent.click(screen.getByRole('button', { name: 'Ir para o snapshot atual' }))
+    await waitFor(() => expect(screen.getByTestId('pagina')).toBeTruthy())
+    expect(screen.getByTestId('local').textContent).toBe('/municipio/4114351?aba=mercado')
+    expect(screen.queryByTestId('snapshot-historico')).toBeNull()
   })
 
   it('data entre as recentes abre a página normalmente', async () => {

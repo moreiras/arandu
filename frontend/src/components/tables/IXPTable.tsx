@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { Link } from '../layout/LinkDatado'
 import { BarraDeAbas } from '../../features/entidade/EntityPage'
 import { coletaDaFamilia, type IXPIndexEntry, type IXPIndexAfi } from '../../types/api'
 import { Dica } from '../ui/Dica'

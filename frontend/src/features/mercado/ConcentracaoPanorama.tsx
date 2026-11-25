@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { fetchMercadoGrupos } from '../../services/api'
 import { useResumo } from '../panorama/useResumo'

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { useActiveDate } from '../hooks/useSnapshot'
 import { fetchCDNPresence, fetchExternalIXPs } from '../services/api'
 import { countryToRegion, REGION_STYLE } from '../components/tables/ExternalIXPTable'

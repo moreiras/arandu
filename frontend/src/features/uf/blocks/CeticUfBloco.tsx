@@ -6,6 +6,7 @@
 import type { BlocoProps } from '../../entidade/registry'
 import type { UfCtx } from '../contexto'
 import type { CeticEstimativa } from '../../../types/api'
+import { Link } from '../../../components/layout/LinkDatado'
 
 const pct = (v?: number) => (v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }))
 const inteiro = (v?: number) => (v == null ? '—' : Math.round(v).toLocaleString('pt-BR'))
@@ -57,7 +58,7 @@ export function CeticUfBloco({ dados }: BlocoProps<UfCtx>) {
         </table>
       </div>
       <p className="text-xs text-gray-500">
-        {c.aviso} Fonte: {c.fonte} · licença {c.licenca} · <a href="/uso-da-internet" className="text-primario-600 hover:underline">tabelas oficiais e estimativas de todas as UFs</a>.
+        {c.aviso} Fonte: {c.fonte} · licença {c.licenca} · <Link to="/uso-da-internet" className="text-primario-600 hover:underline">tabelas oficiais e estimativas de todas as UFs</Link>.
       </p>
     </div>
   )

@@ -21,7 +21,8 @@ export function SnapshotHistoricoAviso({ data, atuais }: { data: string; atuais:
     const p = new URLSearchParams(loc.search)
     p.delete('date')
     const q = p.toString()
-    navegar(`${loc.pathname}${q ? `?${q}` : ''}${loc.hash}`, { replace: true })
+    // `semData`: o AppLayout não devolve a data à URL (a pessoa escolheu sair dela, como no seletor de snapshot).
+    navegar(`${loc.pathname}${q ? `?${q}` : ''}${loc.hash}`, { state: { semData: true } })
   }
   return (
     <div className="mx-auto my-12 max-w-xl rounded-xl border border-gray-200 bg-white p-8 text-center" role="status" data-testid="snapshot-historico">
@@ -29,6 +30,7 @@ export function SnapshotHistoricoAviso({ data, atuais }: { data: string; atuais:
       <p className="mb-2 text-sm leading-relaxed text-gray-600">
         Você abriu um endereço que aponta para o snapshot de {formatarReferencia(data)}. Sem login, o site mostra os dois snapshots mais recentes
         ({atuais.map(formatarReferencia).join(' e ')}); os anteriores abrem com login e continuam guardados, sem alteração.
+        Navegar em datas antigas é possível com o login gratuito.
       </p>
       <p className="mb-5 text-sm leading-relaxed text-gray-600">Isto não é um erro: o link só deixa de abrir sem login quando saem snapshots mais novos.</p>
       <div className="flex flex-wrap items-center justify-center gap-3">

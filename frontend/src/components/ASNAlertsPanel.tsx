@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from './layout/LinkDatado'
 import type { ASNAlert, AlertSeverity, AlertCategory } from '../types/api'
 
 const SEVERITY_STYLE: Record<AlertSeverity, { border: string; bg: string; badge: string; label: string }> = {

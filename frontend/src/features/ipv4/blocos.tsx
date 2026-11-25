@@ -4,8 +4,9 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import { fetchIpv4Asn, fetchIpv4Espaco, fetchIpv4UsoPorTerceiros } from '../../services/api'
+import { useActiveDate } from '../../hooks/useSnapshot'
 import type { BlocoProps } from '../entidade/registry'
 import type { AsnCtx } from '../asn/contexto'
 import type { OperadoraCtx } from '../operadora/contexto'
@@ -59,7 +60,8 @@ function ListaSinais({ itens }: { itens: Ipv4UsoItem[] }) {
 
 /** Recursos IPv4 do ASN: blocos, os não plenamente anunciados e os sinais de uso por terceiros, como titular e como origem de bloco alheio. */
 export function RecursosIpv4AsnBloco({ dados }: BlocoProps<AsnCtx>) {
-  const q = useQuery({ queryKey: ['ipv4-asn', dados.doc.asn], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4Asn(dados.doc.asn) })
+  const date = useActiveDate() ?? undefined
+  const q = useQuery({ queryKey: ['ipv4-asn', dados.doc.asn, date], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4Asn(dados.doc.asn, date) })
   const r = q.data
   if (!r) return null
   return (
@@ -76,8 +78,9 @@ export function RecursosIpv4AsnBloco({ dados }: BlocoProps<AsnCtx>) {
 /** Recursos IPv4 da operadora: blocos não plenamente anunciados e sinais de terceiros dos ASNs do CNPJ. */
 export function RecursosIpv4OperadoraBloco({ dados }: BlocoProps<OperadoraCtx>) {
   const cnpj = dados.cnpjFinal
-  const e = useQuery({ queryKey: ['ipv4-espaco-cnpj', cnpj], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4Espaco({ cnpj, limit: 25 }) })
-  const u = useQuery({ queryKey: ['ipv4-uso-cnpj', cnpj], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4UsoPorTerceiros({ cnpj, limit: 25 }) })
+  const date = useActiveDate() ?? undefined
+  const e = useQuery({ queryKey: ['ipv4-espaco-cnpj', cnpj, date], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4Espaco({ date, cnpj, limit: 25 }) })
+  const u = useQuery({ queryKey: ['ipv4-uso-cnpj', cnpj, date], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4UsoPorTerceiros({ date, cnpj, limit: 25 }) })
   if (!e.data && !u.data) return null
   const nE = e.data?.total ?? 0
   const nU = u.data?.total ?? 0

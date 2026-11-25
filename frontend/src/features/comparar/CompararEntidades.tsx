@@ -4,10 +4,12 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { fetchASNsLote, fetchBusca, fetchGrupoComparavel, fetchMunicipioPerfil, fetchOperadoraPerfil, type ItemBusca } from '../../services/api'
 import { useActiveDate } from '../../hooks/useSnapshot'
+import { manterData } from '../../lib/dataAtiva'
 import { CitarDado } from '../../components/entidade/CitarDado'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../../components/ui/EstadoDados'
 import { DESCRICAO_SELO, ROTULO_SELO } from '../../components/entidade'
@@ -92,7 +94,8 @@ export function CompararEntidades({ tipo }: { tipo: TipoGenerico }) {
   const date = useActiveDate()
   const [params, setParams] = useSearchParams()
   const ids = useMemo(() => (params.get('ids') ?? params.get(tipo) ?? '').split(',').map((x) => idValido(tipo, x)).filter((x): x is string => !!x).slice(0, MAX_ENTIDADES), [params, tipo])
-  const mudar = (novos: string[]) => setParams(() => { const p = new URLSearchParams(); p.set('tipo', tipo); if (novos.length) p.set('ids', novos.join(',')); return p }, { replace: true })
+  // Troca só `tipo` e `ids`: a data do snapshot (`?date=`) fica, senão a coluna nova viria do snapshot mais recente.
+  const mudar = (novos: string[]) => setParams((atuais) => manterData(atuais, novos.length ? { tipo, ids: novos.join(',') } : { tipo }), { replace: true })
 
   const asq = useQuery({ queryKey: ['comparar-as', ids, date], enabled: tipo === 'asn' && ids.length > 0, queryFn: () => fetchASNsLote(ids, { date: date ?? undefined }), staleTime: 10 * 60 * 1000 })
   const opq = useQueries({ queries: (tipo === 'operadora' ? ids : []).map((c) => ({ queryKey: ['comparar-op', c, date], queryFn: () => fetchOperadoraPerfil(c, date ?? undefined), staleTime: 10 * 60 * 1000 })) })

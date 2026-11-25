@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '../../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { ComoLer, Kpi } from '../../components/ui'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../../components/ui/EstadoDados'

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '../layout/LinkDatado'
 import {
   useReactTable,
   getCoreRowModel,

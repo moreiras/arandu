@@ -4,7 +4,8 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { AcoesEntidade } from '../components/entidade/AcoesEntidade'
-import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useParams } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { EntityHeader } from '../components/entidade'
 import { Migalhas } from '../components/layout/Migalhas'
 import { EntityPage } from '../features/entidade/EntityPage'

@@ -5,7 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { fetchDemandaOferta, fetchCeticEstimativas, fetchCeticIndicadores, fetchCeticTabelas } from '../services/api'
 import type { CeticLinha } from '../types/api'
 import { BarrasRecorte, recortesDaColuna } from '../features/cetic/BarrasRecorte'
@@ -16,6 +16,7 @@ import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import { TEXTO_ZERO_REGISTRADO, estadoMargem } from '../features/cetic/margem'
+import { useActiveDate } from '../hooks/useSnapshot'
 
 const PESQUISAS = [
   { id: 'domicilios', rotulo: 'TIC Domicílios', descricao: 'Uso de internet e equipamentos nos domicílios brasileiros' },
@@ -42,7 +43,8 @@ function pivo(linhas: CeticLinha[]) {
 
 /** Estimativas por UF: do Arandurapé, sobre os microdados da TIC Domicílios, com a margem de erro; rotuladas como derivadas. */
 function EstimativasUf() {
-  const q = useQuery({ queryKey: ['cetic-estimativas'], queryFn: () => fetchCeticEstimativas(), staleTime: 10 * 60 * 1000, retry: false })
+  const date = useActiveDate() ?? undefined
+  const q = useQuery({ queryKey: ['cetic-estimativas', date], queryFn: () => fetchCeticEstimativas({ date }), staleTime: 10 * 60 * 1000, retry: false })
   const [indicador, setIndicador] = useState('internet')
   // Linhas com a estimativa do indicador escolhido: a lista muda com o indicador e a ordem por coluna é refeita sobre ela.
   const linhas = useMemo(() => (q.data?.items ?? []).map((g) => ({ g, e: g.indicadores[indicador] ?? {} })), [q.data, indicador])
@@ -102,7 +104,8 @@ function EstimativasUf() {
 
 /** Demanda × oferta de banda larga fixa por UF: estimativa do Arandurapé, com intervalo de 95% e a leitura (classe). */
 function DemandaOfertaUfs() {
-  const q = useQuery({ queryKey: ['demanda-oferta'], queryFn: () => fetchDemandaOferta(), staleTime: 10 * 60 * 1000, retry: false })
+  const date = useActiveDate() ?? undefined
+  const q = useQuery({ queryKey: ['demanda-oferta', date], queryFn: () => fetchDemandaOferta(date), staleTime: 10 * 60 * 1000, retry: false })
   const grupos = useMemo(() => {
     const d = q.data
     return d ? [{ id: 'Brasil', tipo: 'brasil', l: d.brasil }, ...Object.entries(d.regioes).map(([id, l]) => ({ id, tipo: 'regiao', l })), ...Object.entries(d.ufs).map(([id, l]) => ({ id, tipo: 'uf', l }))] : []
@@ -155,18 +158,19 @@ function DemandaOfertaUfs() {
  * São estimativas amostrais: a margem de erro aparece junto de cada valor, e a edição (ano) e a citação ficam sempre visíveis. O recorte mais fino é a grande região.
  */
 export function UsoInternetPage() {
+  const date = useActiveDate() ?? undefined
   const [pesquisa, setPesquisa] = useState('domicilios')
   const [tabela, setTabela] = useState('')
   const [medida, setMedida] = useState<'proporcao' | 'total'>('proporcao')
   const [coluna, setColuna] = useState('')
   // a tabela larga abre sozinha no desktop e fica recolhida no celular, onde o gráfico por recorte é a leitura principal
   const [tabelaAberta, setTabelaAberta] = useState(() => typeof window === 'undefined' || typeof window.matchMedia !== 'function' || window.matchMedia('(min-width: 768px)').matches)
-  const tabelas = useQuery({ queryKey: ['cetic-tabelas', pesquisa], queryFn: () => fetchCeticTabelas({ pesquisa }), staleTime: 10 * 60 * 1000, retry: false })
+  const tabelas = useQuery({ queryKey: ['cetic-tabelas', date, pesquisa], queryFn: () => fetchCeticTabelas({ date, pesquisa }), staleTime: 10 * 60 * 1000, retry: false })
   const itens = tabelas.data?.items ?? []
   const escolhida = itens.find((t) => t.tabela === tabela) ?? itens[0]
   const dados = useQuery({
-    queryKey: ['cetic-indicadores', pesquisa, escolhida?.tabela], enabled: !!escolhida,
-    queryFn: () => fetchCeticIndicadores({ pesquisa, tabela: escolhida!.tabela }), staleTime: 10 * 60 * 1000, retry: false,
+    queryKey: ['cetic-indicadores', date, pesquisa, escolhida?.tabela], enabled: !!escolhida,
+    queryFn: () => fetchCeticIndicadores({ date, pesquisa, tabela: escolhida!.tabela }), staleTime: 10 * 60 * 1000, retry: false,
   })
   const meta = tabelas.data
   const { colunas, recortes, celulas } = pivo(dados.data?.items ?? [])

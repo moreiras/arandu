@@ -1,6 +1,6 @@
 import { useState, useRef, useLayoutEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { fetchHealth, fetchIXPs, fetchHilbertV4, fetchHilbertV6, fetchSnapshot, fetchOutorgasStats } from '../services/api'
 import { useActiveDate } from '../hooks/useSnapshot'
 import { HomeMap } from '../components/maps/HomeMap'

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from './layout/LinkDatado'
 
 /** Badge de outorga Anatel (SCM/SMP/STFC/SeAC) — usado em qualquer lista/detalhe
  *  que precise sinalizar quais outorgas um CNPJ possui. */

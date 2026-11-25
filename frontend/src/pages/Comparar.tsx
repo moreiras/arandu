@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { Link } from '../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { fetchIXPs, fetchExternalIXPs, fetchIXP, fetchSnapshot, fetchIXPCompareMembers, AccessError } from '../services/api'
 import { useActiveDate } from '../hooks/useSnapshot'

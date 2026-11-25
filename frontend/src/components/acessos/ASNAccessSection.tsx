@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link } from '../layout/LinkDatado'
 import { fetchASNAcessos, fetchASNAcessosMunicipios } from '../../services/api'
 import { AccessMunicipioMap } from './AccessMunicipioMap'
 import { AccessHistoryChart } from './AccessHistoryChart'
