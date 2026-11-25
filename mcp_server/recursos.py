@@ -24,7 +24,7 @@ def overview() -> str:
     return f"""# {SITE.nome}
 
 O {SITE.nome} mapeia a Internet brasileira a partir de dados de roteamento. Coleta
-semanalmente as tabelas BGP dos 39 looking glasses Telnet do IX.br e a tabela
+semanalmente as tabelas BGP dos looking glasses Telnet do IX.br e a tabela
 global (NIC.br/Registro.br e RouteViews), cruza com a base de ASNs e prefixos do
 Registro.br, e enriquece com PeeringDB, RPKI e estimativas de usuários do APNIC.
 
