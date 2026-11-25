@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import type { RedeTerritorioUf, MercadoGruposUf, CeticEstimativasUf, DemandaOfertaUf, ErbsUf, FustUf, QualidadeUf, ReclamacoesUf, ConsumidorUf, TransitoUf, RadarUf, ExposicaoUf, ProntidaoUf, HistoricoBloco, TerritorioUf, IXPIndexEntry, OperadoraRow, OperadoraPresenteUf, PerfilUf , CadastroMercadoUf } from '../../types/api'
+import type { RedeTerritorioUf, MercadoGruposUf, CeticEstimativasUf, DemandaOfertaUf, ErbsUf, FustUf, QualidadeUf, ReclamacoesUf, ConsumidorUf, TransitoUf, RadarUf, ExposicaoUf, ProntidaoUf, HistoricoBloco, TerritorioUf, IXPIndexEntry, OperadoraRow, OperadoraPresenteUf, PerfilUf , CadastroMercadoUf, IndicadoresUf } from '../../types/api'
 
 export const RAIO_SEM_PTT_KM = 100
 
@@ -38,6 +38,8 @@ export interface UfCtx {
   historico?: HistoricoBloco | null
   /** População, domicílios, penetração e mercado não visto da UF (`include=territorio`). */
   territorio?: TerritorioUf | null
+  /** Acessos, variações e contagens de CNPJs sem declaração (`include=indicadores`). */
+  indicadores?: IndicadoresUf | null
   /** HHI por CNPJ e por grupo (inferido) da UF. */
   mercadoGrupos?: MercadoGruposUf | null
   /** IPv6 estimado, usuários atrás de ROV e dependência de trânsito. */

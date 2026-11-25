@@ -94,7 +94,8 @@ def test_sem_declaracao_usuarios_asns_do_cnpj_e_grupo():
     assert um["n_outorgas"] == 2 and um["usuarios_apnic"] == 200 and um["classe"] == "com_usuarios_apnic" and um["desde"] == "2019-04"
     assert r["itens"]["2"]["classe"] == "nao_comparavel" and r["itens"]["2"]["usuarios_apnic"] is None
     assert r["itens"]["4"]["grupo_declara"] is True and r["itens"]["4"]["classe"] == "sem_usuarios"
-    assert r["por_uf"]["MG"] == {"cnpjs_sem_declaracao": 2, "com_usuarios_apnic": 1, "sem_usuarios": 0, "nao_comparavel": 1, "usuarios_apnic": 200}
+    assert r["por_uf"]["MG"] == {"cnpjs_sem_declaracao": 2, "com_usuarios_apnic": 1, "sem_usuarios": 0, "nao_comparavel": 1, "usuarios_apnic": 200,
+                                  "grupo_declarou": 0, "credenciadas_rede_virtual": 0}
 
 
 def _gz(p, obj):

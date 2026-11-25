@@ -15,6 +15,7 @@ depois_de:
 - outorgas_scm
 - grupos_societarios
 - asn_indice
+- outorgas_demais
 politica_falha: opcional
 replay: true
 descricao: 'Passo do build do snapshot: share, HHI, variações, declínio e outorgas SCM sem declaração, com os

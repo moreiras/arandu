@@ -65,6 +65,7 @@ export function UFPage() {
     mesReferencia: perfil?.mes_referencia ?? undefined,
     historico: perfil?.historico,
     territorio: perfil?.territorio,
+    indicadores: perfil?.indicadores,
     mercadoGrupos: perfil?.mercado_grupos,
     redeTerritorio: perfil?.rede_territorio,
     cetic: perfil?.cetic,

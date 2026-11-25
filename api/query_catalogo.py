@@ -338,8 +338,8 @@ SCHEMA: dict[str, dict] = {
             _f("municipio_acessos", "int", "Total de acessos do município (todas)"),
             _f("municipio_operadores", "int", "Quantas operadoras atendem o município"),
             _f("municipio_hhi", "int",
-               "Concentração do município (HHI): 10000 = monopólio, <1500 = "
-               "competitivo. Atenção: operadoras de satélite atendem todos os 5.570 "
+               "Concentração do município (HHI): 10000 = monopólio; faixas do "
+               "projeto: <1500, 1500 a 2499, 2500 ou mais. Atenção: operadoras de satélite atendem todos os 5.570 "
                "municípios, então nenhum tem operador único."),
         ],
     },
@@ -629,6 +629,7 @@ SCHEMA["sem_declaracao_sici"] = {
         _f("classe", "string", "Classe pelos usuários estimados", enum=["com_usuarios_apnic", "sem_usuarios", "nao_comparavel"]),
         _f("grupo_id", "string", "Grupo societário (identificador)"),
         _f("grupo_declara", "bool", "Outro CNPJ do grupo declarou no mês"),
+        _f("rede_virtual_origem", "string", "CNPJ da prestadora de origem, se o CNPJ é credenciado de rede virtual no SMP (a origem declara os acessos dele)"),
         _f("mes_referencia", "string", "Mês de referência (AAAA-MM)", example="2026-08"),
     ],
 }
@@ -811,8 +812,8 @@ SCHEMA["transito_uf"] = {
     "key": "uf",
     "description": (
         "Concentração do trânsito por UF: os provedores INFERIDOS (ARC v2, nível provável ou superior) dos ASNs do Brasil com sede na UF. A UF é a da sede da organização; "
-        "a concentração mede quem os ASNs da UF têm como provedor, NÃO volume de tráfego nem contratos. `hhi_clientes` vai de 0 a 10.000 (acima de 2.500 = concentrado, convenção da "
-        "análise antitruste, aqui só uma régua). Cite a data do snapshot e que é inferência (describe de /transito/ufs)."
+        "a concentração mede quem os ASNs da UF têm como provedor, NÃO volume de tráfego nem contratos. `hhi_clientes` vai de 0 a 10.000 (faixas do projeto: <1.500, 1.500 a 2.499, 2.500 ou mais; mesmos limiares do "
+        "Guia H do CADE, 2016, aqui só uma régua). Cite a data do snapshot e que é inferência (describe de /transito/ufs)."
     ),
     "fields": [
         _f("uf", "string", "Sigla da UF", example="ES"),

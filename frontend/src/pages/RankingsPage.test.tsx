@@ -76,10 +76,41 @@ describe('página Rankings do SICI', () => {
     montar('sem-declaracao')
     await waitFor(() => expect(screen.getByText('BTT TELECOMUNICACOES S.A.')).toBeTruthy())
     expect(screen.getByText('367.660')).toBeTruthy()
-    expect(screen.getByText('com usuários estimados (APNIC)', { selector: 'td' })).toBeTruthy()
+    expect(screen.getByText('ASN com 100 ou mais usuários estimados (APNIC)', { selector: 'td' })).toBeTruthy()
     expect(screen.getByText('outro CNPJ do grupo declarou')).toBeTruthy()
     const corpo = document.body.textContent ?? ''
-    expect(corpo).not.toMatch(/sonegou|omitiu|omiss|irregular/i)
+    expect(corpo).not.toMatch(/sonegou|omitiu|omi[s]s|irregular/i)
+  })
+
+  it('sem declaração: três valores de grupo em texto, causa de rede virtual só com dado, síntese e tabela por UF (PT-26)', async () => {
+    const zero = { com_usuarios_apnic: 0, sem_usuarios: 0, nao_comparavel: 0, usuarios_apnic: 0 }
+    server.use(http.get('*/api/v1/sem-declaracao-sici', () => HttpResponse.json({
+      ...meta, criterio: 'Usuários estimados (APNIC) dos ASNs do CNPJ (decrescente)', tipo: 'outorga_sem_declaracao', total: 3, parametros: { usuarios_min: 100 },
+      por_uf: {
+        MG: { ...zero, cnpjs_sem_declaracao: 2, com_usuarios_apnic: 1, nao_comparavel: 1, usuarios_apnic: 500, grupo_declarou: 1, credenciadas_rede_virtual: 1 },
+        '': { ...zero, cnpjs_sem_declaracao: 1, nao_comparavel: 1, grupo_declarou: 0, credenciadas_rede_virtual: 0 },
+      },
+      items: [
+        { posicao: 1, cnpj: '11111111000111', razao_social: 'A LTDA', uf: 'MG', usuarios_apnic: 500, classe: 'com_usuarios_apnic', grupo_declara: true, asns: [1] },
+        { posicao: 2, cnpj: '22222222000122', razao_social: 'B LTDA', uf: 'MG', usuarios_apnic: null, classe: 'nao_comparavel', grupo_declara: false, rede_virtual_origem: '99999999000199', asns: [] },
+        { posicao: 3, cnpj: '33333333000133', razao_social: 'C LTDA', uf: '', usuarios_apnic: null, classe: 'nao_comparavel', asns: [] },
+      ],
+    })))
+    montar('sem-declaracao')
+    await waitFor(() => expect(screen.getByText('A LTDA')).toBeTruthy())
+    expect(screen.getByText(/outro CNPJ do grupo declarou/, { selector: 'td' })).toBeTruthy()
+    expect(screen.getByText(/nenhum CNPJ do grupo declarou/, { selector: 'td' })).toBeTruthy()
+    expect(screen.getByText(/grupo não identificado/, { selector: 'td' })).toBeTruthy()
+    const rv = screen.getByText(/credenciada de rede virtual; acessos declarados pela prestadora de origem/)
+    expect(rv.querySelector('a')).toHaveAttribute('href', '/operadora/99999999000199')
+    expect(document.querySelectorAll('td a[href="/operadora/99999999000199"]').length).toBe(1)   // só a linha com dado ganha a causa
+    const sintese = screen.getByTestId('sintese-sem-declaracao').textContent ?? ''
+    expect(sintese).toContain('3')                                           // 2 + 1 CNPJs
+    expect(sintese).toMatch(/Em 1 deles outro CNPJ do mesmo grupo declarou/)
+    expect(sintese).toMatch(/1 são credenciados de rede virtual/)
+    expect(screen.getByRole('table', { name: /por UF do cadastro/ })).toBeTruthy()
+    expect(screen.getByText('UF não informada')).toBeTruthy()
+    expect(document.body.textContent).not.toMatch(/omi[s]s|dispensada de autoriza|infra[çc]/i)
   })
 
   it('as abas territoriais viraram a lista de municípios: o link antigo redireciona com a lente certa (alias)', async () => {

@@ -9,6 +9,7 @@ entradas:
 - source: apnic_pop
 - source: anatel_scm
 - source: socios_grupos
+- source: anatel_smp
 chaves_de_juncao:
 - cnpj
 - asn
@@ -91,9 +92,15 @@ campos:
   tratamento: Evidência para quem lê a linha; grupo parcial não prova controle.
   publicado_em:
   - sici_indicadores → sem_declaracao_sici.json.gz#itens
+- nome: itens[cnpj].rede_virtual_origem
+  tipo: str
+  significado: CNPJ da prestadora de origem quando o CNPJ é credenciado de rede virtual (MVNO) no SMP; os acessos do credenciado são declarados pela prestadora de origem (RGST, Resolução Anatel nº 777/2025).
+  tratamento: Fato do contrato vigente na Anatel (dataset de competição); ausente quando não há contrato. Só o CNPJ da origem é publicado.
+  publicado_em:
+  - sici_indicadores → sem_declaracao_sici.json.gz#itens
 - nome: por_uf
   tipo: dict
-  significado: Contagem por UF das outorgas sem declaração, por classe, e soma dos usuários estimados.
+  significado: Contagem por UF das outorgas sem declaração, por classe, e soma dos usuários estimados; `grupo_declarou` conta os CNPJs em que outro CNPJ do grupo declarou e `credenciadas_rede_virtual` os credenciados de rede virtual.
   publicado_em:
   - sici_indicadores → sem_declaracao_sici.json.gz#por_uf
 - nome: snapshot_date / mes_referencia

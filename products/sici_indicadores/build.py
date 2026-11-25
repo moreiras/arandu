@@ -28,7 +28,7 @@ from core.common import now_iso, published_path
 from core.jsonio import carregar_json_gz, gravar_json_gz
 from core.nome_grupo import nome_do_grupo
 
-FAIXAS_HHI = ((1500, "competitivo"), (2500, "moderado"))      # abaixo de 1.500 competitivo, até 2.500 moderado, acima concentrado (a mesma leitura que a interface já usa)
+FAIXAS_HHI = ((1500, "competitivo"), (2500, "moderado"))      # método do projeto (D11): abaixo de 1.500, de 1.500 a 2.499, 2.500 ou mais; os mesmos limiares do Guia H do CADE (2016), sem número de seção; os nomes dos valores são só chaves, a interface mostra a faixa numérica
 TOP_SOBREPOSICAO = 10        # concorrentes listados por operadora
 MESES_SERIE = 13             # série de participação por município: o mês de referência e os 12 anteriores (compara com o ano anterior)
 LIDERES_SERIE = 4            # só as maiores operadoras do mês de referência entram na série; o resto é "demais"
@@ -94,6 +94,34 @@ def _tendencia(serie: list, mes_ref: str) -> dict:
     return out
 
 
+MAX_EVENTOS_MUNICIPIO = 10    # eventos de declaração por município (os de mais acessos)
+
+
+def _eventos_municipio(ops: dict[str, int], p: Optional[dict[str, int]], y: Optional[dict[str, int]], mes_ref: str, atual: dict, series: dict[str, list],
+                       nomes: dict[str, str]) -> list[dict]:
+    """Fatos sobre a declaração no município (PT-26, D12), sem causa: CNPJ que declarava aqui no mês anterior ou há um ano e não declarou
+    nada no mês de referência (`sem_declaracao_desde`, com o último mês declarado e os acessos no último mês em que o município o tem), e CNPJ cuja
+    primeira declaração da série é o mês de referência (`primeira_declaracao`). CNPJ que declarou no mês mas saiu do município não é evento."""
+    ev: list[dict] = []
+    mes_p, mes_y = somar_meses(mes_ref, -1), somar_meses(mes_ref, -12)
+    for c in set(p or {}) | set(y or {}):
+        if c in atual or not series.get(c):
+            continue
+        ultimo = max(pt[0] for pt in series[c])
+        if ultimo >= mes_ref:
+            continue
+        ac, mes_ac = ((p or {}).get(c), mes_p) if (p or {}).get(c) else ((y or {}).get(c), mes_y)
+        ev.append({"cnpj": c, "empresa": nomes.get(c, ""), "tipo": "sem_declaracao_desde", "mes": somar_meses(ultimo, 1), "ultimo_mes_declarado": ultimo,
+                   "acessos": ac, "mes_acessos": mes_ac})
+    ev.sort(key=lambda e: (-(e["acessos"] or 0), e["cnpj"]))
+    ev = ev[:MAX_EVENTOS_MUNICIPIO]
+    for c in sorted(ops):
+        s = series.get(c)
+        if s and min(pt[0] for pt in s) == mes_ref:
+            ev.append({"cnpj": c, "empresa": nomes.get(c, ""), "tipo": "primeira_declaracao", "mes": mes_ref, "acessos": ops[c], "mes_acessos": mes_ref})
+    return ev
+
+
 def calcular_indicadores(mes_ref: str, meses: dict[str, dict], series: dict[str, list], nomes_extra: Optional[dict[str, str]] = None,
                          ufs_extra: Optional[dict[str, str]] = None) -> dict:
     """`meses`: {mes: cnpjs do cache} com `mes_ref`, o anterior e o de um ano antes (os dois últimos podem faltar).
@@ -155,6 +183,9 @@ def calcular_indicadores(mes_ref: str, meses: dict[str, dict], series: dict[str,
             e["var_mm_pct"] = _pct(e["acessos"], sum(mun_p.get(ibge, {}).values()))
         if ano is not None:
             e["var_aa_pct"] = _pct(e["acessos"], sum(mun_y.get(ibge, {}).values()))
+        ev = _eventos_municipio(ops, mun_p.get(ibge), mun_y.get(ibge), mes_ref, atual, series, nomes)
+        if ev:
+            e["eventos"] = ev
         base = mun_y.get(ibge) if ano is not None else None
         if base is not None:
             delta = {c: ops.get(c, 0) - base.get(c, 0) for c in set(ops) | set(base)}
@@ -190,10 +221,25 @@ def classificar_sem_declaracao(usuarios: Optional[int], tem_asn: bool) -> str:
     return "com_usuarios_apnic" if (usuarios or 0) >= USUARIOS_MIN else "sem_usuarios"
 
 
+def credenciadas_rede_virtual(smp: Optional[dict]) -> dict[str, str]:
+    """{CNPJ da credenciada de rede virtual: CNPJ da prestadora de origem}, do `smp.json.gz` (contratos vigentes da Anatel, D12).
+    Só o CNPJ da origem: a linha da tela leva ao perfil dela, que passa pela regra de pessoa natural."""
+    out: dict[str, str] = {}
+    for cnpj, regs in ((smp or {}).get("by_cnpj") or {}).items():
+        for r in regs:
+            rv = r.get("rede_virtual") or {}
+            if rv.get("papel") == "credenciada" and rv.get("prestadora_origem_cnpj"):
+                out[cnpj] = rv["prestadora_origem_cnpj"]
+                break
+    return out
+
+
 def calcular_sem_declaracao(mes_ref: str, scms: list[dict], cnpjs_declarantes: set[str], usuarios_asn: dict[int, int],
-                     grupos: Optional[list[dict]] = None) -> dict:
+                     grupos: Optional[list[dict]] = None, credenciadas: Optional[dict[str, str]] = None) -> dict:
     """Outorgas SCM sem acessos declarados no mês de referência. Uma linha por CNPJ (um CNPJ pode ter várias outorgas).
-    `grupos` (grupos_societarios): `grupo_declara` diz se OUTRO CNPJ do mesmo grupo declarou no mês, evidência para quem lê a linha."""
+    `grupos` (grupos_societarios): `grupo_declara` diz se OUTRO CNPJ do mesmo grupo declarou no mês, evidência para quem lê a linha.
+    `credenciadas` (D12): CNPJ credenciado de rede virtual no SMP -> CNPJ da prestadora de origem; os acessos do credenciado são declarados
+    pela prestadora de origem (RGST, Res. 777/2025), então `rede_virtual_origem` é causa com dado, não inferência. Sem dado, nenhum campo."""
     grupo_de = {c: g for g in (grupos or []) for c in g.get("cnpjs", [])}
     por_cnpj: dict[str, dict] = {}
     for s in scms:
@@ -210,14 +256,19 @@ def calcular_sem_declaracao(mes_ref: str, scms: list[dict], cnpjs_declarantes: s
     for cnpj, r in por_cnpj.items():
         usuarios = sum(usuarios_asn.get(a, 0) for a in r["asns"]) if r["asns"] else None
         itens[cnpj] = {**r, "usuarios_apnic": usuarios, "classe": classificar_sem_declaracao(usuarios, bool(r["asns"]))}
+        if credenciadas and credenciadas.get(cnpj):
+            itens[cnpj]["rede_virtual_origem"] = credenciadas[cnpj]
         g = grupo_de.get(cnpj)
         if g:
             itens[cnpj]["grupo_id"] = g.get("grupo_id")
             itens[cnpj]["grupo_declara"] = any(c in cnpjs_declarantes for c in g["cnpjs"] if c != cnpj)
     por_uf: dict[str, dict] = {}
     for r in itens.values():
-        u = por_uf.setdefault(r["uf"] or "", {"cnpjs_sem_declaracao": 0, "com_usuarios_apnic": 0, "sem_usuarios": 0, "nao_comparavel": 0, "usuarios_apnic": 0})
+        u = por_uf.setdefault(r["uf"] or "", {"cnpjs_sem_declaracao": 0, "com_usuarios_apnic": 0, "sem_usuarios": 0, "nao_comparavel": 0, "usuarios_apnic": 0,
+                                              "grupo_declarou": 0, "credenciadas_rede_virtual": 0})
         u["cnpjs_sem_declaracao"] += 1
+        u["grupo_declarou"] += 1 if r.get("grupo_declara") else 0
+        u["credenciadas_rede_virtual"] += 1 if r.get("rede_virtual_origem") else 0
         u[r["classe"]] += 1
         u["usuarios_apnic"] += r["usuarios_apnic"] or 0
     return {"mes_referencia": mes_ref, "itens": itens, "por_uf": dict(sorted(por_uf.items()))}
@@ -420,7 +471,8 @@ def publicar_sici_indicadores(base: Path, date_str: str, log) -> dict:
     if ip.exists():
         usuarios = {a["asn"]: a["apnic_users"] for a in json.loads(ip.read_text(encoding="utf-8")) if a.get("is_br") and a.get("apnic_users")}
     grupos = (carregar_json_gz(pub / "grupos_societarios.json.gz") or {}).get("grupos", [])
-    om = calcular_sem_declaracao(mes_ref, scm.get("scms", []), set(ind["operadoras"]), usuarios, grupos)
+    credenciadas = credenciadas_rede_virtual(carregar_json_gz(pub / "smp.json.gz"))
+    om = calcular_sem_declaracao(mes_ref, scm.get("scms", []), set(ind["operadoras"]), usuarios, grupos, credenciadas)
     gravar_json_gz(pub / "sem_declaracao_sici.json.gz", {
         "snapshot_date": date_str, "generated_at": meta["generated_at"], "fonte": "Anatel (outorgas SCM) × SICI × APNIC (usuários estimados)",
         "parametros": {"usuarios_min": USUARIOS_MIN}, **om})

@@ -26,6 +26,7 @@ import { ExposicaoUfBloco } from '../exposicao/blocos'
 import { PainelBloco } from './blocks/PainelBloco'
 import { TransitoUfBloco } from './blocks/TransitoUfBloco'
 import { PttsBloco } from './blocks/PttsBloco'
+import { DeclaracaoSiciUfBloco } from './blocks/DeclaracaoSiciUfBloco'
 import { SemPttBloco } from './blocks/SemPttBloco'
 import { SITE } from '../../lib/site'
 
@@ -47,7 +48,7 @@ const ABA: Record<string, string> = {
   municipios: 'mercado', operadoras: 'mercado', 'mercado-grupos': 'mercado', penetracao: 'mercado', 'demanda-oferta': 'mercado',
   ptts: 'infraestrutura', 'sem-ptt': 'infraestrutura', 'estacoes-smp': 'infraestrutura',
   prontidao: 'rede', 'rede-territorio': 'rede', transito: 'rede', radar: 'rede', exposicao: 'rede',
-  qualidade: 'qualidade', reclamacoes: 'qualidade', consumidor: 'qualidade', fust: 'qualidade', 'empresas-telecom': 'qualidade',
+  'declaracao-sici': 'qualidade', qualidade: 'qualidade', reclamacoes: 'qualidade', consumidor: 'qualidade', fust: 'qualidade', 'empresas-telecom': 'qualidade',
   'tic-domicilios': 'contexto',
   'linha-do-tempo': 'historico',
 }
@@ -72,6 +73,8 @@ def({ id: 'estacoes-smp', titulo: 'Estações do SMP licenciadas', ordem: 19, de
   nota: 'cadastro de licenciamento da Anatel: não é cobertura nem estação em operação', aplicavel: (c) => !!c.erbs, Componente: ErbsUfBloco })
 def({ id: 'empresas-telecom', titulo: 'Empresas de telecom da UF (CNPJ)', ordem: 19.55, depende: ['useCadastroMercadoUf'], fontes: ['receita_cnpj'], selo: 'fato',
   nota: 'cadastro da Receita na data do dump mensal; uma contagem por empresa (a matriz com CNAE 61 principal), sem separar operadora de revenda ou de MEI', aplicavel: (c) => !!c.cadastro, Componente: EmpresasTelecomUfBloco })
+def({ id: 'declaracao-sici', titulo: 'Declaração de acessos à Anatel (SICI)', ordem: 19.58, depende: ['useUfPerfil'], fontes: ['anatel_sici', 'anatel_scm', 'apnic_pop'], selo: 'fato',
+  nota: 'contagens de CNPJs, sem nomes; usuários estimados (APNIC) são estimativa; sem declaração não indica causa nem intenção', aplicavel: (c) => !!c.indicadores, Componente: DeclaracaoSiciUfBloco })
 def({ id: 'qualidade', titulo: 'Qualidade (RQUAL da Anatel)', ordem: 19.6, depende: ['useUfPerfil'], fontes: ['anatel_rqual'], selo: 'fato',
   nota: 'média dos municípios medidos no último ano, por prestadora; só as grandes prestadoras; sem ranking', aplicavel: (c) => !!c.qualidade, Componente: QualidadeUfBloco })
 def({ id: 'reclamacoes', titulo: 'Reclamações na Anatel', ordem: 19.7, depende: ['useUfPerfil'], fontes: ['anatel_reclamacoes'], selo: 'fato',

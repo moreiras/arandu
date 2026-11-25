@@ -9,6 +9,7 @@ import { EntityPage } from '../features/entidade/EntityPage'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import { CabecalhoMunicipio } from '../features/municipio/CabecalhoMunicipio'
 import { FichaMunicipio } from '../features/municipio/FichaMunicipio'
+import { FaixaDeclaracao } from '../features/municipio/FaixaDeclaracao'
 import type { MunicipioCtx } from '../features/municipio/contexto'
 import { PainelRaio } from '../features/municipio/PainelRaio'
 import { agregarMunicipios } from '../features/municipio/agregado'
@@ -91,6 +92,7 @@ export function MunicipioPage() {
               Os blocos abaixo somam <strong>{n.toLocaleString('pt-BR')} municípios</strong> em volta de {base.nome}. Para ver só o município, volte o raio a 0 km.
             </div>
           )}
+          {!versaoAntiga && !somando && <FaixaDeclaracao indicadores={ctx.indicadores} />}
           {!versaoAntiga && !somando && <FichaMunicipio nome={base.nome} ctx={ctx} />}
           {regiao.isError && ehErroDeAcessoOuFalha(regiao.error) && <EstadoDados erro={regiao.error} oQue="os blocos de provedores, PTTs, trânsito e segurança da região" />}
           <EntityPage entidade="municipio" rotulo={`Município de ${base.nome}/${base.uf}`} dados={ctx} snapshot={base.snapshot_date} fontes={fontes} espacamento="space-y-5" />
