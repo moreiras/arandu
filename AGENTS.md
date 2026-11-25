@@ -41,8 +41,12 @@ Resumo do que mais quebra (o completo está nas diretrizes do guia):
 - **Honestidade semântica:** inferido, estimado e hipótese são rotulados; todo número exibido tem fonte e data.
 - **Política editorial:** só dados e comparações, sem juízo de valor, causa ou intenção ("sem declaração", não "omitiu"); ranking
   nominal só com dado medido ou declarado e regra visível; a revisão humana é da metodologia, não de cada resultado.
-- **Privacidade:** contatos (PeeringDB, RDAP) e dados de pessoa física **não** vão para rota pública. O CPF embutido na razão social de
-  EI/MEI é mascarado na publicação (`core.cpf.mascarar_snapshot`), não na leitura: a API serve o arquivo publicado. No MCP, contatos só
+- **Privacidade:** contatos (PeeringDB, RDAP) e dados de pessoa física **não** vão para rota pública. Pessoa natural é o
+  empresário individual e o MEI, pela natureza jurídica da Receita (213-5 ou opção pelo MEI): aparece pelo nome fantasia ou pelo rótulo
+  "Empresário individual" (com ASN e CNPJ mascarado), e o ponto da sede vai ao centróide do município. A regra vale na publicação
+  (`core.pessoa_natural`, chamada por `core.cpf.mascarar_snapshot`), na leitura, no motor de `query`, na busca e na saída da REST e do
+  MCP. Dado novo que exibe nome ou posição de titular precisa trazer `cnpj` ou `asn` no registro, para a regra o alcançar.
+  `tests/products/test_privacidade_pessoa_natural.py` varre todas essas superfícies. No MCP, contatos só
   pelas tools `asn_contatos` e `operadora_contatos`, com chave, cobradas pela API (`POST /internal/contatos`) na mesma cota da conta no
   site. O log de uso (`api/usage_log.py`, `data/ops/usage/`) **nunca** grava IP, cookie, e-mail nem querystring; se mudar o que ele
   registra, atualize a seção 2.2 de `/privacidade`. O registro por conta (`api/uso_conta.py`, `data/ops/uso_conta/`) usa `conta_id`
