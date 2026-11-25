@@ -170,6 +170,12 @@ parênteses remetem à análise.
   consulta, na busca e na saída de todas as respostas, inclusive de snapshots já publicados. Buscas por proximidade de sedes exigem
   raio de pelo menos 2 km. Nas transferências IPv4, nome estrangeiro sem marcador de empresa é tratado como pessoa provável e omitido
   (MAPA-E3, INS-E3, GRUPO-E16, TRANSV-E14, OPERADORA-E16, BGP-E18, MUN-E19, IPV4-E14).
+- **Correção de manifesto dos snapshots antigos (P10), 2026-11-25.** Nos snapshots cujos documentos de ASN foram compactados em
+  `asns.zip` depois do fechamento (2026-06-28 a 2026-08-23), o `manifest.json` listava os `asns/<n>.json` soltos, que já não existiam,
+  e não listava o `asns.zip`. O script `scripts/mascarar_pessoa_natural_publicados.py --corrigir-manifesto` reconcilia a lista com o
+  disco: tira as entradas absorvidas pelo zip (só as que estão dentro dele), acrescenta o `asns.zip` com o checksum atual e confere
+  todos os checksums ao fim; nenhum documento é alterado. A regra de pessoa natural deixa de regravar documento já tratado (antes ele
+  era reserializado com outra formatação, mudando bytes e checksum sem mudar o dado).
 
 ## v2.1.3
 
