@@ -97,6 +97,7 @@ parênteses remetem à análise.
   1.864 → 38, `rpki_invalido_resolvido` 2.069 → 267, `roa_ganho` 1.140 → 1.135; `aspa_ganho`, `rpki_invalido_novo` e todos os demais
   tipos não mudam. Nas datas recentes saem também eventos de ASNs que deixaram o snapshot (o `asn_sumido` deles continua). Relatório
   por data e tipo gerado por `python -m products.history.regenerar_eventos`; a troca da camada servida é feita na implantação.
+  A nota aparece também em /mudancas (quando o filtro inclui eventos de ROA, ASPA ou RPKI) e em /snapshots (PT-06c).
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
@@ -106,7 +107,8 @@ parênteses remetem à análise.
 - **Vínculo ASN ↔ CNPJ (PT-09, D5).** Índice único `asn_vinculo` (`cnpj`, `raiz`, `marca`, `estrangeiro`, `nenhum`; só `cnpj` é
   fato, os demais inferidos) usado por operadora, grupo, grupos, /ases, Home e MCP. ASN em filial (mesma raiz) passa a contar para a
   operadora e o grupo, sem duplicar ASN nas somas; marca curada e AS estrangeiro são listados, não somados. O destaque "sem ASN
-  próprio" da Home deixa de listar Oi e Hughes; Starlink aparece como AS estrangeiro (GRUPO-E2, GRUPO-E7, HOME-E2).
+  próprio" da Home deixa de listar Oi, Hughes e Sky (a raiz da Zaaz no Ne entra na marca SKY pelo grupo "SKY/ZAAZ" declarado ao SICI,
+  selo inferido, decisão de 2026-11-25); Starlink aparece como AS estrangeiro (GRUPO-E2, GRUPO-E7, HOME-E2).
 - **Página de prefixo (PT-07).** Detentor no Registro.br e origem observada (tabela global ou route servers) vêm separados, cada um
   com fonte; o estado RPKI é o do anúncio observado (`nao_avaliado` sem anúncio), com os ROAs que cobrem o prefixo; o CIDR é
   normalizado e qualquer rota observada abre, mesmo fora das alocações do Registro.br; a ausência é explicada. `origin_asn` fica como
