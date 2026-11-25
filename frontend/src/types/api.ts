@@ -166,9 +166,14 @@ export interface IXPIndexEntry {
   asn_origin_union_count?: number
   /** Membros registrados no IX.br (inclui quem não usa Route Servers) */
   ixbr_members_count?: number
+  /** Sessões nos route servers por família (só os route servers com cache de vizinhos atual); `null` sem route server consultado: n/d, não zero (PT-24). */
+  route_servers?: { v6: SessoesRsFamilia | null; v4: SessoesRsFamilia | null; rs_sem_vizinhos_atuais: number } | null
+  /** CDNs da lista curada com ASN no cadastro do PTT; `null` sem o produto no snapshot. */
+  cdns_curados?: number | null
   v4: IXPIndexAfi | IXPAfiMissing
   v6: IXPIndexAfi | IXPAfiMissing
 }
+export interface SessoesRsFamilia { up: number; down: number; sessoes: number; rs: number }
 
 /** Documento completo de IXP (/api/v1/ixps/{code}) — quando há dados para o AFI */
 export interface IXPAfiFull {
@@ -336,6 +341,8 @@ export type HilbertV4DetailLayer = Record<string, number[]>
 export interface IXPListResponse {
   snapshot_date: string
   count: number
+  /** Fonte e data das colunas `route_servers` e `cdns_curados`. */
+  interligacao?: { route_servers: { fonte: string | null; coletado_em: string | null; versao_alice: string | null } | null; cdns: { fonte: string; snapshot: string; cdns_na_lista: number } | null } | null
   ixps: IXPIndexEntry[]
 }
 
@@ -365,6 +372,8 @@ export interface ASNIndexEntry {
   global_prefixes_v4_count: number
   global_prefixes_v6_count: number
   ixps_direct_count: number
+  /** PTTs do IX.br em cujo cadastro o AS consta (com ou sem sessão com o route server); `null` se o snapshot não tem a lista (PT-24). */
+  ixps_membro_count?: number | null
   ixps_origin_count: number
   ixps_origin_v4_count?: number | null
   ixps_origin_v6_count?: number | null
@@ -672,6 +681,14 @@ export interface CDNRow {
   external: string[]
   ixbr_count: number
   external_count: number
+  /** PT-24: estados no IX.br, calculados na leitura. `ixbr_rs` = membro com sessão no route server; `ixbr_sem_rs` = membro sem sessão observada (pode haver peering bilateral);
+   *  `ixbr_origem` = não membro, prefixos vistos por outro participante (inferido); `ixbr_sem_coleta` = PTT sem coleta válida. Ausentes em resposta antiga. */
+  ixbr_rs?: string[]
+  ixbr_sem_rs?: string[]
+  ixbr_sem_coleta?: string[]
+  ixbr_origem?: string[]
+  asns_sem_documento?: number[]
+  sem_rs_em_nenhum_ptt?: boolean
 }
 
 export interface CDNColumn {
@@ -692,6 +709,9 @@ export interface CDNPresenceResponse {
   cdns: CDNRow[]
   ixbr_columns: CDNColumn[]
   external_columns: CDNColumn[]
+  /** PT-24: o que cada estado de `ixbr_rs`, `ixbr_sem_rs` e `ixbr_origem` quer dizer, e o limite de leitura. */
+  estados?: Record<string, string>
+  estados_limites?: string
 }
 
 /** `GET /asns?asns=`: documentos completos em lote; `paths` só com `include=paths`. */
@@ -2126,6 +2146,35 @@ export interface RouteServersAsn extends RouteServersMeta {
   ixps: Record<string, RsResumoMembro & { cadastrado: boolean; lista: RsSessao[] }>
   total: { ixps: number; sessoes: number; up: number; down: number; ixps_down: number; ixps_perto_do_limite: number }
 }
+/** Tabela única de participantes de um PTT (`GET /ixps/{code}/participantes`, PT-24). `null` em `direto` e `originador` = família sem coleta válida ou ASN fora do Brasil (só ele): nunca "não tem". */
+export interface ParticipantePtt {
+  asn: number; nome: string | null; uf: string | null; is_br: boolean | null
+  /** No cadastro de participantes do IX.br. Diferente de ter sessão com o route server. */
+  membro: boolean
+  direto: { v6: boolean | null; v4: boolean | null }
+  originador: { v6: boolean | null; v4: boolean | null }
+  sessao_rs: { sessoes: number; up: number; down: number; incertas: number } | null
+  cadastrado_sem_sessao_rs: boolean
+  sessao_rs_sem_cadastro: boolean
+  rejeicao: { filtradas: number; recebidas: number; pct: number | null; sessoes_up: number } | null
+  rejeicao_detalhe: { rotas: number; coletado_ate: string | null; idade_dias: number | null; herdado: boolean; contagem: string | null } | null
+  cdns: string[]
+}
+export type FiltroParticipantes = 'todos' | 'sem-v6' | 'sem-v4' | 'sem-direto' | 'membro-sem-sessao-rs' | 'sessao-sem-cadastro' | 'com-cdn' | 'com-rejeicao'
+export interface ParticipantesPtt {
+  snapshot_date: string; ixp: string; limites: string
+  filtros: { q: string | null; uf: string | null; filtro: FiltroParticipantes; definicao_do_filtro: string }
+  ordem: string; page: number; limit: number; route_servers_medido: boolean
+  fontes: {
+    cadastro: { fonte: string; snapshot: string }
+    looking_glass: { fonte: string; snapshot: string; coleta: { v6: string; v4: string } }
+    route_servers: { fonte: string | null; coletado_em: string | null; versao_alice: string | null; rs_consultados: number | null; rs_total: number | null }
+    rejeicoes_por_motivo: { fonte: string | null; coletado_nivel2: string | null; cobertura: Record<string, number | null> | null }
+    cdns: { fonte: string; snapshot: string }
+  }
+  total: number; total_participantes: number; contagens: Record<FiltroParticipantes, number>; ufs: string[]
+  items: ParticipantePtt[]
+}
 export interface RankingRouteServersItem {
   posicao: number; ixp: string; asn: number; nome: string | null; sessoes: number; up: number; down: number; down_certo: number
   max_dias_down: number | null; max_uso_limite: number | null; membro_down: boolean; rs_incerto: number
@@ -2584,17 +2633,35 @@ export interface CadastroInferido { classe: 'recente' | 'parado' | 'antigo' | nu
 export interface FacilityResumo {
   id: number; nome: string | null; org_nome?: string; cidade?: string; uf?: string; pais?: string; lat?: number; lon?: number; escopo?: 'brasil' | 'ptt_externo'
   n_redes?: number; redes_declaradas?: number; n_ptts: number; n_carriers: number; campus_id?: number; criado?: string; atualizado?: string; cadastro?: CadastroInferido
+  /** PTTs da instalação (PT-24): IX.br primeiro, depois externos, por fim os do PeeringDB que o site não acompanha (sem `code`). */
+  ptts_detalhe?: Array<{ ix_id: number; code?: string; tipo?: 'ixbr' | 'externo' | 'outro' }>
 }
 export interface FacilitiesLista extends FacilityMeta {
   escopo: { pais: string }; ordem: string; total: number; items: FacilityResumo[]
-  cobertura?: { instalacoes_br: number; com_ptt: number; com_carrier: number; ptts_ixbr: number; ptts_ixbr_com_instalacao: number; ptts_ixbr_sem_instalacao?: string[]; ptts_externos: number; ptts_externos_com_instalacao: number; asns_br_no_peeringdb: number; asns_br_com_instalacao: number | null; cadastro_br: Record<string, number> } | null
+  cobertura?: { instalacoes_br: number; com_ptt: number; com_carrier: number; ptts_ixbr: number; ptts_ixbr_com_instalacao: number; ptts_ixbr_sem_instalacao?: string[]
+    /** PT-24, calculados na leitura: nome (cidade) de cada PTT do IX.br do site, os do site que o mapeamento com o PeeringDB não alcança e os códigos do produto que não são PTT do site. */
+    ptts_ixbr_nomes?: Record<string, string>; ptts_ixbr_site?: number; ptts_ixbr_sem_mapeamento?: string[]; ptts_ixbr_fora_do_site?: string[]
+    ptts_externos: number; ptts_externos_com_instalacao: number; asns_br_no_peeringdb: number; asns_br_com_instalacao: number | null; cadastro_br: Record<string, number> } | null
 }
 export interface FacilityPtt { ix_id: number; code?: string; nome?: string; tipo: 'ixbr' | 'externo' | 'outro' }
 export interface FacilityDetalhe extends FacilityMeta {
   id: number; nome: string | null; aka?: string; nome_longo?: string; org_id?: number; org_nome?: string; campus_id?: number; site?: string; propriedade?: string; cidade?: string; uf?: string; pais?: string; lat?: number; lon?: number
   escopo: 'brasil' | 'ptt_externo'; criado?: string; atualizado?: string; redes_declaradas?: number; ixps_declarados?: number; carriers_declarados?: number; n_redes?: number; n_redes_br?: number
   ixps: FacilityPtt[]; carriers: Array<{ id: number; nome?: string; aka?: string; org_nome?: string; site?: string }>; campus: { id: number; nome?: string; org_nome?: string; cidade?: string; uf?: string; pais?: string; site?: string } | null
-  redes: Array<{ asn: number; nome?: string; is_br?: boolean; no_vinculo_desde?: string; vinculo_atualizado?: string }>; redes_total: number; redes_nota: string; cadastro?: CadastroInferido
+  redes: Array<{ asn: number; nome?: string; is_br?: boolean; no_vinculo_desde?: string; vinculo_atualizado?: string
+    /** Só com `?include=redes_perfil` e só para rede do Brasil: usuários estimados do APNIC (`null` = sem estimativa), IPv6 e a situação em cada PTT do IX.br do prédio. */
+    usuarios_apnic?: number | null; ipv6?: boolean | null; situacao?: Record<string, SituacaoNoPtt> }>
+  redes_total: number; redes_nota: string; cadastro?: CadastroInferido
+  redes_perfil?: RedesPerfil
+}
+export type SituacaoNoPtt = 'sessao_rs' | 'membro_sem_sessao_rs' | 'so_origina' | 'sem_presenca' | 'sem_coleta'
+/** Resumo por PTT do IX.br do prédio (PT-24 / INST-E5.1). `so_origina` é inferido; PTT externo não tem dado de sessão. */
+export interface RedesPerfil {
+  resumo: Array<{ ixp: string; nome: string; coleta: Record<string, string>; redes_do_brasil: number } & Record<SituacaoNoPtt, number>>
+  ptts_sem_dado_de_sessao: Array<{ ix_id?: number; code?: string | null; nome?: string | null; tipo?: string }>
+  situacoes: Record<SituacaoNoPtt, string>
+  inferidas: SituacaoNoPtt[]
+  nota: string
 }
 export interface FacilitiesPtt extends FacilityMeta { ptt: string; total: number; items: FacilityResumo[] }
 export interface FacilitiesAsn extends FacilityMeta { asn: number; total: number; nota: string; items: Array<FacilityResumo & { no_vinculo_desde?: string; vinculo_atualizado?: string; ptts: string[] }> }

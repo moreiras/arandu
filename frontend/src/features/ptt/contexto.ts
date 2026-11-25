@@ -39,7 +39,6 @@ export interface PttCtx {
   usuariosBrTotal: number | null
   mergedV4: IXPAfiFull | null
   mergedV6: IXPAfiFull | null
-  membersWithoutDirect: number[]
   nameMap: Record<string, string>
   peersV4: any
   peersV6: any

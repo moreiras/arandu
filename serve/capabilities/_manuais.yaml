@@ -109,6 +109,8 @@
 - http: GET /ixps/{code}/nearby
   mcp: ixp_proximos
   sem_ui: "a interface usa /ixps/{code}/potential; a rota atende o MCP e clientes externos"
+- http: GET /ixps/{code}/participantes
+  sem_mcp: "tabela de apresentação da página de PTT que junta cadastro, sessão com o route server, rejeição e CDNs; o MCP tem ixp_participantes (membros e peers), ixp_rejeicoes e query(collection=rs_sessoes) com os mesmos dados por consulta"
 - http: GET /ixps/{code}/peers
   mcp: ixp_participantes
 - http: GET /ixps/{code}/potential

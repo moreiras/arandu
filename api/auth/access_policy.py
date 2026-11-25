@@ -99,7 +99,7 @@ _PAGED_PATTERNS: Sequence[str] = (r"/asns", r"/scms", r"/smps", r"/stfcs", r"/se
 # Listas de alto valor em páginas avançadas: a prévia continua `metered` (a página
 # é medida); só ampliar (limit/page acima da prévia) exige login.
 # `/omissao-sici` é o alias (nome antigo, D12) de `/sem-declaracao-sici`: mesma classe de acesso
-_PAGED_METERED_PATTERNS: Sequence[str] = (r"/acessos/divergencias", r"/acessos/divergencias/scm", r"/ranking/operadoras", r"/ranking/municipios", r"/sem-declaracao-sici", r"/omissao-sici", r"/territorio/ranking", r"/seguranca/resumo", r"/ranking/route-servers", r"/communities", r"/ixps/[^/]+/rejeicoes", r"/ipv4/transferencias", r"/ipv4/espaco", r"/ipv4/uso-por-terceiros", r"/multas/empresas", r"/espectro/faixas", r"/satelites/direitos", r"/prontidao/asns", r"/reclamacoes/marcas", r"/consumidor/marcas", r"/facilities")
+_PAGED_METERED_PATTERNS: Sequence[str] = (r"/acessos/divergencias", r"/acessos/divergencias/scm", r"/ranking/operadoras", r"/ranking/municipios", r"/sem-declaracao-sici", r"/omissao-sici", r"/territorio/ranking", r"/seguranca/resumo", r"/ranking/route-servers", r"/communities", r"/ixps/[^/]+/rejeicoes", r"/ixps/[^/]+/participantes", r"/ipv4/transferencias", r"/ipv4/espaco", r"/ipv4/uso-por-terceiros", r"/multas/empresas", r"/espectro/faixas", r"/satelites/direitos", r"/prontidao/asns", r"/reclamacoes/marcas", r"/consumidor/marcas", r"/facilities")
 
 # ── Login: contatos e o que é de alto valor ──────────────────────────────────
 # `/snapshots` e `/snapshots/{data}` (D9): a lista inteira de datas e o resumo de qualquer data. As páginas de entrada usam `/brasil/snapshots`.

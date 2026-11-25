@@ -75,17 +75,6 @@ export function IXPPage() {
     return { ...v6, ...(membersData?.v6 ?? {}) }
   }, [v6, membersData])
 
-  // Membros registrados sem peering direto (v4 ou v6) — usa dados merged
-  const membersWithoutDirect = useMemo(() => {
-    const members = ixp?.asn_members ?? []
-    if (members.length === 0) return []
-    const direct = new Set([
-      ...(mergedV4?.asn_direct ?? []),
-      ...(mergedV6?.asn_direct ?? []),
-    ])
-    return members.filter(asn => !direct.has(asn))
-  }, [ixp?.asn_members, mergedV4, mergedV6])
-
   // Nomes vêm no perfil (membros.nomes, inclusive dos membros cadastrados sem par direto)
   const nameMap = useMemo<Record<string, string>>(
     () => Object.fromEntries(Object.entries(membersData?.nomes ?? {}).map(([asn, n]) => [asn, n.name])),
@@ -127,7 +116,7 @@ export function IXPPage() {
   const cftAsns = org != null && totalGlobalASNs ? (org / totalGlobalASNs) * 100 : null
   const ctx: PttCtx = {
     code: code!, date, historico, routeServers, rejeicoes, facilities, portas, ixp, v4, v6, v4idx, v6idx, par, dir, dif, org, brOriginUnion, cbrAsns, cftAsns, totalBrASNs, totalGlobalASNs,
-    estUsers, potential, usuariosBrTotal: totais?.br_apnic_users_total ?? null, mergedV4, mergedV6, membersWithoutDirect, nameMap, peersV4, peersV6,
+    estUsers, potential, usuariosBrTotal: totais?.br_apnic_users_total ?? null, mergedV4, mergedV6, nameMap, peersV4, peersV6,
     loadingPeersV4, loadingPeersV6, loadingMembers, membersData, assinantes,
     selectedPeerV4, selectedPeerV6, setSelectedPeerV4, setSelectedPeerV6,
   }

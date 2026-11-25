@@ -185,11 +185,18 @@ class IXPIndexEntry(BaseModel):
     )
     v4: Any = Field(description="Métricas IPv4, com `coleta` (ok, vazia, missing). `{status: 'missing'}` se sem dados.")
     v6: Any = Field(description="Métricas IPv6, com `coleta` (ok, vazia, missing). `{status: 'missing'}` se sem dados.")
+    route_servers: Optional[Any] = Field(
+        None, description="Sessões nos route servers do IX.br por família (`v6`, `v4`: `up`, `down`, `sessoes`, `rs`), só dos route servers com cache de vizinhos atual; `rs_sem_vizinhos_atuais` conta os que ficaram de fora. "
+                          "`null` na família sem route server consultado e no PTT sem route server: n/d, não zero. Estado na data da coleta; down não diz a causa.")
+    cdns_curados: Optional[int] = Field(
+        None, description="CDNs da lista curada com ASN no cadastro de participantes do PTT (curadoria incompleta por natureza; não mede tráfego); `null` sem o produto no snapshot", examples=[50]
+    )
 
 
 class IXPListResponse(BaseModel):
     snapshot_date: str = Field(examples=["2026-06-06"])
     count: int = Field(description="Total de IXPs retornados", examples=[39])
+    interligacao: Optional[Any] = Field(None, description="Fonte e data das colunas `route_servers` e `cdns_curados` (`route_servers.coletado_em`, `cdns.cdns_na_lista`).")
     ixps: list[IXPIndexEntry]
 
 
@@ -262,6 +269,7 @@ class ASNIndexEntry(BaseModel):
         examples=[26],
     )
     ixps_direct_count: int = Field(description="Número de PTTs do IX.br onde este AS tem sessão com o route server (não é o cadastro de participantes)", examples=[12])
+    ixps_membro_count: Optional[int] = Field(None, description="Número de PTTs do IX.br em cujo cadastro de participantes o AS consta, com ou sem sessão com o route server (`ixps_membro`); `null` se o snapshot não tem a lista de participantes", examples=[7])
     ixps_origin_count: int = Field(description="Número de IXPs onde prefixos deste AS são visíveis", examples=[38])
     ixps_origin_v4_count: Optional[int] = Field(None, description="Número de IXPs onde este AS origina prefixos IPv4")
     ixps_origin_v6_count: Optional[int] = Field(None, description="Número de IXPs onde este AS origina prefixos IPv6")
