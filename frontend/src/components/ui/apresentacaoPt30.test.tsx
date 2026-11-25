@@ -92,3 +92,13 @@ describe('proveniência do bloco no modo recolhido', () => {
     expect(d.textContent).toMatch(/anatel_sici.*ref\. 08\/2026/)
   })
 })
+
+describe('singular e plural pelo número (PT-30)', () => {
+  it('palavra() escolhe pelo número e trata ausente como plural', async () => {
+    const { palavra } = await import('../../lib/sintese')
+    expect(palavra(1, 'bloco', 'blocos')).toBe('bloco')
+    expect(palavra(0, 'bloco', 'blocos')).toBe('blocos')
+    expect(palavra(2, 'bloco', 'blocos')).toBe('blocos')
+    expect(palavra(undefined, 'bloco', 'blocos')).toBe('blocos')
+  })
+})

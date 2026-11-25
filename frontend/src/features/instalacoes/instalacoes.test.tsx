@@ -74,7 +74,7 @@ describe('bloco Instalações e peering do ASN', () => {
     expect(screen.getAllByTestId('selo-cadastro')).toHaveLength(3)                                            // 2 instalações + o registro da rede
     expect(screen.getByText('https://lg.example.org/').getAttribute('href')).toBe('https://lg.example.org/')
     expect(screen.getByText('telnet://rs.example.org').tagName).toBe('SPAN')                                  // telnet não vira link
-    expect(screen.getByText(/2 porta\(s\), 10 Gbps \+ 100 Gbps \(soma 110 Gbps\)/)).toBeTruthy()
+    expect(screen.getByText(/2 portas, 10 Gbps \+ 100 Gbps \(soma 110 Gbps\)/)).toBeTruthy()
     expect(screen.getByText('Capacidade declarada, não tráfego.')).toBeTruthy()
     expect(screen.getAllByTestId('atribuicao-peeringdb').length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Dado autodeclarado no/).length).toBeGreaterThan(0)
