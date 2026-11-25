@@ -58,6 +58,8 @@ PROIBIDOS: list[tuple[str, tuple[str, ...], str]] = [
      ("frontend/src",), "PT-15: sessão em route server não é peering direto, e usuários por PTT são alcançáveis e não aditivos"),
     (r"[Pp]eering direto|[Pp]eers? diretos?",
      ("frontend/src",), "PT-15: sessão com o route server (`asn_direct`) não é peering direto, e o cadastro de participantes é outro universo; os rótulos vêm de `RELACAO_PTT` em `lib/universos.ts`"),
+    (r"\bpares? diretos?\b",
+     ("frontend/src", "api", "mcp_server"), "PT-15: sessão com o route server (`direto`, do looking glass) não é par nem peering direto; membro do cadastro é outro universo"),
     (r"nunca transitiva|controla quem",
      ("frontend/src", "api", "mcp_server"), "GRUPO-E4: o grupo é componente conexo (cadeia de ligações) e não mede controle"),
 ]
