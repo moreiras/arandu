@@ -97,7 +97,7 @@ Ordem topológica a partir das `entradas` das fontes/produtos e de `depois_de`; 
 | 89 | `ixp_indice` | `python -m products.passos --passo ixp_indice --date {date}` | critica | 1 | parcial ixp_docs | bgp_ixp, fulltable_routeviews, ixbr_api, lacnic_delegated, metricas_ixp_asn, peeringdb_ixps, registro_br |
 | 90 | `global_prefix_geo` | `python -m sources.global_prefix_geo.enrich --date {date}` | opcional | 1 | fonte global_prefix_geo | bgp_ixp, prefix_geo |
 | 91 | `receita_socios` | `python -m sources.receita_socios.collect --date {date}` | usar_ultima_valida | 1 | fonte receita_socios | — |
-| 92 | `socios_grupos` | `python -m sources.socios_grupos.enrich --date {date}` | opcional | 1 | fonte socios_grupos | anatel_scm, anatel_seac, anatel_smp, anatel_stfc, receita_socios |
+| 92 | `socios_grupos` | `python -m sources.socios_grupos.enrich --date {date}` | opcional | 1 | fonte socios_grupos | anatel_scm, anatel_seac, anatel_smp, anatel_stfc, receita_cnpj, receita_socios |
 | 93 | `grupos_societarios` | `python -m products.passos --passo grupos_societarios --date {date}` | opcional | 1 | parcial grupos_societarios | socios_grupos |
 | 94 | `rpki_collector` | `python -m sources.rpki_collector.collect --date {date}` | opcional | 1 | fonte rpki_collector, produto rpki | — |
 | 95 | `asn_indice` | `python -m products.passos --passo asn_indice --date {date}` | critica | 1 | parcial asn_docs | anatel_sici, apnic_pop, asn_names, bgp_ixp, cnpj_geo, fulltable_routeviews, lacnic_delegated, metricas_ixp_asn, peeringdb_intl_geo, peeringdb_ixps, peeringdb_networks, prefix_geo, rdap, registro_br, rpki_collector |
