@@ -56,3 +56,10 @@ def test_celula_pequena_nao_vai_para_o_municipio_mas_entra_no_total():
     meses = {"2026-01": {**_mes("1", 4), "cidades": [{"marca": "Alfa", "uf": "SP", "cidade": "São Paulo", "n": 4, "respondidas": 4, "avaliadas": 0, "resolvidas": 0, "tempo_n": 4, "tempo_soma": 20, "nota_n": 0, "nota_soma": 0}]}}
     doc, por_uf = calcular(_norm(meses), m.carregar_curada(), {}, {}, {}, IBGE)
     assert por_uf["SP"]["3550308"]["total"]["n"] == 4 and por_uf["SP"]["3550308"]["itens"] == [] and doc["uf"] == [] and doc["assuntos"] == []      # 4 < 5: nem empresa × município, nem × UF, nem × assunto
+
+
+def test_marca_sky_inclui_zaaz_pela_declaracao_ao_sici():
+    """P2 (decisão do mantenedor em 2026-11-25): a raiz 65476221 (Zaaz no Ne) entra na marca SKY pelo grupo "SKY/ZAAZ" declarado ao SICI."""
+    sky = m.carregar_curada()["marcas"][m.normalizar("SKY")]
+    assert sky["raizes"] == ["00497373", "65476221"]
+    assert "SICI" in sky["base"] and sky["data"] == "2026-11-25"

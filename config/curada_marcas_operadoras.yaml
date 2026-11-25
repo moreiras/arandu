@@ -19,12 +19,9 @@ marcas:
   - {marca: NET, raizes: ["66970229", "40432544"], base: "marca NET do grupo Claro; Claro NXT Telecomunicações e Claro S.A. (grupo TELECOM AMERICAS no SICI)"}
   - {marca: TIM, raizes: ["02421421"], base: "TIM S.A., nome TIM nas outorgas e no SICI (grupo TELECOM ITALIA)"}
   - {marca: OI, raizes: ["76535764", "53420564"], base: "Oi S.A. e Client Co Serviços de Rede Nordeste (grupo OI no SICI)"}
-  - {marca: SKY, raizes: ["00497373"], base: "Sky Serviços de Banda Larga Ltda, outorgas de SCM, SeAC e SMP"}
-  # TODO(mantenedor): proposta (PT-09, HOME-E2), não ativada: acrescentar a raiz 65476221 (Zaaz no Ne Ltda, CNPJ 65476221000186, que declara ao SICI fixo com empresa e
-  # grupo econômico "SKY/ZAAZ", 118.597 acessos no snapshot 2026-11-22) à marca SKY, para ligá-la a AS28298 e AS262366 (CNPJ 00497373004379, filial da Sky). A única
-  # base encontrada é o rótulo de grupo declarado ao SICI; a relação societária entre Zaaz e Sky não foi conferida em fonte primária, e a linha também muda o casamento do
-  # RQUAL e do Consumidor.gov.br para a raiz 65476221. Linha proposta:
-  #   - {marca: SKY, raizes: ["00497373", "65476221"], data: AAAA-MM-DD, base: "Sky Serviços de Banda Larga Ltda (outorgas de SCM, SeAC e SMP) e Zaaz no Ne Ltda (grupo SKY/ZAAZ no SICI)"}
+  # SKY + Zaaz (P2, decisão do mantenedor em 2026-11-25): a raiz 65476221 (Zaaz no Ne Ltda) entra pela declaração ao SICI fixo, que traz a
+  # empresa no grupo econômico "SKY/ZAAZ" (snapshot 2026-11-22). Vínculo por marca: selo inferido; a relação societária não foi conferida.
+  - {marca: SKY, raizes: ["00497373", "65476221"], data: 2026-11-25, base: "Sky Serviços de Banda Larga Ltda (outorgas de SCM, SeAC e SMP) e Zaaz no Ne Ltda (grupo SKY/ZAAZ declarado ao SICI fixo)"}
   - {marca: ALGAR, raizes: ["71208516", "05872814"], base: "Algar Telecom S/A e Vogel Soluções (grupo ALGAR (CTBC TELECOM) no SICI)"}
   - {marca: SERCOMTEL, raizes: ["01371416"], base: "Sercomtel S/A Telecomunicações (nome fantasia SERCOMTEL nas outorgas)"}
   - {marca: LIGGA TELECOM, raizes: ["65649511", "04368865"], base: "Ligga Serviços em Telecom e Ligga Telecomunicações (nome fantasia LIGGA TELECOM nas outorgas)"}
