@@ -159,6 +159,14 @@ parênteses remetem à análise.
   `fonte_e_selo` e resumos que preservam o aviso do mês de referência do SICI. Saem contagens fixas de PTTs em textos do MCP e do
   schema; `ferramenta_detalhe` de `faixas_espectro` e `satelites_direitos` deixa de apontar para `historico_snapshots` (TRANSV-E12,
   TRANSV-E17).
+  Onde a collection mistura naturezas, o selo vale como padrão e os campos de outra natureza trazem `selos_campo` (ex.: em `asns`,
+  `apnic_users`, `apnic_v6_users` e `pct_v6` são estimados).
+- **Limites publicados (PT-21).** Novo `GET /api/v1/limites` (aberto) publica os tetos em vigor, lidos do código e da configuração:
+  orçamento diário e custo por chamada sem conta, janelas da API e do MCP, cota da chave de MCP, tetos de contatos por conta. O quadro
+  "Escolha o seu acesso" de `/dados` é gerado dessa rota e, sem a chave de MCP ligada, a página não a promete. O exemplo de consulta
+  passa a usar `acessos_municipio` por UF com `mes_referencia`, em vez de `operadoras` por `uf_sede`; o `llms.txt` descreve os limites
+  reais (TRANSV-E13, DADOS-E1, DADOS-E2).
+- **Acessibilidade.** As fatias dos gráficos de rosca do panorama têm nome acessível (PT-29).
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
