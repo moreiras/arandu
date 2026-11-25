@@ -2,8 +2,8 @@
  "alerts": [
   {
    "category": "geo",
-   "desde_versao": 1,
-   "detail": "O AS está a menos de 80 km de 1 PTT(s) do IX.br onde não participa. Participar pode reduzir custo de trânsito e latência.",
+   "desde_versao": 2,
+   "detail": "A sede do AS fica a menos de 80 km de 1 PTT(s) do IX.br onde o AS não consta como participante: zc (0,0 km).",
    "id": "ptt_proximo_sem_participar",
    "refs": {
     "ixps": [

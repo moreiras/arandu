@@ -2275,7 +2275,7 @@ export interface paths {
         /**
          * Sub-asignações de IPv4 (aluguel regulado, política LAC-2025-5)
          * @description Estado das sub-asignações previstas na política LAC-2025-5 (ratificada em 24/03/2026). **Enquanto a bitácora pública oficial não existir, `ativa` é falso, `aguardando` é verdadeiro e `items` vem vazio**: o campo `vigia`
-         *     mostra a última varredura diária dos diretórios do Registro.br e do LACNIC e os alertas (arquivo novo). Com a fonte ativada, cada registro traz as validações da política (receptor origina o bloco, ROA, tamanho
+         *     mostra a última varredura diária dos diretórios do Registro.br e do LACNIC e os alertas (arquivo novo). Com a fonte ativada, cada registro traz as verificações da política feitas pelo OBINT (não são decisão do Registro.br nem do LACNIC: receptor origina o bloco, ROA, tamanho
          *     /24 a /22, IPv6, prazo de 3 anos, infraestrutura crítica; `null` = sem dado) e `indicador_terceiros` separa anúncios de terceiros com e sem registro. O esquema é hipotético até o formato oficial ser conhecido.
          */
         get: operations["ipv4_subasignacoes_api_v1_ipv4_subasignacoes_get"];
@@ -3359,7 +3359,7 @@ export interface paths {
         /**
          * Multas constituídas por empresa (raiz do CNPJ) e serviço
          * @description Uma linha por empresa (raiz do CNPJ: matriz e filiais) e grupo de serviço, com multas, valor original, pago, saldo devedor atualizado, situações (Quitado, Devedor, Parcial) e primeiro e último
-         *     ano de aplicação. `grupo` filtra por SCM, SMP, STFC ou SeAC; `q` busca no nome ou na raiz do CNPJ; `ordem` = `saldo`, `multas`, `original` ou `pago`. Só pessoa jurídica.
+         *     ano de aplicação. `grupo` filtra por SCM, SMP, STFC ou SeAC; `q` busca no nome ou na raiz do CNPJ; `ordem` = `empresa` (padrão: ordem alfabética pelo nome, neutra), `saldo`, `multas`, `original` ou `pago` (estas, do maior para o menor, por escolha de quem consulta); a resposta traz a regra em `regra_ordem`. **Multa constituída não é condenação definitiva.** Só pessoa jurídica.
          */
         get: operations["multas_empresas_api_v1_multas_empresas_get"];
         put?: never;
@@ -3423,13 +3423,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Outorgas SCM sem acessos declarados ao SICI no mês
-         * @description `tipo=outorga_sem_declaracao` (padrão): CNPJs com outorga SCM sem acessos declarados no mês de referência, em ordem de usuários estimados (APNIC) dos
-         *     ASNs do CNPJ, com a `classe` (`com_usuarios_apnic`, `sem_usuarios`, `nao_comparavel` = CNPJ sem ASN) e `grupo_declara` (outro CNPJ do grupo
-         *     declarou; ausente = CNPJ sem grupo societário). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar. É a descrição de um fato sobre a
-         *     declaração, sem causa nem intenção. Metodologia na página Rankings.
+         * Alias de /sem-declaracao-sici (nome antigo)
+         * @description Nome anterior de `GET /sem-declaracao-sici`, mantido como alias (D12); a resposta traz `aviso_depreciacao`. Use a rota nova.
          */
-        get: operations["omissao_sici_api_v1_omissao_sici_get"];
+        get: operations["sem_declaracao_sici_alias_api_v1_omissao_sici_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3885,6 +3882,8 @@ export interface paths {
          *     `var_aa_pct`/`var_aa_abs` (12 meses), `var_mm_pct` (mês) ou `declinio` (meses seguidos de queda). Com `uf`, só os acessos naquela UF
          *     (a variação é da operadora no país e fica de fora). `asc=true` inverte. Mês de referência e snapshot em toda resposta.
          *     Ordens aceitas: acessos, share, var_aa_pct, var_aa_abs, var_mm_pct, declinio. HHI e parcelas são sobre acessos declarados, não sobre receita.
+         *
+         *     Não há piso: nenhuma operadora sai da lista. Cada linha traz a variação em 12 meses em acessos (`var_aa_abs`, `var_aa_pct`), a base dela (`base_aa`, acessos no mesmo mês do ano anterior) e `base_pequena` (base abaixo de `base_pequena_abaixo_de`, 1.000 acessos: só rótulo). Quem não tem percentual (base 0) fica no fim, em qualquer sentido.
          */
         get: operations["ranking_operadoras_api_v1_ranking_operadoras_get"];
         put?: never;
@@ -3904,7 +3903,7 @@ export interface paths {
         };
         /**
          * Membros dos route servers ordenados por um número medido
-         * @description Membros (ASN × PTT) ordenados por `criterio` (sessoes_down, dias_down, uso_limite, sessoes), do maior para o menor. `ixp` restringe a um PTT; `apenas_down=true` mantém só os que têm
+         * @description Membros (ASN × PTT) em ordem neutra por padrão (`criterio=ptt_asn`: PTT e ASN crescentes, todos os membros com sessão). Os outros critérios (sessoes_down, dias_down, uso_limite, sessoes) ordenam do maior para o menor número medido e só trazem quem tem o número. `ixp` restringe a um PTT; `apenas_down=true` mantém só os que têm
          *     todas as sessões down há 7 dias ou mais. Cada linha traz o nome cadastrado, as sessões up e down e o maior tempo de queda: dado medido no route server, sem causa
          *     nem juízo, com a data da coleta. O ASN também está em `/asns/{asn}/route-servers`.
          */
@@ -4312,9 +4311,32 @@ export interface paths {
          * @description Para os ASNs do Brasil: quantos têm medição de ROV (validação RPKI) e de DNSSEC com amostra suficiente (≥ 100), a mediana e a média ponderada do percentual medido pelo
          *     APNIC e a distribuição em faixas neutras (até 10, de 10 a 90, acima de 90), mais quantos originam prefixos em espaço bogon. Sem `uf`, traz o país, todas as UFs e as faixas
          *     de porte (acessos declarados ao SICI); com `uf`, só aquela UF e o país. Não é ranking de empresas; fontes, datas e limites vêm na resposta. O campo `manrs` traz, só de forma agregada, a participação em organizações do programa de operadores do MANRS
-         *     (ASNs e usuários, no total, por porte e por UF; recortes com menos de 5 participantes vêm suprimidos), com a atribuição exigida: "Provided by the MANRS with support from the Global Cyber Alliance".
+         *     (ASNs e usuários, no total, por porte e por UF; nenhum recorte é suprimido: o de menos de 5 participantes, ou dominado por um ASN, vem com `avisos`, `n_asns_com_dado` e `peso_top1`), com a atribuição exigida: "Provided by the MANRS with support from the Global Cyber Alliance".
          */
         get: operations["seguranca_resumo_api_v1_seguranca_resumo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sem-declaracao-sici": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Outorgas SCM sem acessos declarados ao SICI no mês
+         * @description `tipo=outorga_sem_declaracao` (padrão): CNPJs com outorga SCM sem acessos declarados no mês de referência, em ordem de usuários estimados (APNIC) dos
+         *     ASNs do CNPJ, com a `classe` (`com_usuarios_apnic`, `sem_usuarios`, `nao_comparavel` = CNPJ sem ASN) e `grupo_declara` (outro CNPJ do grupo
+         *     declarou; ausente = CNPJ sem grupo societário). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar. É a descrição de um fato sobre a
+         *     declaração, sem causa nem intenção. Metodologia na página Rankings.
+         */
+        get: operations["sem_declaracao_sici_api_v1_sem_declaracao_sici_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -9201,7 +9223,7 @@ export interface operations {
             query?: {
                 /** @description ASN do receptor. */
                 asn?: number | null;
-                /** @description Só as em conformidade com todas as validações (ou só as que não estão). */
+                /** @description Só as em que todas as verificações do OBINT deram sim (ou só as que não deram). A tela não usa este filtro: mostra só agregados por verificação. */
                 conforme?: boolean | null;
                 date?: string | null;
                 limit?: number;
@@ -10823,15 +10845,13 @@ export interface operations {
             };
         };
     };
-    omissao_sici_api_v1_omissao_sici_get: {
+    sem_declaracao_sici_alias_api_v1_omissao_sici_get: {
         parameters: {
             query?: {
                 date?: string | null;
                 tipo?: string;
-                /** @description UF da sede (cadastro SCM). Em `parou_de_declarar`, 400 se o snapshot não tem a UF. */
                 uf?: string | null;
                 classe?: string | null;
-                /** @description `true` (outro CNPJ do grupo declarou), `false` (tem grupo e nenhum outro declarou) ou `desconhecido` (CNPJ sem grupo societário). Omitido = todos. */
                 grupo_declara?: string | null;
                 limit?: number;
                 page?: number;
@@ -12323,6 +12343,47 @@ export interface operations {
             query?: {
                 date?: string | null;
                 uf?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sem_declaracao_sici_api_v1_sem_declaracao_sici_get: {
+        parameters: {
+            query?: {
+                date?: string | null;
+                tipo?: string;
+                /** @description UF da sede (cadastro SCM). Em `parou_de_declarar`, 400 se o snapshot não tem a UF. */
+                uf?: string | null;
+                classe?: string | null;
+                /** @description `true` (outro CNPJ do grupo declarou), `false` (tem grupo e nenhum outro declarou) ou `desconhecido` (CNPJ sem grupo societário). Omitido = todos. */
+                grupo_declara?: string | null;
+                limit?: number;
+                page?: number;
             };
             header?: never;
             path?: never;

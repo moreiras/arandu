@@ -34,4 +34,4 @@ Cruza a proporção de domicílios com banda larga fixa (TIC Domicílios, estima
 
 ## Limites
 
-Cruza declaração (SICI, sem erro amostral) com estimativa amostral (TIC Domicílios): a classe sai do intervalo de 95% da razão e fica `indeterminado` com CV acima de 30%. Diferença entre demanda e oferta é divergência entre fontes com definições e períodos diferentes, não erro nem omissão das prestadoras.
+Cruza declaração (SICI, sem erro amostral) com estimativa amostral (TIC Domicílios): a classe sai do intervalo de 95% da razão e fica `indeterminado` com CV acima de 30%. Diferença entre demanda e oferta é divergência entre fontes com definições e períodos diferentes, não erro nem ausência de declaração das prestadoras.
