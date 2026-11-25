@@ -31,11 +31,14 @@
   },
   "GET /api/v1/acessos-movel/operadora/{cnpj}": {
    "chaves": [
+    "asn_vinculo",
     "asns",
+    "asns_vinculados",
     "cnpj",
     "contacts_available",
     "outorgas_smp",
     "rede",
+    "regra_vinculo",
     "snapshot_date"
    ],
    "status": 200,
@@ -159,7 +162,9 @@
     "acessos",
     "acessos_compartilhados",
     "acessos_internet",
+    "asn_vinculo",
     "asns",
+    "asns_vinculados",
     "capacidade_internet_mbps",
     "capacidade_mbps",
     "cnpj",
@@ -180,6 +185,7 @@
     "por_tecnologia",
     "porte",
     "rede",
+    "regra_vinculo",
     "serie",
     "snapshot_date",
     "tecnologia_predominante",
@@ -279,6 +285,7 @@
   },
   "GET /api/v1/asns/by-organization": {
    "chaves": [
+    "chave",
     "groups",
     "snapshot_date",
     "total"
@@ -288,6 +295,7 @@
   },
   "GET /api/v1/asns/economic-groups": {
    "chaves": [
+    "chave",
     "groups",
     "snapshot_date",
     "total"
@@ -361,6 +369,7 @@
     "roa_list",
     "rpki_validation",
     "same_cnpj_asns",
+    "same_raiz_asns",
     "scm",
     "seac",
     "single_upstream_v4",
@@ -1300,6 +1309,7 @@
    "chaves": [
     "cnpj",
     "grupo_id",
+    "grupo_societario",
     "mesmo_grupo",
     "relacionadas_parcial",
     "snapshot_date"
@@ -1310,6 +1320,7 @@
   "GET /api/v1/grupos/{grupo_id}": {
    "chaves": [
     "asns",
+    "asns_vinculados",
     "assinantes",
     "classificacao",
     "cnpjs",
@@ -1319,6 +1330,12 @@
     "grupo_id",
     "limites",
     "municipios",
+    "nome",
+    "nome_base",
+    "nome_regra",
+    "nome_regra_texto",
+    "redirecionado_de",
+    "regra_vinculo",
     "sancoes",
     "snapshot_date",
     "tamanho",
