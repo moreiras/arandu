@@ -4,6 +4,7 @@ import { fetchSnapshot, fetchRpkiSummary, fetchOutorgasStats } from '../services
 import { useActiveDate, useSnapshots } from '../hooks/useSnapshot'
 import { useState } from 'react'
 import { NotaRevisao } from '../components/ui/NotaRevisao'
+import { ColetaSnapshot, IndicadoresSnapshot, type LinhaIndicador, type ManifestoSnapshot } from '../features/snapshots/ManifestoSnapshot'
 
 function fmtN(n: number | null | undefined): string {
   if (n == null) return '—'
@@ -13,6 +14,22 @@ function fmtLarge(n: number | null | undefined): string {
   if (n == null) return '—'
   if (n >= 1e6) return `${(n / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}M`
   return n.toLocaleString('pt-BR')
+}
+
+/** Cada indicador com a(s) fonte(s) do catálogo de que vem e a natureza do dado (IPv6 antes de IPv4). Os ids de fonte dão a data de `manifest.sources`. */
+function linhasDoSnapshot(sm: Record<string, any>, rpki: number | undefined, scm: number | undefined): LinhaIndicador[] {
+  return [
+    { label: 'ASNs brasileiros no índice do snapshot', valor: fmtN(sm.total_asns_br), fontes: ['registro_br'], selo: 'fato' },
+    { label: 'ASN BR na full table', valor: fmtN(sm.global_table?.br_asns_in_ft), fontes: ['fulltable_routeviews'], selo: 'fato' },
+    { label: 'ASN BR com prefixos IPv6 na full table', valor: fmtN(sm.br_asns_ft_v6), fontes: ['fulltable_routeviews'], selo: 'fato' },
+    { label: 'ASN BR com prefixos IPv4 na full table', valor: fmtN(sm.br_asns_ft_v4), fontes: ['fulltable_routeviews'], selo: 'fato' },
+    { label: 'ASNs BR com rotas vistas no IX.br (originadores)', valor: fmtN(sm.ixp_aggregate?.br_asns_origin_union_count), fontes: ['lg_ixbr'], selo: 'fato' },
+    { label: 'ASN BR com cadastro no PeeringDB', valor: fmtN(sm.br_asns_peeringdb), fontes: ['peeringdb_networks'], selo: 'fato' },
+    { label: 'Usuários BR estimados (APNIC)', valor: fmtLarge(sm.br_apnic_users_total), fontes: ['apnic_pop'], selo: 'estimado' },
+    { label: 'ASN com objetos RPKI', valor: fmtN(rpki), fontes: ['rpki_collector'], selo: 'fato' },
+    { label: 'ASN BR geolocalizados', valor: fmtN(sm.br_asns_geolocalized), fontes: ['cnpj_geo'], selo: 'inferido' },
+    { label: 'Outorgas SCM', valor: fmtN(scm), fontes: ['anatel_outorgas'], selo: 'fato' },
+  ]
 }
 
 export function Snapshots() {
@@ -122,34 +139,14 @@ export function Snapshots() {
                 </div>
 
                 {detail.summary ? (
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    {[
-                      { label: 'ASNs brasileiros no índice do snapshot', value: fmtN(detail.summary.total_asns_br) },
-                      { label: 'ASN BR na full table', value: fmtN(detail.summary.global_table?.br_asns_in_ft) },
-                      { label: 'ASNs BR com rotas vistas no IX.br (originadores)', value: fmtN(detail.summary.ixp_aggregate?.br_asns_origin_union_count) },
-                      { label: 'ASN BR com cadastro no PeeringDB', value: fmtN(detail.summary.br_asns_peeringdb) },
-                      { label: 'Usuários BR estimados (APNIC)', value: fmtLarge(detail.summary.br_apnic_users_total) },
-                      { label: 'ASN com objetos RPKI', value: fmtN(rpkiSummary?.br_asns_with_roa) },
-                      { label: 'ASN BR geolocalizados', value: fmtN(detail.summary.br_asns_geolocalized) },
-                      { label: 'Outorgas SCM', value: fmtN(scmStats?.total) },
-                    ].map((row) => (
-                      <div key={row.label} className="bg-gray-50 rounded p-2">
-                        <div className="text-xs text-gray-500">{row.label}</div>
-                        <div className="font-semibold text-gray-800">{row.value}</div>
-                      </div>
-                    ))}
-                  </div>
+                  <IndicadoresSnapshot sources={(detail.manifest as ManifestoSnapshot | null)?.sources} linhas={linhasDoSnapshot(detail.summary, rpkiSummary?.br_asns_with_roa, scmStats?.total)} />
                 ) : (
                   <p className="text-sm text-gray-400">
                     Os totais deste snapshot não estão disponíveis.
                   </p>
                 )}
 
-                {detail.manifest && (
-                  <div className="text-xs text-gray-400 font-mono border-t border-gray-100 pt-3">
-                    Gerado em: {String(detail.manifest.generated_at ?? '—')}
-                  </div>
-                )}
+                {detail.manifest && <ColetaSnapshot m={detail.manifest as ManifestoSnapshot} />}
               </div>
             ) : (
               <div className="h-48 bg-gray-50 rounded-lg animate-pulse" />
