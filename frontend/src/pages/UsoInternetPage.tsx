@@ -16,6 +16,7 @@ import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import { TEXTO_ZERO_REGISTRADO, estadoMargem } from '../features/cetic/margem'
+import { SinteseCetic } from '../features/cetic/SinteseCetic'
 import { useActiveDate } from '../hooks/useSnapshot'
 
 const PESQUISAS = [
@@ -190,6 +191,8 @@ export function UsoInternetPage() {
           contagens e o recorte mais fino é a grande região. Os números não foram alterados pelo {SITE.nome}.
         </p>
       </div>
+
+      <SinteseCetic />
 
       <div className="flex flex-wrap gap-3 items-end">
         <div role="group" aria-label="Pesquisa" className="flex gap-1">

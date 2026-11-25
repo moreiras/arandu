@@ -10,6 +10,7 @@ import { nearestIxCode } from '../features/localizador/geo'
 import { PainelControles } from '../features/localizador/PainelControles'
 import { PainelEntidades } from '../features/localizador/PainelEntidades'
 import { BlocoMercado } from '../features/localizador/BlocoMercado'
+import { SinteseLocalizador } from '../features/localizador/SinteseLocalizador'
 import { LugarAmbiguo, geocodeQuery, useLocalizadorDados } from '../features/localizador/useLocalizadorDados'
 import { useMapaLocalizador } from '../features/localizador/useMapaLocalizador'
 import { Link } from '../components/layout/LinkDatado'
@@ -127,6 +128,11 @@ export function Localizador() {
           Escolha um ponto no Brasil e veja as redes, os provedores e os acessos de banda larga ao redor
         </p>
       </div>
+
+      <SinteseLocalizador marcado={!!markerPos} entrada={{
+        radius, entityCounts, sedesAsn: stats.sedesAsn, filteredAsnsCount: filteredAsns.length, nearestIx, ixLabel, ixCounts, temPresenca: !!ixPresence,
+        mercado, municipiosNoRaio: siciMunInRadius.length, mesReferencia: siciMunData?.mes_referencia ?? null, snapshot: siciMunData?.snapshot_date ?? date ?? null,
+      }} />
 
       {/* Wrapper: map + floating panels */}
       <div
