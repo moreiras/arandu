@@ -19,21 +19,21 @@ describe('síntese da operadora', () => {
       indicadores: { mes_referencia: '2026-08', metodologia: 'm', acessos: 12345, share_br: 0.42, posicao_br: 31, var_aa: { abs: 500, pct: 4.2 } } as any }
     const f = sinteseOperadora('Provedor 01', ctx)
     expect(f.map((x) => x.id)).toEqual(['outorgas', 'acessos', 'variacao', 'municipios', 'asns'])
-    expect(f.find((x) => x.id === 'acessos')!.texto).toMatch(/12\.345 acessos .* 2026-08, 0,42% .* \(31º por acessos\)/)
+    expect(f.find((x) => x.id === 'acessos')!.texto).toMatch(/Em 08\/2026, .* declarou ao SICI 12\.345 acessos .*, 0,42% dos acessos declarados no país\. Isso a coloca em 31º lugar por acessos\./)
     expect(f.every((x) => x.selo === 'fato')).toBe(true)
-    expect(REGRAS_VERSAO).toBe('sintese-operadora-3')
+    expect(REGRAS_VERSAO).toBe('sintese-operadora-4')
   })
 
   it('sem indicadores nem municípios, não inventa frase', () => {
     const f = sinteseOperadora('X', { ...base, hasScm: false, hasSici: false, servicos: [] } as OperadoraCtx)
     expect(f.map((x) => x.id)).toEqual(['sem-outorga', 'asns'])
-    expect(f[0].texto).toBe('Sem outorga registrada na Anatel neste snapshot.')
-    expect(f[1].texto).toMatch(/Não tem ASN próprio/)
+    expect(f[0].texto).toBe('Este snapshot não registra outorga da Anatel para a empresa.')
+    expect(f[1].texto).toMatch(/nenhum ASN está registrado/)
   })
 
   it('empresa com outorga SCM sem declaração diz só o fato e o mês', () => {
     const f = sinteseOperadora('X', { ...base, indicadores: { mes_referencia: '2026-08', metodologia: 'm', sem_declaracao: { razao_social: 'X', uf: 'SP', n_outorgas: 1, desde: null, asns: [], usuarios_apnic: null, classe: 'sem_usuarios' } } as any } as OperadoraCtx)
-    expect(f.find((x) => x.id === 'sem-declaracao')!.texto).toBe('Tem outorga SCM, mas não declarou acessos ao SICI em 2026-08.')
+    expect(f.find((x) => x.id === 'sem-declaracao')!.texto).toBe('A empresa tem outorga SCM, mas não declarou acessos ao SICI em 08/2026.')
   })
 
   it('vínculo ASN ↔ CNPJ (D5): mesmo CNPJ é fato; raiz, marca e AS estrangeiro são frases à parte com selo inferido', () => {
@@ -44,11 +44,11 @@ describe('síntese da operadora', () => {
     ]
     const f = sinteseOperadora('X', { ...base, data: { asns: [], asns_vinculados: vinc } as any } as OperadoraCtx)
     const por = Object.fromEntries(f.map((x) => [x.id, x]))
-    expect(por.asns).toEqual({ id: 'asns', selo: 'fato', texto: 'Não tem ASN próprio no Registro.br com este CNPJ.' })
-    expect(por['asns-raiz']).toEqual({ id: 'asns-raiz', selo: 'inferido', texto: 'O AS26615 está registrado em outro CNPJ da mesma raiz (matriz ou filial da mesma empresa).' })
+    expect(por.asns).toMatchObject({ id: 'asns', selo: 'fato', texto: 'No Registro.br, nenhum ASN está registrado com este CNPJ.' })
+    expect(por['asns-raiz']).toMatchObject({ id: 'asns-raiz', selo: 'inferido', texto: 'O AS26615 está registrado em outro CNPJ da mesma raiz (matriz ou filial da mesma empresa).' })
     expect(por['asns-marca'].selo).toBe('inferido')
-    expect(por['asns-marca'].texto).toBe('Pela marca OI (tabela curada do projeto), liga-se a AS14571, de outra empresa.')
-    expect(por['asns-estrangeiro'].texto).toBe('Pela marca STARLINK (tabela curada do projeto), é atendida por AS estrangeiro: AS14593.')
+    expect(por['asns-marca'].texto).toBe('Pela marca OI (tabela curada do projeto), a empresa se associa a AS14571, que é de outra empresa.')
+    expect(por['asns-estrangeiro'].texto).toBe('Pela marca STARLINK (tabela curada do projeto), a empresa é atendida por um AS estrangeiro: AS14593.')
   })
 
   it('indicadores sem valor não viram KPI vazio na ficha', () => {
@@ -82,7 +82,7 @@ describe('servicosDaOperadora e sintese-operadora-2 (OPERADORA-E8, OPERADORA-E9,
     expect(d.servicos.find((s) => s.sigla === 'SMP')).toMatchObject({ tipo: 'credenciada', registros: 0, origem: { nome: 'SURF TELECOM SA' } })
     const fs = frases(f)
     expect(fs.find((x) => x.id === 'outorgas')!.texto).toBe('Empresa tem outorga da Anatel para SCM e STFC.')
-    expect(fs.find((x) => x.id === 'rede-virtual')!.texto).toBe('No SMP, é credenciada de rede virtual de SURF TELECOM SA (sem outorga SMP própria).')
+    expect(fs.find((x) => x.id === 'rede-virtual')!.texto).toBe('No SMP, a empresa é credenciada de rede virtual de SURF TELECOM SA, sem outorga SMP própria.')
   })
 
   it('outorga SMP própria continua SMP, mesmo quando a empresa também é credenciada de outra (caso Algar)', () => {
@@ -95,7 +95,7 @@ describe('servicosDaOperadora e sintese-operadora-2 (OPERADORA-E8, OPERADORA-E9,
     expect(derivarOperadora(f).hasScm).toBe(false)
     const fs = frases(f)
     expect(fs.find((x) => x.id === 'outorgas')).toBeUndefined()
-    expect(fs.find((x) => x.id === 'sem-outorga')!.texto).toBe('Sem outorga registrada na Anatel neste snapshot.')
+    expect(fs.find((x) => x.id === 'sem-outorga')!.texto).toBe('Este snapshot não registra outorga da Anatel para a empresa.')
   })
 
   it('bordas: só SMP e só STFC', () => {

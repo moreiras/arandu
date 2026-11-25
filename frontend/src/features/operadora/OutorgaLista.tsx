@@ -63,7 +63,7 @@ export function OutorgaListSection({
           </tbody>
         </table>
         <div className="px-4 py-2 border-t border-gray-50 text-xs text-gray-400">
-          Fonte: Anatel — dados abertos de outorgas {fonte}
+          Fonte: Anatel, dados abertos de outorgas {fonte}
         </div>
       </div>
     </div>

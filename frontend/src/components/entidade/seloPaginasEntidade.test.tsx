@@ -22,7 +22,9 @@ const fontes = import.meta.glob(
 const fonteDe = (fim: string) => Object.entries(fontes).find(([a]) => a.endsWith(fim))![1]
 const kpiDe = (rotulo: string) => screen.getAllByTestId('kpi').find((k) => k.getAttribute('data-kpi-rotulo') === rotulo)!
 /** A linha de proveniência de um KPI, sem o texto só para leitor de tela. */
-const prov = (rotulo: string) => kpiDe(rotulo).querySelector('[data-kpi-proveniencia]')!.textContent!.replace('Natureza, fonte e data de referência: ', '')
+const selo = (rotulo: string) => kpiDe(rotulo).querySelector('[data-kpi-selo]')!.getAttribute('data-kpi-selo')
+/** PT-30: fonte e data dos cartões ficam no bloco recolhido da seção, que está no DOM. */
+const fontesDaSecao = () => screen.getByTestId('fontes-e-datas').textContent!
 
 describe('selo nas páginas de entidade (PT-14)', () => {
   it('toda chamada de Kpi do grupo declara selo, e os números grandes locais de StatsOverview e CDNCapPage também', () => {
@@ -40,11 +42,15 @@ describe('selo nas páginas de entidade (PT-14)', () => {
   it('ficha do AS: prefixos e sessões são fato com a fonte; usuários são estimado do APNIC, todos com a data do snapshot', () => {
     const doc = { asn: 64496, name: 'X', snapshot_date: '2026-11-22', global_prefixes_v4_count: 3, global_prefixes_v6_count: 1, ixps_direct: ['sp'], ixps_origin: [], apnic_users: 3068, apnic_v6_pct_as: 20, alerts: [], rpki_validation: {} } as unknown as ASNDocument
     render(<FichaAsn doc={doc} />)
-    const prox = prov
-    expect(prox('Prefixos IPv6 anunciados')).toBe('Fato · tabela global (RouteViews) · ref. 2026-11-22')
-    expect(prox('PTTs com sessão em route server')).toBe('Fato · looking glass do IX.br · ref. 2026-11-22')
-    expect(prox('Usuários estimados (APNIC)')).toBe('Estimado · APNIC Labs · ref. 2026-11-22')
-    expect(prox('Usuários IPv6')).toBe('Estimado · APNIC Labs · ref. 2026-11-22')
+    expect(selo('Prefixos IPv6 anunciados')).toBe('fato')
+    expect(selo('PTTs com sessão em route server')).toBe('fato')
+    expect(selo('Usuários estimados (APNIC)')).toBe('estimado')
+    expect(selo('Usuários IPv6')).toBe('estimado')
+    const f = fontesDaSecao()
+    expect(f).toMatch(/Fato.*tabela global \(RouteViews\).*referência: 22\/11\/2026/)
+    expect(f).toMatch(/Fato.*looking glass do IX\.br.*referência: 22\/11\/2026/)
+    expect(f).toMatch(/Estimado.*APNIC Labs.*referência: 22\/11\/2026/)
+    expect(screen.queryByText(/ref\. 2026-11-22/)).toBeNull()
     for (const k of screen.getAllByTestId('kpi')) expect(k.querySelector('[data-kpi-selo]'), k.textContent ?? '').not.toBeNull()
   })
 
@@ -53,10 +59,12 @@ describe('selo nas páginas de entidade (PT-14)', () => {
       data: { snapshot_date: '2026-11-22', municipios: 12, asns: [64500] } as any,
       indicadores: { mes_referencia: '2026-09', metodologia: 'm', acessos: 12345, share_br: 0.42, posicao_br: 31, var_aa: { abs: 500, pct: 4.2 } } as any } as unknown as OperadoraCtx
     render(<FichaOperadora nome="Provedor" ctx={ctx} />)
-    const t = prov
-    expect(t('Acessos fixos (2026-09)')).toBe('Fato · Anatel (SICI) · ref. 2026-09')
-    expect(t('Municípios com acessos')).toBe('Fato · Anatel (SICI) · ref. 2026-09')
-    expect(t('ASNs')).toBe('Fato · Registro.br (mesmo CNPJ) · ref. 2026-11-22')
+    expect(selo('Acessos fixos (2026-09)')).toBe('fato')
+    expect(selo('Municípios com acessos')).toBe('fato')
+    expect(selo('ASNs')).toBe('fato')
+    const f = fontesDaSecao()
+    expect(f).toMatch(/Fato.*Anatel \(SICI\).*referência: 09\/2026/)
+    expect(f).toMatch(/Fato.*Registro\.br \(mesmo CNPJ\).*referência: 22\/11\/2026/)
     for (const k of screen.getAllByTestId('kpi')) expect(k.querySelector('[data-kpi-selo]'), k.textContent ?? '').not.toBeNull()
   })
 

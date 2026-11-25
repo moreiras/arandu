@@ -11,6 +11,7 @@ import { useActiveDate } from '../hooks/useSnapshot'
 import { useCadastroOperadora, useContratosOperadora, useFinanciamentoOperadora, useFontes, useOperadoraPerfil } from '../hooks/entidades'
 import { EntityPage } from '../features/entidade/EntityPage'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
+import { ApresentacaoRecolhida } from '../components/ui/FontesEDatas'
 import { CabecalhoOperadora } from '../features/operadora/CabecalhoOperadora'
 import { FichaOperadora } from '../features/operadora/FichaOperadora'
 import { derivarOperadora, type OperadoraCtx } from '../features/operadora/contexto'
@@ -23,7 +24,7 @@ import '../features/operadora'
  *
  * O CNPJ é a chave que une outorga SCM, ASNs do Registro.br e grupo econômico.
  * Aqui ele vira entidade navegável: ASNs (com agregação de rede), outorgas SCM/SMP e, quando declarados, os
- * acessos ao SICI (fixo e móvel) — cada bloco (`features/operadora`) aparece só se a fonte
+ * acessos ao SICI (fixo e móvel). Cada bloco (`features/operadora`) aparece só se a fonte
  * correspondente existir. Um CNPJ pode ter só SCM, só SMP, ou os dois (as grandes operadoras).
  */
 export function OperadoraPage() {
@@ -84,6 +85,7 @@ export function OperadoraPage() {
   const snapshot = data?.snapshot_date ?? dataMovel?.snapshot_date ?? dataStfc?.snapshot_date ?? dataSeac?.snapshot_date ?? q.dados?.perfil?.snapshot_date
 
   return (
+    <ApresentacaoRecolhida>
     <div className="space-y-5">
       <CabecalhoOperadora
         nome={nome} grupo={grupo} porte={porte} hasScm={hasScm} hasSmp={hasSmp} hasStfc={hasStfc} hasSeac={hasSeac} credenciadaSmp={credenciamentoSmp(servicos)}
@@ -97,5 +99,6 @@ export function OperadoraPage() {
       ))}
       <EntityPage entidade="operadora" rotulo={`${nome} (CNPJ ${fmtCnpj(cnpjFinal)})`} dados={ctx} snapshot={snapshot ?? null} fontes={fontes} espacamento="space-y-5" />
     </div>
+    </ApresentacaoRecolhida>
   )
 }

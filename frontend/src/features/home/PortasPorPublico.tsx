@@ -59,7 +59,7 @@ export function PortasPorPublico() {
         Também:{' '}
         {TAMBEM.map((l, i) => <span key={l.to}>{i > 0 && ' · '}<Link to={l.to} className={LINK}>{l.rotulo}</Link></span>)}
       </p>
-      <p className="mt-1 text-xs text-gray-600">Atalhos por perfil. Tudo está também no menu e na busca.</p>
+      <p className="mt-1 text-xs text-gray-600">Estes atalhos são organizados por perfil. Todas as páginas também estão no menu e na busca.</p>
     </section>
   )
 }

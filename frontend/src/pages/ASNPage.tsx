@@ -12,6 +12,7 @@ import { useAsnPerfil, useFontes } from '../hooks/entidades'
 import type { WeekSeries } from '../components/bgp/HourlyActivityChart'
 import { EntityPage } from '../features/entidade/EntityPage'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
+import { ApresentacaoRecolhida } from '../components/ui/FontesEDatas'
 import { CabecalhoAsn } from '../features/asn/CabecalhoAsn'
 import { FichaAsn } from '../features/asn/FichaAsn'
 import type { AsnCtx } from '../features/asn/contexto'
@@ -89,10 +90,12 @@ export function ASNPage() {
   }
 
   return (
+    <ApresentacaoRecolhida>
     <div className="space-y-8">
       <CabecalhoAsn doc={doc} />
       {!versaoAntiga && <FichaAsn doc={doc} referencias={referencias} />}
       <EntityPage entidade="asn" rotulo={`AS${doc.asn}${doc.name ? ` · ${doc.name}` : ''}`} dados={ctx} snapshot={doc.snapshot_date} fontes={fontes} espacamento="space-y-8" />
     </div>
+    </ApresentacaoRecolhida>
   )
 }
