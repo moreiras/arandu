@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Iterable, Optional
 
 from core import compose
+from core.avisos_agregado import avisos, peso_top1
 from core.common import normalized_path, now_iso, published_path
 from core.jsonio import carregar_json_gz, gravar_json_gz
 
@@ -106,13 +107,14 @@ def _faixa_pct(v: float) -> str:
 def _agregar(valores: list[tuple[float, int]]) -> dict:
     """`valores`: [(percentual, amostras)] dos ASNs com amostras suficientes."""
     if not valores:
-        return {"asns": 0}
+        return {"asns": 0, "n_asns_com_dado": 0, "peso_top1": None, "avisos": avisos(0)}
     pct = [v for v, _ in valores]
     pesos = sum(a for _, a in valores)
     faixas = {"ate_10": 0, "de_10_a_90": 0, "acima_de_90": 0}
     for v in pct:
         faixas[_faixa_pct(v)] += 1
-    return {"asns": len(pct), "mediana_pct": round(statistics.median(pct), 2), "media_ponderada_pct": round(sum(v * a for v, a in valores) / pesos, 2),
+    peso = peso_top1(a for _, a in valores)           # o peso da média ponderada são as amostras do APNIC
+    return {"asns": len(pct), "n_asns_com_dado": len(pct), "peso_top1": peso, "avisos": avisos(len(pct), peso), "mediana_pct": round(statistics.median(pct), 2), "media_ponderada_pct": round(sum(v * a for v, a in valores) / pesos, 2),
             "faixas": faixas}
 
 

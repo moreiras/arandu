@@ -28,6 +28,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Optional
 
+from core.avisos_agregado import avisos
 from core.common import configure_logging, data_dir, now_iso, published_path, today_str
 from core.jsonio import carregar_json_gz, gravar_json_gz
 
@@ -90,14 +91,18 @@ def calcular_rov(asns_idx: dict[int, dict], seguranca: dict[str, dict]) -> dict:
         if rov.get("validates_pct") is not None and (rov.get("amostras") or 0) >= MIN_AMOSTRAS_ROV:
             u["com_medida"] += x["apnic_users"]
             u["atras_rov"] += x["apnic_users"] * rov["validates_pct"] / 100
+            u["n_asns_com_dado"] += 1
+            u["maior_peso"] = max(u["maior_peso"], x["apnic_users"])
     def linha(u):
-        return {"usuarios": round(u["usuarios"]), "usuarios_com_medida": round(u["com_medida"]), "usuarios_atras_rov": round(u["atras_rov"]),
+        peso = round(u["maior_peso"] / u["com_medida"], 3) if u["com_medida"] else None      # parcela do maior ASN nos usuários com medida
+        n = int(u["n_asns_com_dado"])
+        return {"n_asns_com_dado": n, "peso_top1": peso, "avisos": avisos(n, peso), "usuarios": round(u["usuarios"]), "usuarios_com_medida": round(u["com_medida"]), "usuarios_atras_rov": round(u["atras_rov"]),
                 "pct_atras_rov": round(100 * u["atras_rov"] / u["com_medida"], 1) if u["com_medida"] else None, "cobertura": round(100 * u["com_medida"] / u["usuarios"], 1) if u["usuarios"] else None}
     ufs = {uf: linha(u) for uf, u in sorted(por_uf.items()) if uf != "?"}
     br = defaultdict(float)
     for u in por_uf.values():
         for k, v in u.items():
-            br[k] += v
+            br[k] = max(br[k], v) if k == "maior_peso" else br[k] + v
     return {"ufs": ufs, "brasil": linha(br), "parametros": {"min_amostras": MIN_AMOSTRAS_ROV}}
 
 

@@ -115,7 +115,9 @@ def test_prontidao_da_regiao_vale_com_um_asn_e_diz_quantos_sustentam(artefato):
     pd = _pront((100, (90, 100, 80)), (999, (10, 0, 0)))
     r = s.agregar(artefato, ["3205309"], pd)["prontidao"]                    # 3205309 tem 100, 150, 160 (e 999 não é do município)
     assert r["asns_no_indice"] == 1 and r["agregado"]["asns"] == 1
-    assert r["agregado"]["medicoes"]["rov"] == {"pilar": "filtragem", "asns": 1, "media": 100.0, "media_ponderada_usuarios": 100.0}
+    rov = r["agregado"]["medicoes"]["rov"]
+    assert {k: rov[k] for k in ("pilar", "asns", "media", "media_ponderada_usuarios")} == {"pilar": "filtragem", "asns": 1, "media": 100.0, "media_ponderada_usuarios": 100.0}
+    assert rov["n_asns_com_dado"] == 1 and "poucos_casos" in rov["avisos"]
     assert r["agregado"]["medicoes"]["roa"]["media"] == 80.0
     assert r["brasil"] == {"asns": 9} and r["regras"]["hash"] == "x"
 

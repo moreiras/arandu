@@ -55,7 +55,7 @@ def test_sinais_por_asn_e_agregados_por_uf_sem_contar_amostra_pequena():
     sp, rj = r["por_uf"]["SP"], r["por_uf"]["RJ"]
     assert sp["asns"] == 2 and sp["rov"]["asns"] == 2 and sp["rov"]["faixas"] == {"ate_10": 1, "de_10_a_90": 0, "acima_de_90": 1}
     assert sp["rov"]["media_ponderada_pct"] == round((0.5 * 500 + 95 * 300) / 800, 2) and sp["dnssec"]["asns"] == 2 and sp["asns_com_prefixo_bogon"] == 1
-    assert rj["rov"]["asns"] == 1 and rj["dnssec"] == {"asns": 0}                # ASN 3 tem só 10 amostras: fora; ASN 4 entra com 0%
+    assert rj["rov"]["asns"] == 1 and rj["dnssec"]["asns"] == 0 and "poucos_casos" in rj["dnssec"]["avisos"]                # ASN 3 tem só 10 amostras: fora; ASN 4 entra com 0%
     assert r["brasil"]["rov"]["asns"] == 3
     assert r["por_faixa_porte"]["sem_usuarios"]["asns"] == 2 and r["por_faixa_porte"]["de_10000_a_100000"]["asns"] == 1 and r["por_faixa_porte"]["ate_1000"]["asns"] == 1
 

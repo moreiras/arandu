@@ -3,7 +3,7 @@
 # Este arquivo faz parte do Arandurape.
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-"""MANRS agregado: supressão de recortes pequenos e comparação de prontidão."""
+"""MANRS agregado: sem supressão (D6), com n, peso do maior e avisos; comparação de prontidão."""
 from products.manrs.build import MINIMO_ASNS, calcular
 
 
@@ -18,27 +18,32 @@ def test_totais_pct_e_organizacoes_so_com_asn_do_brasil():
     assert r["usuarios_participantes"] == 100 * (1 + 2 + 3 + 4 + 5 + 6 + 9) and r["pct_usuarios"] == round(100 * 3000 / 7800, 1)
 
 
-def test_recorte_com_poucos_participantes_e_suprimido_sem_revelar_a_contagem():
+def test_nenhum_recorte_e_suprimido_e_o_pequeno_sai_com_aviso_e_numeros():
+    """D6 (SEG-E11): o recorte com menos de 5 participantes aparece com os números e o aviso `poucos_casos`; nada de `suprimido`."""
     r = calcular({"asns": _asns()}, {"participantes": [{"asns": [1, 2, 3, 4, 5, 6, 9]}]})
-    assert r["por_uf"]["RJ"] == {"asns": 4, "usuarios": 900 + 1000 + 1100 + 1200, "suprimido": True, "motivo": f"menos de {MINIMO_ASNS} ASNs participantes"}      # só 1 participante em RJ
-    assert r["por_uf"]["SP"].get("suprimido") is True                      # SP (6) também sai: com o total público, RJ sairia por diferença
-    assert "asns_participantes" not in r["por_uf"]["RJ"] and "asns_participantes" not in r["por_uf"]["SP"]
+    rj, sp = r["por_uf"]["RJ"], r["por_uf"]["SP"]
+    assert rj["asns"] == 4 and rj["asns_participantes"] == 1 and rj["n_asns_com_dado"] == 1 and rj["pct_asns"] == 25.0
+    assert "poucos_casos" in rj["avisos"] and "poucos_casos" not in sp["avisos"]            # SP tem 6 participantes
+    assert not any(c.get("suprimido") for c in r["por_uf"].values()) and not r["brasil"].get("suprimido")
     assert all("comparacao_prontidao" not in c for c in r["por_uf"].values())                   # comparação nunca por UF
+    assert set(r["por_uf"]) == {"SP", "RJ"} and set(r["por_faixa_porte"]) == {"ate_1000", "de_1000_a_10000"}
 
 
-def test_comparacao_de_prontidao_exige_cinco_com_indice_dos_dois_lados():
+def test_peso_do_maior_participante_e_aviso_quando_chega_a_30_por_cento():
+    asns = {str(i): {"usuarios": 1000 if i == 1 else 10, "uf": "SP", "faixa_porte": "ate_1000", "total": 50.0, "classe": "atrasado", "pilares": {}} for i in range(1, 8)}
+    r = calcular({"asns": asns}, {"participantes": [{"asns": [1, 2, 3, 4, 5, 6]}]})["por_uf"]["SP"]
+    assert r["n_asns_com_dado"] == 6 and r["peso_top1"] == round(1000 / 1050, 3)
+    assert r["avisos"] == ["maior_integrante"]
+    iguais = {str(i): {"usuarios": 100, "uf": "SP", "faixa_porte": "ate_1000", "total": 50.0, "classe": "atrasado", "pilares": {}} for i in range(1, 11)}
+    assert calcular({"asns": iguais}, {"participantes": [{"asns": list(range(1, 11))}]})["por_uf"]["SP"]["avisos"] == []      # 10 de peso igual: 10% cada
+
+
+def test_comparacao_de_prontidao_sai_com_n_e_aviso_mesmo_com_poucos_de_um_lado():
     r = calcular({"asns": _asns()}, {"participantes": [{"asns": [1, 2, 3, 4, 5, 6]}]})
     c = r["brasil"]["comparacao_prontidao"]
     assert c["participantes"]["asns_com_indice"] == 6 and c["nao_participantes"]["asns_com_indice"] == 6 and c["participantes"]["mediana"] == 43.5
-    assert r["por_faixa_porte"]["de_1000_a_10000"]["suprimido"] and r["por_faixa_porte"]["ate_1000"]["suprimido"]      # nenhum participante num porte: ele e o outro porte saem (senão sairia por diferença)
+    assert c["participantes"]["n_asns_com_dado"] == 6 and "avisos" in c["nao_participantes"]
     r2 = calcular({"asns": _asns()}, {"participantes": [{"asns": [1, 2, 3, 4]}]})
-    assert r2["brasil"]["suprimido"] is True and "comparacao_prontidao" not in r2["brasil"]
-
-
-def test_supressao_complementar_nao_deixa_o_recorte_pequeno_sair_por_diferenca():
-    asns = {str(i): {"usuarios": 10, "uf": "SP" if i <= 20 else ("RJ" if i <= 30 else "MG"), "faixa_porte": "ate_1000", "total": 50.0, "classe": "atrasado", "pilares": {}} for i in range(1, 41)}
-    doc = {"participantes": [{"asns": list(range(1, 11)) + list(range(21, 26)) + [31, 32]}]}       # SP 10, RJ 5, MG 2
-    uf = calcular({"asns": asns}, doc)["por_uf"]
-    assert uf["MG"]["suprimido"] and uf["RJ"].get("suprimido") and not uf["SP"].get("suprimido")  # MG (2) + o menor dos demais (RJ, 5): a soma 7 não revela MG
-    ok = {g: c for g, c in uf.items() if not c.get("suprimido")}
-    assert 17 - sum(c["asns_participantes"] for c in ok.values()) >= MINIMO_ASNS                  # o que se deduz do total é a soma dos ocultos
+    assert r2["brasil"]["asns_participantes"] == 4 and "poucos_casos" in r2["brasil"]["avisos"] and not r2["brasil"].get("suprimido")
+    assert "poucos_casos" in r2["brasil"]["comparacao_prontidao"]["participantes"]["avisos"]
+    assert MINIMO_ASNS == 5

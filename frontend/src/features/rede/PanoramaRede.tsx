@@ -14,6 +14,7 @@ import { nomeUf } from '../../lib/ufs'
 import type { ResumoRedeTerritorio } from '../../types/api'
 import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 import { useOrdenacao } from '../../lib/ordenacao'
+import { AvisosRecorte, textoPeso } from '../../components/ui/AvisoRecorte'
 
 const p = (v: number | null | undefined) => (v == null ? '—' : `${v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`)
 
@@ -42,8 +43,8 @@ function DadosIpv6({ ufs }: { ufs: ResumoRedeTerritorio['ipv6']['ufs'] }) {
 function DadosRov({ ufs }: { ufs: ResumoRedeTerritorio['rov']['ufs'] }) {
   const { ordenados, props } = useOrdenacao(Object.entries(ufs), { uf: ([uf]) => uf, rov: ([, v]) => v.pct_atras_rov, usuarios: ([, v]) => v.usuarios_com_medida, cobertura: ([, v]) => v.cobertura })
   return (
-    <table className="text-xs min-w-full" data-tabela="grade"><thead className="text-gray-500"><tr><ThOrdenavel {...props('uf')} className="px-2 py-1 text-left">UF</ThOrdenavel><ThOrdenavel {...props('rov')} alinhar="right" className="px-2 py-1 text-right">Atrás de ROV</ThOrdenavel><ThOrdenavel {...props('usuarios')} alinhar="right" className="px-2 py-1 text-right">Usuários com medida</ThOrdenavel><ThOrdenavel {...props('cobertura')} alinhar="right" className="px-2 py-1 text-right">Cobertura</ThOrdenavel></tr></thead>
-      <tbody>{ordenados.map(([uf, v]) => <tr key={uf} className="border-t border-gray-100"><td className="px-2 py-1"><Link to={`/uf/${uf}`} className="text-primario-700 hover:underline">{uf} — {nomeUf(uf)}</Link></td><td className="px-2 py-1 text-right tabular-nums">{p(v.pct_atras_rov)}</td><td className="px-2 py-1 text-right tabular-nums">{v.usuarios_com_medida.toLocaleString('pt-BR')}</td><td className="px-2 py-1 text-right tabular-nums">{p(v.cobertura)}</td></tr>)}</tbody></table>
+    <table className="text-xs min-w-full" data-tabela="grade"><thead className="text-gray-500"><tr><ThOrdenavel {...props('uf')} className="px-2 py-1 text-left">UF</ThOrdenavel><ThOrdenavel {...props('rov')} alinhar="right" className="px-2 py-1 text-right">Atrás de ROV</ThOrdenavel><ThOrdenavel {...props('usuarios')} alinhar="right" className="px-2 py-1 text-right">Usuários com medida</ThOrdenavel><ThOrdenavel {...props('cobertura')} alinhar="right" className="px-2 py-1 text-right">Cobertura</ThOrdenavel><th scope="col" className="px-2 py-1 text-right">ASNs com medida</th><th scope="col" className="px-2 py-1 text-right">Maior ASN</th><th scope="col" className="px-2 py-1 text-left">Aviso</th></tr></thead>
+      <tbody>{ordenados.map(([uf, v]) => <tr key={uf} className="border-t border-gray-100"><td className="px-2 py-1"><Link to={`/uf/${uf}`} className="text-primario-700 hover:underline">{uf} — {nomeUf(uf)}</Link></td><td className="px-2 py-1 text-right tabular-nums">{p(v.pct_atras_rov)}</td><td className="px-2 py-1 text-right tabular-nums">{v.usuarios_com_medida.toLocaleString('pt-BR')}</td><td className="px-2 py-1 text-right tabular-nums">{p(v.cobertura)}</td><td className="px-2 py-1 text-right tabular-nums">{v.n_asns_com_dado?.toLocaleString('pt-BR') ?? '—'}</td><td className="px-2 py-1 text-right tabular-nums">{textoPeso(v.peso_top1)?.replace('maior: ', '') ?? '—'}</td><td className="px-2 py-1"><AvisosRecorte avisos={v.avisos} /></td></tr>)}</tbody></table>
   )
 }
 

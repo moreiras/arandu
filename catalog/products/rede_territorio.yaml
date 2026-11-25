@@ -26,7 +26,7 @@ campos:
 - nome: rov.ufs[uf] / brasil
   tipo: dict
   significado: Usuários estimados, os com medida de ROV e os atrás de ASNs que validam ROV, por UF da sede do ASN.
-  tratamento: ESTIMATIVA. Fração de testes da APNIC em que o AS valida ROV (mínimo de 100 amostras) × usuários estimados; a UF é a da sede do ASN.
+  tratamento: ESTIMATIVA. Fração de testes da APNIC em que o AS valida ROV (mínimo de 100 amostras) × usuários estimados; a UF é a da sede do ASN. Nenhuma UF é suprimida (D6) e cada uma traz `n_asns_com_dado` (ASNs com medida), `peso_top1` (parcela do maior ASN nos usuários com medida) e `avisos` (`poucos_casos` com menos de 5; `maior_integrante` com 30% ou mais).
   publicado_em:
   - rede_territorio → territorio/rede_territorio.json.gz#rov
 - nome: transito.municipios[ibge] / ufs
