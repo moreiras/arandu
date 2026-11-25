@@ -359,7 +359,7 @@ ixbr:
   - { code: ba,          pdb_ix_id: 556  }
   - { code: sc,          pdb_ix_id: 175  }
   - { code: sjp,         pdb_ix_id: 709  }
-  - { code: cpv,         pdb_ix_id: 415  }
+  - { code: cpv,         pdb_ix_id: 603  }
   - { code: gyn,         pdb_ix_id: 575  }
   - { code: mao,         pdb_ix_id: 707  }
   - { code: bel,         pdb_ix_id: 711  }
@@ -372,10 +372,10 @@ ixbr:
   - { code: cxj,         pdb_ix_id: 558  }
   - { code: cgb,         pdb_ix_id: 859  }
   - { code: vix,         pdb_ix_id: 706  }
-  - { code: cac,         pdb_ix_id: 603  }
+  - { code: cac,         pdb_ix_id: 2822 }
   - { code: se,          pdb_ix_id: 1684 }
   - { code: mcz,         pdb_ix_id: 2291 }
-  - { code: cas,         pdb_ix_id: 2822 }
+  - { code: cas,         pdb_ix_id: 415  }
   - { code: cgr,         pdb_ix_id: 3096 }
   - { code: jpa,         pdb_ix_id: 1983 }
   - { code: igu,         pdb_ix_id: 1276 }

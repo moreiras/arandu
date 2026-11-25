@@ -58,7 +58,9 @@ def test_load_peeringdb_ixps_config():
 
 def test_peeringdb_ixbr_cobre_os_ptts_da_config_sem_codigo_estranho():
     """INST-E2: todo código do bloco `ixbr` existe em config/ixps.yaml e cada PTT tem um, e só um, registro do PeeringDB.
-    Santa Maria (ria) é o IX 1847 e Ribeirão Preto (rao) o 4862 no PeeringDB; estavam trocados, com um código `santa-maria` a mais."""
+    Santa Maria (ria) é o IX 1847 e Ribeirão Preto (rao) o 4862 no PeeringDB; estavam trocados, com um código `santa-maria` a mais.
+    Campina Grande (cpv) é o 603, Cascavel (cac) o 2822 e Campinas (cas) o 415 (conferido na API do PeeringDB em 2026-11-25); os três
+    estavam permutados."""
     c = _common.load_peeringdb_ixps_config()
     codigos = [i["code"] for i in c["ixbr"]]
     ids = [i["pdb_ix_id"] for i in c["ixbr"] + c["external"]]
@@ -66,6 +68,7 @@ def test_peeringdb_ixbr_cobre_os_ptts_da_config_sem_codigo_estranho():
     assert len(set(codigos)) == len(codigos) and len(set(ids)) == len(ids)
     por_codigo = {i["code"]: i["pdb_ix_id"] for i in c["ixbr"]}
     assert (por_codigo["ria"], por_codigo["rao"]) == (1847, 4862)
+    assert (por_codigo["cpv"], por_codigo["cac"], por_codigo["cas"]) == (603, 2822, 415)
 
 
 def test_configure_logging_aceita_formato_texto(monkeypatch):
