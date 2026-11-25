@@ -2191,8 +2191,8 @@ export interface paths {
          * @description Séries do país, uma por métrica, reaproveitando o que cada snapshot publicou: `familia=roteamento` (estado RPKI de origem das rotas brasileiras, IPv6 antes de IPv4)
          *     ou `familia=seguranca` (classe pronto do índice de prontidão, índice médio ponderado por usuários, ROV e DNSSEC). Cada ponto traz `comparavel_com_anterior` e os
          *     `motivos` do corte (medida ausente, base ou método diferentes, cobertura que variou 25% ou mais, data atípica); a `variacao` é a do último trecho comparável e não é
-         *     calculada quando não há dois pontos comparáveis. `desenhar_linha` só é verdadeiro com 4 pontos comparáveis seguidos. `regra` traz o texto do "Como ler". `from` recorta as datas;
-         *     sem `from` num snapshot atual, a série inteira exige login.
+         *     calculada quando não há dois pontos comparáveis. `desenhar_linha` só é verdadeiro com 4 pontos comparáveis seguidos. `regra` traz o texto do "Como ler". `from` recorta as datas.
+         *     Aberta a todos, com a série inteira e a mesma resposta para qualquer nível de acesso: traz só totais do Brasil, sem entidade.
          */
         get: operations["series_nacionais_api_v1_history_brasil_series_get"];
         put?: never;

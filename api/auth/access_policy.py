@@ -92,6 +92,7 @@ _OPEN_PATTERNS: Sequence[str] = (
     r"/cdns/presence",                # resumo de presença de CDNs (aba Resumo do panorama)
     r"/prontidao/resumo",             # agregado do país, UFs e porte (sem lista nominal)
     r"/rpki/summary",                 # ASes com ROA e ASPA (cartão do snapshot e panorama)
+    r"/history/brasil/series",        # série nacional inteira (só totais do Brasil, sem entidade); `classify` a trata antes da regra de histórico
 )
 
 # ── Listas paginadas: 1ª página (≤ PREVIEW_LIMIT) aberta; além disso, login ──
@@ -203,6 +204,11 @@ def classify(
     # mesma resposta para todos; o bloco não depende de quem pede, então a URL pode ser guardada pelo nginx e pelo cache da API.
     if "historico_completo" in {p.strip() for p in (query.get("include") or "").split(",")}:
         return Classification(LOGIN, "historico")
+
+    # Série nacional (PT-28, decisão do mantenedor): só totais do Brasil, sem entidade, então a série inteira é aberta e a resposta é a
+    # mesma para qualquer nível de acesso (o nginx e o cache da API guardam por URL). Séries por ASN, PTT, UF e operadora seguem a regra abaixo.
+    if rel == "/history/brasil/series":
+        return Classification(OPEN, "serie-nacional")
 
     # Histórico (séries e eventos): a consulta precisa começar num snapshot atual; sem `from` ou com `from` mais antigo é a
     # série inteira, que exige login. `/snapshots/diff` compara duas datas, ambas atuais. Antes da regra de `/snapshots/{data}`, que o capturaria.

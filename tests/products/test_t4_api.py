@@ -717,6 +717,18 @@ def test_bloco_historico_depende_so_da_url(api, ctx):
         assert r.headers["cache-control"] == "private, no-store", rota
 
 
+def test_serie_nacional_e_aberta_e_a_resposta_nao_depende_de_quem_pede(api):
+    """`/history/brasil/series` só traz totais do Brasil: a série inteira abre para o anônimo e o corpo e o cache são os mesmos de quem tem acesso
+    (o nginx e o cache da API guardam por URL). A série por entidade segue a regra de histórico (login fora das datas atuais)."""
+    for familia in ("roteamento", "seguranca"):
+        params = {"familia": familia}
+        anon, logado = api.get("/api/v1/history/brasil/series", params=params, headers=ANON), api.get("/api/v1/history/brasil/series", params=params, headers=ALLOWED)
+        assert anon.status_code == logado.status_code == 200, familia
+        assert anon.json() == logado.json(), familia
+        assert anon.headers.get("cache-control") == logado.headers.get("cache-control"), familia
+    assert api.get("/api/v1/history/uf/PR", headers=ANON).status_code == 401
+
+
 def test_bloco_historico_do_anonimo_so_tem_as_datas_atuais(tmp_path):
     """O bloco do perfil respeita a política de acesso: `completo=False` limita às datas atuais, mesmo que a série tenha mais."""
     import gzip

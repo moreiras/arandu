@@ -165,6 +165,14 @@ def test_series_e_eventos_do_historico_so_nos_dois_snapshots_atuais(
     assert c("/api/v1/cdns/mudancas") == LOGIN
 
 
+def test_serie_nacional_e_aberta_com_a_serie_inteira_e_as_por_entidade_continuam_com_a_regra():
+    # só totais do Brasil: aberta com ou sem `from`, e a classe não depende da lista de datas nem da família
+    for q in ({}, {"familia": "seguranca"}, {"from": "2026-01-01"}, {"familia": "roteamento", "from": "2026-10-04"}):
+        assert c("/api/v1/history/brasil/series", q) == OPEN, q
+        assert c("/api/v1/history/brasil/series", q, recent=None) == OPEN, q
+    assert c("/api/v1/history/uf/SP") == LOGIN and c("/api/v1/history/asns/28571", {"from": "2026-08-01"}) == LOGIN
+
+
 def test_historico_nao_se_aplica_sem_lista_de_datas():
     assert c("/api/v1/ixps", {"date": "2020-01-01"}, recent=None) == OPEN
 

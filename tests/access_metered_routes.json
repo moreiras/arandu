@@ -59,7 +59,6 @@
  "/api/v1/grupos/{grupo_id}",
  "/api/v1/grupos/{grupo_id}/municipios",
  "/api/v1/history/asns/{asn}",
- "/api/v1/history/brasil/series",
  "/api/v1/history/ixps/{code}",
  "/api/v1/history/operadoras/{cnpj}",
  "/api/v1/history/uf/{uf}",
