@@ -21,7 +21,7 @@ _LIMITE_SECAO_BYTES = 4000        # seção maior que isto só é descrita no í
 
 @mcp.tool()
 def routing_analysis(secao: Optional[str] = None, limit: int = 50, offset: int = 0, date: Optional[str] = None) -> dict:
-    """Análise BGP global focada nos prefixos brasileiros (P_BR): composição, tamanhos de prefixo, more specifics, agregação.
+    """Análise BGP global focada nos prefixos brasileiros (P_BR): composição, tamanhos de prefixo, more specifics, agregação, MOAS.
 
     Rota brasileira = prefixo contido em bloco alocado pelo Registro.br; a origem não define. Em `pbr_composition`, `strict_br` +
     `prefix_only_br` = `total`; `asn_br_fora_de_bloco` (alias `origin_only_br`) fica fora do total: rotas de ASN da lista do Registro.br
@@ -31,6 +31,8 @@ def routing_analysis(secao: Optional[str] = None, limit: int = 50, offset: int =
     Com `secao` devolve aquela seção; lista ou mapa com mais de `limit` entradas vem fatiado (`total`, `offset`, `truncado`) — algumas
     seções têm dezenas de MB (cobertura do Registro.br). Inclui prefixos potencialmente filtráveis e, quando `has_path_data` é
     verdadeiro, estatísticas de AS_PATH, prepending, upstream aparente, higiene e communities (`as_path_stats`).
+    `moas` lista os prefixos brasileiros com mais de um AS de origem observado (fato, sem causa) e `moas_resumo` traz as contagens
+    por família e os coletores; nos snapshots cuja coleta guardou uma origem por prefixo os dois vêm nulos, com `moas_indisponivel`.
 
     Args:
         secao: Nome de uma seção do documento (veja `secoes_grandes` na chamada sem argumento).
@@ -43,8 +45,8 @@ def routing_analysis(secao: Optional[str] = None, limit: int = 50, offset: int =
     doc = _store.routing_analysis(d)
     if doc is None:
         raise ValueError(f"routing_analysis indisponível no snapshot {d}.")
-    from core.moas import retirar_da_analise
-    doc = retirar_da_analise(doc)
+    from core.moas import analise_publicada
+    doc = analise_publicada(doc)
     _enrich_top_communities(doc)
     if secao is not None:
         if secao not in doc:

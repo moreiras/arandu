@@ -15,6 +15,7 @@ Inputs (normalized/{date}/summary/):
   prefix-set-{afi}.json.gz       — [prefixo, ...]
   routes-{afi}.json.gz           — stats globais
   br-routes-{afi}.json.gz        — rotas BR com AS_PATH e communities (opcional, Fase 2)
+  origins-multi-{afi}.json.gz    — prefixos com 2+ origens, por coletor (MOAS; sem ele `moas` sai nulo com o motivo)
 
 Output:
   published/{date}/routing_analysis.json
@@ -177,6 +178,12 @@ def run(date_str: str, base: Path, log) -> bool:
     reg_trie_v4._build()
     reg_trie_v6._build()
 
+    # ---- MOAS ----
+    # `origins-multi-{afi}` só existe em coleta que guarda todas as origens; família sem ele fica nula (não é "zero MOAS")
+    log.info("computing moas")
+    origens_multi = {afi: _safe_load(norm / f"origins-multi-{afi}.json.gz", log, f"origins-multi-{afi}") for afi in ("v6", "v4")}
+    moas, moas_resumo = _moas_analysis(origens_multi, reg_trie_v4, reg_trie_v6, br_asns, asn_names)
+    del origens_multi
 
     # ---- Too specific ----
     log.info("computing too-specific prefixes")
@@ -238,9 +245,10 @@ def run(date_str: str, base: Path, log) -> bool:
         "top_asns_more_specifics": top_ms,
         "aggregation_by_asn":  agg_table,
         "registro_br_coverage": reg_coverage,
-        # MOAS fica nulo, com o motivo, até a coleta guardar mais de uma origem por prefixo (core/moas.py)
-        "moas":                 None,
-        "moas_indisponivel":    MOAS_MOTIVO,
+        # MOAS: lista dos prefixos brasileiros e resumo; nulo, com o motivo, sem `origins-multi` (core/moas.py)
+        "moas":                 moas,
+        "moas_resumo":          moas_resumo,
+        **({"moas_indisponivel": MOAS_MOTIVO} if moas_resumo is None else {}),
         "too_specific":         too_specific,
         "global_comparison":    global_comparison,
         "as_path_stats":        as_path_stats_out,
@@ -255,7 +263,7 @@ def run(date_str: str, base: Path, log) -> bool:
     # Resumo de poucos KB para o Panorama técnico (a API não carrega os ~14 MB para servir os totais).
     resumo_rotas.gravar(pub, resumo_rotas.montar(
         date_str, pbr_v4, pbr_v6, rpki_index, summary=summary, more_specifics=more_specifics,
-        too_specific=too_specific, vrps=len(vrp_list), fora_de_bloco={"v4": len(fora_v4), "v6": len(fora_v6)}))
+        too_specific=too_specific, moas_resumo=moas_resumo, vrps=len(vrp_list), fora_de_bloco={"v4": len(fora_v4), "v6": len(fora_v6)}))
     log.info("routing_analysis written", path=str(out_path),
              pbr_v4=len(pbr_v4), pbr_v6=len(pbr_v6),
              has_path_data=has_path_data)

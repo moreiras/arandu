@@ -2,8 +2,8 @@
 id: routing_analysis
 nome: Análise de roteamento BGP do Brasil
 descricao: Composição do espaço BR na tabela global (estrito, só origem, só prefixo), distribuição de
-  tamanhos, mais-específicos, agregação possível, cobertura do Registro.br e prefixos específicos
-  demais.
+  tamanhos, mais-específicos, agregação possível, cobertura do Registro.br, prefixos específicos
+  demais e origem múltipla (MOAS) dos prefixos brasileiros.
 modulo: products.routing_analysis.build
 entradas:
 - source: fulltable_routeviews
@@ -32,13 +32,21 @@ campos:
   tratamento: Estimativa teórica; agregação real depende de política.
   publicado_em:
   - routing_analysis → routing_analysis.json#aggregation_by_asn
-- nome: moas / moas_indisponivel
-  tipo: null / str
-  significado: Prefixos com mais de uma origem observada. Indisponível; `moas_indisponivel` traz o motivo.
-  tratamento: Sempre nulo até a coleta guardar mais de uma origem por prefixo (a tabela usada guarda uma, e a contagem sairia
-    sempre 0, o que não é ausência de MOAS).
+- nome: moas[].prefix / afi / origins / br_origins / origens[].asn / origens[].coletores / origens[].coletores_nomes / origens[].asn_br
+  tipo: list[dict]
+  significado: Prefixos brasileiros (contidos em bloco do Registro.br) com mais de um AS de origem observado nos coletores da tabela
+    global, com cada origem, se o ASN está na lista do Registro.br e quantos (e quais) coletores a viram. IPv6 antes de IPv4.
+  tratamento: Fato observado (de `origins-multi-{afi}`), sem rótulo de causa. Até `moas_resumo.lista_limite` entradas
+    (`lista_truncada`). Nulo, com o motivo em `moas_indisponivel`, quando a coleta do snapshot guardou uma origem por prefixo.
   publicado_em:
   - routing_analysis → routing_analysis.json#moas
+- nome: moas_resumo.prefixos.{v6,v4}.global / br; moas_resumo.coletores.{v6,v4}
+  tipo: dict
+  significado: Prefixos com 2+ origens por família, na tabela inteira e só os brasileiros, e os coletores que entraram; família sem
+    `origins-multi` fica nula. Traz também `definicao`, `como_ler` (causas só como hipótese) e `limites`.
+  tratamento: Zero com o resumo presente é nenhum MOAS observado entre esses coletores; resumo nulo é não medido.
+  publicado_em:
+  - routing_analysis → routing_analysis.json#moas_resumo
 - nome: too_specific
   tipo: list
   significado: Prefixos mais específicos que o limite prático (/48 IPv6, /24 IPv4).
@@ -114,8 +122,9 @@ campos:
   - routing_analysis → routing_analysis_resumo.json#rpki
 - nome: saude.{v6,v4}.mais_especificos / filtraveis; saude.moas
   tipo: dict
-  significado: Totais de saúde da tabela para o Panorama técnico (mais-específicos, prefixos filtráveis), copiados da análise
-    completa. `saude.moas` é nulo, com o motivo em `saude.moas_indisponivel`.
+  significado: Totais de saúde da tabela para o Panorama técnico (mais-específicos, prefixos filtráveis, MOAS), copiados da análise
+    completa. `saude.moas.{v6,v4}` = {prefixos, prefixos_br, coletores}; nulo, com o motivo em `saude.moas_indisponivel`, quando
+    não medido.
   publicado_em:
   - routing_analysis → routing_analysis_resumo.json#saude
 cenarios_de_teste:
