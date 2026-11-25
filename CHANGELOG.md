@@ -137,7 +137,11 @@ parênteses remetem à análise.
   execução depois disto coleta a tabela global de novo (BGP-E2, PFX-E3).
 - **Registro do aceite (PT-13, D10).** A conta passa a guardar a versão da política aceita e a data do aceite, gravadas no login
   (contas antigas ficam "não registrada" até o próximo login). A tabela de retenção é gerada das constantes do código, com teste;
-  a exibição na página de privacidade aguarda a redação do mantenedor.
+  a página de privacidade passa a exibi-la (PT-13b). A política (versão 2026-11-25, aprovada pelo mantenedor) declara: o log do servidor
+  web, com IP, URL e horário, mantido por tempo indeterminado; os registros de uso sem IP; o registro de páginas visitadas por quem tem
+  conta, com IP, por 3 meses; as contagens por dia, conta, origem e classe de rota por até 12 meses, com o identificador da conta
+  retirado só na exclusão; os tetos do MCP por minuto, hora e dia; e o armazenamento local do navegador. Nenhuma prática de registro
+  mudou. Quem já tinha conta grava a versão vigente no próximo login.
 - **Acesso, lista nominal e citação (PT-12; D2, D3, D9).** Lista nominal de prontidão pública com salvaguardas (pilar sem dado é "não
   medido", ordem neutra, aviso de método). "Citar" passa a trazer os valores, a data do snapshot e as fontes, e avisa que o link abre
   sem login enquanto a data estiver entre as recentes; quem abre data antiga sem login vê o aviso de snapshot histórico. `/snapshots`
