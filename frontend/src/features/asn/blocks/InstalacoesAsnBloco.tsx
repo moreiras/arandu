@@ -81,7 +81,7 @@ export function InstalacoesAsnBloco({ dados }: BlocoProps<AsnCtx>) {
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-left text-gray-500 border-b border-gray-100">
-                  <ThOrdenavel {...props('nome')} className="py-1 pr-3 font-medium">Instalação</ThOrdenavel><ThOrdenavel {...props('local')} className="py-1 pr-3 font-medium">Local</ThOrdenavel><ThOrdenavel {...props('ptts')} className="py-1 pr-3 font-medium">PTTs</ThOrdenavel>
+                  <ThOrdenavel {...props('nome')} className="py-1 pr-3 font-medium">Instalação</ThOrdenavel><ThOrdenavel {...props('local')} className="py-1 pr-3 font-medium">Local</ThOrdenavel><ThOrdenavel {...props('ptts')} className="py-1 pr-3 font-medium">PTTs no prédio</ThOrdenavel>
                   <ThOrdenavel {...props('redes')} alinhar="right" className="py-1 pr-3 font-medium text-right">Redes</ThOrdenavel><ThOrdenavel {...props('desde')} className="py-1 pr-3 font-medium">Vínculo desde</ThOrdenavel><ThOrdenavel {...props('cadastro')} className="py-1 font-medium">Cadastro</ThOrdenavel>
                 </tr>
               </thead>

@@ -145,7 +145,8 @@ def bloco_asn(doc: Optional[dict], vinc: Optional[dict], asn: int) -> Optional[d
             itens.append({**resumo(f), "no_vinculo_desde": criado, "vinculo_atualizado": atualizado, "ptts": [x.get("code") or f"pdb-ix-{x['ix_id']}" for x in f.get("ixps") or []]})
     itens.sort(key=lambda x: (-(x.get("n_redes") or 0), x["id"]))
     return {**_meta(doc), "asn": asn, "total": len(itens), "items": itens,
-            "nota": "Instalações do Brasil em que a rede declara estar no PeeringDB; instalações no exterior não foram coletadas."}
+            "nota": "Instalações do Brasil em que a rede declara estar no PeeringDB; instalações no exterior não foram coletadas. "
+                    "A coluna de PTTs lista os que o PeeringDB associa ao prédio, não o ponto em que a rede se conecta ao PTT."}
 
 
 def bloco_peering(atrib: Optional[dict], portas: Optional[dict], vinc: Optional[dict], asn: int) -> Optional[dict]:
