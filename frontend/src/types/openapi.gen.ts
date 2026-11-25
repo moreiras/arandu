@@ -3968,8 +3968,10 @@ export interface paths {
          *     `pbr_composition`, `strict_br` + `prefix_only_br` = `total`; `asn_br_fora_de_bloco` (alias `origin_only_br`, com `fora_do_total`)
          *     conta à parte as rotas de ASN da lista do Registro.br em espaço de outro RIR. Inclui composição de P_BR, histograma de
          *     prefix length, more specifics, potencial de agregação, cobertura Registro.br,
-         *     prefixos potencialmente filtráveis. `moas` vem nulo, com o motivo em `moas_indisponivel`: a tabela usada guarda uma origem por
-         *     prefixo e não detecta origem múltipla.
+         *     prefixos potencialmente filtráveis e origem múltipla (MOAS). `moas` lista os prefixos brasileiros com mais de um AS de origem
+         *     observado, com cada origem e o número de coletores que a viram; `moas_resumo` traz a contagem por família (global e brasileira), os
+         *     coletores, a definição, o "como ler" e os limites. Lista vazia com `moas_resumo` é nenhum MOAS brasileiro observado. Em snapshot cuja
+         *     coleta guardou uma origem por prefixo, `moas` e `moas_resumo` vêm nulos, com o motivo em `moas_indisponivel`.
          *
          *     Quando `has_path_data` é `true`, o campo `as_path_stats` é preenchido com
          *     estatísticas de AS_PATH, prepending, upstream aparente, higiene e communities.

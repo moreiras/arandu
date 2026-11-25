@@ -1,5 +1,6 @@
 import { composicaoPorPrefixo, type RoutingAnalysis } from '../../types/routingAnalysis'
 import { Tip } from './BgpShared'
+import { moasMedido } from '../../features/prefixo/blocks/MoasBloco'
 
 interface Props { data: RoutingAnalysis }
 
@@ -29,6 +30,21 @@ function Card({ label, value, sub, tooltip, accent = 'gray' }: {
       <div className={`text-2xl font-semibold ${valCls}`}>{value}</div>
       {sub && <div className="text-xs text-gray-400 mt-0.5">{sub}</div>}
     </div>
+  )
+}
+
+/** MOAS dos prefixos brasileiros (IPv6 · IPv4): número só com a coleta capaz; zero é "nenhum observado"; sem ela, "não medido". */
+function CardMoas({ data }: Props) {
+  const tooltip = 'Prefixos brasileiros (em bloco do Registro.br) observados com mais de um AS de origem nos coletores da tabela global. É fato observado; a causa não é medida (veja a aba MOAS).'
+  if (!moasMedido(data)) {
+    return <Card accent="purple" label="MOAS (prefixos BR)" value="não medido" sub="a coleta deste snapshot guardou uma origem por prefixo" tooltip={tooltip} />
+  }
+  const p = data.moas_resumo!.prefixos
+  const n = (a: 'v6' | 'v4') => (p[a] ? fmt(p[a]!.br) : '—')
+  const global = (['v6', 'v4'] as const).reduce((s, a) => s + (p[a]?.global ?? 0), 0)
+  return (
+    <Card accent="purple" label="MOAS (prefixos BR, IPv6 · IPv4)" value={`${n('v6')} · ${n('v4')}`}
+      sub={`${fmt(global)} prefixos com origem múltipla na tabela inteira`} tooltip={tooltip} />
   )
 }
 
@@ -131,6 +147,7 @@ export function SummaryCards({ data }: Props) {
 
       {/* Linha global */}
       <div className="grid grid-cols-2 gap-3">
+        <CardMoas data={data} />
         <Card
           accent="gray"
           label="ASNs BR visíveis na tabela"

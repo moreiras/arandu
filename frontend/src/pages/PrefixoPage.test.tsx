@@ -14,9 +14,20 @@ import { blocosDe } from '../features/entidade/registry'
 import '../features/prefixo'
 import { PrefixoPage } from './PrefixoPage'
 import { SearchBar } from '../components/layout/SearchBar'
+import { MOAS_INDISPONIVEL } from '../features/prefixo/blocks/MoasBloco'
 
 const info = { prefix: '198.18.0.0/24', ip_version: 4, origin_asn: 64496, uf: 'ES', country: 'BR', geo_confidence: 'city_centroid', geo_source: 'dbip-lite-2026-09',
   snapshot_date: '2026-09-20', geo_org: { name: 'Provedor 01 Telecom Ltda', cnpj: '90000001000100' } }
+
+const analiseComMoas = {
+  snapshot_date: '2026-09-20',
+  moas: [{ prefix: '198.18.0.0/24', afi: 'v4', origins: [64496, 64497], br_origins: [64496, 64497], is_prefix_br: true, origens: [
+    { asn: 64496, name: 'Provedor 01 Telecom Ltda', coletores: 2, coletores_nomes: ['rvT', 'rvU'], asn_br: true },
+    { asn: 64497, name: 'Provedor 02 Telecom Ltda', coletores: 1, coletores_nomes: ['rvU'], asn_br: true }] }],
+  moas_resumo: { prefixos: { v6: { global: 1, br: 1 }, v4: { global: 2, br: 1 } }, coletores: { v6: ['rvT', 'rvU'], v4: ['rvT', 'rvU'] },
+    lista: 'prefixos brasileiros', lista_truncada: false, lista_limite: 2000, definicao: 'Prefixo com mais de um AS de origem.',
+    como_ler: 'É fato observado; a causa não é medida. Hipóteses, a conferir caso a caso.', limites: 'Visão de poucos coletores.' },
+}
 
 function montar(caminho: string) {
   return render(
@@ -64,15 +75,45 @@ describe('página de prefixo', () => {
     expect(await screen.findByText('Prefixo não encontrado')).toBeInTheDocument()
   })
 
-  it('MOAS: indisponível, sem afirmar ausência e sem baixar a análise de roteamento (PFX-E3)', async () => {
+  it('MOAS: só baixa a análise (14 MB) quando o usuário pede e lista as origens com os coletores (PFX-E3)', async () => {
     let chamadas = 0
-    server.use(http.get('*/api/v1/routing-analysis', () => { chamadas += 1; return HttpResponse.json({ moas: null }) }))
+    server.use(http.get('*/api/v1/routing-analysis', () => { chamadas += 1; return HttpResponse.json(analiseComMoas) }))
     montar('/prefixo/198.18.0.0/24')
+    const botao = await screen.findByRole('button', { name: /Verificar na análise de roteamento/ })
+    expect(chamadas).toBe(0)
+    fireEvent.click(botao)
+    const bloco = await screen.findByTestId('moas-observado')
+    expect(bloco.textContent).toMatch(/2 ASes de origem/)
+    expect(bloco.textContent).toMatch(/vista em 2 coletores \(rvT, rvU\)/)
+    expect(screen.getByRole('link', { name: 'AS64497' })).toHaveAttribute('href', '/asn/64497?date=2026-09-20')
+    expect(bloco.textContent).not.toMatch(/sequestro|hijack/i)
+    expect(chamadas).toBe(1)
+  })
+
+  it('MOAS medido sem o prefixo: "nenhuma observada", com o número de coletores', async () => {
+    server.use(http.get('*/api/v1/routing-analysis', () => HttpResponse.json({ ...analiseComMoas, moas: [] })))
+    montar('/prefixo/198.18.0.0/24')
+    fireEvent.click(await screen.findByRole('button', { name: /Verificar na análise de roteamento/ }))
+    expect((await screen.findByTestId('moas-nenhum')).textContent).toMatch(/Nenhuma origem múltipla \(MOAS\) observada para este prefixo exato neste snapshot, entre 2 coletores/)
+  })
+
+  it('MOAS não medido no snapshot: aviso de limite da coleta, sem afirmar ausência', async () => {
+    server.use(http.get('*/api/v1/routing-analysis', () => HttpResponse.json({ moas: null, moas_resumo: null, moas_indisponivel: MOAS_INDISPONIVEL })))
+    montar('/prefixo/198.18.0.0/24')
+    fireEvent.click(await screen.findByRole('button', { name: /Verificar na análise de roteamento/ }))
     const aviso = await screen.findByTestId('moas-indisponivel')
     expect(aviso.textContent).toMatch(/não medida neste snapshot/)
     expect(aviso.textContent).toMatch(/limite da coleta, não ausência de eventos/)
     expect(document.body.textContent).not.toMatch(/Nenhuma origem múltipla/)
-    expect(chamadas).toBe(0)
+  })
+
+  it('MOAS com falha da API: EstadoDados, nunca "nenhuma"', async () => {
+    server.use(http.get('*/api/v1/routing-analysis', () => new HttpResponse('erro', { status: 500 })))
+    montar('/prefixo/198.18.0.0/24')
+    fireEvent.click(await screen.findByRole('button', { name: /Verificar na análise de roteamento/ }))
+    const falha = await screen.findByText(/Não foi possível carregar a análise de roteamento/)
+    expect(falha.closest('[data-estado]')).toHaveAttribute('data-estado', 'falha')
+    expect(document.body.textContent).not.toMatch(/Nenhuma origem múltipla/)
   })
 })
 
