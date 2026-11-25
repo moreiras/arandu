@@ -148,6 +148,17 @@ parênteses remetem à análise.
   `sort` por campo que não é grupo nem agregado responde 400 com as opções válidas (antes era ignorado). As coleções `municipios` e
   `acessos_municipio` ganham `mes_referencia` (mês do SICI). O explorador ganha o campo "A partir de" em eventos e séries (TRANSV-E10,
   TRANSV-E11, EXP-E4).
+- **Universos de contagem e glossário (PT-15).** Cada total traz o rótulo do seu universo (cadastro do PTT, sessão com route server,
+  origem), com a nota "Por que há vários totais" e a seção `/sobre#contagens`. Na consulta genérica, `ixps_membro` (cadastro) e
+  `ixps_sessao_rs` (sessão com route server) substituem `ixps_direct`, que continua como alias com o valor do cadastro e devolve
+  `aviso_obsoleta`. Usuários alcançáveis por PTT passam a ser apresentados como não aditivos; médias do panorama e da Home trazem
+  mediana e faixas; selo, fonte e data chegam às páginas de entidade (TRANSV-E3 a E6, ASES-E2, IXPS-E5, IXP-E6, UF-E3, UF-E4, USO-E5;
+  MUNS-E3 e HOME-E4 parciais, só texto).
+- **Metadados por collection (PT-20).** `/schema` e `describe_schema` informam, por collection, as fontes (com licença e uso
+  comercial), o selo (fato, inferido, estimado) e o uso comercial efetivo (pior caso), lidos do catálogo; o índice ganha
+  `fonte_e_selo` e resumos que preservam o aviso do mês de referência do SICI. Saem contagens fixas de PTTs em textos do MCP e do
+  schema; `ferramenta_detalhe` de `faixas_espectro` e `satelites_direitos` deixa de apontar para `historico_snapshots` (TRANSV-E12,
+  TRANSV-E17).
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
