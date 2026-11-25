@@ -5,12 +5,12 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { describe, expect, it } from 'vitest'
 import {
-  agruparPorCoordenada, contagemEntidades, contagensIx, etiquetasIx, filtrarNoRaio, indicesScm, mapaDeNomes, montarEntidades,
+  agruparPorCoordenada, contagemEntidades, contagensIx, presencaPorPtt, etiquetasIx, filtrarNoRaio, indicesScm, mapaDeNomes, montarEntidades,
   municipiosSiciNoRaio, operadoresSici, pixNoRaio, resumoDoRaio, scmsNoRaio,
 } from './calculos'
 import type { Ponto } from './calculos'
 import { montarCsv } from './csv'
-import { circlePolygon, distKm, nearestIxCode } from './geo'
+import { circlePolygon, distKm, distanciasPtt, nearestIxCode } from './geo'
 import type { AsnFeature, PixFeature, PrefixFeature, ScmGeoFeature } from './tipos'
 import { formatCnpj, parseAsns, prefixColor, V4_STRONG, V4_WEAK, V6_STRONG, V6_WEAK } from './tipos'
 
@@ -204,11 +204,11 @@ describe('participação em IXes', () => {
   const rotulo = (c: string) => `IX ${c.toUpperCase()}`
 
   it('etiquetas: mais próximo, principais, "algum outro" ou "nenhum"', () => {
-    expect(etiquetasIx([], 'sp', rotulo)).toEqual([{ code: '', label: 'Nenhum IX', kind: 'none' }])
+    expect(etiquetasIx([], 'sp', rotulo)).toEqual([{ code: '', label: 'Não é participante de PTT', kind: 'none' }])
     expect(etiquetasIx(['sp', 'rj', 'ce'], 'sp', rotulo)).toEqual([
       { code: 'sp', label: 'IX SP', kind: 'near' }, { code: 'ce', label: 'IX CE', kind: 'major' }, { code: 'rj', label: 'IX RJ', kind: 'major' },
     ])
-    expect(etiquetasIx(['mg'], 'sp', rotulo)).toEqual([{ code: '', label: 'Algum IX do IX.br', kind: 'other' }])
+    expect(etiquetasIx(['mg'], 'sp', rotulo)).toEqual([{ code: '', label: 'Algum outro PTT do IX.br', kind: 'other' }])
     expect(etiquetasIx(['rs'], null, rotulo).map(t => t.kind)).toEqual(['major'])
   })
 
@@ -231,7 +231,61 @@ describe('CSV da lista', () => {
     const linhas = csv.replace('﻿', '').split('\n')
     expect(linhas).toHaveLength(3)
     expect(linhas[0].startsWith('asns,cnpj,nome,')).toBe(true)
-    expect(linhas[1]).toBe(`1 2,${CNPJ_A},"Prov, ""A""",SP,Cidade,sim,sim,sim,não,sim,não,,,IX sp,sim,sim,não,não,não,não,sim,sp mg,sp`)
-    expect(linhas[2]).toBe(`,${CNPJ_B},Só SCM,,,não,sim,não,sim,não,não,50,2,,,,,,,,,,`)
+    expect(linhas[1]).toBe(`1 2,${CNPJ_A},"Prov, ""A""",SP,Cidade,sim,sim,sim,não,sim,não,,,IX sp,sim,sim,não,não,não,não,sim,sp mg,sp,,,não,`)
+    expect(linhas[2]).toBe(`,${CNPJ_B},Só SCM,,,não,sim,não,sim,não,não,50,2,,,,,,,,,,,,,,`)
+  })
+})
+
+describe('PTT de referência pela presença real das redes (PT-25 / localizador 5.1)', () => {
+  // Juazeiro do Norte/CE: o PTT mais próximo em linha reta é cpv (~380 km), mas as redes da região são membros de ce
+  const JUAZEIRO: [number, number] = [-7.2258, -39.3252]
+  const pres: Record<number, { m: string[]; o: string[] }> = {
+    1: { m: ['ce'], o: ['ce', 'cpv'] }, 2: { m: ['ce', 'sp'], o: ['cpv'] }, 3: { m: ['ce'], o: [] }, 4: { m: ['sp'], o: [] },
+    5: { m: [], o: ['cpv', 'ce'] }, 6: { m: [], o: ['cpv'] }, 7: { m: [], o: [] },
+  }
+  const ixOf = (a: number) => pres[a] ?? { m: [], o: [] }
+  const d = distanciasPtt(JUAZEIRO[0], JUAZEIRO[1])
+
+  it('o mais próximo em linha reta é cpv, a ~380 km, mas a referência é ce, com mais membros', () => {
+    expect(d[0].code).toBe('cpv')
+    expect(Math.round(d[0].km)).toBeGreaterThan(370)
+    expect(Math.round(d[0].km)).toBeLessThan(390)
+    const r = presencaPorPtt([1, 2, 3, 4, 5, 6, 7], ixOf, JUAZEIRO, d)
+    expect(r.referencia?.code).toBe('ce')
+    expect(r.referencia?.membros).toBe(3)
+    expect(r.maisProximo?.code).toBe('cpv')
+    expect(r.maisProximo?.membros).toBe(0)
+    expect(r.maisProximo?.soOriginados).toBe(4)      // ASNs 1, 2, 5 e 6 têm prefixos vistos em cpv sem constar do cadastro
+    expect(r.algumMembro).toBe(4)
+    expect(r.semSessaoComPrefixos).toBe(2)
+    expect(r.semSessaoSemPrefixos).toBe(1)
+    expect(r.algumMembro + r.semSessaoComPrefixos + r.semSessaoSemPrefixos).toBe(r.total)
+  })
+
+  it('bordas: ASN repetido conta uma vez; sem rede no raio, sem referência; empate de membros decide pela menor distância', () => {
+    expect(presencaPorPtt([1, 1, 1], ixOf, JUAZEIRO, d).total).toBe(1)
+    const vazio = presencaPorPtt([], ixOf, JUAZEIRO, d)
+    expect(vazio.total).toBe(0)
+    expect(vazio.referencia).toBeNull()
+    const semMembros = presencaPorPtt([5, 6, 7], ixOf, JUAZEIRO, d)
+    expect(semMembros.referencia).toBeNull()
+    expect(semMembros.maisProximo?.code).toBe('cpv')
+    // 1 membro em sp e 1 em ce: empate, vence o mais próximo do ponto (ce)
+    expect(presencaPorPtt([3, 4], ixOf, JUAZEIRO, d).referencia?.code).toBe('ce')
+    expect(presencaPorPtt([1], ixOf, null, d).referencia).toBeNull()
+  })
+
+  it('ponto dentro de cidade com PTT: o mais próximo é o dela (Cascavel/PR dá cac)', () => {
+    expect(distanciasPtt(-24.9558, -53.4552)[0].code).toBe('cac')
+  })
+
+  it('CSV traz o PTT de referência e as distâncias, sem tirar as colunas anteriores', () => {
+    const entities = [{ key: 'a', cnpj: CNPJ_A, asns: [1], asnsNoRaio: [1], name: 'A', fromHq: true, v4: false, v6: false, scm: false, scmHq: false }]
+    const presenca = presencaPorPtt([1], ixOf, JUAZEIRO, d)
+    const linhas = montarCsv(entities, ixOf, 'cpv', c => `IX ${c}`, presenca).replace('\ufeff', '').split('\n')
+    expect(linhas[0].endsWith('ptt_referencia,distancia_ptt_referencia_km,participa_ptt_referencia,distancia_ix_mais_proximo_km')).toBe(true)
+    expect(linhas[0].startsWith('asns,cnpj,nome,')).toBe(true)
+    const cols = linhas[1].split(',')
+    expect(cols.slice(-4)).toEqual(['IX ce', String(Math.round(presenca.referencia!.km)), 'sim', String(Math.round(d[0].km))])
   })
 })

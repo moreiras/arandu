@@ -184,8 +184,7 @@ describe('painéis do Localizador', () => {
   const propsEnt = (entities: Entity[], extra = {}) => ({
     className: 'y', entities, entityCounts: { asns: new Set(entities.flatMap(e => e.asnsNoRaio)).size, cnpjsComAsn: entities.filter(e => e.asnsNoRaio.length).length, scms: entities.filter(e => e.scm).length },
     markerPos: [-23.55, -46.63] as [number, number], stats: { sedesAsn: 1, asnsComPrefixo: 0, sedesScm: 0, scmsComUsuarios: 0 },
-    filteredAsnsCount: 1, nearestIx: 'sp', ixLabel: (c: string) => `IX ${c.toUpperCase()}`,
-    ixCounts: { nearMember: 1, nearOrigin: 0, anyMember: 1, otherNotNear: 0 }, copied: false, onCopy: vi.fn(), onCsv: vi.fn(), temPresenca: true,
+    copied: false, onCopy: vi.fn(), onCsv: vi.fn(), temPresenca: true,
     tagsDoAs: () => [{ code: 'sp', label: 'IX SP', kind: 'near' as const }], ...extra,
   })
 
@@ -199,11 +198,10 @@ describe('painéis do Localizador', () => {
     expect(screen.getByText('AS64500, AS64501').closest('a')!.getAttribute('href')).toBe(`/operadora/${CNPJ}`)
     expect(screen.getByText('mais 1 ASN do mesmo CNPJ fora do raio')).toBeTruthy()
     expect(screen.getByText('Só SCM').closest('a')!.getAttribute('href')).toBe('/operadora/999')
-    expect(screen.getAllByText('IX SP').length).toBeGreaterThanOrEqual(1)      // a tag da entidade (e o resumo, que cita o IX mais próximo)
+    expect(screen.getAllByText('IX SP').length).toBeGreaterThanOrEqual(1)      // a tag da entidade
     expect(screen.getByText('1.500 acessos · 2 municípios no raio')).toBeTruthy()
     expect(screen.getByTitle('Prefixos IPv4 na região')).toBeTruthy()
-    expect(screen.getAllByText(/participam de/).length).toBeGreaterThan(0)
-    expect(screen.getByText(/têm prefixos vistos nos route servers de/)).toBeTruthy()      // originação vista, não anúncio próprio
+    expect(document.body.textContent).not.toMatch(/participam de IX/)      // a interconexão saiu do painel estreito: está em BlocoInterconexao
     expect(document.body.textContent).not.toMatch(/anunciam prefixos em/)
   })
 

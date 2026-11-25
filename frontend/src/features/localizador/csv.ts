@@ -6,7 +6,7 @@
 /** CSV da lista de entidades do Localizador (com participação em IXes). `montarCsv` é puro e testado. */
 import { MAJOR_IX, asnsDoRaio } from './tipos'
 import type { Entity } from './tipos'
-import type { PresencaIx } from './calculos'
+import type { PresencaIx, PresencaPtt } from './calculos'
 
 const esc = (v: string | number | boolean | null | undefined) => {
   if (v == null) return ''
@@ -21,10 +21,12 @@ export const CABECALHO_CSV = [
   'ix_mais_proximo', 'participa_ix_proximo',
   'participa_sp', 'participa_fortaleza', 'participa_rio', 'participa_brasilia', 'participa_poa',
   'participa_outro_ix', 'membro_ixes', 'anuncia_ixes',
+  'ptt_referencia', 'distancia_ptt_referencia_km', 'participa_ptt_referencia', 'distancia_ix_mais_proximo_km',
 ]
 
 /** Texto do CSV (com BOM, para o Excel) da lista de entidades. */
-export function montarCsv(entities: Entity[], ixOf: (asn: number) => PresencaIx, nearestIx: string | null, ixLabel: (code: string) => string): string {
+export function montarCsv(entities: Entity[], ixOf: (asn: number) => PresencaIx, nearestIx: string | null, ixLabel: (code: string) => string,
+  presenca?: PresencaPtt): string {
   const named = new Set<string>([...(nearestIx ? [nearestIx] : []), ...MAJOR_IX])
   const rows = entities.map(e => {
     const hasAsn = e.asns.length > 0
@@ -33,6 +35,7 @@ export function montarCsv(entities: Entity[], ixOf: (asn: number) => PresencaIx,
     const m = [...new Set(doRaio.flatMap(a => ixOf(a).m))]
     const o = [...new Set(doRaio.flatMap(a => ixOf(a).o))]
     const ms = new Set(m)
+    const ref = presenca?.referencia ?? null
     const ynAs = (b: boolean) => (hasAsn ? yn(b) : '')
     return [
       doRaio.join(' '), e.cnpj ?? '', e.name ?? '', e.uf ?? '', e.city ?? '',
@@ -43,6 +46,7 @@ export function montarCsv(entities: Entity[], ixOf: (asn: number) => PresencaIx,
       ynAs(ms.has('sp')), ynAs(ms.has('ce')), ynAs(ms.has('rj')), ynAs(ms.has('df')), ynAs(ms.has('rs')),
       ynAs(m.some(c => !named.has(c))),
       m.join(' '), o.join(' '),
+      ref ? ixLabel(ref.code) : '', ref ? Math.round(ref.km) : '', ynAs(!!ref && ms.has(ref.code)), presenca?.maisProximo ? Math.round(presenca.maisProximo.km) : '',
     ].map(esc).join(',')
   })
   return '﻿' + [CABECALHO_CSV.join(','), ...rows].join('\n')
