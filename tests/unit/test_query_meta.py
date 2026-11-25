@@ -83,3 +83,20 @@ def test_textos_do_mcp_sem_contagem_de_ptt_desatualizada(arquivo):
     txt = (ROOT / arquivo).read_text(encoding="utf-8")
     assert not re.search(r"\b39 (códigos|looking)", txt)
     assert "Ver list_ixps" not in txt
+
+
+def test_selos_por_campo_citam_campos_que_existem_e_sao_do_vocabulario():
+    for nome, m in META.items():
+        campos = {f["name"] for f in SCHEMA[nome]["fields"]}
+        for campo, selo in m.get("selos_campo", {}).items():
+            assert campo in campos, (nome, campo)
+            assert selo in SELOS and selo != m["selo"], (nome, campo)
+
+
+def test_asns_nao_carimba_estimativa_do_apnic_como_fato():
+    """Collection que mistura cadastro com estimativa não pode passar um selo único: o campo estimado traz o próprio selo."""
+    m = meta_da_collection("asns")
+    assert m["selo"] == "fato"
+    assert {k: m["selos_campo"][k] for k in ("apnic_users", "apnic_v6_users", "pct_v6")} == dict.fromkeys(("apnic_users", "apnic_v6_users", "pct_v6"), "estimado")
+    assert meta_da_collection("seguranca_asn")["selos_campo"]["cone_asns"] == "inferido"
+    assert "selos_campo" not in meta_da_collection("ixps")

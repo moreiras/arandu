@@ -8,7 +8,8 @@
 `META` declara, por collection, os ids de fonte do catálogo (`catalog/sources/`) de que as linhas dependem e o selo da natureza
 predominante do conteúdo. O selo usa o vocabulário do frontend (`frontend/src/components/entidade/proveniencia.ts`, tipo `Selo`):
 `fato` (declarado ou medido na fonte), `inferido` (derivado por regra) e `estimado` (amostragem ou modelo). Campo de natureza diferente
-da predominante fica dito em `nota`. A licença vem do catálogo, não daqui: `uso_comercial_efetivo` é o pior caso entre as fontes e as
+da predominante fica dito em `nota` e, quando o campo tem selo próprio, em `selos_campo` (o selo da collection é o padrão
+dos campos não listados: uma collection como `asns` mistura cadastro, estimativa do APNIC e geolocalização, e um selo único enganaria). A licença vem do catálogo, não daqui: `uso_comercial_efetivo` é o pior caso entre as fontes e as
 entradas delas (mesma regra de `docs/licencas.md`). `tests/unit/test_query_meta.py` falha se uma collection do `SCHEMA` não tiver
 entrada ou se um id não existir no catálogo.
 """
@@ -28,12 +29,13 @@ _SICI = "acessos autodeclarados à Anatel no mês de referência do SICI, que n�
 
 META: dict[str, dict[str, Any]] = {
     "asns": {"fontes": ["registro_br", "lg_ixbr", "fulltable_routeviews", "rpki_collector", "apnic_pop", "asn_names", "rdap", "cnpj_geo", "receita_cnpj"], "selo": "fato",
+             "selos_campo": {"apnic_users": "estimado", "apnic_v6_users": "estimado", "pct_v6": "estimado"},
              "nota": "apnic_users, apnic_v6_users e pct_v6 são estimativas do APNIC; uf, city e cnpj vêm do cadastro do Registro.br e da Receita"},
     "ixps": {"fontes": ["curada_ixps", "curada_pix", "lg_ixbr", "ixbr_api", "fulltable_routeviews", "registro_br"], "selo": "fato"},
     "external_ixps": {"fontes": ["peeringdb_ixps", "curada_peeringdb_ixps", "decix_alice"], "selo": "fato", "nota": "cadastro autodeclarado no PeeringDB"},
     "cdns": {"fontes": ["curada_cdns", "lg_ixbr", "peeringdb_ixps"], "selo": "inferido", "nota": "presença deduzida dos ASNs da lista curada de CDNs entre os membros dos PTTs"},
-    "prefixes": {"fontes": ["registro_br", "prefix_geo"], "selo": "fato", "nota": "UF e país do prefixo vêm de geolocalização estimada (DB-IP)"},
-    "global_prefixes": {"fontes": ["lg_ixbr", "global_prefix_geo"], "selo": "fato", "nota": "país do prefixo vem de geolocalização estimada (DB-IP)"},
+    "prefixes": {"fontes": ["registro_br", "prefix_geo"], "selo": "fato", "selos_campo": {"uf": "estimado", "country": "estimado"}, "nota": "UF e país do prefixo vêm de geolocalização estimada (DB-IP)"},
+    "global_prefixes": {"fontes": ["lg_ixbr", "global_prefix_geo"], "selo": "fato", "selos_campo": {"country": "estimado"}, "nota": "país do prefixo vem de geolocalização estimada (DB-IP)"},
     "scms": {"fontes": ["anatel_scm", "anatel_outorgas", "scm_geo", "registro_br"], "selo": "fato", "nota": _GEO},
     "smps": {"fontes": ["anatel_smp", "anatel_outorgas", "smp_geo", "registro_br"], "selo": "fato", "nota": _GEO},
     "stfcs": {"fontes": ["anatel_stfc", "anatel_outorgas", "stfc_geo", "registro_br"], "selo": "fato", "nota": _GEO},
@@ -45,11 +47,16 @@ META: dict[str, dict[str, Any]] = {
     "socios": {"fontes": ["socios_grupos", "receita_socios", "receita_cnpj"], "selo": "inferido", "nota": "grupo econômico deduzido do cruzamento do quadro societário"},
     "eventos": {"fontes": ["registro_br", "lg_ixbr", "fulltable_routeviews", "rpki_collector", "caida_asrel", "anatel_scm", "anatel_smp", "anatel_stfc", "anatel_seac"], "selo": "fato",
                 "nota": "diferença observada entre snapshots; provedor_novo e provedor_perdido são inferidos (natureza=inferido)"},
-    "series_asn": {"fontes": ["lg_ixbr", "registro_br", "rpki_collector", "apnic_pop", "caida_asrel"], "selo": "fato", "nota": "users é estimativa do APNIC"},
+    "series_asn": {"fontes": ["lg_ixbr", "registro_br", "rpki_collector", "apnic_pop", "caida_asrel"], "selo": "fato",
+                   "selos_campo": {"users": "estimado", "v6users": "estimado", "n_provedores": "inferido"},
+                   "nota": "users e v6users são estimativa do APNIC; n_provedores vem da relação provedor-cliente inferida pelo CAIDA"},
     "indicadores_operadora": {"fontes": ["anatel_sici"], "selo": "fato", "nota": _SICI + "; share, posição e variações são calculados"},
     "sem_declaracao_sici": {"fontes": ["anatel_scm", "anatel_sici"], "selo": "fato", "nota": "fato sobre a declaração no mês de referência, sem causa nem intenção"},
-    "municipios": {"fontes": ["ibge_censo_pnad", "anatel_sici", "curada_ixps", "ibge_malha_municipal"], "selo": "fato", "nota": "nao_visto é estimativa; " + _SICI},
+    "municipios": {"fontes": ["ibge_censo_pnad", "anatel_sici", "curada_ixps", "ibge_malha_municipal"], "selo": "fato",
+                   "selos_campo": {k: "estimado" for k in ("populacao_estimada", "domicilios_projetados", "domicilios_com_internet_est", "nao_visto", "nao_visto_pct")}, "nota": "nao_visto é estimativa; " + _SICI},
     "seguranca_asn": {"fontes": ["apnic_irov", "apnic_dnssec", "caida_asrank", "bogons"], "selo": "fato",
+                      "selos_campo": {**{k: "estimado" for k in ("rov_validates_pct", "dnssec_validates_pct", "dnssec_parcial_pct")},
+                                      **{k: "inferido" for k in ("asrank_rank", "cone_asns", "cone_prefixos", "grau_cliente", "grau_par", "grau_provedor")}},
                       "nota": "rov e dnssec são medições do APNIC por amostragem; asrank, cone e grau são inferência do CAIDA"},
     "rs_sessoes": {"fontes": ["ixbr_alice", "ixbr_api"], "selo": "fato"},
     "rs_communities": {"fontes": ["ixbr_alice_rotas", "ixbr_alice"], "selo": "fato"},
@@ -94,7 +101,7 @@ def _catalogo():
 
 
 def meta_da_collection(collection: str) -> dict[str, Any]:
-    """`{fontes, selo, uso_comercial_efetivo, nota_fonte?}` da collection; `{}` se não declarada (o teste impede o caso)."""
+    """`{fontes, selo, selos_campo?, uso_comercial_efetivo, nota_fonte?}` da collection; `{}` se não declarada (o teste impede o caso)."""
     m = META.get(collection)
     if m is None:
         return {}
@@ -111,7 +118,8 @@ def meta_da_collection(collection: str) -> dict[str, Any]:
         fontes.append({"id": sid, "nome": s.nome, "licenca": o.licenca if o else "herdada das entradas",
                        "uso_comercial": o.uso_comercial if o else efetivo, "uso_comercial_efetivo": efetivo})
     pior = max(graus, key=lambda g: _GRAU[g]) if graus else "nao_verificado"
-    return {"fontes": fontes, "selo": m["selo"], "uso_comercial_efetivo": pior, **({"nota_fonte": m["nota"]} if m.get("nota") else {})}
+    return {"fontes": fontes, "selo": m["selo"], **({"selos_campo": dict(m["selos_campo"])} if m.get("selos_campo") else {}),
+            "uso_comercial_efetivo": pior, **({"nota_fonte": m["nota"]} if m.get("nota") else {})}
 
 
 def resumo_do_indice(collection: str) -> dict[str, Any]:
