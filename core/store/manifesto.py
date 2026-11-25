@@ -52,8 +52,9 @@ def compor_fontes(cat: Catalog, data_dir: Path, date: str) -> list[dict]:
             ver = ultima_verificacao(data_dir, s.id)
             ref = min(ver, date) if ver else v.disponivel_desde
             idade = (hoje - dt.date.fromisoformat(ref)).days
-            saida.append({"id": s.id, "as_of": v.as_of, "coletado_em": v.coletado_em, "hash": v.hash, "versao": v.nome,
-                          "origem": "armazem", "frescor": _frescor(max(idade, 0), s.cadencia.frescor_maximo)})
+            # `verificado_em`: a data em que o frescor foi medido (última coleta que confirmou a versão), que pode ser mais nova que `coletado_em`
+            saida.append({"id": s.id, "as_of": v.as_of, "coletado_em": v.coletado_em, "verificado_em": ref, "hash": v.hash, "versao": v.nome,
+                          "origem": "armazem", "frescor": _frescor(max(idade, 0), s.cadencia.frescor_maximo), "limite_dias": _dias(s.cadencia.frescor_maximo)})
             continue
         arqs = arquivos_da_fonte(cat, data_dir, s.id, date)
         if arqs:
@@ -61,7 +62,7 @@ def compor_fontes(cat: Catalog, data_dir: Path, date: str) -> list[dict]:
                           "versao": None, "origem": "legado", "legado": True, "frescor": "desconhecido"})
         else:
             saida.append({"id": s.id, "as_of": None, "coletado_em": None, "hash": None, "versao": None,
-                          "origem": "ausente", "frescor": "ausente"})
+                          "origem": "ausente", "frescor": "ausente", "ativa": s.ativa})     # desativada (`ativa: false`) não é falha de coleta
     return saida
 
 

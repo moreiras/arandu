@@ -6,14 +6,16 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { EmptyState, formatarReferencia, rotuloFrescor, type FonteEntrada } from '../components/entidade'
-import { descreverCadencia, rotuloTipo, type Catalogo, type CampoCatalogo, type FonteCatalogo } from '../features/fontes/catalogo'
+import { descreverCadencia, heranca, legivel, rotuloLicenca, rotuloTipo, rotuloUsoComercial, type Catalogo, type CampoCatalogo, type FonteCatalogo } from '../features/fontes/catalogo'
 import { useFontes } from '../hooks/entidades'
 import { comIdentidade } from '../lib/site'
 
 /** Quantas fontes aparecem antes de "mostrar todas" (a tabela completa ocupa 8 telas; a meta é ≤ 4). */
 const TAMANHO_LOTE = 18
 
-function CartaoFonte({ f, entrada, temSnapshot }: { f: FonteCatalogo; entrada?: FonteEntrada; temSnapshot: boolean }) {
+function CartaoFonte({ f, entrada, semRegistro, carregado }: { f: FonteCatalogo; entrada?: FonteEntrada; semRegistro: boolean; carregado: boolean }) {
+  const ctx = { tipo: f.tipo, ativa: f.ativa, coleta_atual: f.cadencia.coleta_atual, frescor_maximo: f.cadencia.frescor_maximo }
+  const herdado = heranca(f)
   return (
     <li className="bg-white rounded-lg border border-gray-200 p-3 flex flex-col">
       <div className="flex items-start justify-between gap-2">
@@ -24,12 +26,12 @@ function CartaoFonte({ f, entrada, temSnapshot }: { f: FonteCatalogo; entrada?: 
         <span className="text-xs rounded bg-gray-100 text-gray-600 px-1.5 py-0.5 shrink-0">{rotuloTipo(f.tipo)}</span>
       </div>
       <dl className="mt-2 space-y-1 text-xs text-gray-600">
-        <div><dt className="inline text-gray-400">Licença: </dt><dd className="inline">{f.origem.licenca ?? <span className="text-aviso-700">não verificada</span>} · uso comercial: {f.uso_comercial_efetivo ?? 'não verificado'}</dd></div>
+        <div><dt className="inline text-gray-400">Licença: </dt><dd className="inline">{f.origem.licenca && f.origem.licenca !== 'nao_verificado' ? rotuloLicenca(f.origem.licenca) : <span className="text-aviso-700">{rotuloLicenca(f.origem.licenca)}</span>} · {rotuloUsoComercial(f.uso_comercial_efetivo)}{herdado ? ` (${herdado})` : ''}</dd></div>
         {f.atribuicao && <div data-testid="atribuicao-fonte"><dt className="inline text-gray-400">Atribuição: </dt><dd className="inline">{f.atribuicao}</dd></div>}
         <div><dt className="inline text-gray-400">Periodicidade: </dt><dd className="inline">{descreverCadencia(f.cadencia)}</dd></div>
-        <div><dt className="inline text-gray-400">Última coleta: </dt><dd className="inline">{entrada
-          ? <>ref. {formatarReferencia(entrada.as_of)}{entrada.coletado_em ? ` · coletado em ${formatarReferencia(entrada.coletado_em)}` : ''} <span className="text-gray-400">({rotuloFrescor(entrada)})</span></>
-          : <span className="text-gray-400">{temSnapshot ? 'sem versão neste snapshot' : '—'}</span>}</dd></div>
+        {!semRegistro && <div data-testid="ultima-coleta"><dt className="inline text-gray-400">Última coleta: </dt><dd className="inline">{entrada && entrada.frescor !== 'ausente'
+          ? <>{entrada.as_of ? `ref. ${formatarReferencia(entrada.as_of)}` : 'data de referência não registrada'}{entrada.coletado_em ? ` · coletado em ${formatarReferencia(entrada.coletado_em)}` : ''}{entrada.verificado_em ? ` · verificada em ${formatarReferencia(entrada.verificado_em)}` : ''} <span className="text-gray-400">({rotuloFrescor(entrada, ctx)})</span></>
+          : <span className="text-gray-400">{carregado ? rotuloFrescor(entrada, ctx) : '—'}</span>}</dd></div>}
       </dl>
       <details className="mt-2 text-xs">
         <summary className="cursor-pointer text-primario-600 hover:underline">Detalhes e campos ({f.campos.length})</summary>
@@ -59,13 +61,13 @@ function DetalheFonte({ f }: { f: FonteCatalogo }) {
       <p className="break-words">{f.descricao}</p>
       {f.decisao_exposicao && <p className="text-xs text-gray-700 break-words" data-testid="decisao-exposicao">{f.decisao_exposicao}</p>}
       <dl className="grid md:grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-600">
-        <div><dt className="inline text-gray-400">Origem: </dt><dd className="inline">{f.origem.url ? <a href={f.origem.url} target="_blank" rel="noopener noreferrer" className="text-primario-600 hover:underline break-all">{f.origem.url}</a> : '—'}</dd></div>
+        <div><dt className="inline text-gray-400">Origem: </dt><dd className="inline">{f.origem.url && /^https?:\/\//.test(f.origem.url) ? <a href={f.origem.url} target="_blank" rel="noopener noreferrer" className="text-primario-600 hover:underline break-all">{f.origem.url}</a> : (legivel(f.origem.url) ?? '—')}</dd></div>
         <div><dt className="inline text-gray-400">Formato: </dt><dd className="inline">{f.origem.formato ?? '—'}</dd></div>
-        <div><dt className="inline text-gray-400">Termos: </dt><dd className="inline">{f.origem.termos ? <a href={f.origem.termos} target="_blank" rel="noopener noreferrer" className="text-primario-600 hover:underline break-all">{f.origem.termos}</a> : '—'}</dd></div>
-        <div><dt className="inline text-gray-400">Frescor máximo tolerado: </dt><dd className="inline">{f.cadencia.frescor_maximo ?? '—'}</dd></div>
+        <div><dt className="inline text-gray-400">Termos: </dt><dd className="inline">{f.origem.termos && /^https?:\/\//.test(f.origem.termos) ? <a href={f.origem.termos} target="_blank" rel="noopener noreferrer" className="text-primario-600 hover:underline break-all">{f.origem.termos}</a> : (legivel(f.origem.termos) ?? '—')}</dd></div>
+        <div><dt className="inline text-gray-400">Frescor máximo tolerado: </dt><dd className="inline">{legivel(f.cadencia.frescor_maximo) ?? '—'}</dd></div>
       </dl>
-      {f.origem.nota && <p className="text-xs text-gray-500 break-words">{f.origem.nota}</p>}
-      {f.nao_verificado.length > 0 && <p className="text-xs text-aviso-700 bg-aviso-50 border border-aviso-200 rounded px-2 py-1">Ainda não verificado: {f.nao_verificado.join(', ')}.</p>}
+      {f.origem.nota && <p className="text-xs text-gray-500 break-words">{legivel(f.origem.nota)}</p>}
+      {f.nao_verificado > 0 && <p className="text-xs text-aviso-700 bg-aviso-50 border border-aviso-200 rounded px-2 py-1" data-testid="aviso-nao-verificado">Itens deste cadastro ainda não conferidos pelo projeto: {f.nao_verificado}.</p>}
       <Campos campos={f.campos} />
     </div>
   )
@@ -79,6 +81,7 @@ export function FontesPage() {
   const [busca, setBusca] = useState('')
   const [tipo, setTipo] = useState('')
 
+  const semRegistro = !!fontes && fontes.length === 0
   const porId = useMemo(() => new Map<string, FonteEntrada>((fontes ?? []).map((f) => [f.id, f])), [fontes])
   const lista = useMemo(() => (cat.data?.fontes ?? []).filter((f) => (!tipo || f.tipo === tipo)
     && (!busca || `${f.id} ${f.nome} ${f.descricao}`.toLowerCase().includes(busca.toLowerCase()))), [cat.data, busca, tipo])
@@ -91,8 +94,9 @@ export function FontesPage() {
         <h1 className="text-titulo-1 text-gray-900">Fontes de dados</h1>
         <p className="text-sm text-gray-500 mt-1">
           De onde vem cada número, sob qual licença e com que frequência é atualizado. Esta página é gerada do catálogo de fontes do projeto; a coluna “última coleta”
-          vem do snapshot {snapshot ?? 'ativo'}.
+          vem do snapshot {snapshot ?? 'ativo'}. O snapshot é fechado depois da data nominal: algumas coletas terminam nas horas seguintes.
         </p>
+        {semRegistro && <p className="mt-2 text-sm text-aviso-800 bg-aviso-50 border border-aviso-200 rounded px-3 py-2" role="status" data-testid="sem-registro-coleta">Este snapshot não traz o registro de coleta por fonte: a data de coleta de cada fonte não está disponível para ele.</p>}
       </div>
 
       {cat.isLoading && <p className="text-sm text-gray-400" role="status">Carregando o catálogo…</p>}
@@ -111,7 +115,7 @@ export function FontesPage() {
           {lista.length === 0 ? <EmptyState mensagem="Nenhuma fonte com esse filtro" /> : (
             <>
               <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3" aria-label="Fontes de dados">
-                {lista.slice(0, limite).map((f) => <CartaoFonte key={f.id} f={f} entrada={porId.get(f.id)} temSnapshot={!!fontes} />)}
+                {lista.slice(0, limite).map((f) => <CartaoFonte key={f.id} f={f} entrada={porId.get(f.id)} semRegistro={semRegistro} carregado={!!fontes} />)}
               </ul>
               {lista.length > limite && (
                 <button type="button" onClick={() => setLimite(lista.length)} className="mt-3 rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50">

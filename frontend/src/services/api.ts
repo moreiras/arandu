@@ -312,8 +312,10 @@ export function fetchSnapshots(completo = false): Promise<SnapshotListResponse> 
 
 /** Resumo e manifesto de um snapshot: aberto para as datas atuais, `login` para as anteriores (como `?date=` nas demais rotas). */
 export function fetchSnapshot(date: string): Promise<SnapshotDetails> {
-  return get(`/api/v1/brasil/snapshots/${date}`)
+  return get(`/api/v1/brasil/snapshots/${date}`, { esquema: ESQUEMA_SNAPSHOT })
 }
+/** `esquema` 2: `sources[]` do manifesto ganhou `verificado_em`, `limite_dias` e `ativa` (PT-16). */
+const ESQUEMA_SNAPSHOT = 2
 
 /** Totais dos destaques da home e "O que mudou" na janela dos snapshots atuais: rota fixa e aberta (não gasta o orçamento anônimo). */
 export interface DestaquesHome {
@@ -1369,11 +1371,11 @@ export function fetchRankingRouteServers(opts: { date?: string; criterio?: strin
   return get('/api/v1/ranking/route-servers', opts)
 }
 
-/** Explorador de communities dos route servers do IX.br: o que cada uma significa e quem a usa, só das rotas recebidas coletadas. */
-export function fetchCommunities(opts: { date?: string; q?: string; ixp?: string; classe?: string; limit?: number; page?: number }): Promise<CommunitiesResp> {
 /** `esquema` 2: a resposta ganhou a cobertura do rodízio (`cobertura_total_nivel3`, `rs_pulados`; PT-16). */
 const ESQUEMA_COMMUNITIES = 2
 
+/** Explorador de communities dos route servers do IX.br: o que cada uma significa e quem a usa, só das rotas recebidas coletadas. */
+export function fetchCommunities(opts: { date?: string; q?: string; ixp?: string; classe?: string; limit?: number; page?: number }): Promise<CommunitiesResp> {
   return get('/api/v1/communities', { ...opts, esquema: ESQUEMA_COMMUNITIES })
 }
 
@@ -1517,11 +1519,11 @@ export function fetchIpv4Subasignacoes(opts: { asn?: number; conforme?: boolean;
   return get('/api/v1/ipv4/subasignacoes', opts)
 }
 
-/** Instalações do PeeringDB: lista filtrada (a 1ª página, até 100, é aberta; ampliar exige login), uma instalação, as de um PTT e as portas de um PTT externo. */
-export function fetchFacilities(opts: { date?: string; pais?: string; uf?: string; q?: string; ptt?: string; cadastro?: string; com_ptt?: boolean; com_carrier?: boolean; ordem?: string; limit?: number; page?: number }): Promise<FacilitiesLista> {
 /** `esquema` 2: o selo de cadastro das instalações traz as datas de registro e de vínculo e ignora a data de lote (PT-16); vale também onde as instalações vêm embutidas (perfil do ASN). */
 const ESQUEMA_INSTALACOES = 2
 
+/** Instalações do PeeringDB: lista filtrada (a 1ª página, até 100, é aberta; ampliar exige login), uma instalação, as de um PTT e as portas de um PTT externo. */
+export function fetchFacilities(opts: { date?: string; pais?: string; uf?: string; q?: string; ptt?: string; cadastro?: string; com_ptt?: boolean; com_carrier?: boolean; ordem?: string; limit?: number; page?: number }): Promise<FacilitiesLista> {
   return get('/api/v1/facilities', { ...opts, esquema: ESQUEMA_INSTALACOES })
 }
 export function fetchFacility(id: number | string, date?: string): Promise<FacilityDetalhe> {

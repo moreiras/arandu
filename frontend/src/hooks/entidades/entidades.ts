@@ -288,11 +288,15 @@ export function useGrupo(grupoId: string | undefined) {
   return { ...q, data: grupo, listaCarregada: !!q.data }
 }
 
-/** `sources[]` do manifesto do snapshot ativo — alimenta o rodapé de proveniência. `undefined` até chegar (ou se o manifesto não tem). */
+/**
+ * `sources[]` do manifesto do snapshot ativo — alimenta o rodapé de proveniência. `undefined` até o snapshot chegar; `[]` quando chegou e não traz o registro
+ * de coleta por fonte (snapshots anteriores a esse registro): a ausência é dita, nunca preenchida com data.
+ */
 export function useFontes(): { fontes: FonteEntrada[] | undefined; snapshot: string | null } {
   const date = useActiveDate()
   const q = useQuery({ queryKey: chaves.snapshot(date), queryFn: () => fetchSnapshot(date!), enabled: !!date, ...IMUTAVEL, retry: false })
-  const fontes = (q.data?.manifest as { sources?: FonteEntrada[] | null } | null | undefined)?.sources ?? undefined
+  const manifesto = q.data?.manifest as { sources?: FonteEntrada[] | null } | null | undefined
+  const fontes = q.data ? (manifesto?.sources ?? []) : undefined
   return { fontes, snapshot: date }
 }
 
