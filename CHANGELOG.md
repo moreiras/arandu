@@ -201,6 +201,13 @@ parênteses remetem à análise.
   (no Localizador, anunciado a leitores de tela). A Home passa a ter cinco portas por lente (técnico, regulação, jornalismo, política
   pública, empresa). Nova `GET /territorio/resumo` (agregados por distância ao PTT mais próximo), usada em `/municipios`.
 - **Panorama técnico.** A variação do IPv6 pede `/snapshots/diff` com `opcional`: sem histórico, 204 em vez de erro no console.
+- **Território (PT-25).** Localizador: bloco "Interconexão no IX.br das redes do raio" com o PTT onde as redes do raio mais participam
+  e o mais próximo em linha reta, ambos com distância e "N de M redes" (inferido); o CSV ganha as colunas do PTT de referência. Nova
+  `GET /territorio/infra-proximos` (cabos, enlaces da UIT, linhas de transmissão e instalações do PeeringDB num raio), usada no
+  Localizador e na ficha do município, que ganha também a tabela de PTT efetivo (onde operadoras com 5% ou mais do fixo local têm
+  sessão direta). Municípios: a distância ao PTT mostra o PIX mais próximo e a coluna "Redes com sede" (inferido); `/territorio/ranking`
+  ganha `ptt_proximo_nome`, `pix_proximo` e `redes_sede` (`esquema` 2). A tool `infra_proximos` do MCP devolve também `por_status`.
+  Parcial: municipio 5.2, estados 5.4 e o filtro de redes sem sessão na lente "Sem PTT a 100 km" ficam para depois.
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
