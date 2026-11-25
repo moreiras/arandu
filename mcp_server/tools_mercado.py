@@ -552,7 +552,8 @@ def economic_group(
 ) -> dict:
     """Grupo econômico (societário) de uma empresa ou pelo id do grupo: CNPJs membros, assinantes, usuários APNIC e relações diretas.
 
-    Cruza o quadro de sócios da Receita Federal. Com `cnpj` devolve o grupo da empresa (`individual` = sem relação societária com outra
+    Cruza o quadro de sócios da Receita Federal; só sócio com participação societária liga empresas (administrador, diretor e presidente sem
+    participação não ligam) e `nome` do grupo vem da marca curada ou do CNPJ com mais acessos no SICI (`nome_regra`). Com `cnpj` devolve o grupo da empresa (`individual` = sem relação societária com outra
     da base, `grupo_id` = `ind_{cnpj básico}`) e, em `relacionadas`, as empresas com relação DIRETA (nunca por transitividade):
     `mesmo_grupo` (quadro de sócios idêntico ou controle exclusivo) e `relacionadas_parcial` (sócio em comum, com a contagem, ou controle
     não exclusivo — CPF de PF vem parcialmente mascarado, não é certeza). `assinantes` são os acessos FIXOS declarados ao SICI (não
@@ -577,6 +578,8 @@ def economic_group(
     grupos = _store.grupos_societarios_overview(d)
     if not grupos:
         raise ValueError(f"Grupos econômicos indisponíveis no snapshot {d}.")
+    if grupo_id and not any(g["grupo_id"] == grupo_id for g in grupos):
+        grupo_id = _store.grupo_equivalente(d, grupo_id) or grupo_id          # id antigo (raiz da union-find de snapshots anteriores)
     grupo = next((g for g in grupos if (g["grupo_id"] == grupo_id if grupo_id else any(c["cnpj"] == limpo for c in g["cnpjs"]))), None)
     if grupo is None:
         raise ValueError(f"Grupo não encontrado no snapshot {d}: {grupo_id or limpo}.")
