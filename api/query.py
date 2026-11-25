@@ -20,7 +20,7 @@ from typing import Any, Optional
 
 from api.geo import haversine_km
 from api.query_catalogo import (  # noqa: F401  (reexportados: `api.query.REGION_BY_UF`, `.COLLECTIONS`, `.SCHEMA`… seguem valendo)
-    COLECOES_ALIAS, COLLECTIONS, aviso_colecao_obsoleta, OPS_GUIDE, RECIPES, REGION_BY_UF, SCHEMA, _AGG_FNS, _OPS,
+    CAMPOS_ALIAS, COLECOES_ALIAS, COLLECTIONS, aviso_colecao_obsoleta, OPS_GUIDE, RECIPES, REGION_BY_UF, SCHEMA, _AGG_FNS, _OPS,
 )
 
 
@@ -116,6 +116,20 @@ def _field_refs(body: dict):
         if isinstance(a, dict) and isinstance(a.get("field"), str):
             refs.append(a["field"])
     return refs
+
+
+def avisos_campos_obsoletos(collection: str, body: Any) -> Optional[str]:
+    """Aviso de depreciação quando a consulta cita o nome antigo de um campo (`CAMPOS_ALIAS`); `None` se não cita nenhum."""
+    antigos = CAMPOS_ALIAS.get(collection)
+    if not antigos or not isinstance(body, dict):
+        return None
+    try:
+        citados = sorted({r for r in _field_refs(body) if r in antigos})
+    except (AttributeError, TypeError):
+        return None
+    if not citados:
+        return None
+    return " ".join(f"O campo `{c}` foi renomeado para `{antigos[c][0]}` e o nome antigo será removido depois de duas versões: ele é {antigos[c][1]}. Use `{antigos[c][0]}`." for c in citados)
 
 
 def validate(collection: str, body: dict, sample_row: Optional[dict] = None) -> None:

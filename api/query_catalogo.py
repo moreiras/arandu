@@ -54,6 +54,14 @@ COLLECTIONS += ("facilities", "facilidades_rede", "redes_peering")      # instal
 COLECOES_ALIAS = {"omissao_sici": "sem_declaracao_sici"}
 
 
+#: nomes antigos de campo, por collection → (nome atual, o que o campo é de fato). O antigo segue na linha com o mesmo valor, e a consulta
+#: que o cita recebe `aviso_obsoleta`. `ixps_direct` da collection `asns` vinha do cadastro de participantes do IX.br e não da sessão com o
+#: route server (3.792 contra 3.134 ASNs em 2026-11-22): o nome dizia peering direto e a regra era outra.
+CAMPOS_ALIAS: dict[str, dict[str, tuple[str, str]]] = {
+    "asns": {"ixps_direct": ("ixps_membro", "o cadastro de participantes do IX.br (com ou sem sessão com o route server); a sessão com o route server é `ixps_sessao_rs`")},
+}
+
+
 def aviso_colecao_obsoleta(antigo: str) -> str:
     return (f"A collection `{antigo}` foi renomeada para `{COLECOES_ALIAS[antigo]}` (D12); o nome antigo segue como alias por um período e será "
             f"removido depois de duas versões. Use `{COLECOES_ALIAS[antigo]}`.")
@@ -93,7 +101,7 @@ SCHEMA: dict[str, dict] = {
             _f("rir_prefixes_v6_count", "int", "Prefixos IPv6 atribuídos pelo RIR"),
             _f("global_prefixes_v4_count", "int", "Prefixos IPv4 na full table global"),
             _f("global_prefixes_v6_count", "int", "Prefixos IPv6 na full table global"),
-            _f("ixps_direct_count", "int", "Nº de IXPs IX.br onde faz peering direto"),
+            _f("ixps_direct_count", "int", "Nº de PTTs do IX.br onde o AS tem sessão com o route server (= tamanho de `ixps_sessao_rs`; não é o cadastro)"),
             _f("ixps_origin_count", "int", "Nº de IXPs onde origina prefixos"),
             _f("ixps_origin_v4_count", "int", "Idem, IPv4"),
             _f("ixps_origin_v6_count", "int", "Idem, IPv6"),
@@ -114,7 +122,9 @@ SCHEMA: dict[str, dict] = {
             _f("cnae_code", "int", "Código CNAE principal", example=6190601),
             _f("porte", "string", "Porte da empresa (CNPJ). Domínio fechado", enum=_PORTES),
             _f("natureza_juridica", "string", "Natureza jurídica (CNPJ)", example="Sociedade Empresária Limitada"),
-            _f("ixps_direct", "array[string]", "Códigos dos IXPs IX.br onde é membro direto. Teste pertinência com `contains`/`ncontains` (ex.: contains \"sp\")", example=["sp", "rj"]),
+            _f("ixps_membro", "array[string]", "Códigos dos PTTs do IX.br em cujo cadastro de participantes o AS consta, com ou sem sessão com o route server (`ixps_membro` ⊇ `ixps_sessao_rs`). Teste com `contains`/`ncontains` (ex.: contains \"sp\")", example=["sp", "rj"]),
+            _f("ixps_sessao_rs", "array[string]", "Códigos dos PTTs do IX.br onde o AS tem sessão BGP com o route server (a regra de `ixps_direct_count`). Teste com `contains`/`ncontains`", example=["sp"]),
+            _f("ixps_direct", "array[string]", "[obsoleto, use `ixps_membro`] Nome antigo de `ixps_membro`: é o cadastro de participantes do IX.br, não a sessão com o route server (esta é `ixps_sessao_rs`); mesmo valor", example=["sp", "rj"]),
             _f("ixps_origin", "array[string]", "Códigos dos IXPs onde origina prefixos BR. Teste com `contains`/`ncontains`", example=["sp"]),
         ],
         "geo": {"lat": "lat", "lon": "lon"},
@@ -1349,7 +1359,7 @@ OPS_GUIDE: dict[str, str] = {
     "gt/gte/lt/lte": "comparação numérica/ordinal. None nunca satisfaz.",
     "in/nin": "value é LISTA; pertinência do campo na lista.",
     "contains/ncontains": "substring em string (case-insensitive) OU pertinência em array. "
-                          "É o operador para campos array como ixps_direct/ixps_origin/asns.",
+                          "É o operador para campos array como ixps_sessao_rs/ixps_membro/ixps_origin/asns.",
     "exists": "value true/false — campo presente e não-nulo.",
     "within_radius": "geo; prefira a conveniência `near` no corpo da query (não monte à mão).",
 }
@@ -1500,14 +1510,14 @@ RECIPES: list[dict] = [
         },
     },
     {
-        "pergunta": "ASes diretos no PTT de SP mas NÃO no do RJ",
+        "pergunta": "ASes com sessão em route server no PTT de SP mas NÃO no do RJ",
         "ferramenta": "query",
         "nota": "Álgebra de conjuntos na mesma collection sai do filtro composto sobre o array de membership.",
         "args": {
             "collection": "asns",
             "filter": {"and": [
-                {"field": "ixps_direct", "op": "contains", "value": "sp"},
-                {"field": "ixps_direct", "op": "ncontains", "value": "rj"},
+                {"field": "ixps_sessao_rs", "op": "contains", "value": "sp"},
+                {"field": "ixps_sessao_rs", "op": "ncontains", "value": "rj"},
             ]},
         },
     },

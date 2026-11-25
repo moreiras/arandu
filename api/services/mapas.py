@@ -209,7 +209,7 @@ class MapasService:
 
                 {"and": [
                     {"field": "has_rpki",  "op": "eq",  "value": false},
-                    {"field": "ixps_direct", "op": "contains", "value": "sp"}
+                    {"field": "ixps_sessao_rs", "op": "contains", "value": "sp"}
                 ]}
 
         ``near``
@@ -340,7 +340,7 @@ class MapasService:
                 features.append({**f, "properties": props})
 
         # --- Camada: asns_ix_direct -----------------------------------------------
-        # ASes com peering direto no PTT (ixps_direct contains ix_code), interseção
+        # ASes do cadastro do PTT (ixps_membro contains ix_code), interseção
         # com os ASes já filtrados pelo bloco builder (matched_rows).
         if "asns_ix_direct" in layers:
             code_low = ix_code.lower()
@@ -349,7 +349,7 @@ class MapasService:
                 if asn not in matched_asns:
                     continue
                 row = asn_row_map.get(asn, {})
-                if code_low not in (row.get("ixps_direct") or []):
+                if code_low not in (row.get("ixps_membro") or []):
                     continue
                 props = {**(f.get("properties") or {}), "layer": "asns_ix_direct"}
                 cv = self._map_color_value(row, color_by)
@@ -576,7 +576,7 @@ class MapasService:
             "has_aspa": row.get("has_aspa"),
             "porte": row.get("porte") or "",
             "pct_v6": row.get("pct_v6"),
-            "ixps_direct": ",".join(sorted(row.get("ixps_direct") or [])),
+            "ixps_direct": ",".join(sorted(row.get("ixps_membro") or [])),     # coluna do CSV mantida; o valor é o cadastro de participantes
             "has_scm": bool(row.get("has_scm")),
         }
 

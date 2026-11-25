@@ -528,6 +528,16 @@ def test_describe_schema_liga_tarefas_e_collections_a_tools(srv):
     assert {t for x in guia.tarefas() for t in x["tools"]} <= visiveis
 
 
+def test_mcp_ixps_membro_e_sessao_rs_na_collection_asns_com_alias_do_nome_antigo(srv):
+    """PT-15: `ixps_direct` do `query` era o cadastro de participantes; o MCP descreve os dois campos novos e avisa de quem usa o antigo."""
+    campos = {c["name"]: c for c in call(srv, "describe_schema", {"collection": "asns"})["campos"]}
+    assert {"ixps_membro", "ixps_sessao_rs"} <= set(campos) and campos["ixps_direct"]["description"].startswith("[obsoleto")
+    antigo = call(srv, "query", {"collection": "asns", "filter": {"field": "ixps_direct", "op": "exists", "value": True}, "limit": 1})
+    assert "ixps_membro" in antigo["aviso_obsoleta"]
+    novo = call(srv, "query", {"collection": "asns", "filter": {"field": "ixps_sessao_rs", "op": "exists", "value": True}, "limit": 1})
+    assert "aviso_obsoleta" not in novo
+
+
 def test_resources_por_entidade_e_prompts_tematicos(srv, ctx):
     ent = {f"{SITE.mcp_esquema}://asn/{ctx['asn']}": "asn", f"{SITE.mcp_esquema}://ixp/{ctx['code']}": "code",
            f"{SITE.mcp_esquema}://operadora/{ctx['cnpj']}": "cnpj", f"{SITE.mcp_esquema}://uf/{ctx['uf']}": "uf", f"{SITE.mcp_esquema}://municipio/{ctx['ibge']}": "ibge"}

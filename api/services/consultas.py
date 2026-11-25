@@ -162,12 +162,29 @@ class ConsultasService:
                            "ixp": d.get("ixp"), "servico": d.get("servico"), "rpki": d.get("rpki"), "provedor": d.get("provedor")})
         return linhas
 
+    def _ixps_sessao_rs(self, date_str: str) -> dict[int, list[str]]:
+        """{asn: códigos dos PTTs do IX.br} onde o AS tem sessão BGP com o route server (`asn_direct` IPv6 ∪ IPv4 do documento do PTT).
+        É o universo de `ixps_direct_count` do índice de ASNs, que difere do cadastro de participantes (`asn_ix_presence`, chave `m`)."""
+        out: dict[int, list[str]] = {}
+        for entry in self.ixp_index(date_str):
+            code = entry.get("code")
+            doc = (self.ixp_detail(date_str, code) or {}) if code else {}
+            diretos: set[int] = set()
+            for afi in ("v4", "v6"):
+                v = doc.get(afi)
+                if isinstance(v, dict):
+                    diretos.update(v.get("asn_direct") or [])
+            for asn in diretos:
+                out.setdefault(asn, []).append(code)
+        return {asn: sorted(codes) for asn, codes in out.items()}
+
     def query_table(self, date_str: str, collection: str) -> list[dict]:
         """Monta (e cacheia) a tabela consultável de uma collection.
 
         Para `asns`, faz join em memória do índice compacto com geo_orgs (uf/city/
-        region/cnpj/lat/lon) e com asn_ix_presence (campos virtuais ixps_direct/
-        ixps_origin). As demais collections vêm direto dos índices publicados.
+        region/cnpj/lat/lon) e com asn_ix_presence e os documentos dos PTTs (campos virtuais
+        ixps_membro, ixps_sessao_rs e ixps_origin; `ixps_direct` é o nome antigo de ixps_membro).
+        As demais collections vêm direto dos índices publicados.
         A posição da sede (`lat`/`lon`) entra nas linhas das `COLECOES_SEM_SEDE` só para o filtro `near`: `_executar` não a serve.
         """
         from api import query as _q
@@ -185,6 +202,7 @@ class ConsultasService:
         if collection == "asns":
             geo = self._load_geo_orgs(date_str)
             pres = self.asn_ix_presence(date_str).get("asns", {})
+            sessao = self._ixps_sessao_rs(date_str)
             rows: list[dict] = []
             # Campos PII não devem ser expostos pela query layer pública — o endpoint
             # protegido /asns/{asn}/contacts é o único caminho legítimo para esses dados.
@@ -198,7 +216,11 @@ class ConsultasService:
                     **base,
                     **{k: v for k, v in g.items() if k not in _PII},
                     "region": _q.REGION_BY_UF.get(uf) if uf else None,
+                    # `ixps_direct` vinha do cadastro de participantes (membro), não da sessão com o route server: o nome certo é `ixps_membro`
+                    # e o antigo segue como alias com o mesmo valor, para não mudar consulta de quem já o usa (CAMPOS_ALIAS)
+                    "ixps_membro": p.get("m", []),
                     "ixps_direct": p.get("m", []),
+                    "ixps_sessao_rs": sessao.get(asn, []),
                     "ixps_origin": p.get("o", []),
                 })
         elif collection == "ixps":
@@ -417,6 +439,11 @@ class ConsultasService:
         from api import query as _q
         if collection in _q.COLECOES_ALIAS:
             return {**self.query(date_str, _q.COLECOES_ALIAS[collection], body), "aviso_obsoleta": _q.aviso_colecao_obsoleta(collection)}
+        r = self._query_com_cache(date_str, collection, body)
+        avisos = _q.avisos_campos_obsoletos(collection, body)
+        return {**r, "aviso_obsoleta": avisos} if avisos else r
+
+    def _query_com_cache(self, date_str: str, collection: str, body: dict) -> dict:
         try:
             chave = (date_str, collection, json.dumps(body or {}, sort_keys=True, default=str))
         except (TypeError, ValueError):

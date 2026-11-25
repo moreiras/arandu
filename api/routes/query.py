@@ -99,7 +99,7 @@ Veja os campos por collection em `GET /schema`. Collections: `asns`, `ixps`,
 `external_ixps`, `cdns`, `prefixes`.
 
 Álgebra de conjuntos na mesma collection sai de graça via filtro composto — ex.:
-ASes diretos no SP mas não no RJ: `ixps_direct contains "sp" AND ncontains "rj"`.
+ASes com sessão em route server no SP mas não no RJ: `ixps_sessao_rs contains "sp" AND ncontains "rj"` (`ixps_membro` é o cadastro de participantes; `ixps_direct` é o nome antigo dele).
 """,
 )
 @limiter.limit(LIMIT_QUERY)

@@ -296,7 +296,7 @@ def asn_ix_presence(date: Optional[str] = None) -> dict:
     Retorna {asn: {"m": [codes IX.br membro], "o": [codes onde origina prefixos BR]}}
     para todos os ASes (dezenas de milhares de entradas — resposta enorme).
     Quase nunca é o que você quer: para um AS, use get_asn (campo ixp_presence); para
-    "quem está no PTT X / em ≥N PTTs", use `query` com ixps_direct/ixps_origin.
+    "quem está no PTT X / em ≥N PTTs", use `query` com ixps_sessao_rs/ixps_origin.
 
     Args:
         date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.

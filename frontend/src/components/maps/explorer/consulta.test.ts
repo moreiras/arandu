@@ -17,7 +17,7 @@ describe('predicados → DSL do motor de consulta', () => {
     expect(predicateToDsl(pred('no_rpki'))).toEqual({ field: 'has_rpki', op: 'eq', value: false })
     expect(predicateToDsl(pred('has_aspa'))).toEqual({ field: 'has_aspa', op: 'eq', value: true })
     expect(predicateToDsl(pred('v6_ft'))).toEqual({ field: 'global_prefixes_v6_count', op: 'gte', value: 1 })
-    expect(predicateToDsl(pred('ixps_direct_in', '  SP '))).toEqual({ field: 'ixps_direct', op: 'contains', value: 'sp' })
+    expect(predicateToDsl(pred('ixps_direct_in', '  SP '))).toEqual({ field: 'ixps_membro', op: 'contains', value: 'sp' })
     expect(predicateToDsl(pred('ixps_origin_nin', 'RJ'))).toEqual({ field: 'ixps_origin', op: 'ncontains', value: 'rj' })
     expect(predicateToDsl(pred('pct_v6_gte', '25.5'))).toEqual({ field: 'pct_v6', op: 'gte', value: 25.5 })
     expect(predicateToDsl(pred('porte', 'DEMAIS'))).toEqual({ field: 'porte', op: 'eq', value: 'DEMAIS' })
