@@ -13,7 +13,8 @@ Formatos (verificados em 2026-11-02):
   * `delegated-lacnic-extended`: `registro|país|tipo|início|quantidade|data|status|opaque-id`; a quantidade de IPv4 é número de endereços (não precisa ser potência de 2).
 
 Linha que não casa com o formato é **contada e devolvida** (`ignoradas`), nunca descartada em silêncio. Nome de pessoa física provável é mascarado só na saída pública (`mascarar_nome`);
-a heurística é conservadora para o que aparece como pessoa jurídica: só mascara nome brasileiro sem nenhum marcador de empresa. O CPF embutido
+a heurística mascara o nome (brasileiro ou estrangeiro) de duas palavras ou mais sem nenhum marcador de empresa: no estrangeiro, o marcador é de entidade jurídica
+estrangeira (IPV4-E14, PT-11). O CPF embutido
 no nome (EI/MEI) sai mascarado em qualquer parte, brasileira ou estrangeira (`core.cpf`): a máscara da publicação não alcança o nome dentro de
 linhas em lista (`blocos_br`).
 """
@@ -39,12 +40,26 @@ def sem_acento(s: str) -> str:
     return unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode().upper()
 
 
+# Marcadores de entidade jurídica estrangeira (forma societária e termos de empresa em inglês e espanhol): só valem fora do Brasil. Sem nenhum deles, e com ao menos duas palavras,
+# o nome estrangeiro é tratado como pessoa provável (IPV4-E14): errar para o lado da omissão é o custo aceito; a nota da página diz que a identificação é automática.
+_MARCADORES_PJ_ESTRANGEIRO = re.compile(
+    r"\b(LTD|LIMITED|INC|INCORPORATED|LLC|LLP|LP|PLC|CORP|CORPORATION|CO|COMPANY|GMBH|AG|KG|UG|BV|B\.V\.?|NV|N\.V\.?|SRL|S\.R\.L\.?|SAS|SARL|SPA|S\.P\.A\.?|SL|S\.L\.?|"
+    r"SA DE CV|S DE RL|PTY|PTE|BHD|SDN|OY|OYJ|AB|ASA|APS|A/S|AS|ZAO|OOO|PJSC|JSC|OJSC|KK|GK|KFT|SPOLKA|"
+    r"COMMUNICATIONS?|TELECOMMUNICATIONS?|TELECOMUNICACIONES|COMUNICACIONES|HOSTING|CLOUD|BROADBAND|ISP|ONLINE|WEB|MOBILE|CABLE|TELEPHONE|COMPUTING|MEDIA|SOLUTIONS?|"
+    r"SYSTEMS?|DATACENTERS?|DATA CENTERS?|UNIVERSITY|UNIVERSIDAD|COLLEGE|SCHOOL|BANK|GOVERNMENT|GOBIERNO|MINISTRY|MINISTERIO|FOUNDATION|FUNDACION|ASSOCIATION|ASOCIACION|"
+    r"TRUST|SOFTWARE|GLOBAL|INTERNATIONAL|ENTERPRISES?|HOLDINGS?|PARTNERS|LABS|STUDIO|CENTER|CENTRE|SOCIEDAD|CORPORACION|SERVICIOS|REDES|TECNOLOGIAS?|DIGITAL|"
+    r"CONNECT|CONNECTIVITY|BACKBONE|TRANSIT|EXCHANGE|REGISTRY|HOSTS?|VPS|SECURITY|NETWORKS?|TECHNOLOG(Y|IES)|ELECTRONICS?|ENERGY|POWER|TELCO|TELEKOM|TELEFON\w*)\b")
+
+
 def tipo_pessoa(nome: str, pais: Optional[str] = "BR") -> str:
-    """`pj` (tem marcador de empresa ou não é do Brasil) ou `pf_provavel` (nome brasileiro sem nenhum marcador de empresa). Heurística: só orienta a máscara."""
-    if (pais or "BR") != "BR" or not nome:
+    """`pj` (tem marcador de empresa) ou `pf_provavel` (nome de duas palavras ou mais sem nenhum marcador de empresa). Para parte estrangeira, o marcador é de entidade
+    jurídica estrangeira (Ltd, Inc, LLC, GmbH, S.A., B.V., Pty...). Heurística: só orienta a máscara."""
+    if not nome:
         return "pj"
     n = sem_acento(nome)
     if _MARCADORES_PJ.search(n) or re.search(r"[0-9]{3,}", n):
+        return "pj"
+    if (pais or "BR") != "BR" and _MARCADORES_PJ_ESTRANGEIRO.search(n):
         return "pj"
     return "pf_provavel" if len(n.split()) >= 2 else "pj"
 

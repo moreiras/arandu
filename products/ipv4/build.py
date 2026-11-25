@@ -30,7 +30,7 @@ from core.jsonio import carregar_json, carregar_json_gz, gravar_json_gz
 LIMITES = (
     "Transferências são o que o Registro.br e o LACNIC declaram, na data que declaram; o histórico do Registro.br só existe desde o início da nossa coleta{inicio}, então "
     "'primeira vez visto' de registros antigos é a primeira data coletada. Uma operação reúne os blocos do mesmo dia e das mesmas partes. O casamento com o ASN usa os blocos que o "
-    "Registro.br aloca ao ASN no snapshot (organização sem ASN fica sem casamento). Nome de pessoa física provável é omitido. Não se atribui causa nem intenção."
+    "Registro.br aloca ao ASN no snapshot (organização sem ASN fica sem casamento). Nome de pessoa física provável é omitido, no Brasil e no exterior; a identificação é automática e pode errar. Não se atribui causa nem intenção."
 )
 
 

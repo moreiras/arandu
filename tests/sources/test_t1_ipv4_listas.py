@@ -57,7 +57,16 @@ def test_delegated_ipv4_chaveia_por_inicio_e_quantidade(fx):
 
 def test_mascara_de_pessoa_fisica_so_para_nome_brasileiro_sem_marcador_de_empresa():
     assert L.mascarar_nome("JOAO DA SILVA SANTOS", "BR") == "Pessoa física"
-    assert L.mascarar_nome("ALFA TELECOM LTDA", "BR") == "ALFA TELECOM LTDA" and L.mascarar_nome("Maria Souza", "AR") == "Maria Souza" and L.mascarar_nome("SetarNet", "BR") == "SetarNet"
+    assert L.mascarar_nome("ALFA TELECOM LTDA", "BR") == "ALFA TELECOM LTDA" and L.mascarar_nome("SetarNet", "BR") == "SetarNet"
+
+
+def test_parte_estrangeira_sem_marcador_de_entidade_juridica_e_pessoa_provavel():
+    """IPV4-E14 (PT-11): nome estrangeiro de duas palavras sem Ltd, Inc, LLC, GmbH, S.A., B.V., Pty... é omitido como pessoa provável; com marcador, fica visível."""
+    for nome, pais in (("Maria Souza", "AR"), ("John Smith", "US"), ("Hans Mueller", "DE"), ("Ana Garcia Lopez", "ES")):
+        assert L.mascarar_nome(nome, pais) == "Pessoa física", (nome, pais)
+    for nome, pais in (("Example Networks Ltd", "GB"), ("Acme Inc", "US"), ("Beispiel GmbH", "DE"), ("Voorbeeld B.V.", "NL"), ("Sample Pty", "AU"), ("Ejemplo S.A.", "AR"),
+                       ("Cloudflare, Inc.", "US"), ("Telefonica Moviles", "AR"), ("Amazon", "US"), ("Setar", "AW")):
+        assert L.mascarar_nome(nome, pais) == nome, (nome, pais)
 
 
 def test_cpf_embutido_no_nome_sai_mascarado_em_qualquer_parte():
