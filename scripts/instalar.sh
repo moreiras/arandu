@@ -159,6 +159,7 @@ if [[ -n "$(env_valor API_MEM_LIMIT)" && "$(env_valor API_MEMSWAP_LIMIT)" != "$(
     aviso "API_MEMSWAP_LIMIT diferente de API_MEM_LIMIT: estourar o teto leva o host ao swap em vez de reiniciar a API"
 fi
 inc="$(env_valor NGINX_REAL_IP_INC)"
+[[ -n "$inc" || -n "$(env_valor NGINX_REAL_IP_FROM)" ]] || ok "IP real: NGINX_REAL_IP_FROM vazio (o nginx não confia no X-Forwarded-For de ninguém; com borda na frente, declare o IP dela)"
 if [[ -z "$inc" ]]; then
     aviso "NGINX_REAL_IP_INC vazio: atrás da Cloudflare todo cliente aparece com IP dela e todos dividem o mesmo orçamento"
 else

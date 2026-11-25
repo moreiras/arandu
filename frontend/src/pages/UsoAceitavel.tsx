@@ -3,10 +3,13 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
+import { useLimites } from '../hooks/useLimites'
 import { SITE } from '../lib/site'
 
 /** Política de Uso Aceitável. Texto proposto, em revisão pelo mantenedor. */
 export function UsoAceitavel() {
+  const sem = useLimites().data?.sem_conta
+  const valores = sem && sem.orcamento_diario_segundos != null && sem.custo_por_chamada_segundos != null ? ` (hoje, ${sem.orcamento_diario_segundos} s e ${sem.custo_por_chamada_segundos} s)` : ''
   return (
     <div className="max-w-3xl space-y-8">
       <div>
@@ -33,7 +36,8 @@ export function UsoAceitavel() {
           <li>
             <strong>Coleta extensiva:</strong> copiar de forma sistemática a base do sistema (varrer todos os ASNs,
             prefixos, operadoras ou municípios, paginar listas até o fim, raspar páginas) para reconstruí-la, redistribuí-la
-            ou revendê-la. Se você precisa de volume, fale conosco antes.
+            ou revendê-la. Se você precisa de volume, fale conosco antes:{' '}
+            <a href={`mailto:${SITE.contato}`} className="text-primario-600 underline">{SITE.contato}</a>
           </li>
           <li>
             <strong>Spam:</strong> usar dados do sistema para enviar mensagens não solicitadas, em massa ou não.
@@ -61,7 +65,7 @@ export function UsoAceitavel() {
       <section className="space-y-3">
         <h2 className="text-base font-semibold text-gray-800">4. Se as regras forem violadas</h2>
         <p className="text-sm text-gray-600 leading-relaxed">
-          Sem login, o orçamento diário é de 600 s e cada chamada de script custa 3 s; ao esgotá-lo a API responde 429 com
+          Sem login, o orçamento diário e o custo por chamada de script são os publicados em /dados e em /api/v1/limites{valores}; ao esgotá-lo a API responde 429 com
           Retry-After até a meia-noite UTC. A rede é o IPv4 inteiro ou o prefixo IPv6 /64.
         </p>
         <p className="text-sm text-gray-600 leading-relaxed">

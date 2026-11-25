@@ -99,5 +99,7 @@ COPY docker/nginx-frontend.conf    /etc/nginx/conf.d/default.conf
 COPY docker/nginx-security-headers.conf /etc/nginx/conf.d/security-headers.conf
 COPY docker/nginx-api-proxy.inc         /etc/nginx/conf.d/api-proxy.inc
 COPY docker/nginx-real-ip.inc           /etc/nginx/conf.d/real-ip.inc
+# Gera o real-ip-borda.inc de NGINX_REAL_IP_FROM na subida (a imagem do nginx roda /docker-entrypoint.d/*.sh antes do nginx).
+COPY --chmod=0755 docker/entrypoint-real-ip-borda.sh /docker-entrypoint.d/15-real-ip-borda.sh
 
 EXPOSE 80

@@ -158,6 +158,31 @@ def test_compose_tetos_de_memoria_iguais_nos_tres_arquivos(arquivo):
     assert str(c["frontend"]["deploy"]["resources"]["limits"]["memory"]).lower() == "512m"
 
 
+@pytest.mark.parametrize("arquivo", ["docker-compose.exemplo.yml", "docker-compose.prod.yml", "docker-compose.no-nginx.yml"])
+def test_compose_api_e_mcp_recebem_a_chave_e_a_cota_de_mcp_nos_tres_arquivos(arquivo):
+    """A API publica o estado da chave em /api/v1/limites e escolhe o corpo do 429; o MCP a aplica. Se um dos dois ficasse sem `MCP_KEY_ATIVA` ou
+    `MCP_COTA_DIARIA`, a API diria que a chave está desligada com o MCP aplicando-a (ou o contrário). O efetivo de cada serviço é o do
+    `docker-compose.exemplo.yml` com o overlay por cima (as variáveis se fundem pelo nome)."""
+    import yaml
+
+    class _Carregador(yaml.SafeLoader):
+        pass
+    _Carregador.add_constructor("!reset", lambda carregador, no: None)
+
+    def env(arq, servico):
+        itens = yaml.load((ROOT / arq).read_text(), Loader=_Carregador)["services"].get(servico, {}).get("environment") or []
+        return {str(e).split("=", 1)[0]: str(e).split("=", 1)[1] for e in itens if "=" in str(e)}
+
+    for var in ("MCP_KEY_ATIVA", "MCP_COTA_DIARIA"):
+        efetivo = {sv: {**env("docker-compose.exemplo.yml", sv), **(env(arquivo, sv) if arquivo != "docker-compose.exemplo.yml" else {})} for sv in ("api", "mcp")}
+        assert var in efetivo["api"] and var in efetivo["mcp"], (arquivo, var)
+        assert efetivo["api"][var].startswith("${" + var + ":-") and efetivo["mcp"][var].startswith("${" + var + ":-"), (arquivo, var)
+        if arquivo != "docker-compose.exemplo.yml":
+            assert var in env(arquivo, "api"), (arquivo, var, "o overlay precisa repassar a variável à API")
+            if var in env(arquivo, "mcp"):
+                assert env(arquivo, "mcp")[var] == env(arquivo, "api")[var], (arquivo, var)
+
+
 def test_compose_exemplo_repassa_caches_e_arenas_a_api_e_ao_mcp():
     """O `.prod.yml` só vale com PROD_OVERRIDES=true: os tamanhos de cache e o MALLOC_ARENA_MAX do `.env` ficavam fora da API sem ele."""
     import yaml

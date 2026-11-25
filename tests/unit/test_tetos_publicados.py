@@ -48,12 +48,15 @@ def test_identificacao_por_rede_ipv4_inteiro_e_ipv6_64():
     assert rede_do_ip("2001:db8:a:b:1:2:3:4") == rede_do_ip("2001:db8:a:b:ffff::1") == "2001:db8:a:b::/64"
 
 
-def test_uso_aceitavel_publica_os_tetos_do_codigo():
-    """PT-12b: o texto aprovado de /uso-aceitavel cita 600 s, 3 s e a rede (IPv4 inteiro ou IPv6 /64); os números são os que a rota publica."""
+def test_uso_aceitavel_remete_aos_tetos_publicados_sem_numero_fixo():
+    """Decisão 4 (fechamento das ondas 4 e 5): /uso-aceitavel não escreve 600 s nem 3 s; remete a /dados e /api/v1/limites e lê os valores ao vivo
+    (`useLimites`, os que a rota publica). A rede segue descrita no texto."""
     uso = " ".join((ROOT / "frontend" / "src" / "pages" / "UsoAceitavel.tsx").read_text(encoding="utf-8").split())
-    d = _limites()["sem_conta"]
-    assert f"o orçamento diário é de {d['orcamento_diario_segundos']} s e cada chamada de script custa {d['custo_por_chamada_segundos']} s" in uso
+    assert "useLimites" in uso and "orcamento_diario_segundos" in uso and "custo_por_chamada_segundos" in uso
+    assert "o orçamento diário e o custo por chamada de script são os publicados em /dados e em /api/v1/limites" in uso
+    assert not re.search(r"\b600 s\b|\b3 s\b", uso)
     assert "429 com Retry-After até a meia-noite UTC. A rede é o IPv4 inteiro ou o prefixo IPv6 /64." in uso
+    assert _limites()["sem_conta"]["orcamento_diario_segundos"] and _limites()["sem_conta"]["custo_por_chamada_segundos"]
 
 
 def test_sobre_e_dados_publicam_os_tetos_e_o_aviso_do_link_de_citacao():

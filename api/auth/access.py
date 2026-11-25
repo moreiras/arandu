@@ -199,8 +199,16 @@ def segundos_ate_meia_noite_utc(agora: Optional[datetime] = None) -> int:
     return max(1, int((proxima - agora).total_seconds()))
 
 
-ALTERNATIVAS_LIMITE = ["Entre no site com uma conta gratuita: o login libera listas completas, histórico e contatos.",
-                       "Use o servidor MCP com chave de MCP (gerada em /perfil), que tem cota própria."]
+ALTERNATIVA_LOGIN = "Entre no site com uma conta gratuita: o login libera listas completas, histórico e contatos."
+ALTERNATIVA_CHAVE_MCP = "Use o servidor MCP com chave de MCP (gerada em /perfil), que tem cota própria."
+
+
+def alternativas_limite() -> list[str]:
+    """Saídas oferecidas no 429. A chave de MCP só é sugerida quando está ligada, pela mesma regra de `GET /api/v1/limites`
+    (`chaves_mcp.ativa()`: `MCP_KEY_ATIVA` e `MCP_KEY_PEPPER`); o gate roda noutro processo e lê o mesmo ambiente a cada resposta."""
+    from api.auth import chaves_mcp
+
+    return [ALTERNATIVA_LOGIN, ALTERNATIVA_CHAVE_MCP] if chaves_mcp.ativa() else [ALTERNATIVA_LOGIN]
 
 
 def corpo_limite_anonimo(retry_after: int) -> dict:
@@ -211,7 +219,7 @@ def corpo_limite_anonimo(retry_after: int) -> dict:
         "anon_limit_reached": True,
         "janela": "dia",
         "retry_after": retry_after,
-        "alternativas": ALTERNATIVAS_LIMITE,
+        "alternativas": alternativas_limite(),
     }
 
 

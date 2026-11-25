@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Regressão do controle de acesso no nginx do frontend (auth_request antes do cache).
-# Requer: docker, .venv-mcp (ou PYTHON=...). Sobe API stub em :$API_PORT (padrão 8000) e nginx em :18080.
+# Requer: docker, .venv-mcp (ou PYTHON=...). Sobe API stub em :$API_PORT (padrão 8000) e nginx em :$NG_PORT (padrão 18080).
 # O gate roda em processo próprio (api/gate_app.py, :8001). Casos: MISS→HIT; esgotado recebe 429 com Retry-After MESMO com HIT (o gate responde 403 e o @anon_limit do nginx o troca); allowlist passa; /api/v1/docs
-# isento; fail-open com a API fora (serve cache).
+# isento; fail-open com a API fora (serve cache). IP real: o X-Forwarded-For só vale vindo de IP declarado em NGINX_REAL_IP_FROM (sem a variável é ignorado).
 set -u
 cd "$(dirname "$0")/../.."
 PY=${PYTHON:-.venv-mcp/bin/python}
@@ -16,7 +16,7 @@ ok()   { echo "  ok   - $1"; }
 nok()  { echo "  FAIL - $1 (obtido: $2)"; fail=1; }
 # Portas do stub e do gate: o nginx as vê como api:8000/api:8001; se já estiverem ocupadas (API local de dev),
 # use API_PORT/GATE_PORT: cópias da config com as portas trocadas são montadas no container.
-API_PORT=${API_PORT:-8000}; GATE_PORT=${GATE_PORT:-8001}
+API_PORT=${API_PORT:-8000}; GATE_PORT=${GATE_PORT:-8001}; NG_PORT=${NG_PORT:-18080}
 API_PID=""; GATE_PID=""
 # Mata só os processos que ESTE script criou (nunca por nome: pode haver outra API local rodando).
 cleanup() { docker rm -f ng-gate >/dev/null 2>&1; [ -n "$API_PID" ] && kill "$API_PID" 2>/dev/null; [ -n "$GATE_PID" ] && kill "$GATE_PID" 2>/dev/null; rm -rf "$TMP"; }
@@ -34,30 +34,59 @@ mkdir -p "$TMP/conf"
 for f in nginx-frontend.conf nginx-api-proxy.inc; do
   sed -e "s/api:8000/api:$API_PORT/g" -e "s/api:8001/api:$GATE_PORT/g" "docker/$f" > "$TMP/conf/$f"
 done
-docker run -d --name ng-gate --add-host api:host-gateway --add-host mcp:127.0.0.1 -p 18080:8080 \
-  -v "$TMP/conf/nginx-frontend.conf:/etc/nginx/conf.d/default.conf:ro" \
-  -v "$PWD/docker/nginx-security-headers.conf:/etc/nginx/conf.d/security-headers.conf:ro" \
-  -v "$PWD/docker/nginx-real-ip.inc:/etc/nginx/conf.d/real-ip.inc:ro" \
-  -v "$TMP/conf/nginx-api-proxy.inc:/etc/nginx/conf.d/api-proxy.inc:ro" "$IMG" >/dev/null
+# Cópias legíveis por qualquer usuário: o nginx do contêiner (uid 101) não lê arquivos 0660 do checkout, e o entrypoint precisa de bit de execução.
+cp docker/nginx-security-headers.conf docker/nginx-real-ip.inc docker/entrypoint-real-ip-borda.sh "$TMP/conf/"
+chmod 755 "$TMP/conf" "$TMP/conf/entrypoint-real-ip-borda.sh"; chmod 644 "$TMP"/conf/*.conf "$TMP"/conf/*.inc
+# O nginx sobe com o `entrypoint-real-ip-borda.sh` montado (a imagem de teste pode ser antiga); `$@` traz o NGINX_REAL_IP_FROM de cada caso.
+sobe_nginx() {
+  docker rm -f ng-gate >/dev/null 2>&1
+  docker run -d --name ng-gate --add-host api:host-gateway --add-host mcp:127.0.0.1 -p "$NG_PORT":8080 "$@" \
+    -v "$TMP/conf/nginx-frontend.conf:/etc/nginx/conf.d/default.conf:ro" \
+    -v "$TMP/conf/nginx-security-headers.conf:/etc/nginx/conf.d/security-headers.conf:ro" \
+    -v "$TMP/conf/nginx-real-ip.inc:/etc/nginx/conf.d/real-ip.inc:ro" \
+    -v "$TMP/conf/entrypoint-real-ip-borda.sh:/docker-entrypoint.d/15-real-ip-borda.sh:ro" \
+    -v "$TMP/conf/nginx-api-proxy.inc:/etc/nginx/conf.d/api-proxy.inc:ro" "$IMG" >/dev/null
+  for _ in $(seq 1 40); do curl -sf "localhost:$NG_PORT/auth/diag" >/dev/null 2>&1 && return 0; sleep 0.5; done
+  return 1
+}
 for _ in $(seq 1 30); do curl -sf localhost:$API_PORT/api/v1/ping >/dev/null && break; sleep 0.5; done
 
 req() { # ip [sid] [path] -> "status cache"
   local a=(-s -o /dev/null -D - -H "X-Forwarded-For: $1"); [ -n "${2:-}" ] && a+=(-H "Cookie: anon_sid=$2")
-  curl "${a[@]}" "localhost:18080${3:-/api/v1/ping}" | tr -d '\r' | awk 'NR==1{s=$2} tolower($1)=="x-cache-status:"{c=$2} END{print s, c}'
+  curl "${a[@]}" "localhost:$NG_PORT${3:-/api/v1/ping}" | tr -d '\r' | awk 'NR==1{s=$2} tolower($1)=="x-cache-status:"{c=$2} END{print s, c}'
 }
 expect() { [ "$2" = "$3" ] && ok "$1" || nok "$1" "$3"; }
 
+# IP real. 1) Sem NGINX_REAL_IP_FROM o nginx não confia em ninguém: o X-Forwarded-For forjado com um IP da allowlist é ignorado e o IP visto é o da conexão.
+sobe_nginx || { echo "nginx não subiu"; docker logs ng-gate 2>&1 | tail -5; echo "--- api.log"; tail -15 "$TMP/api.log"; echo "--- gate.log"; tail -5 "$TMP/gate.log"; exit 1; }
+diag() { curl -s -H "X-Forwarded-For: $1" "localhost:$NG_PORT/auth/diag" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["x_real_ip"], d["tier"])'; }
+CONEXAO=$(diag 203.0.113.129 | cut -d' ' -f1)
+expect "IP real: sem NGINX_REAL_IP_FROM, XFF de cliente não confiável é ignorado (IP é o da conexão, tier anon)" "$CONEXAO anon" "$(diag 203.0.113.129)"
+case "$(docker logs ng-gate 2>&1)" in *"NGINX_REAL_IP_FROM vazio"*) ok "IP real: a subida registra que ninguém é confiável" ;; *) nok "IP real: log da subida" "-" ;; esac
+# 2) Um IP declarado que não é o da conexão (lista com vírgula e espaço, IPv6 e IPv4) também não habilita o XFF.
+sobe_nginx -e "NGINX_REAL_IP_FROM=2001:db8:ffff::1, 192.0.2.77" || { echo "nginx não subiu"; exit 1; }
+expect "IP real: IP declarado diferente do da conexão não habilita o XFF" "$CONEXAO anon" "$(diag 203.0.113.129)"
+# 3) Declarado o IP da conexão (a borda), o XFF dele vale.
+sobe_nginx -e "NGINX_REAL_IP_FROM=192.0.2.77 $CONEXAO" || { echo "nginx não subiu"; exit 1; }
+expect "IP real: XFF vindo de IP declarado em NGINX_REAL_IP_FROM é aceito (allowlist)" "203.0.113.129 allowed" "$(diag 203.0.113.129)"
+expect "IP real: XFF vindo de IP declarado define o cliente (anon)" "9.9.9.9 anon" "$(diag 9.9.9.9)"
+# 4) Valor mal formado derruba a subida em vez de confiar em todos.
+docker rm -f ng-gate >/dev/null 2>&1
+docker run --rm -e "NGINX_REAL_IP_FROM=0.0.0.0/0; allow all" --entrypoint sh -v "$TMP/conf/entrypoint-real-ip-borda.sh:/x.sh:ro" "$IMG" /x.sh >/dev/null 2>&1 && nok "IP real: valor mal formado deveria falhar" "subiu" || ok "IP real: valor mal formado em NGINX_REAL_IP_FROM falha a subida"
+# Os casos que seguem usam o IP da conexão como borda declarada.
+sobe_nginx -e "NGINX_REAL_IP_FROM=$CONEXAO" || { echo "nginx não subiu"; exit 1; }
+
 expect "anon novo: 1ª chamada MISS"        "200 MISS" "$(req 8.8.8.8)"
 expect "anon novo: 2ª chamada HIT"         "200 HIT"  "$(req 8.8.8.8)"
-SID=$(curl -s -D - -o /dev/null -H "X-Forwarded-For: 8.8.8.8" localhost:18080/auth/me | grep -i set-cookie | sed -E 's/.*anon_sid=([^;]*);.*/\1/')
+SID=$(curl -s -D - -o /dev/null -H "X-Forwarded-For: 8.8.8.8" localhost:$NG_PORT/auth/me | grep -i set-cookie | sed -E 's/.*anon_sid=([^;]*);.*/\1/')
 $PY - "$TMP/data/auth/anon_sessions.db" "$SID" <<'PYE'
 import sqlite3, sys
 d = sqlite3.connect(sys.argv[1]); d.execute("update anon_sessions set active_seconds=999999 where session_id=?", (sys.argv[2],)); d.commit()
 PYE
 expect "esgotado: avançada 429 mesmo com HIT" "429 "      "$(req 8.8.8.8 "$SID")"
-RA=$(curl -s -D - -o /dev/null -H "X-Forwarded-For: 8.8.8.8" -H "Cookie: anon_sid=$SID" localhost:18080/api/v1/ping | tr -d '\r' | awk 'tolower($1)=="retry-after:"{print $2}')
+RA=$(curl -s -D - -o /dev/null -H "X-Forwarded-For: 8.8.8.8" -H "Cookie: anon_sid=$SID" localhost:$NG_PORT/api/v1/ping | tr -d '\r' | awk 'tolower($1)=="retry-after:"{print $2}')
 [ -n "$RA" ] && [ "$RA" -ge 1 ] && [ "$RA" -le 86400 ] && ok "esgotado: Retry-After em segundos (até a meia-noite UTC)" || nok "esgotado: Retry-After" "${RA:-ausente}"
-[ "$(curl -s -H "X-Forwarded-For: 8.8.8.8" -H "Cookie: anon_sid=$SID" localhost:18080/api/v1/ping | grep -c anon_limit_reached)" = 1 ] && ok "esgotado: corpo traz anon_limit_reached" || nok "esgotado: corpo" "-"
+[ "$(curl -s -H "X-Forwarded-For: 8.8.8.8" -H "Cookie: anon_sid=$SID" localhost:$NG_PORT/api/v1/ping | grep -c anon_limit_reached)" = 1 ] && ok "esgotado: corpo traz anon_limit_reached" || nok "esgotado: corpo" "-"
 expect "esgotado + IP na allowlist: 200"       "200 HIT"   "$(req 203.0.113.129 "$SID")"
 expect "esgotado: docs isento"                 "200 "      "$(req 8.8.8.8 "$SID" /api/v1/openapi.json | awk '{print $1" "}')"
 expect "outro anon sem cookie: 200 HIT"        "200 HIT"   "$(req 9.9.9.9)"
@@ -67,18 +96,18 @@ expect "login: lista pág. 2 = 401"             "401 "      "$(req 9.9.9.9 "" '/
 expect "login: lista pág. 2 = 401 de novo (sem cache)" "401 " "$(req 9.9.9.9 "" '/api/v1/asns?page=2')"
 expect "lista pág. 1 aberta"                   "200 MISS"  "$(req 9.9.9.9 "" '/api/v1/asns?page=1&limit=8')"
 expect "login: allowlist pág. 2 = 200"         "200 MISS"  "$(req 203.0.113.129 "" '/api/v1/asns?page=2')"
-[ "$(curl -s -H 'X-Forwarded-For: 9.9.9.9' 'localhost:18080/api/v1/asns?page=2' | grep -c login_required)" = 1 ] && ok "corpo 401 traz login_required" || nok "corpo 401" "-"
+[ "$(curl -s -H 'X-Forwarded-For: 9.9.9.9' "localhost:$NG_PORT/api/v1/asns?page=2" | grep -c login_required)" = 1 ] && ok "corpo 401 traz login_required" || nok "corpo 401" "-"
 # Compressão: br só para quem pede; gzip da API para os demais; variantes não se misturam no cache.
-enc() { curl -s -o /dev/null -D - -H "X-Forwarded-For: 7.7.7.7" ${1:+-H "Accept-Encoding: $1"} localhost:18080/api/v1/ixps/estimated-users \
+enc() { curl -s -o /dev/null -D - -H "X-Forwarded-For: 7.7.7.7" ${1:+-H "Accept-Encoding: $1"} localhost:$NG_PORT/api/v1/ixps/estimated-users \
   | tr -d '\r' | awk 'tolower($1)=="content-encoding:"{e=$2} END{if(e=="")e="identity"; print e}'; }
 expect "br pedido → brotli"                    "br"        "$(enc 'gzip, deflate, br')"
 expect "gzip pedido → gzip (variante própria)" "gzip"      "$(enc 'gzip')"
 expect "br de novo (HIT) segue brotli"         "br"        "$(enc 'br')"
 expect "sem Accept-Encoding → identidade"      "identity"  "$(enc '')"
-[ "$(curl -s -H 'X-Forwarded-For: 7.7.7.7' -H 'Accept-Encoding: br' localhost:18080/api/v1/ixps/estimated-users | wc -c)" -gt 0 ] && ok "corpo brotli não vazio" || nok "corpo brotli" "-"
+[ "$(curl -s -H 'X-Forwarded-For: 7.7.7.7' -H 'Accept-Encoding: br' localhost:$NG_PORT/api/v1/ixps/estimated-users | wc -c)" -gt 0 ] && ok "corpo brotli não vazio" || nok "corpo brotli" "-"
 # Camada estática por hash: quem aceita br leva a API a entregar brotli-11 pré-comprimido; o nginx só repassa `br`.
 V=0123456789abcdef
-camada() { curl -s -o /dev/null -D - -H "X-Forwarded-For: 203.0.113.129" -H "Accept-Encoding: $1" "localhost:18080/api/v1/map/eco$2" | tr -d '\r'; }
+camada() { curl -s -o /dev/null -D - -H "X-Forwarded-For: 203.0.113.129" -H "Accept-Encoding: $1" "localhost:$NG_PORT/api/v1/map/eco$2" | tr -d '\r'; }
 cab() { echo "$1" | awk -v k="$2" 'tolower($1)==tolower(k":"){print $2}'; }
 R1=$(camada 'gzip, br' "?v=$V")
 expect "camada ?v= + br: a API recebe só br"   "br"        "$(cab "$R1" x-upstream-ae)"
@@ -93,7 +122,7 @@ expect "3ª: entra no cache do nginx (HIT)"     "HIT"       "$(cab "$R3" x-cache
 expect "camada ?v= + só gzip: gzip da API"     "gzip"      "$(cab "$(camada 'gzip' "?v=$V")" x-upstream-ae)"
 expect "sem ?v=: a API não recebe br"          ""          "$(cab "$(camada 'gzip, br' "")" x-upstream-ae)"
 # Metatags das entidades: agente de prévia/rastreador recebe o HTML da API (/meta/); o navegador comum recebe a SPA.
-corpo() { curl -s -H "X-Forwarded-For: 7.7.7.7" -A "$1" "localhost:18080$2"; }
+corpo() { curl -s -H "X-Forwarded-For: 7.7.7.7" -A "$1" "localhost:$NG_PORT$2"; }
 expect "entidade + Googlebot: HTML de metatags da API" "1" "$(corpo 'Mozilla/5.0 (compatible; Googlebot/2.1)' /asn/64500 | grep -c 'META asn 64500')"
 expect "entidade + ClaudeBot: HTML de metatags da API" "1" "$(corpo 'ClaudeBot/1.0' /ixp/sp | grep -c 'META ixp sp')"
 expect "entidade + navegador comum: SPA (sem metatags da API)" "0" "$(corpo 'Mozilla/5.0 (X11; Linux x86_64) Firefox/130.0' /asn/64500 | grep -c 'META asn')"
@@ -101,7 +130,7 @@ expect "entidade + navegador comum: devolve o index.html" "1" "$(corpo 'Mozilla/
 expect "entidade inexistente + bot: cai na SPA"        "1" "$(corpo 'Googlebot/2.1' /uf/inexistente | grep -c 'id="root"')"
 expect "página que não é entidade + bot: SPA"          "1" "$(corpo 'Googlebot/2.1' /fontes | grep -c 'id="root"')"
 # Soft 404: rota da SPA responde 200; o que não é rota recebe o mesmo index.html com 404 (map $rota_spa).
-st() { curl -s -o /dev/null -w '%{http_code}' -H "X-Forwarded-For: 7.7.7.7" "localhost:18080$1"; }
+st() { curl -s -o /dev/null -w '%{http_code}' -H "X-Forwarded-For: 7.7.7.7" "localhost:$NG_PORT$1"; }
 expect "rota da SPA: 200"                       "200" "$(st /sobre)"
 expect "rota aninhada da SPA: 200"              "200" "$(st /panorama/tecnico)"
 expect "entidade com id inválido: 200 (a página trata)" "200" "$(st /asn/abc)"

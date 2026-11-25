@@ -12,7 +12,8 @@ Arquivos usados na construção das imagens e na operação do host. `Dockerfile
 | `nginx-frontend.conf` | Servidor do frontend: SPA, proxy da API e do MCP, gate de acesso (`auth_request`), cache em disco das respostas da API, compressão brotli/gzip, limites por endpoint e metatags para robôs. |
 | `nginx-api-proxy.inc` | Proxy e cache das respostas da API, comum ao caminho normal (atrás do `auth_request`) e ao fallback fail-open quando o gate está fora. |
 | `nginx-security-headers.conf` | Cabeçalhos de segurança (CSP, HSTS, X-Frame-Options…), incluídos no `server` e em cada `location` que usa `add_header`. |
-| `nginx-real-ip.inc` | De quem o nginx aceita o `X-Forwarded-For` como IP real do cliente. |
+| `nginx-real-ip.inc` | Cabeçalho de onde o nginx tira o IP real (`X-Forwarded-For`); em quem confiar vem de `NGINX_REAL_IP_FROM` (nenhum IP por padrão). |
+| `entrypoint-real-ip-borda.sh` | Roda na subida do contêiner do frontend e gera `/tmp/real-ip-borda.inc` (um `set_real_ip_from` por IP de `NGINX_REAL_IP_FROM`). |
 | `nginx-real-ip-cloudflare.inc` | Variante para quando a borda é a Cloudflare (só as faixas dela informam o IP do cliente); regerada por `scripts/atualiza-faixas-cloudflare.sh`. |
 | `nginx-real-ip.exemplo-sem-borda.inc` | Exemplo para frontend sem borda, acessado direto de uma LAN que cai nas faixas do Docker; copie para `nginx-real-ip.local.inc` (ignorado pelo git). |
 

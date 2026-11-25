@@ -10,6 +10,9 @@ services:
       - LOG_FORMAT=json
       - NOMINATIM_USER_AGENT=${NOMINATIM_USER_AGENT}
       - ALERT_WEBHOOK_URL=${ALERT_WEBHOOK_URL:-}
+      # chave de MCP: a API publica o estado em /api/v1/limites e escolhe o corpo do 429; quem aplica a cota é o MCP (mesmos valores nos dois)
+      - MCP_KEY_ATIVA=${MCP_KEY_ATIVA:-}
+      - MCP_COTA_DIARIA=${MCP_COTA_DIARIA:-}
       # Limita arenas do glibc malloc: o ThreadPoolExecutor do Store (até 8 threads)
       # cria uma arena por thread e a fragmentação não volta ao SO.
       - MALLOC_ARENA_MAX=2

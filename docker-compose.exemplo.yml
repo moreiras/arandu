@@ -248,6 +248,10 @@ services:
         SITE_CODIGO_FONTE: ${SITE_CODIGO_FONTE:-}
     image: arandurape-frontend:latest
     restart: unless-stopped
+    environment:
+      # IPs ou prefixos da borda (proxy na frente do frontend) em quem o nginx confia para o X-Forwarded-For; separados por espaço ou vírgula,
+      # IPv6 e IPv4. Vazio: não confia em ninguém e vale o endereço da conexão (ver .env.example e docker/nginx-real-ip.inc).
+      - NGINX_REAL_IP_FROM=${NGINX_REAL_IP_FROM:-}
     ports:
       - "80:8080"
     networks:
@@ -265,7 +269,7 @@ services:
       # scripts/build-basemap-tiles.sh, fora do build da imagem, pra permitir
       # atualizar o basemap sem rebuildar/redeployar o frontend inteiro.
       - ./data/tiles:/data/tiles:ro
-      # De quem aceitar o X-Forwarded-For: o padrão do repositório não confia na LAN; troque pelo IP exato da borda no .env.
+      # Cabeçalho do IP real (o padrão traz só `real_ip_header`; em quem confiar vem de NGINX_REAL_IP_FROM). NGINX_REAL_IP_INC troca o arquivo (Cloudflare).
       - ${NGINX_REAL_IP_INC:-./docker/nginx-real-ip.inc}:/etc/nginx/conf.d/real-ip.inc:ro
     tmpfs:
       - /var/run
