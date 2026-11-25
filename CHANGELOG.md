@@ -135,6 +135,10 @@ parênteses remetem à análise.
   em ordem alfabética, com "Multa constituída não é condenação definitiva"). O alerta de PTT próximo deixa de trazer recomendação de
   negócio, e o diagnóstico de BGP deixa de presumir causa (IXP-E10, ASES-E9, ASES-E10, BGP-E9, RANKINGS-E6, ASN-E6, IPV4-E15, SEG-E5,
   SEG-E11, OPERADORA-E12, OPERADORAS-E18).
+- **Imutabilidade (PT-18, D8).** Snapshots e Sobre deixam de prometer imutabilidade absoluta: "Snapshots publicados não mudam,
+  salvo correção registrada no CHANGELOG do projeto; quando a correção altera um número publicado, as páginas afetadas trazem uma nota
+  datada." O Sobre passa a dizer que os dados são publicados semanalmente e que cada fonte é coletada no seu próprio calendário. Sem
+  registro estruturado de correções: elas ficam neste CHANGELOG (TRANSV-E16).
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
