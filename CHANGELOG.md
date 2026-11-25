@@ -142,6 +142,12 @@ parênteses remetem à análise.
 - **Selo, fonte e data visíveis (PT-14).** Os KPIs do panorama (66) e da Home mostram, em texto e não só em dica, a natureza do
   número (fato, estimado ou inferido), a fonte e a data de referência ("Estimado · APNIC Labs · ref. 2026-11-15"), legíveis por leitor
   de tela. O /sobre explica os três selos, com o texto da mesma fonte usada nos KPIs e no relatório (TRANSV-E3, INST 5.4).
+- **Motor de consulta (PT-19).** Na consulta genérica (`/query/<coleção>` e a tool `query` do MCP), a agregação passa a respeitar
+  `sort` (por campo de `group_by` ou pelo nome do agregado), `limit` e `page`, e a resposta traz `total_grupos`. Mudanças de
+  comportamento: `count` com `field` conta os valores não nulos do campo (antes contava linhas; sem `field` continua contando linhas), e
+  `sort` por campo que não é grupo nem agregado responde 400 com as opções válidas (antes era ignorado). As coleções `municipios` e
+  `acessos_municipio` ganham `mes_referencia` (mês do SICI). O explorador ganha o campo "A partir de" em eventos e séries (TRANSV-E10,
+  TRANSV-E11, EXP-E4).
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
