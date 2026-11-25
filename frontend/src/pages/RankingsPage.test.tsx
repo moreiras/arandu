@@ -31,7 +31,7 @@ describe('página Rankings do SICI', () => {
     await waitFor(() => expect(screen.getByText('VIVO').getAttribute('href')).toBe('/operadora/02558157000162'))
     expect(screen.getByTestId('rotulo-ranking').textContent).toContain('Critério: Acessos declarados (decrescente)')
     expect(screen.getByTestId('rotulo-ranking').textContent).toContain('2026-08')
-    expect(screen.getByText(/Sem login você vê os 25 primeiros/)).toBeTruthy()
+    expect(screen.getByTestId('previa-lista').textContent).toBe('Prévia: 1 de 90. Entre para ver as demais.')       // D9: as primeiras linhas (até 100) e o aviso, não o erro
     expect(screen.getByText(/Não indica causa nem intenção/i)).toBeTruthy()
   })
 

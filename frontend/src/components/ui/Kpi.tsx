@@ -40,9 +40,9 @@ export function Kpi({ rotulo, valor, referencia, variacao, fonte, dataRef, tom, 
   const dica = fonte ? `Fonte: ${fonte}${dataRef ? ` · ref. ${formatarReferencia(dataRef)}` : ''}` : undefined
   const vazio = valor === null || valor === undefined || valor === ''
   return (
-    <div className={`rounded-lg border border-gray-200 p-3 min-w-0 ${tom ? TONS[tom].caixa : 'bg-white'}`} data-testid="kpi">
+    <div className={`rounded-lg border border-gray-200 p-3 min-w-0 ${tom ? TONS[tom].caixa : 'bg-white'}`} data-testid="kpi" data-kpi-rotulo={rotulo}>
       <div className="text-xs text-gray-500">{rotulo}{explicacao && <Dica texto={explicacao} rotulo={rotulo} />}</div>
-      <div className={`mt-0.5 text-titulo-2 tabular-nums ${tom ? TONS[tom].valor : 'text-gray-900'}`} title={dica}>{vazio ? '—' : valor}</div>
+      <div className={`mt-0.5 text-titulo-2 tabular-nums ${tom ? TONS[tom].valor : 'text-gray-900'}`} title={dica} data-kpi-valor>{vazio ? '—' : valor}</div>
       {(variacao || referencia) && (
         <div className="mt-0.5 flex flex-wrap gap-x-2 text-xs text-gray-500">
           {variacao && <span className={variacao.bom === undefined ? '' : variacao.bom ? 'text-ok-700' : 'text-perigo-700'}>{variacao.texto}</span>}

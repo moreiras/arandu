@@ -30,7 +30,7 @@ beforeEach(() => {
   useAppStore.setState({ activeDate: null, latestSnapshot: '2026-09-20' })
   server.use(
     http.get('*/catalogo.json', () => HttpResponse.json(catalogo)),
-    http.get('*/api/v1/snapshots/:date', () => HttpResponse.json({ date: '2026-09-20', summary: null, manifest: { sources: [
+    http.get('*/api/v1/brasil/snapshots/:date', () => HttpResponse.json({ date: '2026-09-20', summary: null, manifest: { sources: [
       { id: 'anatel_sici', as_of: '2026-08', coletado_em: '2026-09-20', frescor: 'ok' }] } })),
   )
 })
@@ -92,7 +92,7 @@ describe('/dados', () => {
   it('traz curl, a configuração do MCP e os links para a documentação e o catálogo', () => {
     montar(<DadosPage />)
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('API e MCP')
-    expect(screen.getByLabelText('Exemplo: snapshots disponíveis').textContent).toContain('/api/v1/snapshots')
+    expect(screen.getByLabelText('Exemplo: snapshots disponíveis').textContent).toContain('/api/v1/brasil/snapshots')
     expect(screen.getByLabelText('Exemplo: adicionar ao Claude Code').textContent).toContain('claude mcp add --transport http arandurape')
     expect(screen.getByLabelText('Exemplo: configuração JSON de um cliente MCP').textContent).toContain('/mcp')
     expect(screen.getByRole('link', { name: '/api/v1/docs' })).toHaveAttribute('href', '/api/v1/docs')

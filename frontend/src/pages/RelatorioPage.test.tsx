@@ -34,6 +34,20 @@ describe('relatório: selo além da cor (REL-E9)', () => {
     if (sintese) for (const li of within(sintese).getAllByRole('listitem')) expect(li.querySelector('[data-selo]')).toHaveTextContent(/^(Fato|Inferido|Estimado)$/)
   })
 
+  it('a citação do relatório leva os valores do quadro, o snapshot e o aviso do prazo do link (D3)', async () => {
+    useAppStore.setState({ snapshotsAtuais: ['2026-09-13', '2026-09-20'] })
+    render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <MemoryRouter initialEntries={['/relatorio/asn/64496']}><Routes><Route path="/relatorio/:tipo/:id" element={<RelatorioPage />} /></Routes></MemoryRouter>
+      </QueryClientProvider>,
+    )
+    const rel = await screen.findByTestId('relatorio')
+    const citar = within(rel).getByText('Citar:').parentElement!.textContent ?? ''
+    expect(citar).toMatch(/Valores: .+: .+/)                           // os números do quadro estão na própria citação
+    expect(citar).toMatch(/Fontes: fulltable_routeviews \((referência \d|data de referência não informada)/)
+    expect(within(rel).getByTestId('aviso-link-citacao').textContent).toMatch(/sem login enquanto o snapshot de .* estiver entre os dois mais recentes|exige login|mais recente/)
+  })
+
   it('a impressão mantém as cores do selo (print-color-adjust)', () => {
     const css = readFileSync(resolve(__dirname, '../index.css'), 'utf-8')
     expect(css).toMatch(/\[data-testid="relatorio"\] \{[^}]*print-color-adjust: exact/)

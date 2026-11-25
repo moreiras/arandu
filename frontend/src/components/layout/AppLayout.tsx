@@ -3,6 +3,9 @@ import { Outlet, NavLink, useSearchParams, useLocation } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchHealth } from '../../services/api'
 import { useAppStore } from '../../store/app'
+import { useSnapshots } from '../../hooks/useSnapshot'
+import { isHistoricalDate } from '../../auth/accessPolicy'
+import { DATA_DE_SNAPSHOT, SnapshotHistoricoAviso } from '../SnapshotHistoricoAviso'
 import { usePageTracker } from '../../auth/usePageTracker'
 import { useAuth } from '../../auth/AuthContext'
 import { SearchBar } from './SearchBar'
@@ -25,6 +28,7 @@ export function AppLayout() {
   const isMapPage = location.pathname === '/mapa'
   const setActiveDate = useAppStore((s) => s.setActiveDate)
   const setLatestSnapshot = useAppStore((s) => s.setLatestSnapshot)
+  const setSnapshotsAtuais = useAppStore((s) => s.setSnapshotsAtuais)
   const latestSnapshot = useAppStore((s) => s.latestSnapshot)
 
   const { data: health, isError: healthError } = useQuery({
@@ -58,6 +62,19 @@ export function AppLayout() {
   }, [])
   useTabelasResponsivas(conteudo)
   useEffect(() => { document.title = tituloDaRota(location.pathname) }, [location.pathname])
+
+  // Os snapshots atuais (os dois mais recentes): o "Citar" avisa até quando o link abre sem login e o aviso de snapshot histórico os cita.
+  const snaps = useSnapshots()
+  const snapshotsDaLista = snaps.data?.snapshots
+  useEffect(() => {
+    if (snapshotsDaLista?.length) setSnapshotsAtuais([...snapshotsDaLista].sort().slice(-2))
+  }, [snapshotsDaLista, setSnapshotsAtuais])
+  // Link com a data de um snapshot anterior aos atuais, aberto sem login: o aviso vem antes de qualquer chamada à API (que responderia 401 e abriria
+  // o modal sem explicação). Enquanto a lista não chega o conteúdo espera, pelo mesmo motivo.
+  const dataPedida = params.get('date')
+  const comData = !!dataPedida && DATA_DE_SNAPSHOT.test(dataPedida)
+  const historicoSemLogin = comData && !authLoading && !user && !!snapshotsDaLista && isHistoricalDate(dataPedida, snapshotsDaLista)
+  const aguardaLista = comData && (authLoading || (!user && !snapshotsDaLista && !snaps.isError))
 
   // Sincroniza ?date → activeDate no Zustand
   useEffect(() => {
@@ -147,7 +164,9 @@ export function AppLayout() {
 
       {/* Conteúdo da página — só renderiza com data resolvida (chamadas sempre datadas) */}
       <main ref={conteudo} id="conteudo" tabIndex={-1} className={`outline-none ${isMapPage ? 'flex-1 overflow-hidden relative' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 py-6'}`}>
-        {canRender ? (
+        {historicoSemLogin ? (
+          <SnapshotHistoricoAviso data={dataPedida!} atuais={[...snapshotsDaLista!].sort().slice(-2)} />
+        ) : canRender && !aguardaLista ? (
           <Outlet />
         ) : (
           <div role="status" className="flex items-center justify-center py-20 text-sm text-gray-500">

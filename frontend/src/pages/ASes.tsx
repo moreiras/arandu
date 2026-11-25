@@ -8,6 +8,7 @@ import type { ASNIndexEntry } from '../types/api'
 type StabilitySummary = { epppd: number | null; epppd_v4: number | null; epppd_v6: number | null }
 import { useAuth } from '../auth/AuthContext'
 import { PREVIEW_LIMIT } from '../auth/accessPolicy'
+import { PreviaLista } from '../components/ui/PreviaLista'
 import { Dica } from '../components/ui/Dica'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import { OrganizacoesVariosAsns } from '../components/stats/OrganizacoesVariosAsns'
@@ -392,7 +393,7 @@ function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stabi
       {comProntidao && (
         <td className="px-2 py-1.5 text-right tabular-nums">
           {entry.prontidao_indice == null ? (
-            <span className="text-gray-500 text-[11px]" title="Sem dados suficientes: nenhum pilar medido ou menos que o mínimo para o índice">não medido</span>
+            <span className="text-gray-500 text-xs" title="Sem dados suficientes: nenhum pilar medido ou menos que o mínimo para o índice">não medido</span>
           ) : (
             <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-semibold ${CLASSE_PRONTIDAO[entry.prontidao_classe ?? ''] ?? 'bg-gray-100 text-gray-500'}`} title={`${entry.prontidao_classe?.replace('_', ' ')}${entry.prontidao_pilares_medidos != null ? `, ${entry.prontidao_pilares_medidos} de 4 pilares medidos` : ''}`}>
               {entry.prontidao_indice.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
@@ -544,14 +545,7 @@ export function ASes() {
           </p>
         )}
 
-        {!user && total > PREVIEW_LIMIT && (
-          <p className="mt-3 text-xs text-gray-500">
-            Prévia: {PREVIEW_LIMIT} maiores de {total.toLocaleString('pt-BR')} ASNs BR.{' '}
-            <button className="text-primario-600 hover:underline" onClick={() => requireLogin('lista-expandida')}>
-              Entre para ver a lista completa.
-            </button>
-          </p>
-        )}
+        {!user && <PreviaLista mostradas={items.length} total={total} aoEntrar={() => requireLogin('lista-expandida')} />}
 
         {/* Pagination */}
         {pages > 1 && (
