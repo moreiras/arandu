@@ -131,8 +131,8 @@ DESCRICOES: dict[str, str] = {
         ' ixp_proximos. Args: code.'
     ),
     'ixp_proximos': (
-        'ASes com prefixos a até radius_km de um PTT, com status direct (membro), origin (só originador) ou absent (não '
-        'participa), e o resumo por status em "summary". Args: code, radius_km, limit.'
+        'ASes com prefixos a até radius_km de um PTT, com status direct (membro do cadastro), origin (só originador) ou absent (não '
+        'participa), e "summary". Args: code, radius_km, limit.'
     ),
     'ixp_rejeicoes': (
         'Rotas rejeitadas pelo route server de UM PTT, por motivo e por AS. Para um AS: asn_politica. Args: code, motivo, '

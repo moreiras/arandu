@@ -198,7 +198,7 @@ def resolve_operator(name: str, date: Optional[str] = None) -> dict:
 def ixp_nearby(code: str, radius_km: float = 80.0, limit: int = 500, date: Optional[str] = None) -> dict:
     """ASes com prefixos geolocalizados a ≤ radius_km de um PTT, por status e gap.
 
-    Para cada AS próximo: classificação de presença no PTT (direct/origin/absent) e
+    Para cada AS próximo: classificação de presença no PTT (direct = membro do cadastro/origin/absent) e
     quantos dos seus prefixos próximos ainda NÃO estão anunciados no PTT. Generaliza a
     seção "Potencial" com raio parametrizável.
 

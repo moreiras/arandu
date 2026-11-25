@@ -36,7 +36,7 @@ class IxpPotencialService:
     ) -> dict:
         """ASes com prefixos geolocalizados a ≤ radius_km de algum PIX do PTT `code`.
 
-        Para cada AS: classificação de presença no PTT (direct / origin / absent) e
+        Para cada AS: classificação de presença no PTT (direct = membro do cadastro / origin / absent) e
         quantos dos seus prefixos próximos ainda NÃO estão anunciados no PTT.
         Generaliza a seção "Potencial" com raio parametrizável e quebra por AS.
         """

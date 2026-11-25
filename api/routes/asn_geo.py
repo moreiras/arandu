@@ -46,8 +46,8 @@ anunciados por um ASN e seus clientes (downstreams).
 | `ixp_v6` | Prefixos IPv6 por PTT — direto (próprios + clientes) e indireto (só próprios) |
 
 Cada feature tem propriedade `role`: `"own"` (prefixos do próprio AS) ou `"downstream"`
-(prefixos de clientes). Nas camadas de PTT, `direct: true/false` indica presença direta
-no route server.
+(prefixos de clientes). Nas camadas de PTT, `direct: true/false` indica se o AS tem sessão
+com o route server do PTT (não é o cadastro de participantes).
 
 Prefixos são agregados por cidade (granularidade /20 para IPv4). Camadas `fulltable_*`
 incluem prefixos de qualquer país, geolocalizados pela base DB-IP City Lite; prefixos de clientes usam apenas dados

@@ -159,10 +159,10 @@ class AsnsService:
         }
 
     def asn_ixp_peers(self, date_str: str, asn: int) -> Optional[dict]:
-        """Estatísticas de peering deste AS em cada IXP onde faz peering direto (v6/v4).
+        """Estatísticas de peering deste AS em cada IXP onde tem sessão com o route server (v6/v4).
 
-        Extrai apenas a linha deste AS de cada IXP direto. Retorna None se o AS não
-        existe no snapshot; `peers` é `{}` se não houver peering direto.
+        Extrai apenas a linha deste AS de cada IXP onde tem sessão com o route server. Retorna None se o AS não
+        existe no snapshot; `peers` é `{}` se não tiver sessão com route server de nenhum PTT.
         """
         doc = self.asn_detail(date_str, asn)
         if doc is None:

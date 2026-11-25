@@ -332,7 +332,7 @@ def ixp_participantes_tabela(
 
 @router.get(
     "/ixps/{code}/peers",
-    summary="Estatísticas por peer direto de um IXP",
+    summary="Estatísticas por peer do route server de um IXP",
     description="""
 Retorna estatísticas de prefixos por ASN com sessão em route server no PTT.
 
@@ -397,7 +397,7 @@ def peeringdb_dos_peers(store: Store, date_str: str, code: str, asns: list[str])
 
 @router.get(
     "/ixps/{code}/assinantes",
-    summary="Empresas e assinantes SCM (SICI) dos peers diretos de um IXP",
+    summary="Empresas e assinantes SCM (SICI) dos peers do route server de um IXP",
     description="""
 Para cada ASN com sessão em route server no PTT:
 
@@ -572,7 +572,7 @@ def ixp_hilbert_v6_endpoint(
     summary="ASes com prefixos próximos a um PTT, por status e gap de anúncio",
     description="""
 Para o PTT `code`, lista os ASes cujos prefixos BR geolocalizados estão a ≤ `radius_km` de algum PIX, classificados por presença
-no PTT (direct / origin / absent) e com a contagem de prefixos próximos **ainda não anunciados** no PTT. É o detalhamento por AS
+no PTT (direct = membro do cadastro, não sessão com o route server / origin / absent) e com a contagem de prefixos próximos **ainda não anunciados** no PTT. É o detalhamento por AS
 do que `/ixps/{code}/potential` resume (raio fixo de 80 km); `/analytics/ixps/{code}/nearby` é o alias antigo.
 """,
 )

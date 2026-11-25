@@ -393,7 +393,7 @@
       "additionalProperties": {
        "$ref": "#/components/schemas/IXPPresence"
       },
-      "description": "Detalhes por IXP: presença direta/origem e lista de prefixos observados",
+      "description": "Detalhes por IXP: sessão no route server/origem e lista de prefixos observados",
       "title": "Ixp Presence",
       "type": "object"
      },
@@ -1772,7 +1772,7 @@
    "IXPPresenceAfi": {
     "properties": {
      "direct": {
-      "description": "True se o AS faz peering direto neste IXP",
+      "description": "True se o AS tem sessão BGP com o route server deste IXP (não é o cadastro de participantes)",
       "title": "Direct",
       "type": "boolean"
      },
@@ -3971,7 +3971,7 @@
   },
   "/api/v1/analytics/ixps/{code}/nearby": {
    "get": {
-    "description": "Para o PTT `code`, lista os ASes cujos prefixos BR geolocalizados estão a ≤ `radius_km`\nde algum PIX, classificados por presença no PTT (direct / origin / absent) e com a\ncontagem de prefixos próximos **ainda não anunciados** no PTT.\n\nGeneraliza a seção \"Potencial\" com raio parametrizável e quebra por AS.",
+    "description": "Para o PTT `code`, lista os ASes cujos prefixos BR geolocalizados estão a ≤ `radius_km`\nde algum PIX, classificados por presença no PTT (direct = membro do cadastro, não sessão com o route server / origin / absent) e com a\ncontagem de prefixos próximos **ainda não anunciados** no PTT.\n\nGeneraliza a seção \"Potencial\" com raio parametrizável e quebra por AS.",
     "operationId": "ixp_nearby_api_v1_analytics_ixps__code__nearby_get",
     "parameters": [
      {
@@ -4639,7 +4639,7 @@
   },
   "/api/v1/asns/{asn}": {
    "get": {
-    "description": "Retorna o documento completo de um AS com todas as informações disponíveis.\n\n**Prefixos — três fontes distintas:**\n- `rir_prefixes_v4/v6` — atribuídos pelo **RIR/Registro.br** (fonte autoritativa de alocação)\n- `global_prefixes_v4/v6` — observados na **full table global** (tabela de roteamento BGP)\n- `ixp_presence[código].v4.prefixes` — observados em cada **IXP específico**\n\n**Presença em IXPs (`ixp_presence`):**\nDicionário com código do IXP como chave. Para cada IXP:\n- `direct` — True se o AS faz peering direto (aparece no primeiro hop do AS_PATH)\n- `origin` — True se prefixos do AS são visíveis (pode ser via upstream)\n- `prefixes` — lista dos prefixos deste AS observados neste IXP\n\n**Relações de peering (`upstreams` / `downstreams`):**\nInferidas do AS_PATH observado nos Looking Glasses coletados.\nNão representam acordos comerciais verificados — são observações de roteamento.\n\n**Exemplos de ASNs BR interessantes:**\n- `1916` — RNP (Rede Nacional de Ensino e Pesquisa)\n- `18881` — Global Village Telecom\n- `28573` — Claro Brasil\n- `7738` — Telemar",
+    "description": "Retorna o documento completo de um AS com todas as informações disponíveis.\n\n**Prefixos — três fontes distintas:**\n- `rir_prefixes_v4/v6` — atribuídos pelo **RIR/Registro.br** (fonte autoritativa de alocação)\n- `global_prefixes_v4/v6` — observados na **full table global** (tabela de roteamento BGP)\n- `ixp_presence[código].v4.prefixes` — observados em cada **IXP específico**\n\n**Presença em IXPs (`ixp_presence`):**\nDicionário com código do IXP como chave. Para cada IXP:\n- `direct` — True se o AS tem sessão BGP com o route server do PTT (não é o cadastro de participantes, que é um conjunto maior: `ixps_membro`)\n- `origin` — True se prefixos do AS são visíveis (pode ser via upstream)\n- `prefixes` — lista dos prefixos deste AS observados neste IXP\n\n**Relações de peering (`upstreams` / `downstreams`):**\nInferidas do AS_PATH observado nos Looking Glasses coletados.\nNão representam acordos comerciais verificados — são observações de roteamento.\n\n**Exemplos de ASNs BR interessantes:**\n- `1916` — RNP (Rede Nacional de Ensino e Pesquisa)\n- `18881` — Global Village Telecom\n- `28573` — Claro Brasil\n- `7738` — Telemar",
     "operationId": "get_asn_api_v1_asns__asn__get",
     "parameters": [
      {
@@ -5184,7 +5184,7 @@
   },
   "/api/v1/asns/{asn}/geo": {
    "get": {
-    "description": "Retorna um GeoJSON FeatureCollection com a distribuição geográfica dos prefixos\nanunciados por um ASN e seus clientes (downstreams).\n\n**Camadas disponíveis (`layer`):**\n\n| Valor | Descrição |\n|---|---|\n| `fulltable_v4` | Prefixos IPv4 na tabela global — próprios e de clientes downstream |\n| `fulltable_v6` | Prefixos IPv6 na tabela global — próprios e de clientes downstream |\n| `ixp_v4` | Prefixos IPv4 por PTT — direto (próprios + clientes) e indireto (só próprios) |\n| `ixp_v6` | Prefixos IPv6 por PTT — direto (próprios + clientes) e indireto (só próprios) |\n\nCada feature tem propriedade `role`: `\"own\"` (prefixos do próprio AS) ou `\"downstream\"`\n(prefixos de clientes). Nas camadas de PTT, `direct: true/false` indica presença direta\nno route server.\n\nPrefixos são agregados por cidade (granularidade /20 para IPv4). Camadas `fulltable_*`\nincluem prefixos de qualquer país, geolocalizados pela base DB-IP City Lite; prefixos de clientes usam apenas dados\ngeolocalizados pré-computados (cobertura BR).\n\nCamadas de PTT retornam adicionalmente `ixp_pix` com localização física dos PTTs.",
+    "description": "Retorna um GeoJSON FeatureCollection com a distribuição geográfica dos prefixos\nanunciados por um ASN e seus clientes (downstreams).\n\n**Camadas disponíveis (`layer`):**\n\n| Valor | Descrição |\n|---|---|\n| `fulltable_v4` | Prefixos IPv4 na tabela global — próprios e de clientes downstream |\n| `fulltable_v6` | Prefixos IPv6 na tabela global — próprios e de clientes downstream |\n| `ixp_v4` | Prefixos IPv4 por PTT — direto (próprios + clientes) e indireto (só próprios) |\n| `ixp_v6` | Prefixos IPv6 por PTT — direto (próprios + clientes) e indireto (só próprios) |\n\nCada feature tem propriedade `role`: `\"own\"` (prefixos do próprio AS) ou `\"downstream\"`\n(prefixos de clientes). Nas camadas de PTT, `direct: true/false` indica se o AS tem sessão\ncom o route server do PTT (não é o cadastro de participantes).\n\nPrefixos são agregados por cidade (granularidade /20 para IPv4). Camadas `fulltable_*`\nincluem prefixos de qualquer país, geolocalizados pela base DB-IP City Lite; prefixos de clientes usam apenas dados\ngeolocalizados pré-computados (cobertura BR).\n\nCamadas de PTT retornam adicionalmente `ixp_pix` com localização física dos PTTs.",
     "operationId": "asn_geo_api_v1_asns__asn__geo_get",
     "parameters": [
      {
@@ -5320,7 +5320,7 @@
   },
   "/api/v1/asns/{asn}/ixp-peers": {
    "get": {
-    "description": "Retorna, em uma única chamada, as estatísticas de peering deste AS em **cada IXP onde\nele faz peering direto**, para v6 e v4.\n\nEvita o fan-out do frontend, que faria uma requisição por IXP × AFI\n(`/ixps/{code}/peers`) só para extrair a linha deste AS — baixando a lista inteira de\npeers de cada IXP. Aqui o servidor extrai apenas a linha relevante.\n\nFormato: `peers[code] = {v4?: stats, v6?: stats}` (mesma estrutura de `IXPPeerStats`).\nSempre HTTP 200; `peers` é `{}` se o AS não tiver peering direto.",
+    "description": "Retorna, em uma única chamada, as estatísticas de peering deste AS em **cada IXP onde\ntem sessão com o route server**, para v6 e v4.\n\nEvita o fan-out do frontend, que faria uma requisição por IXP × AFI\n(`/ixps/{code}/peers`) só para extrair a linha deste AS — baixando a lista inteira de\npeers de cada IXP. Aqui o servidor extrai apenas a linha relevante.\n\nFormato: `peers[code] = {v4?: stats, v6?: stats}` (mesma estrutura de `IXPPeerStats`).\nSempre HTTP 200; `peers` é `{}` se o AS não tiver sessão com route server de nenhum PTT.",
     "operationId": "get_asn_ixp_peers_api_v1_asns__asn__ixp_peers_get",
     "parameters": [
      {
@@ -5375,7 +5375,7 @@
       "description": "Validation Error"
      }
     },
-    "summary": "Estatísticas de peering deste AS em cada IXP direto (batch)",
+    "summary": "Estatísticas de peering deste AS em cada IXP onde tem sessão com o route server (batch)",
     "tags": [
      "asns"
     ]
@@ -11311,7 +11311,7 @@
       "description": "Validation Error"
      }
     },
-    "summary": "Empresas e assinantes SCM (SICI) dos peers diretos de um IXP",
+    "summary": "Empresas e assinantes SCM (SICI) dos peers do route server de um IXP",
     "tags": [
      "ixps"
     ]
@@ -11846,7 +11846,7 @@
   },
   "/api/v1/ixps/{code}/nearby": {
    "get": {
-    "description": "Para o PTT `code`, lista os ASes cujos prefixos BR geolocalizados estão a ≤ `radius_km` de algum PIX, classificados por presença\nno PTT (direct / origin / absent) e com a contagem de prefixos próximos **ainda não anunciados** no PTT. É o detalhamento por AS\ndo que `/ixps/{code}/potential` resume (raio fixo de 80 km); `/analytics/ixps/{code}/nearby` é o alias antigo.",
+    "description": "Para o PTT `code`, lista os ASes cujos prefixos BR geolocalizados estão a ≤ `radius_km` de algum PIX, classificados por presença\nno PTT (direct = membro do cadastro, não sessão com o route server / origin / absent) e com a contagem de prefixos próximos **ainda não anunciados** no PTT. É o detalhamento por AS\ndo que `/ixps/{code}/potential` resume (raio fixo de 80 km); `/analytics/ixps/{code}/nearby` é o alias antigo.",
     "operationId": "ixp_nearby_do_ptt_api_v1_ixps__code__nearby_get",
     "parameters": [
      {
@@ -12188,7 +12188,7 @@
       "description": "Validation Error"
      }
     },
-    "summary": "Estatísticas por peer direto de um IXP",
+    "summary": "Estatísticas por peer do route server de um IXP",
     "tags": [
      "ixps"
     ]

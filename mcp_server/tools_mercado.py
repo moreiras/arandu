@@ -605,9 +605,9 @@ def _sem_nomes_de_socios(v):
 
 @mcp.tool()
 def ixp_assinantes(code: str, limit: int = 25, date: Optional[str] = None) -> dict:
-    """Assinantes (acessos SICI) alcançáveis por um PTT do IX.br: dos peers diretos e dos clientes que eles anunciam.
+    """Assinantes (acessos SICI) alcançáveis por um PTT do IX.br: dos peers (sessão RS) e dos clientes que eles anunciam.
 
-    `assinantes_diretos` = acessos dos CNPJs dos ASNs em peering direto; `assinantes_total` inclui os ASNs dos AS-paths anunciados por
+    `assinantes_diretos` = acessos dos CNPJs dos ASNs com sessão RS; `assinantes_total` inclui os ASNs dos AS-paths anunciados por
     esses peers (clientes), deduplicados por CNPJ. `asns` lista os maiores peers por assinantes diretos (empresa, selos de outorga,
     usuários APNIC); `peers_top` os que mais alcançam, por família. `mes_referencia` é o mês do SICI, diferente da data do snapshot.
     Só banda larga fixa (o SICI móvel não entra). O que não cabe vem resumido: veja `asns_total` e `municipios_*_total`.
