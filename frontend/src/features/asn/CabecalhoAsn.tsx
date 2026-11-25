@@ -13,7 +13,7 @@ import { EmpresasRelacionadasSection } from '../../components/socios/EmpresasRel
 import { fetchASNContacts, fetchEmpresasRelacionadas } from '../../services/api'
 import { useQuery } from '@tanstack/react-query'
 import { useActiveDate } from '../../hooks/useSnapshot'
-import type { ASNDocument } from '../../types/api'
+import type { ASNDocument, AsnCadastro, AsnRecuperacao } from '../../types/api'
 import { fmtCnpj } from './Outorgas'
 
 /** Link para a página do grupo econômico (cruzamento de sócios), como na Operadora. Usa a mesma consulta (e o cache)
@@ -32,8 +32,41 @@ function LinkGrupo({ cnpj }: { cnpj: string }) {
   )
 }
 
+const dia = (iso?: string | null) => (iso ? iso.slice(0, 10) : null)
+
+/**
+ * Fatos cadastrais e de numeração do ASN (PT-26, ASN 5.3), sem causa: a situação do CNPJ na Receita só aparece quando não é ATIVA (com o motivo
+ * que a Receita informa e a data da leitura); o ASN em recuperação pelo Registro.br aparece com a janela. Nenhum dos dois prova que o AS está sem
+ * uso nem irregular. Município e atividade principal vêm do mesmo cadastro, sem endereço.
+ */
+export function FatosCadastrais({ cadastro, recuperacao }: { cadastro?: AsnCadastro | null; recuperacao?: AsnRecuperacao | null }) {
+  const situacao = (cadastro?.descricao_situacao_cadastral ?? '').trim()
+  const naoAtiva = situacao !== '' && situacao.toUpperCase() !== 'ATIVA'
+  if (!cadastro && !recuperacao) return null
+  return (
+    <div className="text-xs text-gray-600 space-y-0.5" data-testid="asn-fatos-cadastrais">
+      {cadastro?.cnae_fiscal_descricao && <div>Atividade principal (CNAE): {cadastro.cnae_fiscal_descricao.toLowerCase()} <span className="text-gray-400">(fato, Receita)</span></div>}
+      {cadastro?.municipio && (
+        <div>Sede: {cadastro.codigo_municipio_ibge ? <Link to={`/municipio/${cadastro.codigo_municipio_ibge}`} className="text-primario-600 hover:underline">{cadastro.municipio}{cadastro.uf ? ` (${cadastro.uf})` : ''}</Link> : `${cadastro.municipio}${cadastro.uf ? ` (${cadastro.uf})` : ''}`}</div>
+      )}
+      {naoAtiva && (
+        <div data-testid="asn-situacao-cadastral">
+          Situação cadastral do CNPJ na Receita: <strong>{situacao.toLowerCase()}</strong>{cadastro?.lido_em ? ` (cadastro lido em ${dia(cadastro.lido_em)})` : ''} <span className="text-gray-400">(fato)</span>.
+          {cadastro?.descricao_motivo_situacao_cadastral ? ` Motivo informado pela Receita: ${cadastro.descricao_motivo_situacao_cadastral.toLowerCase()}.` : ''}
+          {' '}A situação do CNPJ não prova que o AS esteja sem uso.
+        </div>
+      )}
+      {recuperacao && (
+        <div data-testid="asn-recuperacao">
+          ASN em recuperação pelo Registro.br (janela {recuperacao.inicio} a {recuperacao.fim}) <span className="text-gray-400">(fato)</span>. A lista não informa o motivo.
+        </div>
+      )}
+    </div>
+  )
+}
+
 /** Cabeçalho da página de ASN: nome, selos (Brasil/IPv6/IPv4), CNPJ com outorgas, ASNs do mesmo CNPJ, nomes alternativos, PeeringDB e contatos. */
-export function CabecalhoAsn({ doc }: { doc: ASNDocument }) {
+export function CabecalhoAsn({ doc }: { doc: ASNDocument & { cadastro?: AsnCadastro | null; recuperacao?: AsnRecuperacao | null } }) {
   // credenciamento de rede virtual no SMP sem outorga própria: selo "MVNO", nunca "SMP" (REL-E3)
   const credenciada = !doc.has_smp && !!doc.smp?.some((r) => r.rede_virtual?.papel === 'credenciada')
   return (
@@ -66,6 +99,13 @@ export function CabecalhoAsn({ doc }: { doc: ASNDocument }) {
               <span className="text-xs font-medium bg-gray-100 text-gray-500 rounded px-1.5 py-0.5">sem outorga Anatel</span>
             )}
           </div>
+
+          {!doc.has_scm && !doc.has_smp && !credenciada && !doc.has_stfc && !doc.has_seac && (
+            <p className="text-xs text-gray-500" data-testid="asn-sem-outorga">
+              Sem outorga própria na base de outorgas da Anatel (SCM, SMP, STFC e SeAC; snapshot {doc.snapshot_date}) <span className="text-gray-400">(fato)</span>. O selo diz só que o CNPJ não consta nessa base; não indica irregularidade.
+            </p>
+          )}
+          <FatosCadastrais cadastro={doc.cadastro} recuperacao={doc.recuperacao} />
 
           {doc.same_cnpj_asns && doc.same_cnpj_asns.length > 0 && (
             <div className="text-xs text-gray-500">
