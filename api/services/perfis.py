@@ -145,7 +145,7 @@ class PerfisService:
                 if len(c) < 2 or not code or (code, c[0], c[1]) in vistos or (do_snapshot and code not in do_snapshot):
                     continue
                 vistos.add((code, c[0], c[1]))
-                out.append({"codigo": code, "nome": p.get("ixp_name") or code, "lon": c[0], "lat": c[1]})
+                out.append({"codigo": code, "nome": p.get("ixp_name") or code, "lon": c[0], "lat": c[1], "pix": p.get("name") or None})
             self._ptts_pontos[date_str] = out
         return self._ptts_pontos[date_str]
 
@@ -213,7 +213,8 @@ class PerfisService:
                 cen = self.municipio_centroide(ibge)
                 p = self.ptt_mais_proximo(date_str, cen[0], cen[1]) if cen else None
                 if p:
-                    ln.update({"ptt_proximo": p["codigo"], "km_ptt": p["km"], "sem_ptt_proximo": p["km"] > self.RAIO_SEM_PTT_KM})
+                    ln.update({"ptt_proximo": p["codigo"], "km_ptt": p["km"], "sem_ptt_proximo": p["km"] > self.RAIO_SEM_PTT_KM,
+                               "ptt_proximo_nome": p.get("nome"), "pix_proximo": p.get("pix")})
                 linhas.append(ln)
             while len(self._territorio_linhas) >= 2:
                 self._territorio_linhas.pop(next(iter(self._territorio_linhas)))
