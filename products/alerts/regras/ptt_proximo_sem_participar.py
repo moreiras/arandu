@@ -3,18 +3,22 @@
 # Este arquivo faz parte do Arandurape.
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-"""AS a menos de 80 km de um PTT do IX.br onde não participa."""
+"""AS com a sede a menos de 80 km de um PTT do IX.br onde não consta como participante. Versão 2 (ASN-E6): só AS com prefixo na tabela global e CNPJ não baixado;
+texto só com o fato, sem recomendação de negócio (`core.alerta_ptt_proximo`)."""
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core.alerta_ptt_proximo import deve_avaliar, detalhe
 from core.geo import haversine_km
 from products.alerts.auxiliar import GEO_PROXIMITY_KM
 
-REGRA = Regra(id="ptt_proximo_sem_participar", categoria="geo", severidade="aviso", versao=1,
-              descricao="PTT do IX.br a <= 80 km sem participação do AS")
+REGRA = Regra(id="ptt_proximo_sem_participar", categoria="geo", severidade="aviso", versao=2,
+              descricao="PTT do IX.br a <= 80 km da sede sem participação do AS (só AS com prefixo na tabela global e CNPJ não baixado)")
 
 
 def avaliar(ctx: Contexto) -> list[dict]:
+    if not deve_avaliar(ctx.store, ctx.date_str, ctx.asn, ctx.doc):
+        return []
     coords = ctx.store.asn_coords(ctx.date_str, ctx.asn)
     if not coords:
         return []
@@ -35,7 +39,5 @@ def avaliar(ctx: Contexto) -> list[dict]:
         return []
     return [achado(
         "PTT próximo sem participação",
-        f"O AS está a menos de {int(GEO_PROXIMITY_KM)} km de "
-        f"{len(near)} PTT(s) do IX.br onde não participa. Participar "
-        "pode reduzir custo de trânsito e latência.",
+        detalhe(near, int(GEO_PROXIMITY_KM)),
         {"ixps": near[:10]})]

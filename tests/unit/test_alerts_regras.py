@@ -17,9 +17,10 @@ ASN = 64500
 class FakeStore:
     """Só o que as regras pedem à `Store`."""
 
-    def __init__(self, origem=None, ra=None, coords=None, pix=None, ixps=None, rs=None):
+    def __init__(self, origem=None, ra=None, coords=None, pix=None, ixps=None, rs=None, geo_orgs=None):
         self.origem = origem or {"v4": {}, "v6": {}}
         self.rs = rs
+        self.geo_orgs = geo_orgs or {}
         self.ra, self.coords, self.pix, self.ixps = ra, coords, pix or {}, ixps or []
 
     def origin_by_prefix(self, d, afi): return self.origem[afi]
@@ -32,6 +33,7 @@ class FakeStore:
     def _load_pix_config(self): return self.pix
     def ixp_index(self, d): return self.ixps
     def route_servers_asns_doc(self, d): return self.rs
+    def _load_geo_orgs(self, d): return self.geo_orgs
 
 
 def _ids(doc, store=None):
@@ -165,3 +167,31 @@ def test_single_homed_com_relacoes_usa_provedor_inferido_e_visibilidade():
     # indeterminado (pouca visibilidade) ou multihomed: não alerta, mesmo com o legado dizendo single
     for sh in ({"v4": None, "v6": None}, {"v4": False, "v6": False}):
         assert _alertas_da_regra("single_homed", dict(doc=_doc(relacoes={**rel, "single_homed": sh}, single_upstream_v4=64496))) == []
+
+
+# ---- ASN-E6 (PT-17): ptt_proximo_sem_participar v2 ----------------------------------------------------------------------------------------------
+
+def _ptt(doc, orgs=None):
+    store = FakeStore(coords=(-23.6, -46.7), pix=PIX, ixps=[{"code": "sp", "name": "São Paulo"}], geo_orgs=orgs)
+    return registro.calcular_alertas(store, "2026-10-23", ASN, doc)
+
+
+def test_ptt_proximo_so_diz_o_fato_sem_recomendacao_de_negocio():
+    a = next(x for x in _ptt(_doc()) if x["id"] == "ptt_proximo_sem_participar")
+    assert a["detail"].startswith("A sede do AS fica a menos de 80 km de 1 PTT(s) do IX.br onde o AS não consta como participante: sp (")
+    assert " km)" in a["detail"] and a["desde_versao"] == 2
+    for proibido in ("reduzir", "custo", "latência", "Participar", "benefício"):
+        assert proibido not in a["detail"], proibido
+
+
+def test_ptt_proximo_nao_avalia_as_sem_prefixo_na_tabela_global():
+    sem_prefixo = _doc(global_prefixes_v4=[], global_prefixes_v6=[])
+    assert "ptt_proximo_sem_participar" not in [x["id"] for x in _ptt(sem_prefixo)]
+
+
+def test_ptt_proximo_nao_avalia_as_com_cnpj_baixado_mas_avalia_o_ativo_e_o_sem_cadastro():
+    assert "ptt_proximo_sem_participar" not in [x["id"] for x in _ptt(_doc(), {ASN: {"descricao_situacao_cadastral": "BAIXADA"}})]
+    assert "ptt_proximo_sem_participar" in [x["id"] for x in _ptt(_doc(), {ASN: {"descricao_situacao_cadastral": "ATIVA"}})]
+    assert "ptt_proximo_sem_participar" in [x["id"] for x in _ptt(_doc(), {})]           # sem cadastro carregado: não há como dizer que baixou
+    baixado_com_prefixos = _doc(global_prefixes_v4=["203.0.113.0/24"])
+    assert "ptt_proximo_sem_participar" not in [x["id"] for x in _ptt(baixado_com_prefixos, {ASN: {"descricao_situacao_cadastral": "BAIXADA"}})]    # borda: baixado com prefixos anunciados

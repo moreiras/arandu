@@ -159,12 +159,12 @@ def ipv4_asn(asn: int, request: Request, date: Optional[str] = Query(None)) -> d
     summary="Sub-asignações de IPv4 (aluguel regulado, política LAC-2025-5)",
     description="""
 Estado das sub-asignações previstas na política LAC-2025-5 (ratificada em 24/03/2026). **Enquanto a bitácora pública oficial não existir, `ativa` é falso, `aguardando` é verdadeiro e `items` vem vazio**: o campo `vigia`
-mostra a última varredura diária dos diretórios do Registro.br e do LACNIC e os alertas (arquivo novo). Com a fonte ativada, cada registro traz as validações da política (receptor origina o bloco, ROA, tamanho
+mostra a última varredura diária dos diretórios do Registro.br e do LACNIC e os alertas (arquivo novo). Com a fonte ativada, cada registro traz as verificações da política feitas pelo OBINT (não são decisão do Registro.br nem do LACNIC: receptor origina o bloco, ROA, tamanho
 /24 a /22, IPv6, prazo de 3 anos, infraestrutura crítica; `null` = sem dado) e `indicador_terceiros` separa anúncios de terceiros com e sem registro. O esquema é hipotético até o formato oficial ser conhecido.
 """,
 )
 def ipv4_subasignacoes(
-    request: Request, asn: Optional[int] = Query(None, description="ASN do receptor."), conforme: Optional[bool] = Query(None, description="Só as em conformidade com todas as validações (ou só as que não estão)."),
+    request: Request, asn: Optional[int] = Query(None, description="ASN do receptor."), conforme: Optional[bool] = Query(None, description="Só as em que todas as verificações do OBINT deram sim (ou só as que não deram). A tela não usa este filtro: mostra só agregados por verificação."),
     date: Optional[str] = Query(None), limit: int = Query(25, ge=1, le=500), page: int = Query(1, ge=1),
 ) -> dict:
     _, doc = _doc(request, date, "subasig")
