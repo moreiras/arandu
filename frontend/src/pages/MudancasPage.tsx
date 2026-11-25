@@ -12,6 +12,8 @@ import { useAuth } from '../auth/AuthContext'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import { fraseEvento, inicioDosSnapshots, ROTULO_ESTADO, TIPOS_DA_PAGINA } from '../features/historico/rotulos'
 import { UFS, nomeUf } from '../lib/ufs'
+import { NotaRevisao } from '../components/ui/NotaRevisao'
+import { notasParaTipos } from '../lib/notasRevisao'
 
 const POR_PAGINA = 100
 
@@ -91,6 +93,7 @@ export function MudancasPage() {
           <span>Incluir os ainda em confirmação</span>
         </label>
       </div>
+      {notasParaTipos(tipo ? [tipo] : []).map((n) => <NotaRevisao key={n.id} nota={n} aberta />)}
       {resumo.data && (
         <p className="text-xs text-gray-500">
           {resumo.data.snapshots_com_historico} snapshots com histórico · {Object.keys(resumo.data.por_data).length} datas com mudanças · {total.toLocaleString('pt-BR')} resultados com este filtro.

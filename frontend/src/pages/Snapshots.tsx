@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { fetchSnapshot, fetchRpkiSummary, fetchOutorgasStats } from '../services/api'
 import { useActiveDate, useSnapshots } from '../hooks/useSnapshot'
 import { useState } from 'react'
+import { NotaRevisao } from '../components/ui/NotaRevisao'
 
 function fmtN(n: number | null | undefined): string {
   if (n == null) return '—'
@@ -60,6 +61,8 @@ export function Snapshots() {
           Histórico de snapshots publicados. Cada snapshot é imutável após publicação.
         </p>
       </div>
+
+      <NotaRevisao />
 
       {isError ? (
         <div className="text-center py-16 text-perigo-500 text-sm">

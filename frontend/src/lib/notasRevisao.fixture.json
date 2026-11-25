@@ -1,0 +1,45 @@
+{
+ "regra": 2,
+ "n_datas": 20,
+ "datas": "2026-06-28..2026-11-22",
+ "em_2026_07_05": {
+  "roa_perdido": {
+   "antes": 50127,
+   "depois": 63
+  },
+  "aspa_perdido": {
+   "antes": 1827,
+   "depois": 2
+  },
+  "rpki_invalido_resolvido": {
+   "antes": 1815,
+   "depois": 14
+  }
+ },
+ "total": {
+  "aspa_ganho": {
+   "antes": 114,
+   "depois": 114
+  },
+  "aspa_perdido": {
+   "antes": 1864,
+   "depois": 38
+  },
+  "roa_ganho": {
+   "antes": 1140,
+   "depois": 1135
+  },
+  "roa_perdido": {
+   "antes": 50919,
+   "depois": 834
+  },
+  "rpki_invalido_novo": {
+   "antes": 289,
+   "depois": 289
+  },
+  "rpki_invalido_resolvido": {
+   "antes": 2069,
+   "depois": 267
+  }
+ }
+}
