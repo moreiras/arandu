@@ -108,7 +108,7 @@ Ordem topológica a partir das `entradas` das fontes/produtos e de `depois_de`; 
 | 100 | `bloqueios` | `python -m products.passos --passo bloqueios --date {date}` | opcional | 1 | parcial bloqueios | asn_indice, ooni_bloqueios |
 | 101 | `contratos` | `python -m products.passos --passo contratos --date {date}` | opcional | 1 | parcial contratos | asn_indice, siasg_contratos |
 | 102 | `seguranca_asn` | `python -m products.passos --passo seguranca_asn --date {date}` | opcional | 1 | parcial seguranca_asn | apnic_dnssec, apnic_irov, asn_indice, bogons, caida_asrank, sici |
-| 103 | `sici_indicadores` | `python -m products.passos --passo sici_indicadores --date {date}` | opcional | 1 | parcial sici_indicadores | asn_indice, grupos_societarios, outorgas_scm, sici |
+| 103 | `sici_indicadores` | `python -m products.passos --passo sici_indicadores --date {date}` | opcional | 1 | parcial sici_indicadores | asn_indice, grupos_societarios, outorgas_demais, outorgas_scm, sici |
 | 104 | `mapas_geo` | `python -m products.passos --passo mapas_geo --date {date}` | critica | 1 | parcial mapas_prefixos | asn_indice, bgp_ixp, cnpj_geo, fulltable_routeviews, global_prefix_geo, peeringdb_intl_geo, prefix_geo, registro_br |
 | 105 | `ixp_externos` | `python -m products.passos --passo ixp_externos --date {date}` | opcional | 1 | parcial ixp_docs | asn_indice, bgp_ixp, fulltable_routeviews, ixbr_api, lacnic_delegated, peeringdb_ixps, registro_br |
 | 106 | `cdns` | `python -m products.passos --passo cdns --date {date}` | opcional | 1 | parcial cdns | ixp_externos, ixp_indice, metricas_ixp_asn |

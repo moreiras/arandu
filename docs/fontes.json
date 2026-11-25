@@ -1033,7 +1033,7 @@
       "modulo": "sources.anatel_sici.collect",
       "publicavel": true,
       "exposicao": "aberta",
-      "descricao": "Acessos em serviço declarados mensalmente por prestadora (CNPJ), município, velocidade, tecnologia, meio e tipo de cliente (PF/PJ). Leitura incremental do ZIP de ~1 GB por HTTP Range; só baixa o ano corrente quando há mês novo e mantém cache imutável por mês.",
+      "descricao": "Acessos em serviço declarados mensalmente por prestadora (CNPJ), município, velocidade, tecnologia, meio e tipo de cliente (PF/PJ). Leitura incremental do ZIP de ~1 GB por HTTP Range; só baixa o ano corrente quando há mês novo e mantém cache imutável por mês. O nome \"SICI\" é o de uso do projeto e dos dados abertos; a declaração mensal das prestadoras é feita hoje no sistema Coleta de Dados da Anatel (Resolução Anatel nº 774/2025, que revogou a Resolução nº 712/2019), e os textos do site citam essa base vigente.",
       "origem": {
         "url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip",
         "formato": "zip/csv (~1 GB; leitura por HTTP Range)",
@@ -14488,6 +14488,9 @@
         },
         {
           "source": "socios_grupos"
+        },
+        {
+          "source": "anatel_smp"
         }
       ],
       "chaves_de_juncao": [
@@ -14617,9 +14620,19 @@
           "sensivel": false
         },
         {
+          "nome": "itens[cnpj].rede_virtual_origem",
+          "tipo": "str",
+          "significado": "CNPJ da prestadora de origem quando o CNPJ é credenciado de rede virtual (MVNO) no SMP; os acessos do credenciado são declarados pela prestadora de origem (RGST, Resolução Anatel nº 777/2025).",
+          "tratamento": "Fato do contrato vigente na Anatel (dataset de competição); ausente quando não há contrato. Só o CNPJ da origem é publicado.",
+          "publicado_em": [
+            "sici_indicadores → sem_declaracao_sici.json.gz#itens"
+          ],
+          "sensivel": false
+        },
+        {
           "nome": "por_uf",
           "tipo": "dict",
-          "significado": "Contagem por UF das outorgas sem declaração, por classe, e soma dos usuários estimados.",
+          "significado": "Contagem por UF das outorgas sem declaração, por classe, e soma dos usuários estimados; `grupo_declarou` conta os CNPJs em que outro CNPJ do grupo declarou e `credenciadas_rede_virtual` os credenciados de rede virtual.",
           "publicado_em": [
             "sici_indicadores → sem_declaracao_sici.json.gz#por_uf"
           ],
@@ -17463,7 +17476,8 @@
         "sici",
         "outorgas_scm",
         "grupos_societarios",
-        "asn_indice"
+        "asn_indice",
+        "outorgas_demais"
       ],
       "somente_se_executou": [],
       "politica_falha": "opcional",
