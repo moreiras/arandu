@@ -369,3 +369,14 @@ def test_falhas_seguidas_em_route_servers_diferentes_param_a_rodada(base, fx, lo
         with pytest.raises(RuntimeError, match="vizinhos falharam"):
             rotas.run("2026-09-20", base, log, dormir=lambda s: None, niveis=(3,), orcamento=100)
     assert len(chamadas) == rotas.FALHAS_SEGUIDAS_PARA_PARAR
+
+
+def test_cobertura_publicada_nao_passa_dos_elegiveis_com_herdado_fora_deles():
+    # COMM-E4: o `_cobertura` contava todo herdado, até o vizinho que deixou de ser elegível, e a soma passava dos elegíveis.
+    el = [{"ixp": "sp", "afi": "v4", "asn": a, "neighbor_ip": f"192.0.2.{a}", "rs": "SP-rs1-v4"} for a in (1, 2, 3)]
+    feitos = {rotas._chave(el[0]): {"ixp": "sp"}}
+    herdados = [{**el[1], "ixp": "sp"}, {"ixp": "sp", "afi": "v4", "asn": 99, "ip": "192.0.2.99", "rs": "SP-rs1-v4"}]
+    cob = rotas._cobertura(el, feitos, herdados)["sp"]
+    assert cob == {"elegiveis": 3, "coletados": 1, "herdados": 1}
+    rod = rotas.cobertura_rodizio(el, feitos, herdados, "2026-09-20")["por_ptt"]["sp"]
+    assert rod["lidos_na_rodada"] + rod["herdados"] + rod["sem_leitura"] == rod["elegiveis"]

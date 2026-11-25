@@ -327,10 +327,12 @@ def _cobertura(elegiveis_: list[dict], feitos: dict, herdados: list[dict], pulad
         por.setdefault(s["ixp"], {"elegiveis": 0, "coletados": 0, "herdados": 0})["elegiveis"] += 1
         if pulados and s["rs"] in pulados and _chave(s) not in feitos:
             por[s["ixp"]]["pulados_lentos"] = por[s["ixp"]].get("pulados_lentos", 0) + 1
+    chaves_el = {_chave(s) for s in elegiveis_}
     for k in feitos:
         por.setdefault(k[0], {"elegiveis": 0, "coletados": 0, "herdados": 0})["coletados"] += 1
-    for v in herdados:
-        por.setdefault(v["ixp"], {"elegiveis": 0, "coletados": 0, "herdados": 0})["herdados"] += 1
+    for v in herdados:          # só o herdado que ainda é elegível e não foi relido: `coletados` + `herdados` não passa de `elegiveis`
+        if _chave(v) in chaves_el and _chave(v) not in feitos:
+            por.setdefault(v["ixp"], {"elegiveis": 0, "coletados": 0, "herdados": 0})["herdados"] += 1
     return dict(sorted(por.items()))
 
 

@@ -595,6 +595,8 @@
   "GET /api/v1/asns/{asn}/politica": {
    "chaves": [
     "asn",
+    "cobertura_total_nivel2",
+    "cobertura_total_nivel3",
     "coletado_nivel2",
     "coletado_nivel3",
     "evidencia_rs",
@@ -603,6 +605,7 @@
     "limites",
     "nome",
     "parametros",
+    "rs_pulados",
     "snapshot_date",
     "versao_alice"
    ],
@@ -867,6 +870,8 @@
   },
   "GET /api/v1/communities": {
    "chaves": [
+    "cobertura_total_nivel2",
+    "cobertura_total_nivel3",
     "coletado_nivel2",
     "coletado_nivel3",
     "filtros",
@@ -875,6 +880,7 @@
     "limites",
     "parametros",
     "por_classe",
+    "rs_pulados",
     "snapshot_date",
     "total",
     "versao_alice"
@@ -1718,6 +1724,8 @@
   },
   "GET /api/v1/ixps/{code}/rejeicoes": {
    "chaves": [
+    "cobertura_total_nivel2",
+    "cobertura_total_nivel3",
     "coletado_nivel2",
     "coletado_nivel3",
     "fonte",
@@ -1727,6 +1735,7 @@
     "parametros",
     "politica",
     "rejeicoes",
+    "rs_pulados",
     "snapshot_date",
     "versao_alice"
    ],

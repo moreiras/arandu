@@ -327,7 +327,8 @@ export function fetchDestaquesHome(date?: string): Promise<DestaquesHome> {
 
 // `coleta` por família (ok, vazia, missing) e `status: partial` com a tabela vazia: a resposta de snapshot publicado mudou e o `?date=` é
 // imutável no cache, então a URL muda junto.
-const ESQUEMA_IXPS = 2
+/** `esquema` 3: a cobertura dos route servers em `rejeicoes` ganhou os campos do rodízio (PT-16). */
+const ESQUEMA_IXPS = 3
 
 export function fetchIXPs(date?: string, status?: string, uf?: string): Promise<IXPListResponse> {
   return get('/api/v1/ixps', { date, status, uf, esquema: ESQUEMA_IXPS })
@@ -1370,7 +1371,10 @@ export function fetchRankingRouteServers(opts: { date?: string; criterio?: strin
 
 /** Explorador de communities dos route servers do IX.br: o que cada uma significa e quem a usa, só das rotas recebidas coletadas. */
 export function fetchCommunities(opts: { date?: string; q?: string; ixp?: string; classe?: string; limit?: number; page?: number }): Promise<CommunitiesResp> {
-  return get('/api/v1/communities', opts)
+/** `esquema` 2: a resposta ganhou a cobertura do rodízio (`cobertura_total_nivel3`, `rs_pulados`; PT-16). */
+const ESQUEMA_COMMUNITIES = 2
+
+  return get('/api/v1/communities', { ...opts, esquema: ESQUEMA_COMMUNITIES })
 }
 
 export function fetchCeticTabelas(opts: { pesquisa: string }): Promise<CeticTabelas> {

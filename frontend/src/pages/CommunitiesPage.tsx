@@ -7,6 +7,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchCommunities } from '../services/api'
 import { EstadoDados } from '../components/ui/EstadoDados'
+import { descreverCobertura } from '../features/ptt/cobertura'
 
 const POR_PAGINA = 25
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
@@ -57,6 +58,10 @@ export function CommunitiesPage() {
         <>
           <p className="text-xs text-gray-600" data-testid="resumo-communities">
             {n(d.total)} communities{Object.keys(d.por_classe).length ? ` (${Object.entries(d.por_classe).map(([k, v]) => `${n(v)} ${CLASSES[k]?.toLowerCase() ?? k}`).join('; ')})` : ''}. Snapshot {d.snapshot_date}; rotas recebidas coletadas em {d.coletado_nivel3?.slice(0, 16).replace('T', ' ') ?? '—'} UTC.
+          </p>
+          <p className="text-xs text-gray-600" data-testid="cobertura-communities">
+            Cobertura dos route servers (soma dos PTTs): {d.cobertura_total_nivel3 ? descreverCobertura(d.cobertura_total_nivel3, 'vizinhos') : 'a cobertura da coleta não foi registrada neste snapshot'}.
+            {d.rs_pulados && d.rs_pulados.length > 0 ? ` Route servers fora da rodada: ${d.rs_pulados.map((x) => x.rs).join(', ')}.` : ''}
           </p>
           <div className="overflow-x-auto">
             <table className="min-w-full text-xs">

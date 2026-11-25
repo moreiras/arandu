@@ -22,7 +22,8 @@ LIMITES = ("Declaração por communities e decisão do route server no instante 
 
 
 def _meta(doc: dict) -> dict:
-    return {"snapshot_date": doc["snapshot_date"], "coletado_nivel2": doc.get("coletado_nivel2"), "coletado_nivel3": doc.get("coletado_nivel3"), "fonte": doc.get("fonte"),
+    return {"snapshot_date": doc["snapshot_date"], "coletado_nivel2": doc.get("coletado_nivel2"), "coletado_nivel3": doc.get("coletado_nivel3"),
+            "cobertura_total_nivel2": doc.get("cobertura_total_nivel2"), "cobertura_total_nivel3": doc.get("cobertura_total_nivel3"), "rs_pulados": doc.get("rs_pulados"), "fonte": doc.get("fonte"),
             "versao_alice": doc.get("versao_alice"), "parametros": doc.get("parametros"), "limites": LIMITES}
 
 

@@ -58,4 +58,17 @@ describe('explorador de communities', () => {
     montar()
     await waitFor(() => expect(screen.getByText(/ainda não estão disponíveis neste snapshot/)).toBeTruthy())
   })
+
+  it('COMM-E4: mostra a cobertura do rodízio (lidos, herdados, sem leitura, idade) e avisa quando o snapshot não a registrou', async () => {
+    const cobertura = { elegiveis: 5472, coletados: 2645, herdados: 2800, lidos_na_rodada: 2645, sem_leitura: 27, idade_max_dias: 29, pulados_lentos: 0 }
+    server.use(http.get('*/api/v1/communities', () => HttpResponse.json({ ...resp([item]), cobertura_total_nivel3: cobertura })))
+    const { unmount } = montar()
+    await waitFor(() => expect(screen.getByTestId('cobertura-communities')).toBeTruthy())
+    expect(screen.getByTestId('cobertura-communities').textContent).toContain('2.645 de 5.472 vizinhos lidos nesta rodada, 2.800 mantidos de rodadas anteriores, 27 sem leitura (leitura mais antiga com 29 dias)')
+    unmount()
+    server.use(http.get('*/api/v1/communities', () => HttpResponse.json(resp([item]))))
+    montar()
+    await waitFor(() => expect(screen.getByTestId('cobertura-communities')).toBeTruthy())
+    expect(screen.getByTestId('cobertura-communities').textContent).toContain('não foi registrada neste snapshot')
+  })
 })

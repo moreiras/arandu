@@ -445,7 +445,16 @@ def rs_rotas(world: World, rs_doc: dict) -> tuple[dict, dict]:
     cob = {code: {"elegiveis": len(por_ptt[code]), "coletados": sum(1 for v in filt if v["ixp"] == code), "herdados": 0} for code in codigos}
     cob3 = {code: {"elegiveis": len(por_ptt[code]), "coletados": sum(1 for v in rec if v["ixp"] == code), "herdados": 0} for code in codigos}
     cab = {"snapshot_date": "2026-01-01", "generated_at": gerado, "fonte": "sintético", "versao_alice": "6.1.0", "page_size": 250, "requisicoes_da_rodada": len(filt) + len(rec), "orcamento": 4000}
-    return {**cab, "nivel": 2, "cobertura": cob, "vizinhos": filt}, {**cab, "nivel": 3, "ptts": codigos, "cobertura": cob3, "vizinhos": rec}
+
+    def rodizio(cb: dict) -> dict:
+        """Forma de `cobertura_rodizio` do coletor: lidos + herdados + sem leitura = elegíveis; idade da leitura mais antiga (dias) só onde houve leitura."""
+        por = {c: {"elegiveis": v["elegiveis"], "lidos_na_rodada": v["coletados"], "herdados": 0, "sem_leitura": v["elegiveis"] - v["coletados"],
+                  "idade_max_dias": 0 if v["coletados"] else None, "pulados_lentos": 0} for c, v in cb.items()}
+        tot = {k: sum(v[k] for v in por.values()) for k in ("elegiveis", "lidos_na_rodada", "herdados", "sem_leitura", "pulados_lentos")}
+        idades = [v["idade_max_dias"] for v in por.values() if v["idade_max_dias"] is not None]
+        return {"total": {**tot, "idade_max_dias": max(idades) if idades else None}, "por_ptt": por}
+    return ({**cab, "nivel": 2, "cobertura": cob, "cobertura_rodizio": rodizio(cob), "vizinhos": filt},
+            {**cab, "nivel": 3, "ptts": codigos, "cobertura": cob3, "cobertura_rodizio": rodizio(cob3), "vizinhos": rec})
 
 
 def route_servers(world: World) -> tuple[dict, dict]:
