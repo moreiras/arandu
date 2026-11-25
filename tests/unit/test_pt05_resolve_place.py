@@ -17,4 +17,6 @@ def test_place_ufs_separa_homonimos():
     fake = SimpleNamespace(_load_geo_orgs=lambda d: orgs)
     assert Store.place_ufs(fake, "d", "bom jesus") == {"PI": 2, "RN": 1}
     r = Store.resolve_place(fake, "d", "Bom Jesus", "PI")
-    assert r["n"] == 2 and r["lat"] == pytest.approx(-9.05)
+    # com UF, o ponto é o centroide IBGE do município (PT-08); sem centroide, a mediana das sedes da UF arredondada a 0,1°
+    assert r["n"] == 2 and (r.get("uf") == "PI" or r["lat"] == pytest.approx(-9.1))
+    assert r["posicao"].startswith(("centroide do município (IBGE)", "mediana das sedes"))

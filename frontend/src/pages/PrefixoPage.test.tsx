@@ -5,7 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { fixtures, server } from '../test/server'
@@ -142,7 +142,8 @@ describe('página de prefixo', () => {
     const bloco = await screen.findByTestId('moas-observado')
     expect(bloco.textContent).toMatch(/2 ASes de origem/)
     expect(bloco.textContent).toMatch(/vista em 2 coletores \(rvT, rvU\)/)
-    expect(screen.getByRole('link', { name: 'AS64497' })).toHaveAttribute('href', '/asn/64497?date=2026-09-20')
+    // o AS64497 também aparece como detentor (PT-07); aqui interessa o link dentro do bloco de MOAS
+    expect(within(bloco).getByRole('link', { name: 'AS64497' })).toHaveAttribute('href', '/asn/64497?date=2026-09-20')
     expect(bloco.textContent).not.toMatch(/sequestro|hijack/i)
     expect(chamadas).toBe(1)
   })
