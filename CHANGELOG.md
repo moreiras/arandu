@@ -112,9 +112,11 @@ parênteses remetem à análise.
   ligadas só por diretores); BRISANET (04601397) e 44250088 idem. O nome do grupo passa a seguir regra visível (marca curada, senão o
   CNPJ com mais acessos) e o `grupo_id` passa a ser `grp_` + menor raiz do grupo, com tabela de equivalência e redirecionamento dos links
   antigos; séries históricas por grupo de snapshots anteriores usam os ids antigos. "Mercado consolidado" passa a selo inferido.
-  Operadora mostra "Grupo no SICI (declarado à Anatel)" e "Grupo societário (inferido do quadro societário da Receita)". S.A. terá
-  tratamento à parte (o quadro da Receita traz a diretoria, não os acionistas) (GRUPOS-E1, GRUPO-E4, GRUPO-E12, GRUPO-E14, MUN-E4,
-  OPERADORA-E10).
+  Operadora mostra "Grupo no SICI (declarado à Anatel)" e "Grupo societário (inferido do quadro societário da Receita)". Sociedade
+  anônima (naturezas 204-6 e 205-4 da Receita) não tem grupo inferido pelo próprio quadro, que traz diretoria e conselho e não os
+  acionistas: aparece como "grupo não inferível pelo quadro societário (S.A.)", com o grupo declarado ao SICI ao lado; a ligação que
+  vem do quadro de uma Ltda da qual a S.A. é sócia continua (decisão de 2026-11-25). No dado real, 161 S.A. ficam assim marcadas, e os
+  totais acima não mudam (o quadro delas só trazia gestão) (GRUPOS-E1, GRUPO-E4, GRUPO-E12, GRUPO-E14, MUN-E4, OPERADORA-E10).
 - **Datas por fonte e estado da coleta (PT-16).** /snapshots mostra cada indicador com valor, selo, fonte e data de referência, e um
   cartão de coleta (PTTs coletados de configurados, versão do processamento, verificações). /fontes mostra a licença e o uso comercial
   em rótulos legíveis, o aviso de itens do cadastro ainda não conferidos, o frescor ("atrasada (limite N dias)") e estados distintos
