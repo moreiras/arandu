@@ -9,7 +9,7 @@ import type { PrefixoCtx } from '../contexto'
 import { useOrdenacao } from '../../../lib/ordenacao'
 import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 
-/** PTTs em cujos route servers o prefixo aparece (documento do AS de origem), com o papel do AS em cada um. */
+/** PTTs em cujos route servers o prefixo aparece (documento do AS da origem observada, não o do detentor), com o papel do AS em cada um. */
 export function PttsBloco({ dados }: BlocoProps<PrefixoCtx>) {
   const { prefix, asn } = dados
   const linhas = Object.entries(asn?.ixp_presence ?? {}).flatMap(([code, p]) =>

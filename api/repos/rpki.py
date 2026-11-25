@@ -38,7 +38,7 @@ class RpkiRepo:
 
         Builds two lookup structures per AFI:
           - by_asn: {asn: [{prefix, maxLength, ta}, ...]}  (for roa_list queries)
-          - by_prefix: {(prefixlen, net_int): [(asn, maxlen), ...]}  (O(1) RPKI validation)
+          - by_prefix: {(prefixlen, net_int): [(asn, maxlen, ta), ...]}  (O(1) RPKI validation)
         """
         if date_str in self._vrp_cache:
             return self._vrp_cache[date_str]
@@ -52,7 +52,7 @@ class RpkiRepo:
         try:
             roas_raw = data if isinstance(data, list) else data.get("vrps") or data.get("roas") or []
             by_asn: dict[int, list[dict]] = {}
-            # Hash map: (prefixlen, net_int) → [(asn, maxlen)] — O(1) lookup per covering check
+            # Hash map: (prefixlen, net_int) → [(asn, maxlen, ta)] — O(1) lookup per covering check
             v4_by_prefix: dict[tuple, list[tuple]] = {}
             v6_by_prefix: dict[tuple, list[tuple]] = {}
 
@@ -77,9 +77,9 @@ class RpkiRepo:
 
                 key = (net.prefixlen, int(net.network_address))
                 if net.version == 4:
-                    v4_by_prefix.setdefault(key, []).append((asn, max_len))
+                    v4_by_prefix.setdefault(key, []).append((asn, max_len, ta))
                 else:
-                    v6_by_prefix.setdefault(key, []).append((asn, max_len))
+                    v6_by_prefix.setdefault(key, []).append((asn, max_len, ta))
 
             result = {
                 "by_asn": by_asn,
@@ -99,9 +99,22 @@ class RpkiRepo:
             return []
         return list(data["by_asn"].get(asn, []))
 
+    @staticmethod
+    def _cobrem(data: dict, net) -> list[tuple[int, int, int, str]]:
+        """VRPs que cobrem `net` (de qualquer AS): [(tamanho do VRP, asn, maxLength, ta)], do menos ao mais específico."""
+        p_int = int(net.network_address)
+        bits = net.max_prefixlen
+        by_prefix = data["v4_by_prefix"] if net.version == 4 else data["v6_by_prefix"]
+        covering: list[tuple[int, int, int, str]] = []
+        for vrp_len in range(0, net.prefixlen + 1):
+            p_masked = 0 if vrp_len == 0 else (p_int >> (bits - vrp_len)) << (bits - vrp_len)
+            for asn, max_len, ta in by_prefix.get((vrp_len, p_masked)) or ():
+                covering.append((vrp_len, asn, max_len, ta))
+        return covering
+
     def validar_prefixos(self, date_str: str, asn: int, prefixes: list[str]) -> dict[str, str]:
         """
-        Validates each prefix against RPKI (RFC 6483).
+        Validates each prefix against RPKI (RFC 6811).
         Returns {prefix: 'valid'|'invalid'|'not_found'}.
 
         Uses hash-map lookup O(prefix_len) per prefix instead of O(prefix_len × vrps_per_len).
@@ -109,50 +122,46 @@ class RpkiRepo:
         data = self.vrps(date_str)
         if data is None:
             return {}
-
-        # Pre-compute IPv4 masks (32-bit int operations, no BigInt overhead)
-        v4_masks = [0] + [(0xFFFFFFFF ^ ((1 << (32 - l)) - 1)) for l in range(1, 33)]
-
         result: dict[str, str] = {}
         for prefix_str in prefixes:
             try:
                 net = ip_network(prefix_str, strict=False)
             except ValueError:
                 continue
-
-            p_int = int(net.network_address)
-            p_len = net.prefixlen
-
-            if net.version == 4:
-                by_prefix = data["v4_by_prefix"]
-                covering: list[tuple[int, int]] = []
-                for vrp_len in range(0, p_len + 1):
-                    p_masked = p_int & v4_masks[vrp_len]
-                    entries = by_prefix.get((vrp_len, p_masked))
-                    if entries:
-                        covering.extend(entries)
-            else:
-                by_prefix = data["v6_by_prefix"]
-                covering = []
-                # For IPv6, compute masks lazily per length using bit shifts
-                for vrp_len in range(0, p_len + 1):
-                    if vrp_len == 0:
-                        p_masked = 0
-                    else:
-                        shift = 128 - vrp_len
-                        p_masked = (p_int >> shift) << shift
-                    entries = by_prefix.get((vrp_len, p_masked))
-                    if entries:
-                        covering.extend(entries)
-
+            covering = self._cobrem(data, net)
             if not covering:
                 result[prefix_str] = "not_found"
-            elif any(va == asn and p_len <= vm for va, vm in covering):
+            elif any(va == asn and net.prefixlen <= vm for _, va, vm, _ in covering):
                 result[prefix_str] = "valid"
             else:
                 result[prefix_str] = "invalid"
-
         return result
+
+    def diagnosticar(self, date_str: str, prefix: str, asn: Optional[int]) -> Optional[dict]:
+        """Validação de origem (RFC 6811) de UM par prefixo/AS, com os VRPs de qualquer AS que cobrem o prefixo e o motivo.
+
+        `asn` None (prefixo sem anúncio observado) não valida nada: `estado` sai `nao_avaliado`, mas os VRPs que cobrem o prefixo
+        são listados, com `autoriza_origem` nulo. Devolve None se o snapshot não tem VRPs."""
+        data = self.vrps(date_str)
+        if data is None:
+            return None
+        net = ip_network(prefix, strict=False)
+        covering = self._cobrem(data, net)
+        roas = [{"prefix": str(type(net)((int(net.network_address) >> (net.max_prefixlen - tam) << (net.max_prefixlen - tam), tam))),
+                 "asn": va, "maxLength": vm, "ta": ta,
+                 "autoriza_origem": None if asn is None else (va == asn and net.prefixlen <= vm)}
+                for tam, va, vm, ta in covering]
+        if asn is None:
+            estado, motivo = "nao_avaliado", "sem_anuncio"
+        elif not covering:
+            estado, motivo = "not_found", "sem_roa"
+        elif any(r["autoriza_origem"] for r in roas):
+            estado, motivo = "valid", None
+        elif any(r["asn"] == asn for r in roas):
+            estado, motivo = "invalid", "maxlength_excedido"
+        else:
+            estado, motivo = "invalid", "origem_diferente"
+        return {"estado": estado, "motivo": motivo, "asn": asn, "roas_que_cobrem": roas}
 
     def aspas(self, date_str: str) -> Optional[dict]:
         """Carrega e indexa a lista de objetos ASPA para o snapshot. Cacheado por data.

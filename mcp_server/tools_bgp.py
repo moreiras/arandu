@@ -10,7 +10,6 @@ completos (`/bgp-stability` ~46 MB, `/bgp-stability-deep`) não vão ao MCP: as 
 """
 from __future__ import annotations
 
-import ipaddress
 import json
 from typing import Optional
 
@@ -140,41 +139,47 @@ def rpki_summary(date: Optional[str] = None) -> dict:
 
 @mcp.tool()
 def rpki_prefix(prefix: str, asn: Optional[int] = None, date: Optional[str] = None) -> dict:
-    """Validade RPKI (RFC 6483) de um prefixo anunciado por um AS: `valid`, `invalid` ou `not_found`, com as ROAs do AS que o cobrem.
+    """Validação de origem RPKI (RFC 6811) de um prefixo: `valid`, `invalid` ou `not_found`, com o motivo e os ROAs que o cobrem.
 
-    `valid` = há ROA do AS cobrindo o prefixo e o tamanho cabe no `maxLength`; `invalid` = há ROA do AS que cobre o prefixo, mas o
-    tamanho excede o `maxLength`, ou só há ROA de OUTRO AS; `not_found` = nenhuma ROA cobre o prefixo. Sem `asn`, usa o AS originador do prefixo
-    geolocalizado do Registro.br (`get_prefix`); se o prefixo não está lá, informe o `asn`.
+    `valid` = há ROA do AS cobrindo o prefixo e o tamanho cabe no `maxLength`; `invalid` = os ROAs que cobrem o prefixo não
+    autorizam o par (`motivo`: `origem_diferente` se só há ROA de OUTRO AS, `maxlength_excedido` se o ROA do AS tem `maxLength`
+    menor que o prefixo); `not_found` = nenhum ROA cobre o prefixo (`sem_roa`). `roas_que_cobrem` traz os ROAs de qualquer AS,
+    com `autoriza_origem`.
+
+    Sem `asn`, valida a origem OBSERVADA do prefixo (tabela global coletada ou route servers do IX.br, a mesma de `get_prefix`);
+    se o prefixo não é anunciado como está no snapshot, `estado` sai `nao_avaliado` (motivo `sem_anuncio`). Com `asn`, valida o
+    par informado sem provar que ele é anunciado (`origem_do_asn: "informado"`).
 
     Args:
         prefix: Prefixo CIDR (ex.: "200.160.0.0/20" ou "2001:12ff::/32").
-        asn: AS que anuncia o prefixo. Opcional para prefixos do Registro.br.
+        asn: AS de origem a validar. Omita para usar a origem observada.
         date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.
     """
+    from api.routes.prefixes import PrefixoAusente, PrefixoInvalido, canonizar, detalhe_prefixo
+
     d = _resolve(date)
     try:
-        rede = ipaddress.ip_network(prefix.strip(), strict=False)
-    except ValueError:
+        rede = canonizar(prefix)
+    except PrefixoInvalido:
         raise ValueError(f"prefixo inválido: {prefix!r}")
     texto = str(rede)
-    origem = "informado"
     if asn is None:
-        gj = _store.geo_map(d, "prefixes") or {}
-        feat = next((f for f in gj.get("features", []) if (f.get("properties") or {}).get("prefix") == texto), None)
-        asn = (feat or {}).get("properties", {}).get("origin_asn") if feat else None
-        if asn is None:
-            raise ValueError(f"informe o `asn`: o prefixo {texto} não está entre os geolocalizados do Registro.br em {d}.")
-        origem = "prefixo geolocalizado do Registro.br"
-    asn = int(asn)
-    estado = _store.rpki_validate_prefixes(d, asn, [texto]).get(texto)
-    if estado is None:
-        raise ValueError(f"sem VRPs (RPKI) no snapshot {d}.")
-    cobrem = []
-    for v in _store.rpki_vrps_for_asn(d, asn):
         try:
-            if rede.version == ipaddress.ip_network(v["prefix"], strict=False).version and rede.subnet_of(ipaddress.ip_network(v["prefix"], strict=False)):
-                cobrem.append(v)
-        except (ValueError, TypeError, KeyError):
-            continue
-    return {"snapshot_date": d, "prefix": texto, "asn": asn, "origem_do_asn": origem, "estado": estado,
-            "roas_do_as_que_cobrem": cobrem, "tamanho": rede.prefixlen}
+            det = detalhe_prefixo(_store, d, texto)
+        except PrefixoAusente as exc:
+            raise ValueError(f"{exc} Informe o `asn` para validar um par hipotético.")
+        asn = det.get("observed_origin_asn")
+        fonte = det.get("observed_origin_fonte")
+        origem = {"tabela_global": "origem observada na tabela global",
+                  "route_servers_ixbr": "origem observada nos route servers do IX.br"}.get(fonte or "", "sem anúncio observado")
+    else:
+        asn = int(asn)
+        origem = "informado"
+    diag = _store.rpki_diagnostico(d, texto, asn)
+    if diag is None:
+        raise ValueError(f"sem VRPs (RPKI) no snapshot {d}.")
+    return {"snapshot_date": d, "prefix": texto, "asn": asn, "origem_do_asn": origem, "estado": diag["estado"],
+            "motivo": diag["motivo"], "roas_que_cobrem": diag["roas_que_cobrem"],
+            "roas_do_as_que_cobrem": [{k: r[k] for k in ("asn", "prefix", "maxLength", "ta")}
+                                      for r in diag["roas_que_cobrem"] if asn is not None and r["asn"] == asn],
+            "tamanho": rede.prefixlen}

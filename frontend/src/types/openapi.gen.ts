@@ -3502,7 +3502,7 @@ export interface paths {
          * @description Retorna a lista paginada de prefixos BR declarados no Registro.br com a UF segundo a
          *     base de geolocalização (DB-IP City Lite). Requer que a etapa `prefix_geo` tenha sido executada para o snapshot.
          *
-         *     Campos retornados: `prefix`, `ip_version`, `origin_asn`, `uf`, `country`,
+         *     Campos retornados: `prefix`, `ip_version`, `origin_asn` (AS a que o Registro.br associa o prefixo, não a origem observada), `uf`, `country`,
          *     `geo_confidence`, `geo_source`. Latitude, longitude e cidade por prefixo não são servidas.
          *
          *     Use `?ip_version=4` ou `?ip_version=6` para filtrar por versão.
@@ -3526,10 +3526,11 @@ export interface paths {
         };
         /**
          * Prefixo mais específico que contém um IP
-         * @description Dado um endereço IPv6 ou IPv4 (`?ip=200.160.2.3`), devolve o **prefixo mais específico** (longest-prefix match) entre os
-         *     prefixos BR do snapshot e o ASN originador, mais o campo `consulta`. É uma consulta de roteamento: não traz posição
-         *     nenhuma (nem UF), para que a API não funcione como serviço de geolocalização de IP. O detalhe do prefixo está em
-         *     `GET /prefixes/{prefix}`. 404 se nenhum prefixo conhecido o contém.
+         * @description Dado um endereço IPv6 ou IPv4 (`?ip=200.160.2.3`), devolve o **prefixo mais específico** (longest-prefix match) entre as
+         *     alocações do Registro.br do snapshot, com o AS do Registro.br (`registro_asn`; `origin_asn` traz o mesmo valor e está
+         *     depreciado) e a origem observada na tabela global (`observed_origin_asn`), mais o campo `consulta`. É uma consulta de
+         *     roteamento: não traz posição nenhuma (nem UF), para que a API não funcione como serviço de geolocalização de IP. O detalhe do
+         *     prefixo está em `GET /prefixes/{prefix}`. 404 se nenhum prefixo conhecido o contém.
          */
         get: operations["lookup_prefix_api_v1_prefixes_lookup_get"];
         put?: never;
@@ -3549,11 +3550,24 @@ export interface paths {
         };
         /**
          * Detalhes de um prefixo
-         * @description Retorna os dados de um prefixo específico (ex: `177.75.0.0/16` ou `2804::/32`): ASN originador, UF e país segundo a base
-         *     de geolocalização (DB-IP City Lite), confiança e fonte. Inclui `geo_org` do ASN originador (se disponível). Latitude,
-         *     longitude e cidade do prefixo não são servidas.
+         * @description Retorna os dados de um prefixo (ex.: `2804::/32` ou `177.75.0.0/20`). Aceita qualquer grafia CIDR válida e responde na forma
+         *     canônica (`prefix`; a grafia recebida vem em `prefixo_informado` quando difere): bits de host zerados, IPv6 comprimido.
          *
-         *     Nota: apenas prefixos declarados no Registro.br (`registro_br`) estão disponíveis.
+         *     Abre alocações do Registro.br e também rotas observadas fora delas. Dois papéis, cada um com sua fonte:
+         *     - **detentor** (`registro_asn`, `registro_asn_nome`, `alocacao_registro_br`): o AS a que o Registro.br associa a alocação igual
+         *       ao prefixo ou a que o contém;
+         *     - **origem observada** (`observed_origin_asn`, `observed_origin_nome`, `observed_origin_fonte`): o último AS do caminho na
+         *       tabela global coletada (`tabela_global`, uma origem por prefixo) ou, se o prefixo não está nela, nos route servers do IX.br
+         *       (`route_servers_ixbr`). Nula quando o prefixo não é anunciado como está neste snapshot.
+         *
+         *     `escopo`: `alocacao_registro_br`, `rota_dentro_de_alocacao`, `fora_do_registro_br` ou `registro_br_indisponivel`.
+         *     `rpki_observado`: validação de origem (RFC 6811) do par prefixo × origem observada, com `estado` (`valid`, `invalid`,
+         *     `not_found`; `nao_avaliado` quando não há anúncio), `motivo` (`origem_diferente`, `maxlength_excedido`, `sem_roa`,
+         *     `sem_anuncio`) e os VRPs de qualquer AS que cobrem o prefixo (`roas_que_cobrem`, com `autoriza_origem`); nulo sem VRPs no
+         *     snapshot. `origin_asn` está depreciado: é o AS do Registro.br (igual a `registro_asn`), não a origem observada.
+         *
+         *     UF e país (DB-IP City Lite) só para a alocação exata; `geo_org` é do detentor. Latitude, longitude e cidade não são servidas.
+         *     422 para grafia não reconhecida; 404 quando o prefixo não está nas alocações nem nas rotas observadas do snapshot.
          */
         get: operations["get_prefix_api_v1_prefixes__prefix__get"];
         put?: never;
@@ -10921,7 +10935,7 @@ export interface operations {
                 ip_version?: number | null;
                 /** @description Filtrar por UF (sigla de dois caracteres, ex: SP, RJ). */
                 uf?: string | null;
-                /** @description Filtrar por ASN originador. */
+                /** @description Filtrar pelo AS a que o Registro.br associa o prefixo (detentor; não é a origem observada). */
                 origin_asn?: number | null;
             };
             header?: never;

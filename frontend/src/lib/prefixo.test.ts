@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { describe, expect, it } from 'vitest'
-import { caminhoDoPrefixo, cobre, ehIp, ehPrefixo, parsePrefixo } from './prefixo'
+import { canonizarPrefixo, caminhoDoPrefixo, cobre, ehIp, ehPrefixo, parsePrefixo } from './prefixo'
 
 describe('prefixo', () => {
   it('reconhece CIDR v4 e v6 bem formados e recusa o resto', () => {
@@ -25,6 +25,18 @@ describe('prefixo', () => {
   it('lê tamanho e família', () => {
     expect(parsePrefixo('2804::/32')).toMatchObject({ versao: 6, tamanho: 32, max: 128 })
     expect(parsePrefixo('177.75.0.0/16')).toMatchObject({ versao: 4, tamanho: 16, max: 32 })
+  })
+
+  it('forma canônica igual à do servidor (PFX-E5): zeros à esquerda, bits de host, compressão RFC 5952', () => {
+    expect(canonizarPrefixo('2804:0000::/32')).toBe('2804::/32')
+    expect(canonizarPrefixo('2001:0DB8:0000:0000:0000:0000:0000:0000/48')).toBe('2001:db8::/48')
+    expect(canonizarPrefixo('2001:db8:0:1:0:0:0:0/64')).toBe('2001:db8:0:1::/64')
+    expect(canonizarPrefixo('2001:db8:0:0:1:0:0:0/80')).toBe('2001:db8:0:0:1::/80')
+    expect(canonizarPrefixo('2001:db8:1:1:1:1:0:1/128')).toBe('2001:db8:1:1:1:1:0:1/128')
+    expect(canonizarPrefixo('::/0')).toBe('::/0')
+    expect(canonizarPrefixo('200.192.97.0/21')).toBe('200.192.96.0/21')
+    expect(canonizarPrefixo('177.75.0.0/20')).toBe('177.75.0.0/20')
+    expect(canonizarPrefixo('abc')).toBeNull()
   })
 
   it('caminho mantém a barra do CIDR', () => {

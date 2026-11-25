@@ -64,6 +64,34 @@ export function cobre(outer: string, inner: string): boolean {
   return o.tamanho === 0 ? true : (o.bits >> deslocar) === (i.bits >> deslocar)
 }
 
+function v6Texto(n: bigint): string {
+  const g = Array.from({ length: 8 }, (_, i) => Number((n >> BigInt(16 * (7 - i))) & 0xffffn))
+  let ini = -1
+  let tam = 0
+  for (let i = 0; i < 8; ) {     // maior sequência de zeros com 2 ou mais grupos, a primeira em caso de empate (RFC 5952)
+    if (g[i] !== 0) { i++; continue }
+    let j = i
+    while (j < 8 && g[j] === 0) j++
+    if (j - i > tam && j - i > 1) { ini = i; tam = j - i }
+    i = j
+  }
+  const hex = g.map((x) => x.toString(16))
+  if (ini < 0) return hex.join(':')
+  return `${hex.slice(0, ini).join(':')}::${hex.slice(ini + tam).join(':')}`
+}
+
+/** Forma canônica do prefixo (bits de host zerados, IPv6 comprimido em minúsculas, RFC 5952), a mesma de `ipaddress` no servidor; null se malformado. */
+export function canonizarPrefixo(texto: string): string | null {
+  const p = parsePrefixo(texto)
+  if (!p) return null
+  const host = (1n << BigInt(p.max - p.tamanho)) - 1n
+  const rede = p.bits & ~host
+  const end = p.versao === 4
+    ? [24n, 16n, 8n, 0n].map((s) => String((rede >> s) & 0xffn)).join('.')
+    : v6Texto(rede)
+  return `${end}/${p.tamanho}`
+}
+
 /** Caminho da página de um prefixo (a barra do CIDR fica como separador de rota, sem codificar). */
 export function caminhoDoPrefixo(prefixo: string): string {
   return `/prefixo/${prefixo.trim()}`

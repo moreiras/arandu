@@ -50,7 +50,24 @@ class Loja:
         return {"weeks": weeks, "top": top} if self.com_analise else None
 
     def geo_map(self, d, camada):
-        return {"features": [{"properties": {"prefix": "200.1.2.0/24", "origin_asn": 64500}}]}
+        return {"features": [{"properties": {"prefix": "200.1.2.0/24", "origin_asn": 64500}},
+                             {"properties": {"prefix": "200.1.3.0/24", "origin_asn": 64500}}]}
+
+    def origin_by_prefix(self, d, afi):
+        # 200.1.2.0/24 anunciado pelo detentor; 200.1.3.0/24 alocado e anunciado por outro AS; 200.1.4.0/24 fora do Registro.br
+        return {"200.1.2.0/24": 64500, "200.1.3.0/24": 64999, "200.1.4.0/24": 64500} if afi == "v4" else {}
+
+    def colunar(self, d, nome):
+        return None
+
+    def asn_names(self, d):
+        return {}
+
+    def asn_detail(self, d, asn):
+        return None
+
+    def rpki_diagnostico(self, d, prefixo, asn):
+        return self.rpki.diagnosticar(d, prefixo, asn)
 
     def rpki_validate_prefixes(self, d, asn, prefixos):
         return self.rpki.validar_prefixos(d, asn, prefixos)
@@ -67,6 +84,8 @@ class Loja:
 def srv(tmp_path, monkeypatch):
     monkeypatch.setenv("DATA_DIR", str(tmp_path))
     import mcp_server.app as m
+    from api.routes import prefixes
+    monkeypatch.setattr(prefixes, "_INDICE_LPM", {})      # o índice é por data; a loja falsa não pode herdar o de outro teste
     loja = Loja(tmp_path)
     monkeypatch.setattr(m, "_store", loja)
     m._loja_teste = loja
@@ -116,13 +135,17 @@ def test_rpki_summary_e_a_mesma_conta_da_rota(srv):
 
 
 def test_rpki_prefix_estados_e_origem_do_asn(srv):
-    ok = chamar(srv, "rota_rpki", {"prefix": "200.1.2.0/24"})                         # sem asn: origem geolocalizada do Registro.br
-    assert ok["estado"] == "valid" and ok["asn"] == 64500 and ok["origem_do_asn"].startswith("prefixo geolocalizado")
+    ok = chamar(srv, "rota_rpki", {"prefix": "200.1.2.0/24"})                         # sem asn: a origem observada
+    assert ok["estado"] == "valid" and ok["asn"] == 64500 and ok["origem_do_asn"] == "origem observada na tabela global"
     assert ok["roas_do_as_que_cobrem"][0]["prefix"] == "200.1.0.0/16"
+    outro = chamar(srv, "rota_rpki", {"prefix": "200.1.3.0/24"})                      # alocado a 64500, anunciado por 64999 (PFX-E2)
+    assert (outro["asn"], outro["estado"], outro["motivo"]) == (64999, "invalid", "origem_diferente")
+    assert outro["roas_do_as_que_cobrem"] == [] and [r["asn"] for r in outro["roas_que_cobrem"]] == [64500]
+    assert chamar(srv, "rota_rpki", {"prefix": "200.1.4.0/24"})["estado"] == "valid"   # fora do Registro.br, mas anunciado
     assert chamar(srv, "rota_rpki", {"prefix": "200.1.2.0/25", "asn": 64500})["estado"] == "invalid"     # excede o maxLength
     assert chamar(srv, "rota_rpki", {"prefix": "200.9.0.0/24", "asn": 64500})["estado"] == "not_found"
     assert chamar(srv, "rota_rpki", {"prefix": "200.1.2.0/24", "asn": 64999})["estado"] == "invalid"     # ROA de outro AS
-    with pytest.raises(ToolError, match="informe o `asn`"):
+    with pytest.raises(ToolError, match="Informe o `asn`"):
         chamar(srv, "rota_rpki", {"prefix": "8.8.8.0/24"})
     with pytest.raises(ToolError, match="prefixo inválido"):
         chamar(srv, "rota_rpki", {"prefix": "isto não é cidr"})

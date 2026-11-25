@@ -1003,6 +1003,10 @@ class Store:
         """Valida cada prefixo contra o RPKI (RFC 6483): {prefixo: 'valid'|'invalid'|'not_found'}."""
         return self._rpki.validar_prefixos(date_str, asn, prefixes)
 
+    def rpki_diagnostico(self, date_str: str, prefix: str, asn: Optional[int]) -> Optional[dict]:
+        """Estado, motivo e VRPs (de qualquer AS) que cobrem o par prefixo/AS; `asn` None = sem anúncio, não avaliado."""
+        return self._rpki.diagnosticar(date_str, prefix, asn)
+
     def aspa_as_customer(self, date_str: str, asn: int) -> list[dict]:
         """Objetos ASPA publicados por este AS (como customer). Cada dict: {providers, tal}."""
         return self._rpki.como_customer(date_str, asn)
