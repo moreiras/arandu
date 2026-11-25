@@ -164,7 +164,7 @@ describe('float, array sem tipo interno e list (EXP-E1, EXP-E2)', () => {
     expect(() => converterValor(f('penetracao', 'float'), 'lt', '')).toThrow(/informe um valor/)
     expect(() => converterValor(f('penetracao', 'float'), 'lt', 'abc')).toThrow(/não é um número/)
   })
-  it('array sem tipo interno: inteiro vira número (omissao_sici.asns contém 28198), o resto fica texto', () => {
+  it('array sem tipo interno: inteiro vira número (sem_declaracao_sici.asns contém 28198), o resto fica texto', () => {
     expect(converterValor(f('asns', 'array'), 'contains', '28198')).toBe(28198)
     expect(converterValor(f('sinais', 'array'), 'contains', 'S1')).toBe('S1')
     expect(converterValor(f('asns', 'array[int]'), 'contains', '28198')).toBe(28198)

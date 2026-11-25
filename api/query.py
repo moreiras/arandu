@@ -20,7 +20,7 @@ from typing import Any, Optional
 
 from api.geo import haversine_km
 from api.query_catalogo import (  # noqa: F401  (reexportados: `api.query.REGION_BY_UF`, `.COLLECTIONS`, `.SCHEMA`… seguem valendo)
-    COLLECTIONS, OPS_GUIDE, RECIPES, REGION_BY_UF, SCHEMA, _AGG_FNS, _OPS,
+    COLECOES_ALIAS, COLLECTIONS, aviso_colecao_obsoleta, OPS_GUIDE, RECIPES, REGION_BY_UF, SCHEMA, _AGG_FNS, _OPS,
 )
 
 
@@ -223,6 +223,8 @@ def schema(collection: Optional[str] = None) -> dict:
         "aggregate_functions": sorted(_AGG_FNS),
         "recipes": RECIPES,
     }
+    if collection in COLECOES_ALIAS:                            # nome antigo (D12): descreve a collection nova e avisa
+        return {**schema(COLECOES_ALIAS[collection]), "aviso_obsoleta": aviso_colecao_obsoleta(collection)}
     if collection is not None:
         if collection not in SCHEMA:
             raise QueryError(f"collection inválida: '{collection}'. Use: {', '.join(COLLECTIONS)}")

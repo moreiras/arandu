@@ -91,7 +91,7 @@ import type { BrasilIndicadores,
   SegurancaResumo,
   RankingTerritorio,
   RankingMunicipios,
-  OmissaoSici,
+  SemDeclaracaoSici,
   PerfilOperadora,
   PerfilUf,
   RadarAsn,
@@ -1348,15 +1348,17 @@ export function fetchDiffSnapshots(a: string, b: string): Promise<DiffSnapshots>
   return get('/api/v1/snapshots/diff', { a, b })
 }
 
-/** Rankings do SICI e omissão de declaração. A prévia (limit ≤ 100, página 1) é aberta na área avançada; ampliar exige login. */
+/** `esquema` 2 (PT-17, D6): `ranking/operadoras` ganhou `base_aa` e `base_pequena` e as listas deixam de esconder quem não tem percentual (vão para o fim); `multas/empresas` tem a ordem padrão alfabética. */
+const ESQUEMA_RANKINGS = 2
+/** Rankings do SICI e outorgas sem declaração. A prévia (limit ≤ 100, página 1) é aberta na área avançada; ampliar exige login. */
 export function fetchRankingOperadoras(opts: { uf?: string; ordem?: string; asc?: boolean; limit?: number; page?: number }): Promise<RankingOperadoras> {
-  return get('/api/v1/ranking/operadoras', opts)
+  return get('/api/v1/ranking/operadoras', { ...opts, esquema: ESQUEMA_RANKINGS })
 }
 export function fetchRankingMunicipios(opts: { date?: string; uf?: string; ordem?: string; asc?: boolean; limit?: number; page?: number }): Promise<RankingMunicipios> {
-  return get('/api/v1/ranking/municipios', opts)
+  return get('/api/v1/ranking/municipios', { ...opts, esquema: ESQUEMA_RANKINGS })
 }
-export function fetchOmissaoSici(opts: { tipo?: string; uf?: string; classe?: string; grupo_declara?: boolean; limit?: number; page?: number }): Promise<OmissaoSici> {
-  return get('/api/v1/omissao-sici', opts)
+export function fetchSemDeclaracaoSici(opts: { tipo?: string; uf?: string; classe?: string; grupo_declara?: boolean; limit?: number; page?: number }): Promise<SemDeclaracaoSici> {
+  return get('/api/v1/sem-declaracao-sici', opts)
 }
 export function fetchTerritorioRanking(opts: { date?: string; campo?: string; uf?: string; asc?: boolean; sem_ptt_proximo?: boolean; min_domicilios?: number; limit?: number; page?: number }): Promise<RankingTerritorio> {
   return get('/api/v1/territorio/ranking', opts)
@@ -1418,7 +1420,7 @@ export function fetchMultasResumo(date?: string): Promise<MultasResumo> {
 }
 
 export function fetchMultasEmpresas(opts: { date?: string; grupo?: string; q?: string; ordem?: string; limit?: number; page?: number } = {}): Promise<MultasEmpresas> {
-  return get('/api/v1/multas/empresas', opts)
+  return get('/api/v1/multas/empresas', { ...opts, esquema: ESQUEMA_RANKINGS })
 }
 
 export function fetchQualidadeResumo(date?: string): Promise<QualidadeResumo> {

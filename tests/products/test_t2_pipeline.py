@@ -236,7 +236,7 @@ def test_sem_vazamento_de_arquivos_inesperados(pipeline):
     topo = {n.split("/")[0] for n in nomes}
     assert topo == {"asns", "cdns.json", "external-ixps", "grupos_societarios.json.gz", "hilbert_v4.json", "hilbert_v6.json",
                     "ixps", "manifest.json", "maps", "rpki", "scm.json.gz", "seac.json.gz", "sici.json.gz", "snapshot_detail.json",
-                    "sici_indicadores.json.gz", "sici_serie_municipio.json.gz", "mercado_grupos.json.gz", "omissao_sici.json.gz", "territorio", "seguranca", "prontidao", "manrs", "route_servers", "as2org", "rs_policy", "qualidade", "consumidor", "empresas", "financiamento", "bloqueios", "radar", "contratos", "exposicao", "instalacoes", "abuso_agregado", "cetic", "mercado", "erbs", "regulatorio", "ipv4", "sici_movel.json.gz", "sici_movel_municipios.json.gz", "sici_municipios.json.gz", "smp.json.gz",
+                    "sici_indicadores.json.gz", "sici_serie_municipio.json.gz", "mercado_grupos.json.gz", "sem_declaracao_sici.json.gz", "territorio", "seguranca", "prontidao", "manrs", "route_servers", "as2org", "rs_policy", "qualidade", "consumidor", "empresas", "financiamento", "bloqueios", "radar", "contratos", "exposicao", "instalacoes", "abuso_agregado", "cetic", "mercado", "erbs", "regulatorio", "ipv4", "sici_movel.json.gz", "sici_movel_municipios.json.gz", "sici_municipios.json.gz", "smp.json.gz",
                     "stfc.json.gz", "summary.json"}
     assert not any("peeringdb_contacts" in n for n in nomes)                # contatos nunca vão para published/ (AUP)
 

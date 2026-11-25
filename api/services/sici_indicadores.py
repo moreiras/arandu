@@ -3,10 +3,10 @@
 # Este arquivo faz parte do Arandurape.
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-"""Rankings e omissão de declaração do SICI. Funções puras sobre os dois artefatos publicados.
+"""Rankings do SICI e outorgas sem declaração. Funções puras sobre os dois artefatos publicados.
 
 Política editorial: os rankings são de dado declarado ou medido e mostram critério, valores e data, sem juízo; toda resposta
-traz `criterio`, `mes_referencia` e o link da metodologia. A omissão é descrita como fato ("sem declaração no mês X; usuários estimados Y").
+traz `criterio`, `mes_referencia` e o link da metodologia. A ausência de declaração é descrita como fato ("sem declaração no mês X; usuários estimados Y").
 """
 from __future__ import annotations
 
@@ -14,11 +14,14 @@ from typing import Optional
 
 METODOLOGIA = "/fontes"          # a página Fontes lista o produto; o texto de leitura está na página Rankings
 
+#: abaixo disto a base da variação em 12 meses é "pequena" (D6): só um rótulo, nenhuma linha sai da lista nem muda de lugar
+BASE_PEQUENA_ACESSOS = 1000
+
 ORDENS_OPERADORA = {
     "acessos": ("Acessos declarados", lambda r: r["acessos"]),
     "share": ("Parcela dos acessos declarados", lambda r: r["share"]),
-    "var_aa_pct": ("Variação percentual em 12 meses", lambda r: r.get("var_aa_pct")),
-    "var_aa_abs": ("Variação absoluta em 12 meses", lambda r: r.get("var_aa_abs")),
+    "var_aa_pct": ("Variação percentual em 12 meses (acessos)", lambda r: r.get("var_aa_pct")),
+    "var_aa_abs": ("Variação absoluta em 12 meses (acessos)", lambda r: r.get("var_aa_abs")),
     "var_mm_pct": ("Variação percentual no mês", lambda r: r.get("var_mm_pct")),
     "declinio": ("Meses seguidos de queda", lambda r: r["meses_declinio"]),
 }
@@ -38,9 +41,13 @@ class IndicadoresErro(Exception):
 
 
 def _ordenar(linhas: list[dict], chave, asc: bool) -> list[dict]:
+    """Ordena pelo critério. Quem não tem o valor (por exemplo, variação percentual sem base de comparação) vai para o fim, nos dois
+    sentidos: nenhuma linha sai da lista por não ter o valor (D6)."""
     com = [r for r in linhas if chave(r) is not None]
+    sem = [r for r in linhas if chave(r) is None]
     com.sort(key=lambda r: (chave(r), r.get("cnpj") or r.get("ibge") or ""), reverse=not asc)
-    return com
+    sem.sort(key=lambda r: r.get("cnpj") or r.get("ibge") or "")
+    return com + sem
 
 
 def _meta(ind: dict) -> dict:
@@ -73,13 +80,16 @@ def ranking_operadoras(ind: dict, uf: Optional[str], ordem: str, asc: bool, limi
             for k in ("var_mm", "var_aa"):
                 if k in o:
                     r[f"{k}_abs"], r[f"{k}_pct"] = o[k]["abs"], o[k]["pct"]
+            if "var_aa" in o:                                # a base da variação: acessos no mesmo mês do ano anterior (0 = entrou depois)
+                r["base_aa"] = ac - o["var_aa"]["abs"]
+                r["base_pequena"] = r["base_aa"] < BASE_PEQUENA_ACESSOS
         linhas.append(r)
     rotulo, chave = ORDENS_OPERADORA[ordem]
     if uf and ordem != "acessos" and ordem != "share" and ordem != "declinio":
         raise IndicadoresErro(400, "dentro de uma UF só se ordena por acessos, share ou declinio (a variação é da operadora no país).")
     linhas = _ordenar(linhas, chave, asc)
     return {**_meta(ind), "escopo": {"uf": uf} if uf else {"pais": "BR"}, "criterio": rotulo + (" (crescente)" if asc else " (decrescente)"),
-            "total": len(linhas), "items": _paginar(linhas, limit, offset)}
+            "base_pequena_abaixo_de": BASE_PEQUENA_ACESSOS, "total": len(linhas), "items": _paginar(linhas, limit, offset)}
 
 
 def ranking_municipios(ind: dict, uf: Optional[str], ordem: str, asc: bool, limit: int, offset: int) -> dict:
@@ -115,7 +125,7 @@ def _filtro_grupo_declara(valor) -> Optional[object]:
     raise IndicadoresErro(400, f"grupo_declara inválido: {valor}. Use: {' | '.join(GRUPO_DECLARA)}")
 
 
-def omissao(om: dict, ind: dict, tipo: str, uf: Optional[str], classe: Optional[str], grupo_declara, limit: int, offset: int) -> dict:
+def sem_declaracao(om: dict, ind: dict, tipo: str, uf: Optional[str], classe: Optional[str], grupo_declara, limit: int, offset: int) -> dict:
     uf = uf.upper() if uf else None
     gd = _filtro_grupo_declara(grupo_declara)
     meta = {"snapshot_date": om["snapshot_date"], "mes_referencia": om["mes_referencia"], "fonte": om["fonte"], "metodologia": METODOLOGIA,

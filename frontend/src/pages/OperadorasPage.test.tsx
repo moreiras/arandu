@@ -160,6 +160,19 @@ describe('página /operadoras', () => {
     erro.mockRestore()
   })
 
+  it('das abas de serviço há link para as visões Ranking do SICI e Sem declaração (OPERADORAS-E18)', async () => {
+    montar('/operadoras?servico=scm')
+    await screen.findByText('Prov')
+    expect(screen.getByRole('link', { name: 'Ranking do SICI' })).toHaveAttribute('href', '/operadoras?visao=ranking')
+    expect(screen.getByRole('link', { name: 'Sem declaração ao SICI' })).toHaveAttribute('href', '/operadoras?visao=sem-declaracao')
+  })
+
+  it('o link antigo ?visao=omissao redireciona para ?visao=sem-declaracao, com a UF (alias, D12)', async () => {
+    montar('/operadoras?visao=omissao&uf=MG')
+    await waitFor(() => expect(screen.getByTestId('onde')).toHaveTextContent('visao=sem-declaracao'))
+    expect(screen.getByTestId('onde')).toHaveTextContent('uf=MG')
+  })
+
   it('filtros vão para a URL e para a chamada à API; valor padrão sai da URL', async () => {
     montar('/operadoras?servico=scm')
     await screen.findByText('Prov')

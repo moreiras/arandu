@@ -1903,7 +1903,7 @@ export interface IndicadoresOperadora {
   meses_declinio?: number
   em_declinio?: boolean
   parou_de_declarar?: { empresa: string; ultimo_mes_declarado: string; meses_sem_declarar: number; acessos_no_ultimo_mes: number }
-  sem_declaracao?: ItemOmissao
+  sem_declaracao?: ItemSemDeclaracao
 }
 export interface GanhoPerdaMunicipio { cnpj: string; empresa: string; acessos: number }
 export interface IndicadoresMunicipio {
@@ -1912,6 +1912,7 @@ export interface IndicadoresMunicipio {
   acessos: number
   n_operadoras: number
   hhi: number
+  avisos?: string[]
   lider?: { cnpj: string; empresa: string; share: number }
   var_mm_pct?: number | null
   var_aa_pct?: number | null
@@ -1932,26 +1933,30 @@ export interface LinhaRankingOperadora {
   var_mm_pct?: number | null
   var_aa_abs?: number
   var_aa_pct?: number | null
+  /** Acessos no mesmo mês do ano anterior (a base da variação); 0 = ainda não declarava. */
+  base_aa?: number
+  /** Base abaixo de `base_pequena_abaixo_de`: só rótulo, a linha fica onde está. */
+  base_pequena?: boolean
 }
-export interface RankingOperadoras extends RankingBase { items: LinhaRankingOperadora[] }
+export interface RankingOperadoras extends RankingBase { base_pequena_abaixo_de?: number; items: LinhaRankingOperadora[] }
 export interface LinhaRankingMunicipio extends IndicadoresMunicipio0 { posicao: number; ibge: string; uf: string; nome: string }
-interface IndicadoresMunicipio0 { acessos: number; n_operadoras: number; hhi: number; lider?: { cnpj: string; empresa: string; share: number }; var_mm_pct?: number | null; var_aa_pct?: number | null; ganho_aa?: GanhoPerdaMunicipio; perda_aa?: GanhoPerdaMunicipio }
+interface IndicadoresMunicipio0 { acessos: number; n_operadoras: number; hhi: number; avisos?: string[]; lider?: { cnpj: string; empresa: string; share: number }; var_mm_pct?: number | null; var_aa_pct?: number | null; ganho_aa?: GanhoPerdaMunicipio; perda_aa?: GanhoPerdaMunicipio }
 export interface RankingMunicipios extends RankingBase { items: LinhaRankingMunicipio[] }
-export type ClasseOmissao = 'com_usuarios_apnic' | 'sem_usuarios' | 'nao_comparavel'
-export interface ItemOmissao {
+export type ClasseSemDeclaracao = 'com_usuarios_apnic' | 'sem_usuarios' | 'nao_comparavel'
+export interface ItemSemDeclaracao {
   razao_social: string
   uf: string
   n_outorgas: number
   desde: string | null
   asns: number[]
   usuarios_apnic: number | null
-  classe: ClasseOmissao
+  classe: ClasseSemDeclaracao
   grupo_id?: string | null
   grupo_declara?: boolean
 }
-export interface LinhaOmissao extends Partial<ItemOmissao> { posicao: number; cnpj: string }
+export interface LinhaSemDeclaracao extends Partial<ItemSemDeclaracao> { posicao: number; cnpj: string }
 export interface LinhaParou { posicao: number; cnpj: string; empresa: string; ultimo_mes_declarado: string; meses_sem_declarar: number; acessos_no_ultimo_mes: number }
-export interface OmissaoSici {
+export interface SemDeclaracaoSici {
   snapshot_date: string
   mes_referencia: string
   fonte: string
@@ -1961,7 +1966,7 @@ export interface OmissaoSici {
   total: number
   parametros: Record<string, number>
   por_uf?: Record<string, { cnpjs_sem_declaracao: number; com_usuarios_apnic: number; sem_usuarios: number; nao_comparavel: number; usuarios_apnic: number }>
-  items: Array<LinhaOmissao & Partial<LinhaParou>>
+  items: Array<LinhaSemDeclaracao & Partial<LinhaParou>>
 }
 
 /** Penetração e mercado não visto. `nao_visto` é ESTIMATIVA (a taxa da PNAD inclui quem usa só o celular). */
@@ -2050,7 +2055,9 @@ export interface SegurancaAsn {
   n_prefixos_bogon?: number
   asn_reservado?: string
 }
-export interface AgregadoSinal {
+/** Campos do recorte agregado (D6): quantos casos, parcela do maior integrante (0 a 1) e os avisos (`poucos_casos`, `maior_integrante`). Ausentes em snapshots anteriores. */
+export interface RecorteAgregado { n_asns_com_dado?: number; peso_top1?: number | null; avisos?: string[] }
+export interface AgregadoSinal extends RecorteAgregado {
   asns: number
   mediana_pct?: number
   media_ponderada_pct?: number
@@ -2322,7 +2329,7 @@ export interface MultaEmpresa {
   raiz: string; cnpj_matriz: string | null; entidade: string; grupo: GrupoServico; uf: string | null; multas: number; original: number; pago: number; saldo: number
   situacoes: Record<string, number>; primeiro_ano: string | null; ultimo_ano: string | null
 }
-export interface MultasEmpresas extends RegMeta { grupo: string | null; ordem: string; total: number; limit: number; offset: number; items: MultaEmpresa[] }
+export interface MultasEmpresas extends RegMeta { grupo: string | null; ordem: string; regra_ordem?: string; aviso?: string; total: number; limit: number; offset: number; items: MultaEmpresa[] }
 export interface MultasOperadora extends RegMeta {
   raiz: string; multas: number; original: number; pago: number; saldo: number; por_grupo: MultaEmpresa[]; brasil: { empresas: number; multas: number; saldo: number }
 }
@@ -2367,24 +2374,26 @@ export interface ProntidaoMeta {
 }
 export interface ProntidaoComponente { valor: number; peso: number; detalhe: Record<string, unknown> | null }
 export interface ProntidaoPilar { score: number; peso: number; componentes: Record<string, ProntidaoComponente> }
-export interface ManrsCelula {
-  asns: number; usuarios: number; suprimido?: boolean; motivo?: string
+export interface ManrsCelula extends RecorteAgregado {
+  asns: number; usuarios: number; /** só em snapshots anteriores à regra sem supressão */ suprimido?: boolean; motivo?: string
   asns_participantes?: number; pct_asns?: number | null; usuarios_participantes?: number; pct_usuarios?: number | null
   comparacao_prontidao?: { participantes: ManrsPronto; nao_participantes: ManrsPronto } | null
   organizacoes_com_asn_br?: number
 }
-export interface ManrsPronto { asns_com_indice: number; media_ponderada_usuarios: number | null; mediana: number | null; classes: Record<ClassePronto, number> }
+export interface ManrsPronto extends RecorteAgregado { asns_com_indice: number; media_ponderada_usuarios: number | null; mediana: number | null; classes: Record<ClassePronto, number> }
 export interface ManrsResumo {
   snapshot_date: string; natureza: string; atribuicao: string; limites: string
   fonte: { descricao: string; url: string; medido_em: string | null; coletado_em: string; termos: string }
-  regras: { minimo_asns_por_recorte: number; comparacao: string }
+  regras: { minimo_asns_por_recorte: number; peso_aviso?: number; recortes_suprimidos?: boolean; comparacao: string }
   brasil: ManrsCelula; por_faixa_porte: Record<string, ManrsCelula>; por_uf: Record<string, ManrsCelula>
 }
-export interface ProntidaoAgregado {
+export interface ProntidaoAgregado extends RecorteAgregado {
+  /** Classes separadas por haver ROV medido no pilar Filtragem (a soma das duas é `classes`); ausentes em snapshots anteriores. */
+  classes_com_rov?: Record<ClassePronto, number>; classes_sem_rov?: Record<ClassePronto, number>
   asns: number; asns_com_indice: number; classes: Record<ClassePronto, number>; media_ponderada_usuarios: number | null; mediana: number | null; usuarios: number
   cobertura_pilares: Record<PilarId, number>
   /** Por componente (rov, sem_bogon, spoofer, peeringdb, irr_aut_num, irr_as_set, roa, irr, aspa): ASNs com dado e a média (0–100) simples e ponderada pelos usuários. */
-  medicoes?: Record<string, { pilar: PilarId; asns: number; media: number | null; media_ponderada_usuarios: number | null }>
+  medicoes?: Record<string, RecorteAgregado & { pilar: PilarId; asns: number; media: number | null; media_ponderada_usuarios: number | null }>
 }
 export interface ProntidaoAsn extends ProntidaoMeta {
   total: number | null; classe: ClassePronto; pilares: Partial<Record<PilarId, ProntidaoPilar>>; pilares_sem_dado: PilarId[]; usuarios: number
@@ -2709,10 +2718,12 @@ export interface SerieMercadoMunicipio {
 export type FaixaHhi = 'competitivo' | 'moderado' | 'concentrado'
 interface MercadoGruposMeta { snapshot_date: string; mes_referencia: string; natureza: string; fonte: string; limites: string; faixas: Record<FaixaHhi, string> }
 export interface MercadoGruposMunicipio extends MercadoGruposMeta {
-  uf: string; hhi_cnpj: number | null; hhi_grupo: number | null; n_cnpjs: number; n_grupos: number; faixa_cnpj: FaixaHhi | null; faixa_grupo: FaixaHhi | null
+  uf: string; acessos?: number; avisos_cnpj?: string[]; avisos_grupo?: string[]
+  hhi_cnpj: number | null; hhi_grupo: number | null; n_cnpjs: number; n_grupos: number; faixa_cnpj: FaixaHhi | null; faixa_grupo: FaixaHhi | null
   lider_grupo: { id: string; empresa: string; share: number; e_grupo: boolean }
 }
 export interface MercadoGruposUf extends MercadoGruposMeta {
+  acessos?: number; n_cnpjs?: number; n_grupos?: number; lider_grupo_share?: number | null; avisos_cnpj?: string[]; avisos_grupo?: string[]
   hhi_cnpj: number | null; hhi_grupo: number | null; faixa_cnpj: FaixaHhi | null; faixa_grupo: FaixaHhi | null; municipios: number; municipios_mudam_de_faixa: number
 }
 export interface SobreposicaoOperadora extends MercadoGruposMeta {
@@ -2720,13 +2731,14 @@ export interface SobreposicaoOperadora extends MercadoGruposMeta {
 }
 export interface ResumoMercadoGrupos extends MercadoGruposMeta {
   resumo: { municipios: number; mudam_de_faixa: number; transicoes: Record<string, number>; grupos_com_mais_de_um_cnpj_no_mercado: number }
-  ufs: Record<string, { hhi_cnpj: number | null; hhi_grupo: number | null; faixa_cnpj: FaixaHhi | null; faixa_grupo: FaixaHhi | null }>
+  ufs: Record<string, { hhi_cnpj: number | null; hhi_grupo: number | null; faixa_cnpj: FaixaHhi | null; faixa_grupo: FaixaHhi | null
+    acessos?: number; n_cnpjs?: number; n_grupos?: number; lider_grupo_share?: number | null; avisos_cnpj?: string[]; avisos_grupo?: string[] }>
 }
 
 /** Rede no território: estimativas e inferências com cobertura. */
 interface RedeMeta { snapshot_date: string; natureza: string; limites: string; fontes: Record<string, string | null> }
 export interface RedeIpv6 { acessos: number; acessos_com_estimativa?: number; v6_estimado: number; pct_v6: number | null; cobertura: number | null }
-export interface RedeRov { usuarios: number; usuarios_com_medida: number; usuarios_atras_rov: number; pct_atras_rov: number | null; cobertura: number | null }
+export interface RedeRov extends RecorteAgregado { usuarios: number; usuarios_com_medida: number; usuarios_atras_rov: number; pct_atras_rov: number | null; cobertura: number | null }
 export interface RedeTransito { acessos: number; acessos_com_relacao: number; acessos_provedor_unico?: number; pct_provedor_unico: number | null; cobertura: number | null; provedor_principal: { asn: number; nome: string; pct_dos_acessos: number } | null }
 export interface RedeTerritorioMunicipio extends RedeMeta { ipv6: RedeIpv6 | null; transito: RedeTransito | null }
 export interface RedeTerritorioUf extends RedeMeta { ipv6: RedeIpv6 | null; rov: RedeRov | null; transito: RedeTransito | null }

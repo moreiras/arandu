@@ -185,7 +185,7 @@ def operadora_perfil(
         perfil["mercado_grupos"] = bloco_sobreposicao_operadora(store.mercado_grupos(date_str), perfil["cnpj"])
     if extras and "indicadores" in extras:
         from api.services.sici_indicadores import bloco_operadora
-        perfil["indicadores"] = bloco_operadora(store.sici_indicadores(date_str), store.omissao_sici(date_str), perfil["cnpj"])
+        perfil["indicadores"] = bloco_operadora(store.sici_indicadores(date_str), store.sem_declaracao_sici(date_str), perfil["cnpj"])
     if extras and "erbs" in extras:
         from api.services.erbs import bloco_operadora as erbs_operadora
         perfil["erbs"] = erbs_operadora(store.erbs_doc(date_str), perfil["cnpj"])
@@ -305,7 +305,7 @@ def uf_perfil(
         perfil = {**perfil, "mercado_grupos": bloco_mercado_uf(store.mercado_grupos(date_str), sigla)}
     if extras and "indicadores" in extras:
         from api.services.sici_indicadores import bloco_uf
-        perfil = {**perfil, "indicadores": bloco_uf(store.sici_indicadores(date_str), store.omissao_sici(date_str), sigla)}
+        perfil = {**perfil, "indicadores": bloco_uf(store.sici_indicadores(date_str), store.sem_declaracao_sici(date_str), sigla)}
     if extras and "territorio" in extras:
         from api.services.territorio import bloco_uf as terr_uf
         perfil = {**perfil, "territorio": terr_uf(store.territorio_doc(date_str), sigla)}

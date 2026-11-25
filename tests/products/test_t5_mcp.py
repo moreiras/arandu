@@ -649,3 +649,14 @@ def test_toda_tool_e_anotada_como_so_leitura(srv):
     visiveis = run(srv.mcp.list_tools())
     assert all(t.annotations and t.annotations.readOnlyHint for t in visiveis)
 
+
+
+def test_collection_com_nome_antigo_responde_pela_nova_com_aviso(srv):
+    """D12: `omissao_sici` virou `sem_declaracao_sici`; o nome antigo é alias com `aviso_obsoleta` (query e describe_schema)."""
+    novo = call(srv, "query", {"collection": "sem_declaracao_sici", "limit": 5})
+    velho = call(srv, "query", {"collection": "omissao_sici", "limit": 5})
+    assert "aviso_obsoleta" not in novo and "sem_declaracao_sici" in velho["aviso_obsoleta"]
+    assert _sem_aviso(velho) == novo
+    d_novo, d_velho = call(srv, "describe_schema", {"collection": "sem_declaracao_sici"}), call(srv, "describe_schema", {"collection": "omissao_sici"})
+    assert d_velho["collection"] == "sem_declaracao_sici" and "aviso_obsoleta" in d_velho and "aviso_obsoleta" not in d_novo
+    assert "omissao_sici" not in call(srv, "describe_schema", {})["collections"]

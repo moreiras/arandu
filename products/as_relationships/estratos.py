@@ -16,7 +16,7 @@ O que este módulo mede e o diagnóstico (`diagnostico.py`) não mede:
   - a interseção e a união dos dois critérios (o `ece_por_estrato` olha uma característica por vez);
   - a **cobertura**: fração dos p2c ≥ provável (BR e global) que cai em cada estrato, para saber quantos elos têm `p` calibrada;
   - o **viés do ASPA**: nos eventos em que o ASPA "desmente" o ARC, o que a segunda referência (política do IRR) diz. Se o IRR concorda com o ARC,
-    o desmentido do ASPA é provavelmente omissão do ASPA; se discorda, o erro é do ARC (ou das duas referências).
+    o desmentido do ASPA é provavelmente ausência do registro no ASPA; se discorda, o erro é do ARC (ou das duas referências).
 Não escreve em `published/`. Saída: `data/ops/relacoes/estratos-AAAA-MM-DD.json`."""
 from __future__ import annotations
 

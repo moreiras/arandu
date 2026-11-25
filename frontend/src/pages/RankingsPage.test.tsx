@@ -17,7 +17,7 @@ vi.mock('../auth/AuthContext', () => ({ useAuth: () => ({ anon: { id: 'x' }, loa
 
 const meta = { snapshot_date: '2026-10-31', mes_referencia: '2026-08', fonte: 'Anatel/SICI', metodologia: '/fontes', escopo: { pais: 'BR' } }
 // o conteúdo mora em outras páginas; `/rankings` só redireciona
-const montar = (aba: 'operadoras' | 'omissao' | 'route-servers' = 'operadoras') => render(
+const montar = (aba: 'operadoras' | 'sem-declaracao' | 'route-servers' = 'operadoras') => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><RankingsSici abaFixa={aba} /></MemoryRouter></QueryClientProvider>,
 )
 
@@ -35,18 +35,51 @@ describe('página Rankings do SICI', () => {
     expect(screen.getByText(/Não indica causa nem intenção/i)).toBeTruthy()
   })
 
-  it('na aba de omissão descreve o fato, com usuários estimados e a marca do grupo, sem juízo', async () => {
-    server.use(http.get('*/api/v1/omissao-sici', () => HttpResponse.json({
+  it('variação em 12 meses: rótulo em acessos, base sempre visível, "base pequena" só como rótulo e ordem por variação absoluta (D6, RANKINGS-E6)', async () => {
+    let ordemPedida = ''
+    let urlPedida = ''
+    server.use(http.get('*/api/v1/ranking/operadoras', ({ request }) => {
+      ordemPedida = new URL(request.url).searchParams.get('ordem') ?? ''
+      urlPedida = request.url
+      return HttpResponse.json({
+        ...meta, criterio: 'Variação percentual em 12 meses (acessos) (decrescente)', total: 3, base_pequena_abaixo_de: 1000,
+        items: [
+          { posicao: 1, cnpj: '11111111000111', empresa: 'MINI NET', uf_sede: 'SP', acessos: 9334, share: 0.01, meses_declinio: 0, em_declinio: false, var_aa_abs: 9333, var_aa_pct: 933300, base_aa: 1, base_pequena: true },
+          { posicao: 2, cnpj: '02558157000162', empresa: 'VIVO', uf_sede: 'SP', acessos: 8542210, share: 14.755, meses_declinio: 0, em_declinio: false, var_aa_abs: 736000, var_aa_pct: 9.43, base_aa: 7806210, base_pequena: false },
+          { posicao: 3, cnpj: '22222222000122', empresa: 'ENTROU DEPOIS', uf_sede: 'MG', acessos: 500, share: 0, meses_declinio: 0, em_declinio: false, var_aa_abs: 500, var_aa_pct: null, base_aa: 0, base_pequena: true },
+        ],
+      })
+    }))
+    montar()
+    await waitFor(() => expect(screen.getByText('MINI NET')).toBeTruthy())
+    expect(screen.getByRole('button', { name: /Variação em 12 meses \(acessos\)/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /Variação absoluta \(acessos\)/ })).toBeTruthy()
+    expect(screen.getByRole('columnheader', { name: /Base \(acessos em 2025-08\)/ })).toBeTruthy()
+    const mini = screen.getByText('MINI NET').closest('tr')!
+    expect(mini.textContent).toContain('+933.300%')
+    expect(mini.textContent).toContain('base pequena')
+    expect(screen.getByText('VIVO').closest('tr')!.textContent).not.toContain('base pequena')
+    expect(screen.getByText('VIVO').closest('tr')!.textContent).toContain('7.806.210')          // a base fica à vista em toda linha
+    expect(screen.getByText('ENTROU DEPOIS').closest('tr')!.textContent).toContain('—')    // sem percentual (base 0): a linha continua na lista
+    expect(screen.getAllByText('base pequena')).toHaveLength(2)
+    expect(screen.getByTestId('regra-base').textContent).toContain('Sem piso')
+    expect(urlPedida).toContain('esquema=2')              // a resposta ganhou campos: a URL muda para não vir do cache imutável do esquema antigo
+    fireEvent.change(screen.getByLabelText('Ordenar por'), { target: { value: 'var_aa_abs' } })
+    await waitFor(() => expect(ordemPedida).toBe('var_aa_abs'))
+  })
+
+  it('na aba sem declaração descreve o fato, com usuários estimados e a marca do grupo, sem juízo', async () => {
+    server.use(http.get('*/api/v1/sem-declaracao-sici', () => HttpResponse.json({
       ...meta, criterio: 'Usuários estimados (APNIC) dos ASNs do CNPJ (decrescente)', tipo: 'outorga_sem_declaracao', total: 1, parametros: { usuarios_min: 100 },
       items: [{ posicao: 1, cnpj: '39565567000140', razao_social: 'BTT TELECOMUNICACOES S.A.', uf: 'MG', usuarios_apnic: 367660, classe: 'com_usuarios_apnic', grupo_declara: true, asns: [28656] }],
     })))
-    montar('omissao')
+    montar('sem-declaracao')
     await waitFor(() => expect(screen.getByText('BTT TELECOMUNICACOES S.A.')).toBeTruthy())
     expect(screen.getByText('367.660')).toBeTruthy()
     expect(screen.getByText('com usuários estimados (APNIC)', { selector: 'td' })).toBeTruthy()
     expect(screen.getByText('outro CNPJ do grupo declarou')).toBeTruthy()
     const corpo = document.body.textContent ?? ''
-    expect(corpo).not.toMatch(/sonegou|omitiu|irregular/i)
+    expect(corpo).not.toMatch(/sonegou|omitiu|omiss|irregular/i)
   })
 
   it('as abas territoriais viraram a lista de municípios: o link antigo redireciona com a lente certa (alias)', async () => {
@@ -55,14 +88,14 @@ describe('página Rankings do SICI', () => {
     expect(await screen.findByTestId('onde')).toHaveTextContent('/municipios?uf=SP&lente=penetracao')
   })
 
-  it('os links antigos de operadoras, omissão e route servers redirecionam para o lugar novo (alias)', async () => {
+  it('os links antigos de operadoras, omissão (nome antigo) e route servers redirecionam para o lugar novo (alias)', async () => {
     const ir = async (url: string) => {
       const { unmount } = render(<QueryClientProvider client={new QueryClient()}><MemoryRouter initialEntries={[url]}>
         <Routes><Route path="/rankings" element={<RankingsPage />} /><Route path="*" element={<Onde />} /></Routes></MemoryRouter></QueryClientProvider>)
       const t = (await screen.findByTestId('onde')).textContent; unmount(); return t
     }
     expect(await ir('/rankings')).toBe('/operadoras?visao=ranking')
-    expect(await ir('/rankings?aba=omissao&uf=MG')).toBe('/operadoras?visao=omissao&uf=MG')
+    expect(await ir('/rankings?aba=omissao&uf=MG')).toBe('/operadoras?visao=sem-declaracao&uf=MG')   // aba=omissao é o nome antigo (alias)
     expect(await ir('/rankings?aba=route-servers&ixp=sp')).toBe('/ixps?visao=route-servers&ixp=sp')
   })
 
@@ -81,7 +114,10 @@ describe('página Rankings do SICI', () => {
     expect(screen.getByText('1 de 4')).toBeTruthy()
     expect(screen.getByTestId('rotulo-ranking').textContent).toContain('Route servers do IX.br, coletado em 2026-10-31')
     expect(screen.getByText(/\(\+2 em RS sem frescor confirmado\)/)).toBeTruthy()
-    expect(pedido).toContain('criterio=sessoes_down')
+    expect(pedido).toContain('criterio=ptt_asn')                                  // D6: a ordem padrão é neutra
+    expect(screen.getByTestId('regra-ordem-rs').textContent).toContain('por PTT e, dentro dele, por ASN')
+    fireEvent.change(screen.getByLabelText('Ordenar por'), { target: { value: 'sessoes_down' } })
+    await waitFor(() => expect(pedido).toContain('criterio=sessoes_down'))      // a ordem por número medido é escolha do usuário
     expect(document.body.textContent).not.toMatch(/pior|melhor|culpa|irregular/i)
   })
 })

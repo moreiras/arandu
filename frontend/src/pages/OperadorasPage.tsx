@@ -246,16 +246,22 @@ function ListaServico({ servico }: { servico: Servico }) {
   )
 }
 
-/** Ranking do SICI e omissão de declaração (`rdap`: vieram de Rankings): visões da página de operadoras, ao lado das listas por serviço. */
-function VisaoSici({ visao }: { visao: 'ranking' | 'omissao' }) {
-  const aba = (v: string, rot: string, ativa: boolean) => <Link to={v === 'lista' ? '/operadoras' : `/operadoras?visao=${v}`} aria-current={ativa ? 'page' : undefined} className={`px-4 py-2 text-sm -mb-px border-b-2 transition-colors ${ativa ? 'border-primario-600 text-primario-700 font-medium' : 'border-transparent text-gray-500 hover:text-gray-800'}`}>{rot}</Link>
+/** Barra de visões da página de operadoras: listas por serviço, ranking do SICI e sem declaração. Aparece nas três (OPERADORAS-E18). */
+function BarraVisoes({ ativa }: { ativa: 'lista' | 'ranking' | 'sem-declaracao' }) {
+  const aba = (v: string, rot: string) => <Link to={v === 'lista' ? '/operadoras' : `/operadoras?visao=${v}`} aria-current={ativa === v ? 'page' : undefined} className={`px-4 py-2 text-sm -mb-px border-b-2 transition-colors ${ativa === v ? 'border-primario-600 text-primario-700 font-medium' : 'border-transparent text-gray-500 hover:text-gray-800'}`}>{rot}</Link>
+  return (
+    <nav aria-label="Visão das operadoras" className="flex gap-1 border-b border-gray-200">
+      {aba('lista', 'Listas por serviço')}{aba('ranking', 'Ranking do SICI')}{aba('sem-declaracao', 'Sem declaração ao SICI')}
+    </nav>
+  )
+}
+
+function VisaoSici({ visao }: { visao: 'ranking' | 'sem-declaracao' }) {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-      <nav aria-label="Visão das operadoras" className="flex gap-1 border-b border-gray-200">
-        {aba('lista', 'Listas por serviço', false)}{aba('ranking', 'Ranking do SICI', visao === 'ranking')}{aba('omissao', 'Sem declaração ao SICI', visao === 'omissao')}
-      </nav>
+      <BarraVisoes ativa={visao} />
       <h1 className="text-titulo-1 text-gray-900">{visao === 'ranking' ? 'Operadoras por acessos declarados (SICI)' : 'Outorgas sem declaração ao SICI'}</h1>
-      <RankingsSici abaFixa={visao === 'ranking' ? 'operadoras' : 'omissao'} />
+      <RankingsSici abaFixa={visao === 'ranking' ? 'operadoras' : 'sem-declaracao'} />
     </div>
   )
 }
@@ -266,11 +272,16 @@ export function OperadorasPage() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const visao = params.get('visao')
-  if (visao === 'ranking' || visao === 'omissao') return <VisaoSici visao={visao} />
+  if (visao === 'omissao') {                         // nome antigo da visão (D12): o link guardado redireciona
+    const q = new URLSearchParams(params); q.set('visao', 'sem-declaracao')
+    return <Navigate to={`/operadoras?${q.toString()}`} replace />
+  }
+  if (visao === 'ranking' || visao === 'sem-declaracao') return <VisaoSici visao={visao} />
   const servico = servicoDe(params.get('servico'))
   const aba = (id: ServicoId) => `/operadoras?servico=${id}`
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+      <BarraVisoes ativa="lista" />
       {/* a barra de abas única do site (setas do teclado); trocar de aba troca a URL. */}
       <BarraDeAbas abas={ORDEM_SERVICOS.map((id) => ({ id, rotulo: SERVICOS[id].rotulo }))} ativa={servico.id} aoEscolher={(id) => navigate(aba(id as ServicoId))} rotulo="Serviço outorgado" />
       <div role="tabpanel" id={`painel-${servico.id}`} aria-labelledby={`aba-${servico.id}`} className="space-y-6">

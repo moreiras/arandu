@@ -204,8 +204,8 @@
   mcp: query:indicadores_operadora
 - http: GET /ranking/municipios
   sem_mcp: "o ranking por município atendido sai de query:acessos_municipio; o HHI e a variação por município vêm de municipio_banda_larga (bloco indicadores)"
-- http: GET /omissao-sici
-  mcp: query:omissao_sici
+- http: GET /sem-declaracao-sici
+  mcp: query:sem_declaracao_sici
 - http: GET /territorio/mapa
   sem_mcp: "blob de visualização ({ibge: valor} de todos os municípios para o mapa coroplético); o MCP já tem query(collection=municipios) e municipio_detalhe, que trazem os mesmos indicadores com filtro"
 - http: GET /territorio/municipio/{ibge}/semelhantes

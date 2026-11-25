@@ -24,7 +24,7 @@ export function intervaloRazao(l: DemandaOfertaLinha) {
 
 /**
  * Demanda × oferta de banda larga fixa na UF, ao lado da região e do Brasil. É estimativa do Arandurapé: a demanda vem da proporção de domicílios com banda larga
- * fixa da TIC Domicílios (margem só da amostra); a oferta são os acessos de pessoa física declarados ao SICI. Razão baixa é sinal para investigar, não prova de omissão.
+ * fixa da TIC Domicílios (margem só da amostra); a oferta são os acessos de pessoa física declarados ao SICI. Razão baixa é sinal para investigar, não prova ausência de declaração.
  */
 export function DemandaOfertaUfBloco({ dados }: BlocoProps<UfCtx>) {
   const d = dados.demandaOferta

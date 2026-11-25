@@ -218,7 +218,7 @@ export function BandaLargaMovelSection({ date }: { date?: string }) {
               <StatCard value={fmtPct(pctComAsn)} label="Parcela com ASN" sub="licenciados com ASN no mesmo CNPJ" />
               {/* sem a razão sobre os licenciados (PANORAMA-E5): o cadastro inclui credenciadas de rede virtual, que não declaram por conta própria */}
               <StatCard value={fmt(cobertura?.informaram_sici)} label="…informaram no SICI"
-                         sub={`declararam acessos móveis${acessos?.mes_referencia ? ` em ${acessos.mes_referencia}` : ''}; acessos de credenciada de rede virtual vêm na declaração da prestadora de origem`} />
+                         sub={`declararam acessos móveis${acessos?.mes_referencia ? ` em ${acessos.mes_referencia}` : ''}; acessos de credenciada de rede virtual vêm na declaração da prestadora de origem (RGST, Res. Anatel 777/2025)`} />
               <StatCard value={fmt(acessos?.acessos_m2m)} label="Acessos M2M" sub="chips máquina-a-máquina, fora do total" />
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-3 flex flex-col">

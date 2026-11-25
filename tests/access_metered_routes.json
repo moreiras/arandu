@@ -98,6 +98,7 @@
  "/api/v1/multas/empresas",
  "/api/v1/multas/resumo",
  "/api/v1/omissao-sici",
+ "/api/v1/sem-declaracao-sici",
  "/api/v1/operadoras/{cnpj}",
  "/api/v1/outorgas/{cnpj}",
  "/api/v1/prefixes",

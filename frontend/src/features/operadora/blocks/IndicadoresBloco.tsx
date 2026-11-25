@@ -36,9 +36,9 @@ export function IndicadoresBloco({ dados }: BlocoProps<OperadoraCtx>) {
       )}
       {sem && (
         <p className="text-xs text-gray-600" data-testid="sem-declaracao">
-          Outorga SCM sem acessos declarados ao SICI em {i.mes_referencia}
+          Outorga SCM sem declaração ao SICI em {i.mes_referencia}
           {sem.usuarios_apnic != null && <>; usuários estimados (APNIC) nos ASNs do CNPJ: {n(sem.usuarios_apnic)}</>}
-          {sem.grupo_declara && <>; outro CNPJ do mesmo grupo societário declarou no mês</>}.
+          {sem.grupo_declara && <>; outro CNPJ do mesmo grupo societário declarou no mês (inferido do quadro societário)</>}.
         </p>
       )}
     </div>
