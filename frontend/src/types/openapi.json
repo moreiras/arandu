@@ -995,6 +995,21 @@
       "title": "Ixps Direct Count",
       "type": "integer"
      },
+     "ixps_membro_count": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Número de PTTs do IX.br em cujo cadastro de participantes o AS consta, com ou sem sessão com o route server (`ixps_membro`); `null` se o snapshot não tem a lista de participantes",
+      "examples": [
+       7
+      ],
+      "title": "Ixps Membro Count"
+     },
      "ixps_origin_count": {
       "description": "Número de IXPs onde prefixos deste AS são visíveis",
       "examples": [
@@ -1569,6 +1584,21 @@
       ],
       "title": "Br Asns Origin Union Count"
      },
+     "cdns_curados": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "CDNs da lista curada com ASN no cadastro de participantes do PTT (curadoria incompleta por natureza; não mede tráfego); `null` sem o produto no snapshot",
+      "examples": [
+       50
+      ],
+      "title": "Cdns Curados"
+     },
      "code": {
       "description": "Código do IXP (slug do IX.br)",
       "examples": [
@@ -1599,6 +1629,16 @@
       ],
       "title": "Name",
       "type": "string"
+     },
+     "route_servers": {
+      "anyOf": [
+       {},
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Sessões nos route servers do IX.br por família (`v6`, `v4`: `up`, `down`, `sessoes`, `rs`), só dos route servers com cache de vizinhos atual; `rs_sem_vizinhos_atuais` conta os que ficaram de fora. `null` na família sem route server consultado e no PTT sem route server: n/d, não zero. Estado na data da coleta; down não diz a causa.",
+      "title": "Route Servers"
      },
      "status": {
       "description": "Status da coleta: **ok** (rotas em v6 e v4), **partial** (uma família sem bruto ou com a tabela vazia; ver `coleta` em cada família), **missing** (sem dados)",
@@ -1645,6 +1685,16 @@
       ],
       "title": "Count",
       "type": "integer"
+     },
+     "interligacao": {
+      "anyOf": [
+       {},
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Fonte e data das colunas `route_servers` e `cdns_curados` (`route_servers.coletado_em`, `cdns.cdns_na_lista`).",
+      "title": "Interligacao"
      },
      "ixps": {
       "items": {
@@ -3937,7 +3987,7 @@
       }
      },
      {
-      "description": "Campo para ordenação. Valores: apnic_users, apnic_v6_users, asn, cnpj, epppd, epppd_v4, epppd_v6, external_ixps_count, has_aspa, has_rpki, has_scm, has_seac, has_smp, has_stfc, ixps_direct_count, ixps_origin_v4_count, ixps_origin_v6_count, name, pct_v6, pdb_registered",
+      "description": "Campo para ordenação. Valores: apnic_users, apnic_v6_users, asn, cnpj, epppd, epppd_v4, epppd_v6, external_ixps_count, has_aspa, has_rpki, has_scm, has_seac, has_smp, has_stfc, ixps_direct_count, ixps_membro_count, ixps_origin_v4_count, ixps_origin_v6_count, name, pct_v6, pdb_registered",
       "in": "query",
       "name": "sort_by",
       "required": false,
@@ -3950,7 +4000,7 @@
          "type": "null"
         }
        ],
-       "description": "Campo para ordenação. Valores: apnic_users, apnic_v6_users, asn, cnpj, epppd, epppd_v4, epppd_v6, external_ixps_count, has_aspa, has_rpki, has_scm, has_seac, has_smp, has_stfc, ixps_direct_count, ixps_origin_v4_count, ixps_origin_v6_count, name, pct_v6, pdb_registered",
+       "description": "Campo para ordenação. Valores: apnic_users, apnic_v6_users, asn, cnpj, epppd, epppd_v4, epppd_v6, external_ixps_count, has_aspa, has_rpki, has_scm, has_seac, has_smp, has_stfc, ixps_direct_count, ixps_membro_count, ixps_origin_v4_count, ixps_origin_v6_count, name, pct_v6, pdb_registered",
        "title": "Sort By"
       }
      },
@@ -6308,7 +6358,7 @@
   },
   "/api/v1/cdns/presence": {
    "get": {
-    "description": "Retorna matriz de presença de CDNs/provedores nos IXPs do IX.br e externos.",
+    "description": "Retorna matriz de presença de CDNs/provedores nos IXPs do IX.br e externos. Em cada CDN, `ixbr` são os PTTs do IX.br onde um ASN da CDN consta no cadastro de participantes (membro);\n`ixbr_rs` os que, além de membro, têm sessão com o route server; `ixbr_sem_rs` os de membro sem sessão observada (pode haver peering bilateral, que o route server não vê);\n`ixbr_origem` os PTTs onde a CDN não é membro mas prefixos dela aparecem nas rotas, por outro participante (inferido, não indica cache local); `ixbr_sem_coleta` os PTTs sem coleta válida do looking glass;\n`asns_sem_documento` os ASNs da lista curada sem documento no snapshot. Calculado na leitura, também para snapshots antigos.",
     "operationId": "get_cdn_presence_api_v1_cdns_presence_get",
     "parameters": [
      {
@@ -8463,7 +8513,7 @@
   },
   "/api/v1/facilities/{fac_id}": {
    "get": {
-    "description": "Instalação do PeeringDB: organização, localização, datas de criação e atualização, o indicador `cadastro` (inferido das datas), os PTTs onde o cadastro diz que ela está (`ixps`, com o código do Arandurapé quando o PTT é conhecido),\ncarriers, campus e as redes vinculadas (`redes`, só nas instalações do Brasil). Vínculo é declaração no cadastro: não indica tráfego nem contrato.",
+    "description": "Instalação do PeeringDB: organização, localização, datas de criação e atualização, o indicador `cadastro` (inferido das datas), os PTTs onde o cadastro diz que ela está (`ixps`, com o código do Arandurapé quando o PTT é conhecido),\ncarriers, campus e as redes vinculadas (`redes`, só nas instalações do Brasil). Vínculo é declaração no cadastro: não indica tráfego nem contrato.\n`?include=redes_perfil` acrescenta a cada rede do Brasil a situação em cada PTT do IX.br do prédio (`situacao`: sessão com o route server, no cadastro sem sessão, só origina [inferido] ou sem presença),\nusuários estimados do APNIC (`usuarios_apnic`) e IPv6, e o resumo por PTT em `redes_perfil`; PTTs externos vêm como \"sem dado de sessão\".",
     "operationId": "get_facility_api_v1_facilities__fac_id__get",
     "parameters": [
      {
@@ -8489,6 +8539,24 @@
         }
        ],
        "title": "Date"
+      }
+     },
+     {
+      "description": "`redes_perfil`: a situação de cada rede do Brasil em cada PTT do IX.br do prédio (sessão com o route server, no cadastro sem sessão, só origina, sem presença), com usuários APNIC e IPv6, e o resumo por PTT.",
+      "in": "query",
+      "name": "include",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "`redes_perfil`: a situação de cada rede do Brasil em cada PTT do IX.br do prédio (sessão com o route server, no cadastro sem sessão, só origina, sem presença), com usuários APNIC e IPv6, e o resumo por PTT.",
+       "title": "Include"
       }
      }
     ],
@@ -10425,7 +10493,7 @@
   },
   "/api/v1/ixps": {
    "get": {
-    "description": "Retorna a lista compacta de todos os IXPs do IX.br com métricas resumidas por AFI (v6/v4).\n\nCada entrada inclui contagens de ASNs, prefixos e percentuais de cobertura.\nQuando não há dados coletados para um AFI, o campo correspondente é `{\"status\": \"missing\"}`. Cada AFI traz `coleta` (`ok`, `vazia`:\na coleta funcionou e o looking glass respondeu com a tabela vazia, `missing`); `status` só é `ok` com rotas nas duas famílias.\n\nUse `?status=ok` para ver apenas IXPs com coleta completa (`?status=partial` lista os que têm uma família vazia ou ausente), ou `?uf=SP`\npara filtrar por estado.",
+    "description": "Retorna a lista compacta de todos os IXPs do IX.br com métricas resumidas por AFI (v6/v4).\n\nCada entrada inclui contagens de ASNs, prefixos e percentuais de cobertura.\nQuando não há dados coletados para um AFI, o campo correspondente é `{\"status\": \"missing\"}`. Cada AFI traz `coleta` (`ok`, `vazia`:\na coleta funcionou e o looking glass respondeu com a tabela vazia, `missing`); `status` só é `ok` com rotas nas duas famílias.\n\nCada entrada traz também `route_servers` (sessões up e down por família nos route servers com cache de vizinhos atual, `null` sem route server consultado) e `cdns_curados`\n(CDNs da lista curada com ASN no cadastro do PTT); `interligacao` diz a fonte e a data dessas duas colunas.\n\nUse `?status=ok` para ver apenas IXPs com coleta completa (`?status=partial` lista os que têm uma família vazia ou ausente), ou `?uf=SP`\npara filtrar por estado.",
     "operationId": "list_ixps_api_v1_ixps_get",
     "parameters": [
      {
@@ -11332,6 +11400,166 @@
      }
     },
     "summary": "ASes com prefixos próximos a um PTT, por status e gap de anúncio",
+    "tags": [
+     "ixps"
+    ]
+   }
+  },
+  "/api/v1/ixps/{code}/participantes": {
+   "get": {
+    "description": "Uma linha por ASN visto no cadastro do IX.br, no looking glass ou nos route servers do PTT, com as colunas que a página de PTT mostrava em blocos separados:\n`membro` (cadastro de participantes), `direto` (sessão com o route server vista no looking glass, por família; `null` quando a família não teve coleta válida),\n`originador` (prefixo visto no PTT, só para ASN brasileiro), `sessao_rs` (sessões up/down no route server, Alice-LG), `rejeicao` (rotas filtradas ÷ rotas recebidas nas sessões up, do mesmo instante),\n`rejeicao_detalhe` (rotas rejeitadas por motivo, de outra coleta, com `idade_dias` e `herdado`) e `cdns` (CDNs da lista curada que são membros do PTT).\nMembro sem sessão com o route server pode trocar tráfego por sessão bilateral, que estas fontes não observam; nenhuma coluna indica causa nem qualidade.\n\nFiltros: `q` (ASN ou parte do nome), `uf` (UF da sede), `filtro` e `ordem` (a ordem padrão é por ASN, neutra). Paginação por `page` e `limit` (prévia de 100 linhas; além disso, login).\n`contagens` traz o total de cada filtro para o PTT inteiro. Nenhum contato (PeeringDB, RDAP) entra aqui.",
+    "operationId": "ixp_participantes_tabela_api_v1_ixps__code__participantes_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "code",
+      "required": true,
+      "schema": {
+       "title": "Code",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Data do snapshot (YYYY-MM-DD).",
+      "in": "query",
+      "name": "date",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Data do snapshot (YYYY-MM-DD).",
+       "title": "Date"
+      }
+     },
+     {
+      "description": "ASN (com ou sem o prefixo AS) ou parte do nome.",
+      "in": "query",
+      "name": "q",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 80,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ASN (com ou sem o prefixo AS) ou parte do nome.",
+       "title": "Q"
+      }
+     },
+     {
+      "description": "UF da sede do ASN.",
+      "in": "query",
+      "name": "uf",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 2,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "UF da sede do ASN.",
+       "title": "Uf"
+      }
+     },
+     {
+      "description": "Um de: todos, sem-v6, sem-v4, sem-direto, membro-sem-sessao-rs, sessao-sem-cadastro, com-cdn, com-rejeicao.",
+      "in": "query",
+      "name": "filtro",
+      "required": false,
+      "schema": {
+       "default": "todos",
+       "description": "Um de: todos, sem-v6, sem-v4, sem-direto, membro-sem-sessao-rs, sessao-sem-cadastro, com-cdn, com-rejeicao.",
+       "title": "Filtro",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Um de: asn, nome, uf, sessoes_rs, rejeicao.",
+      "in": "query",
+      "name": "ordem",
+      "required": false,
+      "schema": {
+       "default": "asn",
+       "description": "Um de: asn, nome, uf, sessoes_rs, rejeicao.",
+       "title": "Ordem",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Ordem decrescente.",
+      "in": "query",
+      "name": "desc",
+      "required": false,
+      "schema": {
+       "default": false,
+       "description": "Ordem decrescente.",
+       "title": "Desc",
+       "type": "boolean"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Ixp Participantes Tabela Api V1 Ixps  Code  Participantes Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Tabela única de participantes de um PTT do IX.br",
     "tags": [
      "ixps"
     ]
@@ -16465,7 +16693,7 @@
   },
   "/api/v1/schema": {
    "get": {
-    "description": "Lista, por collection, os campos consultáveis, tipos e descrições, além dos operadores\ne funções de agregação suportados pela query DSL (`POST /query/{collection}`).\n\nUse `?collection=asns` para obter apenas uma collection. Collections disponíveis:\n`asns`, `ixps`, `external_ixps`, `cdns`, `prefixes`.",
+    "description": "Lista, por collection, os campos consultáveis, tipos e descrições, além dos operadores\ne funções de agregação suportados pela query DSL (`POST /query/{collection}`).\n\nUse `?collection=asns` para obter apenas uma collection. Cada collection traz `fontes` (id, licença e uso\ncomercial de cada uma), `selo` (`fato`, `inferido` ou `estimado`) e `uso_comercial_efetivo` (o pior caso entre as fontes).",
     "operationId": "get_schema_api_v1_schema_get",
     "parameters": [
      {

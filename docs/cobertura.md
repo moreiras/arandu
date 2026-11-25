@@ -4,7 +4,7 @@ Gerado por `python3 scripts/gen_cobertura.py` a partir do OpenAPI, do MCP, do fr
 Não edite à mão. Rota nova precisa de uma entrada em `serve/capabilities/_manuais.yaml` (ou de uma capacidade declarada); lacuna
 sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rotas que os substituem.
 
-- Rotas de dados (GET, não deprecated): **172**; com tool no MCP: **141**; consumidas pela interface: **140**.
+- Rotas de dados (GET, não deprecated): **173**; com tool no MCP: **141**; consumidas pela interface: **141**.
 - Pendências marcadas (`pendente:`): **0**; lacunas sem justificativa: **0**.
 - Tools do MCP geradas de capacidade declarada: **2** de 58.
 
@@ -116,6 +116,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /ixps/{code}/hilbert/v6` | `viz` | ✔ |  |
 | `GET /ixps/{code}/members` | `ixp_participantes` | ✔ |  |
 | `GET /ixps/{code}/nearby` | `ixp_proximos` | — | UI: a interface usa /ixps/{code}/potential; a rota atende o MCP e clientes externos |
+| `GET /ixps/{code}/participantes` | — | ✔ | MCP: tabela de apresentação da página de PTT que junta cadastro, sessão com o route server, rejeição e CDNs; o MCP tem ixp_participantes (membros e peers), ixp_rejeicoes e query(collection=rs_sessoes) com os mesmos dados por consulta |
 | `GET /ixps/{code}/peers` | `ixp_participantes` | ✔ |  |
 | `GET /ixps/{code}/portas` | `ixp_portas` | ✔ |  |
 | `GET /ixps/{code}/potential` | `ixp_potencial` | ✔ |  |
