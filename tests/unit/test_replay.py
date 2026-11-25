@@ -91,7 +91,6 @@ def test_diferencas_dos_pacotes_obint_sao_explicadas_e_o_resto_continua_nova(tmp
         ("qualidade/rqual.json.gz", {"prestadoras": [{"raizes": ["1"]}]}, {"prestadoras": [{"raizes": ["1", "2"], "base_casamento": "x"}]}),
         ("mercado_grupos.json.gz", {"ufs": {"SP": {"hhi_cnpj": 1}}}, {"ufs": {"SP": {"hhi_cnpj": 1, "avisos_cnpj": [], "n_cnpjs": 3}}}),
         ("seguranca/asns.json.gz", {"brasil": {"rov": {"x": 1}}}, {"brasil": {"rov": {"x": 1, "avisos": [], "peso_top1": 0.2}}}),
-        ("asns/1.json", {"asn": 1, "relacoes": {"provedores": []}}, {"asn": 1}),
         ("ipv4/mercado.json.gz", {"limites": "a"}, {"limites": "b"}),
     ]
     for rel, a, b in casos:
@@ -102,6 +101,7 @@ def test_diferencas_dos_pacotes_obint_sao_explicadas_e_o_resto_continua_nova(tmp
         ("summary.json", {"ixps_ok": 1, "n_asns": 5}, {"ixps_ok": 0, "n_asns": 6}),
         ("ixps/sp.json", {"asn_origin_union_count": 1, "asn_direct_union_count": 3}, {"asn_origin_union_count": 2, "asn_direct_union_count": 4}),
         ("asns/1.json", {"asn": 1, "nome": "a", "relacoes": {}}, {"asn": 1, "nome": "b"}),
+        ("asns/1.json", {"asn": 1, "relacoes": {"provedores": []}}, {"asn": 1}),  # `relacoes` ausente no replay já não é limitação: agora é recomposto
         ("seguranca/asns.json.gz", {"brasil": {"rov": {"pct": 1}}}, {"brasil": {"rov": {"pct": 2, "avisos": []}}}),
     ]:
         pa, pb = _w(tmp_path / "a2" / rel, a, gz=rel.endswith(".gz")), _w(tmp_path / "b2" / rel, b, gz=rel.endswith(".gz"))
@@ -109,3 +109,84 @@ def test_diferencas_dos_pacotes_obint_sao_explicadas_e_o_resto_continua_nova(tmp
     pa = _w(tmp_path / "a3/omissao_sici.json.gz", {}, gz=True)
     assert replay.compare_file("omissao_sici.json.gz", pa, None, exp)["classe"] == "explicada"
     assert replay.compare_file("outro.json.gz", pa, None, exp)["classe"] == "nova"
+
+
+# ── recomposição do fragmento `relacoes` ───────────────────────────────────
+
+DATA = "2026-11-22"
+REL = {64500: {"provedores": [{"asn": 174, "nivel": "confirmado", "afi": ["v6", "v4"]}], "visibilidade": 0.9},
+       64501: {"provedores": [], "clientes": [64502]}}
+
+
+def _frag(base):
+    from core import compose
+
+    return compose.caminho(base, DATA, "relacoes")
+
+
+def _publicado(src, como="dir"):
+    import zipfile
+
+    docs = {"index.json": [{"asn": 64500}, {"asn": 64501}, {"asn": 64502}],
+            "64502.json": {"asn": 64502, "name": "sem relações"},
+            "64501.json": {"asn": 64501, "relacoes": REL[64501]},
+            "64500.json": {"asn": 64500, "name": "x", "relacoes": REL[64500]}}
+    pub = src / "published" / DATA
+    pub.mkdir(parents=True)
+    if como == "dir":
+        for nome, d in docs.items():
+            _w(pub / "asns" / nome, d)
+    else:
+        with zipfile.ZipFile(pub / "asns.zip", "w") as z:
+            for nome, d in docs.items():
+                z.writestr(nome, json.dumps(d))
+
+
+def test_relacoes_copia_o_fragmento_do_build_original(tmp_path):
+    from core import compose
+
+    src, work = tmp_path / "data", tmp_path / "work"
+    with compose.gravar_fragmento(src, DATA, "relacoes") as w:
+        w.escrever(64500, {"relacoes": {"x": 1}})
+    _publicado(src)
+    assert replay.restaurar_relacoes(src, work, DATA) == "copiado"
+    assert _frag(work).read_bytes() == _frag(src).read_bytes()
+    assert replay.restaurar_relacoes(src, work, DATA) == "presente"
+
+
+def test_relacoes_recompoe_dos_documentos_publicados(tmp_path):
+    from core import compose
+
+    for como in ("dir", "zip"):
+        src, work = tmp_path / como / "data", tmp_path / como / "work"
+        _publicado(src, como)
+        antes = {p: p.stat().st_mtime_ns for p in (src / "published").rglob("*") if p.is_file()}
+        assert replay.restaurar_relacoes(src, work, DATA) == "recomposto"
+        linhas = list(compose.ler_fragmento(_frag(work)))
+        assert linhas == [(64500, {"relacoes": REL[64500]}), (64501, {"relacoes": REL[64501]})]   # ASN crescente, sem o doc sem `relacoes`
+        with gzip.open(_frag(work), "rt", encoding="utf-8") as f:
+            assert json.loads(f.readline()) == {"asn": 64500, "d": {"relacoes": REL[64500]}}
+        assert not _frag(src).exists()                                                           # o data/ de origem não é tocado
+        assert antes == {p: p.stat().st_mtime_ns for p in (src / "published").rglob("*") if p.is_file()}
+
+
+def test_relacoes_refeitas_depois_que_o_base_apaga_os_derivados(tmp_path):
+    from core import compose
+
+    src, work = tmp_path / "data", tmp_path / "work"
+    _publicado(src)
+    replay.restaurar_relacoes(src, work, DATA)
+    with compose.gravar_fragmento(work, DATA, "base") as w:      # metricas_ixp_asn regrava o base
+        w.escrever(64500, {"asn": 64500})
+    assert not _frag(work).exists()
+    assert replay.restaurar_relacoes(src, work, DATA) == "recomposto"
+    docs = dict(compose.iterar_documentos(work, DATA, ("base", "relacoes")))
+    assert docs[64500] == {"asn": 64500, "relacoes": REL[64500]}
+
+
+def test_relacoes_publicado_sem_o_campo_nao_deixa_fragmento(tmp_path):
+    src, work = tmp_path / "data", tmp_path / "work"
+    pub = src / "published" / DATA
+    _w(pub / "asns" / "1.json", {"asn": 1})
+    assert replay.restaurar_relacoes(src, work, DATA) is None
+    assert not _frag(work).exists()

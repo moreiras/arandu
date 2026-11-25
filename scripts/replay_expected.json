@@ -137,14 +137,8 @@
   {
    "arquivo": "asns/*.json",
    "tipo": "conteudo",
-   "caminhos_regex": "^/relacoes$",
-   "motivo": "Limitação do replay, sem pacote: o estágio `as_relationships` não é reexecutado e o fragmento `relacoes` dos documentos de ASN não vai ao diretório de trabalho (`build/{data}/fragments/asn/relacoes.jsonl.gz` não é copiado; `NOT_REPLAYED` só copia `as_relationships.json.gz`, e nada o recompõe em `asns/{asn}.json`). O documento publicado em 2026-11-22 traz `relacoes` (ARC v2, com `n_provedores_provavel` só nos documentos gerados depois de PT-04 / ASN-E4); o replay sai sem o campo."
-  },
-  {
-   "arquivo": "asns/*.json",
-   "tipo": "conteudo",
-   "caminhos_regex": "^/(relacoes|alerts( \\(len \\d+ ≠ \\d+\\))?|alerts/\\d+/(id|category|title|severity|detail|desde_versao)|alerts/\\d+/refs/(nivel|visibilidade|provedor_v[46]|upstream_v[46]|prefixes( \\(len \\d+ ≠ \\d+\\))?|prefixes/\\d+|items|ixps( \\(len \\d+ ≠ \\d+\\))?|ixps/\\d+|ixps/\\d+/dist_km|coletado_em|current|aggregated|savings_pct|global_count|rir_count|declared|observed|avg_excess|afi|routes_with_prepend))$",
-   "motivo": "Só `alerts` (e `relacoes`) muda, por três causas que o caminho não separa (a lista de alertas desloca os índices). (1) Alerta `single_homed`: sem `relacoes` no replay (limitação do replay, sem pacote; ver a entrada anterior) a regra cai no texto e nos campos antigos (`upstream_v4/v6`, \"O AS aparenta depender de um único upstream\") no lugar dos novos (`provedor_v4/v6`, `nivel`, `visibilidade`). (2) Alerta `ptt_proximo_sem_participar` (PT-17 / ASN-E6, regra versão 2: só AS com prefixo na tabela global e CNPJ não baixado, texto só com o fato, sem recomendação de negócio; e PT-06 / MAPA-E1: coordenadas de 33 PIX e CEP de Lajeado, que mudam `dist_km` e fazem cxj, igu e laj voltarem às distâncias). (3) Alertas `agregacao_elevada_v4/v6` e `prefixos_filtraveis`: derivam da análise de roteamento, cuja rota brasileira passa a ser só o prefixo em bloco do Registro.br (PT-06 / BGP-E3, D4; PT-04 / BGP-E4, BGP-E8)."
+   "caminhos_regex": "^/(alerts( \\(len \\d+ ≠ \\d+\\))?|alerts/\\d+/(id|category|title|severity|detail|desde_versao)|alerts/\\d+/refs/(prefixes( \\(len \\d+ ≠ \\d+\\))?|prefixes/\\d+|items|ixps( \\(len \\d+ ≠ \\d+\\))?|ixps/\\d+|ixps/\\d+/dist_km|coletado_em|current|aggregated|savings_pct|global_count|rir_count|declared|observed|avg_excess|afi|routes_with_prepend))$",
+   "motivo": "Só `alerts` muda, por duas causas que o caminho não separa (a lista de alertas desloca os índices). (1) Alerta `ptt_proximo_sem_participar` (PT-17 / ASN-E6, regra versão 2: só AS com prefixo na tabela global e CNPJ não baixado, texto só com o fato, sem recomendação de negócio; e PT-06 / MAPA-E1: coordenadas de 33 PIX e CEP de Lajeado, que mudam `dist_km` e fazem cxj, igu e laj voltarem às distâncias). (2) Alertas `agregacao_elevada_v4/v6` e `prefixos_filtraveis`: derivam da análise de roteamento, cuja rota brasileira passa a ser só o prefixo em bloco do Registro.br (PT-06 / BGP-E3, D4; PT-04 / BGP-E4, BGP-E8)."
   },
   {
    "arquivo": "consumidor/consumidor.json.gz",
@@ -287,14 +281,8 @@
   {
    "arquivo": "territorio/rede_territorio.json.gz",
    "tipo": "conteudo",
-   "caminhos_regex": "^/(rov/(brasil|ufs/[^/]+)/(n_asns_com_dado|peso_top1|avisos)|transito/(ufs/[^/]+|municipios/\\d+)/(acessos_com_relacao|acessos_provedor_unico|cobertura|pct_provedor_unico|provedor_principal))$",
-   "motivo": "`rov/*`: PT-17 / D6 (SEG-E5, SEG-E11): os agregados mostram o número de casos (`n_asns_com_dado`), o peso do maior (`peso_top1`) e `avisos`, em vez de suprimir o recorte. `transito/*`: Limitação do replay, sem pacote: o estágio `as_relationships` não é reexecutado e o fragmento `relacoes` dos documentos de ASN não vai ao diretório de trabalho (`build/{data}/fragments/asn/relacoes.jsonl.gz` não é copiado; `NOT_REPLAYED` só copia `as_relationships.json.gz`, e nada o recompõe em `asns/{asn}.json`). O trânsito por UF e município sai de `territorio/regiao.json.gz`, que lê `relacoes.provedores` dos documentos de ASN."
-  },
-  {
-   "arquivo": "territorio/regiao.json.gz",
-   "tipo": "conteudo",
-   "caminhos_regex": "^/asns/\\d+(/p( \\(len \\d+ ≠ \\d+\\))?)?$",
-   "motivo": "Limitação do replay, sem pacote: o estágio `as_relationships` não é reexecutado e o fragmento `relacoes` dos documentos de ASN não vai ao diretório de trabalho (`build/{data}/fragments/asn/relacoes.jsonl.gz` não é copiado; `NOT_REPLAYED` só copia `as_relationships.json.gz`, e nada o recompõe em `asns/{asn}.json`). `asns/*/p` (provedores de trânsito por ASN) vem de `relacoes.provedores`."
+   "caminhos_regex": "^/rov/(brasil|ufs/[^/]+)/(n_asns_com_dado|peso_top1|avisos)$",
+   "motivo": "`rov/*`: PT-17 / D6 (SEG-E5, SEG-E11): os agregados mostram o número de casos (`n_asns_com_dado`), o peso do maior (`peso_top1`) e `avisos`, em vez de suprimir o recorte."
   },
   {
    "arquivo": "mercado_grupos.json.gz",

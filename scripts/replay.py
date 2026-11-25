@@ -52,7 +52,8 @@ VOLATILE = {"generated_at", "published_at", "pipeline_version", "checksums", "so
 # Artefatos que o replay não reconstrói (rede ou serviço externo): o RPKI vem do Routinator (avulso). A análise de
 # roteamento e as de estabilidade BGP SÃO reexecutadas (estágio `bgp`): leem só `normalized/` e o publicado.
 # `as_relationships.json.gz` também: o ARC lê os caminhos dos coletores (`aspaths`, fora do armazém e do work dir) e demora
-# ~15 min; o publicado entra como entrada e o fragmento `asn.relacoes` dos documentos de ASN é recomposto a partir dele.
+# ~15 min; o publicado entra como entrada e o fragmento `asn.relacoes` dos documentos de ASN é recomposto por `restaurar_relacoes`
+# (copia `build/{data}/fragments/asn/relacoes.jsonl.gz` do `data/` ou, sem ele, o refaz a partir de `asns/*.json` do publicado).
 NOT_REPLAYED = ("rpki/*", "as_relationships.json.gz")
 
 CACHE_DIRS = ("geo_cache", "holdings_cache", "sici_cache", "sici_movel_cache")
@@ -234,6 +235,53 @@ def prepare_work_dir(src: Path, work: Path, date: str) -> None:
                 shutil.copy2(p, dst)
 
 
+def _numeros_de_asn(pub: Path) -> list[int]:
+    """ASNs com documento em `published/{data}/asns/` (diretório ou `asns.zip`), sem o `index.json`."""
+    nomes: list[str] = []
+    zpath = pub / "asns.zip"
+    if (pub / "asns").is_dir():
+        nomes = [p.name for p in (pub / "asns").iterdir()]
+    elif zpath.is_file():
+        import zipfile
+
+        with zipfile.ZipFile(zpath) as z:
+            nomes = [n for n in z.namelist() if "/" not in n]
+    return sorted(int(n[:-5]) for n in nomes if n.endswith(".json") and n[:-5].isdigit())
+
+
+def restaurar_relacoes(src: Path, work: Path, date: str) -> str | None:
+    """Põe em `work/build/{data}/fragments/asn/relacoes.jsonl.gz` o fragmento `relacoes` (ARC) dos documentos de ASN.
+
+    O estágio `as_relationships` não é reexecutado, mas `documentos de ASN`, alertas `single_homed` e o trânsito do território leem o
+    fragmento. Origem, em ordem: (1) o fragmento do `data/` (`build/{data}/fragments/asn/`), copiado; (2) sem ele, refeito a partir do campo
+    `relacoes` dos `asns/{asn}.json` publicados (diretório ou `asns.zip`), no formato do estágio (`{"asn": N, "d": {"relacoes": ...}}`, ASN
+    crescente). Só lê `src`. Gravar o fragmento `base` apaga os derivados (`core.compose.limpar_derivados`): chame antes de cada estágio.
+    Devolve "copiado", "recomposto", "presente" (já no work dir) ou None (publicado sem `relacoes`)."""
+    from core import compose, layout
+
+    destino = compose.caminho(work, date, "relacoes")
+    if destino.exists():
+        return "presente"
+    origem = compose.caminho(src, date, "relacoes")
+    if origem.is_file():
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(origem, destino)
+        return "copiado"
+    pub = src / "published" / date
+    docs = 0
+    with compose.gravar_fragmento(work, date, "relacoes") as w:
+        for asn in _numeros_de_asn(pub):
+            raw = layout.ler_bytes(pub, f"asns/{asn}.json")
+            rel = json.loads(raw).get("relacoes") if raw else None
+            if rel is not None:
+                w.escrever(asn, {"relacoes": rel})
+                docs += 1
+    if not docs:
+        destino.unlink(missing_ok=True)
+        return None
+    return "recomposto"
+
+
 def _restrict_config(codes: set[str]):
     """Restringe a configuração de PTTs aos IXPs do snapshot original (`ixps_configured` do
     manifesto). O replay usa o `config/` atual; sem isso, um PTT adicionado depois da data
@@ -281,7 +329,7 @@ def _restrict_config(codes: set[str]):
 
 
 def run_stages(work: Path, date: str, stages: tuple[str, ...], log=None, ixp_codes: set[str] | None = None,
-               original: Path | None = None) -> dict:
+               original: Path | None = None, data_dir: Path | None = None) -> dict:
     """Executa os estágios sobre `work` (cada um é o mesmo código do pipeline). Aceita os nomes antigos (`ALIASES_STAGES`)."""
     from contextlib import nullcontext
 
@@ -289,11 +337,19 @@ def run_stages(work: Path, date: str, stages: tuple[str, ...], log=None, ixp_cod
 
     log = log or configure_logging()
     with (_restrict_config(ixp_codes) if ixp_codes else nullcontext()):
-        return _run_stages(work, date, tuple(ALIASES_STAGES.get(s, s) for s in stages), log, original)
+        return _run_stages(work, date, tuple(ALIASES_STAGES.get(s, s) for s in stages), log, original, data_dir)
 
 
-def _run_stages(work: Path, date: str, stages: tuple[str, ...], log, original: Path | None = None) -> dict:
+def _run_stages(work: Path, date: str, stages: tuple[str, ...], log, original: Path | None = None,
+                data_dir: Path | None = None) -> dict:
     timings: dict[str, float] = {}
+    if data_dir is None and original is not None:
+        data_dir = original.parent.parent
+
+    def relacoes() -> None:      # o `base` regravado por metricas_ixp_asn apaga o fragmento: restaura antes de cada estágio que o lê
+        if data_dir is not None:
+            restaurar_relacoes(data_dir, work, date)
+
     if "bgp_ixp" in stages:
         t = time.time()
         from products.bgp_routes import build as bgp_parser
@@ -309,12 +365,14 @@ def _run_stages(work: Path, date: str, stages: tuple[str, ...], log, original: P
         metrics.run(date, work, log=log)
         timings["metricas_ixp_asn"] = round(time.time() - t, 1)
     if "snapshot_completo" in stages:
+        relacoes()
         t = time.time()
         from publish import snapshot_builder
 
         snapshot_builder.run(date, work, log)
         timings["snapshot_completo"] = round(time.time() - t, 1)
     if "analise_bgp" in stages:
+        relacoes()
         from products.bgp_stability import build as bgp_stability
         from products.bgp_stability import deep as bgp_stability_deep
         from products.routing_analysis import build as routing_analysis
@@ -327,6 +385,7 @@ def _run_stages(work: Path, date: str, stages: tuple[str, ...], log, original: P
             modulo.run(date, work, log)
         timings["analise_bgp"] = round(time.time() - t, 1)
     if "saude_asn" in stages:
+        relacoes()
         from publish import snapshot_builder
 
         t = time.time()
@@ -373,7 +432,7 @@ def replay(date: str, data_dir: Path, stages: tuple[str, ...] = STAGES_ALL, work
                 codes = set(json.loads((orig / "manifest.json").read_text(encoding="utf-8")).get("ixps_configured") or [])
             except (OSError, ValueError):
                 codes = None
-        timings = run_stages(work, date, stages, ixp_codes=codes or None, original=orig)
+        timings = run_stages(work, date, stages, ixp_codes=codes or None, original=orig, data_dir=data_dir)
         report = compare_trees(orig, work / "published" / date, expected)
         report.update({"date": date, "stages": list(stages), "tempos_s": timings,
                        "duracao_s": round(time.time() - t0, 1), "work_dir": str(work) if keep or not own else None})
