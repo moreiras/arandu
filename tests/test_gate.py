@@ -257,7 +257,38 @@ def test_orcamento_esgotado_e_429_com_retry_after_ate_a_meia_noite_utc(app_clien
     corpo = r.json()
     assert corpo["anon_limit_reached"] is True and corpo["janela"] == "dia" and corpo["retry_after"] == espera
     assert "meia-noite UTC" in corpo["detail"] and "IPv6 /64" in corpo["detail"]
-    assert any("conta" in a for a in corpo["alternativas"]) and any("MCP" in a for a in corpo["alternativas"])
+    assert any("conta" in a for a in corpo["alternativas"])
+    assert not any("MCP" in a for a in corpo["alternativas"])           # chave de MCP desligada (padrão): não é sugerida
+
+
+def test_429_so_sugere_a_chave_de_mcp_com_a_chave_ligada(app_client, monkeypatch):
+    """A sugestão segue a regra de `/api/v1/limites` (`MCP_KEY_ATIVA` e `MCP_KEY_PEPPER`), na API e no processo do gate (`/auth/limite`)."""
+    from api.auth import chaves_mcp
+    from api.auth.access import ALTERNATIVA_CHAVE_MCP
+
+    monkeypatch.setenv("ACCESS_POLICY_MODE", "enforce")
+    c, app, tmp = app_client
+    sid = _exhaust(app, tmp)
+    from starlette.testclient import TestClient
+
+    from api.gate_app import app as gate_app
+
+    def corpos():
+        r = c.get("/api/v1/map/asns", headers={"X-Real-IP": "8.8.8.8"}, cookies={"anon_sid": sid})
+        with TestClient(gate_app) as g:
+            return r.status_code, r.json()["alternativas"], g.get("/auth/limite").json()["alternativas"]
+
+    monkeypatch.setenv("MCP_KEY_ATIVA", "1")
+    monkeypatch.setenv("MCP_KEY_PEPPER", "p" * 32)
+    assert chaves_mcp.ativa()
+    status, api_alt, gate_alt = corpos()
+    assert status == 429 and ALTERNATIVA_CHAVE_MCP in api_alt and api_alt == gate_alt
+    monkeypatch.setenv("MCP_KEY_ATIVA", "0")
+    status, api_alt, gate_alt = corpos()
+    assert status == 429 and ALTERNATIVA_CHAVE_MCP not in api_alt and api_alt == gate_alt and len(api_alt) == 1
+    monkeypatch.setenv("MCP_KEY_ATIVA", "1")                              # ligada sem o pepper: a chave fica desligada, como em /limites
+    monkeypatch.setenv("MCP_KEY_PEPPER", "curto")
+    assert corpos()[1] == corpos()[2] and ALTERNATIVA_CHAVE_MCP not in corpos()[1]
 
 
 def test_retry_after_no_fim_do_dia_e_de_pelo_menos_um_segundo():
