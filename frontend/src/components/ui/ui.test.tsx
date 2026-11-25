@@ -7,6 +7,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Bloco, enquadramento, FichaEntidade, Kpi, MapaMoldura, ProvenienciaCompacta, TabelaPaginada } from '.'
+import { ROTULO_SELO } from '../entidade/proveniencia'
 
 const prov = { fontes: ['bgp_ixbr'], selo: 'fato' as const }
 const fontes = [{ id: 'bgp_ixbr', as_of: '2026-11-01', coletado_em: '2026-11-02', frescor: 'ok' }] as never
@@ -18,6 +19,35 @@ describe('Kpi', () => {
     expect(screen.getByText('+3')).toHaveClass('text-ok-700')
     rerender(<Kpi rotulo="ASes" valor={null} />)
     expect(screen.getByText('—')).toBeInTheDocument()
+  })
+  it('mostra selo, fonte e data de referência em linha visível, em texto (não só no title)', () => {
+    render(<Kpi rotulo="Validação de DNSSEC" valor="62,1%" selo="estimado" fonte="APNIC Labs" dataRef="2026-11-15" />)
+    const linha = document.querySelector('[data-kpi-proveniencia]') as HTMLElement
+    expect(linha).toHaveTextContent('Estimado · APNIC Labs · ref. 2026-11-15')
+    expect(linha).toHaveAttribute('data-kpi-selo', 'estimado')
+    expect(linha).not.toHaveAttribute('title')
+    expect(linha.className).not.toContain('hidden')
+  })
+  it('é legível por leitor de tela: a linha entra na árvore de acessibilidade, sem aria-hidden e com prefixo sr-only', () => {
+    render(<Kpi rotulo="ASNs com ROA" valor="43,1%" selo="fato" fonte="RPKI (Routinator)" dataRef="2026-11-22" />)
+    const linha = document.querySelector('[data-kpi-proveniencia]') as HTMLElement
+    expect(linha.closest('[aria-hidden="true"]')).toBeNull()
+    expect(linha.querySelector('.sr-only')).toHaveTextContent('Natureza, fonte e data de referência')
+    expect(screen.getByText('Fato · RPKI (Routinator) · ref. 2026-11-22')).toBeInTheDocument()
+  })
+  it('os três selos aparecem pelo rótulo de proveniencia.ts; mês (SICI) e carimbo ISO saem sem horário', () => {
+    const { rerender } = render(<Kpi rotulo="a" valor="1" selo="fato" fonte="SICI, Anatel" dataRef="2026-09" />)
+    expect(screen.getByText(`${ROTULO_SELO.fato} · SICI, Anatel · ref. 2026-09`)).toBeInTheDocument()
+    rerender(<Kpi rotulo="a" valor="1" selo="inferido" fonte="x" dataRef="2026-11-22T10:00:00Z" />)
+    expect(screen.getByText(`${ROTULO_SELO.inferido} · x · ref. 2026-11-22`)).toBeInTheDocument()
+    rerender(<Kpi rotulo="a" valor="1" selo="estimado" />)
+    expect(screen.getByText(ROTULO_SELO.estimado)).toBeInTheDocument()
+  })
+  it('sem selo, fonte nem data não há linha; o title do valor continua como redundância', () => {
+    const { rerender } = render(<Kpi rotulo="a" valor="1" />)
+    expect(document.querySelector('[data-kpi-proveniencia]')).toBeNull()
+    rerender(<Kpi rotulo="a" valor="1" selo="fato" fonte="x" dataRef="2026-11-01" />)
+    expect(screen.getByText('1')).toHaveAttribute('title', 'Fonte: x · ref. 01/11/2026')
   })
 })
 
