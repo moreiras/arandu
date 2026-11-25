@@ -227,7 +227,8 @@ parênteses remetem à análise.
 - **Pós-implantação.** `scripts/post_deploy_check.py` confere `/ases`, rota real do SPA, em vez de `/asns`.
 - **Rótulos de relação com o PTT.** No frontend, "peering direto", "peer direto" e "par direto" em legendas, mapa, tabelas, histórico e
   textos passam a dizer "sessão com o route server" (dado `asn_direct` do looking glass), distinto de "membro do cadastro"; rótulos em
-  `RELACAO_PTT` (`lib/universos.ts`) e termo antigo vetado nos testes. A API e o MCP ainda dizem "par direto" em algumas descrições.
+  `RELACAO_PTT` (`lib/universos.ts`) e termo antigo vetado nos testes. As descrições da API e do MCP (`asn_interconexao`, `asn_rede`,
+  histórico, catálogo da consulta, glossário "direto vs. originador") também passam a dizer "sessão com o route server"; só texto.
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
