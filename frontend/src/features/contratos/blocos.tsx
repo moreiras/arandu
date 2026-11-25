@@ -10,6 +10,7 @@ import type { MunicipioCtx } from '../municipio/contexto'
 import type { ContratosCabecalho } from '../../types/api'
 import { useOrdenacao } from '../../lib/ordenacao'
 import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
+import { palavra } from '../../lib/sintese'
 
 const reais = (v?: number | null) => (v == null ? '—' : `R$ ${v.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`)
 const n = (v?: number | null) => (v == null ? '—' : v.toLocaleString('pt-BR'))
@@ -53,9 +54,9 @@ export function ContratosOperadoraBloco({ dados }: BlocoProps<OperadoraCtx>) {
       ) : (
         <>
           <p data-testid="contratos-resumo">
-            Resultado(s) de item publicado(s) no PNCP para o CNPJ de matriz, lido(s) em {dataBr(c.lida_em)}{idade}: <span className="tabular-nums">{n(c.itens)}</span> item(ns) em <span className="tabular-nums">{n(c.contratacoes)}</span>{' '}
-            contratação(ões) de <span className="tabular-nums">{n(c.orgaos)}</span> órgão(s), entre {dataBr(c.primeiro_resultado)} e {dataBr(c.ultimo_resultado)}, somando <span className="tabular-nums">{reais(c.valor_homologado)}</span>{' '}
-            homologados (valor nominal; {n(c.itens_cancelados)} item(ns) cancelado(s) fora da soma).
+            {palavra(c.itens, 'Resultado de item publicado', 'Resultados de itens publicados')} no PNCP para o CNPJ de matriz, {palavra(c.itens, 'lido', 'lidos')} em {dataBr(c.lida_em)}{idade}: <span className="tabular-nums">{n(c.itens)}</span> {palavra(c.itens, 'item', 'itens')} em <span className="tabular-nums">{n(c.contratacoes)}</span>{' '}
+            {palavra(c.contratacoes, 'contratação', 'contratações')} de <span className="tabular-nums">{n(c.orgaos)}</span> {palavra(c.orgaos, 'órgão', 'órgãos')}, entre {dataBr(c.primeiro_resultado)} e {dataBr(c.ultimo_resultado)}, somando <span className="tabular-nums">{reais(c.valor_homologado)}</span>{' '}
+            homologados (valor nominal; {n(c.itens_cancelados)} {palavra(c.itens_cancelados, 'item cancelado fica', 'itens cancelados ficam')} fora da soma).
             {c.incompleto ? ' A leitura foi cortada pelo limite de páginas: o total pode ser maior.' : ''}
           </p>
           <div className="grid gap-4 sm:grid-cols-3">
@@ -101,7 +102,7 @@ export function ContratosMunicipioBloco({ dados }: BlocoProps<MunicipioCtx>) {
     <div className="space-y-3 text-sm" data-testid="contratos-municipio">
       <p className="rounded border border-aviso-200 bg-aviso-50 p-2 text-xs text-aviso-900" data-testid="contratos-aviso">{c.criterio_municipio.charAt(0).toUpperCase() + c.criterio_municipio.slice(1)}. A ordem é por valor registrado numa leitura parcial: não é ranking de mercado nem prova de que a operadora atende o município. {c.aviso}</p>
       <p data-testid="contratos-municipio-resumo">
-        Órgãos sediados em {c.municipio ?? c.ibge}{c.uf ? `/${c.uf}` : ''}: <span className="tabular-nums">{n(c.itens)}</span> item(ns) em <span className="tabular-nums">{n(c.contratacoes)}</span> contratação(ões), somando <span className="tabular-nums">{reais(c.valor)}</span> homologados.
+        Órgãos sediados em {c.municipio ?? c.ibge}{c.uf ? `/${c.uf}` : ''}: <span className="tabular-nums">{n(c.itens)}</span> {palavra(c.itens, 'item', 'itens')} em <span className="tabular-nums">{n(c.contratacoes)}</span> {palavra(c.contratacoes, 'contratação', 'contratações')}, somando <span className="tabular-nums">{reais(c.valor)}</span> homologados.
       </p>
       <table className="w-full text-xs" data-testid="contratos-fornecedores">
         <thead><tr className="text-left text-gray-500"><th className="py-1 pr-3">Operadora (CNPJ de matriz)</th><th className="pr-3 text-right">Contratações</th><th className="pr-3 text-right">Itens</th><th className="text-right">Valor</th></tr></thead>

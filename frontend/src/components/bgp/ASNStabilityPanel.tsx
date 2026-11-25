@@ -2,6 +2,7 @@ import type { AsStability, EppdStats } from '../../types/bgpStability'
 import { ClassificationBadge }    from './ClassificationBadge'
 import { NoiseCategoryBadge }     from './NoiseCategoryBadge'
 import { HourlyActivityChart, type WeekSeries } from './HourlyActivityChart'
+import { palavra } from '../../lib/sintese'
 
 function fmtDuration(sec: number): string {
   if (sec <= 0) return '—'
@@ -118,7 +119,7 @@ export function ASNStabilityPanel({ stability, eppdStats, timestamps, weeks }: P
         <MetricCard
           label="Ciclos de flap"
           value={p.max_flap_cycles > 0 ? `${p.max_flap_cycles} máx.` : '0'}
-          sub={p.flapping_prefixes > 0 ? `${p.flapping_prefixes} prefixo(s) instáveis` : undefined}
+          sub={p.flapping_prefixes > 0 ? `${p.flapping_prefixes} ${palavra(p.flapping_prefixes, 'prefixo instável', 'prefixos instáveis')}` : undefined}
         />
         <MetricCard
           label="Tempo médio anunciado"

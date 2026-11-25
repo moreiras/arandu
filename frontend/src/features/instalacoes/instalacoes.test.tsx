@@ -69,7 +69,7 @@ describe('bloco Instalações e peering do ASN', () => {
 
   it('mostra instalações com vínculo e selo inferido, atributos autodeclarados, URLs só como link se http(s) e as portas com a ressalva de capacidade', () => {
     render(<MemoryRouter><InstalacoesAsnBloco {...({ dados: { facilities: fac, peering } } as any)} /></MemoryRouter>)
-    expect(screen.getByText(/2 instalação\(ões\) do Brasil/)).toBeTruthy()
+    expect(screen.getByText(/2 instalações do Brasil/)).toBeTruthy()
     expect(screen.getByText('Datacenter Exemplo SP-1').getAttribute('href')).toBe('/instalacao/9101')
     expect(screen.getAllByTestId('selo-cadastro')).toHaveLength(3)                                            // 2 instalações + o registro da rede
     expect(screen.getByText('https://lg.example.org/').getAttribute('href')).toBe('https://lg.example.org/')

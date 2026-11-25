@@ -108,7 +108,7 @@ describe('RelacoesBloco', () => {
   it('cone de clientes com ressalva de inferência, e a ausência de cliente não vira afirmação', () => {
     const t: TransitoAsn = { snapshot_date: '2026-11-05', limites: 'Inferência sobre inferência.', asn: 64510, com_cliente: true, clientes_diretos: 3, cone_asns: 12, cone_br: 10, cone_usuarios: 5000, cone_ufs: { ES: 6, SP: 4 }, irmaos_excluidos: 0, posicao_cone_br: 7 }
     const { unmount } = ver({ ...rel, algoritmo: 'ARC v2' }, t)
-    expect(screen.getByTestId('cone-transito').textContent).toContain('cone de 12 ASN(s), 10 do Brasil')
+    expect(screen.getByTestId('cone-transito').textContent).toContain('cone de 12 ASNs, 10 do Brasil')
     expect(screen.getByTestId('cone-transito').textContent).toContain('ES 6 · SP 4')
     expect(screen.getByTestId('cone-transito').textContent).toContain('Inferência sobre relações inferidas')
     unmount()

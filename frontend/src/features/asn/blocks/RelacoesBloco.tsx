@@ -15,6 +15,7 @@ import { Dica } from '../../../components/ui/Dica'
 import { nomesFamilias } from '../../../lib/familias'
 import { useOrdenacao } from '../../../lib/ordenacao'
 import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { palavra } from '../../../lib/sintese'
 
 const NIVEIS: Record<NivelRelacao, { rotulo: string; classe: string; dica: string }> = {
   declarado: { rotulo: 'declarado', classe: 'bg-mercado-100 text-mercado-800', dica: 'O próprio AS declarou o provedor em um objeto ASPA (RPKI)' },
@@ -89,8 +90,8 @@ function Cone({ t }: { t: TransitoAsn }) {
       {t.com_cliente ? (
         <>
           <p>
-            <span className="tabular-nums font-medium">{t.clientes_diretos.toLocaleString('pt-BR')}</span> cliente(s) direto(s) · cone de{' '}
-            <span className="tabular-nums font-medium">{t.cone_asns.toLocaleString('pt-BR')}</span> ASN(s), <span className="tabular-nums">{t.cone_br.toLocaleString('pt-BR')}</span> do Brasil
+            <span className="tabular-nums font-medium">{t.clientes_diretos.toLocaleString('pt-BR')}</span> {palavra(t.clientes_diretos, 'cliente direto', 'clientes diretos')} · cone de{' '}
+            <span className="tabular-nums font-medium">{t.cone_asns.toLocaleString('pt-BR')}</span> {palavra(t.cone_asns, 'ASN', 'ASNs')}, <span className="tabular-nums">{t.cone_br.toLocaleString('pt-BR')}</span> do Brasil
             {t.posicao_cone_br ? <span className="text-gray-500"> (posição {t.posicao_cone_br.toLocaleString('pt-BR')} no Brasil)</span> : null}
           </p>
           {ufs.length > 0 && <p className="text-xs text-gray-500">UFs (sede) no cone: {ufs.slice(0, 8).map(([u, n]) => `${u} ${n}`).join(' · ')}{ufs.length > 8 ? ` e mais ${ufs.length - 8}` : ''}</p>}
