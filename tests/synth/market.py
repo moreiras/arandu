@@ -145,7 +145,7 @@ def _socio(ident, nome, doc, qual="49"):
 
 def receita_socios(world: World) -> dict:
     """Quadro societário sintético. Cenário 4: quadro idêntico (64506/64507), holding comum externa (64508/64509),
-    controle exclusivo (64511 → 65536)."""
+    controle exclusivo (64511 → 65536). Cenário 11: diretor e presidente em comum sem participação (não ligam)."""
     by_basico: dict[str, list[dict]] = {}
     by_asn = {a.asn: a for a in world.ases.values() if a.is_br}
 
@@ -161,6 +161,9 @@ def receita_socios(world: World) -> dict:
     by_basico[basico(64508)] = [_socio("1", "HOLDING EXEMPLO PARTICIPACOES SA", holding), _socio("2", "Carla Exemplo Lima", "***333333**")]
     by_basico[basico(64509)] = [_socio("1", "HOLDING EXEMPLO PARTICIPACOES SA", holding), _socio("2", "Diego Exemplo Rocha", "***444444**")]
     by_basico[basico(65536)] = [_socio("1", by_asn[64511].name, basico(64511))]     # 64511 controla 65536 com exclusividade
+    # cenário 11 (D5): as duas últimas operadoras sem ASN têm o mesmo diretor (10) e o mesmo presidente (16), sem participação: não formam grupo
+    for op in operators(world)[-2:]:
+        by_basico[op["cnpj"][:8]] += [_socio("2", "Diretor Exemplo Comum", "***555555**", "10"), _socio("2", "Presidente Exemplo Comum", "***666666**", "16")]
     return {"snapshot_date": world.instant, "generated_at": "2026-01-01T00:00:00+00:00", "dump_reference": "2026-09",
             "parts_processed": 1, "target_cnpj_basicos": len(by_basico), "matched_cnpj_basicos": len(by_basico),
             "by_cnpj_basico": by_basico}

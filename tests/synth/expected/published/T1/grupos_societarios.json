@@ -237,11 +237,17 @@
     "numero": "109",
     "uf": "RS"
    },
-   "grupo_id": "grp_90000012",
+   "grupo_id": "grp_90000011",
    "holdings_externas": [],
    "mesmo_grupo": [
     {
+     "classes_qualificacao": [
+      "socio_administrador"
+     ],
      "cnpj": "90000012000109",
+     "qualificacoes_em_comum": [
+      "49"
+     ],
      "tipo_relacao": "quadro_identico"
     }
    ],
@@ -271,11 +277,17 @@
     "numero": "110",
     "uf": "GO"
    },
-   "grupo_id": "grp_90000012",
+   "grupo_id": "grp_90000011",
    "holdings_externas": [],
    "mesmo_grupo": [
     {
+     "classes_qualificacao": [
+      "socio_administrador"
+     ],
      "cnpj": "90000011000164",
+     "qualificacoes_em_comum": [
+      "49"
+     ],
      "tipo_relacao": "quadro_identico"
     }
    ],
@@ -305,7 +317,7 @@
     "numero": "111",
     "uf": "SP"
    },
-   "grupo_id": "grp_90000014",
+   "grupo_id": "grp_90000013",
    "holdings_externas": [
     {
      "bairro": "",
@@ -330,9 +342,15 @@
    "receita_dump_reference": "2026-09",
    "relacionadas_parcial": [
     {
+     "classes_qualificacao": [
+      "socio_administrador"
+     ],
      "cnpj": "90000014000106",
      "nomes_em_comum": [
       "HOLDING EXEMPLO PARTICIPACOES SA"
+     ],
+     "qualificacoes_em_comum": [
+      "49"
      ],
      "socios_em_comum": 1,
      "tipo_relacao": "socios_em_comum"
@@ -364,7 +382,7 @@
     "numero": "112",
     "uf": "RJ"
    },
-   "grupo_id": "grp_90000014",
+   "grupo_id": "grp_90000013",
    "holdings_externas": [
     {
      "bairro": "",
@@ -389,9 +407,15 @@
    "receita_dump_reference": "2026-09",
    "relacionadas_parcial": [
     {
+     "classes_qualificacao": [
+      "socio_administrador"
+     ],
      "cnpj": "90000013000153",
      "nomes_em_comum": [
       "HOLDING EXEMPLO PARTICIPACOES SA"
+     ],
+     "qualificacoes_em_comum": [
+      "49"
      ],
      "socios_em_comum": 1,
      "tipo_relacao": "socios_em_comum"
@@ -452,7 +476,13 @@
    "holdings_externas": [],
    "mesmo_grupo": [
     {
+     "classes_qualificacao": [
+      "socio_administrador"
+     ],
      "cnpj": "90000017000131",
+     "qualificacoes_em_comum": [
+      "49"
+     ],
      "tipo_relacao": "controle_exclusivo_exercido"
     }
    ],
@@ -482,7 +512,13 @@
    "holdings_externas": [],
    "mesmo_grupo": [
     {
+     "classes_qualificacao": [
+      "socio_administrador"
+     ],
      "cnpj": "90000016000197",
+     "qualificacoes_em_comum": [
+      "49"
+     ],
      "tipo_relacao": "controle_exclusivo_recebido"
     }
    ],
@@ -1144,6 +1180,14 @@
     {
      "qualificacao": "49",
      "tipo": "fisica"
+    },
+    {
+     "qualificacao": "10",
+     "tipo": "fisica"
+    },
+    {
+     "qualificacao": "16",
+     "tipo": "fisica"
     }
    ],
    "tamanho_grupo": 1
@@ -1169,10 +1213,31 @@
     {
      "qualificacao": "49",
      "tipo": "fisica"
+    },
+    {
+     "qualificacao": "10",
+     "tipo": "fisica"
+    },
+    {
+     "qualificacao": "16",
+     "tipo": "fisica"
     }
    ],
    "tamanho_grupo": 1
   }
+ },
+ "efeito_da_regra": {
+  "cnpjs_basicos_em_grupo": 6,
+  "cnpjs_basicos_em_grupo_pela_regra_anterior": 8,
+  "grupos": 3,
+  "grupos_desfeitos_ou_reduzidos": 1,
+  "grupos_pela_regra_anterior": 4,
+  "pares_ligados_so_por_cargo_sem_participacao": 1
+ },
+ "equivalencia_grupo_id": {
+  "grp_90000012": "grp_90000011",
+  "grp_90000014": "grp_90000013",
+  "grp_90000017": "grp_90000016"
  },
  "grupos": [
   {
@@ -1185,7 +1250,7 @@
     "90000011000164",
     "90000012000109"
    ],
-   "grupo_id": "grp_90000012",
+   "grupo_id": "grp_90000011",
    "tamanho": 2
   },
   {
@@ -1198,7 +1263,7 @@
     "90000013000153",
     "90000014000106"
    ],
-   "grupo_id": "grp_90000014",
+   "grupo_id": "grp_90000013",
    "tamanho": 2
   },
   {
@@ -1216,6 +1281,130 @@
   }
  ],
  "receita_dump_reference": "2026-09",
+ "regra_qualificacao": {
+  "classes": {
+   "acionista": {
+    "codigos": [
+     "01",
+     "02",
+     "03",
+     "04"
+    ],
+    "descricao": "Acionista, controlador, diretor ou presidente que consta como acionista",
+    "liga": true
+   },
+   "administracao": {
+    "codigos": [
+     "05",
+     "08",
+     "10",
+     "16",
+     "36",
+     "70",
+     "71",
+     "72",
+     "73",
+     "77"
+    ],
+    "descricao": "Cargo de gestão sem participação societária: administrador, conselheiro de administração, diretor, presidente, vice-presidente e gerente-delegado",
+    "liga": false
+   },
+   "representacao": {
+    "codigos": [
+     "06",
+     "07",
+     "09",
+     "11",
+     "12",
+     "13",
+     "14",
+     "15",
+     "17",
+     "18",
+     "19",
+     "32",
+     "33",
+     "35",
+     "39",
+     "40",
+     "41",
+     "42",
+     "43",
+     "46",
+     "51",
+     "54",
+     "60",
+     "61",
+     "62",
+     "63",
+     "64",
+     "75",
+     "76"
+    ],
+    "descricao": "Representação ou função sem participação: procurador, tutor, curador, inventariante, liquidante, interventor, síndico, secretário, tesoureiro, pai e mãe de menor, tabelião, oficial de registro, responsável, administrador judicial, diplomata, cônsul, fundador, protetor, comissário, outros",
+    "liga": false
+   },
+   "socio": {
+    "codigos": [
+     "20",
+     "21",
+     "22",
+     "23",
+     "24",
+     "25",
+     "26",
+     "27",
+     "29",
+     "30",
+     "31",
+     "37",
+     "38",
+     "44",
+     "45",
+     "47",
+     "48",
+     "52",
+     "53",
+     "55",
+     "56",
+     "57",
+     "58"
+    ],
+    "descricao": "Sócio ou sociedade consorciada/filiada, capitalista, comanditado/comanditário, ostensivo, participante, investidor, com ou sem capital, no país ou no exterior",
+    "liga": true
+   },
+   "socio_administrador": {
+    "codigos": [
+     "28",
+     "49",
+     "74"
+    ],
+    "descricao": "Sócio-gerente e sócio-administrador (têm participação e gestão)",
+    "liga": true
+   },
+   "titular": {
+    "codigos": [
+     "34",
+     "50",
+     "59",
+     "65",
+     "66",
+     "67",
+     "68",
+     "78",
+     "79"
+    ],
+    "descricao": "Titular de empresa individual, empresário e produtor rural (dono único)",
+    "liga": true
+   }
+  },
+  "fonte": "Receita Federal, dados abertos do CNPJ, tabela de qualificação do sócio (Qualificacoes)",
+  "nao_classificada": {
+   "codigos": [],
+   "descricao": "código ausente ou fora da tabela adotada",
+   "liga": false
+  }
+ },
  "snapshot_date": "2026-09-20",
  "total_cnpjs_em_grupo": 6,
  "total_grupos": 3

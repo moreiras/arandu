@@ -45,10 +45,16 @@ pode não existir/ter sido baixada, caso em que os dados ficam vazios).
 Poucas chamadas pontuais, nunca o dump inteiro, com cache próprio
 persistente em normalized/holdings_cache/nomes.json.gz.
 
+Só sócio COM participação societária gera relação (decisão D5): administrador, conselheiro,
+diretor, presidente e demais cargos sem participação (`qualificacoes.py`) não ligam empresas.
+Cada relação guarda a classe e os códigos de qualificação que a sustentam, sem nomes.
+
 Componentes conectados (sócio em comum OU propriedade direta, total ou
 parcial) definem os "grupos societários" (`grupo_id`) — um agrupamento mais
 amplo e transitivo, útil para navegação, mas que não deve ser confundido com
 as relações diretas TOTAL/PARCIAL entre um par específico de empresas.
+O `grupo_id` é `grp_` + o menor CNPJ básico do componente: o mesmo conjunto tem o mesmo id
+em snapshots diferentes; `equivalencia_grupo_id` leva o id de cada membro ao id do grupo.
 
 Uso:
     python -m sources.socios_grupos.enrich --date 2026-09-27
@@ -76,6 +82,7 @@ from core.common import (
 )
 from core.site import USER_AGENT
 from core.cpf import sem_socios_pessoa_fisica
+from sources.socios_grupos.qualificacoes import classe_da_qualificacao, liga_empresas, regra_publicada
 
 BRASILAPI_URL = "https://brasilapi.com.br/api/cnpj/v1/{cnpj}"
 BRASILAPI_DELAY = 0.35  # segundos entre requisições — evita 429 em lotes de centenas de holdings
@@ -209,21 +216,41 @@ def _holdings_cache_path(base: Path) -> Path:
     return base / "normalized" / "holdings_cache" / "cartoes.json.gz"
 
 
-def _socio_identity_keys(socios_raw: list[dict]) -> set[str]:
-    """Chaves de identidade dos sócios de uma empresa: 'pf:nome|cpf' para
-    pessoa física, 'cnpj:basico' para pessoa jurídica. Sócio estrangeiro
-    (sem CPF/CNPJ) não tem chave confiável e fica de fora do conjunto —
-    portanto nunca conta para igualdade/interseção de quadro societário."""
-    keys: set[str] = set()
+def _socio_chave(s: dict) -> str | None:
+    ident = s.get("identificador_socio", "")
+    doc = (s.get("cnpj_cpf_socio") or "").strip()
+    nome = s.get("nome_socio", "")
+    if ident == "1" and len(doc) in (8, 14):
+        return f"cnpj:{doc[:8]}"
+    if ident == "2" and nome.strip() and doc:
+        return f"pf:{_normalize_name(nome)}|{doc}"
+    return None
+
+
+def _socio_qualificacoes(socios_raw: list[dict], so_participacao: bool = False) -> dict[str, set[str]]:
+    """Chave de identidade -> códigos de qualificação com que o sócio consta no quadro. Com `so_participacao`, só os registros de quem tem
+    participação societária (a regra que liga empresas); sem ele, todos (para contar o que a regra deixou de ligar)."""
+    out: dict[str, set[str]] = {}
     for s in socios_raw:
-        ident = s.get("identificador_socio", "")
-        doc = (s.get("cnpj_cpf_socio") or "").strip()
-        nome = s.get("nome_socio", "")
-        if ident == "1" and len(doc) in (8, 14):
-            keys.add(f"cnpj:{doc[:8]}")
-        elif ident == "2" and nome.strip() and doc:
-            keys.add(f"pf:{_normalize_name(nome)}|{doc}")
-    return keys
+        key = _socio_chave(s)
+        if key is None:
+            continue
+        q = str(s.get("qualificacao_socio") or "").strip()
+        if so_participacao and not liga_empresas(q):
+            continue
+        out.setdefault(key, set()).add(q)
+    return out
+
+
+def _socio_identity_keys(socios_raw: list[dict]) -> set[str]:
+    """Chaves de identidade dos sócios COM participação societária de uma empresa: 'pf:nome|cpf' para pessoa física, 'cnpj:basico' para
+    pessoa jurídica. Administrador, diretor e presidente sem participação (qualificações da classe `administracao` e `representacao`) ficam
+    de fora, assim como sócio estrangeiro (sem CPF/CNPJ não há chave confiável): nunca contam para igualdade/interseção de quadro societário."""
+    return set(_socio_qualificacoes(socios_raw, so_participacao=True))
+
+
+def _classes(codigos: set[str]) -> list[str]:
+    return sorted({classe_da_qualificacao(c) for c in codigos})
 
 
 def run(date_str: str, base: Path, log) -> dict:
@@ -241,9 +268,13 @@ def run(date_str: str, base: Path, log) -> dict:
     # Nome legível de cada chave de identidade, para exibir "sócios em comum".
     identity_name: dict[str, str] = {}
     socio_sets: dict[str, set[str]] = {}
-    uf = _UnionFind(sorted(target_basicos))   # ordem fixa: o `grupo_id` não pode depender do hash dos sets
-    # socio_key -> {cnpj_basico que têm esse sócio}
+    # cnpj_basico -> {chave -> códigos de qualificação} só de quem tem participação (a regra que liga)
+    socio_quals: dict[str, dict[str, set[str]]] = {}
+    uf = _UnionFind(sorted(target_basicos))   # ordem fixa; o `grupo_id` vem do menor CNPJ básico do componente, não da raiz da union-find
+    uf_antes = _UnionFind(sorted(target_basicos))   # a regra anterior (todo registro do quadro liga), só para medir o efeito da decisão
+    # socio_key -> {cnpj_basico que têm esse sócio com participação}
     socio_index: dict[str, set[str]] = {}
+    socio_index_antes: dict[str, set[str]] = {}
     # cnpj_basico -> {outro_cnpj_basico -> {"tipo", "confianca"}} — só arestas com
     # EVIDÊNCIA DIRETA (nunca inferidas por transitividade dentro do grupo).
     edges: dict[str, dict[str, dict]] = {}
@@ -256,26 +287,32 @@ def run(date_str: str, base: Path, log) -> dict:
     for cnpj_basico, socios in by_cnpj_basico.items():
         if cnpj_basico not in target_basicos:
             continue
-        socio_sets[cnpj_basico] = _socio_identity_keys(socios)
+        socio_quals[cnpj_basico] = _socio_qualificacoes(socios, so_participacao=True)
+        socio_sets[cnpj_basico] = set(socio_quals[cnpj_basico])
         for s in socios:
-            ident = s.get("identificador_socio", "")
-            doc = (s.get("cnpj_cpf_socio") or "").strip()
-            nome = s.get("nome_socio", "")
+            key = _socio_chave(s)
+            if key is None:
+                continue          # ident == "3" (estrangeiro sem CPF/CNPJ): sem chave confiável de casamento
+            identity_name[key] = s.get("nome_socio", "")
+            socio_index_antes.setdefault(key, set()).add(cnpj_basico)
+            if not liga_empresas(s.get("qualificacao_socio")):
+                continue
+            socio_index.setdefault(key, set()).add(cnpj_basico)
+            if key.startswith("cnpj:") and key[5:] not in target_basicos:
+                # A Receita traz só o CNPJ básico (8 dígitos) do sócio PJ, mas trata com tolerância o CNPJ completo (14).
+                external_holdings.setdefault(key[5:], set()).add(cnpj_basico)
 
-            if ident == "1" and len(doc) in (8, 14):  # sócio Pessoa Jurídica
-                # A Receita traz só o CNPJ básico (8 dígitos) do sócio PJ, mas
-                # trata com tolerância o CNPJ completo (14) caso isso mude.
-                socio_basico = doc[:8]
-                socio_key = f"cnpj:{socio_basico}"
-                identity_name[socio_key] = nome
-                socio_index.setdefault(socio_key, set()).add(cnpj_basico)
-                if socio_basico not in target_basicos:
-                    external_holdings.setdefault(socio_basico, set()).add(cnpj_basico)
-            elif ident == "2" and nome.strip() and doc:  # sócio Pessoa Física
-                socio_key = f"pf:{_normalize_name(nome)}|{doc}"
-                identity_name[socio_key] = nome
-                socio_index.setdefault(socio_key, set()).add(cnpj_basico)
-            # ident == "3" (estrangeiro sem CPF/CNPJ): sem chave confiável de casamento
+    def _liga_antes(index: dict[str, set[str]], um: _UnionFind) -> None:
+        for membros in index.values():
+            m = sorted(membros)
+            for x in m[1:]:
+                um.union(m[0], x)
+
+    _liga_antes(socio_index_antes, uf_antes)
+    pares_antes: set[tuple[str, str]] = set()
+    for membros in socio_index_antes.values():
+        m = sorted(membros)
+        pares_antes.update((m[i], m[j]) for i in range(len(m)) for j in range(i + 1, len(m)))
 
     # --- Propriedade direta: cnpj_basico controlado por socio_basico (ambos na base) ---
     for cnpj_basico, socios in by_cnpj_basico.items():
@@ -290,23 +327,30 @@ def run(date_str: str, base: Path, log) -> dict:
             socio_basico = doc[:8]
             if socio_basico not in target_basicos or socio_basico == cnpj_basico:
                 continue
+            uf_antes.union(cnpj_basico, socio_basico)
+            pares_antes.add(tuple(sorted((cnpj_basico, socio_basico))))
+            q = s.get("qualificacao_socio")
+            if not liga_empresas(q):
+                continue
             uf.union(cnpj_basico, socio_basico)
+            ev = {"classes_qualificacao": _classes({str(q or "").strip()}), "qualificacoes_em_comum": [str(q or "").strip()]}
             # Exclusivo: cnpj_basico não tem NENHUM outro sócio além de socio_basico.
             exclusivo = len(socios) == 1
             if exclusivo:
-                _add_edge(cnpj_basico, socio_basico, "controle_exclusivo_recebido", "alta")
-                _add_edge(socio_basico, cnpj_basico, "controle_exclusivo_exercido", "alta")
+                _add_edge(cnpj_basico, socio_basico, "controle_exclusivo_recebido", "alta", **ev)
+                _add_edge(socio_basico, cnpj_basico, "controle_exclusivo_exercido", "alta", **ev)
             else:
                 _add_edge(cnpj_basico, socio_basico, "controle_parcial_recebido", "alta",
-                          total_socios=len(socios))
+                          total_socios=len(socios), **ev)
                 _add_edge(socio_basico, cnpj_basico, "controle_parcial_exercido", "alta",
-                          total_socios=len(socios))
+                          total_socios=len(socios), **ev)
 
-    # --- Sócio em comum: casa só pares que de fato compartilham aquele sócio,
+    # --- Sócio em comum: casa só pares que de fato compartilham aquele sócio COM participação nas duas empresas,
     # nunca todo o resto do componente conectado (isso seria transitividade sem
     # evidência: A e C podem estar no mesmo grupo só porque ambos se ligam a B,
     # sem nenhum sócio em comum direto entre A e C). Classifica em total
     # (quadro idêntico) ou parcial (com a contagem e os nomes em comum). ---
+    pares_liga: set[tuple[str, str]] = set()
     for cnpj_set in socio_index.values():
         members = sorted(cnpj_set)
         for i in range(len(members)):
@@ -316,15 +360,23 @@ def run(date_str: str, base: Path, log) -> dict:
                     continue  # já tem aresta de propriedade direta entre esse par
                 uf.union(a, b)
                 comuns = socio_sets.get(a, set()) & socio_sets.get(b, set())
+                quals = sorted({q for k in comuns for q in socio_quals[a].get(k, set()) | socio_quals[b].get(k, set())})
+                ev = {"classes_qualificacao": _classes(set(quals)), "qualificacoes_em_comum": quals}
                 if socio_sets.get(a) and socio_sets.get(a) == socio_sets.get(b):
-                    _add_edge(a, b, "quadro_identico", "media", socios_em_comum=len(comuns))
-                    _add_edge(b, a, "quadro_identico", "media", socios_em_comum=len(comuns))
+                    _add_edge(a, b, "quadro_identico", "media", socios_em_comum=len(comuns), **ev)
+                    _add_edge(b, a, "quadro_identico", "media", socios_em_comum=len(comuns), **ev)
                 else:
                     nomes = sorted({identity_name.get(k, k) for k in comuns})
                     _add_edge(a, b, "socios_em_comum", "media",
-                              socios_em_comum=len(comuns), nomes_em_comum=nomes)
+                              socios_em_comum=len(comuns), nomes_em_comum=nomes, **ev)
                     _add_edge(b, a, "socios_em_comum", "media",
-                              socios_em_comum=len(comuns), nomes_em_comum=nomes)
+                              socios_em_comum=len(comuns), nomes_em_comum=nomes, **ev)
+                pares_liga.add((a, b))
+    pares_ligados = pares_liga | {tuple(sorted((a, b))) for a, viz in edges.items() for b in viz}
+    comp_antes: dict[str, list[str]] = {}
+    for c in sorted(target_basicos):
+        comp_antes.setdefault(uf_antes.find(c), []).append(c)
+    grandes_antes = [m for m in comp_antes.values() if len(m) >= 2]
 
     # Resolve cadastro completo das holdings externas pela matriz (poucas
     # chamadas, com cache). Chave do cache é o CNPJ básico (8 dígitos) — o
@@ -359,7 +411,7 @@ def run(date_str: str, base: Path, log) -> dict:
     for root, members in components.items():
         if len(members) < 2:
             continue
-        grupo_id = f"grp_{root}"
+        grupo_id = f"grp_{min(members)}"      # estável: depende do conjunto, não da ordem de ligação (GRUPO-E14)
         for m in members:
             grupo_id_by_basico[m] = grupo_id
 
@@ -412,10 +464,11 @@ def run(date_str: str, base: Path, log) -> dict:
             group_basicos = next(g["cnpj_basicos"] for g in grupos if g["grupo_id"] == grupo_id)
             for outro_basico, rel in edges.get(cnpj_basico, {}).items():
                 for outro_cnpj in sorted(basico_to_full.get(outro_basico, set())):
+                    ev = {k: rel[k] for k in ("classes_qualificacao", "qualificacoes_em_comum") if k in rel}
                     if rel["tipo"] in _TOTAL_TIPOS:
-                        mesmo_grupo.append({"cnpj": outro_cnpj, "tipo_relacao": rel["tipo"]})
+                        mesmo_grupo.append({"cnpj": outro_cnpj, "tipo_relacao": rel["tipo"], **ev})
                     else:
-                        entry = {"cnpj": outro_cnpj, "tipo_relacao": rel["tipo"]}
+                        entry = {"cnpj": outro_cnpj, "tipo_relacao": rel["tipo"], **ev}
                         if "socios_em_comum" in rel:
                             entry["socios_em_comum"] = rel["socios_em_comum"]
                         if "nomes_em_comum" in rel:
@@ -447,6 +500,13 @@ def run(date_str: str, base: Path, log) -> dict:
                 "endereco_sede": endereco_by_cnpj.get(cnpj) or entry["endereco_sede"],
             }
 
+    tamanho_por_grupo = {g["grupo_id"]: g["tamanho"] for g in grupos}
+
+    def _intacto(m: list[str]) -> bool:
+        """O grupo da regra anterior continua o mesmo conjunto (mesmos membros, nenhum a mais)."""
+        gids = {grupo_id_by_basico.get(c) for c in m}
+        return len(gids) == 1 and None not in gids and tamanho_por_grupo[next(iter(gids))] == len(m)
+
     output = {
         "snapshot_date": date_str,
         "generated_at": now_iso(),
@@ -454,6 +514,16 @@ def run(date_str: str, base: Path, log) -> dict:
         "receita_dump_reference": (socios_data or {}).get("dump_reference", ""),
         "total_grupos": len(grupos),
         "total_cnpjs_em_grupo": sum(g["tamanho"] for g in grupos),
+        "regra_qualificacao": regra_publicada(),
+        "efeito_da_regra": {
+            "pares_ligados_so_por_cargo_sem_participacao": len(pares_antes - pares_ligados),
+            "grupos_pela_regra_anterior": len(grandes_antes),
+            "cnpjs_basicos_em_grupo_pela_regra_anterior": sum(len(m) for m in grandes_antes),
+            "grupos": len(grupos),
+            "cnpjs_basicos_em_grupo": sum(g["tamanho"] for g in grupos),
+            "grupos_desfeitos_ou_reduzidos": sum(1 for m in grandes_antes if not _intacto(m)),
+        },
+        "equivalencia_grupo_id": {f"grp_{m}": g["grupo_id"] for g in grupos for m in g["cnpj_basicos"] if f"grp_{m}" != g["grupo_id"]},
         "grupos": grupos,
         "by_cnpj": by_cnpj,
     }

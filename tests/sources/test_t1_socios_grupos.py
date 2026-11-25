@@ -151,3 +151,86 @@ def test_union_find():
     u.union("a", "b")
     u.union("c", "b")
     assert u.find("a") == u.find("c") and u.find("a") != u.find("d")
+
+
+# --- D5 / PT-10: só sócio com participação liga empresas ---
+
+def _roda(base, log, date_str, monkeypatch, quadros):
+    """Roda o cruzamento com `quadros` {letra: [registros]} sobre empresas A..F (sem holding externa)."""
+    monkeypatch.setattr(sg, "BRASILAPI_DELAY", 0)
+    cnpj = lambda k: BASICOS[k] + "0001" + sg._cnpj_check_digits(BASICOS[k] + "0001")
+    write_gz(base / "normalized" / date_str / "summary" / "anatel_scm.json.gz", {"by_cnpj": {cnpj(k): [{"logradouro": f"Rua {k}", "municipio": "Cidade", "uf": "SP"}] for k in "ABCDEF"}})
+    write_gz(base / "normalized" / date_str / "summary" / "receita_socios.json.gz", {
+        "dump_reference": "2026-09", "generated_at": "2026-09-28T00:00:00", "by_cnpj_basico": {BASICOS[k]: v for k, v in quadros.items()}})
+    return {k: cnpj(k) for k in "ABCDEF"}, sg.run(date_str, base, log)
+
+
+def test_administrador_diretor_e_presidente_sem_participacao_nao_ligam(base, log, date_str, monkeypatch):
+    quadros = {"A": [s("2", "Diretor Comum", "***111111**", "10"), s("2", "Dona A", "***000001**", "22")],
+               "B": [s("2", "Diretor Comum", "***111111**", "10"), s("2", "Dono B", "***000002**", "22")],
+               "C": [s("2", "Presidente Comum", "***222222**", "16"), s("2", "Dono C", "***000003**", "22")],
+               "D": [s("2", "Presidente Comum", "***222222**", "16"), s("2", "Dono D", "***000004**", "22")],
+               "E": [s("2", "Admin Comum", "***333333**", "05"), s("2", "Dono E", "***000005**", "49")],
+               "F": [s("2", "Admin Comum", "***333333**", "05"), s("2", "Dono F", "***000006**", "49")]}
+    cn, r = _roda(base, log, date_str, monkeypatch, quadros)
+    assert r["grupos"] == [] and r["total_cnpjs_em_grupo"] == 0
+    assert all(not e["mesmo_grupo"] and not e["relacionadas_parcial"] for e in r["by_cnpj"].values())
+    assert r["efeito_da_regra"]["pares_ligados_so_por_cargo_sem_participacao"] == 3
+    assert r["efeito_da_regra"]["grupos_pela_regra_anterior"] == 3 and r["efeito_da_regra"]["grupos"] == 0
+
+
+def test_socio_com_participacao_liga_e_a_aresta_guarda_a_classe_sem_nome(base, log, date_str, monkeypatch):
+    quadros = {"A": [s("2", "Maria Comum", "***111111**", "22"), s("2", "Diretor Comum", "***222222**", "10")],
+               "B": [s("2", "Maria Comum", "***111111**", "49"), s("2", "Diretor Comum", "***222222**", "10"), s("2", "Outro", "***999999**", "22")]}
+    cn, r = _roda(base, log, date_str, monkeypatch, quadros)
+    rel = r["by_cnpj"][cn["A"]]["relacionadas_parcial"]
+    assert [x["cnpj"] for x in rel] == [cn["B"]] and rel[0]["socios_em_comum"] == 1                       # só Maria conta; o diretor em comum não
+    assert rel[0]["classes_qualificacao"] == ["socio", "socio_administrador"] and rel[0]["qualificacoes_em_comum"] == ["22", "49"]
+    assert rel[0]["nomes_em_comum"] == []
+    assert "Maria" not in str(r["by_cnpj"]) and "Diretor Comum" not in str(r["by_cnpj"])                    # nome de pessoa física não é gravado
+
+
+def test_participacao_so_de_um_lado_nao_liga(base, log, date_str, monkeypatch):
+    quadros = {"A": [s("2", "Pessoa X", "***111111**", "22")], "B": [s("2", "Pessoa X", "***111111**", "10")]}
+    _, r = _roda(base, log, date_str, monkeypatch, quadros)
+    assert r["grupos"] == []                                                                               # dono em A e diretor em B: gestão em B não é quadro comum
+
+
+def test_qualificacao_ausente_ou_fora_da_tabela_nao_liga(base, log, date_str, monkeypatch):
+    quadros = {"A": [s("2", "Pessoa X", "***111111**", "")], "B": [s("2", "Pessoa X", "***111111**", "")],
+               "C": [s("2", "Pessoa Y", "***222222**", "99")], "D": [s("2", "Pessoa Y", "***222222**", "99")]}
+    _, r = _roda(base, log, date_str, monkeypatch, quadros)
+    assert r["grupos"] == []
+
+
+def test_controle_por_pj_administradora_nao_liga_mas_pj_socia_sim(base, log, date_str, monkeypatch):
+    quadros = {"A": [s("2", "Dono", "***111111**", "22")],
+               "B": [s("1", "A", BASICOS["A"], "10")],                                                       # PJ com cargo de diretor, sem participação
+               "C": [s("1", "A", BASICOS["A"], "22")]}                                                       # PJ sócia
+    cn, r = _roda(base, log, date_str, monkeypatch, quadros)
+    assert [g["cnpj_basicos"] for g in r["grupos"]] == [sorted([BASICOS["A"], BASICOS["C"]])]
+    assert r["by_cnpj"][cn["C"]]["mesmo_grupo"][0]["classes_qualificacao"] == ["socio"]
+
+
+def test_regra_publicada_traz_a_tabela_adotada(base, log, date_str, monkeypatch):
+    _, r = _roda(base, log, date_str, monkeypatch, {"A": [s("2", "P", "***1**", "22")]})
+    cl = r["regra_qualificacao"]["classes"]
+    assert cl["administracao"]["liga"] is False and {"05", "10", "16"} <= set(cl["administracao"]["codigos"])
+    assert cl["socio_administrador"]["liga"] is True and "49" in cl["socio_administrador"]["codigos"]
+    assert r["regra_qualificacao"]["fonte"]
+
+
+# --- GRUPO-E14: grupo_id estável ---
+
+def test_grupo_id_e_o_menor_cnpj_basico_e_nao_depende_da_composicao_do_resto(base, log, date_str, monkeypatch):
+    comum = lambda q="22": s("2", "Maria Comum", "***111111**", q)
+    _, r1 = _roda(base, log, date_str, monkeypatch, {"B": [comum()], "C": [comum()], "D": [comum()]})
+    g1 = r1["grupos"][0]["grupo_id"]
+    assert g1 == f"grp_{BASICOS['B']}" and r1["equivalencia_grupo_id"][f"grp_{BASICOS['D']}"] == g1
+    # snapshot seguinte: o mesmo conjunto mais E, ligado por outro sócio (a raiz da union-find mudaria)
+    _, r2 = _roda(base, log, "2026-10-04", monkeypatch, {"D": [comum(), s("2", "Joao", "***333333**", "22")], "E": [s("2", "Joao", "***333333**", "22")],
+                                                       "C": [comum()], "B": [comum()]})
+    assert [g["grupo_id"] for g in r2["grupos"]] == [g1] and r2["grupos"][0]["tamanho"] == 4
+    _, r3 = _roda(base, log, "2026-10-05", monkeypatch, {"C": [comum()], "D": [comum()], "A": [s("2", "Ana", "***444444**", "22")],
+                                                       "B": [s("2", "Ana", "***444444**", "22")], "E": [s("2", "Ana", "***444444**", "22")]})
+    assert sorted(g["grupo_id"] for g in r3["grupos"]) == sorted([f"grp_{BASICOS['A']}", f"grp_{BASICOS['C']}"])
