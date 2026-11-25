@@ -92,6 +92,7 @@ import type { BrasilIndicadores,
   Ipv4Subasignacoes,
   SegurancaResumo,
   RankingTerritorio,
+  ResumoTerritorio,
   RankingMunicipios,
   SemDeclaracaoSici,
   PerfilOperadora,
@@ -1421,6 +1422,9 @@ export function fetchSemDeclaracaoSici(opts: { tipo?: string; uf?: string; class
 }
 export function fetchTerritorioRanking(opts: { date?: string; campo?: string; uf?: string; asc?: boolean; sem_ptt_proximo?: boolean; min_domicilios?: number; limit?: number; page?: number }): Promise<RankingTerritorio> {
   return get('/api/v1/territorio/ranking', opts)
+}
+export function fetchTerritorioResumo(opts: { date?: string; uf?: string } = {}): Promise<ResumoTerritorio> {
+  return get('/api/v1/territorio/resumo', opts)
 }
 export function fetchMunicipiosSemelhantes(ibge: string, date?: string): Promise<MunicipiosSemelhantes | null> {
   return get(`/api/v1/territorio/municipio/${ibge}/semelhantes`, { date, opcional: true })

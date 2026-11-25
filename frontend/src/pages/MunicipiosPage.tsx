@@ -6,7 +6,7 @@
 import { useSearchParams } from 'react-router-dom'
 import { Link } from '../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
-import { fetchRankingMunicipios, fetchTerritorioRanking } from '../services/api'
+import { fetchRankingMunicipios, fetchTerritorioRanking, fetchTerritorioResumo } from '../services/api'
 import { useAuth } from '../auth/AuthContext'
 import { MapaSobDemanda } from '../features/estados/MapaSobDemanda'
 import { UFS, nomeUf } from '../lib/ufs'
@@ -16,6 +16,8 @@ import { ComoLer } from '../components/ui/ComoLer'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import { AvisosRecorte } from '../components/ui/AvisoRecorte'
 import { useActiveDate } from '../hooks/useSnapshot'
+import { SinteseTopo } from '../components/ui/SinteseTopo'
+import { REGRAS_SINTESE_MUNICIPIOS, sinteseMunicipios } from '../features/territorio/sinteseMunicipios'
 
 const POR_PAGINA = 25
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
@@ -110,6 +112,8 @@ export function MunicipiosPage() {
     queryFn: () => fetchTerritorioRanking(lente === 'sem-ptt'
       ? { date, uf: uf || undefined, campo, asc: asc || undefined, sem_ptt_proximo: true, min_domicilios: minDom, limit: POR_PAGINA, page: pagina }
       : { date, uf: uf || undefined, campo, asc: asc || undefined, min_domicilios: minDom, limit: POR_PAGINA, page: pagina }) })
+  // agregados do país (ou da UF filtrada) para a síntese do topo; a mesma consulta em todas as lentes
+  const resumo = useQuery({ queryKey: ['mun-resumo', date, uf], ...base, queryFn: () => fetchTerritorioResumo({ date, uf: uf || undefined }) })
   const ativa = lente === 'mercado' ? mercado : terr
   const total = ativa.data?.total ?? 0
   const descricao = LENTES.find((l) => l.id === lente)!.descricao
@@ -120,6 +124,8 @@ export function MunicipiosPage() {
         <h1 className="text-titulo-1 text-gray-900">Municípios</h1>
         <p className="text-sm text-gray-500 mt-1">Os municípios do Brasil ordenados por um critério de dado <strong>declarado</strong> à Anatel (SICI, banda larga fixa) ou <strong>estimado</strong> sobre o Censo 2022. A ordem não mede qualidade do serviço.</p>
       </div>
+      <SinteseTopo frases={sinteseMunicipios(resumo.data)} snapshot={resumo.data?.snapshot_date} regras={REGRAS_SINTESE_MUNICIPIOS}
+        comoLer="Os totais são de todos os municípios da tabela do IBGE, sem o filtro de porte da lista; “longe” é distância em linha reta do centro do município, não o trajeto de fibra." />
       <MapaSobDemanda />
       <BarraDeAbas abas={LENTES} ativa={lente} aoEscolher={trocaLente} rotulo="Lentes da lista" />
       <div role="tabpanel" id={`painel-${lente}`} aria-labelledby={`aba-${lente}`} className="space-y-5">
