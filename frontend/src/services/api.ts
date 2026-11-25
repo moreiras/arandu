@@ -93,6 +93,7 @@ import type { BrasilIndicadores,
   SegurancaResumo,
   RankingTerritorio,
   ResumoTerritorio,
+  InfraProximos,
   RankingMunicipios,
   SemDeclaracaoSici,
   PerfilOperadora,
@@ -1426,8 +1427,14 @@ export function fetchRankingMunicipios(opts: { date?: string; uf?: string; ordem
 export function fetchSemDeclaracaoSici(opts: { tipo?: string; uf?: string; classe?: string; grupo_declara?: boolean; limit?: number; page?: number }): Promise<SemDeclaracaoSici> {
   return get('/api/v1/sem-declaracao-sici', opts)
 }
+/** `esquema` 2: cada linha ganhou `ptt_proximo_nome` e `pix_proximo`, o PIX mais próximo (PT-25). */
+const ESQUEMA_TERRITORIO = 2
 export function fetchTerritorioRanking(opts: { date?: string; campo?: string; uf?: string; asc?: boolean; sem_ptt_proximo?: boolean; min_domicilios?: number; limit?: number; page?: number }): Promise<RankingTerritorio> {
-  return get('/api/v1/territorio/ranking', opts)
+  return get('/api/v1/territorio/ranking', { ...opts, esquema: ESQUEMA_TERRITORIO })
+}
+/** Infraestrutura física e instalações do PeeringDB num raio (PT-25). `metered`; pedir só quando o leitor abre o bloco. */
+export function fetchInfraProximos(opts: { lat: number; lon: number; raio_km: number; date?: string; raio_instalacoes_km?: number; limit?: number }): Promise<InfraProximos> {
+  return get('/api/v1/territorio/infra-proximos', opts)
 }
 export function fetchTerritorioResumo(opts: { date?: string; uf?: string } = {}): Promise<ResumoTerritorio> {
   return get('/api/v1/territorio/resumo', opts)

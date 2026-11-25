@@ -11,7 +11,8 @@ import { PainelControles } from '../features/localizador/PainelControles'
 import { PainelEntidades } from '../features/localizador/PainelEntidades'
 import { BlocoInterconexao } from '../features/localizador/BlocoInterconexao'
 import { BlocoMercado } from '../features/localizador/BlocoMercado'
-import { SinteseLocalizador } from '../features/localizador/BlocoSinteseLocalizador'
+import { ESPERA_SINTESE_MS, SinteseLocalizador, useAtrasado } from '../features/localizador/BlocoSinteseLocalizador'
+import { InfraFisicaRaio } from '../features/territorio/InfraFisicaRaio'
 import { LugarAmbiguo, geocodeQuery, useLocalizadorDados } from '../features/localizador/useLocalizadorDados'
 import { useMapaLocalizador } from '../features/localizador/useMapaLocalizador'
 import { Link } from '../components/layout/LinkDatado'
@@ -36,6 +37,8 @@ export function Localizador() {
   const [modal, setModal] = useState<{ title: string; html: string } | null>(null)
 
   const dados = useLocalizadorDados(date, show.prefixes)
+  // o raio muda a cada pixel do controle: a consulta de infraestrutura espera o valor assentar
+  const raioAssentado = useAtrasado(radius, ESPERA_SINTESE_MS)
   const { asnGeo, prefixGeo, ixList, ixPresence, pixGeo, scmGeo, siciMunData, municipioCentroids } = dados
 
   // Nomes dos IXes (código → nome de cidade) para as tags "IX <cidade>".
@@ -197,6 +200,10 @@ export function Localizador() {
 
       {markerPos && !!ixPresence && (
         <BlocoInterconexao presenca={presenca} pttLabel={pttLabel} snapshot={ixPresence.snapshot_date ?? date ?? null} />
+      )}
+
+      {markerPos && (
+        <InfraFisicaRaio lat={markerPos[0]} lon={markerPos[1]} raioKm={raioAssentado} date={date} />
       )}
 
       {markerPos && mercado && siciMunData && (

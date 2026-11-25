@@ -18832,6 +18832,116 @@
     ]
    }
   },
+  "/api/v1/territorio/infra-proximos": {
+   "get": {
+    "description": "Para o ponto `lat`/`lon`: quantas feições das camadas leves do mapa passam a até `raio_km` (cabos submarinos, pontos de aterrissagem, enlaces terrestres da UIT e linhas de transmissão\nde energia) e as `limit` mais próximas de cada uma, com a distância em km, a fonte e, nos enlaces, a contagem por `status` (por exemplo operacional ou planejado). Traz também as instalações\ncadastradas no PeeringDB a até `raio_instalacoes_km`. Distância em linha reta até a geometria, com projeção local; as geometrias são aproximadas, não informam capacidade disponível nem\nquem opera, e a instalação é cadastro autodeclarado. Proximidade de uma linha de energia ou de um cabo não indica que as redes locais a usam. Sem GeoJSON; rodovias ficam de fora (arquivo grande).\nMesma regra do `infra_proximos` do MCP.",
+    "operationId": "territorio_infra_proximos_api_v1_territorio_infra_proximos_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "lat",
+      "required": true,
+      "schema": {
+       "maximum": 90,
+       "minimum": -90,
+       "title": "Lat",
+       "type": "number"
+      }
+     },
+     {
+      "in": "query",
+      "name": "lon",
+      "required": true,
+      "schema": {
+       "maximum": 180,
+       "minimum": -180,
+       "title": "Lon",
+       "type": "number"
+      }
+     },
+     {
+      "in": "query",
+      "name": "date",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Date"
+      }
+     },
+     {
+      "in": "query",
+      "name": "raio_km",
+      "required": false,
+      "schema": {
+       "default": 50.0,
+       "maximum": 500,
+       "minimum": 1,
+       "title": "Raio Km",
+       "type": "number"
+      }
+     },
+     {
+      "in": "query",
+      "name": "raio_instalacoes_km",
+      "required": false,
+      "schema": {
+       "default": 150.0,
+       "maximum": 500,
+       "minimum": 1,
+       "title": "Raio Instalacoes Km",
+       "type": "number"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 3,
+       "maximum": 10,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Territorio Infra Proximos Api V1 Territorio Infra Proximos Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Infraestrutura física e instalações do PeeringDB num raio em torno de um ponto",
+    "tags": [
+     "territorio"
+    ]
+   }
+  },
   "/api/v1/territorio/mapa": {
    "get": {
     "description": "`{ibge: valor}` de todos os municípios para um indicador **normalizado** (`indicador`: penetracao, penetracao_pf, nao_visto_pct, acessos_por_mil_hab, fibra_pct, reclam_100mil, km_ptt, fust_por_10mil_hab, ipv6_estimado_pct, transito_unico_pct), com `rotulo`, `normalizacao` (a fórmula, por domicílio, por mil habitantes\nou distância) e as mesmas `formulas`, `limites` e datas das demais rotas de território. Município sem dado fica de fora (nunca zero). O desenho usa a malha municipal do IBGE (Fonte: IBGE).",
@@ -18969,7 +19079,7 @@
   },
   "/api/v1/territorio/ranking": {
    "get": {
-    "description": "Municípios ordenados por `campo` (penetracao, penetracao_pf, nao_visto, nao_visto_pct, populacao, populacao_estimada, domicilios, domicilios_projetados, acessos, km_ptt, fibra_pct, reclam_100mil). `uf` restringe; `sem_ptt_proximo=true` mantém só os a mais de 100 km de um PTT (linha reta do\ncentróide); `min_domicilios` evita o ruído de municípios muito pequenos. Cada linha traz população, domicílios, acessos, penetração, o não visto estimado e o PTT mais próximo.\nO `nao_visto` é max(0, domicílios projetados × taxa de internet da UF − acessos de pessoa física): estimativa que inclui quem usa só o celular (PNAD). Fórmulas e limites vêm na resposta.",
+    "description": "Municípios ordenados por `campo` (penetracao, penetracao_pf, nao_visto, nao_visto_pct, populacao, populacao_estimada, domicilios, domicilios_projetados, acessos, km_ptt, fibra_pct, reclam_100mil). `uf` restringe; `sem_ptt_proximo=true` mantém só os a mais de 100 km de um PTT (linha reta do\ncentróide); `min_domicilios` evita o ruído de municípios muito pequenos. Cada linha traz população, domicílios, acessos, penetração, o não visto estimado e o PTT mais próximo (`ptt_proximo`, `ptt_proximo_nome`) com o PIX, o local de interconexão, mais próximo (`pix_proximo`).\nO `nao_visto` é max(0, domicílios projetados × taxa de internet da UF − acessos de pessoa física): estimativa que inclui quem usa só o celular (PNAD). Fórmulas e limites vêm na resposta.",
     "operationId": "territorio_ranking_api_v1_territorio_ranking_get",
     "parameters": [
      {

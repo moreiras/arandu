@@ -29,7 +29,7 @@ router = APIRouter()
     summary="Municípios por penetração, mercado não visto ou distância ao PTT",
     description=f"""
 Municípios ordenados por `campo` ({', '.join(t.CAMPOS)}). `uf` restringe; `sem_ptt_proximo=true` mantém só os a mais de 100 km de um PTT (linha reta do
-centróide); `min_domicilios` evita o ruído de municípios muito pequenos. Cada linha traz população, domicílios, acessos, penetração, o não visto estimado e o PTT mais próximo.
+centróide); `min_domicilios` evita o ruído de municípios muito pequenos. Cada linha traz população, domicílios, acessos, penetração, o não visto estimado e o PTT mais próximo (`ptt_proximo`, `ptt_proximo_nome`) com o PIX, o local de interconexão, mais próximo (`pix_proximo`).
 O `nao_visto` é max(0, domicílios projetados × taxa de internet da UF − acessos de pessoa física): estimativa que inclui quem usa só o celular (PNAD). Fórmulas e limites vêm na resposta.
 """,
 )
@@ -149,3 +149,32 @@ def territorio_rede(request: Request, date: Optional[str] = Query(None)) -> dict
         raise HTTPException(404, f"Rede no território não publicada no snapshot {d}.")
     from api.services.rede_territorio import resumo
     return resumo(doc)
+
+
+@router.get(
+    "/territorio/infra-proximos",
+    summary="Infraestrutura física e instalações do PeeringDB num raio em torno de um ponto",
+    description="""
+Para o ponto `lat`/`lon`: quantas feições das camadas leves do mapa passam a até `raio_km` (cabos submarinos, pontos de aterrissagem, enlaces terrestres da UIT e linhas de transmissão
+de energia) e as `limit` mais próximas de cada uma, com a distância em km, a fonte e, nos enlaces, a contagem por `status` (por exemplo operacional ou planejado). Traz também as instalações
+cadastradas no PeeringDB a até `raio_instalacoes_km`. Distância em linha reta até a geometria, com projeção local; as geometrias são aproximadas, não informam capacidade disponível nem
+quem opera, e a instalação é cadastro autodeclarado. Proximidade de uma linha de energia ou de um cabo não indica que as redes locais a usam. Sem GeoJSON; rodovias ficam de fora (arquivo grande).
+Mesma regra do `infra_proximos` do MCP.
+""",
+)
+def territorio_infra_proximos(
+    request: Request, lat: float = Query(..., ge=-90, le=90), lon: float = Query(..., ge=-180, le=180), date: Optional[str] = Query(None),
+    raio_km: float = Query(50.0, ge=1, le=500), raio_instalacoes_km: float = Query(150.0, ge=1, le=500), limit: int = Query(3, ge=1, le=10),
+) -> dict:
+    from api.services import infra
+
+    store = request.app.state.store
+    d = store.resolve_date(date)
+    if d is None:
+        raise HTTPException(404, "Nenhum snapshot disponível")
+    r = infra.resumo_infra(store, d, lat, lon, raio_km, list(infra.PADRAO), limit)
+    for nome, item in r["camadas"].items():
+        item["fonte"] = infra.FONTES[nome]
+    instalacoes = infra.instalacoes_proximas(store.query_table(d, "facilities"), lat, lon, raio_instalacoes_km, limit)
+    return {"snapshot_date": d, "ponto": {"lat": lat, "lon": lon}, "raio_km": raio_km, **r,
+            "instalacoes": {**instalacoes, "fonte": "PeeringDB (cadastro autodeclarado)"}}

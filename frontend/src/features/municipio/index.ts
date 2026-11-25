@@ -71,8 +71,8 @@ def({ id: 'fust', titulo: 'FUST — compromissos no município', ordem: 37, depe
   nota: 'cadastro da Anatel: não identifica a empresa executora; o valor é o previsto, não o desembolsado', aplicavel: (c) => !!c.fust, Componente: FustMunicipioBloco })
 def({ id: 'rede', titulo: 'Rede — ASNs das operadoras', ordem: 40, depende: ['useMunicipioPerfil'], fontes: ['registro_br'], selo: 'inferido',
   nota: 'ASNs ligados à operadora pelo CNPJ (Registro.br)', aplicavel: (c) => [...(c.fixo?.operadores ?? []), ...(c.movel?.operadores ?? [])].some((o) => o.asns.length > 0), Componente: RedeBloco })
-def({ id: 'infraestrutura', titulo: 'Infraestrutura — PTTs próximos', ordem: 50, depende: ['map-pix', 'municipios-centroides'], fontes: ['curada_pix'], selo: 'estimado',
-  nota: 'distância em linha reta até o centróide do município', aplicavel: (c) => c.proximos.length > 0, Componente: InfraBloco })
+def({ id: 'infraestrutura', titulo: 'Infraestrutura — PTTs e transporte', ordem: 50, depende: ['map-pix', 'municipios-centroides', 'useRegiao'], fontes: ['curada_pix', 'lg_ixbr', 'peeringdb_ixps'], selo: 'estimado',
+  nota: 'distância em linha reta até o centróide do município; sessão direta pelo cadastro de participantes; vínculo CNPJ e ASN inferido; infraestrutura próxima não quer dizer que as operadoras locais a usam', aplicavel: (c) => c.proximos.length > 0, Componente: InfraBloco })
 def({ id: 'regiao-provedores', titulo: 'Provedores da região (ASNs)', ordem: 41, depende: ['useRegiao'], fontes: ['anatel_sici', 'registro_br', 'cnpj_geo', 'prefix_geo'], selo: 'inferido',
   nota: 'o ASN entra pelo SICI, pela sede do CNPJ ou por prefixos geolocalizados no município (DB-IP, precisão de cidade)', aplicavel: (c) => !!c.regiao && c.regiao.asns.total > 0, Componente: ProvedoresRegiaoBloco })
 def({ id: 'regiao-ptts', titulo: 'Participação nos PTTs', ordem: 42, depende: ['useRegiao'], fontes: ['lg_ixbr', 'peeringdb_ixps'], selo: 'fato',

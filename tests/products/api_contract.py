@@ -100,6 +100,7 @@ PATH_PARAMS = {"fac_id": "fac_id", "code": "code", "asn": "asn", "n": "asn", "cn
 # consulta obrigatória por rota (os valores de `{x}` vêm de `discover`)
 QUERY = {
     "/api/v1/territorio/mapa": {"indicador": "penetracao"},
+    "/api/v1/territorio/infra-proximos": {"lat": -23.55, "lon": -46.63},
     "/api/v1/qualidade/mapa": {"servico": "Banda Larga Fixa", "indicador": "IND4"},
     "/api/v1/busca": {"q": "Arandurápolis"},
     "/api/v1/snapshots/diff": {"a": "{d0}", "b": "{date}"},
