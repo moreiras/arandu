@@ -193,7 +193,7 @@
  "cobertura": {
   "asns_com_leitura": 3,
   "asns_com_servicos_observados": 2,
-  "asns_do_brasil_no_snapshot": 36,
+  "asns_do_brasil_no_snapshot": 37,
   "leitura_mais_antiga": "2026-09-20",
   "leitura_mais_recente": "2026-09-20"
  },
@@ -313,7 +313,7 @@
   "RN": {
    "asns_com_leitura": 0,
    "asns_com_servicos_observados": 0,
-   "asns_do_cadastro": 2,
+   "asns_do_cadastro": 3,
    "classes": {
     "acesso_remoto": 0,
     "banco_de_dados": 0,

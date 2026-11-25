@@ -40,7 +40,7 @@ def test_dataset_e_deterministico(tmp_path):
 def test_pipeline_publica_o_esperado(pipeline):
     base, res = pipeline
     r = res[T1]
-    assert r["ixps_indexed"] == 3 and r["asns_indexed"] == 60
+    assert r["ixps_indexed"] == 3 and r["asns_indexed"] == 61                  # 37 BR (com o AS da filial do cenário 10) + 24 de fora
     for name in ("summary.json", "manifest.json", "asns/index.json", "ixps/index.json", "hilbert_v4.json", "hilbert_v6.json"):
         assert (base / "published" / T1 / name).exists(), name
 
@@ -103,7 +103,7 @@ def test_novo_membro_em_t1(pipeline):
 def test_totais_do_summary(pipeline):
     base, _ = pipeline
     s = load(base, T1, "summary.json")
-    assert s["total_asns_global"] == 60 and s["total_asns_br"] == 36
+    assert s["total_asns_global"] == 61 and s["total_asns_br"] == 37
     assert s["fulltable_v4_status"] == "ok" and s["registro_br_status"] == "ok"
     assert s["pipeline_version"]                                           # vem do arquivo VERSION
 
@@ -208,7 +208,7 @@ def test_camadas_de_infraestrutura_publicadas(pipeline):
     r = pipeline[1][T1]
     assert (r["itu_links"], r["submarine_cables"], r["submarine_landing_points"],
             r["power_transmission_lines"], r["ibge_rodovias"]) == (3, 1, 1, 1, 1)
-    assert r["external_ixps"] == 1 and r["geo_global_prefixes"] > 50 and r["geo_asns"] == 60   # 36 BR + 24 internacionais
+    assert r["external_ixps"] == 1 and r["geo_global_prefixes"] > 50 and r["geo_asns"] == 61   # 37 BR (com o AS da filial do cenário 10) + 24 internacionais
 
 
 def test_ixp_externo_cruza_membros_br_com_o_ixbr(pipeline):

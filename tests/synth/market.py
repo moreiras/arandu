@@ -17,9 +17,12 @@ def _org(asn: AS) -> dict:
 
 
 def operators(world: World) -> list[dict]:
-    """Operadoras (CNPJ único): as dos ASNs BR (CNPJ compartilhado conta uma vez) + 8 sem ASN."""
+    """Operadoras (CNPJ único): as dos ASNs BR (CNPJ compartilhado conta uma vez) + 8 sem ASN. O AS registrado em filial (cenário 10)
+    não gera operadora: a outorga e o SICI são da matriz."""
     seen: dict[str, dict] = {}
     for a in sorted(world.ases.values(), key=lambda x: x.asn):
+        if a.is_br and a.cnpj[8:12] != "0001":
+            continue
         if a.is_br and a.cnpj not in seen:
             o = _org(a)
             o["asns"] = [a.asn]

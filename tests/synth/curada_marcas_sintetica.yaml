@@ -7,6 +7,9 @@ marcas:
   - {marca: ALFA, raizes: ["90000007"], base: "sintético: Provedor 07 Telecom Ltda"}
   - {marca: BETA, raizes: ["90000202"], base: "sintético: Provedor Sem ASN 3 Ltda"}
   - {marca: GAMA, raizes: ["90000103"], base: "sintético: Trânsito Nacional 4 S.A."}
+  - {marca: DELTA, raizes: ["90000203", "90000004"], data: 2026-11-24, base: "sintético: Provedor Sem ASN 4 Ltda e Provedor 04 Telecom Ltda (cenário 10, vínculo pela marca)"}
 aliases_consumidor_gov:
   - {nome: "Alfa Fibra - Marca A", marca: ALFA, base: "sintético: o Consumidor.gov.br chama a ALFA de Alfa Fibra - Marca A"}
   - {nome: "Beta Net", marca: BETA, base: "sintético: nome da BETA no Consumidor.gov.br"}
+asns_estrangeiros:
+  - {marca: EPSILON, raizes: ["90000204"], asns: [4200000100], data: 2026-11-24, base: "sintético: Provedor Sem ASN 5 Ltda atendido pelo AS 4200000100 (Foreign Net 1 Inc, US) (cenário 10)"}

@@ -117,6 +117,9 @@ def test_indice_de_operadoras_e_outorgas_memoizados(monkeypatch):
         def _load_sici(self, d):
             return self.sici
 
+        def _load_geo_orgs(self, d):                                                  # vínculo ASN ↔ CNPJ (D5) da linha
+            return {64500: {"cnpj": "11111111000111"}}
+
     f = Fachada()
     s = OperadorasService(f)
     a = s.operadora_index("2026-11-22")

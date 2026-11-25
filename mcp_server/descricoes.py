@@ -184,7 +184,8 @@ DESCRICOES: dict[str, str] = {
     ),
     'operadora_ranking': (
         'Ranking das operadoras por acessos (ou capacidade, municípios): nacional, por UF da sede ou dentro de um município '
-        '(ibge); com_asn=false para quem não tem AS. servico="movel" para móvel. Cada item traz cnpj, empresa e asns. Args: '
+        '(ibge); com_asn=false para quem não tem AS brasileiro vinculado (CNPJ, raiz ou marca). servico="movel" para móvel. '
+        'Cada item traz cnpj, empresa, asns (mesmo CNPJ) e asn_vinculo (cnpj, raiz, marca, estrangeiro, nenhum). Args: '
         'uf, ibge, com_asn, min_acessos, metric, limit, servico.'
     ),
     'operadora_resolver': (

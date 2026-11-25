@@ -5,7 +5,11 @@
 # física. Marca que não está aqui nem casa por nome fantasia único (regra automática, rotulada "automático") fica SEM CNPJ: a contagem aparece como "marca sem CNPJ", nunca atribuída
 # por palpite. Uma marca pode ter várias raízes (grupo econômico). Correções: arandurape@internetbitabit.com.br.
 #
-# Campos: `marca` (como na fonte, em maiúsculas), `raizes` (lista de 8 dígitos), `base` (o que sustenta o vínculo). A comparação ignora acento, caixa e pontuação.
+# Campos: `marca` (como na fonte, em maiúsculas), `raizes` (lista de 8 dígitos), `base` (o que sustenta o vínculo), `data` (opcional: quando a linha foi conferida; sem ela vale
+# `curada_em`). A comparação ignora acento, caixa e pontuação.
+#
+# A mesma tabela alimenta o vínculo ASN ↔ CNPJ (decisão D5): uma operadora cuja raiz está numa marca recebe, com o rótulo `marca` e selo inferido, os ASNs das outras
+# raízes da marca (a Client Co, raiz 53420564, recebe os ASNs da Oi S.A., raiz 76535764). Ver `asns_estrangeiros` no fim do arquivo.
 versao: 2
 curada_em: 2026-11-07
 fonte_da_curadoria: razão social e nome fantasia das outorgas da Anatel (snapshot 2026-11-05) e grupos do SICI do Arandurapé
@@ -16,6 +20,11 @@ marcas:
   - {marca: TIM, raizes: ["02421421"], base: "TIM S.A., nome TIM nas outorgas e no SICI (grupo TELECOM ITALIA)"}
   - {marca: OI, raizes: ["76535764", "53420564"], base: "Oi S.A. e Client Co Serviços de Rede Nordeste (grupo OI no SICI)"}
   - {marca: SKY, raizes: ["00497373"], base: "Sky Serviços de Banda Larga Ltda, outorgas de SCM, SeAC e SMP"}
+  # TODO(mantenedor): proposta (PT-09, HOME-E2), não ativada: acrescentar a raiz 65476221 (Zaaz no Ne Ltda, CNPJ 65476221000186, que declara ao SICI fixo com empresa e
+  # grupo econômico "SKY/ZAAZ", 118.597 acessos no snapshot 2026-11-22) à marca SKY, para ligá-la a AS28298 e AS262366 (CNPJ 00497373004379, filial da Sky). A única
+  # base encontrada é o rótulo de grupo declarado ao SICI; a relação societária entre Zaaz e Sky não foi conferida em fonte primária, e a linha também muda o casamento do
+  # RQUAL e do Consumidor.gov.br para a raiz 65476221. Linha proposta:
+  #   - {marca: SKY, raizes: ["00497373", "65476221"], data: AAAA-MM-DD, base: "Sky Serviços de Banda Larga Ltda (outorgas de SCM, SeAC e SMP) e Zaaz no Ne Ltda (grupo SKY/ZAAZ no SICI)"}
   - {marca: ALGAR, raizes: ["71208516", "05872814"], base: "Algar Telecom S/A e Vogel Soluções (grupo ALGAR (CTBC TELECOM) no SICI)"}
   - {marca: SERCOMTEL, raizes: ["01371416"], base: "Sercomtel S/A Telecomunicações (nome fantasia SERCOMTEL nas outorgas)"}
   - {marca: LIGGA TELECOM, raizes: ["65649511", "04368865"], base: "Ligga Serviços em Telecom e Ligga Telecomunicações (nome fantasia LIGGA TELECOM nas outorgas)"}
@@ -56,3 +65,9 @@ aliases_consumidor_gov:
   - {nome: "Proxxima Telecom", marca: PROXXIMA, base: "nome fantasia da Proxxima Telecomunicações S.A."}
   - {nome: "Datora Telecomunicações", marca: DATORA, base: "razão social da Datora Telecomunicações Ltda"}
   - {nome: "Net Angra", marca: NET ANGRA, base: "nome fantasia da TSCM Net Angra Telecomunicações Ltda"}
+# ASNs de fora do Brasil ligados a uma operadora brasileira pela marca (vínculo `estrangeiro` do índice ASN ↔ CNPJ, decisão D5). A operadora declara ao SICI com CNPJ
+# brasileiro e a rede que a atende é de AS registrado em outro país, sem CNPJ: o vínculo é inferido da marca e sai com rótulo próprio ("AS estrangeiro"), nunca somado
+# aos números de rede da operadora. Cada linha: `marca`, `raizes` (da operadora brasileira), `asns`, `base` e `data` (todos obrigatórios).
+asns_estrangeiros:
+  - {marca: STARLINK, raizes: ["40154884"], asns: [14593], data: 2026-11-24,
+     base: "Starlink Brazil Serviços de Internet Ltda. (CNPJ 40154884000153, empresa no SICI fixo) e AS14593, nome SPACEX-STARLINK, Space Exploration Technologies Corporation, US (snapshot 2026-11-22); ligação pela marca Starlink, sem CNPJ no AS"}

@@ -87,7 +87,7 @@ def compute_detail(store: Any, date_str: str) -> Optional[dict]:
     try:
         operadoras = store.operadora_index(date_str)
         summary["provedores_fixos_ativos"] = sum(
-            1 for r in operadoras if r.get("com_asn") or r.get("ativo")
+            1 for r in operadoras if r.get("asns") or r.get("ativo")      # ASN no mesmo CNPJ (o `com_asn` passou a incluir raiz e marca, D5)
         )
         summary["assinantes_b2b_fixos"] = sum(r.get("acessos_pj") or 0 for r in operadoras)
         summary["assinantes_b2c_fixos"] = sum(r.get("acessos_pf") or 0 for r in operadoras)
@@ -97,7 +97,7 @@ def compute_detail(store: Any, date_str: str) -> Optional[dict]:
     try:
         operadoras_movel = store.operadora_movel_index(date_str)
         summary["provedores_moveis_ativos"] = sum(
-            1 for r in operadoras_movel if r.get("com_asn") or r.get("ativo")
+            1 for r in operadoras_movel if r.get("asns") or r.get("ativo")
         )
         summary["assinantes_b2b_moveis"] = sum(r.get("acessos_pj") or 0 for r in operadoras_movel)
         summary["assinantes_b2c_moveis"] = sum(r.get("acessos_pf") or 0 for r in operadoras_movel)

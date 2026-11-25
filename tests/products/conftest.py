@@ -111,6 +111,10 @@ def api(pipeline):
         from api.store import Store
 
         mp.setattr(Store, "_load_pix_config", lambda self: fake_pix())   # PIX fictícios (como no pipeline)
+        from core import marcas as marcas_mod
+        from tests.synth.qualidade import CURADA
+
+        mp.setattr(marcas_mod, "CAMINHO_CURADA", CURADA)                # marca → CNPJ sintética também na API (vínculo ASN ↔ CNPJ, cenário 10)
         from api.ratelimit import limiter
 
         # o limite por IP (120/min) é do anti-abuso, não do contrato: com ele ligado, o resultado dos testes

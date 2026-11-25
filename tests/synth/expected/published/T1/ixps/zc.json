@@ -45,7 +45,7 @@
    4200000003
   ],
   "br_asns_direct_count": 9,
-  "br_asns_direct_pct": 25.0,
+  "br_asns_direct_pct": 24.32,
   "br_asns_origin": [
    64499,
    64503,
@@ -61,13 +61,13 @@
    4200000003
   ],
   "br_asns_origin_count": 12,
-  "br_asns_origin_pct": 33.33,
-  "br_prefix_coverage_pct": 27.0968,
+  "br_asns_origin_pct": 32.43,
+  "br_prefix_coverage_pct": 26.9231,
   "br_prefix_covered_space": 10752,
-  "br_prefix_declared_space": 39680,
-  "ft_space": 49152,
+  "br_prefix_declared_space": 39936,
+  "ft_space": 49408,
   "ixp_space": 11520,
-  "ixp_vs_fulltable_space_pct": 23.4375,
+  "ixp_vs_fulltable_space_pct": 23.3161,
   "total_routes": 22,
   "unique_prefixes": 22
  },

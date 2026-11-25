@@ -20,6 +20,17 @@ from core.cpf import sem_socios_pessoa_fisica
 from core.outorgas import eh_outorga
 
 
+#: Vínculo ASN ↔ CNPJ (decisão D5), do mais forte ao mais fraco. `cnpj`: o ASN está registrado no Registro.br com o mesmo CNPJ de 14 dígitos (fato);
+#: `raiz`: com outro CNPJ da mesma raiz de 8 dígitos, matriz ou filial da mesma pessoa jurídica (inferido); `marca`: com a raiz de outra empresa da mesma marca na
+#: tabela curada `config/curada_marcas_operadoras.yaml` (inferido); `estrangeiro`: AS de fora do Brasil ligado à marca pela seção `asns_estrangeiros` da mesma tabela
+#: (inferido, rótulo próprio). `nenhum`: nada disso.
+VINCULOS_ASN = ("cnpj", "raiz", "marca", "estrangeiro")
+SELO_VINCULO = {"cnpj": "fato", "raiz": "inferido", "marca": "inferido", "estrangeiro": "inferido"}
+REGRA_VINCULO = ("Vínculo ASN ↔ CNPJ: `cnpj` = ASN registrado no Registro.br com o mesmo CNPJ (fato); `raiz` = com outro CNPJ da mesma raiz de 8 dígitos, matriz "
+                 "ou filial (inferido); `marca` = com a raiz de outra empresa da mesma marca na tabela curada do projeto (inferido); `estrangeiro` = AS de fora do "
+                 "Brasil ligado pela marca (inferido); `nenhum` = nenhum desses. Somas de rede usam só `cnpj` e `raiz` (a mesma pessoa jurídica).")
+
+
 class OperadorasService:
     def __init__(self, store):
         self._s = store
@@ -32,6 +43,8 @@ class OperadorasService:
         self._pdb_contacts_cache: dict[str, Optional[dict]] = {}
         # Cache: date_str → (mtime, doc) de rdap_contatos.json.gz (muda a cada rodada diária, por isso a chave inclui o mtime)
         self._rdap_contatos_cache: dict[str, tuple[float, Optional[dict]]] = {}
+        # Cache: date_str → índice do vínculo ASN ↔ CNPJ (`vinculo_asn_index`)
+        self._vinculo_cache: dict[str, dict] = {}
         # Cache: date_str → dict completo de grupos_societarios.json.gz (sócios, `socios_grupos`)
         self._socios_grupos_cache: dict[str, Optional[dict]] = {}
 
@@ -99,8 +112,7 @@ class OperadorasService:
             row.setdefault("acessos_pf", 0)
             row.setdefault("acessos_pj", 0)
             row.setdefault("municipios", 0)
-            row.setdefault("com_asn", bool(row.get("asns")))
-            row["com_asn"] = bool(row.get("asns"))
+            self._marcar_vinculo(date_str, row)
         return list(rows.values())
 
     def acessos_movel_municipio_index(self, date_str: str) -> list[dict]:
@@ -117,7 +129,7 @@ class OperadorasService:
                     "acessos": op.get("acessos", 0),
                     "share": op.get("share", 0.0),
                     "asns": op.get("asns", []),
-                    "com_asn": bool(op.get("asns")),
+                    **self.vinculo_resumo(date_str, op.get("cnpj", "")),
                     "municipio_acessos": mun.get("acessos", 0),
                     "municipio_operadores": mun.get("operadores_count", 0),
                     "municipio_hhi": mun.get("hhi", 0),
@@ -144,11 +156,11 @@ class OperadorasService:
             atual = self._operadora_index_cache.get(date_str)
             if atual is not None and atual[0] is scm and atual[1] is sici:
                 return atual[2]
-            linhas = self._montar_operadora_index(scm, sici)
+            linhas = self._montar_operadora_index(date_str, scm, sici)
             self._operadora_index_cache[date_str] = (scm, sici, linhas)
             return linhas
 
-    def _montar_operadora_index(self, scm, sici) -> list[dict]:
+    def _montar_operadora_index(self, date_str: str, scm, sici) -> list[dict]:
         sici_cnpjs = (sici or {}).get("cnpjs", {})
         mes_ref = (sici or {}).get("mes_referencia", "")
         rows: dict[str, dict] = {}
@@ -200,8 +212,7 @@ class OperadorasService:
             row.setdefault("acessos_pf", 0)
             row.setdefault("acessos_pj", 0)
             row.setdefault("municipios", 0)
-            row.setdefault("com_asn", bool(row.get("asns")))
-            row["com_asn"] = bool(row.get("asns"))
+            self._marcar_vinculo(date_str, row)
         return list(rows.values())
 
     # -------------------------------------------------------------------------
@@ -330,7 +341,6 @@ class OperadorasService:
             assinantes = 0
             assinantes_por_cnpj: dict[str, int] = {}
             municipios: dict[str, dict] = {}
-            asns_do_grupo: set[int] = set()
             for cnpj in cnpjs:
                 agg = self.sici_for_cnpj(date_str, cnpj)
                 if agg:
@@ -345,7 +355,10 @@ class OperadorasService:
                         entry["acessos"] += mun.get("acessos", 0)
                         entry["pf"] += mun.get("pf", 0)
                         entry["pj"] += mun.get("pj", 0)
-                asns_do_grupo.update(cnpj_asns.get(cnpj, []))
+            # vínculo pela raiz (D5): o ASN registrado numa filial que não declara (AS26615 da TIM, AS4230 da Claro) entra no grupo;
+            # a soma é sobre o conjunto de ASNs, então um ASN com dois CNPJs do grupo não conta duas vezes
+            vinculados = self.asns_do_grupo(date_str, cnpjs)
+            asns_do_grupo = {v["asn"] for v in vinculados}
 
             usuarios_apnic = sum(
                 (asn_map.get(asn, {}).get("apnic_users") or 0) for asn in asns_do_grupo
@@ -378,6 +391,8 @@ class OperadorasService:
                 "assinantes": assinantes,
                 "usuarios_apnic": usuarios_apnic,
                 "visibilidade_bgp": visibilidade_bgp,
+                "asns": sorted(asns_do_grupo),                                       # vínculos `cnpj` e `raiz` (D5)
+                "asns_raiz": [v["asn"] for v in vinculados if v["vinculo"] == "raiz"],    # os que entram só pela raiz (filial que não está no grupo)
                 "cnpjs": cnpjs_out,
                 "municipios": sorted(municipios.values(), key=lambda m: -m["acessos"]),
             })
@@ -403,10 +418,7 @@ class OperadorasService:
         if not grupo:
             return None
 
-        cnpj_asns = self.cnpj_asns_index(date_str)
-        asns: set[int] = set()
-        for cnpj in grupo.get("cnpjs", []):
-            asns.update(cnpj_asns.get(cnpj, []))
+        asns = {v["asn"] for v in self.asns_do_grupo(date_str, grupo.get("cnpjs", []))}
         if not asns:
             return {"type": "FeatureCollection", "features": []}
 
@@ -454,6 +466,7 @@ class OperadorasService:
                     **item,
                     "empresa": self._display_name_for_cnpj(date_str, item["cnpj"]),
                     "asns": cnpj_asns.get(item["cnpj"], []),
+                    **{k: v for k, v in self.vinculo_resumo(date_str, item["cnpj"]).items() if k != "com_asn"},
                     **self.outorgas_flags_for_cnpj(date_str, item["cnpj"]),
                 }
                 for item in items
@@ -480,7 +493,7 @@ class OperadorasService:
                     "acessos": op.get("acessos", 0),
                     "share": op.get("share", 0.0),
                     "asns": op.get("asns", []),
-                    "com_asn": bool(op.get("asns")),
+                    **self.vinculo_resumo(date_str, op.get("cnpj", "")),
                     "municipio_acessos": mun.get("acessos", 0),
                     "municipio_operadores": mun.get("operadores_count", 0),
                     "municipio_hhi": mun.get("hhi", 0),
@@ -507,6 +520,112 @@ class OperadorasService:
             v.sort()
         self._cnpj_asns_cache[key] = idx
         return idx
+
+    # -------------------------------------------------------------------------
+    # Vínculo ASN ↔ CNPJ (decisão D5): fonte única para operadora, grupo, grupos, /ases, Home e MCP
+    # -------------------------------------------------------------------------
+
+    def vinculo_asn_index(self, date_str: str) -> dict:
+        """Índice do vínculo ASN ↔ CNPJ de uma data: `por_raiz` {raiz: [(asn, cnpj14)]} (Registro.br, via `cnpj_asns_index`), `marcas_por_raiz`
+        {raiz: [marca]} e `estrangeiros_por_raiz` {raiz: [entrada]} da tabela curada (`core.marcas.carregar_curada`). Cacheado por data."""
+        atual = self._vinculo_cache.get(date_str)
+        if atual is not None:
+            return atual
+        from core import marcas
+
+        por_raiz: dict[str, list[tuple[int, str]]] = {}
+        for cnpj, asns in self.cnpj_asns_index(date_str).items():
+            por_raiz.setdefault(cnpj[:8], []).extend((a, cnpj) for a in asns)
+        for v in por_raiz.values():
+            v.sort()
+        try:
+            curada = marcas.carregar_curada()
+        except Exception:
+            _log.warning("curada_marcas_operadoras ilegível: vínculo ASN ↔ CNPJ sem `marca` nem `estrangeiro`", exc_info=True)
+            curada = {"marcas": {}, "asns_estrangeiros": []}
+        marcas_por_raiz: dict[str, list[dict]] = {}
+        for chave in sorted(curada["marcas"]):
+            m = curada["marcas"][chave]
+            for r in m["raizes"]:
+                marcas_por_raiz.setdefault(r, []).append(m)
+        estrangeiros_por_raiz: dict[str, list[dict]] = {}
+        for e in curada.get("asns_estrangeiros") or []:
+            for r in e["raizes"]:
+                estrangeiros_por_raiz.setdefault(r, []).append(e)
+        idx = {"por_raiz": por_raiz, "marcas_por_raiz": marcas_por_raiz, "estrangeiros_por_raiz": estrangeiros_por_raiz, "memo": {}}
+        self._vinculo_cache[date_str] = idx
+        return idx
+
+    def asns_vinculados(self, date_str: str, cnpj: str) -> list[dict]:
+        """ASNs ligados a um CNPJ, um por ASN com o vínculo mais forte (`VINCULOS_ASN`): `{asn, vinculo, selo, cnpj_registro, marca?, base?, data?}`,
+        em ordem de vínculo e ASN. `cnpj_registro` é o CNPJ do ASN no Registro.br (nulo no `estrangeiro`)."""
+        cnpj = "".join(c for c in (cnpj or "") if c.isdigit())
+        if len(cnpj) != 14:
+            return []
+        idx = self.vinculo_asn_index(date_str)
+        memo = idx["memo"]
+        if cnpj in memo:
+            return memo[cnpj]
+        raiz = cnpj[:8]
+        vistos: dict[int, dict] = {}
+
+        def por(asn: int, vinculo: str, **extra) -> None:
+            if asn not in vistos:
+                vistos[asn] = {"asn": asn, "vinculo": vinculo, "selo": SELO_VINCULO[vinculo], **extra}
+
+        registrados = idx["por_raiz"].get(raiz, ())
+        for asn, reg in registrados:
+            if reg == cnpj:
+                por(asn, "cnpj", cnpj_registro=reg)
+        for asn, reg in registrados:
+            por(asn, "raiz", cnpj_registro=reg)
+        for m in idx["marcas_por_raiz"].get(raiz, ()):
+            for outra in m["raizes"]:
+                if outra != raiz:
+                    for asn, reg in idx["por_raiz"].get(outra, ()):
+                        por(asn, "marca", cnpj_registro=reg, marca=m["marca"], base=m["base"], data=m["data"])
+        for e in idx["estrangeiros_por_raiz"].get(raiz, ()):
+            for asn in e["asns"]:
+                por(asn, "estrangeiro", cnpj_registro=None, marca=e["marca"], base=e["base"], data=e["data"])
+        ordem = {v: i for i, v in enumerate(VINCULOS_ASN)}
+        out = sorted(vistos.values(), key=lambda x: (ordem[x["vinculo"]], x["asn"]))
+        memo[cnpj] = out
+        return out
+
+    def asn_vinculo(self, date_str: str, cnpj: str) -> str:
+        """O vínculo mais forte do CNPJ com algum ASN (`cnpj`, `raiz`, `marca`, `estrangeiro`) ou `nenhum`."""
+        v = self.asns_vinculados(date_str, cnpj)
+        return v[0]["vinculo"] if v else "nenhum"
+
+    def asns_mesma_pj(self, date_str: str, cnpj: str) -> list[int]:
+        """ASNs da mesma pessoa jurídica (vínculos `cnpj` e `raiz`): a base das somas de rede de uma operadora."""
+        return sorted(v["asn"] for v in self.asns_vinculados(date_str, cnpj) if v["vinculo"] in ("cnpj", "raiz"))
+
+    def vinculo_resumo(self, date_str: str, cnpj: str) -> dict:
+        """Campos do vínculo numa linha de collection: `asn_vinculo`, `asns_vinculados` (todos os vínculos) e `com_asn` (algum ASN brasileiro
+        ligado: `cnpj`, `raiz` ou `marca`; o `estrangeiro` não conta)."""
+        v = self.asns_vinculados(date_str, cnpj)
+        vinculo = v[0]["vinculo"] if v else "nenhum"
+        return {"asn_vinculo": vinculo, "asns_vinculados": [x["asn"] for x in v], "com_asn": vinculo in ("cnpj", "raiz", "marca")}
+
+    def _marcar_vinculo(self, date_str: str, row: dict) -> None:
+        # `asns` segue sendo o do mesmo CNPJ (fato); o vínculo pela raiz, pela marca e o estrangeiro vêm em `asns_vinculados`
+        row.update(self.vinculo_resumo(date_str, row.get("cnpj", "")))
+
+    def asns_do_grupo(self, date_str: str, cnpjs: list[str]) -> list[dict]:
+        """ASNs de um conjunto de CNPJs (grupo societário) pelos vínculos da mesma pessoa jurídica: `cnpj` quando o ASN está registrado num
+        dos CNPJs do conjunto, `raiz` quando está noutro CNPJ de uma das raízes (filial que não declara). Um ASN aparece uma vez. Marca não
+        entra: liga empresas que podem estar em outro grupo, e um ASN não pode somar em dois grupos."""
+        idx = self.vinculo_asn_index(date_str)
+        membros = set(cnpjs)
+        vistos: dict[int, dict] = {}
+        for raiz in sorted({c[:8] for c in cnpjs}):
+            for asn, reg in idx["por_raiz"].get(raiz, ()):
+                vinculo = "cnpj" if reg in membros else "raiz"
+                atual = vistos.get(asn)
+                if atual is None or (atual["vinculo"] == "raiz" and vinculo == "cnpj"):
+                    vistos[asn] = {"asn": asn, "vinculo": vinculo, "selo": SELO_VINCULO[vinculo], "cnpj_registro": reg}
+        return sorted(vistos.values(), key=lambda x: (x["vinculo"] != "cnpj", x["asn"]))
 
     # -------------------------------------------------------------------------
     # PeeringDB contacts

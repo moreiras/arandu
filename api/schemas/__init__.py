@@ -516,6 +516,10 @@ class ASNDocumentResponse(BaseModel):
     same_cnpj_asns: Optional[list[dict]] = Field(
         None, description="Outros ASNs do Registro.br com o mesmo CNPJ: [{asn, name}]",
     )
+    same_raiz_asns: Optional[list[dict]] = Field(
+        None, description="ASNs do Registro.br com outro CNPJ da mesma raiz de 8 dígitos (matriz ou filial): [{asn, name, cnpj, vinculo, selo}]; "
+                          "vínculo `raiz` da decisão D5, inferido",
+    )
     alt_names: Optional[list[dict]] = Field(
         None, description="Nomes alternativos com origem: [{name, source}]",
     )

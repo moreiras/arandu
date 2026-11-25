@@ -1,9 +1,9 @@
 {
  "snapshot_date": "2026-09-20",
- "total": 60,
+ "total": 61,
  "page": 1,
  "limit": 5,
- "pages": 12,
+ "pages": 13,
  "items": [
   {
    "asn": 64496,
@@ -33,7 +33,9 @@
    "uf": "SP",
    "epppd": null,
    "epppd_v4": null,
-   "epppd_v6": null
+   "epppd_v6": null,
+   "prontidao_indice": null,
+   "prontidao_classe": null
   },
   {
    "asn": 64497,
@@ -63,7 +65,9 @@
    "uf": "RJ",
    "epppd": null,
    "epppd_v4": null,
-   "epppd_v6": null
+   "epppd_v6": null,
+   "prontidao_indice": null,
+   "prontidao_classe": null
   },
   {
    "asn": 64498,
@@ -93,7 +97,9 @@
    "uf": "PR",
    "epppd": null,
    "epppd_v4": null,
-   "epppd_v6": null
+   "epppd_v6": null,
+   "prontidao_indice": null,
+   "prontidao_classe": null
   },
   {
    "asn": 64499,
@@ -123,7 +129,9 @@
    "uf": "SP",
    "epppd": null,
    "epppd_v4": null,
-   "epppd_v6": null
+   "epppd_v6": null,
+   "prontidao_indice": null,
+   "prontidao_classe": null
   },
   {
    "asn": 64500,
@@ -153,7 +161,9 @@
    "uf": "RS",
    "epppd": null,
    "epppd_v4": null,
-   "epppd_v6": null
+   "epppd_v6": null,
+   "prontidao_indice": null,
+   "prontidao_classe": null
   }
  ]
 }

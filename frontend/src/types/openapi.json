@@ -577,6 +577,22 @@
       "description": "Outros ASNs do Registro.br com o mesmo CNPJ: [{asn, name}]",
       "title": "Same Cnpj Asns"
      },
+     "same_raiz_asns": {
+      "anyOf": [
+       {
+        "items": {
+         "additionalProperties": true,
+         "type": "object"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "ASNs do Registro.br com outro CNPJ da mesma raiz de 8 dígitos (matriz ou filial): [{asn, name, cnpj, vinculo, selo}]; vínculo `raiz` da decisão D5, inferido",
+      "title": "Same Raiz Asns"
+     },
      "scm": {
       "anyOf": [
        {
@@ -3206,7 +3222,7 @@
   },
   "/api/v1/acessos/operadora/{cnpj}": {
    "get": {
-    "description": "Unifica, por CNPJ: outorga(s) SCM, ASNs do Registro.br com agregação de rede\n(usuários, blocos IPv4/v6, IX.br, RPKI/ASPA, alertas) e, quando a operadora\ndeclara ao SICI, os acessos de banda larga fixa. Existe se **qualquer** desses\ntrês existir — o bloco `sici` vem ausente quando não há declaração.",
+    "description": "Unifica, por CNPJ: outorga(s) SCM, ASNs do Registro.br com agregação de rede\n(usuários, blocos IPv4/v6, IX.br, RPKI/ASPA, alertas) e, quando a operadora\ndeclara ao SICI, os acessos de banda larga fixa. Existe se **qualquer** desses\ntrês existir — o bloco `sici` vem ausente quando não há declaração.\n\n`asns` são os registrados com o mesmo CNPJ (fato). `asns_vinculados` traz todos os ASNs ligados ao CNPJ, cada um com `vinculo`\n(`cnpj`, `raiz` = outro CNPJ da mesma raiz de 8 dígitos, `marca` = tabela curada, `estrangeiro` = AS de fora ligado pela marca) e\n`selo` (fato só no `cnpj`); `asn_vinculo` é o mais forte (ou `nenhum`). `rede` soma os ASNs de `cnpj` e `raiz` (a mesma pessoa\njurídica) e marca o `vinculo` de cada um; os de `marca` e `estrangeiro` não entram na soma. Regra em `regra_vinculo`.",
     "operationId": "acessos_operadora_api_v1_acessos_operadora__cnpj__get",
     "parameters": [
      {
@@ -3435,7 +3451,7 @@
       }
      },
      {
-      "description": "Filtra por ter/não ter ASN.",
+      "description": "Filtra por ter/não ter ASN brasileiro vinculado (mesmo CNPJ, mesma raiz ou marca curada; ver `asn_vinculo`).",
       "in": "query",
       "name": "com_asn",
       "required": false,
@@ -3448,7 +3464,7 @@
          "type": "null"
         }
        ],
-       "description": "Filtra por ter/não ter ASN.",
+       "description": "Filtra por ter/não ter ASN brasileiro vinculado (mesmo CNPJ, mesma raiz ou marca curada; ver `asn_vinculo`).",
        "title": "Com Asn"
       }
      },
@@ -4023,7 +4039,7 @@
   },
   "/api/v1/asns/by-organization": {
    "get": {
-    "description": "Agrupa os ASNs brasileiros pelo CNPJ da organização (Registro.br) e retorna as\norganizações com **mais de um ASN**, ordenadas pelo número de ASNs (e usuários APNIC\ncomo desempate). Para cada uma inclui os ASNs com nome, usuários estimados,\nblocos IPv6/IPv4 (full table), RPKI/ASPA e participação em IXes.\n\nÉ uma única pessoa jurídica com vários ASNs (separação de serviços, regiões,\nincorporações etc.), **não** um grupo econômico: grupos de empresas ligadas por\nsócios ou controle estão em `GET /grupos`. A lista sai em `groups` (nome mantido\npor compatibilidade). Substitui `GET /asns/economic-groups`, que segue como alias.",
+    "description": "Agrupa os ASNs brasileiros pelo CNPJ da organização (Registro.br) e retorna as\norganizações com **mais de um ASN**, ordenadas pelo número de ASNs (e usuários APNIC\ncomo desempate). Para cada uma inclui os ASNs com nome, usuários estimados,\nblocos IPv6/IPv4 (full table), RPKI/ASPA e participação em IXes.\n\n`chave=raiz` agrupa pela raiz de 8 dígitos (matriz e filiais da mesma pessoa jurídica: vínculo `raiz` da decisão D5, inferido):\ncada ASN traz o seu `cnpj` e `vinculo` (`cnpj` quando é o CNPJ da linha, `raiz` quando é outro CNPJ da raiz), e a linha traz\n`cnpjs` (quantos CNPJs distintos). Somas: cada ASN uma vez (os usuários estimados de ASes diferentes podem se sobrepor).\n\nÉ uma única pessoa jurídica com vários ASNs (separação de serviços, regiões,\nincorporações etc.), **não** um grupo econômico: grupos de empresas ligadas por\nsócios ou controle estão em `GET /grupos`. A lista sai em `groups` (nome mantido\npor compatibilidade). Substitui `GET /asns/economic-groups`, que segue como alias.",
     "operationId": "asns_por_organizacao_api_v1_asns_by_organization_get",
     "parameters": [
      {
@@ -4057,6 +4073,19 @@
        "title": "Limit",
        "type": "integer"
       }
+     },
+     {
+      "description": "`cnpj` (padrão): mesmo CNPJ de 14 dígitos; `raiz`: mesma raiz de 8 dígitos (matriz e filiais).",
+      "in": "query",
+      "name": "chave",
+      "required": false,
+      "schema": {
+       "default": "cnpj",
+       "description": "`cnpj` (padrão): mesmo CNPJ de 14 dígitos; `raiz`: mesma raiz de 8 dígitos (matriz e filiais).",
+       "pattern": "^(cnpj|raiz)$",
+       "title": "Chave",
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -4083,7 +4112,7 @@
       "description": "Validation Error"
      }
     },
-    "summary": "Organizações com vários ASNs (mesmo CNPJ)",
+    "summary": "Organizações com vários ASNs (mesmo CNPJ ou mesma raiz de CNPJ)",
     "tags": [
      "asns"
     ]
@@ -8649,7 +8678,7 @@
   },
   "/api/v1/grupos": {
    "get": {
-    "description": "Uma linha por grupo societário (`grupo_id`): CNPJs membros, classificação\n(`total` — toda relação interna é quadro idêntico/controle exclusivo;\n`parcial` — toda relação é sócio em comum/controle não exclusivo; `misto` —\ntem as duas; `individual` — empresa sem relação societária com nenhuma outra\nda base, listada como \"grupo de uma empresa só\", `grupo_id` = `ind_{cnpj básico}`),\ntotal de assinantes (acessos fixos declarados ao SICI/SCM — não\ninclui móvel) e a distribuição municipal agregada desses acessos. Cada CNPJ\ntraz os ASNs associados (`asns`) e as flags de outorga Anatel.\n`visibilidade_bgp` = algum AS de alguma empresa do grupo origina ao menos um\nbloco IPv6/IPv4 na tabela BGP global.\n\nAlimenta a página \"Grupos de Empresas\" (scatter + mapa + tabela) num único\npayload — evita round-trip por interação do usuário.",
+    "description": "Uma linha por grupo societário (`grupo_id`): CNPJs membros, classificação\n(`total` — toda relação interna é quadro idêntico/controle exclusivo;\n`parcial` — toda relação é sócio em comum/controle não exclusivo; `misto` —\ntem as duas; `individual` — empresa sem relação societária com nenhuma outra\nda base, listada como \"grupo de uma empresa só\", `grupo_id` = `ind_{cnpj básico}`),\ntotal de assinantes (acessos fixos declarados ao SICI/SCM — não\ninclui móvel) e a distribuição municipal agregada desses acessos. Cada CNPJ\ntraz os ASNs registrados com o mesmo CNPJ (`asns`) e as flags de outorga Anatel.\nO grupo traz `asns`: os do mesmo CNPJ de uma das empresas mais os de outro CNPJ\nda mesma raiz de 8 dígitos (filial que não declara; vínculo `raiz`, inferido,\nlistados à parte em `asns_raiz`). `usuarios_apnic` soma cada ASN uma vez;\n`visibilidade_bgp` = algum desses ASes origina ao menos um bloco IPv6/IPv4 na\ntabela BGP global.\n\nAlimenta a página \"Grupos de Empresas\" (scatter + mapa + tabela) num único\npayload — evita round-trip por interação do usuário.",
     "operationId": "list_grupos_api_v1_grupos_get",
     "parameters": [
      {
@@ -13680,7 +13709,7 @@
       }
      },
      {
-      "description": "true = só com ASN; false = só sem ASN.",
+      "description": "true = só com ASN brasileiro vinculado (mesmo CNPJ, mesma raiz ou marca curada; ver `asn_vinculo`); false = os demais.",
       "in": "query",
       "name": "com_asn",
       "required": false,
@@ -13693,7 +13722,7 @@
          "type": "null"
         }
        ],
-       "description": "true = só com ASN; false = só sem ASN.",
+       "description": "true = só com ASN brasileiro vinculado (mesmo CNPJ, mesma raiz ou marca curada; ver `asn_vinculo`); false = os demais.",
        "title": "Com Asn"
       }
      },

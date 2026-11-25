@@ -101,7 +101,7 @@
    4200000001
   ],
   "br_asns_direct_count": 26,
-  "br_asns_direct_pct": 72.22,
+  "br_asns_direct_pct": 70.27,
   "br_asns_origin": [
    64496,
    64497,
@@ -131,13 +131,13 @@
    4200000001
   ],
   "br_asns_origin_count": 26,
-  "br_asns_origin_pct": 72.22,
-  "br_prefix_coverage_pct": 65.8065,
+  "br_asns_origin_pct": 70.27,
+  "br_prefix_coverage_pct": 65.3846,
   "br_prefix_covered_space": 26112,
-  "br_prefix_declared_space": 39680,
-  "ft_space": 49152,
+  "br_prefix_declared_space": 39936,
+  "ft_space": 49408,
   "ixp_space": 28928,
-  "ixp_vs_fulltable_space_pct": 58.8542,
+  "ixp_vs_fulltable_space_pct": 58.5492,
   "total_routes": 64,
   "unique_prefixes": 57
  },
@@ -222,7 +222,7 @@
    4200000001
   ],
   "br_asns_direct_count": 22,
-  "br_asns_direct_pct": 73.33,
+  "br_asns_direct_pct": 70.97,
   "br_asns_origin": [
    64496,
    64497,
@@ -248,13 +248,13 @@
    4200000001
   ],
   "br_asns_origin_count": 22,
-  "br_asns_origin_pct": 73.33,
-  "br_prefix_coverage_pct": 74.4186,
+  "br_asns_origin_pct": 70.97,
+  "br_prefix_coverage_pct": 72.7273,
   "br_prefix_covered_space": 38685626227668133590597632,
-  "br_prefix_declared_space": 51983810243429054512365568,
-  "ft_space": 66490920078804604608839680,
+  "br_prefix_declared_space": 53192736063043683687071744,
+  "ft_space": 67699845898419233783545856,
   "ixp_space": 38685626227668133590597632,
-  "ixp_vs_fulltable_space_pct": 58.1818,
+  "ixp_vs_fulltable_space_pct": 57.1429,
   "total_routes": 39,
   "unique_prefixes": 32
  }

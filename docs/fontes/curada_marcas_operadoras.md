@@ -4,7 +4,7 @@
 
 `curada_marcas_operadoras` · tipo **curada** · ativa
 
-Tabela curada que liga o nome da marca ou da prestadora, como aparece no RQUAL e nas reclamações da Anatel, à raiz do CNPJ (8 dígitos). Feita à mão com a razão social e o nome fantasia das outorgas da Anatel e os grupos do SICI; marca fora da tabela só casa por nome fantasia único (regra automática, rotulada) e, sem casamento, fica sem CNPJ. Usada também pelo Consumidor.gov.br.
+Tabela curada que liga o nome da marca ou da prestadora, como aparece no RQUAL e nas reclamações da Anatel, à raiz do CNPJ (8 dígitos). Feita à mão com a razão social e o nome fantasia das outorgas da Anatel e os grupos do SICI; marca fora da tabela só casa por nome fantasia único (regra automática, rotulada) e, sem casamento, fica sem CNPJ. Usada também pelo Consumidor.gov.br e pelo vínculo ASN ↔ CNPJ (decisão D5), em que `marca` liga as raízes de uma mesma marca e `asns_estrangeiros` traz AS de fora do Brasil da marca.
 
 ## Resumo
 
@@ -35,6 +35,7 @@ Tabela curada que liga o nome da marca ou da prestadora, como aparece no RQUAL e
 | Campo | Tipo | Significado | Tratamento | Publicado em |
 |---|---|---|---|---|
 | `marcas[].marca / raizes / base` | str / lista / str | Marca como na fonte, raízes de CNPJ (8 dígitos) a que ela se liga e o que sustenta o vínculo. | Uma marca pode ter várias raízes (grupo econômico). Casamento sempre rotulado como curado ou automático; sem casamento a marca fica sem CNPJ. | qualidade → qualidade/rqual.json.gz#prestadoras; qualidade → qualidade/reclamacoes.json.gz#marcas |
+| `asns_estrangeiros[].marca / raizes / asns / base / data` | str / lista / lista / str / data | AS de fora do Brasil ligado pela marca a uma operadora brasileira (raízes), com o que sustenta o vínculo e a data da conferência. | Vínculo `estrangeiro` do índice ASN ↔ CNPJ (decisão D5), lido pela API (`api/services/operadoras.py`); a seção `marcas` dá o vínculo `marca`. Selo inferido; o AS estrangeiro não entra nas somas de rede da operadora. | — |
 
 ## Limites
 

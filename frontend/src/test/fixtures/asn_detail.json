@@ -1,7 +1,7 @@
 {
  "asn": 64496,
  "snapshot_date": "2026-09-20",
- "generated_at": "2026-10-31T22:46:30.286030+00:00",
+ "generated_at": "2026-11-25T00:22:15.524322+00:00",
  "is_br": true,
  "name": "Provedor 01 Telecom Ltda",
  "cnpj": "90000001000129",
@@ -129,10 +129,23 @@
    "category": "presenca",
    "severity": "aviso",
    "title": "Conectividade single-homed",
-   "detail": "O AS aparenta depender de um único upstream (IPv4 e IPv6) na tabela global — risco de resiliência.",
+   "detail": "O AS aparenta depender de um único upstream (IPv6 e IPv4) na tabela global — risco de resiliência.",
    "refs": {
     "upstream_v4": 4200000000,
     "upstream_v6": 4200000000
+   }
+  },
+  {
+   "id": "sessao_rs_down",
+   "category": "presenca",
+   "severity": "aviso",
+   "title": "Sessões down nos route servers do IX.br",
+   "detail": "No Alice-LG do IX.br, em 2026-01-01, todas as sessões do AS estavam down há 7 dias ou mais nos route servers de: ZA (12 dias). É o estado medido no route server; não diz a causa e o AS pode manter peering bilateral no PTT.",
+   "refs": {
+    "ixps": {
+     "za": 12
+    },
+    "coletado_em": "2026-01-01T06:00:00+00:00"
    }
   },
   {
@@ -235,6 +248,7 @@
  "seac": null,
  "has_seac": false,
  "same_cnpj_asns": [],
+ "same_raiz_asns": [],
  "alt_names": [
   {
    "name": "Provedor 01",
@@ -245,6 +259,7 @@
   "peeringdb": 1,
   "anatel": 1,
   "receita": false,
-  "total": 2
+  "total": 2,
+  "rdap": 0
  }
 }

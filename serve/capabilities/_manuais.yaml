@@ -28,7 +28,7 @@
 - http: GET /asns
   mcp: asn_lista
 - http: GET /asns/by-organization
-  sem_mcp: "ASNs do mesmo CNPJ: asn_detalhe traz same_cnpj_asns por AS; o ranking de CNPJs com vários ASNs sai de query(collection=asns, group_by=cnpj)"
+  sem_mcp: "ASNs do mesmo CNPJ: asn_detalhe traz same_cnpj_asns e same_raiz_asns por AS; o ranking de CNPJs ou raízes com vários ASNs sai de query(collection=asns, group_by=cnpj ou cnpj_root)"
 - http: GET /asns/ix-presence
   mcp: asn_ix_presence
 - http: GET /asns/names
