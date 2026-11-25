@@ -171,10 +171,10 @@ _NOME_UF = re.compile(r"^(.*?)\s*(?:/|,|-|\()\s*([A-Za-z]{2})\s*\)?$")
 @router.get(
     "/resolve/place",
     summary="Resolve um lugar (município) em coordenadas",
-    description="Centroide (mediana) das organizações geolocalizadas no município. A UF vem de `uf` ou do próprio `q` "
-                "(`Bom Jesus/PI`, `Bom Jesus, PI`). Sem UF, um nome que existe em mais de uma UF não é resolvido: a resposta "
-                "traz `ambiguo: true`, `ufs` (organizações por UF) e `lat`/`lon` nulos, em vez de misturar os homônimos. "
-                "Use o resultado em `near.point` ou diretamente para consultas geográficas.",
+    description="Centroide do município (IBGE); sem o nome na tabela do IBGE, a mediana das sedes geolocalizadas no município "
+                "arredondada a 0,1° (`posicao` diz qual). A UF vem de `uf` ou do próprio `q` (`Bom Jesus/PI`, `Bom Jesus, PI`). Sem "
+                "UF, um nome que existe em mais de uma UF não é resolvido: a resposta traz `ambiguo: true`, `ufs` e `lat`/`lon` "
+                "nulos, em vez de misturar os homônimos. Use o resultado em `near.point` ou diretamente para consultas geográficas.",
     tags=["resolve"],
 )
 def resolve_place(

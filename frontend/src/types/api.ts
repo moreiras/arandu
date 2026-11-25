@@ -759,19 +759,12 @@ export interface SCMRecord {
   razao_social: string
   nome_fantasia?: string
   data_outorga?: string
-  logradouro?: string
-  numero?: string
-  complemento?: string
-  bairro?: string
   municipio?: string
   uf?: string
-  cep?: string
   codigo_ibge?: string
   telefone?: string
   email?: string
   situacao?: string
-  lat?: number | null
-  lon?: number | null
   geo_confidence?: 'exact_address' | 'cep_centroid' | 'city_centroid' | 'unknown'
   geo_source?: string
   /** ASNs do Registro.br com mesmo CNPJ */
@@ -1114,8 +1107,6 @@ export interface OperadoraRow {
   asns: number[]
   com_asn: boolean
   acessos_compartilhados?: boolean
-  lat?: number | null
-  lon?: number | null
 }
 
 export interface PaginatedOperadoras {
@@ -1435,19 +1426,12 @@ export interface SMPRecord {
   razao_social: string
   nome_fantasia?: string
   data_outorga?: string
-  logradouro?: string
-  numero?: string
-  complemento?: string
-  bairro?: string
   municipio?: string
   uf?: string
-  cep?: string
   codigo_ibge?: string
   telefone?: string
   email?: string
   situacao?: string
-  lat?: number | null
-  lon?: number | null
   geo_confidence?: 'exact_address' | 'cep_centroid' | 'city_centroid' | 'unknown'
   geo_source?: string
   asns: number[]
@@ -1492,19 +1476,12 @@ export interface STFCRecord {
   razao_social: string
   nome_fantasia?: string
   data_outorga?: string
-  logradouro?: string
-  numero?: string
-  complemento?: string
-  bairro?: string
   municipio?: string
   uf?: string
-  cep?: string
   codigo_ibge?: string
   telefone?: string
   email?: string
   situacao?: string
-  lat?: number | null
-  lon?: number | null
   geo_confidence?: 'exact_address' | 'cep_centroid' | 'city_centroid' | 'unknown'
   geo_source?: string
   asns: number[]
@@ -1548,19 +1525,12 @@ export interface SEACRecord {
   razao_social: string
   nome_fantasia?: string
   data_outorga?: string
-  logradouro?: string
-  numero?: string
-  complemento?: string
-  bairro?: string
   municipio?: string
   uf?: string
-  cep?: string
   codigo_ibge?: string
   telefone?: string
   email?: string
   situacao?: string
-  lat?: number | null
-  lon?: number | null
   geo_confidence?: 'exact_address' | 'cep_centroid' | 'city_centroid' | 'unknown'
   geo_source?: string
   asns: number[]
@@ -1702,8 +1672,6 @@ export interface OperadoraMovelRow {
   asns: number[]
   com_asn: boolean
   acessos_compartilhados?: boolean
-  lat?: number | null
-  lon?: number | null
   rede_virtual?: SMPRedeVirtual
 }
 

@@ -47,12 +47,17 @@ def chave_de_ordenacao(campo: str) -> Callable[[dict], object]:
     return lambda s: (s.get(campo) or "").lower()
 
 
+def _geolocalizada(s: dict) -> bool:
+    """A linha pública não traz a coordenada (D1): vale `lat` quando existe ou a confiança da geolocalização."""
+    return s.get("lat") is not None or (s.get("geo_confidence") or "unknown") != "unknown"
+
+
 def um_por_cnpj(registros: list[dict]) -> list[dict]:
     """Uma linha por CNPJ: entre as outorgas de um mesmo CNPJ, mantém a geolocalizada e, em empate, a de outorga mais recente."""
     melhor: dict[str, dict] = {}
     for s in registros:
         atual = melhor.get(s.get("cnpj"))
-        if atual is None or (s.get("lat") is not None, chave_data_br(s)) > (atual.get("lat") is not None, chave_data_br(atual)):
+        if atual is None or (_geolocalizada(s), chave_data_br(s)) > (_geolocalizada(atual), chave_data_br(atual)):
             melhor[s.get("cnpj")] = s
     return list(melhor.values())
 

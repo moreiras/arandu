@@ -17,6 +17,7 @@ import logging
 from pathlib import Path
 from typing import Callable, Optional
 
+from api.privacidade import CAMPOS_DA_SEDE
 from api.repos.base import ArtifactRepo
 from core.outorgas import SERVICOS as _REGISTRO, eh_outorga
 
@@ -24,14 +25,16 @@ _log = logging.getLogger("arandurape")
 
 # Campos de contato das outorgas — NUNCA servidos em lote, apenas por AS (endpoint protegido).
 CONTACT_FIELDS = ("telefone", "email")
+# Endereço e coordenada da sede também não saem (D1): ver `api.privacidade.CAMPOS_DA_SEDE`. O `query` recupera a posição por `posicoes`.
+_FORA = frozenset(CONTACT_FIELDS) | CAMPOS_DA_SEDE
 
 # sigla → (nome da lista no JSON publicado, arquivo do mapa em maps/): vem do registro único (core/outorgas.py)
 SERVICOS: dict[str, tuple[str, str]] = {sigla: (s.chave, s.mapa) for sigla, s in _REGISTRO.items()}
 
 
 def strip_contacts(rec: dict) -> dict:
-    """Cópia de um registro sem os campos de contato (não muta o cache)."""
-    return {k: v for k, v in rec.items() if k not in CONTACT_FIELDS}
+    """Cópia de um registro para a saída pública: sem contato, sem endereço e sem coordenada da sede (não muta o cache)."""
+    return {k: v for k, v in rec.items() if k not in _FORA}
 
 
 class OutorgasPublicadas(ArtifactRepo):
@@ -51,7 +54,7 @@ class OutorgasPublicadas(ArtifactRepo):
         return self.ler(date_str, f"{self.sigla}.json.gz")
 
     def index(self, date_str: str) -> list[dict]:
-        """Todas as outorgas do snapshot, SEM contatos. [] se indisponível.
+        """Todas as outorgas do snapshot, SEM contatos nem endereço (`strip_contacts`). [] se indisponível.
 
         Caminho de consumo em lote (REST, MCP list/query). Contatos (telefone/email) só são servidos por AS via `for_asn`.
         """
@@ -65,8 +68,13 @@ class OutorgasPublicadas(ArtifactRepo):
         self._index_cache[date_str] = (data, linhas)
         return linhas
 
+    def posicoes(self, date_str: str) -> list[tuple]:
+        """(lat, lon) de cada linha de `index`, na mesma ordem: só para o filtro `near` do `query`, que não serve a posição."""
+        data = self.load(date_str)
+        return [(r.get("lat"), r.get("lon")) for r in (data or {}).get(self.chave, [])]
+
     def for_cnpj(self, date_str: str, cnpj: str) -> list[dict]:
-        """Outorgas de um CNPJ (14 dígitos), SEM contatos."""
+        """Outorgas de um CNPJ (14 dígitos), SEM contatos nem endereço."""
         data = self.load(date_str)
         if not data:
             return []
@@ -131,7 +139,7 @@ class OutorgasPublicadas(ArtifactRepo):
         return self._geo[key]
 
 
-_METODOS = ("index", "for_cnpj", "for_cnpj_with_contacts", "for_asn", "asn_set", "geo_map")
+_METODOS = ("index", "posicoes", "for_cnpj", "for_cnpj_with_contacts", "for_asn", "asn_set", "geo_map")
 _PRIVADOS = {"_load_{sigla}": "load"}      # o resto do Store lê os dados completos por aqui
 
 

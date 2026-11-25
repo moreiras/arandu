@@ -17,6 +17,7 @@ from typing import Optional
 
 from cachetools import LRUCache
 
+from api.privacidade import CAMPOS_DA_SEDE, sem_endereco
 from api.services import decix_rs as _decix_rs
 from core.cpf import mascarar_cpf_em
 
@@ -117,6 +118,7 @@ class ConsultasService:
         Para `asns`, faz join em memória do índice compacto com geo_orgs (uf/city/
         region/cnpj/lat/lon) e com asn_ix_presence (campos virtuais ixps_direct/
         ixps_origin). As demais collections vêm direto dos índices publicados.
+        A posição da sede (`lat`/`lon`) entra nas linhas das `COLECOES_SEM_SEDE` só para o filtro `near`: `_executar` não a serve.
         """
         from api import query as _q
 
@@ -178,19 +180,20 @@ class ConsultasService:
                 rows.append({**props, "lon": coords[0],
                              "lat": coords[1] if len(coords) > 1 else None})
         elif collection == "scms":
-            rows = list(self.scm_index(date_str))
+            rows = self._com_posicao(self.scm_index(date_str), self.scm_posicoes(date_str))
         elif collection == "operadoras":
-            rows = self.operadora_index(date_str)
+            rows = self._operadoras_com_posicao(self.operadora_index(date_str), self._load_scm(date_str))
         elif collection == "acessos_municipio":
             rows = self.acessos_municipio_index(date_str)
         elif collection in ("smps", "stfcs", "seacs"):
-            rows = list(getattr(self, f"{collection[:-1]}_index")(date_str))
+            sigla = collection[:-1]
+            rows = self._com_posicao(getattr(self, f"{sigla}_index")(date_str), getattr(self, f"{sigla}_posicoes")(date_str))
         elif collection == "operadoras_movel":
-            rows = self.operadora_movel_index(date_str)
+            rows = self._operadoras_com_posicao(self.operadora_movel_index(date_str), self._load_smp(date_str))
         elif collection == "acessos_movel_municipio":
             rows = self.acessos_movel_municipio_index(date_str)
         elif collection == "socios":
-            rows = self.socios_grupos_index(date_str)
+            rows = [self._socios_sem_endereco(r) for r in self.socios_grupos_index(date_str)]
         elif collection == "municipios":
             rows = self.territorio_linhas(date_str)
         elif collection == "cetic_indicadores":
@@ -302,6 +305,36 @@ class ConsultasService:
     #: coleções cujas linhas são prefixos: a posição individual (lat/lon/cidade) não sai, só entra no filtro `near`
     COLECOES_SEM_POSICAO = ("prefixes", "global_prefixes")
 
+    #: coleções com cadastro de titular: endereço e posição da sede não saem (D1); a posição só entra no filtro `near`
+    COLECOES_SEM_SEDE = ("asns", "scms", "smps", "stfcs", "seacs", "operadoras", "operadoras_movel")
+
+    @staticmethod
+    def _com_posicao(linhas: list[dict], posicoes: list[tuple]) -> list[dict]:
+        """Linhas do índice público de outorgas (sem endereço) com a posição de volta, para o `near`; mesma ordem do arquivo."""
+        if len(posicoes) != len(linhas):
+            return list(linhas)
+        return [{**r, "lat": lat, "lon": lon} for r, (lat, lon) in zip(linhas, posicoes)]
+
+    @staticmethod
+    def _operadoras_com_posicao(linhas: list[dict], outorgas: Optional[dict]) -> list[dict]:
+        """Uma linha por operadora com a posição da sede (a da primeira outorga do CNPJ, como o cadastro), só para o `near`."""
+        por_cnpj = (outorgas or {}).get("by_cnpj", {})
+        out = []
+        for r in linhas:
+            recs = por_cnpj.get(r.get("cnpj")) or [{}]
+            out.append({**r, "lat": recs[0].get("lat"), "lon": recs[0].get("lon")})
+        return out
+
+    @staticmethod
+    def _socios_sem_endereco(linha: dict) -> dict:
+        """Grupo societário sem o endereço da sede nem o das holdings (D1): ficam município, UF e código IBGE."""
+        out = dict(linha)
+        if isinstance(out.get("endereco_sede"), dict):
+            out["endereco_sede"] = sem_endereco(out["endereco_sede"])
+        if isinstance(out.get("holdings_externas"), list):
+            out["holdings_externas"] = [sem_endereco(h) for h in out["holdings_externas"]]
+        return out
+
     #: coleções com tabela colunar publicada ao lado do GeoJSON (`maps/<nome>.col`)
     COLECOES_COLUNARES = ("global_prefixes",)
     COLUNARES_ABERTAS = 3
@@ -358,6 +391,12 @@ class ConsultasService:
                 raise _q.QueryError(
                     f"{', '.join(proibido)}: a posição de cada prefixo não é servida em '{collection}'. "
                     "Use `near` para buscar prefixos perto de um lugar, ou agregue por `uf`/`country`.")
+        if collection in self.COLECOES_SEM_SEDE:
+            proibido = sorted({r for r in _q._field_refs(body) if r.split(".")[0] in CAMPOS_DA_SEDE})
+            if proibido:
+                raise _q.QueryError(
+                    f"{', '.join(proibido)}: endereço e posição da sede não são servidos em '{collection}'. "
+                    "Use `near` para buscar perto de um lugar, ou filtre e agrupe por município e `uf`.")
         near = body.pop("near", None)
         tab = self.colunar(date_str, collection) if collection in self.COLECOES_COLUNARES else None
         rows = [] if tab is not None else self.query_table(date_str, collection)
@@ -383,6 +422,8 @@ class ConsultasService:
             result = _q.execute(rows, body)
         if collection in self.COLECOES_SEM_POSICAO and result.get("items"):
             result["items"] = [sem_posicao(i) for i in result["items"]]
+        if collection in self.COLECOES_SEM_SEDE and result.get("items"):
+            result["items"] = [sem_endereco(i) for i in result["items"]]
         result["snapshot_date"] = date_str
         result["collection"] = collection
         if near_meta is not None:

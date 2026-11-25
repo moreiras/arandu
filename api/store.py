@@ -531,7 +531,10 @@ class Store:
         return pts
 
     def resolve_place(self, date_str: str, name: str, uf: Optional[str] = None) -> Optional[dict]:
-        """Centroide (mediana) das organizações geolocalizadas em um município (de uma UF, se informada: sem ela, homônimos se misturam)."""
+        """Centro de um município: o centroide do IBGE quando o nome (e a UF, se informada) o identifica; senão a mediana das sedes
+        geolocalizadas no município arredondada a 0,1° (~11 km). A mediana crua de uma ou duas sedes era a coordenada do endereço (D1)."""
+        from core.geoip import centroide_municipio
+
         target = _normalize_city(name)
         lats: list[float] = []
         lons: list[float] = []
@@ -542,6 +545,9 @@ class Store:
             if city and _normalize_city(city) == target and g.get("lat") is not None:
                 lats.append(g["lat"])
                 lons.append(g["lon"])
+        ibge = centroide_municipio(name, uf)
+        if ibge is not None:
+            return {"lat": ibge[0], "lon": ibge[1], "n": len(lats), "municipio": ibge[2], "uf": ibge[3], "posicao": "centroide do município (IBGE)"}
         if not lats:
             return None
         lats.sort()
@@ -551,7 +557,8 @@ class Store:
             n = len(xs)
             return xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2
 
-        return {"lat": _median(lats), "lon": _median(lons), "n": len(lats)}
+        return {"lat": round(_median(lats), 1), "lon": round(_median(lons), 1), "n": len(lats),
+                "posicao": "mediana das sedes no município, arredondada a 0,1°"}
 
     def place_ufs(self, date_str: str, name: str) -> dict[str, int]:
         """UFs em que há organização geolocalizada num município com esse nome, com quantas (homônimos: "Bom Jesus" está no PI e no RN)."""
@@ -1005,7 +1012,7 @@ class Store:
         return self._rpki.como_provider(date_str, asn)
 
 
-# Métodos públicos scm_*/smp_*/stfc_*/seac_* (index, for_cnpj, for_cnpj_with_contacts, for_asn, asn_set, geo_map)
+# Métodos públicos scm_*/smp_*/stfc_*/seac_* (index, posicoes, for_cnpj, for_cnpj_with_contacts, for_asn, asn_set, geo_map)
 outorgas_store.instalar(Store)
 
 # Métodos que o `Store` apenas repassa ao serviço que os implementa (api/services/): mesma interface pública de antes.

@@ -72,7 +72,7 @@ def _f(name: str, type_: str, desc: str, *, enum: Optional[list] = None,
 SCHEMA: dict[str, dict] = {
     "asns": {
         "key": "asn",
-        "description": "Sistemas Autônomos (índice compacto + geo + membership em IXPs).",
+        "description": "Sistemas Autônomos (índice compacto + geo + membership em IXPs). Endereço e posição da sede não são servidos; o filtro `near` usa a posição por dentro.",
         "fields": [
             _f("asn", "int", "Número do AS", example=28604),
             _f("name", "string", "Nome do AS", example="Globo Comunicacao"),
@@ -105,8 +105,6 @@ SCHEMA: dict[str, dict] = {
             _f("cnae_code", "int", "Código CNAE principal", example=6190601),
             _f("porte", "string", "Porte da empresa (CNPJ). Domínio fechado", enum=_PORTES),
             _f("natureza_juridica", "string", "Natureza jurídica (CNPJ)", example="Sociedade Empresária Limitada"),
-            _f("lat", "number", "Latitude da organização, ou null"),
-            _f("lon", "number", "Longitude da organização, ou null"),
             _f("ixps_direct", "array[string]", "Códigos dos IXPs IX.br onde é membro direto. Teste pertinência com `contains`/`ncontains` (ex.: contains \"sp\")", example=["sp", "rj"]),
             _f("ixps_origin", "array[string]", "Códigos dos IXPs onde origina prefixos BR. Teste com `contains`/`ncontains`", example=["sp"]),
         ],
@@ -202,27 +200,22 @@ SCHEMA: dict[str, dict] = {
         "key": "cnpj",
         "description": (
             "Outorgas do Serviço de Comunicação Multimídia (SCM) da Anatel, "
-            "geolocalizadas e cruzadas com ASNs do Registro.br por CNPJ."
+            "geolocalizadas e cruzadas com ASNs do Registro.br por CNPJ. Endereço e posição da sede não são servidos "
+            "(ficam município e UF); o filtro `near` usa a posição por dentro."
         ),
         "fields": [
             _f("cnpj", "string", "CNPJ da operadora (14 dígitos)", example="12345678000190"),
             _f("razao_social", "string", "Razão social"),
             _f("nome_fantasia", "string", "Nome fantasia, ou vazio"),
             _f("data_outorga", "string", "Data de outorga (formato ANATEL, ex: 2010-05-15)"),
-            _f("logradouro", "string", "Logradouro (endereço)"),
-            _f("numero", "string", "Número do endereço"),
-            _f("bairro", "string", "Bairro"),
             _f("municipio", "string", "Município", example="São Paulo"),
             _f("uf", "string", "UF (sigla de 2 letras MAIÚSCULAS)", example="SP"),
-            _f("cep", "string", "CEP (8 dígitos sem formatação)"),
             _f("codigo_ibge", "string", "Código do município no IBGE"),
             _f("situacao", "string", "Situação da outorga (ex: ATI=ativa, EXT=extinta)",
                enum=["ATI", "EXT", "SUS", "REV", "CAN"]),
             _f("asns", "array[int]",
                "ASNs do Registro.br com mesmo CNPJ. Use contains/ncontains para filtragem.",
                example=[12345]),
-            _f("lat", "number", "Latitude (Nominatim)"),
-            _f("lon", "number", "Longitude (Nominatim)"),
             _f("geo_confidence", "string", "Confiança da geolocalização",
                enum=["exact_address", "cep_centroid", "city_centroid", "unknown"]),
         ],
@@ -236,7 +229,7 @@ SCHEMA: dict[str, dict] = {
             "ASNs do Registro.br. Diferente de `scms`, que tem uma linha por OUTORGA. "
             "Inclui licenciados que não declaram operação (ativo=false) — metade da "
             "base. Os números são do mês de referência do SICI, que NÃO é a data do "
-            "snapshot: cite as duas."
+            "snapshot: cite as duas. A posição da sede não é servida; o filtro `near` usa a posição por dentro."
         ),
         "fields": [
             _f("cnpj", "string", "CNPJ da operadora (14 dígitos)", example="04573288000144"),
@@ -277,8 +270,6 @@ SCHEMA: dict[str, dict] = {
                "NUNCA some ASes do mesmo CNPJ — conta o mesmo assinante várias vezes."),
             _f("outorgas", "int", "Número de outorgas SCM do CNPJ"),
             _f("mes_referencia", "string", "Mês da declaração ao SICI", example="2026-07"),
-            _f("lat", "number", "Latitude da sede"),
-            _f("lon", "number", "Longitude da sede"),
         ],
         "geo": {"lat": "lat", "lon": "lon"},
     },
@@ -313,7 +304,7 @@ SCHEMA: dict[str, dict] = {
         "description": (
             "Outorgas do Serviço Móvel Pessoal (SMP) da Anatel, geolocalizadas e "
             "cruzadas com ASNs do Registro.br por CNPJ. Universo pequeno (~30 CNPJs): "
-            "as grandes operadoras móveis e MVNOs/M2M. Mesmo formato de `scms`."
+            "as grandes operadoras móveis e MVNOs/M2M. Mesmo formato de `scms` (sem endereço nem posição da sede)."
         ),
         "fields": [
             _f("cnpj", "string", "CNPJ da operadora (14 dígitos)", example="02558157000162"),
@@ -322,14 +313,11 @@ SCHEMA: dict[str, dict] = {
             _f("data_outorga", "string", "Data de outorga"),
             _f("municipio", "string", "Município (sede da outorga)", example="São Paulo"),
             _f("uf", "string", "UF (sigla de 2 letras MAIÚSCULAS)", example="SP"),
-            _f("cep", "string", "CEP (8 dígitos sem formatação)"),
             _f("codigo_ibge", "string", "Código do município no IBGE"),
             _f("situacao", "string", "Situação da outorga"),
             _f("asns", "array[int]",
                "ASNs do Registro.br com mesmo CNPJ. Use contains/ncontains.",
                example=[26599]),
-            _f("lat", "number", "Latitude (Nominatim)"),
-            _f("lon", "number", "Longitude (Nominatim)"),
             _f("geo_confidence", "string", "Confiança da geolocalização",
                enum=["exact_address", "cep_centroid", "city_centroid", "unknown"]),
         ],
@@ -370,8 +358,6 @@ SCHEMA: dict[str, dict] = {
                "NUNCA some ASes do mesmo CNPJ."),
             _f("outorgas", "int", "Número de outorgas SMP do CNPJ"),
             _f("mes_referencia", "string", "Mês da declaração ao SICI", example="2026-07"),
-            _f("lat", "number", "Latitude da sede"),
-            _f("lon", "number", "Longitude da sede"),
         ],
         "geo": {"lat": "lat", "lon": "lon"},
     },
@@ -457,12 +443,12 @@ SCHEMA: dict[str, dict] = {
                "dígitos finais do CNPJ do sócio, só o básico), razao_social, "
                "nome_fantasia, situacao_cadastral, natureza_juridica, porte, "
                "capital_social, data_inicio_atividade, cnae_fiscal_descricao, "
-               "logradouro, numero, complemento, bairro, municipio, uf, cep}. "
+               "municipio, uf} (sem endereço: logradouro, número, complemento, bairro e CEP não são servidos). "
                "Campos ficam vazios se a matriz não existir/não for encontrada."),
             _f("endereco_sede", "object",
-               "Endereço registrado na outorga Anatel (mesma fonte de "
-               "`scms`/`smps`/`stfcs`/`seacs`): {logradouro, numero, "
-               "complemento, bairro, municipio, uf, cep, codigo_ibge}. "
+               "Local da sede registrado na outorga Anatel (mesma fonte de "
+               "`scms`/`smps`/`stfcs`/`seacs`): {municipio, uf, codigo_ibge}; "
+               "logradouro, número, complemento, bairro e CEP não são servidos. "
                "Null se o CNPJ não tiver outorga com endereço cadastrado."),
             _f("receita_dump_reference", "string",
                "Mês de referência do dump de CNPJ da Receita usado neste "
@@ -1475,13 +1461,13 @@ RECIPES: list[dict] = [
         },
     },
     {
-        "pergunta": "Contatos dos ASes a ≤20 km de Vitória",
+        "pergunta": "ASes com sede a ≤20 km de Vitória",
         "ferramenta": "query",
-        "nota": "`near` resolve o lugar e aplica o raio; não chame within_radius à mão.",
+        "nota": "`near` resolve o lugar e aplica o raio; não chame within_radius à mão. Contatos não saem pelo `query`: só por `asn_contatos`, com chave e cota.",
         "args": {
             "collection": "asns",
             "near": {"place": "Vitória", "radius_km": 20},
-            "select": ["asn", "name", "phone", "email", "address", "city"],
+            "select": ["asn", "name", "city", "uf", "apnic_users"],
         },
     },
     {

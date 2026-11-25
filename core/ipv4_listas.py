@@ -13,7 +13,9 @@ Formatos (verificados em 2026-11-02):
   * `delegated-lacnic-extended`: `registro|país|tipo|início|quantidade|data|status|opaque-id`; a quantidade de IPv4 é número de endereços (não precisa ser potência de 2).
 
 Linha que não casa com o formato é **contada e devolvida** (`ignoradas`), nunca descartada em silêncio. Nome de pessoa física provável é mascarado só na saída pública (`mascarar_nome`);
-a heurística é conservadora para o que aparece como pessoa jurídica: só mascara nome brasileiro sem nenhum marcador de empresa.
+a heurística é conservadora para o que aparece como pessoa jurídica: só mascara nome brasileiro sem nenhum marcador de empresa. O CPF embutido
+no nome (EI/MEI) sai mascarado em qualquer parte, brasileira ou estrangeira (`core.cpf`): a máscara da publicação não alcança o nome dentro de
+linhas em lista (`blocos_br`).
 """
 from __future__ import annotations
 
@@ -23,6 +25,8 @@ import json
 import re
 import unicodedata
 from typing import Iterable, Optional
+
+from core.cpf import mascarar_cpf
 
 RIRS_BR = {"NICBR", "LACNIC"}
 _MARCADORES_PJ = re.compile(
@@ -46,8 +50,8 @@ def tipo_pessoa(nome: str, pais: Optional[str] = "BR") -> str:
 
 
 def mascarar_nome(nome: str, pais: Optional[str] = "BR") -> str:
-    """Nome para a saída pública: pessoa física provável vira `Pessoa física`; o resto passa."""
-    return "Pessoa física" if tipo_pessoa(nome, pais) == "pf_provavel" else nome
+    """Nome para a saída pública: pessoa física provável vira `Pessoa física`; o resto passa com o CPF embutido mascarado."""
+    return "Pessoa física" if tipo_pessoa(nome, pais) == "pf_provavel" else mascarar_cpf(nome)
 
 
 def normalizar_cidr(texto: str) -> Optional[str]:

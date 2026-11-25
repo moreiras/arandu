@@ -1082,6 +1082,7 @@
     "lon",
     "n",
     "place",
+    "posicao",
     "snapshot_date"
    ],
    "tipo": "objeto"

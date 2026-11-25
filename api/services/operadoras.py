@@ -64,7 +64,6 @@ class OperadorasService:
                 "uf_sede": rec.get("uf", ""),
                 "data_outorga": rec.get("data_outorga", ""),
                 "outorgas": len(recs),
-                "lat": rec.get("lat"), "lon": rec.get("lon"),
                 "asns": rec.get("asns", []),
                 "licenciado": True,
                 "ativo": False,
@@ -75,7 +74,7 @@ class OperadorasService:
             row = rows.setdefault(cnpj, {
                 "cnpj": cnpj, "razao_social": "", "nome_fantasia": "",
                 "municipio_sede": "", "uf_sede": "", "data_outorga": "",
-                "outorgas": 0, "lat": None, "lon": None,
+                "outorgas": 0,
                 "asns": agg.get("asns", []), "licenciado": False,
             })
             row.update({
@@ -163,7 +162,6 @@ class OperadorasService:
                 "uf_sede": rec.get("uf", ""),
                 "data_outorga": rec.get("data_outorga", ""),
                 "outorgas": len(recs),
-                "lat": rec.get("lat"), "lon": rec.get("lon"),
                 "asns": rec.get("asns", []),
                 "licenciado": True,
                 "ativo": False,
@@ -173,7 +171,7 @@ class OperadorasService:
             row = rows.setdefault(cnpj, {
                 "cnpj": cnpj, "razao_social": "", "nome_fantasia": "",
                 "municipio_sede": "", "uf_sede": "", "data_outorga": "",
-                "outorgas": 0, "lat": None, "lon": None,
+                "outorgas": 0,
                 "asns": agg.get("asns", []), "licenciado": False,
             })
             row.update({

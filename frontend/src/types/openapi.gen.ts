@@ -3943,7 +3943,7 @@ export interface paths {
         };
         /**
          * Resolve um lugar (município) em coordenadas
-         * @description Centroide (mediana) das organizações geolocalizadas no município. A UF vem de `uf` ou do próprio `q` (`Bom Jesus/PI`, `Bom Jesus, PI`). Sem UF, um nome que existe em mais de uma UF não é resolvido: a resposta traz `ambiguo: true`, `ufs` (organizações por UF) e `lat`/`lon` nulos, em vez de misturar os homônimos. Use o resultado em `near.point` ou diretamente para consultas geográficas.
+         * @description Centroide do município (IBGE); sem o nome na tabela do IBGE, a mediana das sedes geolocalizadas no município arredondada a 0,1° (`posicao` diz qual). A UF vem de `uf` ou do próprio `q` (`Bom Jesus/PI`, `Bom Jesus, PI`). Sem UF, um nome que existe em mais de uma UF não é resolvido: a resposta traz `ambiguo: true`, `ufs` e `lat`/`lon` nulos, em vez de misturar os homônimos. Use o resultado em `near.point` ou diretamente para consultas geográficas.
          */
         get: operations["resolve_place_api_v1_resolve_place_get"];
         put?: never;

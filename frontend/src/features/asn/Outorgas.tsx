@@ -23,7 +23,7 @@ export function dataOutorgaKey(d?: string | null): string {
 
 /** Uma linha por CNPJ (dentro do tipo de outorga): a Anatel publica uma linha por
  * registro/endereço, então o mesmo CNPJ aparece várias vezes. Fica o registro mais
- * antigo e a contagem de registros e de endereços distintos. */
+ * antigo e a contagem de registros e de municípios distintos (o endereço não é servido). */
 export function dedupePorCnpj(outorgas: OutorgaRecord[]) {
   const grupos = new Map<string, OutorgaRecord[]>()
   for (const o of outorgas) {
@@ -35,11 +35,8 @@ export function dedupePorCnpj(outorgas: OutorgaRecord[]) {
     const ordenados = [...rs].sort((a, b) =>
       dataOutorgaKey(a.data_outorga).localeCompare(dataOutorgaKey(b.data_outorga)),
     )
-    const enderecos = new Set(
-      rs.map((r) => [r.logradouro, r.numero, r.bairro, r.cep, r.municipio, r.uf].filter(Boolean).join('|')),
-    )
     const municipios = new Set(rs.map((r) => `${r.municipio ?? ''}/${r.uf ?? ''}`))
-    return { rep: ordenados[0], registros: rs.length, enderecos: enderecos.size, municipios: municipios.size }
+    return { rep: ordenados[0], registros: rs.length, municipios: municipios.size }
   })
 }
 
@@ -65,7 +62,7 @@ export function OutorgaSection({ outorgas, fonte }: { outorgas: OutorgaRecord[];
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
-          {linhas.map(({ rep: o, registros, enderecos, municipios }) => (
+          {linhas.map(({ rep: o, registros, municipios }) => (
             <tr key={o.cnpj} className="hover:bg-gray-50">
               <td className="px-4 py-2">
                 <div className="font-medium text-gray-900">{o.razao_social}</div>
@@ -73,14 +70,7 @@ export function OutorgaSection({ outorgas, fonte }: { outorgas: OutorgaRecord[];
                 {registros > 1 && (
                   <div className="text-xs text-gray-400 mt-0.5">
                     {registros} registros
-                    {enderecos > 1 ? ` · ${enderecos} endereços` : ''}
                     {municipios > 1 ? ` · ${municipios} municípios` : ''}
-                  </div>
-                )}
-                {o.logradouro && enderecos <= 1 && (
-                  <div className="text-xs text-gray-400 mt-0.5">
-                    {o.logradouro}{o.numero ? `, ${o.numero}` : ''}{o.bairro ? ` — ${o.bairro}` : ''}
-                    {o.cep ? ` · CEP ${o.cep}` : ''}
                   </div>
                 )}
               </td>

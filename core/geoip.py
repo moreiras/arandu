@@ -82,6 +82,20 @@ def uf_do_registro(record: dict) -> str:
     return UF_POR_NOME.get((sub.get("names") or {}).get("en", ""), "")
 
 
+def centroide_municipio(nome: str, uf: Optional[str] = None) -> Optional[tuple[float, float, str, str]]:
+    """(lat, lon, nome oficial, UF) do centroide IBGE do município de nome `nome`; sem `uf`, só quando o nome é de um município só.
+    None se o nome não está na tabela (ou é ambíguo sem UF)."""
+    nomes, _, centros = _tabelas()
+    chave = normaliza((nome or "").split("(")[0])
+    ufs = [uf.upper()] if uf else sorted({u for (u, k) in nomes if k == chave})
+    achados = [(u, nomes[(u, chave)]) for u in ufs if (u, chave) in nomes and (u, nomes[(u, chave)]) in centros]
+    if len(achados) != 1:
+        return None
+    u, oficial = achados[0]
+    lat, lon = centros[(u, oficial)]
+    return lat, lon, oficial, u
+
+
 def _perto(chave: str, uf: str, lat: float, lon: float) -> bool:
     """O município de nome `chave` está a até 3 raios do ponto? (descarta nomes parecidos mas distantes)"""
     nomes, por_uf, _ = _tabelas()

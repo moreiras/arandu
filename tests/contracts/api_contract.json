@@ -2373,6 +2373,7 @@
     "lon",
     "n",
     "place",
+    "posicao",
     "snapshot_date"
    ],
    "status": 200,
