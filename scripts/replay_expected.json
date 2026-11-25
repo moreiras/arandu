@@ -137,8 +137,8 @@
   {
    "arquivo": "asns/*.json",
    "tipo": "conteudo",
-   "caminhos_regex": "^/(alerts( \\(len \\d+ ≠ \\d+\\))?|alerts/\\d+/(id|category|title|severity|detail|desde_versao)|alerts/\\d+/refs/(prefixes( \\(len \\d+ ≠ \\d+\\))?|prefixes/\\d+|items|ixps( \\(len \\d+ ≠ \\d+\\))?|ixps/\\d+|ixps/\\d+/dist_km|coletado_em|current|aggregated|savings_pct|global_count|rir_count|declared|observed|avg_excess|afi|routes_with_prepend))$",
-   "motivo": "Só `alerts` muda, por duas causas que o caminho não separa (a lista de alertas desloca os índices). (1) Alerta `ptt_proximo_sem_participar` (PT-17 / ASN-E6, regra versão 2: só AS com prefixo na tabela global e CNPJ não baixado, texto só com o fato, sem recomendação de negócio; e PT-06 / MAPA-E1: coordenadas de 33 PIX e CEP de Lajeado, que mudam `dist_km` e fazem cxj, igu e laj voltarem às distâncias). (2) Alertas `agregacao_elevada_v4/v6` e `prefixos_filtraveis`: derivam da análise de roteamento, cuja rota brasileira passa a ser só o prefixo em bloco do Registro.br (PT-06 / BGP-E3, D4; PT-04 / BGP-E4, BGP-E8)."
+   "caminhos_regex": "^/(alerts( \\(len \\d+ ≠ \\d+\\))?|alerts/\\d+/(id|category|title|severity|detail|desde_versao)|alerts/\\d+/refs/(nivel|visibilidade|provedor_v[46]|prefixes( \\(len \\d+ ≠ \\d+\\))?|prefixes/\\d+|items|ixps( \\(len \\d+ ≠ \\d+\\))?|ixps/\\d+|ixps/\\d+/dist_km|coletado_em|current|aggregated|savings_pct|global_count|rir_count|declared|observed|avg_excess|afi|routes_with_prepend))$",
+   "motivo": "Só `alerts` muda, por duas causas que o caminho não separa (a lista de alertas desloca os índices). (1) Alerta `ptt_proximo_sem_participar` (PT-17 / ASN-E6, regra versão 2: só AS com prefixo na tabela global e CNPJ não baixado, texto só com o fato, sem recomendação de negócio; e PT-06 / MAPA-E1: coordenadas de 33 PIX e CEP de Lajeado, que mudam `dist_km` e fazem cxj, igu e laj voltarem às distâncias). (2) Alertas `agregacao_elevada_v4/v6` e `prefixos_filtraveis`: derivam da análise de roteamento, cuja rota brasileira passa a ser só o prefixo em bloco do Registro.br (PT-06 / BGP-E3, D4; PT-04 / BGP-E4, BGP-E8). (3) Deslocamento de índice: quando o alerta de PTT próximo entra ou sai, o `single_homed` muda de posição e seus `refs` (`nivel`, `visibilidade`, `provedor_v4/v6`) aparecem como diferença no índice antigo; com o fragmento `relacoes` recomposto, o conteúdo do `single_homed` é o mesmo (conferido em asns/263485, 272437 e 52968 no replay de 2026-11-25)."
   },
   {
    "arquivo": "consumidor/consumidor.json.gz",
@@ -293,8 +293,14 @@
   {
    "arquivo": "sici_indicadores.json.gz",
    "tipo": "conteudo",
-   "caminhos_regex": "^/(brasil/avisos|ufs/[^/]+/avisos|municipios/\\d+/(avisos|perda_aa/empresa)|parou_de_declarar/[^/]+/uf)$",
-   "motivo": "`avisos`: PT-17 / D6 (número de casos e aviso, sem supressão). `parou_de_declarar/*/uf`: PT-05 / RANKINGS-E4 (UF da sede no cadastro SCM, para filtrar por UF). `perda_aa/empresa`: PT-05 / MUN-E1 (nome de quem não declarou no mês, pelo mês de um ano antes, o anterior ou a razão social do cadastro)."
+   "caminhos_regex": "^/(brasil/avisos|ufs/[^/]+/avisos|municipios/\\d+/(avisos|eventos|perda_aa/empresa)|parou_de_declarar/[^/]+/uf)$",
+   "motivo": "`avisos`: PT-17 / D6 (número de casos e aviso, sem supressão). `parou_de_declarar/*/uf`: PT-05 / RANKINGS-E4 (UF da sede no cadastro SCM, para filtrar por UF). `perda_aa/empresa`: PT-05 / MUN-E1 (nome de quem não declarou no mês, pelo mês de um ano antes, o anterior ou a razão social do cadastro). `municipios/*/eventos`: PT-26 / MUN 5.1 (fatos de declaração por município: sem declaração desde um mês, primeira declaração)."
+  },
+  {
+   "arquivo": "maps/scms.geojson",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/features/\\d+/properties/sici_mes_referencia$",
+   "motivo": "PT-26 / MAPA 5.4: o mês de referência do SICI passa a ir também nas outorgas SCM sem declaração, para o mapa dizer \"sem acessos declarados em AAAA-MM\"."
   },
   {
    "arquivo": "sici_serie_municipio.json.gz",
