@@ -16,13 +16,28 @@ const ref: ReferenciasAsn = { universo: 'x', total: 1136, usuarios_posicao: 12, 
 const ids = (d: ASNDocument, r?: ReferenciasAsn) => sinteseAs(d, r).map((f) => f.id)
 
 describe('frase-síntese do AS (regras versionadas)', () => {
+  it('o denominador do ROA é o conjunto anunciado, o mesmo dos cartões (PT-30)', () => {
+    // a validação cobre alocados e anunciados (3 prefixos); só 2 são anunciados, como nos cartões
+    const doc = { ...base, global_prefixes_v4_count: 1, global_prefixes_v6_count: 1, global_prefixes_v4: ['a'], global_prefixes_v6: ['d'],
+      rir_prefixes_v4: ['a', 'b'], rir_prefixes_v6: ['d'], rpki_validation: { a: 'valid', b: 'not_found', d: 'not_found' } } as unknown as ASNDocument
+    const k = Object.fromEntries(kpisAs(doc).map((x) => [x.id, x.valor]))
+    const texto = sinteseAs(doc).find((x) => x.id === 'rpki')!.texto
+    expect(texto).toBe('1 de 2 prefixos anunciados têm ROA válido.')
+    expect(Number(/de (\d+)/.exec(texto)![1])).toBe((k.v4 as number) + (k.v6 as number))
+  })
+
+  it('sem a lista de anunciados, a frase nomeia o universo que realmente validou', () => {
+    const doc = { ...base, global_prefixes_v4: undefined, global_prefixes_v6: undefined, rpki_validation: { a: 'valid', b: 'not_found' } } as unknown as ASNDocument
+    expect(sinteseAs(doc).find((x) => x.id === 'rpki')!.texto).toBe('1 de 2 prefixos alocados ou anunciados têm ROA válido.')
+  })
+
   it('tem versão das regras', () => expect(REGRAS_VERSAO).toBe('sintese-as-3'))
 
   it('AS completo: anúncio, PTTs, RPKI, usuários com posição; cada frase com selo', () => {
     const f = sinteseAs(base, ref)
     expect(f.map((x) => x.id)).toEqual(['anuncio', 'ptts', 'rpki', 'usuarios', 'transito'])
     expect(f[0].texto).toBe('AS64496 (Provedor 01 Telecom Ltda) anuncia 1 prefixo IPv6 e 3 prefixos IPv4 na tabela de roteamento global.')
-    expect(f[1].texto).toBe('AS64496 tem sessão no route server em 2 PTTs do IX.br e aparece como originador em 3 PTTs.')
+    expect(f[1].texto).toBe('O AS tem sessão no route server em 2 PTTs do IX.br e aparece como originador em 3 PTTs.')
     expect(f[2].texto).toBe('2 de 4 prefixos anunciados têm ROA válido, e 1 está inválido.')
     expect(f[3]).toMatchObject({ selo: 'estimado', texto: 'O APNIC estima cerca de 3.068 usuários neste AS, que ocupa o 12º lugar entre os 900 ASes brasileiros com estimativa.' })
     expect(f.filter((x) => !['usuarios', 'transito'].includes(x.id)).every((x) => x.selo === 'fato')).toBe(true)
@@ -36,14 +51,14 @@ describe('frase-síntese do AS (regras versionadas)', () => {
     const vazio = { ...base, global_prefixes_v4_count: 0, global_prefixes_v6_count: 0, ixps_direct: [], ixps_origin: [], rpki_validation: {}, apnic_users: null } as unknown as ASNDocument
     const f = sinteseAs(vazio)
     expect(f.map((x) => x.id)).toEqual(['anuncio', 'ptts', 'transito'])
-    expect(f[2].texto).toBe('Este snapshot não traz inferência de provedores de trânsito.')
+    expect(f[2].texto).toBe('Esta data não tem a lista de provedores de trânsito do AS, que vem de inferência a partir das relações do CAIDA e da tabela global.')
     expect(f[0].texto).toContain('não aparece com prefixos')
     expect(f[1].texto).toContain('não aparece em PTTs')
   })
 
   it('trânsito sai das relações (ARC), nunca dos campos deprecados de adjacência', () => {
     const f = sinteseAs({ ...base, single_upstream_v4: 64500, is_multihomed_v4: true, upstreams_v4: [64496, 64500] } as ASNDocument)
-    expect(f.find((x) => x.id === 'transito')).toMatchObject({ selo: 'inferido', texto: 'Este snapshot não traz inferência de provedores de trânsito.' })
+    expect(f.find((x) => x.id === 'transito')).toMatchObject({ selo: 'inferido', texto: 'Esta data não tem a lista de provedores de trânsito do AS, que vem de inferência a partir das relações do CAIDA e da tabela global.' })
     expect(ids(base)).toContain('transito')
   })
 

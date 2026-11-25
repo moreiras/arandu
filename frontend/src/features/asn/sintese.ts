@@ -60,7 +60,7 @@ const lista = (asns: number[]) => asns.map((a) => `AS${a}`).join(', ')
 /** Frase de trânsito da regra `sintese-as-3`: conta provedores de nível provável ou superior (não `n_provedores`, que é confirmado+). */
 export function fraseTransito(doc: ASNDocument): string {
   const t = provedoresTransitoV4(doc)
-  if (t.semRelacoes) return 'Este snapshot não traz inferência de provedores de trânsito.'
+  if (t.semRelacoes) return 'Esta data não tem a lista de provedores de trânsito do AS, que vem de inferência a partir das relações do CAIDA e da tabela global.'
   const poss = t.possiveis.length ? `, além de ${n(t.possiveis.length)} de nível possível` : ''
   const irm = t.irmaos.length ? ` ${lista(t.irmaos)}, do mesmo CNPJ ou da mesma organização, ${t.irmaos.length > 1 ? 'não entram' : 'não entra'} na contagem.` : ''
   if (t.fortes.length >= 2) return `Pelas relações inferidas, o AS tem ${n(t.fortes.length)} provedores de trânsito IPv4 de nível provável ou superior (${lista(t.fortes)})${poss}.${irm}`
@@ -86,16 +86,21 @@ export function sinteseAs(doc: ASNDocument, ref?: ReferenciasAsn | null): FraseC
   f.push({
     id: 'ptts', selo: 'fato', fonte: 'Looking glass do IX.br', dataRef,
     texto: diretos + origem > 0
-      ? `AS${doc.asn} tem sessão no route server em ${plural(diretos, 'PTT do IX.br', 'PTTs do IX.br')} e aparece como originador em ${plural(origem, 'PTT', 'PTTs')}.`
-      : `AS${doc.asn} não aparece em PTTs do IX.br coletados neste snapshot.`,
+      ? `O AS tem sessão no route server em ${plural(diretos, 'PTT do IX.br', 'PTTs do IX.br')} e aparece como originador em ${plural(origem, 'PTT', 'PTTs')}.`
+      : 'O AS não aparece em PTTs do IX.br coletados neste snapshot.',
   })
-  const rpki = Object.values(doc.rpki_validation ?? {})
+  // `rpki_validation` cobre a união dos prefixos alocados (Registro.br) e anunciados (tabela global). A frase só fala de "anunciados" quando
+  // o denominador é o conjunto anunciado (o mesmo dos cartões); sem a lista de anunciados, diz "alocados ou anunciados".
+  const anunciados = new Set([...(doc.global_prefixes_v4 ?? []), ...(doc.global_prefixes_v6 ?? [])])
+  const validados = Object.entries(doc.rpki_validation ?? {})
+  const rpki = anunciados.size > 0 ? validados.filter(([p]) => anunciados.has(p)) : validados
+  const [uno, varios] = anunciados.size > 0 ? ['anunciado', 'anunciados'] : ['alocado ou anunciado', 'alocados ou anunciados']
   if (rpki.length > 0) {
-    const valido = rpki.filter((s) => s === 'valid').length
-    const invalido = rpki.filter((s) => s === 'invalid').length
+    const valido = rpki.filter(([, s]) => s === 'valid').length
+    const invalido = rpki.filter(([, s]) => s === 'invalid').length
     f.push({
-      id: 'rpki', selo: 'fato', fonte: 'RPKI (validação dos prefixos anunciados)', dataRef,
-      texto: `${n(valido)} de ${n(rpki.length)} ${rpki.length === 1 ? 'prefixo anunciado tem' : 'prefixos anunciados têm'} ROA válido`
+      id: 'rpki', selo: 'fato', fonte: 'RPKI (validação dos prefixos do AS)', dataRef,
+      texto: `${n(valido)} de ${n(rpki.length)} ${rpki.length === 1 ? `prefixo ${uno} tem` : `prefixos ${varios} têm`} ROA válido`
         + (invalido > 0 ? `, e ${plural(invalido, 'está inválido', 'estão inválidos')}.` : '.'),
     })
   }
