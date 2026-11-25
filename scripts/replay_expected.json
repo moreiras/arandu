@@ -133,6 +133,226 @@
    "arquivo": "maps/ixp_prefixes/*",
    "tipo": "so_original",
    "motivo": "As camadas de prefixos dos PTTs dependem da base de geolocalização em raw/dbip/ (sem data), que o replay não leva ao diretório de trabalho; sem ela o passo mapas_geo não as grava."
+  },
+  {
+   "arquivo": "asns/*.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/relacoes$",
+   "motivo": "Limitação do replay, sem pacote: o estágio `as_relationships` não é reexecutado e o fragmento `relacoes` dos documentos de ASN não vai ao diretório de trabalho (`build/{data}/fragments/asn/relacoes.jsonl.gz` não é copiado; `NOT_REPLAYED` só copia `as_relationships.json.gz`, e nada o recompõe em `asns/{asn}.json`). O documento publicado em 2026-11-22 traz `relacoes` (ARC v2, com `n_provedores_provavel` só nos documentos gerados depois de PT-04 / ASN-E4); o replay sai sem o campo."
+  },
+  {
+   "arquivo": "asns/*.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(relacoes|alerts( \\(len \\d+ ≠ \\d+\\))?|alerts/\\d+/(id|category|title|severity|detail|desde_versao)|alerts/\\d+/refs/(nivel|visibilidade|provedor_v[46]|upstream_v[46]|prefixes( \\(len \\d+ ≠ \\d+\\))?|prefixes/\\d+|items|ixps( \\(len \\d+ ≠ \\d+\\))?|ixps/\\d+|ixps/\\d+/dist_km|coletado_em|current|aggregated|savings_pct|global_count|rir_count|declared|observed|avg_excess|afi|routes_with_prepend))$",
+   "motivo": "Só `alerts` (e `relacoes`) muda, por três causas que o caminho não separa (a lista de alertas desloca os índices). (1) Alerta `single_homed`: sem `relacoes` no replay (limitação do replay, sem pacote; ver a entrada anterior) a regra cai no texto e nos campos antigos (`upstream_v4/v6`, \"O AS aparenta depender de um único upstream\") no lugar dos novos (`provedor_v4/v6`, `nivel`, `visibilidade`). (2) Alerta `ptt_proximo_sem_participar` (PT-17 / ASN-E6, regra versão 2: só AS com prefixo na tabela global e CNPJ não baixado, texto só com o fato, sem recomendação de negócio; e PT-06 / MAPA-E1: coordenadas de 33 PIX e CEP de Lajeado, que mudam `dist_km` e fazem cxj, igu e laj voltarem às distâncias). (3) Alertas `agregacao_elevada_v4/v6` e `prefixos_filtraveis`: derivam da análise de roteamento, cuja rota brasileira passa a ser só o prefixo em bloco do Registro.br (PT-06 / BGP-E3, D4; PT-04 / BGP-E4, BGP-E8)."
+  },
+  {
+   "arquivo": "consumidor/consumidor.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/marcas/\\d+/(base_casamento|cnpjs_matriz|raizes)( \\(len \\d+ ≠ \\d+\\))?$",
+   "motivo": "PT-09 / HOME-E2 (P2, decisão de 2026-11-25): a raiz 65476221 (Zaaz no Ne Ltda) entra na marca SKY da tabela curada (`config/curada_marcas_operadoras.yaml`, commit fe79a58), o que muda as raízes e os CNPJs matriz da marca no casamento. Afeta a marca SKY e `base_casamento`."
+  },
+  {
+   "arquivo": "consumidor/consumidor_municipios/*.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/municipios/\\d+/itens/\\d+/raizes( \\(len \\d+ ≠ \\d+\\))?$",
+   "motivo": "PT-09 / HOME-E2 (P2, decisão de 2026-11-25): a raiz 65476221 (Zaaz no Ne Ltda) entra na marca SKY da tabela curada (`config/curada_marcas_operadoras.yaml`, commit fe79a58), o que muda as raízes e os CNPJs matriz da marca no casamento. Só `raizes` dos itens da marca SKY nos municípios."
+  },
+  {
+   "arquivo": "qualidade/reclamacoes.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(marcas/\\d+/(raizes|cnpjs_matriz)|taxas/itens/\\d+/(raizes|por_mil_acessos|motivo_sem_taxa|acessos))( \\(len \\d+ ≠ \\d+\\))?$",
+   "motivo": "PT-09 / HOME-E2 (P2, decisão de 2026-11-25): a raiz 65476221 (Zaaz no Ne Ltda) entra na marca SKY da tabela curada (`config/curada_marcas_operadoras.yaml`, commit fe79a58), o que muda as raízes e os CNPJs matriz da marca no casamento. Com a segunda raiz, acessos e taxa por mil acessos da marca SKY mudam (`taxas/itens`)."
+  },
+  {
+   "arquivo": "qualidade/reclamacoes_municipios/*.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/municipios/\\d+/itens/\\d+/raizes( \\(len \\d+ ≠ \\d+\\))?$",
+   "motivo": "PT-09 / HOME-E2 (P2, decisão de 2026-11-25): a raiz 65476221 (Zaaz no Ne Ltda) entra na marca SKY da tabela curada (`config/curada_marcas_operadoras.yaml`, commit fe79a58), o que muda as raízes e os CNPJs matriz da marca no casamento. Só `raizes` dos itens da marca SKY nos municípios."
+  },
+  {
+   "arquivo": "qualidade/rqual.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/prestadoras/\\d+/(base_casamento|cnpjs_matriz|raizes)( \\(len \\d+ ≠ \\d+\\))?$",
+   "motivo": "PT-09 / HOME-E2 (P2, decisão de 2026-11-25): a raiz 65476221 (Zaaz no Ne Ltda) entra na marca SKY da tabela curada (`config/curada_marcas_operadoras.yaml`, commit fe79a58), o que muda as raízes e os CNPJs matriz da marca no casamento. Afeta a prestadora SKY e `base_casamento`."
+  },
+  {
+   "arquivo": "regulatorio/satelites.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(ngeo_sistemas|resumo/(ngeo|ngeo_sistemas|ngeo_por_orbita/.+)|ngeo( \\(len \\d+ ≠ \\d+\\))?|ngeo/\\d+/\\w+)$",
+   "motivo": "PT-05 / REGULATORIO-E1: NGEO passa a um sistema por linha, sem as cópias exatas da origem e sem as cópias por ano de agenda (`core/satelites.py`: `sem_copias`, `sistemas_ngeo`; novo `ngeo_sistemas`; `resumo.ngeo` e `ngeo_por_orbita` contam sem cópias). O `ngeo` do normalizado de 2026-11-22 ainda traz as cópias."
+  },
+  {
+   "arquivo": "external-ixps/*.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(redes|redes_br|portas|member_count|br_member_count)$|^/ixps/\\d+/(redes|redes_br|portas|member_count|br_member_count|city|code|country|name|pdb_ix_id)$",
+   "motivo": "PT-04 / IXE-E1, IXE-E2: o PTT externo conta redes distintas (`redes`, `redes_br`) e portas (`portas`); `member_count` e `br_member_count` viram alias de `redes` e `redes_br` (até 2026-11 contavam portas: decix-rj passa de 16 a 14 membros). Em `index.json` a ordem da lista muda junto, por isso os campos descritivos também diferem por posição."
+  },
+  {
+   "arquivo": "ixps/index.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/\\d+/(asn_origin_union_count|status|v[46]/(coleta|br_prefix_coverage_pct|ixp_vs_fulltable_space_pct))$",
+   "motivo": "PT-04 / IXP-E3, IXPS-E1: `asn_origin_union_count` é a união IPv6 ∪ IPv4 de originadores do PTT (era o maior dos dois). PT-06 / IXP-E1, IXP-E2, IXPS-E4: coleta por família com \"tabela vazia\" como caso próprio (`coleta`, `status`), e a cobertura de prefixos e de espaço nula, não 0%, na família sem rotas (`marcar_ptt`)."
+  },
+  {
+   "arquivo": "ixps/*.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/asn_origin_union_count$",
+   "motivo": "PT-04 / IXP-E3, IXPS-E1: `asn_origin_union_count` (originadores do PTT pela união IPv6 ∪ IPv4) é gravado pelas métricas do PTT; o publicado de main não tem o campo."
+  },
+  {
+   "arquivo": "summary.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/ixps_(failed( \\(len \\d+ ≠ \\d+\\))?|ok|partial)$",
+   "motivo": "PT-06 / IXP-E1, IXP-E2: PTT com tabela de rotas vazia numa família é coleta parcial (\"tabela vazia\"), nunca \"ok\" com 0%; `ixps_ok`, `ixps_partial` e `ixps_failed` mudam em ap, fec e rao (IPv6)."
+  },
+  {
+   "arquivo": "manifest.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(correcoes|rules_version|rules/ptt_proximo_sem_participar|sources/\\d+/(as_of|coletado_em|frescor|hash|legado|origem|versao|ativa))$",
+   "motivo": "Quatro causas. `correcoes`: PT-11 / P10, o script `scripts/mascarar_pessoa_natural_publicados.py` registra a correção no manifesto do publicado, e o pipeline não a grava. `rules_version` e `rules/ptt_proximo_sem_participar`: PT-17 / ASN-E6, a regra sobe à versão 2. `sources[]`: no replay vem do índice de legado (o armazém não é copiado; mesma causa da entrada de `manifest.json` acima) e, em PT-16 / FONT-E1 a FONT-E5, as fontes ganham `verificado_em`, `limite_dias` e `ativa`. "
+  },
+  {
+   "arquivo": "snapshot_detail.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(summary/ixps_(failed( \\(len \\d+ ≠ \\d+\\))?|ok|partial)|manifest/(comparado_com|sources/\\d+/(as_of|coletado_em|frescor|hash|legado|origem|versao|ativa)))$",
+   "motivo": "`summary/ixps_*`: PT-06 / IXP-E1, IXP-E2 (tabela vazia é coleta parcial). `manifest/comparado_com`: campo do manifesto posterior ao publicado de referência (mesma causa do `manifest.json`). `manifest/sources`: `sources[]`: no replay vem do índice de legado (o armazém não é copiado; mesma causa da entrada de `manifest.json` acima) e, em PT-16 / FONT-E1 a FONT-E5, as fontes ganham `verificado_em`, `limite_dias` e `ativa`. "
+  },
+  {
+   "arquivo": "instalacoes/*.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(regra_cadastro|cobertura/ptts_ixbr_sem_instalacao|instalacoes/\\d+/cadastro/rotulo|asns/\\d+/cadastro/rotulo)$",
+   "motivo": "PT-16 / INS-E1, INST-E3: rótulos do indicador de cadastro sem \"atualizado\" e \"parado\" (\"cadastro com atividade em até 12 meses\"), `regra_cadastro.versao = 2` e `cobertura.ptts_ixbr_sem_instalacao`."
+  },
+  {
+   "arquivo": "ipv4/blocos_br.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(limites|blocos/\\d+/6)$",
+   "motivo": "PT-03 / IPV4-E4: `limites` cita a data real do início da coleta das listas, lida do normalizado (era \"junho de 2026\"). PT-11 e PT-08 / IPV4-E14: CPF embutido no nome (coluna 6 de `blocos`) sai mascarado em qualquer parte da lista, e `limites` diz que a omissão de pessoa física vale também no exterior."
+  },
+  {
+   "arquivo": "ipv4/mercado.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/limites$",
+   "motivo": "PT-03 / IPV4-E4 (início real da coleta no texto) e PT-11 / IPV4-E14 (pessoa física omitida também no exterior): só o texto de `limites` muda."
+  },
+  {
+   "arquivo": "ipv4/recuperacao.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/limites$",
+   "motivo": "PT-03 / IPV4-E4 (início real da coleta no texto) e PT-11 / IPV4-E14 (pessoa física omitida também no exterior): só o texto de `limites` muda."
+  },
+  {
+   "arquivo": "ipv4/transferencias.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(limites|operacoes/\\d+/\\w+(/\\w+)?( \\(len \\d+ ≠ \\d+\\))?|operacoes/\\d+/blocos/\\d+)$",
+   "motivo": "PT-03 / IPV4-E4 e PT-11 / IPV4-E14: `limites` com o início real da coleta e a omissão de pessoa física no exterior. Em `operacoes`, nome estrangeiro de duas palavras ou mais sem marcador de entidade jurídica passa a pessoa provável e é omitido (`pessoa`, `nome`), e a ordem das operações do mesmo dia muda (mesmo total, 797), então os demais campos diferem por posição. Verificado em duas operações; as demais não foram conferidas uma a uma."
+  },
+  {
+   "arquivo": "ipv4/ips_sem_uso.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(duracao/tabelas_anteriores_consultadas( \\(len \\d+ ≠ \\d+\\))?|blocos/\\d+/[589])$",
+   "motivo": "Colunas 8 e 9 de `blocos` (`tabelas_sem_anuncio`, `sem_anuncio_desde`) e `duracao.tabelas_anteriores_consultadas`: limitação do replay, sem pacote. A duração sem anúncio consulta as tabelas de origem dos snapshots anteriores (até 11) e o replay só leva ao diretório de trabalho as que o diretório de dados tem (5 de 10 em 2026-11-22: de 2026-11-08 a 2026-11-21 contra de 2026-10-18 a 2026-11-21). Coluna 5 (`org`, 1 bloco): CPF embutido no nome mascarado, PT-11 e PT-08 / IPV4-E14."
+  },
+  {
+   "arquivo": "ipv4/uso_por_terceiros.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(total|por_confianca/\\w+|por_sinal/\\w+|itens( \\(len \\d+ ≠ \\d+\\))?|itens/\\d+(/.+)?)$",
+   "motivo": "Limitação do replay, sem pacote: os sinais S1 a S4 usam os eventos `mudanca_origem` de `history/events` (não levados ao diretório de trabalho) e a duração sem anúncio sobre as tabelas anteriores (ver `ipv4/ips_sem_uso.json.gz`); a lista muda de tamanho (560 contra 296 itens) e os índices deslocam. Inferido pelo mecanismo, o conteúdo não foi conferido item a item."
+  },
+  {
+   "arquivo": "ipv4/subasignacoes.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/vigia/ultima_varredura$",
+   "motivo": "Limitação do replay, sem pacote: `vigia.ultima_varredura` lê `ops/vigia/ipv4/*.json`, que não vai ao diretório de trabalho (fica `null` no replay)."
+  },
+  {
+   "arquivo": "manrs/resumo.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(limites|regras/(peso_aviso|recortes_suprimidos)|brasil/(n_asns_com_dado|peso_top1|avisos|comparacao_prontidao(/(participantes|nao_participantes)/(n_asns_com_dado|peso_top1|avisos))?)|por_(uf|faixa_porte)/[^/]+(/(pct_asns|pct_usuarios|asns_participantes|usuarios_participantes|motivo|suprimido|n_asns_com_dado|peso_top1|avisos|comparacao_prontidao(/(participantes|nao_participantes)/(n_asns_com_dado|peso_top1|avisos))?))?)$",
+   "motivo": "PT-17 / D6 (SEG-E5, SEG-E11): os agregados mostram o número de casos (`n_asns_com_dado`), o peso do maior (`peso_top1`) e `avisos`, em vez de suprimir o recorte. No MANRS nenhum recorte é suprimido (a lista de participantes já é pública): saem os campos `suprimido` e `motivo` e os recortes pequenos ganham os números e o aviso."
+  },
+  {
+   "arquivo": "prontidao/asns.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(brasil|por_uf/[^/]+|por_faixa_porte/[^/]+|por_operadora/[^/]+)(/(classes_com_rov|classes_sem_rov|n_asns_com_dado|peso_top1|avisos)|/medicoes/[a-z_]+/(n_asns_com_dado|peso_top1|avisos))$",
+   "motivo": "PT-17 / D6 (SEG-E5, SEG-E11): os agregados mostram o número de casos (`n_asns_com_dado`), o peso do maior (`peso_top1`) e `avisos`, em vez de suprimir o recorte. Também `classes_com_rov` e `classes_sem_rov` (SEG-E5): a classe do índice separada por haver ou não ROV medido."
+  },
+  {
+   "arquivo": "seguranca/asns.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(brasil|por_uf/[^/]+|por_faixa_porte/[^/]+)/(rov|dnssec)/(n_asns_com_dado|peso_top1|avisos)$",
+   "motivo": "PT-17 / D6 (SEG-E5, SEG-E11): os agregados mostram o número de casos (`n_asns_com_dado`), o peso do maior (`peso_top1`) e `avisos`, em vez de suprimir o recorte. Vale para ROV e DNSSEC por Brasil, UF e faixa de porte."
+  },
+  {
+   "arquivo": "territorio/rede_territorio.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(rov/(brasil|ufs/[^/]+)/(n_asns_com_dado|peso_top1|avisos)|transito/(ufs/[^/]+|municipios/\\d+)/(acessos_com_relacao|acessos_provedor_unico|cobertura|pct_provedor_unico|provedor_principal))$",
+   "motivo": "`rov/*`: PT-17 / D6 (SEG-E5, SEG-E11): os agregados mostram o número de casos (`n_asns_com_dado`), o peso do maior (`peso_top1`) e `avisos`, em vez de suprimir o recorte. `transito/*`: Limitação do replay, sem pacote: o estágio `as_relationships` não é reexecutado e o fragmento `relacoes` dos documentos de ASN não vai ao diretório de trabalho (`build/{data}/fragments/asn/relacoes.jsonl.gz` não é copiado; `NOT_REPLAYED` só copia `as_relationships.json.gz`, e nada o recompõe em `asns/{asn}.json`). O trânsito por UF e município sai de `territorio/regiao.json.gz`, que lê `relacoes.provedores` dos documentos de ASN."
+  },
+  {
+   "arquivo": "territorio/regiao.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/asns/\\d+(/p( \\(len \\d+ ≠ \\d+\\))?)?$",
+   "motivo": "Limitação do replay, sem pacote: o estágio `as_relationships` não é reexecutado e o fragmento `relacoes` dos documentos de ASN não vai ao diretório de trabalho (`build/{data}/fragments/asn/relacoes.jsonl.gz` não é copiado; `NOT_REPLAYED` só copia `as_relationships.json.gz`, e nada o recompõe em `asns/{asn}.json`). `asns/*/p` (provedores de trânsito por ASN) vem de `relacoes.provedores`."
+  },
+  {
+   "arquivo": "mercado_grupos.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/municipios/\\d+/(acessos|avisos_cnpj|avisos_grupo|lider_grupo/(empresa|nome_regra))$|^/ufs/[^/]+/(acessos|n_cnpjs|n_grupos|lider_grupo_share|avisos_cnpj|avisos_grupo)$",
+   "motivo": "PT-17 / D6: acessos, número de CNPJs e de grupos, parcela do líder e avisos por UF e município, sem supressão. PT-10 / GRUPO-E4, GRUPO-E14: o nome do grupo líder segue a regra única (`core/nome_grupo.py`: marca curada, senão o CNPJ com mais acessos), com `nome_regra`."
+  },
+  {
+   "arquivo": "sici_indicadores.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(brasil/avisos|ufs/[^/]+/avisos|municipios/\\d+/(avisos|perda_aa/empresa)|parou_de_declarar/[^/]+/uf)$",
+   "motivo": "`avisos`: PT-17 / D6 (número de casos e aviso, sem supressão). `parou_de_declarar/*/uf`: PT-05 / RANKINGS-E4 (UF da sede no cadastro SCM, para filtrar por UF). `perda_aa/empresa`: PT-05 / MUN-E1 (nome de quem não declarou no mês, pelo mês de um ano antes, o anterior ou a razão social do cadastro)."
+  },
+  {
+   "arquivo": "sici_serie_municipio.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/municipios/\\d+/lideres/\\d+/share/\\d+$",
+   "motivo": "PT-05 / MUN-E2: a participação do CNPJ que não declarou no mês é `None`, não zero (zero só se declarou e não tinha acesso no município)."
+  },
+  {
+   "arquivo": "rs_policy/communities.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(cobertura_total_nivel[23]|communities/\\d+/(community|classe|alvo|rotulo|forma|estado_rpki|rotas_total|asns_total|asns_soma_ptts|ptts)|communities/\\d+/ixps/[a-z]+(/(asns|rotas)|/top( \\(len \\d+ ≠ \\d+\\))?|/top/\\d+/(asn|nome|rotas))?)$",
+   "motivo": "PT-16 / IXP-E4, COMM-E4: a cobertura do rodízio dos route servers chega ao produto (`cobertura_total_nivel2` e `cobertura_total_nivel3` no cabeçalho). PT-04 / COMM-E1: `asns_total` conta ASNs distintos (o mesmo membro em vários PTTs conta uma vez; a soma por PTT fica em `asns_soma_ptts`, e `ptts` é novo: `65000:6939` de 1.382 a 769). A lista é ordenada por `asns_total`, então a ordem das communities muda e os campos diferem por posição."
+  },
+  {
+   "arquivo": "rs_policy/ixps.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(cobertura_total_nivel[23]|ixps/[a-z]+/(politica|rejeicoes)/cobertura/(herdados|idade_max_dias|lidos_na_rodada|pulados_lentos|sem_leitura))$",
+   "motivo": "PT-16 / IXP-E4, COMM-E4: a cobertura do rodízio dos route servers chega ao produto (`cobertura_total_nivel2` e `cobertura_total_nivel3` no cabeçalho). A cobertura de cada PTT ganha `lidos_na_rodada`, `sem_leitura`, `idade_max_dias` e `pulados_lentos` e `herdados` passa a vir do rodízio (`_cobertura_ptt`)."
+  },
+  {
+   "arquivo": "rs_policy/*.json.gz",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/cobertura_total_nivel[23]$",
+   "motivo": "PT-16 / IXP-E4, COMM-E4: a cobertura do rodízio dos route servers chega ao produto (`cobertura_total_nivel2` e `cobertura_total_nivel3` no cabeçalho). Só o cabeçalho muda."
+  },
+  {
+   "arquivo": "routing_analysis.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(br_asns_(registered|visible)|moas(_resumo|_indisponivel)?|(summary|more_specifics|pbr_composition|prefix_length_dist|global_comparison|too_specific)/v[46](/.+|( \\(len \\d+ ≠ \\d+\\))?)?|top_asns_more_specifics|top_asns_more_specifics/\\d+/\\w+|aggregation_by_asn( \\(len \\d+ ≠ \\d+\\))?|aggregation_by_asn/\\d+/\\w+)$",
+   "motivo": "PT-06 / BGP-E3, D4: rota brasileira é só o prefixo contido em bloco do Registro.br e ASN brasileiro é o `is_br` da delegação LACNIC (9.150 a 9.129): mudam `summary`, `pbr_composition` (`strict_br` + `prefix_only_br` = `total`; `asn_br_fora_de_bloco` fora do total), `prefix_length_dist`, `global_comparison`, `too_specific`, `top_asns_more_specifics`, `aggregation_by_asn` e `br_asns_*`. PT-04 / BGP-E5, BGP-E4, BGP-E8: profundidade de mais-específicos pelo pai imediato (`more_specifics.max_depth`, `avg_depth`) e filtráveis. PT-04 / BGP-E2: `moas` nulo, com `moas_resumo` e `moas_indisponivel`, porque o normalizado de 2026-11-22 não tem `origins-multi` (PT-04b só o coleta a partir da próxima execução). As listas deslocam por posição."
+  },
+  {
+   "arquivo": "routing_analysis_resumo.json",
+   "tipo": "conteudo",
+   "caminhos_regex": "^/(definicao|rotas_br/v[46]/(pbr_pct|pbr_routes|asn_br_fora_de_bloco|br_origin_asns)|rpki/v[46]/.+|saude/(moas|moas_indisponivel)|saude/v[46]/(mais_especificos|mais_especificos_pct|filtraveis))$",
+   "motivo": "PT-06 / BGP-E3, D4: o conjunto de rotas brasileiras muda (prefixo em bloco do Registro.br), e com ele `rotas_br`, o estado RPKI e a saúde da tabela. PT-04 / BGP-E2 (`saude.moas` nulo, com `moas_indisponivel`) e BGP-E5 (`mais_especificos`)."
+  },
+  {
+   "arquivo": "omissao_sici.json.gz",
+   "tipo": "so_original",
+   "motivo": "PT-17 / D12: o produto `omissao_sici.json.gz` passa a `sem_declaracao_sici.json.gz` (a entrada de `so_replay` desse nome está acima); o publicado de main ainda tem o nome antigo."
+  },
+  {
+   "arquivo": "transito/*.json.gz",
+   "tipo": "so_original",
+   "motivo": "Limitação do replay, sem pacote: `transito/ufs.json.gz` e `transito/asns.json.gz` (`products/transito`, cone de clientes a partir de `as_relationships.json.gz`) não pertencem a nenhum estágio reexecutado."
   }
  ]
 }
