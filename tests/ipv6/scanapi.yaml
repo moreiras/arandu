@@ -14,7 +14,7 @@ endpoints:
             assert: ${{ response.status_code == 200 }}
       - name: snapshots
         method: get
-        path: /api/v1/snapshots
+        path: /api/v1/brasil/snapshots
         tests:
           - name: status_200
             assert: ${{ response.status_code == 200 }}

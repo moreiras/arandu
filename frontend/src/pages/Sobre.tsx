@@ -1,4 +1,5 @@
 import { SITE } from '../lib/site'
+import { TetosDeUso } from '../components/TetosDeUso'
 
 export function Sobre() {
   return (
@@ -77,7 +78,7 @@ export function Sobre() {
         <p className="text-sm text-gray-600 leading-relaxed">
           Os dados são coletados semanalmente de fontes públicas e processados em um pipeline
           offline. Cada coleta gera um <em>snapshot</em> imutável: nenhum dado é sobrescrito,
-          e snapshots anteriores podem ser consultados individualmente. Todos os resultados são
+          e os dois snapshots mais recentes abrem sem login; os anteriores continuam guardados e abrem com login. Todos os resultados são
           pré-computados — a interface nunca aguarda processamento em tempo real.
         </p>
         <p className="text-sm text-gray-600 leading-relaxed">
@@ -120,6 +121,20 @@ export function Sobre() {
           AS_PATH completo dos eventos — para identificar se o ruído tem origem no próprio AS,
           em um prefixo específico, ou em um upstream instável.
         </p>
+      </section>
+
+      <section id="acesso" className="space-y-3 scroll-mt-28">
+        <h2 className="text-base font-semibold text-gray-800">Acesso sem login, limites e como citar</h2>
+        <p className="text-sm text-gray-600 leading-relaxed">
+          Sem login ficam abertas as páginas de entrada, os dois snapshots mais recentes e a primeira página (até 100 linhas, pela ordem escolhida) das listas, como prévia.
+          Páginas avançadas funcionam enquanto durar um orçamento de uso; os snapshots anteriores, as listas completas, o histórico e os contatos exigem login (conta gratuita).
+        </p>
+        <p className="text-sm text-gray-600 leading-relaxed" data-testid="sobre-citacao">
+          O botão &ldquo;Citar este dado&rdquo; gera um texto com os valores mostrados, a data do snapshot e as fontes com as datas de referência, além do endereço permanente.
+          Esse endereço fixa o snapshot e <strong>abre sem login enquanto o snapshot estiver entre os dois mais recentes</strong>, em geral cerca de duas semanas, pois os
+          snapshots são semanais. Depois disso o endereço exige login; a citação continua valendo por trazer os valores e as fontes.
+        </p>
+        <TetosDeUso />
       </section>
 
       <section className="space-y-4">
@@ -557,8 +572,9 @@ export function Sobre() {
         </p>
         <div className="bg-gray-900 rounded-lg p-4 font-mono text-xs text-gray-300 space-y-1.5">
           <div className="text-gray-500"># Snapshots</div>
-          <div><span className="text-ok-400">GET</span> /api/v1/snapshots</div>
-          <div><span className="text-ok-400">GET</span> /api/v1/snapshots/{'{date}'}</div>
+          <div><span className="text-ok-400">GET</span> /api/v1/brasil/snapshots</div>
+          <div><span className="text-ok-400">GET</span> /api/v1/brasil/snapshots/{'{date}'}</div>
+          <div><span className="text-ok-400">GET</span> /api/v1/snapshots <span className="text-gray-500">(com login)</span></div>
           <div className="text-gray-500 pt-1"># PTTs</div>
           <div><span className="text-ok-400">GET</span> /api/v1/ixps</div>
           <div><span className="text-ok-400">GET</span> /api/v1/ixps/{'{code}'}</div>

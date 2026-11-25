@@ -5,8 +5,10 @@
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 """Prontidão em segurança de roteamento: bloco do ASN, da UF e da operadora, resumo agregado e tabela do `/query`. Funções puras sobre `prontidao/asns.json.gz`.
 
-O índice é um conjunto de medições e fatos de terceiros somados com pesos públicos (`regras`); a resposta sempre traz as regras, as fontes e os limites (política editorial). **Não há lista nominal de ASNs**:
-o índice de um ASN aparece no perfil dele; da operadora e da UF, só o agregado do próprio recorte; o resumo traz país, UFs e faixas de porte.
+O índice é um conjunto de medições e fatos de terceiros somados com pesos públicos (`regras`); a resposta sempre traz as regras, as fontes e os limites (política editorial). **A lista nominal de ASNs é
+pública** (`lista_nominal_habilitada()`, decisão do mantenedor), com salvaguardas: pilar sem dado é "não medido" e fica fora do índice e da classe; a classe informa quantos pilares foram medidos; a ordem padrão é
+por ASN, nunca do pior índice para o melhor; o aviso de método (`AVISO_METODO`) acompanha a lista. O índice de um ASN também aparece no perfil dele; da operadora e da UF, só o agregado do próprio recorte; o resumo
+traz país, UFs e faixas de porte.
 """
 from __future__ import annotations
 
@@ -23,9 +25,17 @@ class ProntidaoErro(Exception):
 
 
 def lista_nominal_habilitada() -> bool:
-    """Lista/ordenação/filtro por ASN do índice. Ligada por padrão (a metodologia do índice foi revisada antes da
-    lista nominal, como pede a política editorial); `PRONTIDAO_LISTA_NOMINAL=0` a desliga."""
+    """Lista/ordenação/filtro por ASN do índice. Ligada e pública por padrão (decisão do mantenedor, com as salvaguardas do módulo);
+    `PRONTIDAO_LISTA_NOMINAL=0` a desliga e então a rota e a coleção `prontidao_asn` respondem 404."""
     return os.environ.get("PRONTIDAO_LISTA_NOMINAL", "1").strip().lower() in ("1", "true", "sim", "on")
+
+
+AVISO_METODO = (
+    "Índice de prontidão: soma ponderada de medições de terceiros (ROV e anti-spoofing do APNIC e do CAIDA Spoofer, objetos do IRR, PeeringDB, ROA e ASPA do RPKI) com regras públicas e versionadas, "
+    "e não um veredito sobre a empresa. Pilar sem dado aparece como \"não medido\" e fica fora do índice e da classe; `pilares_medidos` diz em quantos dos quatro pilares o índice se apoia "
+    "(o anti-spoofing só existe para cerca de 2% dos ASNs e o ROV depende de amostra mínima do APNIC). A ordem padrão é por ASN, sem relação com o índice. Cite a data do snapshot e a versão das regras."
+)
+PILARES = ("filtragem", "anti_spoofing", "coordenacao", "validacao_global")
 
 
 def _meta(doc: dict) -> dict:
@@ -60,8 +70,8 @@ def resumo(doc: dict, uf: Optional[str]) -> dict:
         u = uf.upper()
         if u not in UFS:
             raise ProntidaoErro(404, f"UF '{uf}' desconhecida.")
-        return {**_meta(doc), "escopo": {"uf": u}, "agregado": doc["por_uf"].get(u) or {"asns": 0}, "brasil": doc["brasil"]}
-    return {**_meta(doc), "escopo": {"pais": "BR"}, "agregado": doc["brasil"], "por_uf": doc["por_uf"], "por_faixa_porte": doc["por_faixa_porte"]}
+        return {**_meta(doc), "lista_nominal": lista_nominal_habilitada(), "escopo": {"uf": u}, "agregado": doc["por_uf"].get(u) or {"asns": 0}, "brasil": doc["brasil"]}
+    return {**_meta(doc), "lista_nominal": lista_nominal_habilitada(), "escopo": {"pais": "BR"}, "agregado": doc["brasil"], "por_uf": doc["por_uf"], "por_faixa_porte": doc["por_faixa_porte"]}
 
 
 def linhas(doc: Optional[dict]) -> list[dict]:
@@ -80,17 +90,19 @@ def linhas(doc: Optional[dict]) -> list[dict]:
 CLASSES = ("pronto", "em_progresso", "atrasado", "sem_dados")
 PORTES = ("sem_usuarios", "ate_1000", "de_1000_a_10000", "de_10000_a_100000", "de_100000_a_1000000", "acima_de_1000000")
 ORDENACOES = {"indice": "total", "usuarios": "usuarios", "asn": "asn"}
+ORDEM_PADRAO = "asn"
 
 
 def linhas_asn(doc: Optional[dict], nomes: Optional[dict] = None) -> list[dict]:
-    """Uma linha por ASN do Brasil (coleção `prontidao_asn` e rota `/prontidao/asns`): índice, classe, nota de cada pilar, porte e UF. Só com `PRONTIDAO_LISTA_NOMINAL` ligada."""
+    """Uma linha por ASN do Brasil (coleção `prontidao_asn` e rota `/prontidao/asns`), em ordem de ASN: índice, classe, nota de cada pilar (nulo = não medido), quantos pilares foram medidos, porte e UF.
+    Só com `PRONTIDAO_LISTA_NOMINAL` ligada."""
     if not doc:
         return []
     nomes = nomes or {}
     out = []
-    for n, a in doc["asns"].items():
+    for n, a in sorted(doc["asns"].items(), key=lambda kv: int(kv[0])):
         pil = a.get("pilares") or {}
-        out.append({"asn": int(n), "nome": nomes.get(n), "uf": a.get("uf"), "indice": a["total"], "classe": a["classe"], "usuarios": a["usuarios"],
+        out.append({"asn": int(n), "nome": nomes.get(n), "uf": a.get("uf"), "indice": a["total"], "classe": a["classe"], "pilares_medidos": len(pil), "pilares_total": len(PILARES), "usuarios": a["usuarios"],
                     "faixa_porte": a.get("faixa_porte"), "faixa_acessos_sici": a.get("faixa_acessos_sici"),
                     **{f"pilar_{k}": (pil.get(k) or {}).get("score") for k in ("filtragem", "anti_spoofing", "coordenacao", "validacao_global")},
                     "pilares_sem_dado": a.get("pilares_sem_dado") or []})
@@ -99,7 +111,7 @@ def linhas_asn(doc: Optional[dict], nomes: Optional[dict] = None) -> list[dict]:
 
 def lista_asns(doc: dict, nomes: Optional[dict], uf: Optional[str], classe: Optional[str], porte: Optional[str], minimo: Optional[float], maximo: Optional[float],
                ordem: str, desc: bool, pagina: int, limite: int) -> dict:
-    """Lista paginada de ASNs por índice. Sem índice (classe `sem_dados`) vai sempre ao fim."""
+    """Lista paginada de ASNs, por padrão em ordem de ASN. `ordem=indice` e `usuarios` são escolha de quem consulta. Sem valor na chave de ordem (índice nulo) vai sempre ao fim."""
     if uf and uf.upper() not in UFS:
         raise ProntidaoErro(404, f"UF '{uf}' desconhecida.")
     if classe and classe not in CLASSES:
@@ -125,7 +137,8 @@ def lista_asns(doc: dict, nomes: Optional[dict], uf: Optional[str], classe: Opti
     com.sort(key=lambda r: (r[chave], r["asn"]), reverse=desc)
     rows = com + sem
     ini = (pagina - 1) * limite
-    return {**_meta(doc), "filtros": {"uf": uf.upper() if uf else None, "classe": classe, "porte": porte, "min": minimo, "max": maximo}, "total": len(rows), "page": pagina, "limit": limite,
+    return {**_meta(doc), "aviso_metodo": AVISO_METODO, "ordem": ordem, "desc": desc,
+            "filtros": {"uf": uf.upper() if uf else None, "classe": classe, "porte": porte, "min": minimo, "max": maximo}, "total": len(rows), "page": pagina, "limit": limite,
             "pages": (len(rows) + limite - 1) // limite if rows else 0, "items": rows[ini:ini + limite]}
 
 
@@ -133,4 +146,4 @@ def indice_por_asn(doc: Optional[dict]) -> dict[int, dict]:
     """{asn: {indice, classe}} para a coluna da lista de ASNs (`/asns?include=prontidao`)."""
     if not doc:
         return {}
-    return {int(n): {"prontidao_indice": a["total"], "prontidao_classe": a["classe"]} for n, a in doc["asns"].items()}
+    return {int(n): {"prontidao_indice": a["total"], "prontidao_classe": a["classe"], "prontidao_pilares_medidos": len(a.get("pilares") or {})} for n, a in doc["asns"].items()}

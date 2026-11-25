@@ -9,7 +9,9 @@ import { fetchASNsLote, fetchGrupo, fetchMunicipioPerfil, fetchOperadoraPerfil }
 import { useActiveDate } from '../hooks/useSnapshot'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import { DESCRICAO_SELO, ROTULO_SELO, type Selo } from '../components/entidade'
-import { linkPermanente, montarCitacao } from '../components/entidade/citacao'
+import { avisoLinkCitacao, linkPermanente, montarCitacao } from '../components/entidade/citacao'
+import { useFontes } from '../hooks/entidades/entidades'
+import { useAppStore } from '../store/app'
 import { compararAs, compararMunicipios, compararOperadoras, type Comparacao } from '../features/comparar/entidades'
 import { sinteseAs } from '../features/asn/sintese'
 import { sinteseOperadora } from '../features/operadora/sintese'
@@ -77,6 +79,8 @@ export function RelatorioPage() {
   const { tipo: t, id = '' } = useParams()
   const tipo = (TIPOS as readonly string[]).includes(t ?? '') ? (t as Tipo) : null
   const date = useActiveDate()
+  const { fontes: fontesDoSnapshot } = useFontes()
+  const atuais = useAppStore((s) => s.snapshotsAtuais)
   // identificador que a API recusaria (400/422, registrados no console) cai direto em "sem dado"
   const idValido = tipo === 'operadora' ? cnpjValido(id) : tipo === 'asn' ? asnValido(id) : !!id
   const q = useQuery({ queryKey: ['relatorio', tipo, id, date], enabled: !!tipo && idValido, queryFn: () => carregar(tipo!, id, date ?? undefined), staleTime: 10 * 60 * 1000, retry: false })
@@ -87,7 +91,9 @@ export function RelatorioPage() {
   const r = q.data
   if (!r) return <p className="text-sm text-gray-500">Sem dado para esta entidade neste snapshot. <Link to="/" className="text-primario-600 hover:underline">Voltar ao início</Link></p>
   const url = linkPermanente(window.location.origin, r.caminho, '', r.snapshot)
-  const citacao = montarCitacao({ entidade: r.titulo, bloco: 'Relatório de uma página', fontes: r.fontes, snapshot: r.snapshot, url, acessoEm: new Date() })
+  // A citação leva os indicadores do quadro, o snapshot e as fontes com as datas: o link só abre sem login enquanto o snapshot é um dos dois mais recentes (D3).
+  const valores = r.quadro.linhas.filter((l) => l.celulas[0]).map((l) => ({ rotulo: l.rotulo, valor: String(l.celulas[0]) }))
+  const citacao = montarCitacao({ entidade: r.titulo, bloco: 'Relatório de uma página', valores, fontes: r.fontes, fontesEntradas: fontesDoSnapshot, snapshot: r.snapshot, url, acessoEm: new Date() })
   return (
     <article className="mx-auto max-w-3xl space-y-4 text-sm" data-testid="relatorio">
       <div className="flex flex-wrap items-center gap-2 print:hidden">
@@ -118,6 +124,7 @@ export function RelatorioPage() {
       <footer className="space-y-1 border-t border-gray-300 pt-2 text-xs text-gray-600">
         <p><span className="font-medium">Selos:</span> fato (declarado ou medido na fonte), inferido (derivado por regra, pode estar errado) e estimado (amostragem ou modelo). Cada linha tem o seu.</p>
         <p><span className="font-medium">Citar:</span> {citacao}</p>
+        <p data-testid="aviso-link-citacao">{avisoLinkCitacao(r.snapshot, atuais)}</p>
       </footer>
     </article>
   )

@@ -123,7 +123,7 @@ describe('aba IPv6 do Panorama técnico', () => {
   beforeEach(() => {
     useAppStore.setState({ activeDate: '2026-09-20', latestSnapshot: '2026-09-20' })
     server.use(
-      http.get('*/api/v1/snapshots/:date', () => HttpResponse.json({ date: '2026-09-20', manifest: null,
+      http.get('*/api/v1/brasil/snapshots/:date', () => HttpResponse.json({ date: '2026-09-20', manifest: null,
         summary: { snapshot_date: '2026-09-20', total_asns_br: 1136, br_ipv6_pct: 97.1, br_asns_ft_v6: 763, registro_br_prefixes_v6: 776,
           global_table: { br_asns_in_ft: 1000, v6_br_coverage_pct: 88.6 }, ixp_aggregate: { v6_br_coverage_pct: 51.5 } } })),
     )

@@ -8,6 +8,8 @@ import { useNavigate, Link, Navigate, useSearchParams } from 'react-router-dom'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useActiveDate } from '../hooks/useSnapshot'
 import { useAuth } from '../auth/AuthContext'
+import { PREVIEW_LIMIT } from '../auth/accessPolicy'
+import { PreviaLista } from '../components/ui/PreviaLista'
 import { fmtNum, UF_LIST } from '../features/operadoras/formato'
 import { MapaAcessos } from '../features/operadoras/MapaAcessos'
 import { MapaSede } from '../features/operadoras/MapaSede'
@@ -46,7 +48,7 @@ function MapaServico({ servico, date, uf, comAsn }: { servico: Servico; date?: s
 /** Lista de um serviço: estatísticas, mapa, filtros (na URL, para compartilhar) e tabela. Recriada a cada troca de serviço (ordenação e página recomeçam). */
 function ListaServico({ servico }: { servico: Servico }) {
   const date = useActiveDate()
-  const { requireLogin } = useAuth()
+  const { requireLogin, user } = useAuth()
   const [params, setParams] = useSearchParams()
   const uf = params.get('uf') ?? ''
   const q = params.get('q') ?? ''
@@ -61,7 +63,8 @@ function ListaServico({ servico }: { servico: Servico }) {
   const [page, setPage] = useState(1)
   const [sortBy, setSortBy] = useState(servico.ordenacaoPadrao.campo)
   const [sortDesc, setSortDesc] = useState(servico.ordenacaoPadrao.desc)
-  const limit = 50
+  // Sem login: a prévia (as 100 primeiras linhas pela ordem escolhida, D9); com login, páginas de 50.
+  const limit = user ? 50 : PREVIEW_LIMIT
 
   /** Grava um filtro na URL (sem empilhar histórico); valor igual ao padrão sai da URL. */
   function definir(chave: string, valor: string | null) {
@@ -222,7 +225,8 @@ function ListaServico({ servico }: { servico: Servico }) {
           </table>
         </div>
 
-        {data && data.pages > 1 && (
+        {!user && data && <PreviaLista mostradas={data.items.length} total={data.total} aoEntrar={() => requireLogin('lista-expandida')} />}
+        {user && data && data.pages > 1 && (
           <div className="flex items-center justify-between mt-3 text-sm">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}

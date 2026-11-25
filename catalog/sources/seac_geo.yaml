@@ -5,6 +5,9 @@ tipo: derivada
 ativa: true
 modulo: sources.seac_geo.enrich
 publicavel: true
+exposicao: aberta
+decisao_exposicao: 'Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Posição geocodificada da sede das outorgas (endereço do cadastro da Anatel), com a licença ODbL 1.0 do OpenStreetMap; a atribuição é obrigatória.'
+atribuicao: 'Endereços das outorgas: Anatel, dados abertos. Geocodificação: © colaboradores do OpenStreetMap, ODbL 1.0 (Nominatim).'
 descricao: Geocodifica o endereço da sede de cada outorga SEAC (endereço completo → CEP → município) com
   cache persistente em geo_cache/seac.json.gz, adicionando lat/lon e rótulo de confiança.
 origem:

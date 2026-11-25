@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Regressão do controle de acesso no nginx do frontend (auth_request antes do cache).
 # Requer: docker, .venv-mcp (ou PYTHON=...). Sobe API stub em :$API_PORT (padrão 8000) e nginx em :18080.
-# O gate roda em processo próprio (api/gate_app.py, :8001). Casos: MISS→HIT; esgotado recebe 403 MESMO com HIT; allowlist passa; /api/v1/docs
+# O gate roda em processo próprio (api/gate_app.py, :8001). Casos: MISS→HIT; esgotado recebe 429 com Retry-After MESMO com HIT (o gate responde 403 e o @anon_limit do nginx o troca); allowlist passa; /api/v1/docs
 # isento; fail-open com a API fora (serve cache).
 set -u
 cd "$(dirname "$0")/../.."
@@ -54,7 +54,10 @@ $PY - "$TMP/data/auth/anon_sessions.db" "$SID" <<'PYE'
 import sqlite3, sys
 d = sqlite3.connect(sys.argv[1]); d.execute("update anon_sessions set active_seconds=999999 where session_id=?", (sys.argv[2],)); d.commit()
 PYE
-expect "esgotado: avançada 403 mesmo com HIT" "403 "      "$(req 8.8.8.8 "$SID")"
+expect "esgotado: avançada 429 mesmo com HIT" "429 "      "$(req 8.8.8.8 "$SID")"
+RA=$(curl -s -D - -o /dev/null -H "X-Forwarded-For: 8.8.8.8" -H "Cookie: anon_sid=$SID" localhost:18080/api/v1/ping | tr -d '\r' | awk 'tolower($1)=="retry-after:"{print $2}')
+[ -n "$RA" ] && [ "$RA" -ge 1 ] && [ "$RA" -le 86400 ] && ok "esgotado: Retry-After em segundos (até a meia-noite UTC)" || nok "esgotado: Retry-After" "${RA:-ausente}"
+[ "$(curl -s -H "X-Forwarded-For: 8.8.8.8" -H "Cookie: anon_sid=$SID" localhost:18080/api/v1/ping | grep -c anon_limit_reached)" = 1 ] && ok "esgotado: corpo traz anon_limit_reached" || nok "esgotado: corpo" "-"
 expect "esgotado + IP na allowlist: 200"       "200 HIT"   "$(req 203.0.113.129 "$SID")"
 expect "esgotado: docs isento"                 "200 "      "$(req 8.8.8.8 "$SID" /api/v1/openapi.json | awk '{print $1" "}')"
 expect "outro anon sem cookie: 200 HIT"        "200 HIT"   "$(req 9.9.9.9)"

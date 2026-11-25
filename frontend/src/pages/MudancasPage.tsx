@@ -6,7 +6,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { fetchMudancas, fetchMudancasResumo, fetchSnapshots } from '../services/api'
+import { fetchMudancas, fetchMudancasResumo } from '../services/api'
+import { useSnapshots } from '../hooks/useSnapshot'
 import { useAuth } from '../auth/AuthContext'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import { fraseEvento, inicioDosSnapshots, ROTULO_ESTADO, TIPOS_DA_PAGINA } from '../features/historico/rotulos'
@@ -32,7 +33,7 @@ export function MudancasPage() {
   const [uf, setUf] = useState('')
   const [pendentes, setPendentes] = useState(false)
   const [pagina, setPagina] = useState(0)
-  const snaps = useQuery({ queryKey: ['snapshots'], queryFn: fetchSnapshots, staleTime: Infinity, gcTime: Infinity })
+  const snaps = useSnapshots()
   const recentes = (snaps.data?.snapshots ?? []).slice(-2)
   const inicio = inicioDosSnapshots(snaps.data?.snapshots)
   const limitado = !!anon

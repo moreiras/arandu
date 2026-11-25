@@ -19,7 +19,7 @@ import tempfile
 from pathlib import Path
 
 ROUTES = {
-    "snapshots": "/api/v1/snapshots",
+    "snapshots": "/api/v1/brasil/snapshots",
     "ixps": "/api/v1/ixps",
     "asns_page1": "/api/v1/asns?page=1&limit=5",
     "asn_detail": "/api/v1/asns/{asn}",

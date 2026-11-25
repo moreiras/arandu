@@ -1083,6 +1083,18 @@
       "description": "Só com `include=prontidao` e a lista nominal liberada: índice de prontidão em segurança de roteamento (0 a 100; soma ponderada de medições de terceiros, não veredito)",
       "title": "Prontidao Indice"
      },
+     "prontidao_pilares_medidos": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Só com `include=prontidao` e a lista nominal liberada: quantos dos quatro pilares têm dado e entraram no índice e na classe",
+      "title": "Prontidao Pilares Medidos"
+     },
      "rir_prefixes_v4_count": {
       "description": "Prefixos IPv4 atribuídos ao AS pelo RIR/Registro.br",
       "examples": [
@@ -5987,6 +5999,58 @@
     ]
    }
   },
+  "/api/v1/brasil/destaques": {
+   "get": {
+    "description": "Os números fixos dos destaques da página inicial, numa chamada aberta: `destaques` traz o `total` de cada pergunta pronta (operadoras com mais de 5 mil acessos sem ASN\npróprio, ASes brasileiros em 3 ou mais PTTs com IPv6 e sem ROA, municípios com uma operadora de 80% ou mais da banda larga fixa e ASNs com usuários APNIC 10 vezes ou mais acima do esperado\npelos acessos SCM) e `o_que_mudou` os ASes brasileiros novos e confirmados desde `de`, a data do snapshot atual mais antigo (a rota é aberta, então não alcança o histórico). Cada total é\no da lista de destino do destaque. As consultas são fixas; a consulta genérica (`/query`) segue medida.",
+    "operationId": "brasil_destaques_api_v1_brasil_destaques_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "date",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Date"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Brasil Destaques Api V1 Brasil Destaques Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Destaques da home: o total de cada pergunta pronta e os ASes novos da janela atual",
+    "tags": [
+     "brasil"
+    ]
+   }
+  },
   "/api/v1/brasil/indicadores": {
    "get": {
     "description": "Agregados nacionais para a home e o Panorama técnico: `ipv6` (Σ usuários com IPv6 ÷ Σ usuários nas estimativas do APNIC por ASN do Brasil; não é o número por país do\nAPNIC), `dnssec` e `rov` (percentual medido pelo APNIC, mediana e média ponderada, só ASNs com amostra suficiente) e `prontidao` (índice do país por classe, média ponderada\npor usuários, pilares e componentes, com as regras) e `rpki` (`publicacao`: ASNs com ROA e ASPA; `rotas`: estado RPKI de origem das rotas brasileiras, válidas,\ninválidas e sem ROA, com o espaço de cada estado, e totais de saúde da tabela; `rotas` é null em snapshot anterior ao resumo). Só números do país: o detalhe por UF e porte está em `/seguranca/resumo` e `/prontidao/resumo`. Fontes e limites na resposta.",
@@ -6036,6 +6100,71 @@
     "summary": "O Brasil em números: IPv6 (APNIC), DNSSEC, ROV, RPKI e prontidão em segurança de roteamento, no agregado do país",
     "tags": [
      "brasil"
+    ]
+   }
+  },
+  "/api/v1/brasil/snapshots": {
+   "get": {
+    "description": "As datas atuais: os 2 snapshots mais recentes, em ordem cronológica, com `latest`; `count` é o número de datas devolvidas aqui. É a lista de que\nas páginas de entrada precisam (seletor de data, rodapé \"dados de\", home) e abre sem login. Datas anteriores existem e são imutáveis, mas a lista\ninteira (`GET /snapshots`) e o resumo de uma data anterior exigem login.",
+    "operationId": "list_snapshots_atuais_api_v1_brasil_snapshots_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SnapshotListResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Datas dos snapshots atuais (entrada, aberta)",
+    "tags": [
+     "snapshots"
+    ]
+   }
+  },
+  "/api/v1/brasil/snapshots/{date_str}": {
+   "get": {
+    "description": "O mesmo conteúdo de `GET /snapshots/{date}` (`summary` e `manifest`). Abre sem login para as datas atuais (`GET /brasil/snapshots`); uma data anterior\nexige login, como o `date` das demais rotas. `GET /snapshots/{date}` é sempre `login`.",
+    "operationId": "get_snapshot_atual_api_v1_brasil_snapshots__date_str__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "date_str",
+      "required": true,
+      "schema": {
+       "title": "Date Str",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SnapshotDetailResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Resumo e manifesto de um snapshot (entrada: aberta para as datas atuais)",
+    "tags": [
+     "snapshots"
     ]
    }
   },
@@ -14351,7 +14480,7 @@
   },
   "/api/v1/prontidao/asns": {
    "get": {
-    "description": "Lista paginada dos ASNs do Brasil com índice, classe, nota de cada pilar, usuários estimados (APNIC), porte, UF e quais pilares não têm dado. Filtros: `uf`, `classe`\n(pronto, em_progresso, atrasado, sem_dados), `porte` e `min`/`max` do índice. Ordem: `indice` (padrão, do menor ao maior), `usuarios` ou `asn`; ASN sem índice vai ao fim.\nO índice é soma ponderada de medições de terceiros com regras públicas (`regras`); **não é veredito sobre a empresa** e o anti-spoofing só existe para ~2% dos ASNs.\nResponde 404 enquanto a chave `PRONTIDAO_LISTA_NOMINAL` estiver desligada.",
+    "description": "Lista paginada dos ASNs do Brasil com índice, classe, nota de cada pilar (nulo = não medido), quantos pilares foram medidos (`pilares_medidos`), usuários estimados (APNIC), porte, UF e quais pilares não têm dado.\nFiltros: `uf`, `classe` (pronto, em_progresso, atrasado, sem_dados), `porte` e `min`/`max` do índice. Ordem: `asn` (padrão, crescente), `usuarios` ou `indice`, à escolha de quem consulta; ASN sem valor na chave vai ao fim.\nO índice é soma ponderada de medições de terceiros com regras públicas (`regras`); **não é veredito sobre a empresa** e o anti-spoofing só existe para ~2% dos ASNs. A resposta traz `aviso_metodo`.\nResponde 404 se a chave `PRONTIDAO_LISTA_NOMINAL` for desligada (`0`).",
     "operationId": "prontidao_asns_api_v1_prontidao_asns_get",
     "parameters": [
      {
@@ -14465,13 +14594,13 @@
       }
      },
      {
-      "description": "indice | usuarios | asn",
+      "description": "asn (padrão) | usuarios | indice",
       "in": "query",
       "name": "ordem",
       "required": false,
       "schema": {
-       "default": "indice",
-       "description": "indice | usuarios | asn",
+       "default": "asn",
+       "description": "asn (padrão) | usuarios | indice",
        "title": "Ordem",
        "type": "string"
       }
@@ -14536,7 +14665,7 @@
       "description": "Validation Error"
      }
     },
-    "summary": "Lista de ASNs por índice de prontidão (desligada até a metodologia ser aprovada)",
+    "summary": "Lista de ASNs com o índice de prontidão (pública, ordem padrão por ASN)",
     "tags": [
      "prontidao"
     ]

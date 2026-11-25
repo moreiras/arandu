@@ -52,7 +52,7 @@ from api.auth.anon_session import (
 )
 from api.auth.config import init_auth_config
 from api.auth import access_policy as _politica
-from api.auth.access import BLOCK_LOGIN, evaluate_access, recent_dates
+from api.auth.access import BLOCK_LOGIN, evaluate_access, limite_anonimo, recent_dates
 from api.auth.jwt_utils import verify_token
 from api.auth.router import router as auth_router
 from api.concurrency import ConcurrencyLimitMiddleware
@@ -507,14 +507,8 @@ async def anon_session_guard(request: Request, call_next):
             status_code=401,
             headers={"X-Login-Required": "true", **_cors_headers_for(request)},
         )
-    return JSONResponse(
-        {
-            "detail": "Limite de navegação anônima atingido. Faça login para continuar.",
-            "anon_limit_reached": True,
-        },
-        status_code=403,
-        headers={"X-Anon-Limit-Reached": "true", **_cors_headers_for(request)},
-    )
+    # Orçamento esgotado: 429 com Retry-After (D9), e não 403: um script distingue "espere" de "proibido", e o corpo diz o limite e a saída.
+    return limite_anonimo(_cors_headers_for(request))
 
 
 # Log de uso: registrado DEPOIS do guard para ser o middleware mais externo

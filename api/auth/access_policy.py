@@ -30,6 +30,8 @@ LOGIN = "login"
 
 # Prévia de lista para anônimo: 1ª página, até este nº de linhas.
 PREVIEW_LIMIT = 100
+# Snapshots "atuais": os mais recentes, os únicos que abrem sem login (`recent_dates` em api/auth/access.py e `GET /brasil/snapshots`).
+N_DATAS_ATUAIS = 2
 # coleções da consulta genérica que são histórico: sem login, só a partir dos snapshots atuais (aqui e em api/auth/previa.py)
 COLECOES_HISTORICO = frozenset({"eventos", "series_asn"})
 
@@ -49,13 +51,14 @@ class Classification:
 _OPEN_PATTERNS: Sequence[str] = (
     r"/busca",                        # busca universal da barra (toda página); índice só com PJ e recursos de rede
     r"/brasil/indicadores",           # agregados do país na home (página de entrada)
-    r"/snapshots",
-    r"/snapshots/[^/]+",
+    r"/brasil/destaques",             # os números fixos dos destaques e do "O que mudou" da home (no lugar de `/query/*` genérico, que fica medido)
+    r"/brasil/snapshots",             # as datas atuais: seletor, "dados de", home; a lista inteira (`/snapshots`) é `login`
+    r"/brasil/snapshots/[^/]+",       # resumo e manifesto de um snapshot; data fora das atuais cai em `login` pela regra de histórico
     r"/feed/mudancas\.atom",          # só confirmados e só as datas atuais, então não abre a série antiga
     r"/ixps",
     r"/ixps/estimated-users",
     r"/ixps/[^/]+/hilbert/v4/detail",
-    r"/external-ixps",
+    r"/external-ixps",                # só a lista com contagens: sem membros (o detalhe `/external-ixps/{code}` é `login`)
     r"/asns/ix-presence",
     r"/hilbert/v4",
     r"/hilbert/v4/detail",
@@ -85,6 +88,9 @@ _OPEN_PATTERNS: Sequence[str] = (
     r"/grupos",
     r"/grupos/[^/]+/prefixos-geo",
     r"/schema",
+    r"/cdns/presence",                # resumo de presença de CDNs (aba Resumo do panorama)
+    r"/prontidao/resumo",             # agregado do país, UFs e porte (sem lista nominal)
+    r"/rpki/summary",                 # ASes com ROA e ASPA (cartão do snapshot e panorama)
 )
 
 # ── Listas paginadas: 1ª página (≤ PREVIEW_LIMIT) aberta; além disso, login ──
@@ -95,7 +101,9 @@ _PAGED_PATTERNS: Sequence[str] = (r"/asns", r"/scms", r"/smps", r"/stfcs", r"/se
 _PAGED_METERED_PATTERNS: Sequence[str] = (r"/acessos/divergencias", r"/acessos/divergencias/scm", r"/ranking/operadoras", r"/ranking/municipios", r"/omissao-sici", r"/territorio/ranking", r"/seguranca/resumo", r"/ranking/route-servers", r"/communities", r"/ixps/[^/]+/rejeicoes", r"/ipv4/transferencias", r"/ipv4/espaco", r"/ipv4/uso-por-terceiros", r"/multas/empresas", r"/espectro/faixas", r"/satelites/direitos", r"/prontidao/asns", r"/reclamacoes/marcas", r"/consumidor/marcas", r"/facilities")
 
 # ── Login: contatos e o que é de alto valor ──────────────────────────────────
-_LOGIN_PATTERNS: Sequence[str] = (r"/.*/contacts",)
+# `/snapshots` e `/snapshots/{data}` (D9): a lista inteira de datas e o resumo de qualquer data. As páginas de entrada usam `/brasil/snapshots`.
+# `/external-ixps/{code}`: a lista de membros do PeeringDB só para quem entrou (AUP do PeeringDB; ver `login_externo` abaixo).
+_LOGIN_PATTERNS: Sequence[str] = (r"/.*/contacts", r"/snapshots", r"/snapshots/[^/]+", r"/external-ixps/[^/]+")
 
 # ── Cache na borda (Cloudflare) para rotas `metered` ─────────────────────────
 # A borda não passa pelo gate: o que ela guarda é entregue a quem já esgotou o orçamento. Rota `metered` sai com
@@ -118,7 +126,7 @@ _BORDA_PATTERNS: Sequence[str] = (
 )
 
 # Rotas que não carregam snapshot (não se aplica a regra de histórico).
-_NO_HISTORY_PATTERNS: Sequence[str] = (r"/snapshots", r"/schema")
+_NO_HISTORY_PATTERNS: Sequence[str] = (r"/snapshots", r"/brasil/snapshots", r"/schema")
 
 
 def _compile(patterns: Sequence[str]) -> list[re.Pattern]:
@@ -190,9 +198,6 @@ def classify(
     if rel.startswith("/acessos/") and query.get("servico") == "movel":
         rel = "/acessos-movel/" + rel[len("/acessos/"):]
 
-    if _matches(_LOGIN, rel):
-        return Classification(LOGIN, "contatos")
-
     # Perfil com a série histórica inteira (`include=historico_completo`): exige login. `include=historico` traz só as datas atuais, a
     # mesma resposta para todos; o bloco não depende de quem pede, então a URL pode ser guardada pelo nginx e pelo cache da API.
     if "historico_completo" in {p.strip() for p in (query.get("include") or "").split(",")}:
@@ -209,12 +214,23 @@ def classify(
                 fora = not pedidas[0] or pedidas[0] < min(recent_dates)
             if fora:
                 return Classification(LOGIN, "historico")
+        if rel == "/changes/summary" and recent_dates:
+            return Classification(OPEN, "historico-recente-resumo")      # contagens agregadas da janela atual, sem linhas: entrada (Home, /mudancas)
         return Classification(METERED, "historico-recente")
+
+    # Contatos, `/snapshots*` e detalhe de PTT externo: sempre `login`. Depois do histórico, porque `/snapshots/diff` (duas datas atuais) é
+    # `metered` e o padrão `/snapshots/[^/]+` o capturaria.
+    if _matches(_LOGIN, rel):
+        return Classification(LOGIN, "snapshots" if rel.startswith("/snapshots") else "externo" if rel.startswith("/external-ixps/") else "contatos")
+
+    # Comparador com PTT externo (`ext:`): os membros vêm do PeeringDB, a mesma classe de `/external-ixps/{code}`.
+    if rel == "/ixp-compare/members" and any(k.strip().startswith("ext:") for k in (query.get("ixps") or "").split(",")):
+        return Classification(LOGIN, "externo")
 
     # Histórico: snapshot que não é um dos atuais.
     if recent_dates:
         date: Optional[str] = None
-        if rel.startswith("/snapshots/"):
+        if rel.startswith("/snapshots/") or rel.startswith("/brasil/snapshots/"):
             date = rel.rsplit("/", 1)[-1]
         elif not _matches(_NO_HISTORY, rel):
             date = query.get("date")
@@ -231,7 +247,7 @@ def classify(
             if (_e_int(lim) and lim > PREVIEW_LIMIT) or (_e_int(pag) and pag > 1) or (_e_int(off) and off > 0):
                 return Classification(LOGIN, "lista-expandida")
             if recent_dates and rel.split("/")[2] in COLECOES_HISTORICO:
-                inicio = corpo.get("de") or query.get("date")
+                inicio = corpo.get("de")          # só `de` restringe as linhas (api/services/consultas.py); `date` não: a série não depende dele
                 if not (isinstance(inicio, str) and inicio >= min(recent_dates)):
                     return Classification(LOGIN, "historico")
 

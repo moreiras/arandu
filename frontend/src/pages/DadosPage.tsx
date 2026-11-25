@@ -5,6 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { Link } from 'react-router-dom'
 import { SITE } from '../lib/site'
+import { TetosDeUso } from '../components/TetosDeUso'
 
 const origem = typeof window !== 'undefined' ? window.location.origin : SITE.url
 
@@ -38,11 +39,16 @@ export function DadosPage() {
         </p>
       </section>
 
+      <section aria-labelledby="tetos" className="space-y-3">
+        <h2 id="tetos" className="text-titulo-3 text-gray-800">Limites de uso sem conta</h2>
+        <TetosDeUso />
+      </section>
+
       <section aria-labelledby="api" className="space-y-3">
         <h2 id="api" className="text-titulo-3 text-gray-800">API REST</h2>
         <p className="text-sm text-gray-600">Documentação interativa (Swagger): <a className="text-primario-600 hover:underline" href="/api/v1/docs">/api/v1/docs</a> · esquema <a className="text-primario-600 hover:underline" href="/api/v1/openapi.json">openapi.json</a>.
-          Sem <code>date</code> a API usa o snapshot mais recente; passe <code>?date=AAAA-MM-DD</code> para um snapshot específico (as duas mais recentes são livres; o histórico exige login).</p>
-        <Codigo rotulo="Exemplo: snapshots disponíveis">{`curl -s ${origem}/api/v1/snapshots`}</Codigo>
+          Sem <code>date</code> a API usa o snapshot mais recente; passe <code>?date=AAAA-MM-DD</code> para um snapshot específico (as duas mais recentes são livres; o histórico exige login). A lista das datas livres está em <code>/api/v1/brasil/snapshots</code>; a lista inteira (<code>/api/v1/snapshots</code>) exige login.</p>
+        <Codigo rotulo="Exemplo: snapshots disponíveis">{`curl -s ${origem}/api/v1/brasil/snapshots`}</Codigo>
         <Codigo rotulo="Exemplo: documento de um AS">{`curl -s ${origem}/api/v1/asns/8167`}</Codigo>
         <Codigo rotulo="Exemplo: consulta com filtro e ordenação">{`curl -s -X POST ${origem}/api/v1/query/operadoras \
   -H 'content-type: application/json' \

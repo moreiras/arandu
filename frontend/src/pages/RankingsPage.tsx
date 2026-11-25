@@ -13,6 +13,8 @@ import { DICA_PREFIXOS_LIMITE } from '../lib/textos'
 import { Dica } from '../components/ui/Dica'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { EstadoDados } from '../components/ui/EstadoDados'
+import { PreviaLista } from '../components/ui/PreviaLista'
+import { PREVIEW_LIMIT } from '../auth/accessPolicy'
 import { alternarOrdem, type Ordem } from '../lib/ordenacao'
 
 const POR_PAGINA = 25
@@ -38,7 +40,7 @@ const CLASSES: Record<string, string> = { com_usuarios_apnic: 'com usuários est
 
 /**
  * `/rankings` — Rankings do SICI e outorgas sem declaração. Só dado declarado ou medido, com o critério e o mês de referência à vista, sem juízo
- * de valor (política editorial). Sem login vale a prévia da API (25 por vez, página 1); a lista inteira exige login.
+ * de valor (política editorial). Sem login vale a prévia da API (as 100 primeiras linhas, página 1); a lista inteira, paginada de 25 em 25, exige login.
  */
 export function RankingsPage() {
   // as três abas territoriais são a lista de municípios: o link continua respondendo (regra 8 do AGENTS.md) e leva à lente certa
@@ -64,7 +66,10 @@ export function RankingsSici({ abaFixa }: { abaFixa: Aba }) {
 
 function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
   const [sp, setSp] = useSearchParams()
-  const { anon } = useAuth()
+  const { anon, requireLogin } = useAuth()
+  // Sem login a primeira página tem até PREVIEW_LIMIT linhas (D9); com login, 25 por vez.
+  const porPagina = anon ? PREVIEW_LIMIT : POR_PAGINA
+  const porPaginaRank = anon ? PREVIEW_LIMIT : POR_PAGINA_RANK
   const aba = (abaFixa ?? ABAS.find((a) => a.id === sp.get('aba'))?.id ?? 'operadoras') as Aba
   const uf = sp.get('uf') ?? ''
   const ordem = sp.get('ordem') ?? ''
@@ -93,11 +98,11 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
 
   const base = { retry: false, staleTime: 5 * 60 * 1000 }
   const ops = useQuery({ queryKey: ['rank-op', uf, ordem, asc, pagina], enabled: aba === 'operadoras', ...base,
-    queryFn: () => fetchRankingOperadoras({ uf: uf || undefined, ordem: ordem || undefined, asc: asc || undefined, limit: POR_PAGINA, page: pagina }) })
+    queryFn: () => fetchRankingOperadoras({ uf: uf || undefined, ordem: ordem || undefined, asc: asc || undefined, limit: porPagina, page: pagina }) })
   const om = useQuery({ queryKey: ['rank-om', tipo, uf, classe, pagina], enabled: aba === 'omissao', ...base,
-    queryFn: () => fetchOmissaoSici({ tipo, uf: uf || undefined, classe: classe || undefined, limit: POR_PAGINA, page: pagina }) })
+    queryFn: () => fetchOmissaoSici({ tipo, uf: uf || undefined, classe: classe || undefined, limit: porPagina, page: pagina }) })
   const rsq = useQuery({ queryKey: ['rank-rs', criterioRs, ixpRs, soDown, pagina], enabled: aba === 'route-servers', ...base,
-    queryFn: () => fetchRankingRouteServers({ criterio: criterioRs, ixp: ixpRs || undefined, apenas_down: soDown || undefined, limit: POR_PAGINA_RANK, page: pagina }) })
+    queryFn: () => fetchRankingRouteServers({ criterio: criterioRs, ixp: ixpRs || undefined, apenas_down: soDown || undefined, limit: porPaginaRank, page: pagina }) })
   const ativa = aba === 'operadoras' ? ops : aba === 'omissao' ? om : rsq
   const dados = ativa.data
   const total = dados?.total ?? 0
@@ -241,9 +246,7 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
       )}
       {dados && total > POR_PAGINA && (
         anon ? (
-          <p className="text-sm text-aviso-700 bg-aviso-50 border border-aviso-200 rounded px-3 py-2">
-            Sem login você vê os {POR_PAGINA} primeiros. <Link to="/login" className="underline">Entre</Link> para navegar pela lista inteira.
-          </p>
+          <PreviaLista mostradas={(dados as { items?: unknown[] }).items?.length ?? 0} total={total} aoEntrar={() => requireLogin('lista-expandida')} className="text-sm text-aviso-700 bg-aviso-50 border border-aviso-200 rounded px-3 py-2" />
         ) : (
           <div className="flex items-center gap-3 text-sm">
             <button disabled={pagina === 1} onClick={() => muda('p', String(pagina - 1))} className="px-2 py-1 border rounded disabled:opacity-40">Anterior</button>

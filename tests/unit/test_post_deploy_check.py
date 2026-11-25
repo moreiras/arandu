@@ -23,8 +23,10 @@ def fake(version="1.1.5", tools=TOOLS, contacts=401, coleta_ok=True, drop=(), mc
         if p == "/health":
             return 200, {}, json.dumps({"status": "ok", "version": version, "latest_snapshot": "2026-10-11"}).encode()
         if p == "/api/v1/snapshots":
+            return 401, {}, b'{"login_required": true}'
+        if p == "/api/v1/brasil/snapshots":
             return 200, {}, json.dumps({"snapshots": ["2026-10-11"], "latest": "2026-10-11"}).encode()
-        if p == "/api/v1/snapshots/2026-10-11":
+        if p == "/api/v1/brasil/snapshots/2026-10-11":
             return 200, {}, json.dumps({"manifest": {"pipeline_version": version, "coleta_ok": coleta_ok,
                                                       "coleta": "completa" if coleta_ok else "parcial",
                                                       "checks": {"vrps": {"status": "ok" if coleta_ok else "falha"}}}}).encode()

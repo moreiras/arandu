@@ -1464,7 +1464,8 @@ def test_prontidao_lista_nominal_desligada_e_ligada(api, monkeypatch):
     # desligada (PRONTIDAO_LISTA_NOMINAL=0; o padrão é ligada): rota e coleção respondem com mensagem, a coluna da lista é ignorada
     monkeypatch.setenv("PRONTIDAO_LISTA_NOMINAL", "0")
     r = api.get("/api/v1/prontidao/asns", headers=ALLOWED)
-    assert r.status_code == 404 and "metodologia" in r.json()["detail"]
+    assert r.status_code == 404 and "PRONTIDAO_LISTA_NOMINAL=0" in r.json()["detail"]
+    assert api.get("/api/v1/prontidao/resumo", headers=ALLOWED).json()["lista_nominal"] is False
     assert api.post("/api/v1/query/prontidao_asn", json={"limit": 10}, headers=ALLOWED).status_code == 400
     off = api.get("/api/v1/asns", params={"br_only": "true", "include": "prontidao"}, headers=ALLOWED).json()["items"]
     assert off and not any("prontidao_indice" in i and i["prontidao_indice"] is not None for i in off)
@@ -1472,9 +1473,16 @@ def test_prontidao_lista_nominal_desligada_e_ligada(api, monkeypatch):
     monkeypatch.setenv("PRONTIDAO_LISTA_NOMINAL", "1")
     todos = api.get("/api/v1/prontidao/asns", params={"limit": 1000}, headers=ALLOWED).json()
     assert todos["total"] == len(todos["items"]) > 0 and todos["regras"]["hash"] and "Não é veredito" in todos["limites"]
-    com = [i for i in todos["items"] if i["indice"] is not None]
-    assert [i["indice"] for i in com] == sorted(i["indice"] for i in com)               # do menor ao maior
-    assert all(i["indice"] is None for i in todos["items"][len(com):])                  # sem índice vai ao fim
+    assert todos["ordem"] == "asn" and [i["asn"] for i in todos["items"]] == sorted(i["asn"] for i in todos["items"])      # D2: ordem padrão neutra, por ASN
+    assert "não um veredito" in todos["aviso_metodo"] and api.get("/api/v1/prontidao/resumo", headers=ALLOWED).json()["lista_nominal"] is True
+    for i in todos["items"]:                                                            # pilar sem dado é "não medido": nota nula, fora da conta, e a classe diz quantos entraram
+        assert i["pilares_medidos"] + len(i["pilares_sem_dado"]) == i["pilares_total"] == 4
+        assert sum(i[f"pilar_{k}"] is not None for k in ("filtragem", "anti_spoofing", "coordenacao", "validacao_global")) == i["pilares_medidos"]
+        assert i["pilares_medidos"] > 0 or (i["indice"] is None and i["classe"] == "sem_dados")
+    por_indice = api.get("/api/v1/prontidao/asns", params={"limit": 1000, "ordem": "indice"}, headers=ALLOWED).json()["items"]
+    com = [i for i in por_indice if i["indice"] is not None]
+    assert [i["indice"] for i in com] == sorted(i["indice"] for i in com)               # `ordem=indice` é escolha explícita: do menor ao maior
+    assert all(i["indice"] is None for i in por_indice[len(com):])                      # sem índice vai ao fim
     um = next(i for i in todos["items"] if i["asn"] == 64500)
     assert um["classe"] in ("pronto", "em_progresso", "atrasado") and um["pilar_anti_spoofing"] is not None and "cnpj" not in um
     por_classe = api.get("/api/v1/prontidao/asns", params={"classe": um["classe"]}, headers=ALLOWED).json()
@@ -1931,3 +1939,98 @@ def test_consulta_por_get_alem_da_previa_nao_depende_de_quem_pede(api):
     assert negado.status_code == 401 and negado.json().get("login_required") is True
     r = api.get("/api/v1/query/asns", params=params, headers=ALLOWED)
     assert r.status_code == 200 and r.headers["cache-control"] == "private, no-store"
+
+
+# ── PT-12 / D9: acesso ────────────────────────────────────────────────────────────────────────────────────
+
+def test_snapshots_exigem_login_e_a_entrada_usa_brasil_snapshots(api):
+    """TRANSV-E19: `/snapshots` e `/snapshots/{data}` são `login` (anônimo 401, allowlist 200); `/brasil/snapshots` lista só as datas atuais, aberta."""
+    from tests.synth.world import T0, T1
+
+    for rota in ("/api/v1/snapshots", f"/api/v1/snapshots/{T1}"):
+        r = api.get(rota, headers=ANON)
+        assert r.status_code == 401 and r.json()["login_required"] is True and r.json()["reason"] == "snapshots", rota
+        assert api.get(rota, headers=ALLOWED).status_code == 200, rota
+    aberta = api.get("/api/v1/brasil/snapshots", headers=ANON)
+    assert aberta.status_code == 200 and aberta.json()["snapshots"] == [T0, T1] and aberta.json()["latest"] == T1 and aberta.json()["count"] == 2
+    todas = api.get("/api/v1/snapshots", headers=ALLOWED).json()["snapshots"]
+    assert aberta.json()["snapshots"] == todas[-2:]
+    detalhe = api.get(f"/api/v1/brasil/snapshots/{T1}", headers=ANON)
+    assert detalhe.status_code == 200 and detalhe.json() == api.get(f"/api/v1/snapshots/{T1}", headers=ALLOWED).json()
+    antigo = api.get("/api/v1/brasil/snapshots/2000-01-01", headers=ANON)
+    assert antigo.status_code == 401 and antigo.json()["reason"] == "historico"             # data fora das atuais: login (D3, política sem mudança)
+    assert api.get("/api/v1/brasil/snapshots/2000-01-01", headers=ALLOWED).status_code == 404
+
+
+def test_ptt_externo_login_na_api_e_lista_sem_membros_aberta(api, ctx):
+    """IXE-E4: o detalhe do PTT externo (membros do PeeringDB) exige login; a lista é aberta e não carrega membros; o comparador com `ext:` segue a classe."""
+    code = ctx["ext_code"]
+    r = api.get(f"/api/v1/external-ixps/{code}", headers=ANON)
+    assert r.status_code == 401 and r.json()["reason"] == "externo"
+    assert api.get(f"/api/v1/external-ixps/{code}", headers=ALLOWED).status_code == 200
+    lista = api.get("/api/v1/external-ixps", headers=ANON)
+    assert lista.status_code == 200 and lista.json()["ixps"]
+    for ixp in lista.json()["ixps"]:
+        assert "members" not in ixp and not any(isinstance(v, list) and len(v) > 20 for v in ixp.values()), ixp.get("code")      # só contagens
+    ixbr = ctx["codes"].split(",")[0]
+    comp = {"ixps": f"{ixbr},ext:{code}"}
+    assert api.get("/api/v1/ixp-compare/members", params=comp, headers=ANON).status_code == 401
+    assert api.get("/api/v1/ixp-compare/members", params=comp, headers=ALLOWED).status_code == 200
+    assert api.get("/api/v1/ixp-compare/members", params={"ixps": ctx["codes"]}, headers=ANON).status_code == 200      # só PTTs do IX.br: medido, não login
+
+
+def test_rotas_de_entrada_da_home_e_do_panorama_abrem_ao_anonimo(api):
+    """TRANSV-E20: `/rpki/summary`, `/cdns/presence`, `/prontidao/resumo`, `/brasil/destaques` e o resumo das mudanças na janela atual."""
+    from tests.synth.world import T0
+
+    for rota in ("/api/v1/rpki/summary", "/api/v1/cdns/presence", "/api/v1/prontidao/resumo", "/api/v1/brasil/destaques"):
+        r = api.get(rota, headers=ANON)
+        assert r.status_code in (200, 404), rota                                 # 404 = produto não publicado no sintético; nunca 401/403/429
+    assert api.get("/api/v1/brasil/destaques", headers=ANON).status_code == 200
+    assert api.get("/api/v1/changes/summary", params={"from": T0}, headers=ANON).status_code == 200
+    assert api.get("/api/v1/changes/summary", headers=ANON).status_code == 401          # sem `from`: a série inteira
+
+
+def test_destaques_da_home_sao_os_totais_das_listas_de_destino(api):
+    """Os números de `/brasil/destaques` são os mesmos das consultas dos cartões (`cartoes.json`), com a janela do "O que mudou" nos snapshots atuais."""
+    from api.routes.brasil import _DESTAQUES_QUERY, _DIVERGENCIAS
+    from tests.synth.world import T0, T1
+
+    d = api.get("/api/v1/brasil/destaques", headers=ANON).json()
+    store = api.app.state.store
+    assert d["snapshot_date"] == T1 and set(d["destaques"]) == {"grandes-sem-asn", "sem-rpki", "monopolio-local", "divergencias"}
+    for id_, (colecao, corpo) in _DESTAQUES_QUERY.items():
+        assert d["destaques"][id_]["total"] == store.query(T1, colecao, {**corpo, "limit": 1})["total"], id_
+    assert d["destaques"]["divergencias"]["total"] == api.get("/api/v1/acessos/divergencias/scm", params={"limit": 1, **_DIVERGENCIAS}, headers=ALLOWED).json()["total"]
+    assert d["o_que_mudou"]["de"] == T0
+    completo = api.post("/api/v1/query/eventos", json={"filter": {"and": [{"field": "tipo", "op": "eq", "value": "asn_novo"}, {"field": "estado", "op": "eq", "value": "confirmado"}]},
+                                                      "limit": 1000}, headers=ALLOWED).json()
+    assert d["o_que_mudou"]["total"] == len([e for e in completo["items"] if e["data"] >= T0])
+
+
+def test_eventos_com_de_so_devolvem_o_historico_pedido_e_o_anonimo_precisa_dele(api):
+    """EXP-E4: `de` é aplicado pelo motor (antes era aceito na porta e ignorado) e o anônimo não alcança datas anteriores aos snapshots atuais."""
+    from tests.synth.world import T0, T1
+
+    tudo = api.post("/api/v1/query/eventos", json={"limit": 1000}, headers=ALLOWED).json()
+    assert tudo["total"] > 0 and {e["data"] for e in tudo["items"]}
+    recorte = api.post("/api/v1/query/eventos", json={"limit": 1000, "de": T1}, headers=ALLOWED).json()
+    assert recorte["total"] == len([e for e in tudo["items"] if e["data"] >= T1]) and all(e["data"] >= T1 for e in recorte["items"])
+    assert api.post("/api/v1/query/eventos", json={"limit": 5}, params={"date": T1}, headers=ANON).status_code == 401           # `date` não é início
+    assert api.post("/api/v1/query/eventos", json={"limit": 5, "de": "2000-01-01"}, params={"date": T1}, headers=ANON).status_code == 401
+    ok = api.post("/api/v1/query/eventos", json={"limit": 100, "de": T0}, params={"date": T1}, headers=ANON)
+    assert ok.status_code == 200 and all(e["data"] >= T0 for e in ok.json()["items"])
+    sem_de = api.get("/api/v1/query/eventos", params={"corpo": json.dumps({"limit": 5}), "date": T1}, headers=ANON)
+    assert sem_de.status_code == 401
+    assert api.post("/api/v1/query/series_asn", json={"limit": 5}, params={"date": T1}, headers=ANON).status_code == 401
+    assert api.post("/api/v1/query/eventos", json={"de": "ontem"}, headers=ALLOWED).status_code == 400
+    assert api.post("/api/v1/query/asns", json={"de": T0}, headers=ALLOWED).status_code == 400
+
+
+def test_lista_anonima_tem_a_previa_de_100_e_nada_alem(api):
+    """A prévia: as 100 primeiras linhas pela ordem escolhida, o `total` verdadeiro para o aviso "Prévia: 100 de N"; ampliar exige login."""
+    pagina = api.get("/api/v1/asns", params={"limit": 100, "sort_by": "asn"}, headers=ANON)
+    assert pagina.status_code == 200 and len(pagina.json()["items"]) <= 100 and pagina.json()["total"] >= len(pagina.json()["items"])
+    assert api.get("/api/v1/asns", params={"limit": 101}, headers=ANON).status_code == 401
+    assert api.get("/api/v1/asns", params={"limit": 100, "page": 2}, headers=ANON).status_code == 401
+    assert api.get("/api/v1/asns", params={"limit": 101}, headers=ALLOWED).status_code == 200

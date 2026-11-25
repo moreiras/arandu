@@ -9,9 +9,10 @@ Prontidão em segurança de roteamento.
   * `GET /prontidao/resumo?uf=` — agregado do Brasil, por UF e por faixa de porte (ASNs por classe, média ponderada pelos usuários estimados, cobertura de cada pilar) e as regras do índice.
   * O índice de cada ASN vem em `GET /asns/{asn}?include=prontidao`; o da UF e da operadora (só o agregado do próprio recorte) em `?include=prontidao` dos perfis; a coleção `prontidao_agregado` do `/query`.
 
-  * `GET /prontidao/asns` — lista por ASN (filtros e ordem). **Desligada por padrão** (`PRONTIDAO_LISTA_NOMINAL`): responde 404 até o mantenedor aprovar a metodologia (política editorial). Ligada, valem também a coleção `prontidao_asn` do `/query` e a coluna de `/asns?include=prontidao`.
+  * `GET /prontidao/asns` — lista pública por ASN (filtros e ordem), **ligada por padrão** (`PRONTIDAO_LISTA_NOMINAL`; decisão do mantenedor, com salvaguardas): ordem padrão por ASN, pilar sem dado "não medido" e fora do índice e da classe,
+    `pilares_medidos` em cada linha e o aviso de método na resposta. Valem também a coleção `prontidao_asn` do `/query` e a coluna de `/asns?include=prontidao`. Com `PRONTIDAO_LISTA_NOMINAL=0` a rota e a coleção respondem 404.
 
-Sem a chave não há lista nominal de ASNs nem de empresas (política editorial): o índice é soma ponderada de medições de terceiros, com regras públicas e versionadas.
+O índice é soma ponderada de medições de terceiros, com regras públicas e versionadas; não é veredito sobre a empresa.
 """
 from __future__ import annotations
 
@@ -49,12 +50,12 @@ def prontidao_resumo(request: Request, date: Optional[str] = Query(None), uf: Op
 
 @router.get(
     "/prontidao/asns",
-    summary="Lista de ASNs por índice de prontidão (desligada até a metodologia ser aprovada)",
+    summary="Lista de ASNs com o índice de prontidão (pública, ordem padrão por ASN)",
     description="""
-Lista paginada dos ASNs do Brasil com índice, classe, nota de cada pilar, usuários estimados (APNIC), porte, UF e quais pilares não têm dado. Filtros: `uf`, `classe`
-(pronto, em_progresso, atrasado, sem_dados), `porte` e `min`/`max` do índice. Ordem: `indice` (padrão, do menor ao maior), `usuarios` ou `asn`; ASN sem índice vai ao fim.
-O índice é soma ponderada de medições de terceiros com regras públicas (`regras`); **não é veredito sobre a empresa** e o anti-spoofing só existe para ~2% dos ASNs.
-Responde 404 enquanto a chave `PRONTIDAO_LISTA_NOMINAL` estiver desligada.
+Lista paginada dos ASNs do Brasil com índice, classe, nota de cada pilar (nulo = não medido), quantos pilares foram medidos (`pilares_medidos`), usuários estimados (APNIC), porte, UF e quais pilares não têm dado.
+Filtros: `uf`, `classe` (pronto, em_progresso, atrasado, sem_dados), `porte` e `min`/`max` do índice. Ordem: `asn` (padrão, crescente), `usuarios` ou `indice`, à escolha de quem consulta; ASN sem valor na chave vai ao fim.
+O índice é soma ponderada de medições de terceiros com regras públicas (`regras`); **não é veredito sobre a empresa** e o anti-spoofing só existe para ~2% dos ASNs. A resposta traz `aviso_metodo`.
+Responde 404 se a chave `PRONTIDAO_LISTA_NOMINAL` for desligada (`0`).
 """,
 )
 def prontidao_asns(
@@ -65,13 +66,13 @@ def prontidao_asns(
     porte: Optional[str] = Query(None, description="Faixa de porte por usuários estimados (sem_usuarios, ate_1000, … acima_de_1000000)"),
     min: Optional[float] = Query(None, ge=0, le=100, description="Índice mínimo"),
     max: Optional[float] = Query(None, ge=0, le=100, description="Índice máximo"),
-    ordem: str = Query("indice", description="indice | usuarios | asn"),
+    ordem: str = Query(p.ORDEM_PADRAO, description="asn (padrão) | usuarios | indice"),
     desc: bool = Query(False, description="Ordem decrescente"),
     page: int = Query(1, ge=1),
     limit: int = Query(100, ge=1, le=1000),
 ) -> dict:
     if not p.lista_nominal_habilitada():
-        raise HTTPException(404, "A lista de ASNs por índice de prontidão ainda não foi liberada: aguarda a aprovação da metodologia. Veja /prontidao/resumo e /asns/{asn}?include=prontidao.")
+        raise HTTPException(404, "A lista de ASNs por índice de prontidão está desligada nesta instância (`PRONTIDAO_LISTA_NOMINAL=0`). Veja /prontidao/resumo e /asns/{asn}?include=prontidao.")
     store = request.app.state.store
     d = store.resolve_date(date)
     if d is None:

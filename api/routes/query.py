@@ -69,7 +69,7 @@ def _previa_anonima(request: Request, collection: str, body: dict, date: Optiona
         return None
     from api.auth.access import policy_mode, recent_dates
     from api.auth.previa import COMO_FAZER_LOGIN, PreviaExcedida, conferir
-    args = {"collection": collection, "limit": body.get("limit", 100), "page": body.get("page", 1), "date": date,
+    args = {"collection": collection, "limit": body.get("limit", 100), "page": body.get("page", 1), "date": date, "de": body.get("de"),
             "__explicitos__": {k for k in ("limit", "page") if k in body} | ({"date"} if date else set())}
     try:
         conferir("query", args, list(recent_dates(request) or []), COMO_FAZER_LOGIN)

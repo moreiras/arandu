@@ -19,54 +19,55 @@
  },
  "paginas": {
   "/": [
+   "/api/v1/brasil/destaques",
    "/api/v1/brasil/indicadores",
-   "/api/v1/snapshots",
-   "/api/v1/snapshots/${date}"
+   "/api/v1/brasil/snapshots",
+   "/api/v1/brasil/snapshots/${date}"
   ],
   "/ases": [
    "/api/v1/asns",
    "/api/v1/bgp-stability/summary",
-   "/api/v1/snapshots"
+   "/api/v1/brasil/snapshots"
   ],
   "/dados": [],
   "/estados": [
-   "/api/v1/snapshots",
+   "/api/v1/brasil/snapshots",
    "/api/v1/ufs"
   ],
   "/fontes": [
-   "/api/v1/snapshots",
-   "/api/v1/snapshots/${date}"
+   "/api/v1/brasil/snapshots",
+   "/api/v1/brasil/snapshots/${date}"
   ],
   "/grupos": [
    "/api/v1/asns",
+   "/api/v1/brasil/snapshots",
    "/api/v1/grupos",
-   "/api/v1/grupos/${grupoId}/prefixos-geo",
-   "/api/v1/snapshots"
+   "/api/v1/grupos/${grupoId}/prefixos-geo"
   ],
   "/ixps": [
    "/api/v1/asns",
    "/api/v1/asns/ix-presence",
+   "/api/v1/brasil/snapshots",
+   "/api/v1/brasil/snapshots/${date}",
    "/api/v1/external-ixps",
    "/api/v1/ixps",
-   "/api/v1/ixps/estimated-users",
-   "/api/v1/snapshots",
-   "/api/v1/snapshots/${date}"
+   "/api/v1/ixps/estimated-users"
   ],
   "/operadoras": [
-   "/api/v1/acessos/municipio/${ibge}?servico=movel",
    "/api/v1/acessos/municipio/${ibge}",
-   "/api/v1/acessos/municipios?servico=movel",
+   "/api/v1/acessos/municipio/${ibge}?servico=movel",
    "/api/v1/acessos/municipios",
+   "/api/v1/acessos/municipios?servico=movel",
    "/api/v1/acessos/operadoras?servico=movel",
    "/api/v1/asns",
+   "/api/v1/brasil/snapshots",
    "/api/v1/outorgas",
    "/api/v1/outorgas/map",
-   "/api/v1/outorgas/stats",
-   "/api/v1/snapshots"
+   "/api/v1/outorgas/stats"
   ],
   "/sobre": [
    "/api/v1/asns",
-   "/api/v1/snapshots"
+   "/api/v1/brasil/snapshots"
   ],
   "/acessibilidade": [],
   "/mapa-do-site": []

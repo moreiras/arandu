@@ -21,6 +21,6 @@ def test_cobranca_pela_rede_do_ip(api, monkeypatch):
         api.cookies.set("anon_sid", f"inventado-{i}")                # cookie que o servidor nunca emitiu
         vistos.append(api.get(rota, headers={**ip, "X-Device-Fingerprint": f"fp-aleatorio-{i}"}).status_code)
     api.cookies.clear()
-    assert vistos[-1] == 403, vistos                                  # 60 s de orçamento, 30 s por pedido: o 3º já passa do limite
-    assert api.get(rota, headers={"X-Real-IP": "198.51.100.78"}).status_code != 403    # outro IP: conta própria
-    assert api.get(rota, headers=ANON).status_code != 403
+    assert vistos[-1] == 429, vistos                                  # 60 s de orçamento, 30 s por pedido: o 3º já passa do limite
+    assert api.get(rota, headers={"X-Real-IP": "198.51.100.78"}).status_code != 429    # outro IP: conta própria
+    assert api.get(rota, headers=ANON).status_code != 429

@@ -118,14 +118,14 @@ describe('listas, comparador, mudanças e mercado de IPv4', () => {
   })
 
   it.each(CASOS)('comparação entre datas (%s): "Não há histórico" só para 404', async (caso) => {
-    server.use(http.get('*/api/v1/snapshots', () => HttpResponse.json({ snapshots: ['2026-11-15', '2026-11-22'], latest: '2026-11-22' })), apiInteiraCom(caso))
+    server.use(http.get('*/api/v1/brasil/snapshots', () => HttpResponse.json({ snapshots: ['2026-11-15', '2026-11-22'], latest: '2026-11-22' })), apiInteiraCom(caso))
     montar('/comparar', '/comparar', <ComparaDatas />)
     await confereEstado(caso)
     expect(screen.queryByText(/Não há histórico guardado/)).toBeNull()
   })
 
   it.each(CASOS)('mudanças (%s): causa em vez de "Não foi possível carregar as mudanças agora"', async (caso) => {
-    server.use(http.get('*/api/v1/snapshots', () => HttpResponse.json({ snapshots: ['2026-11-15', '2026-11-22'], latest: '2026-11-22' })), apiInteiraCom(caso))
+    server.use(http.get('*/api/v1/brasil/snapshots', () => HttpResponse.json({ snapshots: ['2026-11-15', '2026-11-22'], latest: '2026-11-22' })), apiInteiraCom(caso))
     montar('/mudancas', '/mudancas', <MudancasPage />)
     await confereEstado(caso)
   })

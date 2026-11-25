@@ -5,6 +5,9 @@ tipo: bruta
 ativa: true
 modulo: sources.ooni_bloqueios.collect
 publicavel: true
+exposicao: aberta
+decisao_exposicao: 'Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. A licença é CC BY-NC-SA 4.0 (uso comercial restrito): os agregados derivados saem sob a mesma licença, com atribuição em todo canal; a questão do NC segue em aberto (ver pendências).'
+atribuicao: 'OONI, Open Observatory of Network Interference (ooni.org), CC BY-NC-SA 4.0; agregados derivados sob a mesma licença.'
 descricao: 'Medições de rede do OONI (Open Observatory of Network Interference) feitas por sondas de voluntários no Brasil, lidas do bucket público de dados abertos `ooni-data-eu-fra` (Amazon Open Data) e agregadas
   por ASN × teste × dia EM FLUXO: o bruto é descartado, nada de medição por sonda, `report_id`, input, IP da sonda ou nome de rede. Fase A: testes leves (whatsapp, telegram, signal, facebookmessenger, tor, psiphon), todos os arquivos
   do dia. Fase B: webconnectivity por AMOSTRA (3 horas UTC por dia, teto de 3 GB por execução). O veredito é o da própria sonda (ooni/spec), não o do backend do OONI: não é prova de censura.'

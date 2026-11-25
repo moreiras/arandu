@@ -13,6 +13,10 @@ export interface FonteCatalogo {
   ativa: boolean
   modulo: string
   descricao: string
+  /** Nível de acesso do que a fonte alimenta (`aberta`, `login`); `decisao_exposicao` e `atribuicao` vêm do catálogo (D9). */
+  exposicao?: string
+  decisao_exposicao?: string
+  atribuicao?: string
   origem: { url?: string; formato?: string; licenca?: string; termos?: string; uso_comercial?: string; nota?: string }
   cadencia: { fonte_atualiza?: string; coleta?: string; coleta_atual?: string; frescor_maximo?: string }
   politica_falha?: string

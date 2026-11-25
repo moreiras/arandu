@@ -700,6 +700,15 @@
    "status": 404,
    "tipo": "objeto"
   },
+  "GET /api/v1/brasil/destaques": {
+   "chaves": [
+    "destaques",
+    "o_que_mudou",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
   "GET /api/v1/brasil/indicadores": {
    "chaves": [
     "asns",
@@ -709,6 +718,24 @@
     "rov",
     "rpki",
     "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/brasil/snapshots": {
+   "chaves": [
+    "count",
+    "latest",
+    "snapshots"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/brasil/snapshots/{date_str}": {
+   "chaves": [
+    "date",
+    "manifest",
+    "summary"
    ],
    "status": 200,
    "tipo": "objeto"
@@ -2080,12 +2107,15 @@
   },
   "GET /api/v1/prontidao/asns": {
    "chaves": [
+    "aviso_metodo",
+    "desc",
     "filtros",
     "fontes",
     "items",
     "limit",
     "limites",
     "natureza",
+    "ordem",
     "page",
     "pages",
     "regras",
@@ -2101,6 +2131,7 @@
     "escopo",
     "fontes",
     "limites",
+    "lista_nominal",
     "manrs",
     "natureza",
     "por_faixa_porte",

@@ -25,6 +25,7 @@ function CartaoFonte({ f, entrada, temSnapshot }: { f: FonteCatalogo; entrada?: 
       </div>
       <dl className="mt-2 space-y-1 text-xs text-gray-600">
         <div><dt className="inline text-gray-400">Licença: </dt><dd className="inline">{f.origem.licenca ?? <span className="text-aviso-700">não verificada</span>} · uso comercial: {f.uso_comercial_efetivo ?? 'não verificado'}</dd></div>
+        {f.atribuicao && <div data-testid="atribuicao-fonte"><dt className="inline text-gray-400">Atribuição: </dt><dd className="inline">{f.atribuicao}</dd></div>}
         <div><dt className="inline text-gray-400">Periodicidade: </dt><dd className="inline">{descreverCadencia(f.cadencia)}</dd></div>
         <div><dt className="inline text-gray-400">Última coleta: </dt><dd className="inline">{entrada
           ? <>ref. {formatarReferencia(entrada.as_of)}{entrada.coletado_em ? ` · coletado em ${formatarReferencia(entrada.coletado_em)}` : ''} <span className="text-gray-400">({rotuloFrescor(entrada)})</span></>
@@ -56,6 +57,7 @@ function DetalheFonte({ f }: { f: FonteCatalogo }) {
   return (
     <div className="space-y-2 text-sm">
       <p className="break-words">{f.descricao}</p>
+      {f.decisao_exposicao && <p className="text-xs text-gray-700 break-words" data-testid="decisao-exposicao">{f.decisao_exposicao}</p>}
       <dl className="grid md:grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-600">
         <div><dt className="inline text-gray-400">Origem: </dt><dd className="inline">{f.origem.url ? <a href={f.origem.url} target="_blank" rel="noopener noreferrer" className="text-primario-600 hover:underline break-all">{f.origem.url}</a> : '—'}</dd></div>
         <div><dt className="inline text-gray-400">Formato: </dt><dd className="inline">{f.origem.formato ?? '—'}</dd></div>

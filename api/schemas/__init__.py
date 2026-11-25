@@ -283,6 +283,7 @@ class ASNIndexEntry(BaseModel):
     epppd_v6: Optional[float] = Field(None, description="Só com `include=bgp_stability`: o mesmo, IPv6")
     prontidao_indice: Optional[float] = Field(None, description="Só com `include=prontidao` e a lista nominal liberada: índice de prontidão em segurança de roteamento (0 a 100; soma ponderada de medições de terceiros, não veredito)")
     prontidao_classe: Optional[str] = Field(None, description="Só com `include=prontidao` e a lista nominal liberada: pronto, em_progresso, atrasado ou sem_dados")
+    prontidao_pilares_medidos: Optional[int] = Field(None, description="Só com `include=prontidao` e a lista nominal liberada: quantos dos quatro pilares têm dado e entraram no índice e na classe")
 
 
 class PaginatedASNsResponse(BaseModel):

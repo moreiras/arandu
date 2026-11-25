@@ -65,7 +65,7 @@ beforeEach(() => {
   server.use(
     http.get('*/api/v1/grupos/g1', () => HttpResponse.json(grupo)),
     http.get('*/api/v1/grupos/nao', () => new HttpResponse(null, { status: 404 })),
-    http.get('*/api/v1/snapshots/:date', () => HttpResponse.json({ date: '2026-09-20', summary: null, manifest: { sources: [] } })),
+    http.get('*/api/v1/brasil/snapshots/:date', () => HttpResponse.json({ date: '2026-09-20', summary: null, manifest: { sources: [] } })),
   )
 })
 

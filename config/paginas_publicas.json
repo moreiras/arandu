@@ -127,11 +127,6 @@
    "descricao": "De onde vem cada dado, com data e frescor"
   },
   {
-   "rotulo": "Snapshots",
-   "caminho": "/snapshots",
-   "descricao": "Versões datadas e imutáveis dos dados"
-  },
-  {
    "rotulo": "Sobre",
    "caminho": "/sobre",
    "descricao": "O projeto, a licença e os créditos"
@@ -174,7 +169,6 @@
   "/explorar",
   "/dados",
   "/fontes",
-  "/snapshots",
   "/sobre",
   "/mapa-do-site",
   "/comparar",

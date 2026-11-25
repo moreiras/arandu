@@ -19,10 +19,11 @@ const anon = (limitReached: boolean) => ({
 })
 
 let chamadas = 0
-const montar = (limitReached: boolean) => {
+const resposta = { snapshot_date: '2026-09-20', destaques: {}, o_que_mudou: { total: 3, de: '2026-09-13', mais_recente: '2026-09-20' } }
+const montar = (limitReached: boolean, corpo: unknown = resposta) => {
   server.use(
     http.get('*/auth/me', () => HttpResponse.json(anon(limitReached))),
-    http.get('*/api/v1/query/eventos', () => { chamadas += 1; return HttpResponse.json({ items: [], total: 3 }) }),
+    http.get('*/api/v1/brasil/destaques', () => { chamadas += 1; return HttpResponse.json(corpo as object) }),
   )
   return render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
@@ -36,18 +37,16 @@ beforeEach(() => {
   useAppStore.setState({ activeDate: null, latestSnapshot: '2026-09-20' })
 })
 
-// Bloco `degradavel` da página de entrada: com o orçamento anônimo esgotado, a rota `metered` daria 403, que o navegador registra
-// no console mesmo tratado. O bloco não chama a API e mostra o mesmo aviso.
-describe('blocos avançados da página de entrada', () => {
-  it('com orçamento esgotado não chama a rota e pede login', async () => {
+// TRANSV-E20: o "O que mudou" da home vem de `/brasil/destaques`, rota fixa e aberta; não depende do orçamento anônimo e só conta a janela dos snapshots atuais.
+describe('O que mudou na home', () => {
+  it('consulta a rota aberta mesmo com o orçamento anônimo esgotado e diz desde quando conta', async () => {
     montar(true)
-    expect(await screen.findByText(/entre para ver as mudanças recentes/)).toBeInTheDocument()
-    expect(chamadas).toBe(0)
+    await waitFor(() => expect(screen.getByTestId('o-que-mudou')).toHaveTextContent('3 ASes brasileiros novos confirmados na tabela de roteamento desde 13/09/2026, o mais recente em 20/09/2026'))
+    expect(chamadas).toBe(1)
   })
 
-  it('com orçamento disponível consulta normalmente', async () => {
-    montar(false)
-    await waitFor(() => expect(screen.getByTestId('o-que-mudou')).toHaveTextContent('3 ASes brasileiros novos'))
-    expect(chamadas).toBe(1)
+  it('sem ASes novos na janela diz desde quando, em vez de afirmar "nos últimos snapshots"', async () => {
+    montar(false, { ...resposta, o_que_mudou: { total: 0, de: '2026-09-13', mais_recente: null } })
+    await waitFor(() => expect(screen.getByTestId('o-que-mudou')).toHaveTextContent('nenhum AS brasileiro novo confirmado desde 13/09/2026'))
   })
 })

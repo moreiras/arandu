@@ -44,7 +44,8 @@ def conferir(nome: str, args: dict, recentes: Sequence[str], como: str = COMO_TE
         raise PreviaExcedida(f"date={data}: sem login ou chave, só os snapshots {', '.join(recentes)}. {como}")
     historico = nome in HISTORICO or (nome == "query" and args.get("collection") in COLECOES_HISTORICO)
     if historico and recentes:
-        inicio = args.get("de") or args.get("date")
+        # só `de` restringe as linhas (a série e os eventos não dependem de `date`): sem ele o pedido alcançaria o histórico inteiro
+        inicio = args.get("de")
         if not (isinstance(inicio, str) and inicio >= min(recentes)):
-            raise PreviaExcedida(f"{nome}: sem login ou chave, o histórico só a partir de {min(recentes)} (informe `de`). {como}")
+            raise PreviaExcedida(f"{nome}: sem login ou chave, o histórico só a partir de {min(recentes)}: informe `de` (AAAA-MM-DD, não anterior a essa data). {como}")
     return args

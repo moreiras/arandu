@@ -5,6 +5,9 @@ tipo: bruta
 ativa: true
 modulo: sources.telegeography_cables.collect
 publicavel: true
+exposicao: aberta
+decisao_exposicao: 'Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. A licença é CC BY-SA 4.0 conforme o coletor declara, com atribuição mantida na interface (mapTheme.ts); não foi verificada na origem (ver pendências).'
+atribuicao: 'TeleGeography, Submarine Cable Map (https://www.submarinecablemap.com), CC BY-SA 4.0 conforme declarado no coletor.'
 descricao: Cabos submarinos e pontos de aterragem do Submarine Cable Map (API v3).
 origem:
   url: https://www.submarinecablemap.com/api/v3/

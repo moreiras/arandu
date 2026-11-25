@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parent.parent
 UA = "arandurape-post-deploy-check/1"
 
 ROTAS = [   # (caminho, campos de topo obrigatórios)
-    ("/api/v1/snapshots", ["snapshots", "latest"]),
+    ("/api/v1/brasil/snapshots", ["snapshots", "latest"]),         # `/api/v1/snapshots` (lista inteira) é `login` desde D9
     ("/api/v1/ixps", ["ixps", "snapshot_date"]),
     ("/api/v1/asns?limit=1", ["items", "total", "snapshot_date"]),
     ("/api/v1/cdns/presence", ["cdns"]),
@@ -97,7 +97,7 @@ def run_checks(call: Transport, expect_version: str, mcp_tools: int | None) -> l
         add(f"rota {path}", st == 200 and not faltam, f"status={st}" + (f" faltam={faltam}" if faltam else ""))
 
     if latest:
-        st, _, body = call("GET", f"/api/v1/snapshots/{latest}", None, None)
+        st, _, body = call("GET", f"/api/v1/brasil/snapshots/{latest}", None, None)
         j = _json(body) or {}
         manifest = (j.get("manifest") or {}) if isinstance(j, dict) else {}
         add("manifesto do snapshot", st == 200 and manifest.get("pipeline_version"), f"status={st}")
@@ -105,6 +105,8 @@ def run_checks(call: Transport, expect_version: str, mcp_tools: int | None) -> l
             add("sanidade de coleta", manifest.get("coleta_ok") is True,
                 f"coleta={manifest.get('coleta')} falhas={[k for k, v in (manifest.get('checks') or {}).items() if v.get('status') == 'falha']}")
 
+    st, _, _ = call("GET", "/api/v1/snapshots", None, None)
+    add("acesso: a lista inteira de snapshots exige login", st in (401, 403), f"status={st}")
     st, _, _ = call("GET", "/api/v1/asns/1251/contacts", None, None)
     add("privacidade: contatos exigem login", st in (401, 403), f"status={st}")
 

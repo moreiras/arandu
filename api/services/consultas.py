@@ -10,6 +10,7 @@ Serviço sobre o `Store`: guarda os caches e a lógica deste assunto; o que lê 
 """
 from __future__ import annotations
 
+import re
 import threading
 
 import json
@@ -398,8 +399,17 @@ class ConsultasService:
                     f"{', '.join(proibido)}: endereço e posição da sede não são servidos em '{collection}'. "
                     "Use `near` para buscar perto de um lugar, ou filtre e agrupe por município e `uf`.")
         near = body.pop("near", None)
+        de = body.pop("de", None)
         tab = self.colunar(date_str, collection) if collection in self.COLECOES_COLUNARES else None
         rows = [] if tab is not None else self.query_table(date_str, collection)
+        if de is not None:
+            # `de`: início do histórico (EXP-E4). As coleções de histórico não dependem de `date`; sem `de` valem todas as datas. A política de acesso
+            # exige `de` de quem não tem login, e o motor o aplica de fato: antes ele era aceito na porta e ignorado aqui.
+            if collection not in ("eventos", "series_asn"):
+                raise _q.QueryError("`de` só vale para as coleções de histórico: eventos e series_asn.")
+            if not isinstance(de, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", de):
+                raise _q.QueryError("`de` deve ser uma data AAAA-MM-DD.")
+            rows = [r for r in rows if (r.get("data") or "") >= de]
 
         # Valida campos/enums com mensagem que ensina (campo errado → vazio silencioso).
         _q.validate(collection, body, (tab.linha(0) if tab.n else None) if tab is not None else (rows[0] if rows else None))

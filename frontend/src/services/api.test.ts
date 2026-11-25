@@ -18,7 +18,7 @@ describe('cliente da API sobre respostas reais do dataset sintético', () => {
   it('envia a área de acesso e o fingerprint em todo pedido', async () => {
     setCurrentArea('metered')
     await fetchSnapshots()
-    const h = seenHeaders['/api/v1/snapshots']
+    const h = seenHeaders['/api/v1/brasil/snapshots']
     expect(h['x-arandu-area']).toBe('metered')
     expect(Object.keys(h).some((k) => k.includes('fingerprint') || k.includes('device'))).toBe(true)
   })

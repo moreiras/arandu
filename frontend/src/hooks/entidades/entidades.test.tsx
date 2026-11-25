@@ -87,13 +87,13 @@ describe('hooks por entidade', () => {
   })
 
   it('useFontes devolve sources[] do manifesto; sem manifesto, undefined (proveniência não inventa data)', async () => {
-    server.use(http.get('*/api/v1/snapshots/:date', () => HttpResponse.json({ date: DATA, summary: null, manifest: { sources: [{ id: 'x', as_of: DATA }] } })))
+    server.use(http.get('*/api/v1/brasil/snapshots/:date', () => HttpResponse.json({ date: DATA, summary: null, manifest: { sources: [{ id: 'x', as_of: DATA }] } })))
     const a = renderHook(() => useFontes(), { wrapper })
     await waitFor(() => expect(a.result.current.fontes?.[0].id).toBe('x'))
     expect(a.result.current.snapshot).toBe(DATA)
 
     qc.clear()
-    server.use(http.get('*/api/v1/snapshots/:date', () => HttpResponse.json({ date: DATA, summary: null, manifest: null })))
+    server.use(http.get('*/api/v1/brasil/snapshots/:date', () => HttpResponse.json({ date: DATA, summary: null, manifest: null })))
     const b = renderHook(() => useFontes(), { wrapper })
     await waitFor(() => expect(qc.getQueryState(chaves.snapshot(DATA))?.status).toBe('success'))
     expect(b.result.current.fontes).toBeUndefined()

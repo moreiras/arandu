@@ -56,7 +56,7 @@ beforeEach(() => {
   pedidos = []
   useAppStore.setState({ activeDate: null, latestSnapshot: '2026-09-20' })
   server.use(
-    http.get('*/api/v1/snapshots/:date', () => HttpResponse.json({ date: '2026-09-20', summary: null, manifest: { sources: [{ id: 'rpki_collector', as_of: '2026-09-20', frescor: 'ok' }] } })),
+    http.get('*/api/v1/brasil/snapshots/:date', () => HttpResponse.json({ date: '2026-09-20', summary: null, manifest: { sources: [{ id: 'rpki_collector', as_of: '2026-09-20', frescor: 'ok' }] } })),
     http.get('*/api/v1/prefixes/*', ({ request }) => {
       const p = decodeURIComponent(new URL(request.url).pathname.replace('/api/v1/prefixes/', ''))
       pedidos.push(p)
