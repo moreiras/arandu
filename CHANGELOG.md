@@ -46,8 +46,8 @@ parênteses remetem à análise.
     passa de 16 a 14 membros;
   - communities dos route servers contam ASNs distintos (`asns_total`; a soma por PTT fica em `asns_soma_ptts`): `65000:6939` passa
     de 1.382 a 769;
-  - mapeamento PeeringDB dos PTTs: `ria` → 1847 e `rao` → 4862 (estavam trocados), sem `santa-maria`; com a próxima coleta as
-    instalações vão para os PTTs certos (38 de 40);
+  - mapeamento PeeringDB dos PTTs: `ria` → 1847 e `rao` → 4862 (estavam trocados), sem `santa-maria`, e `cpv` → 603, `cac` → 2822,
+    `cas` → 415 (estavam permutados); com a próxima coleta as instalações vão para os PTTs certos (38 de 40);
   - trânsito do AS pela inferência de relações (regra `sintese-as-2`, sem o próprio AS, irmãos e ASNs do mesmo CNPJ), com campo
     novo `n_provedores_provavel` (`n_provedores` segue contando confirmado ou acima); bloco PeeringDB do ASN e da CDN lê os campos
     que a API envia; presença de CDN nos PTTs em três critérios (membro, sessão, só por terceiros).
