@@ -13,7 +13,7 @@ Para os IXPs externos configurados e para os 40 IXPs do IX.br, consulta /api/net
 | Módulo / arquivo | `sources.peeringdb_ixps.collect` |
 | Publicável | sim (exposição: aberta) |
 | Decisão sobre a exposição | Aberta por decisão do projeto (D9, 2026-11-24; PTT externo revisto em 2026-11-25): o que a fonte alimenta é servido sem login na interface, na API e no MCP, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB. A lista de IXPs externos com contagens de membros, o detalhe de cada PTT externo (`/external-ixps/{code}`) e o comparador com `ext:` são servidos sem login (consulta medida), como as demais superfícies do PeeringDB. Os membros dos PTTs do IX.br seguem abertos (origem: IX.br). |
-| Atribuição exigida | PeeringDB (https://www.peeringdb.com). Uso sujeito à AUP (https://www.peeringdb.com/aup); a forma de atribuição que o PeeringDB exige não foi verificada. |
+| Atribuição exigida | Fonte: PeeringDB |
 | Política de falha | critica |
 | Cadência (origem atualiza) | continua |
 | Coleta hoje → alvo | semanal → diaria |

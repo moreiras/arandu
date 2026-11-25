@@ -7,7 +7,7 @@ modulo: sources.peeringdb_intl_geo.enrich
 publicavel: true
 exposicao: aberta
 decisao_exposicao: 'Aberta por decisão do projeto (D9, 2026-11-24; PTT externo revisto em 2026-11-25): o que a fonte alimenta é servido sem login na interface, na API e no MCP, e a abertura é intencional, não um padrão esquecido. Mistura OpenStreetMap (ODbL 1.0, via Nominatim) e coordenadas de organização do PeeringDB; o projeto publica só a posição por ASN, sem contatos.'
-atribuicao: '© colaboradores do OpenStreetMap, ODbL 1.0 (geocodificação pelo Nominatim); coordenadas de organização: PeeringDB (https://www.peeringdb.com), sujeito à AUP.'
+atribuicao: 'Fonte: PeeringDB. Geocodificação: © colaboradores do OpenStreetMap, ODbL 1.0 (Nominatim).'
 descricao: 'Posição de ASNs não brasileiros: coordenadas da organização no PeeringDB (org_coords) ou centroide
   da cidade via Nominatim.'
 origem:

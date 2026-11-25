@@ -7,7 +7,7 @@ modulo: sources.peeringdb_fac.collect
 publicavel: true
 exposicao: aberta
 decisao_exposicao: 'Aberta por decisão do projeto (D9, 2026-11-24; PTT externo revisto em 2026-11-25): o que a fonte alimenta é servido sem login na interface, na API e no MCP, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB: o projeto publica atributos e agregados por rede e por instalação, sem contatos.'
-atribuicao: 'PeeringDB (https://www.peeringdb.com). Uso sujeito à AUP (https://www.peeringdb.com/aup); a forma de atribuição que o PeeringDB exige não foi verificada.'
+atribuicao: 'Fonte: PeeringDB'
 descricao: Instalações (`fac`) do Brasil e as dos PTTs externos já cadastrados, com os vínculos de redes (`netfac`, só instalações do Brasil), de PTTs (`ixfac`) e de carriers
   (`carrierfac`), os carriers, os campus e os atributos de peering de cada rede do Brasil que está no PeeringDB (`net`, em lotes de 500 ASNs). Cerca de 30 requisições por coleta, uma por vez,
   com pausa de 1,5 s. Escopo restrito ao Brasil e às instalações dos PTTs cadastrados (sem dump mundial). Os campos de contato (`*_email`, `*_phone`) e `notes` NÃO são mantidos,
