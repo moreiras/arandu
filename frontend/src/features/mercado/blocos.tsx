@@ -10,9 +10,10 @@ import type { MunicipioCtx } from '../municipio/contexto'
 import type { OperadoraCtx } from '../operadora/contexto'
 import type { UfCtx } from '../uf/contexto'
 import { AvisosRecorte } from '../../components/ui/AvisoRecorte'
+import { NOTA_FAIXAS_HHI, ROTULO_FAIXA_HHI } from '../../lib/referencias'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR', { maximumFractionDigits: 0 }))
-export const ROTULO_FAIXA: Record<FaixaHhi, string> = { competitivo: 'competitivo', moderado: 'moderado', concentrado: 'concentrado' }
+export const ROTULO_FAIXA = ROTULO_FAIXA_HHI
 
 function Faixa({ f }: { f: FaixaHhi | null }) { return <span className="text-xs text-gray-500">{f ? ROTULO_FAIXA[f] : '—'}</span> }
 
@@ -26,7 +27,8 @@ function Duas({ cnpj, grupo, faixaCnpj, faixaGrupo, extra, avisoCnpj, avisoGrupo
         <div><dt className="text-xs text-gray-500">HHI por grupo econômico <span className="text-gray-400">(inferido)</span></dt><dd className="text-lg font-semibold tabular-nums">{n(grupo)} <Faixa f={faixaGrupo} /> <AvisosRecorte avisos={avisoGrupo} /></dd></div>
         {extra}
       </dl>
-      {mudou && <p className="rounded border border-aviso-200 bg-aviso-50 px-3 py-2 text-xs text-aviso-700" role="status">Ao juntar os CNPJs do mesmo grupo, a faixa muda de {faixaCnpj} para {faixaGrupo}.</p>}
+      {mudou && <p className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700" role="status">Ao juntar os CNPJs do mesmo grupo, a faixa muda de “{faixaCnpj ? ROTULO_FAIXA_HHI[faixaCnpj] : '—'}” para “{faixaGrupo ? ROTULO_FAIXA_HHI[faixaGrupo] : '—'}”.</p>}
+      <p className="text-xs text-gray-500" data-testid="nota-faixas-hhi">{NOTA_FAIXAS_HHI}</p>
     </div>
   )
 }

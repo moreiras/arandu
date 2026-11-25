@@ -3,6 +3,8 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
+import { faixaHhi, rotuloFaixaHhi } from '../../lib/referencias'
+
 export const fmt = (n: number | null | undefined) => (n == null ? '—' : n.toLocaleString('pt-BR'))
 
 export function fmtCnpj(c: string): string {
@@ -11,11 +13,9 @@ export function fmtCnpj(c: string): string {
   return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`
 }
 
-/** Interpretação do HHI, na convenção usada por autoridades de concorrência. */
+/** Faixa do HHI pelo método do projeto (D11): rótulo numérico e cor neutra, sem cor de juízo. A nota de método fica em `NOTA_FAIXAS_HHI`. */
 export function hhiLabel(hhi: number): { texto: string; cor: string } {
-  if (hhi >= 2500) return { texto: 'altamente concentrado', cor: 'text-perigo-700 bg-perigo-50 border-perigo-100' }
-  if (hhi >= 1500) return { texto: 'moderadamente concentrado', cor: 'text-aviso-700 bg-aviso-50 border-aviso-100' }
-  return { texto: 'competitivo', cor: 'text-mercado-700 bg-mercado-50 border-mercado-100' }
+  return { texto: rotuloFaixaHhi(faixaHhi(hhi)), cor: 'text-gray-700 bg-gray-50 border-gray-200' }
 }
 
 export function KPI({ label, value, hint }: { label: string; value: string; hint?: string }) {
