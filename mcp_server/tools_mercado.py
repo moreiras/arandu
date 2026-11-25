@@ -559,7 +559,7 @@ def economic_group(
     não exclusivo — CPF de PF vem parcialmente mascarado, não é certeza). `assinantes` são os acessos FIXOS declarados ao SICI (não
     inclui móvel). `asns` do grupo: os registrados com o CNPJ de uma das empresas e, pela raiz de 8 dígitos (vínculo inferido), os de filiais
     que não estão no grupo, listados também em `asns_raiz`; `usuarios_apnic` soma cada ASN uma vez. `visibilidade_bgp` = algum desses AS
-    origina bloco na tabela global. Para filtrar/cruzar grupos em lote use
+    origina bloco na tabela global. S.A.: o quadro da Receita não traz acionistas e vem `grupo_inferivel` = false (`grupo_inferivel_rotulo`, `como_ler`); a ligação pelo quadro de uma Ltda sócia vale. Para filtrar/cruzar grupos em lote use
     `query(collection="socios")`.
 
     Args:

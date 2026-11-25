@@ -34,7 +34,16 @@ def operators(world: World) -> list[dict]:
         c = make_cnpj(200 + k)
         seen[c] = {"cnpj": c, "razao_social": f"Provedor Sem ASN {k + 1} Ltda", "nome_fantasia": f"SemASN{k + 1}",
                    "municipio": m[1], "uf": m[2], "codigo_ibge": m[0], "lat": m[3], "lon": m[4], "asns": []}
-    return list(seen.values())
+    ops = list(seen.values())
+    for o in ops[-8:][1:3]:                               # cenário 12 (P8): SemASN2 e SemASN3 são S.A. (natureza 2054 em `receita.receita_cnpj`)
+        o["razao_social"] = o["razao_social"].replace(" Ltda", " S.A.")
+        o["sociedade_anonima"] = True
+    return ops
+
+
+def sociedades_anonimas(world: World) -> list[dict]:
+    """As S.A. do cenário 12 (a 1ª também é sócia com participação da Ltda `operators(world)[-8]`)."""
+    return [o for o in operators(world) if o.get("sociedade_anonima")]
 
 
 def outorga_record(op: dict, i: int, servico: str) -> dict:
@@ -164,6 +173,14 @@ def receita_socios(world: World) -> dict:
     # cenário 11 (D5): as duas últimas operadoras sem ASN têm o mesmo diretor (10) e o mesmo presidente (16), sem participação: não formam grupo
     for op in operators(world)[-2:]:
         by_basico[op["cnpj"][:8]] += [_socio("2", "Diretor Exemplo Comum", "***555555**", "10"), _socio("2", "Presidente Exemplo Comum", "***666666**", "16")]
+    # cenário 12 (P8): o quadro da S.A. traz só gestão (diretor 10, presidente 16, conselheiro 08), igual nas duas: não liga. A 1ª S.A. é sócia (22) com
+    # participação da Ltda SemASN1, que mantém o sócio pessoa física dela: a ligação vem do quadro da Ltda e continua.
+    sa1, sa2 = sociedades_anonimas(world)
+    gestao = [_socio("2", "Diretor SA Comum", "***777777**", "10"), _socio("2", "Presidente SA Comum", "***888888**", "16"), _socio("2", "Conselheiro SA Comum", "***999999**", "08")]
+    by_basico[sa1["cnpj"][:8]] = [dict(s) for s in gestao]
+    by_basico[sa2["cnpj"][:8]] = [dict(s) for s in gestao]
+    ltda = operators(world)[-8]
+    by_basico[ltda["cnpj"][:8]] += [_socio("1", sa1["razao_social"], sa1["cnpj"][:8], "22")]
     return {"snapshot_date": world.instant, "generated_at": "2026-01-01T00:00:00+00:00", "dump_reference": "2026-09",
             "parts_processed": 1, "target_cnpj_basicos": len(by_basico), "matched_cnpj_basicos": len(by_basico),
             "by_cnpj_basico": by_basico}

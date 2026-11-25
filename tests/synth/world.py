@@ -42,6 +42,8 @@ CENARIOS = {
     9: "Membro estrangeiro que só anuncia IPv6 no za: originadores do PTT são a união IPv6 ∪ IPv4, maior que o maior dos dois",
     10: "Vínculo ASN ↔ CNPJ (D5): AS registrado em filial de operadora sem ASN no próprio CNPJ (4200000201 na raiz de SemASN6), operadora "
         "sem ASN ligada pela marca curada DELTA (SemASN4) e operadora com AS estrangeiro (SemASN5, EPSILON → 4200000100)",
+    12: "S.A. no agrupamento (P8): duas S.A. (SemASN2 e SemASN3, natureza 2054) com quadro só de diretoria e conselho em comum não se ligam e saem "
+        "`grupo_inferivel: false`; a S.A. SemASN2 é sócia com participação da Ltda SemASN1, e essa ligação continua",
 }
 
 #: Cenário 10: o AS registrado no Registro.br com o CNPJ de uma filial (0002) da operadora "Provedor Sem ASN 6", que declara ao SICI pela

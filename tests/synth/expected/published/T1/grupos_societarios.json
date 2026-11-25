@@ -1021,18 +1021,36 @@
     "numero": "135",
     "uf": "SP"
    },
-   "grupo_id": null,
+   "grupo_id": "grp_90000200",
    "holdings_externas": [],
    "mesmo_grupo": [],
    "receita_dump_reference": "2026-09",
-   "relacionadas_parcial": [],
+   "relacionadas_parcial": [
+    {
+     "classes_qualificacao": [
+      "socio"
+     ],
+     "cnpj": "90000201000181",
+     "qualificacoes_em_comum": [
+      "22"
+     ],
+     "tipo_relacao": "controle_parcial_recebido",
+     "total_socios_da_controlada": 2
+    }
+   ],
    "socios": [
     {
      "qualificacao": "49",
      "tipo": "fisica"
+    },
+    {
+     "documento": "90000201",
+     "nome": "Provedor Sem ASN 2 S.A.",
+     "qualificacao": "22",
+     "tipo": "juridica"
     }
    ],
-   "tamanho_grupo": 1
+   "tamanho_grupo": 2
   },
   "90000201000181": {
    "cnpj": "90000201000181",
@@ -1046,18 +1064,40 @@
     "numero": "136",
     "uf": "RS"
    },
-   "grupo_id": null,
+   "grupo_id": "grp_90000200",
+   "grupo_inferivel": false,
    "holdings_externas": [],
    "mesmo_grupo": [],
+   "motivo": "sa_quadro_sem_acionistas",
    "receita_dump_reference": "2026-09",
-   "relacionadas_parcial": [],
+   "relacionadas_parcial": [
+    {
+     "classes_qualificacao": [
+      "socio"
+     ],
+     "cnpj": "90000200000137",
+     "qualificacoes_em_comum": [
+      "22"
+     ],
+     "tipo_relacao": "controle_parcial_exercido",
+     "total_socios_da_controlada": 2
+    }
+   ],
    "socios": [
     {
-     "qualificacao": "49",
+     "qualificacao": "10",
+     "tipo": "fisica"
+    },
+    {
+     "qualificacao": "16",
+     "tipo": "fisica"
+    },
+    {
+     "qualificacao": "08",
      "tipo": "fisica"
     }
    ],
-   "tamanho_grupo": 1
+   "tamanho_grupo": 2
   },
   "90000202000126": {
    "cnpj": "90000202000126",
@@ -1072,13 +1112,23 @@
     "uf": "MG"
    },
    "grupo_id": null,
+   "grupo_inferivel": false,
    "holdings_externas": [],
    "mesmo_grupo": [],
+   "motivo": "sa_quadro_sem_acionistas",
    "receita_dump_reference": "2026-09",
    "relacionadas_parcial": [],
    "socios": [
     {
-     "qualificacao": "49",
+     "qualificacao": "10",
+     "tipo": "fisica"
+    },
+    {
+     "qualificacao": "16",
+     "tipo": "fisica"
+    },
+    {
+     "qualificacao": "08",
      "tipo": "fisica"
     }
    ],
@@ -1227,17 +1277,20 @@
   }
  },
  "efeito_da_regra": {
-  "cnpjs_basicos_em_grupo": 6,
-  "cnpjs_basicos_em_grupo_pela_regra_anterior": 8,
-  "grupos": 3,
-  "grupos_desfeitos_ou_reduzidos": 1,
-  "grupos_pela_regra_anterior": 4,
-  "pares_ligados_so_por_cargo_sem_participacao": 1
+  "cnpjs_basicos_em_grupo": 8,
+  "cnpjs_basicos_em_grupo_pela_regra_anterior": 11,
+  "grupos": 4,
+  "grupos_desfeitos_ou_reduzidos": 2,
+  "grupos_pela_regra_anterior": 5,
+  "natureza_juridica_disponivel": true,
+  "pares_ligados_so_por_cargo_sem_participacao": 2,
+  "sociedades_anonimas_sem_inferencia": 2
  },
  "equivalencia_grupo_id": {
   "grp_90000012": "grp_90000011",
   "grp_90000014": "grp_90000013",
-  "grp_90000017": "grp_90000016"
+  "grp_90000017": "grp_90000016",
+  "grp_90000201": "grp_90000200"
  },
  "grupos": [
   {
@@ -1277,6 +1330,19 @@
     "90000017000131"
    ],
    "grupo_id": "grp_90000016",
+   "tamanho": 2
+  },
+  {
+   "classificacao": "parcial",
+   "cnpj_basicos": [
+    "90000200",
+    "90000201"
+   ],
+   "cnpjs": [
+    "90000200000137",
+    "90000201000181"
+   ],
+   "grupo_id": "grp_90000200",
    "tamanho": 2
   }
  ],
@@ -1435,7 +1501,20 @@
    "liga": false
   }
  },
+ "regra_sociedade_anonima": {
+  "como_ler": "O quadro da Receita de uma sociedade anônima traz diretoria e conselho, não acionistas. O agrupamento por quadro societário não alcança esta empresa: ela pode pertencer a um grupo que esta página não mostra. A ligação que vem do quadro de outra empresa em que ela é sócia continua valendo.",
+  "criterio": "natureza jurídica da Receita Federal (receita_cnpj, campo `nat` por raiz de CNPJ)",
+  "motivo": "sa_quadro_sem_acionistas",
+  "naturezas": {
+   "2046": "Sociedade Anônima Aberta",
+   "2054": "Sociedade Anônima Fechada"
+  },
+  "pendentes": {
+   "2097": "Sociedade Empresária em Comandita por Ações (sem caso no universo; decisão do mantenedor pendente)"
+  },
+  "rotulo": "grupo não inferível pelo quadro societário (S.A.)"
+ },
  "snapshot_date": "2026-09-20",
- "total_cnpjs_em_grupo": 6,
- "total_grupos": 3
+ "total_cnpjs_em_grupo": 8,
+ "total_grupos": 4
 }
