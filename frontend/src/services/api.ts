@@ -1352,16 +1352,56 @@ export interface MudancasResumo {
   por_tipo: Record<string, { confirmado: number; pendente: number; revertido: number }>
   por_data: Record<string, number>
   snapshots_com_historico: number
+  /** Datas atípicas marcadas (D7, PT-28) com os tipos de evento afetados: a contagem não é alterada, só marcada. */
+  datas_atipicas?: Record<string, { motivo: string; tipos: string[] }>
 }
 export function fetchMudancasResumo(from?: string): Promise<MudancasResumo> {
   return get('/api/v1/changes/summary', { from })
 }
+/** Motivo pelo qual dois pontos não são comparáveis (regra única em `core/comparabilidade.py`; o texto vem da API). */
+export interface MotivoIncomparavel { codigo: string; texto: string; detalhe?: string }
 export interface DiffSnapshots {
   a: string
   b: string
-  totais: Record<string, { a: number; b: number; variacao: number }>
-  eventos: { entre: [string, string]; total: number; por_tipo: Record<string, { confirmado: number; pendente: number; revertido: number }> }
+  /** `variacao` é null (e `comparavel` falso) quando os dois pontos não são comparáveis; nunca um zero no lugar. */
+  totais: Record<string, { a: number; b: number; variacao: number | null; comparavel: boolean; motivos?: MotivoIncomparavel[] }>
+  /** Razões na mesma base: percentual de usuários com IPv6 e sua variação em pontos percentuais. */
+  razoes?: Record<string, { a: number; b: number; variacao_pp: number | null; comparavel: boolean; base: string }>
+  eventos: { entre: [string, string]; total: number; por_tipo: Record<string, { confirmado: number; pendente: number; revertido: number }>
+    datas_atipicas?: Record<string, { datas: string[]; motivo: string }> }
+  comparabilidade?: { versao: number; texto: string[]; avisos: MotivoIncomparavel[] }
   nota: string
+}
+
+/** Série nacional com a regra de comparabilidade (`GET /history/brasil/series`, PT-28). */
+export interface PontoSerie {
+  date: string; valor: number | null; comparavel_com_anterior: boolean | null; motivos: string[]
+  detalhes?: MotivoIncomparavel[]; avisos: string[]; meta?: { base?: string; metodo?: string; cobertura?: Record<string, number>; as_of?: string }
+}
+export interface MetricaSerie {
+  id: string; rotulo: string; unidade: string; selo: 'fato' | 'estimado' | 'inferido'; fonte: string
+  desenhar_linha: boolean; segmentos: number[][]; nota?: string; pontos: PontoSerie[]
+  variacao?: { de: string; para: string; calculada: boolean; absoluta: number | null; unidade: string | null; motivos: string[] }
+}
+export interface SerieNacional {
+  familia: 'roteamento' | 'seguranca'; total: number; snapshots: string[]; metricas: MetricaSerie[]
+  regra: { versao: number; texto: string[]; min_pontos_linha: number; limiar_cobertura: number; motivos: Record<string, string> }
+}
+/** `GET /cdns/mudancas`: diferença do cadastro de membros dos PTTs entre duas datas, com o catálogo e a cobertura à parte (PT-28). */
+export interface CdnMudancas {
+  a: string; b: string
+  entradas: { cdn: string; ptt: string }[]; saidas: { cdn: string; ptt: string }[]
+  nao_comparaveis: { cdn: string; ptt: string; motivos: string[]; detalhes: MotivoIncomparavel[]; estava: boolean; esta: boolean }[]
+  catalogo: { cdns_incluidas: string[]; cdns_retiradas: string[]; asns_alterados: { cdn: string; asns_incluidos: number[]; asns_retirados: number[] }[] }
+  totais: { cdns_a: number; cdns_b: number; entradas: number; saidas: number; nao_comparaveis: number }
+  comparabilidade: { versao: number; texto: string[]; avisos: MotivoIncomparavel[] }
+  limites: string; fonte: string; selo: 'fato' | 'estimado' | 'inferido'
+}
+export function fetchCdnMudancas(a: string, b: string): Promise<CdnMudancas> {
+  return get('/api/v1/cdns/mudancas', { a, b })
+}
+export function fetchSerieNacional(familia: 'roteamento' | 'seguranca', from?: string): Promise<SerieNacional> {
+  return get('/api/v1/history/brasil/series', { familia, from })
 }
 export function fetchDiffSnapshots(a: string, b: string): Promise<DiffSnapshots> {
   return get('/api/v1/snapshots/diff', { a, b })

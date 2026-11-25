@@ -4,7 +4,7 @@ Gerado por `python3 scripts/gen_cobertura.py` a partir do OpenAPI, do MCP, do fr
 Não edite à mão. Rota nova precisa de uma entrada em `serve/capabilities/_manuais.yaml` (ou de uma capacidade declarada); lacuna
 sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rotas que os substituem.
 
-- Rotas de dados (GET, não deprecated): **174**; com tool no MCP: **141**; consumidas pela interface: **142**.
+- Rotas de dados (GET, não deprecated): **176**; com tool no MCP: **141**; consumidas pela interface: **144**.
 - Pendências marcadas (`pendente:`): **0**; lacunas sem justificativa: **0**.
 - Tools do MCP geradas de capacidade declarada: **2** de 58.
 
@@ -55,6 +55,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /brasil/snapshots/{date_str}` | `historico_snapshots` | ✔ |  |
 | `GET /busca` | — | ✔ | MCP: busca da barra do site, agrupada por tipo. O MCP já resolve por nome com asn_lista(q), operadora_resolver e municipio_resolver, e está em 54 de 56 tools; uma tool de busca geral entra na revisão do MCP (nome de domínio a definir) |
 | `GET /cdns/alcance` | — | ✔ | MCP: estimativa de apresentação por CDN e UF; o MCP já tem cdn_presence e operator_reach, e o alcance por UF é uma conta sobre usuários estimados da APNIC que a interface rotula |
+| `GET /cdns/mudancas` | — | ✔ | MCP: diferença de cadastro de membros entre duas datas para a aba Mudanças de CDNs; o MCP tem cdn_presenca por data e historico_mudancas para os eventos de PTT |
 | `GET /cdns/presence` | `cdn_presenca` | ✔ |  |
 | `GET /cetic/estimativas` | `query:cetic_estimativas_uf` | ✔ |  |
 | `GET /cetic/estimativas/uf/{uf}` | `query:cetic_estimativas_uf` | — | UI: a página de UF usa o mesmo bloco pelo ?include=cetic do perfil |
@@ -92,6 +93,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /hilbert/v4/detail` | `viz` | ✔ |  |
 | `GET /hilbert/v6` | `viz` | ✔ |  |
 | `GET /history/asns/{asn}` | `historico_serie` | — | UI: a linha do tempo da página lê o bloco historico do perfil (include=historico), não esta rota |
+| `GET /history/brasil/series` | — | ✔ | MCP: séries nacionais de roteamento e segurança com a regra de comparabilidade, para o gráfico das páginas; o MCP já tem rota_analise e query:prontidao_agregado por data, e historico_serie para a entidade |
 | `GET /history/ixps/{code}` | `historico_serie` | — | UI: a linha do tempo da página lê o bloco historico do perfil (include=historico), não esta rota |
 | `GET /history/operadoras/{cnpj}` | `historico_serie` | — | UI: a linha do tempo da página lê o bloco historico do perfil (include=historico), não esta rota |
 | `GET /history/uf/{uf}` | `historico_serie` | — | UI: a linha do tempo da página lê o bloco historico do perfil (include=historico), não esta rota |

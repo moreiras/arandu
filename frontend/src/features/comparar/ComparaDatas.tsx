@@ -13,6 +13,7 @@ import { inicioDosSnapshots, ROTULO_METRICA, TIPOS_DA_PAGINA } from '../historic
 import { useOrdenacao } from '../../lib/ordenacao'
 import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 import { EstadoDados } from '../../components/ui/EstadoDados'
+import { ComoLer } from '../../components/ui/ComoLer'
 
 const fmt = (n: number) => n.toLocaleString('pt-BR')
 const ROTULO: Record<string, string> = { ...ROTULO_METRICA, n_asns: 'ASNs brasileiros (por UF da sede)', ptts_coletados: 'PTTs coletados por inteiro', ptts_membros: 'Membros cadastrados nos PTTs' }
@@ -68,12 +69,29 @@ export function ComparaDatas() {
                   <td className="px-3 py-1.5">{ROTULO[k] ?? k}</td>
                   <td className="px-3 py-1.5 text-right tabular-nums">{fmt(v.a)}</td>
                   <td className="px-3 py-1.5 text-right tabular-nums">{fmt(v.b)}</td>
-                  <td className="px-3 py-1.5 text-right tabular-nums">{v.variacao > 0 ? '+' : ''}{fmt(v.variacao)}</td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">
+                    {v.variacao == null
+                      ? <span title={(v.motivos ?? []).map((m) => m.texto).join('; ')}>não comparável{v.motivos?.length ? <span className="block text-xs text-gray-600 font-normal">{v.motivos.map((m) => m.texto + (m.detalhe ? ` (${m.detalhe})` : '')).join('; ')}</span> : null}</span>
+                      : <>{v.variacao > 0 ? '+' : ''}{fmt(v.variacao)}</>}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {diff.data.razoes?.ipv6_pct_usuarios && (
+            <p className="text-sm" data-testid="razao-ipv6">
+              Usuários com IPv6 (estimativa APNIC): {diff.data.razoes.ipv6_pct_usuarios.a.toLocaleString('pt-BR')}% em {diff.data.a}, {diff.data.razoes.ipv6_pct_usuarios.b.toLocaleString('pt-BR')}% em {diff.data.b}
+              {diff.data.razoes.ipv6_pct_usuarios.variacao_pp != null && <> ({diff.data.razoes.ipv6_pct_usuarios.variacao_pp > 0 ? '+' : ''}{diff.data.razoes.ipv6_pct_usuarios.variacao_pp.toLocaleString('pt-BR')} p.p.)</>}.
+            </p>
+          )}
           <p className="text-xs text-gray-500">{diff.data.nota}</p>
+          {(diff.data.comparabilidade?.avisos ?? []).map((a) => <p key={a.codigo} className="text-xs text-aviso-700">Aviso: {a.texto}{a.detalhe ? ` (${a.detalhe})` : ''}.</p>)}
+          {diff.data.eventos.datas_atipicas && (
+            <p className="text-xs text-aviso-700" data-testid="aviso-data-atipica">
+              Data atípica marcada: {Object.entries(diff.data.eventos.datas_atipicas).map(([t, d]) => `${t.replace(/_/g, ' ')} em ${d.datas.join(', ')}`).join('; ')}. {Object.values(diff.data.eventos.datas_atipicas)[0].motivo}.
+            </p>
+          )}
+          {diff.data.comparabilidade && <ComoLer>{diff.data.comparabilidade.texto.map((t, i) => <p key={i}>{t}</p>)}</ComoLer>}
           {eventos.length > 0 && (
             <div>
               <h2 className="text-sm font-medium mb-1">Mudanças observadas entre {diff.data.eventos.entre[0]} e {diff.data.eventos.entre[1]}</h2>

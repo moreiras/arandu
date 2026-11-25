@@ -140,7 +140,7 @@ _PAGED_METERED = _compile(_PAGED_METERED_PATTERNS)
 _LOGIN = _compile(_LOGIN_PATTERNS)
 _NO_HISTORY = _compile(_NO_HISTORY_PATTERNS)
 _BORDA = _compile(_BORDA_PATTERNS)
-_HISTORICO = _compile((r"/history/.+", r"/changes", r"/changes/summary", r"/snapshots/diff"))
+_HISTORICO = _compile((r"/history/.+", r"/changes", r"/changes/summary", r"/snapshots/diff", r"/cdns/mudancas"))
 
 
 def _matches(patterns: Sequence[re.Pattern], path: str) -> bool:
@@ -208,8 +208,9 @@ def classify(
     # série inteira, que exige login. `/snapshots/diff` compara duas datas, ambas atuais. Antes da regra de `/snapshots/{data}`, que o capturaria.
     if _matches(_HISTORICO, rel):
         if recent_dates:
-            pedidas = [query.get("a"), query.get("b")] if rel == "/snapshots/diff" else [query.get("from")]
-            if rel == "/snapshots/diff":
+            compara_datas = rel in ("/snapshots/diff", "/cdns/mudancas")
+            pedidas = [query.get("a"), query.get("b")] if compara_datas else [query.get("from")]
+            if compara_datas:
                 fora = any(d not in recent_dates for d in pedidas)
             else:
                 fora = not pedidas[0] or pedidas[0] < min(recent_dates)

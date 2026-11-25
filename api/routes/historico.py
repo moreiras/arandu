@@ -10,6 +10,8 @@ Histórico: séries por entidade, eventos ("o que mudou") e comparação entre d
     snapshot com histórico (`metrics=` escolhe colunas; `from`/`to` recortam as datas).
   * `GET /changes` e `GET /changes/summary` — eventos por tipo, UF, ASN e estado (padrão: só os confirmados).
   * `GET /snapshots/diff?a=&b=` — resumo agregado da diferença entre dois snapshots.
+  * `GET /history/brasil/series?familia=` — séries nacionais de roteamento (RPKI das rotas BR) e segurança (prontidão, ROV, DNSSEC) com a regra de
+    comparabilidade (`core/comparabilidade.py`).
 
 Os eventos descrevem **diferenças observadas** entre snapshots, sem causa nem intenção e sem nome de empresa (só a chave). Os de provedor
 (`provedor_novo`, `provedor_perdido`) vêm de uma inferência (ARC v1): trazem `natureza: "inferido"` e não aparecem na interface.
@@ -26,6 +28,7 @@ from fastapi.responses import Response
 
 from api.repos.historico import HistoricoRepo
 from api.services import historico as h
+from api.services import series_nacionais as sn
 from core.site import SITE
 
 router = APIRouter()
@@ -102,6 +105,28 @@ def historico_uf(
     de: Optional[str] = Query(None, alias="from"), ate: Optional[str] = Query(None, alias="to"),
 ) -> dict:
     return _ok(request, h.serie_uf, uf, de, ate)
+
+
+@router.get(
+    "/history/brasil/series",
+    summary="Séries nacionais por snapshot com regra de comparabilidade (roteamento e segurança)",
+    description="""
+Séries do país, uma por métrica, reaproveitando o que cada snapshot publicou: `familia=roteamento` (estado RPKI de origem das rotas brasileiras, IPv6 antes de IPv4)
+ou `familia=seguranca` (classe pronto do índice de prontidão, índice médio ponderado por usuários, ROV e DNSSEC). Cada ponto traz `comparavel_com_anterior` e os
+`motivos` do corte (medida ausente, base ou método diferentes, cobertura que variou 25% ou mais, data atípica); a `variacao` é a do último trecho comparável e não é
+calculada quando não há dois pontos comparáveis. `desenhar_linha` só é verdadeiro com 4 pontos comparáveis seguidos. `regra` traz o texto do "Como ler". `from` recorta as datas;
+sem `from` num snapshot atual, a série inteira exige login.
+""",
+)
+def series_nacionais(
+    request: Request,
+    familia: str = Query("roteamento", description="roteamento | seguranca."),
+    de: Optional[str] = Query(None, alias="from", description="Data inicial (AAAA-MM-DD)."), ate: Optional[str] = Query(None, alias="to", description="Data final (AAAA-MM-DD)."),
+) -> dict:
+    try:
+        return sn.serie(request.app.state.store, familia, de, ate)
+    except sn.SerieErro as e:
+        raise HTTPException(e.status, e.mensagem)
 
 
 @router.get(

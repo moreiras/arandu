@@ -10,6 +10,7 @@ import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import { LinhaProveniencia } from '../components/ui/Kpi'
+import { CdnMudancas } from '../features/cdncap/CdnMudancas'
 
 // ─── CDN categories ───────────────────────────────────────────────────────────
 
@@ -529,6 +530,7 @@ export function CDNPage() {
           />
         </div>
       )}
+      <CdnMudancas />
     </div>
   )
 }

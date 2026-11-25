@@ -34,4 +34,24 @@ describe('Comparar datas', () => {
     expect(screen.getByText(/asn novo: 2 confirmadas, 1 em confirmação/)).toBeTruthy()
     expect(screen.queryByText(/provedor novo/)).toBeNull()
   })
+  it('não mostra variação quando os pontos não são comparáveis e traz a razão de IPv6 na mesma base e a regra', async () => {
+    server.use(http.get('*/api/v1/snapshots/diff', () => HttpResponse.json({
+      a: '2026-11-15', b: '2026-11-22',
+      totais: {
+        users: { a: 1000, b: 1010, variacao: 10, comparavel: true },
+        ptts_membros: { a: 100, b: 98, variacao: null, comparavel: false, motivos: [{ codigo: 'cobertura_mudou', texto: 'a cobertura da coleta ou da medição mudou muito entre os pontos', detalhe: 'ptts_coletados: 30 para 20' }] },
+      },
+      razoes: { ipv6_pct_usuarios: { a: 60.21, b: 60.48, variacao_pp: 0.27, comparavel: true, base: 'linhas de histórico por UF' } },
+      eventos: { entre: ['2026-11-15', '2026-11-22'], total: 0, por_tipo: {} },
+      comparabilidade: { versao: 1, texto: ['Variação só entre pontos comparáveis.'], avisos: [] },
+      nota: 'n',
+    })))
+    render(<QueryClientProvider client={new QueryClient()}><MemoryRouter><ComparaDatas /></MemoryRouter></QueryClientProvider>)
+    await waitFor(() => expect(screen.getByText('Membros cadastrados nos PTTs')).toBeTruthy())
+    expect(screen.getByText('+10')).toBeTruthy()
+    expect(screen.getByText(/não comparável/)).toBeTruthy()
+    expect(screen.getByText(/ptts_coletados: 30 para 20/)).toBeTruthy()
+    expect(screen.getByTestId('razao-ipv6').textContent).toContain('+0,27 p.p.')
+    expect(screen.getByText('Variação só entre pontos comparáveis.')).toBeTruthy()
+  })
 })

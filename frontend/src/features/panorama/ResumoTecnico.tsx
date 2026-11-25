@@ -10,7 +10,8 @@ import { Kpi, NotaVariosTotais } from '../../components/ui'
 import { rotuloDe } from '../../lib/universos'
 import { HomeMap } from '../../components/maps/HomeMap'
 import { SnapshotHealth } from '../dashboard/Estatisticas'
-import { fetchCDNPresence, fetchIXPs } from '../../services/api'
+import { fetchCDNPresence, fetchDiffSnapshots, fetchIXPs } from '../../services/api'
+import { useSnapshots } from '../../hooks/useSnapshot'
 import { ComoLerNumerosPais, EXPLICA, referenciaMedicao, useBrasilIndicadores } from './IndicadoresBrasil'
 import { useResumo } from './useResumo'
 import { fracao, grande, num, pct } from './formato'
@@ -39,6 +40,14 @@ export function ResumoTecnico() {
   const { data: br } = useBrasilIndicadores()
   const ixps = useQuery({ queryKey: ['ixps', date], queryFn: () => fetchIXPs(date ?? undefined), staleTime: Infinity, gcTime: Infinity })
   const cdns = useQuery({ queryKey: ['cdn-presence', date], queryFn: () => fetchCDNPresence(date ?? undefined), staleTime: Infinity, gcTime: Infinity, retry: false })
+  // Variação do percentual de usuários com IPv6 desde o snapshot anterior, calculada pela API na mesma base (regra de comparabilidade, PT-28)
+  const snaps = (useSnapshots().data?.snapshots ?? [])
+  const anterior = snaps.length >= 2 && date === snaps[snaps.length - 1] ? snaps[snaps.length - 2] : null
+  const diff = useQuery({ queryKey: ['diff', anterior, date], queryFn: () => fetchDiffSnapshots(anterior as string, date as string), enabled: !!anterior && !!date, staleTime: Infinity, gcTime: Infinity, retry: false })
+  const razao = diff.data?.razoes?.ipv6_pct_usuarios
+  const variacaoV6 = razao?.comparavel && razao.variacao_pp != null
+    ? { texto: `${razao.variacao_pp >= 0 ? '+' : ''}${razao.variacao_pp.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} p.p. desde ${anterior} (série semanal)` }
+    : undefined
   const gt = s?.global_table
   const ix = s?.ixp_aggregate
   const ref = s?.snapshot_date ?? date
@@ -61,7 +70,7 @@ export function ResumoTecnico() {
 
       <Tema titulo="Usuários e IPv6" links={[['?aba=ipv6', 'IPv6'], ['/uso-da-internet', 'Uso da Internet (Cetic.br)']]}>
         <Kpi selo="estimado" rotulo="Usuários estimados" valor={grande(br?.ipv6.usuarios)} tom="estimado" explicacao="Soma das estimativas de usuários do APNIC Labs por ASN do Brasil. É outra medida que a da TIC Domicílios (pesquisa domiciliar do Cetic.br), em Uso da Internet." fonte="APNIC Labs" dataRef={br?.snapshot_date} />
-        <Kpi selo="estimado" rotulo="Usuários com IPv6 (estimativa)" valor={pct(br?.ipv6.pct_usuarios_ipv6)} tom="v6" explicacao={EXPLICA.ipv6} fonte="APNIC Labs" dataRef={br?.snapshot_date} />
+        <Kpi selo="estimado" rotulo="Usuários com IPv6 (estimativa)" valor={pct(br?.ipv6.pct_usuarios_ipv6)} tom="v6" variacao={variacaoV6} explicacao={EXPLICA.ipv6} fonte="APNIC Labs" dataRef={br?.snapshot_date} />
         <Kpi selo="fato" rotulo={rotuloDe('asnsAnunciamV6')} valor={pct(fracao(s?.br_asns_ft_v6, gt?.br_asns_in_ft))} tom="v6" referencia={s?.br_asns_ft_v6 != null && gt?.br_asns_in_ft ? `${num(s.br_asns_ft_v6)} dos ${num(gt.br_asns_in_ft)} visíveis` : undefined}
           explicacao="ASNs do Brasil com ao menos um prefixo IPv6 na tabela global, entre os que aparecem nela. Ter IPv6 alocado sem anunciar não conta." fonte="RouteViews e LACNIC" dataRef={ref} />
       </Tema>

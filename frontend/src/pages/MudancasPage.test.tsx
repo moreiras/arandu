@@ -54,4 +54,19 @@ describe('página O que mudou', () => {
     expect(texto).toContain('contam como confirmados no snapshot em que aparecem')
     expect(texto).not.toMatch(/outubro de 2026|persistiu por mais de um/)
   })
+  it('marca a data atípica (D7) sem apagar a contagem e lista os eventos por data na tabela', async () => {
+    server.use(
+      http.get('*/api/v1/changes/summary', () => HttpResponse.json({
+        total: 70, por_tipo: {}, por_data: { '2026-07-05': 65, '2026-07-12': 5 }, snapshots_com_historico: 2,
+        datas_atipicas: { '2026-07-05': { motivo: 'o campo de ROA dos ASNs estrangeiros deixou de vir nesta data (causa a confirmar)', tipos: ['roa_perdido'] } },
+      })),
+      http.get('*/api/v1/changes', () => HttpResponse.json({ total: 0, limit: 100, offset: 0, items: [] })),
+    )
+    montar(<MudancasPage />)
+    const aviso = await screen.findByTestId('data-atipica')
+    expect(aviso.textContent).toMatch(/Data atípica marcada, 2026-07-05.*roa perdido.*causa a confirmar.*contagem foi mantida/)
+    const tabela = screen.getByTestId('mudancas-por-data').querySelector('table')
+    expect(tabela?.textContent).toContain('65')
+    expect(tabela?.textContent).toContain('data atípica')
+  })
 })

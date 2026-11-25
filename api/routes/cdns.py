@@ -76,6 +76,33 @@ def get_cdn_presence(
     return _com_estados(store, date_str, data)
 
 
+@router.get(
+    "/cdns/mudancas",
+    summary="Mudanças na matriz de CDNs entre dois snapshots, com regra de comparabilidade",
+    description="""
+Diferença observada no cadastro de membros dos PTTs do IX.br entre dois snapshots (`a` anterior a `b`): CDNs que passaram a constar (`entradas`) ou deixaram de constar (`saidas`) como
+membro de um PTT. Não diz que a CDN ligou ou desligou serviço, nem a causa. `catalogo` traz à parte as mudanças de curadoria da lista de CDNs (CDN incluída ou retirada, ASN incluído ou retirado)
+e `nao_comparaveis` os pares CDN e PTT que não entram na conta (conjunto de ASNs da CDN diferente nas duas datas ou PTT sem lista de membros numa delas), com o motivo. Ordem neutra: por CDN e PTT.
+""",
+)
+def cdns_mudancas(request: Request, a: str = Query(..., description="Data A, a mais antiga (AAAA-MM-DD)."), b: str = Query(..., description="Data B (AAAA-MM-DD).")) -> dict:
+    import re
+    from api.services import cdn_mudancas as cm
+
+    store: Store = request.app.state.store
+    for nome, v in (("a", a), ("b", b)):
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", v):
+            raise HTTPException(400, f"`{nome}` deve ser uma data AAAA-MM-DD; recebido {v!r}")
+    da, db = sorted((a, b))
+    datas = set(store.list_snapshots())
+    docs = {}
+    for d in (da, db):
+        if d not in datas or store.cdn_presence(d) is None:
+            raise HTTPException(404, f"Sem dados de presença de CDNs em {d}.")
+        docs[d] = store.cdn_presence(d)
+    return cm.mudancas(docs[da], docs[db], store.ixp_index(da), store.ixp_index(db))
+
+
 #: estados de cada CDN por PTT (membro com sessão, membro sem sessão, só via outro AS), por data: o documento de cada ASN da lista curada é lido uma vez
 _ESTADOS_CACHE: dict = {}
 

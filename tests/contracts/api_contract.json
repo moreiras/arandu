@@ -773,6 +773,23 @@
    "status": 200,
    "tipo": "objeto"
   },
+  "GET /api/v1/cdns/mudancas": {
+   "chaves": [
+    "a",
+    "b",
+    "catalogo",
+    "comparabilidade",
+    "entradas",
+    "fonte",
+    "limites",
+    "nao_comparaveis",
+    "saidas",
+    "selo",
+    "totais"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
   "GET /api/v1/cdns/presence": {
    "chaves": [
     "cdns",
@@ -1390,6 +1407,17 @@
    "chaves": [
     "asn",
     "metrics",
+    "snapshots",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/history/brasil/series": {
+   "chaves": [
+    "familia",
+    "metricas",
+    "regra",
     "snapshots",
     "total"
    ],
@@ -2712,8 +2740,10 @@
    "chaves": [
     "a",
     "b",
+    "comparabilidade",
     "eventos",
     "nota",
+    "razoes",
     "totais"
    ],
    "status": 200,

@@ -6595,6 +6595,64 @@
     ]
    }
   },
+  "/api/v1/cdns/mudancas": {
+   "get": {
+    "description": "Diferença observada no cadastro de membros dos PTTs do IX.br entre dois snapshots (`a` anterior a `b`): CDNs que passaram a constar (`entradas`) ou deixaram de constar (`saidas`) como\nmembro de um PTT. Não diz que a CDN ligou ou desligou serviço, nem a causa. `catalogo` traz à parte as mudanças de curadoria da lista de CDNs (CDN incluída ou retirada, ASN incluído ou retirado)\ne `nao_comparaveis` os pares CDN e PTT que não entram na conta (conjunto de ASNs da CDN diferente nas duas datas ou PTT sem lista de membros numa delas), com o motivo. Ordem neutra: por CDN e PTT.",
+    "operationId": "cdns_mudancas_api_v1_cdns_mudancas_get",
+    "parameters": [
+     {
+      "description": "Data A, a mais antiga (AAAA-MM-DD).",
+      "in": "query",
+      "name": "a",
+      "required": true,
+      "schema": {
+       "description": "Data A, a mais antiga (AAAA-MM-DD).",
+       "title": "A",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Data B (AAAA-MM-DD).",
+      "in": "query",
+      "name": "b",
+      "required": true,
+      "schema": {
+       "description": "Data B (AAAA-MM-DD).",
+       "title": "B",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Cdns Mudancas Api V1 Cdns Mudancas Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Mudanças na matriz de CDNs entre dois snapshots, com regra de comparabilidade",
+    "tags": [
+     "cdns"
+    ]
+   }
+  },
   "/api/v1/cdns/presence": {
    "get": {
     "description": "Retorna matriz de presença de CDNs/provedores nos IXPs do IX.br e externos. Em cada CDN, `ixbr` são os PTTs do IX.br onde um ASN da CDN consta no cadastro de participantes (membro);\n`ixbr_rs` os que, além de membro, têm sessão com o route server; `ixbr_sem_rs` os de membro sem sessão observada (pode haver peering bilateral, que o route server não vê);\n`ixbr_origem` os PTTs onde a CDN não é membro mas prefixos dela aparecem nas rotas, por outro participante (inferido, não indica cache local); `ixbr_sem_coleta` os PTTs sem coleta válida do looking glass;\n`asns_sem_documento` os ASNs da lista curada sem documento no snapshot. Calculado na leitura, também para snapshots antigos.",
@@ -9651,6 +9709,90 @@
      }
     },
     "summary": "Série histórica de um ASN",
+    "tags": [
+     "historico"
+    ]
+   }
+  },
+  "/api/v1/history/brasil/series": {
+   "get": {
+    "description": "Séries do país, uma por métrica, reaproveitando o que cada snapshot publicou: `familia=roteamento` (estado RPKI de origem das rotas brasileiras, IPv6 antes de IPv4)\nou `familia=seguranca` (classe pronto do índice de prontidão, índice médio ponderado por usuários, ROV e DNSSEC). Cada ponto traz `comparavel_com_anterior` e os\n`motivos` do corte (medida ausente, base ou método diferentes, cobertura que variou 25% ou mais, data atípica); a `variacao` é a do último trecho comparável e não é\ncalculada quando não há dois pontos comparáveis. `desenhar_linha` só é verdadeiro com 4 pontos comparáveis seguidos. `regra` traz o texto do \"Como ler\". `from` recorta as datas;\nsem `from` num snapshot atual, a série inteira exige login.",
+    "operationId": "series_nacionais_api_v1_history_brasil_series_get",
+    "parameters": [
+     {
+      "description": "roteamento | seguranca.",
+      "in": "query",
+      "name": "familia",
+      "required": false,
+      "schema": {
+       "default": "roteamento",
+       "description": "roteamento | seguranca.",
+       "title": "Familia",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Data inicial (AAAA-MM-DD).",
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Data inicial (AAAA-MM-DD).",
+       "title": "From"
+      }
+     },
+     {
+      "description": "Data final (AAAA-MM-DD).",
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Data final (AAAA-MM-DD).",
+       "title": "To"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Series Nacionais Api V1 History Brasil Series Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Séries nacionais por snapshot com regra de comparabilidade (roteamento e segurança)",
     "tags": [
      "historico"
     ]
