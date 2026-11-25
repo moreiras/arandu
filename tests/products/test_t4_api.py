@@ -1470,7 +1470,8 @@ def test_prontidao_lista_nominal_desligada_e_ligada(api, monkeypatch):
     # desligada (PRONTIDAO_LISTA_NOMINAL=0; o padrão é ligada): rota e coleção respondem com mensagem, a coluna da lista é ignorada
     monkeypatch.setenv("PRONTIDAO_LISTA_NOMINAL", "0")
     r = api.get("/api/v1/prontidao/asns", headers=ALLOWED)
-    assert r.status_code == 404 and "metodologia" in r.json()["detail"]
+    assert r.status_code == 404 and "PRONTIDAO_LISTA_NOMINAL=0" in r.json()["detail"]
+    assert api.get("/api/v1/prontidao/resumo", headers=ALLOWED).json()["lista_nominal"] is False
     assert api.post("/api/v1/query/prontidao_asn", json={"limit": 10}, headers=ALLOWED).status_code == 400
     off = api.get("/api/v1/asns", params={"br_only": "true", "include": "prontidao"}, headers=ALLOWED).json()["items"]
     assert off and not any("prontidao_indice" in i and i["prontidao_indice"] is not None for i in off)
@@ -1478,9 +1479,16 @@ def test_prontidao_lista_nominal_desligada_e_ligada(api, monkeypatch):
     monkeypatch.setenv("PRONTIDAO_LISTA_NOMINAL", "1")
     todos = api.get("/api/v1/prontidao/asns", params={"limit": 1000}, headers=ALLOWED).json()
     assert todos["total"] == len(todos["items"]) > 0 and todos["regras"]["hash"] and "Não é veredito" in todos["limites"]
-    com = [i for i in todos["items"] if i["indice"] is not None]
-    assert [i["indice"] for i in com] == sorted(i["indice"] for i in com)               # do menor ao maior
-    assert all(i["indice"] is None for i in todos["items"][len(com):])                  # sem índice vai ao fim
+    assert todos["ordem"] == "asn" and [i["asn"] for i in todos["items"]] == sorted(i["asn"] for i in todos["items"])      # D2: ordem padrão neutra, por ASN
+    assert "não um veredito" in todos["aviso_metodo"] and api.get("/api/v1/prontidao/resumo", headers=ALLOWED).json()["lista_nominal"] is True
+    for i in todos["items"]:                                                            # pilar sem dado é "não medido": nota nula, fora da conta, e a classe diz quantos entraram
+        assert i["pilares_medidos"] + len(i["pilares_sem_dado"]) == i["pilares_total"] == 4
+        assert sum(i[f"pilar_{k}"] is not None for k in ("filtragem", "anti_spoofing", "coordenacao", "validacao_global")) == i["pilares_medidos"]
+        assert i["pilares_medidos"] > 0 or (i["indice"] is None and i["classe"] == "sem_dados")
+    por_indice = api.get("/api/v1/prontidao/asns", params={"limit": 1000, "ordem": "indice"}, headers=ALLOWED).json()["items"]
+    com = [i for i in por_indice if i["indice"] is not None]
+    assert [i["indice"] for i in com] == sorted(i["indice"] for i in com)               # `ordem=indice` é escolha explícita: do menor ao maior
+    assert all(i["indice"] is None for i in por_indice[len(com):])                      # sem índice vai ao fim
     um = next(i for i in todos["items"] if i["asn"] == 64500)
     assert um["classe"] in ("pronto", "em_progresso", "atrasado") and um["pilar_anti_spoofing"] is not None and "cnpj" not in um
     por_classe = api.get("/api/v1/prontidao/asns", params={"classe": um["classe"]}, headers=ALLOWED).json()

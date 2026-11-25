@@ -9,7 +9,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { server } from '../test/server'
-import { SegurancaRoteamentoPage } from './SegurancaRoteamentoPage'
+import { SegurancaRoteamentoPage, TEXTO_LISTA_NOMINAL_PUBLICA, TEXTO_SEM_LISTA_NOMINAL } from './SegurancaRoteamentoPage'
 import { ProntidaoAsnBloco, ProntidaoOperadoraBloco, ProntidaoUfBloco } from '../features/prontidao/blocos'
 import type { ProntidaoAgregado, ProntidaoAsn, ProntidaoMeta } from '../types/api'
 
@@ -63,7 +63,7 @@ describe('Prontidão em segurança de roteamento', () => {
     expect(container.innerHTML).toBe('')
   })
 
-  it('página: metodologia, agregados por UF e por porte e ordenação; sem lista nominal', async () => {
+  it('página: metodologia, agregados por UF e por porte e ordenação; lista nominal pública com as salvaguardas', async () => {
     server.use(http.get('*/api/v1/prontidao/resumo', () => HttpResponse.json({ ...meta, escopo: { pais: 'BR' }, agregado: agg, por_uf: { SP: agg, RJ: { ...agg, media_ponderada_usuarios: 70, asns: 10 } }, por_faixa_porte: { de_1000_a_10000: agg, ate_1000: agg } })))
     montar(<SegurancaRoteamentoPage />)
     await waitFor(() => expect(screen.getByText('Estado da segurança de roteamento')).toBeTruthy())
@@ -82,7 +82,19 @@ describe('Prontidão em segurança de roteamento', () => {
     fireEvent.click(screen.getByText('ponderado pelos usuários estimados'))
     expect(screen.getAllByText('88%').length).toBeGreaterThan(0)
     expect(screen.queryByText('71%')).toBeNull()
-    expect(screen.getByText(/Não há lista nominal de ASNs nem de empresas/)).toBeTruthy()
+    // D2: a lista por ASN é pública; a página não pode negá-la (SEG-E2) e diz as salvaguardas
+    const texto = screen.getByTestId('texto-lista-nominal').textContent ?? ''
+    expect(texto).toBe(TEXTO_LISTA_NOMINAL_PUBLICA)
+    expect(screen.queryByText(/Não há lista nominal/i)).toBeNull()
+    expect(texto).toMatch(/não medido/)
+    expect(texto).toMatch(/ordem padrão é por ASN/)
+  })
+
+  it('página: com a lista desligada na API (lista_nominal=false) diz que a instância não a publica', async () => {
+    server.use(http.get('*/api/v1/prontidao/resumo', () => HttpResponse.json({ ...meta, lista_nominal: false, escopo: { pais: 'BR' }, agregado: agg, por_uf: { SP: agg }, por_faixa_porte: { ate_1000: agg } })))
+    montar(<SegurancaRoteamentoPage />)
+    await waitFor(() => expect(screen.getByTestId('texto-lista-nominal')).toBeTruthy())
+    expect(screen.getByTestId('texto-lista-nominal').textContent).toBe(TEXTO_SEM_LISTA_NOMINAL)
   })
 
   it('página: cartão do MANRS só com agregados, supressão e atribuição', async () => {

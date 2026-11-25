@@ -356,6 +356,8 @@ export interface ASNIndexEntry {
   /** Só com `include=prontidao` e a lista nominal liberada: índice 0–100 e classe. */
   prontidao_indice?: number | null
   prontidao_classe?: string | null
+  /** Quantos dos quatro pilares têm dado e entraram no índice e na classe. */
+  prontidao_pilares_medidos?: number | null
   is_br: boolean
   has_ipv6: boolean
   rir_prefixes_v4_count: number
@@ -2353,6 +2355,8 @@ export interface ProntidaoAsn extends ProntidaoMeta {
 export interface ProntidaoUf extends ProntidaoMeta { uf: string; agregado: ProntidaoAgregado; brasil: ProntidaoAgregado }
 export interface ProntidaoOperadora extends ProntidaoMeta { raiz: string; agregado: ProntidaoAgregado; brasil: ProntidaoAgregado }
 export interface ProntidaoResumo extends ProntidaoMeta {
+  /** A lista por ASN está publicada nesta instância (`lista_nominal_habilitada()` da API). */
+  lista_nominal?: boolean
   escopo: { uf?: string; pais?: string }; agregado: ProntidaoAgregado; por_uf?: Record<string, ProntidaoAgregado>; por_faixa_porte?: Record<string, ProntidaoAgregado>; brasil?: ProntidaoAgregado
   /** Participação agregada no MANRS; nulo se não publicada. */
   manrs?: ManrsResumo | null

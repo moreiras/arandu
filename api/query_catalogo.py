@@ -1052,16 +1052,19 @@ SCHEMA["prontidao_agregado"] = {
 SCHEMA["prontidao_asn"] = {
     "key": "asn",
     "description": (
-        "Índice de prontidão em segurança de roteamento POR ASN do Brasil (uma linha por ASN). DESLIGADA por padrão: só responde depois que o mantenedor aprovar a metodologia. É soma ponderada de medições de terceiros "
+        "Índice de prontidão em segurança de roteamento POR ASN do Brasil (uma linha por ASN, em ordem de ASN). Lista nominal pública, ligada por padrão (`PRONTIDAO_LISTA_NOMINAL=0` a desliga e a coleção responde com erro). É soma ponderada de medições de terceiros "
         "(APNIC, CAIDA Spoofer, RPKI, IRR, PeeringDB) com regras públicas e versionadas (ver /prontidao/resumo); NÃO é veredito sobre a empresa nem ranking de culpa. Cobertura desigual: o anti-spoofing só existe para ~2% dos ASNs, "
-        "o ROV vem de amostra do APNIC e objeto no IRR não prova autoria. `indice` nulo = sem dados suficientes. Cite a data do snapshot e a versão das regras."
+        "o ROV vem de amostra do APNIC e objeto no IRR não prova autoria. Pilar sem dado é \"não medido\" (nota nula): fica fora do índice e da classe, e `pilares_medidos` diz em quantos dos quatro o índice se apoia. "
+        "`indice` nulo = sem dados suficientes. Ordene por `asn` ou `usuarios` e leia o índice com `pilares_medidos` ao lado. Cite a data do snapshot e a versão das regras."
     ),
     "fields": [
         _f("asn", "int", "Número do ASN"),
         _f("nome", "string", "Nome do ASN"),
         _f("uf", "string", "UF da sede do ASN", example="SP"),
         _f("indice", "float", "Índice de prontidão, 0 a 100 (nulo se sem dados suficientes)"),
-        _f("classe", "string", "Classe do índice", enum=["pronto", "em_progresso", "atrasado", "sem_dados"]),
+        _f("classe", "string", "Classe do índice (calculada só com os pilares medidos)", enum=["pronto", "em_progresso", "atrasado", "sem_dados"]),
+        _f("pilares_medidos", "int", "Quantos dos pilares têm dado e entraram no índice e na classe"),
+        _f("pilares_total", "int", "Total de pilares do índice (4)"),
         _f("usuarios", "int", "Usuários estimados (APNIC)"),
         _f("faixa_porte", "string", "Porte por usuários estimados", enum=["sem_usuarios", "ate_1000", "de_1000_a_10000", "de_10000_a_100000", "de_100000_a_1000000", "acima_de_1000000"]),
         _f("faixa_acessos_sici", "string", "Informação extra: faixa de acessos fixos declarados ao SICI", enum=["sem_acessos", "ate_1000", "de_1000_a_10000", "de_10000_a_100000", "acima_de_100000"]),

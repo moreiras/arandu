@@ -22,6 +22,10 @@ const num = (v: number | null | undefined, c = 1) => (v == null ? '—' : v.toLo
 const inteiro = (v?: number | null) => (v == null ? '—' : Math.round(v).toLocaleString('pt-BR'))
 const PORTES: Record<string, string> = { sem_usuarios: 'Sem usuários estimados', ate_1000: 'Até 1.000 usuários', de_1000_a_10000: '1.000 a 10.000 usuários', de_10000_a_100000: '10.000 a 100.000 usuários', de_100000_a_1000000: '100.000 a 1 milhão', acima_de_1000000: 'Mais de 1 milhão de usuários' }
 const ORDEM_PORTE = Object.keys(PORTES)
+/** Texto sobre a lista por ASN quando ela é pública (`lista_nominal` verdadeiro em `/prontidao/resumo`, o padrão). */
+export const TEXTO_LISTA_NOMINAL_PUBLICA = 'A lista por ASN é pública: coluna Prontidão em /ases, GET /prontidao/asns e a coleção prontidao_asn do Explorar. A ordem padrão é por ASN, não pelo índice. Pilar sem dado aparece como “não medido” e fica fora do índice e da classe, e a classe informa quantos pilares foram medidos. O índice é soma ponderada de medições de terceiros, não um veredito sobre a empresa; cite o snapshot e a versão das regras.'
+/** Texto quando a instância desliga a lista (`PRONTIDAO_LISTA_NOMINAL=0`). */
+export const TEXTO_SEM_LISTA_NOMINAL = 'Esta instância não publica a lista nominal de ASNs nem de empresas: o índice de cada ASN está na página dele.'
 const ABAS_MAPA = [
   { id: 'indice', rotulo: 'Índice por UF', descricao: 'Índice de prontidão e componentes por UF (sede do ASN)' },
   { id: 'rov', rotulo: 'Usuários atrás de ROV', descricao: 'Estimativa de usuários cuja rede descarta rotas RPKI-inválidas' },
@@ -154,7 +158,8 @@ function CartaoManrs({ m }: { m: ManrsResumo }) {
 
 /**
  * `/seguranca-de-roteamento` — Estado da segurança de roteamento: o índice de prontidão dos ASNs do Brasil em quatro pilares, com a metodologia completa (pesos, componentes, limiares, fontes) e os agregados por UF e porte.
- * É um conjunto de medições e fatos de terceiros somados com pesos públicos, não um veredito: não há lista nominal de ASNs nem de empresas (política editorial). O índice de cada ASN está na página dele.
+ * É um conjunto de medições e fatos de terceiros somados com pesos públicos, não um veredito. A lista nominal por ASN é pública (decisão do mantenedor) com salvaguardas; o texto desta página sobre ela vem de `r.lista_nominal`
+ * (o mesmo `lista_nominal_habilitada()` da API), nunca fixo: `tests/unit/test_prontidao_texto_contrato.py` confere.
  */
 export function SegurancaRoteamentoPage() {
   const q = useQuery({ queryKey: ['prontidao-resumo'], queryFn: () => fetchProntidaoResumo(), staleTime: 10 * 60 * 1000, retry: false })
@@ -252,7 +257,8 @@ export function SegurancaRoteamentoPage() {
         </div>
         <p className="text-xs text-gray-500">Mínimo de {r.regras.minimos.amostras_rov} amostras do APNIC para o ROV valer. Fontes: {r.fontes.seguranca.fonte}; {r.fontes.spoofer.citacao ?? r.fontes.spoofer.fonte}; {r.fontes.irr.fonte} ({Object.entries(r.fontes.irr.serial).map(([k, v]) => `${k} serial ${v}`).join(', ')}); PeeringDB; ROAs e ASPAs do RPKI.</p>
       </ComoLer>
-      <p className="text-xs text-gray-500">{r.limites} A UF é a da sede do ASN; os agregados ponderam pelos usuários estimados do APNIC (ASN sem estimativa pesa 0 quando há outros com estimativa). Não há lista nominal de ASNs nem de empresas.</p>
+      <p className="text-xs text-gray-500">{r.limites} A UF é a da sede do ASN; os agregados ponderam pelos usuários estimados do APNIC (ASN sem estimativa pesa 0 quando há outros com estimativa).</p>
+      <p className="text-xs text-gray-500" data-testid="texto-lista-nominal">{r.lista_nominal === false ? TEXTO_SEM_LISTA_NOMINAL : TEXTO_LISTA_NOMINAL_PUBLICA}</p>
     </div>
   )
 }

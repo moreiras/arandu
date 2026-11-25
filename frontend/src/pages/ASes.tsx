@@ -143,11 +143,11 @@ const COLS: ColDef[] = [
   },
 ]
 
-/** Coluna opcional: a API só devolve o índice quando a lista nominal de prontidão está liberada (aprovação da metodologia). */
+/** Coluna opcional: a API só devolve o índice quando a lista nominal de prontidão está publicada (`PRONTIDAO_LISTA_NOMINAL`, ligada por padrão; decisão D2). */
 const COL_PRONTIDAO: ColDef = {
   key: 'prontidao_indice',
   label: 'Prontidão',
-  tooltip: 'Índice de prontidão em segurança de roteamento (0 a 100): soma ponderada de medições de terceiros (ROV, anti-spoofing, IRR/PeeringDB, ROA). Não é veredito sobre a empresa; dado parcial em alguns pilares. Abra o AS para ver os pilares.',
+  tooltip: 'Índice de prontidão em segurança de roteamento (0 a 100): soma ponderada de medições de terceiros (ROV, anti-spoofing, IRR/PeeringDB, ROA). Não é veredito sobre a empresa. Pilar sem dado é “não medido” e fica fora do índice e da classe; “n/4” diz quantos pilares foram medidos. A ordem padrão da lista é por ASN. Abra o AS para ver os pilares.',
   align: 'right',
   w: 'w-[68px]',
 }
@@ -392,10 +392,11 @@ function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stabi
       {comProntidao && (
         <td className="px-2 py-1.5 text-right tabular-nums">
           {entry.prontidao_indice == null ? (
-            <span className="text-gray-300">—</span>
+            <span className="text-gray-500 text-[11px]" title="Sem dados suficientes: nenhum pilar medido ou menos que o mínimo para o índice">não medido</span>
           ) : (
-            <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-semibold ${CLASSE_PRONTIDAO[entry.prontidao_classe ?? ''] ?? 'bg-gray-100 text-gray-500'}`} title={entry.prontidao_classe?.replace('_', ' ')}>
+            <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-semibold ${CLASSE_PRONTIDAO[entry.prontidao_classe ?? ''] ?? 'bg-gray-100 text-gray-500'}`} title={`${entry.prontidao_classe?.replace('_', ' ')}${entry.prontidao_pilares_medidos != null ? `, ${entry.prontidao_pilares_medidos} de 4 pilares medidos` : ''}`}>
               {entry.prontidao_indice.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+              {entry.prontidao_pilares_medidos != null && <span className="ml-1 font-normal opacity-80">{entry.prontidao_pilares_medidos}/4</span>}
             </span>
           )}
         </td>
@@ -535,6 +536,13 @@ export function ASes() {
             </tbody>
           </table>
         </div>
+
+        {comProntidao && (
+          <p className="mt-2 text-xs text-gray-500" data-testid="aviso-prontidao">
+            Prontidão: soma ponderada de medições de terceiros (APNIC, CAIDA Spoofer, IRR, PeeringDB, RPKI) com regras públicas, não um veredito sobre a empresa. “não medido” = pilar sem dado, fora do índice e da classe; “n/4” = pilares medidos.
+            A ordem padrão é por ASN. <Link to="/seguranca-de-roteamento" className="text-primario-600 hover:underline">Metodologia, fontes e limites</Link>.
+          </p>
+        )}
 
         {!user && total > PREVIEW_LIMIT && (
           <p className="mt-3 text-xs text-gray-500">
