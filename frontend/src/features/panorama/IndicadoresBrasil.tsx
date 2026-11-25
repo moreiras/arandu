@@ -7,8 +7,9 @@ import { useQuery } from '@tanstack/react-query'
 import { ComoLer, Kpi, TabelaDados } from '../../components/ui'
 import { useActiveDate } from '../../hooks/useSnapshot'
 import { fetchBrasilIndicadores } from '../../services/api'
+import type { MedicaoApnicPais } from '../../types/api'
 
-const pct = (v?: number | null) => (v == null ? null : `${v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`)
+const pct = (v?: number | null, casas = 1) => (v == null ? null : `${v.toLocaleString('pt-BR', { maximumFractionDigits: casas })}%`)
 const num = (v?: number | null) => (v == null ? null : v.toLocaleString('pt-BR'))
 const CLASSES: [string, string][] = [['pronto', 'Pronto'], ['em_progresso', 'Em progresso'], ['atrasado', 'Atrasado'], ['sem_dados', 'Sem dados']]
 
@@ -16,6 +17,27 @@ const CLASSES: [string, string][] = [['pronto', 'Pronto'], ['em_progresso', 'Em 
 export function useBrasilIndicadores() {
   const date = useActiveDate()
   return useQuery({ queryKey: ['brasil-indicadores', date], queryFn: () => fetchBrasilIndicadores(date ?? undefined), enabled: !!date, staleTime: Infinity, retry: false })
+}
+
+/**
+ * Referência de uma medição do APNIC que se exibe como média ponderada (TRANSV-E6): a mediana das redes, quantas foram medidas e a distribuição por faixa.
+ * A média ponderada pelas amostras é dominada pelas redes grandes; sozinha, esconde que a maioria das redes medidas está longe dela.
+ */
+export function referenciaMedicao(m?: MedicaoApnicPais | null): string | undefined {
+  if (!m || m.mediana_pct == null) return undefined
+  const f = m.faixas
+  const faixas = f ? `; ASes por faixa: ${num(f.ate_10)} até 10%, ${num(f.de_10_a_90)} de 10% a 90%, ${num(f.acima_de_90)} acima de 90%` : ''
+  return `mediana das redes: ${pct(m.mediana_pct, 2)}${m.asns != null ? ` (${num(m.asns)} ASes medidos)` : ''}${faixas}`
+}
+
+/** "Como ler" das médias ponderadas e do IPv6 da faixa de números do país: o que cada percentual conta (PT-15 / TRANSV-E5, TRANSV-E6). */
+export function ComoLerNumerosPais() {
+  return (
+    <ComoLer titulo="Como ler: IPv6, médias ponderadas e medianas">
+      <p>Três medidas de IPv6 contam coisas diferentes: &ldquo;ASNs brasileiros que anunciam IPv6&rdquo; conta redes com prefixo IPv6 na tabela global; &ldquo;Usuários com IPv6&rdquo; conta usuários estimados pelo APNIC Labs; e ter bloco IPv6 alocado, anunciado ou visto num PTT é outra medida, que não indica anúncio nem uso.</p>
+      <p>ROV e DNSSEC aparecem como média ponderada pelas amostras do APNIC Labs, que dá mais peso às redes com mais medições. A mediana trata cada rede igual e as faixas mostram quantas redes ficam em cada parte da escala; por isso a mediana pode ficar longe da média. A prontidão em segurança de roteamento usa outra ponderação, pelos usuários estimados de cada rede.</p>
+    </ComoLer>
+  )
 }
 
 export const EXPLICA = {
@@ -32,9 +54,9 @@ export function KpisSegurancaPais() {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" data-testid="kpis-pais">
       <Kpi selo="estimado" rotulo="Usuários com IPv6 (estimativa)" valor={pct(data?.ipv6.pct_usuarios_ipv6)} tom="v6" explicacao={EXPLICA.ipv6} fonte="APNIC Labs" dataRef={d} />
-      <Kpi selo="estimado" rotulo="Validação de DNSSEC" valor={pct(data?.dnssec?.media_ponderada_pct)} tom="tecnico" explicacao={EXPLICA.dnssec} fonte="APNIC Labs" dataRef={data?.dnssec?.fonte?.as_of ?? d} />
-      <Kpi selo="estimado" rotulo="Filtragem de rotas inválidas (ROV)" valor={pct(data?.rov?.media_ponderada_pct)} tom="tecnico" explicacao={EXPLICA.rov} fonte="APNIC Labs" dataRef={data?.rov?.fonte?.as_of ?? d} />
-      <Kpi selo="inferido" rotulo="Prontidão em segurança de roteamento" valor={data?.prontidao?.agregado.media_ponderada_usuarios != null ? `${data.prontidao.agregado.media_ponderada_usuarios.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} de 100` : null}
+      <Kpi selo="estimado" rotulo="Validação de DNSSEC (média ponderada por amostras)" valor={pct(data?.dnssec?.media_ponderada_pct, 2)} tom="tecnico" referencia={referenciaMedicao(data?.dnssec)} explicacao={EXPLICA.dnssec} fonte="APNIC Labs" dataRef={data?.dnssec?.fonte?.as_of ?? d} />
+      <Kpi selo="estimado" rotulo="Filtragem de rotas inválidas (ROV, média ponderada por amostras)" valor={pct(data?.rov?.media_ponderada_pct, 2)} tom="tecnico" referencia={referenciaMedicao(data?.rov)} explicacao={EXPLICA.rov} fonte="APNIC Labs" dataRef={data?.rov?.fonte?.as_of ?? d} />
+      <Kpi selo="inferido" rotulo="Prontidão em segurança de roteamento (média ponderada por usuários)" valor={data?.prontidao?.agregado.media_ponderada_usuarios != null ? `${data.prontidao.agregado.media_ponderada_usuarios.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} de 100` : null}
         tom="tecnico" explicacao={EXPLICA.prontidao} fonte="índice do site sobre medições de terceiros" dataRef={d} />
     </div>
   )
