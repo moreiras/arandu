@@ -71,7 +71,7 @@ def historico_asn(
 @router.get(
     "/history/ixps/{code}",
     summary="Série histórica de um PTT",
-    description="Uma linha por snapshot: status da coleta, ASNs pares diretos e originadores (total e BR), membros cadastrados, rotas e prefixos por família.",
+    description="Uma linha por snapshot: status da coleta, ASNs com sessão no route server e originadores (total e BR), membros cadastrados, rotas e prefixos por família.",
 )
 def historico_ixp(
     code: str, request: Request,

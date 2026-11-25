@@ -37,8 +37,8 @@ describe('nota "Por que há vários totais" (PT-15)', () => {
 })
 
 describe('rótulo por universo (PT-15)', () => {
-  it('nenhuma tela diz "alocados pelo Registro.br", "peering direto" ou "participantes diretos" para um número que não é isso', () => {
-    const proibido = /ASes brasileiros alocados|ASNs? alocados pelo Registro\.br|ASNs BR alocados|ASNs em peering direto|[Pp]eering direto|[Pp]eers? diretos?|Participantes diretos|Direto em PTT|usuários brasileiros visíveis via este IXP|Mercado não visto \(estimativa\)/
+  it('nenhuma tela diz "alocados pelo Registro.br", "peering direto", "par direto" ou "participantes diretos" para um número que não é isso', () => {
+    const proibido = /ASes brasileiros alocados|ASNs? alocados pelo Registro\.br|ASNs BR alocados|ASNs em peering direto|[Pp]eering direto|[Pp]eers? diretos?|[Pp]ares? diretos?|Participantes diretos|Direto em PTT|usuários brasileiros visíveis via este IXP|Mercado não visto \(estimativa\)/
     const achados = naoTeste.filter(([, s]) => proibido.test(s)).map(([a]) => a)
     expect(achados).toEqual([])
   })

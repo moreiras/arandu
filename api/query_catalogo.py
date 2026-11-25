@@ -573,7 +573,7 @@ SCHEMA["series_asn"] = {
         _f("v6users", "int", "Usuários IPv6 estimados (APNIC)"),
         _f("p4", "int", "Prefixos IPv4 na tabela global"),
         _f("p6", "int", "Prefixos IPv6 na tabela global"),
-        _f("n_ixd", "int", "PTTs onde é par direto"),
+        _f("n_ixd", "int", "PTTs onde tem sessão com o route server"),
         _f("n_ixm", "int", "PTTs onde é membro cadastrado"),
         _f("n_provedores", "int", "Provedores confirmado+ (ARC v1, inferência)"),
         _f("n_roa", "int", "ROAs do AS"),

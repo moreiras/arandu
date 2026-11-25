@@ -26,7 +26,7 @@ campos:
   significado: Prefixos IPv6 e IPv4 do AS na tabela global do snapshot.
 - nome: n_ixd / n_ixm
   tipo: int
-  significado: PTTs onde o AS é par direto observado (ixps_direct) e onde é membro cadastrado (ixp_member_codes).
+  significado: PTTs onde o AS tem sessão com o route server observada (ixps_direct) e onde é membro cadastrado (ixp_member_codes).
 - nome: n_provedores
   tipo: int
   significado: Provedores de nível confirmado ou superior (declarado, confirmado) segundo o ARC v1. Inferência rotulada.

@@ -8,7 +8,9 @@ export function usePageTracker() {
   const { user } = useAuth()
 
   useEffect(() => {
-    if (!user) return
+    // Só sessão de conta é registrada (a API ignora o resto). O "Visitante" da allowlist (`provider: 'ip'`) não tem conta: chamar a cada
+    // página só gastava o limite de 30/min por IP de /auth/log e dava 429 a quem divide o IP (escritório, NAT).
+    if (!user || user.provider === 'ip') return
     postAuthLog(location.pathname + location.search)
   }, [location.pathname, location.search, user])
 }

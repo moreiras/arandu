@@ -734,7 +734,7 @@ def get_asn_paths(
     "/asns/{asn}/interconexao",
     summary="Interconexão mensurável do AS: originação sem sessão direta, sessões nos route servers e rejeições",
     description="""
-O que os dados públicos mostram sobre a interconexão do AS: os PTTs do IX.br onde ele origina prefixos **sem ser par direto** (com quem entrega os caminhos observados), os PTTs onde o
+O que os dados públicos mostram sobre a interconexão do AS: os PTTs do IX.br onde ele origina prefixos **sem sessão com o route server** (com quem entrega os caminhos observados), os PTTs onde o
 cadastro e as sessões do route server não batem (sem sessão, ou só IPv6/IPv4), e as rotas rejeitadas e as ações de communities declaradas. **Nunca** diz com quem o AS troca tráfego: peering
 bilateral não é visível nesses dados. Cada item é um fato na data da coleta, não uma recomendação.
 """,
