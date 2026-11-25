@@ -441,6 +441,10 @@ SCHEMA: dict[str, dict] = {
                "cadeia de relações, não necessariamente quadro idêntico entre "
                "todos os membros — para isso, ver `mesmo_grupo`."),
             _f("tamanho_grupo", "int", "Quantas empresas (raízes de CNPJ de 8 dígitos) fazem parte do grupo_id; matriz e filiais contam uma vez"),
+            _f("grupo_inferivel", "bool",
+               "`false` só nas sociedades anônimas (natureza jurídica 2046 e 2054 da Receita): o quadro da S.A. traz diretoria e conselho, não acionistas, e por isso não gera ligação "
+               "(`motivo` = `sa_quadro_sem_acionistas`). A ligação que nasce do quadro de outra empresa em que a S.A. é sócia com participação continua. Ausente nas demais empresas."),
+            _f("motivo", "string", "Por que o grupo não é inferível pelo quadro desta empresa (`sa_quadro_sem_acionistas`); presente só com `grupo_inferivel = false`"),
             _f("socios", "array[object]",
                "Sócios do CNPJ conforme a Receita: {tipo (fisica|juridica|"
                "estrangeiro), qualificacao; nome e documento (CNPJ básico) só para "

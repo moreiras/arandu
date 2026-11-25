@@ -12,6 +12,7 @@ import { ConcorrentesBloco, SeriePosicaoBloco, UfsBloco } from './blocks/Mercado
 import { RelacoesGrupoBloco } from './blocks/RelacoesGrupoBloco'
 import { AsesTecnicoBloco, OutorgasMultasBloco, PttsTransitoBloco, QualidadeReclamacoesBloco } from './blocks/RegulatorioTecnicoBlocos'
 import type { GrupoCtx } from './contexto'
+import { SeloSA } from './SemInferenciaSA'
 import { useOrdenacao } from '../../lib/ordenacao'
 import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 
@@ -39,7 +40,7 @@ function Composicao({ dados }: BlocoProps<GrupoCtx>) {
         <tbody>
           {ordenados.map((c) => (
             <tr key={c.cnpj} className="border-b border-gray-100 align-top">
-              <td className="py-1 pr-3"><Link to={`/operadora/${c.cnpj}`} className="text-primario-600 hover:underline">{c.empresa || fmtCnpj(c.cnpj)}</Link></td>
+              <td className="py-1 pr-3"><Link to={`/operadora/${c.cnpj}`} className="text-primario-600 hover:underline">{c.empresa || fmtCnpj(c.cnpj)}</Link>{c.grupo_inferivel === false && <SeloSA className="ml-2" />}</td>
               <td className="pr-3 font-mono text-xs text-gray-500">{fmtCnpj(c.cnpj)}</td>
               <td className="pr-3"><OutorgaBadges flags={c} /></td>
               <td className="pr-3 text-right tabular-nums">{n(c.assinantes)}</td>

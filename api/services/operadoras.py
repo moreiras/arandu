@@ -20,6 +20,7 @@ from core import marcas
 from core.cpf import sem_socios_pessoa_fisica
 from core.nome_grupo import nome_do_grupo
 from core.outorgas import eh_outorga
+from core.sociedade_anonima import marca_do_cnpj
 
 
 #: Vínculo ASN ↔ CNPJ (decisão D5), do mais forte ao mais fraco. `cnpj`: o ASN está registrado no Registro.br com o mesmo CNPJ de 14 dígitos (fato);
@@ -372,9 +373,11 @@ class OperadorasService:
             _log.warning("curada_marcas_operadoras ilegível: nome do grupo sem marca curada", exc_info=True)
             curada_marcas = None
 
+        sa_por_cnpj = {c: True for c, r in ((self._load_socios_grupos(date_str) or {}).get("by_cnpj") or {}).items() if r.get("grupo_inferivel") is False}
         rows: list[dict] = []
         for g in self._grupos_e_individuais(date_str):
             cnpjs = g["cnpjs"]
+            raizes_sa = {c[:8] for c in cnpjs if sa_por_cnpj.get(c)}
             assinantes = 0
             assinantes_por_cnpj: dict[str, int] = {}
             municipios: dict[str, dict] = {}
@@ -415,6 +418,7 @@ class OperadorasService:
                         "assinantes": assinantes_por_cnpj.get(cnpj, 0),
                         "asns": cnpj_asns.get(cnpj, []),
                         **self.outorgas_flags_for_cnpj(date_str, cnpj),
+                        **({"grupo_inferivel": False} if sa_por_cnpj.get(cnpj) else {}),
                     }
                     for cnpj in cnpjs
                 ),
@@ -426,6 +430,8 @@ class OperadorasService:
                 **nome_do_grupo(cnpjs, assinantes_por_cnpj, lambda c: self._display_name_for_cnpj(date_str, c), curada_marcas),
                 "classificacao": g["classificacao"],
                 "tamanho": g["tamanho"],
+                "sociedades_anonimas": len(raizes_sa),             # empresas (raízes) do grupo cujo quadro não informa acionistas (P8)
+                **(marca_do_cnpj({"grupo_inferivel": False}) if g["classificacao"] == "individual" and raizes_sa else {}),
                 "assinantes": assinantes,
                 "usuarios_apnic": usuarios_apnic,
                 "visibilidade_bgp": visibilidade_bgp,
@@ -526,9 +532,11 @@ class OperadorasService:
                 "integrantes": [{"cnpj": c, "empresa": self._display_name_for_cnpj(date_str, c), **self.outorgas_flags_for_cnpj(date_str, c)}
                                 for c in g["cnpjs"] if c != cnpj][:LIMITE_INTEGRANTES_CABECALHO],
                 "integrantes_total": len([c for c in g["cnpjs"] if c != cnpj]),
+                **marca_do_cnpj(row),
             }
         return {
             "cnpj": cnpj,
+            **marca_do_cnpj(row),
             "grupo_id": grupo_id,     # leva à página do grupo (`GET /grupos/{grupo_id}`)
             "grupo_societario": resumo,
             "mesmo_grupo": _enrich(row.get("mesmo_grupo", [])),

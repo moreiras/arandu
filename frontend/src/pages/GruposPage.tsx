@@ -11,6 +11,7 @@ import { AccessMunicipioMap } from '../components/acessos/AccessMunicipioMap'
 import { GrupoPrefixosGeoMap } from '../components/socios/GrupoPrefixosGeoMap'
 import { AsnBadge, OutorgaBadges } from '../components/OutorgaBadge'
 import type { GrupoSocietarioRow, GrupoClassificacao } from '../types/api'
+import { SeloSA } from '../features/grupo/SemInferenciaSA'
 import { useAuth } from '../auth/AuthContext'
 
 function fmtCnpj(c: string): string {
@@ -533,6 +534,7 @@ export function GruposPage() {
                         {nomeGrupo(g)}
                       </Link>
                       {/* GRUPO-E7: `tamanho` conta empresas (raízes de CNPJ); `cnpjs` traz matriz e filiais */}
+                      {g.grupo_inferivel === false && <SeloSA className="ml-2" />}
                       {g.tamanho > 1 && <span className="ml-1 text-xs text-gray-500">e mais {g.tamanho - 1} {g.tamanho - 1 === 1 ? 'empresa' : 'empresas'}</span>}
                       {/* O clique na linha não chega ao teclado: este botão faz a mesma seleção (WCAG 2.1.1). */}
                       <button type="button" aria-pressed={isSelected} onClick={e => { e.stopPropagation(); setSelectedId(g.grupo_id) }}

@@ -132,7 +132,7 @@ def test_publica_os_artefatos_de_mercado(pipeline):
     assert r["scm_total"] == 43 and r["scm_matched_asns"] == 35      # 35 CNPJs com ASN + 8 sem ASN
     assert r["sici_cnpjs"] == 42 and r["sici_mes_referencia"] == "2026-08"
     assert (r["smp_total"], r["stfc_total"], r["seac_total"]) == (4, 3, 6)          # 3 outorgas SMP + o registro de credenciada de rede virtual (PT-05)
-    assert r["sici_movel_cnpjs"] == 3 and r["grupos_societarios_total"] == 3
+    assert r["sici_movel_cnpjs"] == 3 and r["grupos_societarios_total"] == 4
 
 
 def test_cenario_2_outorga_scm_sem_sici_mas_com_usuarios_apnic(pipeline):
@@ -178,7 +178,7 @@ def test_cenario_4_grupos_total_e_parcial(pipeline):
     assert by[asn_cnpj[64508]]["holdings_externas"][0]["cnpj_basico"] == "55500001"
     # controle exclusivo
     assert by[asn_cnpj[65536]]["mesmo_grupo"][0]["tipo_relacao"] == "controle_exclusivo_recebido"
-    assert g["total_grupos"] == 3
+    assert g["total_grupos"] == 4                                  # 3 do cenário 4 + a Ltda SemASN1 com a S.A. SemASN2 sócia (cenário 12, P8)
 
 
 def test_cenario_7_nada_de_contato_peeringdb_nos_artefatos_publicados(pipeline):

@@ -234,3 +234,56 @@ def test_grupo_id_e_o_menor_cnpj_basico_e_nao_depende_da_composicao_do_resto(bas
     _, r3 = _roda(base, log, "2026-10-05", monkeypatch, {"C": [comum()], "D": [comum()], "A": [s("2", "Ana", "***444444**", "22")],
                                                        "B": [s("2", "Ana", "***444444**", "22")], "E": [s("2", "Ana", "***444444**", "22")]})
     assert sorted(g["grupo_id"] for g in r3["grupos"]) == sorted([f"grp_{BASICOS['A']}", f"grp_{BASICOS['C']}"])
+
+
+# --- P8: S.A. não infere grupo pelo quadro societário ---
+
+def _roda_com_natureza(base, log, date_str, monkeypatch, quadros, naturezas):
+    write_gz(base / "normalized" / date_str / "summary" / "receita_cnpj.json.gz", {"empresa": {BASICOS[k]: {"nat": n} for k, n in naturezas.items()}})
+    return _roda(base, log, date_str, monkeypatch, quadros)
+
+
+def test_sa_ligada_so_por_diretores_nao_liga_e_sai_nao_inferivel(base, log, date_str, monkeypatch):
+    quadros = {"A": [s("2", "Diretor Comum", "***111111**", "10"), s("2", "Conselheiro Comum", "***222222**", "08")],
+               "B": [s("2", "Diretor Comum", "***111111**", "10"), s("2", "Conselheiro Comum", "***222222**", "08")],
+               "C": [s("2", "Pessoa Y", "***333333**", "22")], "D": [s("2", "Pessoa Y", "***333333**", "22")]}        # mesmo sócio com participação, mas C e D são S.A.
+    cn, r = _roda_com_natureza(base, log, date_str, monkeypatch, quadros, {"A": "2054", "B": "2046", "C": "2054", "D": "2054", "E": "2062", "F": "2062"})
+    assert r["grupos"] == [] and r["total_cnpjs_em_grupo"] == 0
+    for k in "ABCD":
+        e = r["by_cnpj"][cn[k]]
+        assert e["grupo_inferivel"] is False and e["motivo"] == "sa_quadro_sem_acionistas" and e["grupo_id"] is None and not e["mesmo_grupo"] and not e["relacionadas_parcial"]
+    for k in "EF":
+        assert "grupo_inferivel" not in r["by_cnpj"][cn[k]]
+    assert r["efeito_da_regra"]["sociedades_anonimas_sem_inferencia"] == 4 and r["efeito_da_regra"]["natureza_juridica_disponivel"] is True
+    assert "Diretor Comum" not in str(r["by_cnpj"])
+
+
+def test_sa_socia_com_participacao_de_uma_ltda_continua_ligada(base, log, date_str, monkeypatch):
+    quadros = {"A": [s("2", "Diretor", "***111111**", "10")],                                                    # S.A.: só gestão
+               "B": [s("1", "A S.A.", BASICOS["A"], "22"), s("2", "Dona B", "***444444**", "49")],            # Ltda com a S.A. como sócia
+               "C": [s("1", "A S.A.", BASICOS["A"], "22"), s("2", "Dona C", "***555555**", "49")]}            # outra Ltda com a mesma S.A. sócia
+    cn, r = _roda_com_natureza(base, log, date_str, monkeypatch, quadros, {"A": "2054", "B": "2062", "C": "2062"})
+    assert [g["cnpj_basicos"] for g in r["grupos"]] == [sorted(BASICOS[k] for k in "ABC")]
+    a = r["by_cnpj"][cn["A"]]
+    assert a["grupo_inferivel"] is False and a["grupo_id"] and {x["cnpj"] for x in a["relacionadas_parcial"]} == {cn["B"], cn["C"]}
+    assert "grupo_inferivel" not in r["by_cnpj"][cn["B"]]
+    assert r["efeito_da_regra"]["sociedades_anonimas_sem_inferencia"] == 1
+
+
+def test_quadro_da_sa_com_pj_socia_nao_gera_aresta(base, log, date_str, monkeypatch):
+    quadros = {"A": [s("2", "Dono", "***111111**", "22")], "B": [s("1", "A", BASICOS["A"], "22")]}                # B (S.A.) teria controladora A: o quadro de S.A. não conta
+    _, r = _roda_com_natureza(base, log, date_str, monkeypatch, quadros, {"A": "2062", "B": "2054"})
+    assert r["grupos"] == []
+
+
+def test_lista_de_naturezas_de_sa_publicada_com_a_pendencia_da_comandita(base, log, date_str, monkeypatch):
+    quadros = {"A": [s("2", "Diretor", "***111111**", "10")], "B": [s("2", "Diretor", "***111111**", "10")]}
+    _, r = _roda_com_natureza(base, log, date_str, monkeypatch, quadros, {"A": "2097", "B": "2097"})
+    regra = r["regra_sociedade_anonima"]
+    assert sorted(regra["naturezas"]) == ["2046", "2054"] and "2097" in regra["pendentes"] and regra["motivo"] == "sa_quadro_sem_acionistas"
+    assert r["efeito_da_regra"]["sociedades_anonimas_sem_inferencia"] == 0                                         # comandita por ações não entra
+
+
+def test_sem_receita_cnpj_nao_identifica_sa_e_avisa_no_efeito(base, log, date_str, monkeypatch):
+    _, r = _roda(base, log, date_str, monkeypatch, {"A": [s("2", "Diretor", "***111111**", "10")]})
+    assert r["efeito_da_regra"]["natureza_juridica_disponivel"] is False and r["efeito_da_regra"]["sociedades_anonimas_sem_inferencia"] == 0

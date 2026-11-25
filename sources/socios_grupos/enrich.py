@@ -49,6 +49,9 @@ Só sócio COM participação societária gera relação (decisão D5): administ
 diretor, presidente e demais cargos sem participação (`qualificacoes.py`) não ligam empresas.
 Cada relação guarda a classe e os códigos de qualificação que a sustentam, sem nomes.
 
+Sociedade anônima (natureza jurídica da Receita, `core/sociedade_anonima.py`, decisão P8): o quadro de S.A. traz gestão, não acionistas; ele não gera aresta. A relação que
+nasce do quadro de outra empresa em que a S.A. é sócia PJ com participação continua. A S.A. sai marcada com `grupo_inferivel: false` (sem nomes).
+
 Componentes conectados (sócio em comum OU propriedade direta, total ou
 parcial) definem os "grupos societários" (`grupo_id`) — um agrupamento mais
 amplo e transitivo, útil para navegação, mas que não deve ser confundido com
@@ -82,6 +85,7 @@ from core.common import (
 )
 from core.site import USER_AGENT
 from core.cpf import sem_socios_pessoa_fisica
+from core import sociedade_anonima as sa
 from sources.socios_grupos.qualificacoes import classe_da_qualificacao, liga_empresas, regra_publicada
 
 BRASILAPI_URL = "https://brasilapi.com.br/api/cnpj/v1/{cnpj}"
@@ -253,6 +257,16 @@ def _classes(codigos: set[str]) -> list[str]:
     return sorted({classe_da_qualificacao(c) for c in codigos})
 
 
+def _sa_basicos(base: Path, date_str: str, alvo: set[str], log) -> tuple[set[str], bool]:
+    """(raízes do universo que são S.A. pela natureza jurídica da Receita, e se a natureza estava disponível)."""
+    path = normalized_path(base, date_str, "summary", "receita_cnpj.json.gz")
+    if not path.exists():
+        log.warning("receita_cnpj ausente: sem natureza jurídica, S.A. não é identificada no agrupamento", data=date_str)
+        return set(), False
+    empresas = (read_json_gz(path) or {}).get("empresa") or {}
+    return {b for b in alvo if sa.e_sociedade_anonima((empresas.get(b) or {}).get("nat"))}, True
+
+
 def run(date_str: str, base: Path, log) -> dict:
     socios_path = normalized_path(base, date_str, "summary", "receita_socios.json.gz")
     if not socios_path.exists():
@@ -264,6 +278,7 @@ def run(date_str: str, base: Path, log) -> dict:
 
     _, basico_to_full, endereco_by_cnpj = _load_base_cnpjs(base, date_str, log)
     target_basicos = set(basico_to_full.keys())
+    sa_basicos, natureza_disponivel = _sa_basicos(base, date_str, target_basicos, log)
 
     # Nome legível de cada chave de identidade, para exibir "sócios em comum".
     identity_name: dict[str, str] = {}
@@ -288,6 +303,8 @@ def run(date_str: str, base: Path, log) -> dict:
         if cnpj_basico not in target_basicos:
             continue
         socio_quals[cnpj_basico] = _socio_qualificacoes(socios, so_participacao=True)
+        if cnpj_basico in sa_basicos:
+            socio_quals[cnpj_basico] = {}
         socio_sets[cnpj_basico] = set(socio_quals[cnpj_basico])
         for s in socios:
             key = _socio_chave(s)
@@ -295,8 +312,8 @@ def run(date_str: str, base: Path, log) -> dict:
                 continue          # ident == "3" (estrangeiro sem CPF/CNPJ): sem chave confiável de casamento
             identity_name[key] = s.get("nome_socio", "")
             socio_index_antes.setdefault(key, set()).add(cnpj_basico)
-            if not liga_empresas(s.get("qualificacao_socio")):
-                continue
+            if cnpj_basico in sa_basicos or not liga_empresas(s.get("qualificacao_socio")):
+                continue          # o quadro de S.A. não liga (P8): traz gestão, não acionistas
             socio_index.setdefault(key, set()).add(cnpj_basico)
             if key.startswith("cnpj:") and key[5:] not in target_basicos:
                 # A Receita traz só o CNPJ básico (8 dígitos) do sócio PJ, mas trata com tolerância o CNPJ completo (14).
@@ -330,7 +347,7 @@ def run(date_str: str, base: Path, log) -> dict:
             uf_antes.union(cnpj_basico, socio_basico)
             pares_antes.add(tuple(sorted((cnpj_basico, socio_basico))))
             q = s.get("qualificacao_socio")
-            if not liga_empresas(q):
+            if cnpj_basico in sa_basicos or not liga_empresas(q):
                 continue
             uf.union(cnpj_basico, socio_basico)
             ev = {"classes_qualificacao": _classes({str(q or "").strip()}), "qualificacoes_em_comum": [str(q or "").strip()]}
@@ -484,6 +501,7 @@ def run(date_str: str, base: Path, log) -> dict:
         ]
 
         entry = {
+            **({"grupo_inferivel": False, "motivo": sa.MOTIVO} if cnpj_basico in sa_basicos else {}),
             "grupo_id": grupo_id,
             "tamanho_grupo": len(group_basicos) if grupo_id else 1,
             "socios": socios_out,
@@ -522,7 +540,10 @@ def run(date_str: str, base: Path, log) -> dict:
             "grupos": len(grupos),
             "cnpjs_basicos_em_grupo": sum(g["tamanho"] for g in grupos),
             "grupos_desfeitos_ou_reduzidos": sum(1 for m in grandes_antes if not _intacto(m)),
+            "sociedades_anonimas_sem_inferencia": len(sa_basicos),
+            "natureza_juridica_disponivel": natureza_disponivel,
         },
+        "regra_sociedade_anonima": sa.regra_publicada(),
         "equivalencia_grupo_id": {f"grp_{m}": g["grupo_id"] for g in grupos for m in g["cnpj_basicos"] if f"grp_{m}" != g["grupo_id"]},
         "grupos": grupos,
         "by_cnpj": by_cnpj,

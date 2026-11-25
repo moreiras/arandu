@@ -7606,7 +7606,8 @@
         "anatel_scm",
         "anatel_smp",
         "anatel_stfc",
-        "anatel_seac"
+        "anatel_seac",
+        "receita_cnpj"
       ],
       "saidas": {
         "bruto": [],
@@ -7658,6 +7659,25 @@
           "tratamento": "PARCIAL: pode haver falso positivo por colisão de nome + CPF mascarado.",
           "publicado_em": [
             "grupos_societarios → grupos_societarios.json.gz#by_cnpj"
+          ],
+          "sensivel": false
+        },
+        {
+          "nome": "by_cnpj[cnpj].grupo_inferivel / motivo",
+          "tipo": "bool / str",
+          "significado": "`false` com `motivo` = `sa_quadro_sem_acionistas` nas sociedades anônimas (natureza jurídica 2046 e 2054 da Receita, `receita_cnpj`): o quadro da Receita de S.A. traz diretoria e conselho, não acionistas, e não gera ligação. Ausente nas demais empresas.",
+          "tratamento": "Decisão P8: grupo não inferido pelo quadro de S.A.; a ligação que vem do quadro de outra empresa em que a S.A. é sócia com participação continua. Comandita por ações (2097) fica como pendência, sem caso no universo. Sem nomes.",
+          "publicado_em": [
+            "grupos_societarios → grupos_societarios.json.gz#by_cnpj"
+          ],
+          "sensivel": false
+        },
+        {
+          "nome": "efeito_da_regra.sociedades_anonimas_sem_inferencia",
+          "tipo": "int",
+          "significado": "Quantas raízes de CNPJ do universo são S.A. e ficam sem inferência pelo quadro (P8).",
+          "publicado_em": [
+            "grupos_societarios → grupos_societarios.json.gz#efeito_da_regra"
           ],
           "sensivel": false
         },

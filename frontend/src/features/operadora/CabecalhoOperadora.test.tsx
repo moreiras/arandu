@@ -65,4 +65,28 @@ describe('cabeçalho da operadora: grupo no SICI e grupo societário', () => {
     montar({ grupoSocietario: null })
     expect(screen.getByTestId('grupo-societario')).toHaveTextContent('sem informação do quadro societário neste snapshot')
   })
+
+  it('S.A. sem ligação: o rótulo "não inferível" com o grupo do SICI ao lado e o "Como ler" com o limite (P8)', () => {
+    montar({ grupoSocietario: resumo({ grupo_id: 'ind_76535764', classificacao: 'individual', tamanho: 1, nome: 'OI S.A.', integrantes: [], integrantes_total: 0, grupo_inferivel: false }) })
+    const soc = screen.getByTestId('grupo-societario')
+    expect(within(soc).getByTestId('rotulo-sa')).toHaveTextContent('grupo não inferível pelo quadro societário (S.A.)')
+    expect(soc).toHaveTextContent('grupo declarado ao SICI: OI')
+    expect(soc).not.toHaveTextContent('só este CNPJ, sem ligação societária')
+    expect(within(soc).getByRole('link', { name: 'ver o grupo' })).toHaveAttribute('href', '/grupo/ind_76535764')
+    expect(screen.getByTestId('como-ler')).toHaveTextContent('diretoria e conselho, não acionistas')
+    expect(within(screen.getByTestId('grupo-sici')).getByRole('link', { name: 'CLIENT CO' })).toBeInTheDocument()
+  })
+
+  it('S.A. sem grupo no SICI: diz "nenhum" ao lado do rótulo', () => {
+    montar({ grupo: 'OUTROS', grupoCnpjs: [], grupoSocietario: resumo({ classificacao: 'individual', tamanho: 1, integrantes: [], integrantes_total: 0, grupo_inferivel: false }) })
+    expect(screen.getByTestId('grupo-societario')).toHaveTextContent('(grupo declarado ao SICI: nenhum)')
+  })
+
+  it('S.A. que está num grupo pela Ltda: o grupo aparece e a nota diz que o quadro da S.A. não foi usado', () => {
+    montar({ grupoSocietario: resumo({ grupo_inferivel: false }) })
+    const soc = screen.getByTestId('grupo-societario')
+    expect(within(soc).getByRole('link', { name: /BRISANET \(2 empresas\)/ })).toBeInTheDocument()
+    expect(within(soc).getByTestId('rotulo-sa-em-grupo')).toHaveTextContent('o quadro desta S.A. não foi usado')
+    expect(screen.getByTestId('como-ler')).toBeInTheDocument()
+  })
 })

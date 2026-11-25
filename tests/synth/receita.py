@@ -33,7 +33,7 @@ def receita_cnpj(world: World, d: str) -> dict:
         raiz = op["cnpj"][:8]
         estab[raiz] = [_est(raiz + "0001" + op["cnpj"][-2:], True, "02", f"{2008 + i % 14}-0{1 + i % 9}-15", "5701", fantasia=op["nome_fantasia"]),
                        _est(raiz + "0002" + "00", False, "02" if i % 3 else "08", f"{2015 + i % 8}-03-01", "5702", cnae="4321500", ds=None if i % 3 else "2024-05-02")]
-        empresa[raiz] = {"nat": "2062", "capital": 10000.0 * (i + 1), "porte": ("01", "03", "05")[i % 3], "razao": op["razao_social"]}
+        empresa[raiz] = {"nat": "2054" if op.get("sociedade_anonima") else "2062", "capital": 10000.0 * (i + 1), "porte": ("01", "03", "05")[i % 3], "razao": op["razao_social"]}
         simples[raiz] = {"simples": bool(i % 2), "simples_in": "2018-01-01" if i % 2 else None, "simples_out": None, "mei": False, "mei_in": None, "mei_out": None}
     for k, (ano, sit, nat) in enumerate((("2019", "02", "2062"), ("2021", "02", "2062"), ("2021", "08", "2062"), ("2022", "02", "2135"), ("2023", "08", "2135"))):
         raiz = make_cnpj(900 + k)[:8]
@@ -42,5 +42,5 @@ def receita_cnpj(world: World, d: str) -> dict:
         simples[raiz] = {"simples": True, "simples_in": f"{ano}-07-01", "simples_out": None, "mei": nat == "2135", "mei_in": f"{ano}-07-01" if nat == "2135" else None, "mei_out": None}
     return {"snapshot_date": d, "generated_at": f"{d}T00:00:00Z", "fonte": "Receita Federal — dados abertos do CNPJ", "dump_reference": "2026-09",
             "universo_cnpjs_basicos": len(market.operators(world)), "linhas_lidas": 1000, "estabelecimentos_guardados": sum(len(v) for v in estab.values()), "empresas": len(estab),
-            "municipios_rfb": MUNICIPIOS_RFB, "naturezas": {"2062": "Sociedade Empresária Limitada", "2135": "Empresário (Individual)"},
+            "municipios_rfb": MUNICIPIOS_RFB, "naturezas": {"2054": "Sociedade Anônima Fechada", "2062": "Sociedade Empresária Limitada", "2135": "Empresário (Individual)"},
             "cnaes": CNAES, "empresa": empresa, "simples": simples, "estabelecimentos": estab}

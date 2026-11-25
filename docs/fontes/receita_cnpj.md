@@ -53,7 +53,7 @@ Uma passada pelos Estabelecimentos: uma filial de CNAE diferente de 61 de uma em
 
 ## Quem usa
 
-- **Fontes derivadas:** `siasg_contratos`
+- **Fontes derivadas:** `siasg_contratos`, `socios_grupos`
 - **Produtos:** `cadastro_empresas`, `contratos`
 
 ## Pendências (nao_verificado)
