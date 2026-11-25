@@ -260,6 +260,8 @@ function IXPsLista() {
             totalBrASNs={summary?.total_asns_br}
             totalGlobalASNs={summary?.global_table?.total_asns}
             estUsers={estUsersData?.ixps}
+            interligacao={ixpData?.interligacao}
+            dataSnapshot={ixpData?.snapshot_date}
           />
         )}
       </div>

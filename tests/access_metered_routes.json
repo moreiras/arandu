@@ -80,6 +80,7 @@
  "/api/v1/ixps/{code}/hilbert/v6",
  "/api/v1/ixps/{code}/members",
  "/api/v1/ixps/{code}/nearby",
+ "/api/v1/ixps/{code}/participantes",
  "/api/v1/ixps/{code}/peers",
  "/api/v1/ixps/{code}/portas",
  "/api/v1/ixps/{code}/potential",

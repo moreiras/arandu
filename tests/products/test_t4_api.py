@@ -621,7 +621,8 @@ def test_perfil_consolidado_do_ptt_traz_os_blocos_das_rotas_separadas(api, ctx):
     assert api.get(f"/api/v1/ixps/{code}", params={"include": "zz"}, headers=ALLOWED).status_code == 400
     ext = api.get(f"/api/v1/ixps/{code}", params={"include": "indice,totais"}, headers=ALLOWED).json()
     linha = next(e for e in api.get("/api/v1/ixps", headers=ALLOWED).json()["ixps"] if e["code"] == code)
-    assert {k: ext["indice"][k] for k in linha} == linha                            # a rota de lista filtra pelo modelo; o índice traz tudo
+    derivados = {"route_servers", "cdns_curados"}                                    # PT-24: só a lista junta route servers e CDNs na leitura; o índice do perfil não os traz
+    assert {k: ext["indice"][k] for k in linha if k not in derivados} == {k: v for k, v in linha.items() if k not in derivados}      # a rota de lista filtra pelo modelo; o índice traz tudo
     resumo = api.get(f"/api/v1/snapshots/{base['snapshot_date']}", headers=ALLOWED).json()["summary"]
     assert ext["totais"] == {"total_asns_br": resumo.get("total_asns_br"), "total_asns_global": (resumo.get("global_table") or {}).get("total_asns"),
                              "br_apnic_users_total": resumo.get("br_apnic_users_total")}

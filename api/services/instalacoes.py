@@ -10,7 +10,7 @@ datas de atualização do registro e não diz nada sobre a operação da instala
 """
 from __future__ import annotations
 
-from typing import Optional
+from typing import Callable, Optional
 
 CADASTRO = ("recente", "parado", "antigo")
 ORDENS = {
@@ -31,11 +31,30 @@ def _meta(doc: dict) -> dict:
     return {"snapshot_date": doc["snapshot_date"], "coletado_em": doc.get("coletado_em"), "fonte": doc.get("fonte"), "limites": doc.get("limites"), "regra_cadastro": doc.get("regra_cadastro")}
 
 
+def _ptts_da_instalacao(f: dict) -> list[dict]:
+    """PTTs da instalação com código e tipo: primeiro os do IX.br, depois os externos e por fim os do PeeringDB que o site não acompanha (sem `code`)."""
+    ordem = {"ixbr": 0, "externo": 1}
+    return [{k: v for k, v in {"ix_id": x["ix_id"], "code": x.get("code"), "tipo": x.get("tipo")}.items() if v is not None}
+            for x in sorted(f.get("ixps") or [], key=lambda x: (ordem.get(x.get("tipo"), 2), x.get("code") or "~", x["ix_id"]))]
+
+
+def cobertura_nomeada(doc: dict, ptts_do_site: Optional[dict[str, str]]) -> Optional[dict]:
+    """Cobertura do snapshot com os PTTs do IX.br do site nomeados (`ptts_ixbr_nomes`, `{código: cidade}`) e quem o mapeamento com o PeeringDB não alcança. Calculado na leitura, também
+    para snapshots antigos: `ptts_ixbr_sem_mapeamento` são os PTTs do site que não aparecem em nenhuma instalação nem na lista de "sem instalação" (sem registro ligado no PeeringDB), e
+    `ptts_ixbr_fora_do_site` os códigos que o produto trouxe e que não são PTT do site. Com instalação + sem instalação + sem mapeamento = PTTs do site."""
+    cob = doc.get("cobertura")
+    if cob is None or not ptts_do_site:
+        return cob
+    site = set(ptts_do_site)
+    com = {x["code"] for f in doc["instalacoes"].values() for x in f.get("ixps") or [] if x.get("tipo") == "ixbr" and x.get("code")}
+    sem = set(cob.get("ptts_ixbr_sem_instalacao") or [])
+    return {**cob, "ptts_ixbr_nomes": dict(sorted(ptts_do_site.items())), "ptts_ixbr_site": len(site), "ptts_ixbr_com_instalacao": len(com & site),
+            "ptts_ixbr_sem_instalacao": sorted(sem & site), "ptts_ixbr_sem_mapeamento": sorted(site - com - sem), "ptts_ixbr_fora_do_site": sorted((com | sem) - site)}
 def resumo(f: dict) -> dict:
     """Linha de lista/bloco: o essencial de uma instalação, sem as listas de vínculos."""
     c = f.get("cadastro") or {}
     out = {"id": f["id"], "nome": f.get("nome"), "org_nome": f.get("org_nome"), "cidade": f.get("cidade"), "uf": f.get("uf"), "pais": f.get("pais"), "lat": f.get("lat"), "lon": f.get("lon"),
-           "escopo": f.get("escopo"), "n_redes": f.get("n_redes"), "redes_declaradas": f.get("redes_declaradas"), "n_ptts": len(f.get("ixps") or []), "n_carriers": len(f.get("carriers") or []),
+           "escopo": f.get("escopo"), "n_redes": f.get("n_redes"), "redes_declaradas": f.get("redes_declaradas"), "n_ptts": len(f.get("ixps") or []), "ptts_detalhe": _ptts_da_instalacao(f), "n_carriers": len(f.get("carriers") or []),
            "campus_id": f.get("campus_id"), "criado": f.get("criado"), "atualizado": f.get("atualizado"),
            "cadastro": {"classe": c.get("classe"), "ultima_atualizacao": c.get("ultima_atualizacao"), "dias": c.get("dias"), "inferido": True,
                         "registro_atualizado": c.get("registro_atualizado"), "vinculo_atualizado": c.get("vinculo_atualizado")} if c else None}
@@ -52,8 +71,9 @@ def _ordenar(itens: list[dict], ordem: str) -> list[dict]:
     return sorted(itens, key=lambda f: (-(f.get("n_redes") if f.get("n_redes") is not None else f.get("redes_declaradas") or 0), (f.get("nome") or "").lower(), f["id"]))
 
 
-def lista(doc: dict, pais: Optional[str], uf: Optional[str], q: Optional[str], ptt: Optional[str], cadastro: Optional[str], com_ptt: bool, com_carrier: bool, ordem: str, limit: int, offset: int) -> dict:
-    """Instalações filtradas. `pais` padrão é BR; `todos` inclui as de PTTs externos de outros países."""
+def lista(doc: dict, pais: Optional[str], uf: Optional[str], q: Optional[str], ptt: Optional[str], cadastro: Optional[str], com_ptt: bool, com_carrier: bool, ordem: str, limit: int, offset: int,
+          ptts_do_site: Optional[dict[str, str]] = None) -> dict:
+    """Instalações filtradas. `pais` padrão é BR; `todos` inclui as de PTTs externos de outros países. `ptts_do_site` (`{código: cidade}`) nomeia a cobertura (`cobertura_nomeada`)."""
     if ordem not in ORDENS:
         raise InstalacoesErro(400, f"ordem inválida: {ordem}. Use: {', '.join(ORDENS)}")
     if cadastro and cadastro not in CADASTRO:
@@ -80,7 +100,7 @@ def lista(doc: dict, pais: Optional[str], uf: Optional[str], q: Optional[str], p
         itens.append(f)
     itens = _ordenar(itens, ordem)
     return {**_meta(doc), "escopo": {"pais": pais}, "filtros": {"uf": uf, "q": q, "ptt": ptt, "cadastro": cadastro, "com_ptt": com_ptt, "com_carrier": com_carrier},
-            "ordem": ORDENS[ordem], "cobertura": doc.get("cobertura"), "total": len(itens), "items": [resumo(f) for f in itens[offset:offset + limit]]}
+            "ordem": ORDENS[ordem], "cobertura": cobertura_nomeada(doc, ptts_do_site), "total": len(itens), "items": [resumo(f) for f in itens[offset:offset + limit]]}
 
 
 def detalhe(doc: dict, vinc: Optional[dict], fid: int) -> Optional[dict]:
@@ -199,3 +219,54 @@ def linhas_redes_peering(atrib: Optional[dict], vinc: Optional[dict], portas: Op
         out.append({k: x for k, x in ln.items() if x is not None})
     out.sort(key=lambda r: r["asn"])
     return out
+
+
+#: situação de uma rede no PTT do IX.br que está no prédio: `sessao_rs` (sessão com o route server vista no looking glass), `membro_sem_sessao_rs` (no cadastro e sem sessão),
+#: `so_origina` (prefixo visto no PTT, fora do cadastro e sem sessão: INFERIDO, mesma leitura de `asn_interconexao`), `sem_presenca` (nenhum dos três) e `sem_coleta` (nenhuma família com coleta válida)
+SITUACOES = {
+    "sessao_rs": "sessão com o route server",
+    "membro_sem_sessao_rs": "no cadastro, sem sessão com o route server",
+    "so_origina": "só origina prefixos visíveis no PTT",
+    "sem_presenca": "sem presença observada",
+    "sem_coleta": "PTT sem coleta válida",
+}
+INFERIDAS = ("so_origina",)
+NOTA_REDES_PERFIL = ("Conta, entre as redes que declaram estar nesta instalação no PeeringDB, quantas têm sessão no route server do PTT. A rede pode participar do PTT por outra instalação; "
+                     "membro sem sessão pode trocar tráfego por sessão bilateral, que estas fontes não observam; 'só origina' é inferido da presença de prefixos e não prova presença física. "
+                     "A coluna de originador cobre só ASNs brasileiros e o resumo, também. Nenhum rótulo diz que uma rede deveria estar no PTT.")
+
+
+def situacao_no_ptt(asn: int, p: dict) -> str:
+    """Situação de `asn` no PTT `p` (`{direto, membros, origem, coleta}`, com `coleta` por família): só famílias com coleta válida contam como medida."""
+    if not any(c == "ok" for c in p["coleta"].values()):
+        return "sem_coleta"
+    if asn in p["direto"]:
+        return "sessao_rs"
+    if asn in p["membros"]:
+        return "membro_sem_sessao_rs"
+    if asn in p["origem"]:
+        return "so_origina"
+    return "sem_presenca"
+
+
+def redes_perfil(det: dict, ptts: dict[str, dict], externos: list[dict], info: Callable[[int], dict]) -> dict:
+    """Acrescenta ao detalhe da instalação o bloco `redes_perfil`: a situação de cada rede (do Brasil) em cada PTT do IX.br do prédio, com usuários APNIC e IPv6, e o resumo por PTT.
+    `ptts` é `{código: {nome, direto, membros, origem, coleta}}` dos PTTs do IX.br com documento no snapshot; `externos` são os demais (sem dado de sessão); `info(asn)` devolve
+    `{usuarios, ipv6}` do índice de ASNs. Só as redes do Brasil entram na contagem (a lista de originadores publicada é a dos brasileiros)."""
+    redes = []
+    for r in det.get("redes") or []:
+        ln = {**r}
+        if r.get("is_br"):
+            i = info(r["asn"])
+            ln["usuarios_apnic"] = i.get("usuarios")
+            ln["ipv6"] = i.get("ipv6")
+            ln["situacao"] = {c: situacao_no_ptt(r["asn"], p) for c, p in ptts.items()}
+        redes.append(ln)
+    resumo = []
+    for c, p in ptts.items():
+        cont = {k: 0 for k in SITUACOES}
+        for ln in redes:
+            if "situacao" in ln:
+                cont[ln["situacao"][c]] += 1
+        resumo.append({"ixp": c, "nome": p["nome"], "coleta": p["coleta"], "redes_do_brasil": sum(cont.values()), **cont})
+    return {**det, "redes": redes, "redes_perfil": {"resumo": resumo, "ptts_sem_dado_de_sessao": externos, "situacoes": SITUACOES, "inferidas": list(INFERIDAS), "nota": NOTA_REDES_PERFIL}}

@@ -9,6 +9,7 @@ import type { CDNRow, CDNMatrixColumn } from '../types/api'
 import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { EstadoDados } from '../components/ui/EstadoDados'
+import { LinhaProveniencia } from '../components/ui/Kpi'
 
 // ─── CDN categories ───────────────────────────────────────────────────────────
 
@@ -127,6 +128,28 @@ const REGION_STRIPE: Record<string, string> = {
   'Africa':     'bg-perigo-400',
 }
 
+// ─── Estados por célula (PT-24 / CDNS-E5.1) ──────────────────────────────────
+
+/** O que a célula diz, nomeado pelo que o dado mede: cadastro (membro) é diferente de sessão com o route server, e prefixo visto por outro AS não é presença. */
+type EstadoCelula = 'rs' | 'sem-rs' | 'origem' | 'membro'
+const ESTADOS_CELULA: Record<EstadoCelula, { simbolo: string; texto: string; selo: 'Fato' | 'Inferido'; explicacao: string }> = {
+  rs: { simbolo: '●', texto: 'membro, com sessão no route server', selo: 'Fato', explicacao: 'consta como participante do PTT e tem sessão com o route server na coleta' },
+  'sem-rs': { simbolo: '◐', texto: 'membro, sem sessão no route server observada', selo: 'Fato', explicacao: 'consta como participante e não tem sessão com o route server; a troca pode ocorrer por sessões bilaterais, que não aparecem aqui' },
+  origem: { simbolo: '◇', texto: 'não membro; prefixos vistos no PTT por outro participante', selo: 'Inferido', explicacao: 'prefixos da CDN aparecem nas rotas do PTT; mostra que o conteúdo é alcançável por ali, sem dizer onde está o servidor nem quanto tráfego passa' },
+  membro: { simbolo: '○', texto: 'membro (cadastro ou PeeringDB), sem detalhe de sessão', selo: 'Fato', explicacao: 'IX.br sem coleta válida do looking glass, ou outro IXP, em que o membro é autodeclarado no PeeringDB e a sessão não é observada' },
+}
+
+/** Estado da CDN no PTT/IXP da coluna; `null` = não membro e sem prefixos vistos. Resposta sem os campos novos (servidor antigo) cai em `membro`. */
+function estadoNaColuna(cdn: CDNRow, col: CDNMatrixColumn): EstadoCelula | null {
+  if (col.origin === 'ixbr') {
+    if (cdn.ixbr_rs?.includes(col.code)) return 'rs'
+    if (cdn.ixbr_sem_rs?.includes(col.code)) return 'sem-rs'
+    if (cdn.ixbr_origem?.includes(col.code)) return 'origem'
+    return cdn.ixbr.includes(col.code) ? 'membro' : null
+  }
+  return cdn.external.includes(col.code) ? 'membro' : null
+}
+
 // ─── Presence Matrix ─────────────────────────────────────────────────────────
 
 function PresenceMatrix({
@@ -140,9 +163,12 @@ function PresenceMatrix({
 }) {
   const columnCodes = useMemo(() => new Set(columns.map(c => c.code)), [columns])
   // As colunas de PTT são entidades (presença sim/não); ordenam só o nome e o total, sobre todas as linhas.
+  const contar = (cdn: CDNRow, estado: EstadoCelula) => columns.filter(col => estadoNaColuna(cdn, col) === estado).length
   const { ordenados, props } = useOrdenacao(cdns, {
     nome: (c) => c.name,
     total: (c) => getPresence(c).filter(code => columnCodes.has(code)).length,
+    rs: (c) => contar(c, 'rs'),
+    origem: (c) => contar(c, 'origem'),
   })
   if (columns.length === 0) {
     return <p className="text-sm text-gray-400 py-4">Nenhuma fonte/coluna selecionada.</p>
@@ -151,7 +177,7 @@ function PresenceMatrix({
   return (
     <div className="overflow-x-auto border border-gray-200 rounded-lg">
       <table className="text-xs border-collapse" style={{ minWidth: columns.length * 28 + 240 }}>
-        <caption className="sr-only">Presença de cada CDN ou CAP (linhas) em cada PTT (colunas)</caption>
+        <caption className="sr-only">Estado de cada CDN ou CAP (linhas) em cada PTT (colunas): membro com sessão no route server, membro sem sessão observada, só prefixos vistos por outro participante, ou membro sem detalhe de sessão</caption>
         <thead>
           <tr>
             <ThOrdenavel {...props('nome')} className="sticky left-0 z-10 bg-gray-50 border-b border-r border-gray-200 px-3 py-2 text-left font-medium text-gray-600 min-w-[220px]">
@@ -200,7 +226,13 @@ function PresenceMatrix({
               )
             })}
             <ThOrdenavel {...props('total')} alinhar="right" className="border-b border-gray-200 bg-gray-50 px-2 text-right font-medium text-gray-500 whitespace-nowrap">
-              Total
+              Membro
+            </ThOrdenavel>
+            <ThOrdenavel {...props('rs')} alinhar="right" className="border-b border-gray-200 bg-gray-50 px-2 text-right font-medium text-gray-500 whitespace-nowrap">
+              Com route server
+            </ThOrdenavel>
+            <ThOrdenavel {...props('origem')} alinhar="right" className="border-b border-gray-200 bg-gray-50 px-2 text-right font-medium text-gray-500 whitespace-nowrap">
+              Só via outro AS
             </ThOrdenavel>
           </tr>
         </thead>
@@ -208,7 +240,9 @@ function PresenceMatrix({
           {ordenados.map((cdn, i) => {
             const presence = new Set(getPresence(cdn).filter(code => columnCodes.has(code)))
             const count = presence.size
-            if (count === 0) return null
+            const comRs = contar(cdn, 'rs')
+            const soOrigem = contar(cdn, 'origem')
+            if (count === 0 && soOrigem === 0) return null
             // Solid background for even/odd rows — NO opacity so sticky left column is opaque
             const rowBg = i % 2 === 0 ? 'bg-white' : 'bg-gray-50'
             return (
@@ -219,9 +253,10 @@ function PresenceMatrix({
                     {cdn.name}
                   </Link>
                   <CategoryBadges cdn={cdn} />
-                  <div className="text-gray-400 font-normal text-xs mt-0.5">
+                  <div className="text-gray-500 font-normal text-xs mt-0.5">
                     {cdn.asns.map(a => `AS${a}`).join(' · ')}
                   </div>
+                  {cdn.sem_rs_em_nenhum_ptt && <div className="text-gray-600 font-normal text-xs">sem sessão em route server em nenhum PTT do IX.br</div>}
                 </th>
                 {columns.map(col => (
                   <td
@@ -229,17 +264,22 @@ function PresenceMatrix({
                     className="border-r border-b border-gray-100 text-center p-0"
                     style={{ width: 28 }}
                   >
-                    {/* estado em texto para o leitor de tela; "●" e "·" são só reforço visual */}
-                    {presence.has(col.code) ? (
-                      <><span className="text-ok-600 text-base leading-none" aria-hidden="true">●</span><span className="sr-only">{`${cdn.name} em ${col.name}: presente`}</span></>
-                    ) : (
-                      <><span className="text-gray-400 text-base leading-none" aria-hidden="true">·</span><span className="sr-only">{`${cdn.name} em ${col.name}: ausente`}</span></>
-                    )}
+                    {/* estado em texto para o leitor de tela; o símbolo é reforço visual e cada estado tem forma própria (não depende de cor) */}
+                    {(() => {
+                      const e = estadoNaColuna(cdn, col)
+                      return e ? (
+                        <><span className="text-gray-800 text-base leading-none" aria-hidden="true">{ESTADOS_CELULA[e].simbolo}</span><span className="sr-only">{`${cdn.name} em ${col.name}: ${ESTADOS_CELULA[e].texto}`}</span></>
+                      ) : (
+                        <><span className="text-gray-400 text-base leading-none" aria-hidden="true">·</span><span className="sr-only">{`${cdn.name} em ${col.name}: não membro, sem prefixos observados`}</span></>
+                      )
+                    })()}
                   </td>
                 ))}
                 <td className="border-b border-gray-100 px-2 py-1.5 text-right tabular-nums font-semibold text-gray-700">
                   {count}
                 </td>
+                <td className="border-b border-gray-100 px-2 py-1.5 text-right tabular-nums text-gray-700">{comRs}</td>
+                <td className="border-b border-gray-100 px-2 py-1.5 text-right tabular-nums text-gray-700">{soOrigem}</td>
               </tr>
             )
           })}
@@ -254,7 +294,7 @@ function PresenceMatrix({
                 <span className="text-xs font-semibold text-gray-600">{col.cdn_count}</span>
               </td>
             ))}
-            <td />
+            <td /><td /><td />
           </tr>
         </tfoot>
       </table>
@@ -401,7 +441,7 @@ export function CDNPage() {
       })
       .map(cdn => ({
         cdn,
-        count: [...cdn.ixbr, ...cdn.external].filter(code => columnCodes.has(code)).length,
+        count: [...cdn.ixbr, ...cdn.external, ...(cdn.ixbr_origem ?? [])].filter(code => columnCodes.has(code)).length,
       }))
       .filter(({ count }) => count > 0)
       .sort((a, b) => b.count - a.count || a.cdn.name.localeCompare(b.cdn.name))
@@ -414,7 +454,7 @@ export function CDNPage() {
         <h1 className="text-titulo-1 text-gray-900">Presença de CDNs e CAPs nos IXPs</h1>
         <p className="text-sm text-gray-500">
           Matriz de presença de CDNs e provedores de aplicações de conteúdo (CAPs) nos pontos de troca.
-          IX.br: membros declarados via dashboard.ix.br. Outros IXPs: membros autodeclarados no PeeringDB.
+          IX.br: membros do cadastro de participantes (dashboard.ix.br), com a sessão no route server vista no looking glass. Outros IXPs: membros autodeclarados no PeeringDB.
         </p>
         {data && (
           <p className="text-xs text-gray-400">
@@ -466,6 +506,18 @@ export function CDNPage() {
             (autodeclarado pelo ASN, pode subestimar a presença real).
             Ordenação: CDN presente em mais colunas visíveis no topo.
           </p>
+          <div data-testid="legenda-estados" className="rounded border border-gray-200 px-3 py-2 text-xs text-gray-700 space-y-1">
+            <p className="font-medium text-gray-800">Como ler as células</p>
+            <ul className="space-y-0.5">
+              {(Object.keys(ESTADOS_CELULA) as EstadoCelula[]).map(k => (
+                <li key={k}><span aria-hidden="true" className="inline-block w-4 text-center">{ESTADOS_CELULA[k].simbolo}</span> {ESTADOS_CELULA[k].texto} <span className="text-gray-500">({ESTADOS_CELULA[k].selo.toLowerCase()}: {ESTADOS_CELULA[k].explicacao})</span></li>
+              ))}
+              <li><span aria-hidden="true" className="inline-block w-4 text-center text-gray-400">·</span> não membro e sem prefixos observados</li>
+            </ul>
+            <p>{data.estados_limites ?? 'Membro é o ASN listado como participante do PTT pelo IX.br; a ausência de sessão com o route server não indica ausência de troca de tráfego, porque sessões bilaterais não aparecem aqui.'}</p>
+            <LinhaProveniencia selo="fato" fonte="cadastro de participantes e looking glass do IX.br; PeeringDB nos outros IXPs; lista curada de CDNs" dataRef={data.snapshot_date} />
+            <LinhaProveniencia selo="inferido" fonte="prefixos da CDN vistos no PTT por outro participante (◇)" dataRef={data.snapshot_date} />
+          </div>
           <div className="flex flex-wrap gap-4">
             <CategoryLegend active={activeCategories} onToggle={toggleCategory} />
             {showExternal && <RegionLegend active={activeRegions} onToggle={toggleRegion} />}

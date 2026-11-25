@@ -88,6 +88,14 @@ def test_listas_primeira_pagina_aberta_e_alem_exige_login(path):
     assert c(path, {"limit": "1000"}) == LOGIN
 
 
+def test_tabela_de_participantes_do_ptt_previa_medida_e_ampliar_exige_login():
+    path = "/api/v1/ixps/sp/participantes"
+    assert c(path, {"date": RECENT[0]}) == METERED
+    assert c(path, {"limit": str(PREVIEW_LIMIT)}) == METERED
+    assert c(path, {"page": "2"}) == LOGIN
+    assert c(path, {"limit": str(PREVIEW_LIMIT + 1)}) == LOGIN
+
+
 @pytest.mark.parametrize("path", ["/api/v1/asns", "/api/v1/scms", "/api/v1/acessos/divergencias"])
 @pytest.mark.parametrize("campo,valor", [("limit", "1000.0"), ("limit", "1e3"), ("limit", " 1000"), ("limit", "-1"), ("limit", ""),
                                          ("page", "2.0"), ("page", "+2"), ("page", "0x2")])

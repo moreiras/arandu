@@ -776,6 +776,8 @@
   "GET /api/v1/cdns/presence": {
    "chaves": [
     "cdns",
+    "estados",
+    "estados_limites",
     "external_columns",
     "ixbr_columns",
     "snapshot_date"
@@ -1577,6 +1579,7 @@
   "GET /api/v1/ixps": {
    "chaves": [
     "count",
+    "interligacao",
     "ixps",
     "snapshot_date"
    ],
@@ -1698,6 +1701,26 @@
     "radius_km",
     "snapshot_date",
     "summary"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/participantes": {
+   "chaves": [
+    "contagens",
+    "filtros",
+    "fontes",
+    "items",
+    "ixp",
+    "limit",
+    "limites",
+    "ordem",
+    "page",
+    "route_servers_medido",
+    "snapshot_date",
+    "total",
+    "total_participantes",
+    "ufs"
    ],
    "status": 200,
    "tipo": "objeto"

@@ -11,6 +11,8 @@ e seus membros/peers. Também serve IXPs externos (PeeringDB) e CDNs.
 """
 from __future__ import annotations
 
+from collections import OrderedDict
+from threading import Lock
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query, Request
@@ -55,6 +57,9 @@ Cada entrada inclui contagens de ASNs, prefixos e percentuais de cobertura.
 Quando não há dados coletados para um AFI, o campo correspondente é `{"status": "missing"}`. Cada AFI traz `coleta` (`ok`, `vazia`:
 a coleta funcionou e o looking glass respondeu com a tabela vazia, `missing`); `status` só é `ok` com rotas nas duas famílias.
 
+Cada entrada traz também `route_servers` (sessões up e down por família nos route servers com cache de vizinhos atual, `null` sem route server consultado) e `cdns_curados`
+(CDNs da lista curada com ASN no cadastro do PTT); `interligacao` diz a fonte e a data dessas duas colunas.
+
 Use `?status=ok` para ver apenas IXPs com coleta completa (`?status=partial` lista os que têm uma família vazia ou ausente), ou `?uf=SP`
 para filtrar por estado.
 """,
@@ -89,10 +94,14 @@ def list_ixps(
     if uf:
         index = [e for e in index if e.get("uf", "").upper() == uf.upper()]
 
+    from api.services import ptt_interligacao as li
+
+    rs_doc, cdns_doc = store.route_servers_ixps_doc(date_str), store.cdn_presence(date_str)
     return {
         "snapshot_date": date_str,
         "count": len(index),
-        "ixps": index,
+        "interligacao": li.fontes(rs_doc, cdns_doc, date_str),
+        "ixps": li.enriquecer(index, rs_doc, cdns_doc),
     }
 
 
@@ -237,6 +246,88 @@ def ixp_members(
         raise HTTPException(404, f"IXP '{code}' não encontrado no snapshot '{date_str}'")
 
     return _membros(store, date_str, code, doc, nomes)
+
+
+#: linhas montadas da tabela de participantes por (data, PTT): sp tem milhares de ASNs e cada página, filtro ou busca reaproveita a montagem (chave com a data, como pede `api/memoria.py`)
+_cache_participantes: "OrderedDict[tuple[str, str], dict]" = OrderedDict()
+_cache_participantes_lock = Lock()
+_CACHE_PARTICIPANTES_MAX = 12
+
+
+def _participantes_base(store: Store, date_str: str, code: str, doc: dict) -> dict:
+    from api.services import participantes as p
+
+    chave = (date_str, code)
+    with _cache_participantes_lock:
+        if chave in _cache_participantes:
+            _cache_participantes.move_to_end(chave)
+            return _cache_participantes[chave]
+    rs_doc = store.route_servers_ixps_doc(date_str)
+    rs_ixp = ((rs_doc or {}).get("ixps") or {}).get(code)
+    asn_map = store.asn_map(date_str)
+    base = p.montar(
+        date_str, code, doc, store._load_ixp_members(date_str, code), rs_ixp, store.route_servers_asns_doc(date_str), store.rs_policy_asns_doc(date_str), store.cdn_presence(date_str),
+        lambda asns: store.nomes_asns(date_str, asns, detalhe=True), lambda a: (asn_map.get(a) or {}).get("is_br"))
+    pol = store.rs_policy_ixps_doc(date_str) or {}
+    fontes = {
+        "cadastro": {"fonte": "IX.br (cadastro de participantes)", "snapshot": date_str},
+        "looking_glass": {"fonte": "looking glass do IX.br", "snapshot": date_str, "coleta": base["familias"]},
+        "route_servers": {"fonte": (rs_doc or {}).get("fonte"), "coletado_em": (rs_doc or {}).get("coletado_em"), "versao_alice": (rs_doc or {}).get("versao_alice"),
+                          "rs_consultados": ((rs_ixp or {}).get("resumo") or {}).get("rs_consultados"), "rs_total": ((rs_ixp or {}).get("resumo") or {}).get("rs")},
+        "rejeicoes_por_motivo": {"fonte": pol.get("fonte"), "coletado_nivel2": pol.get("coletado_nivel2"),
+                                 "cobertura": (((pol.get("ixps") or {}).get(code) or {}).get("rejeicoes") or {}).get("cobertura")},
+        "cdns": {"fonte": "lista curada de CDNs (config/cdns.yaml)", "snapshot": date_str},
+    }
+    base = {**base, "fontes": fontes}
+    with _cache_participantes_lock:
+        _cache_participantes[chave] = base
+        while len(_cache_participantes) > _CACHE_PARTICIPANTES_MAX:
+            _cache_participantes.popitem(last=False)
+    return base
+
+
+@router.get(
+    "/ixps/{code}/participantes",
+    summary="Tabela única de participantes de um PTT do IX.br",
+    description="""
+Uma linha por ASN visto no cadastro do IX.br, no looking glass ou nos route servers do PTT, com as colunas que a página de PTT mostrava em blocos separados:
+`membro` (cadastro de participantes), `direto` (sessão com o route server vista no looking glass, por família; `null` quando a família não teve coleta válida),
+`originador` (prefixo visto no PTT, só para ASN brasileiro), `sessao_rs` (sessões up/down no route server, Alice-LG), `rejeicao` (rotas filtradas ÷ rotas recebidas nas sessões up, do mesmo instante),
+`rejeicao_detalhe` (rotas rejeitadas por motivo, de outra coleta, com `idade_dias` e `herdado`) e `cdns` (CDNs da lista curada que são membros do PTT).
+Membro sem sessão com o route server pode trocar tráfego por sessão bilateral, que estas fontes não observam; nenhuma coluna indica causa nem qualidade.
+
+Filtros: `q` (ASN ou parte do nome), `uf` (UF da sede), `filtro` e `ordem` (a ordem padrão é por ASN, neutra). Paginação por `page` e `limit` (prévia de 100 linhas; além disso, login).
+`contagens` traz o total de cada filtro para o PTT inteiro. Nenhum contato (PeeringDB, RDAP) entra aqui.
+""",
+)
+def ixp_participantes_tabela(
+    code: str,
+    request: Request,
+    date: Optional[str] = Query(None, description="Data do snapshot (YYYY-MM-DD)."),
+    q: Optional[str] = Query(None, max_length=80, description="ASN (com ou sem o prefixo AS) ou parte do nome."),
+    uf: Optional[str] = Query(None, max_length=2, description="UF da sede do ASN."),
+    filtro: str = Query("todos", description="Um de: todos, sem-v6, sem-v4, sem-direto, membro-sem-sessao-rs, sessao-sem-cadastro, com-cdn, com-rejeicao."),
+    ordem: str = Query("asn", description="Um de: asn, nome, uf, sessoes_rs, rejeicao."),
+    desc: bool = Query(False, description="Ordem decrescente."),
+    limit: int = Query(50, ge=1, le=200),
+    page: int = Query(1, ge=1),
+) -> dict:
+    from api.services import participantes as p
+
+    store: Store = request.app.state.store
+    date_str = store.resolve_date(date)
+    if date_str is None:
+        raise HTTPException(404, "Nenhum snapshot disponível")
+    doc = store.ixp_detail(date_str, code)
+    if doc is None:
+        raise HTTPException(404, f"IXP '{code}' não encontrado no snapshot '{date_str}'")
+    base = _participantes_base(store, date_str, code, doc)
+    try:
+        r = p.pagina(base, q, filtro, uf, ordem, desc, limit, (page - 1) * limit)
+    except p.ParticipantesErro as e:
+        raise HTTPException(e.status, e.mensagem)
+    return {"snapshot_date": date_str, "ixp": code, "limites": p.LIMITES, "filtros": {"q": q, "uf": uf, "filtro": filtro, "definicao_do_filtro": p.FILTROS[filtro]},
+            "ordem": p.ORDENS[ordem] + (" (decrescente)" if desc else ""), "page": page, "limit": limit, "route_servers_medido": base["route_servers_medido"], "fontes": base["fontes"], **r}
 
 
 @router.get(

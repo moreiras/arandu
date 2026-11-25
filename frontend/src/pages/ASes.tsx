@@ -19,7 +19,7 @@ import { OrganizacoesVariosAsns } from '../components/stats/OrganizacoesVariosAs
 type SortField =
   | 'asn' | 'name' | 'cnpj'
   | 'apnic_users' | 'apnic_v6_users' | 'pct_v6'
-  | 'ixps_direct_count'
+  | 'ixps_membro_count' | 'ixps_direct_count'
   | 'ixps_origin_v4_count' | 'ixps_origin_v6_count'
   | 'has_rpki' | 'has_aspa' | 'pdb_registered' | 'has_scm' | 'external_ixps_count'
   | 'bgp_stability' | 'prontidao_indice'
@@ -81,11 +81,18 @@ const COLS: ColDef[] = [
     w: 'w-[54px]',
   },
   {
-    key: 'ixps_direct_count',
-    label: 'Dir. IX.br',
-    tooltip: 'Número de PTTs do IX.br em que este AS tem sessão BGP com o route server e anuncia rotas por ele (primeiro AS do caminho nas rotas coletadas). Sessões bilaterais não são observáveis aqui, e membro sem sessão no route server não conta.',
+    key: 'ixps_membro_count',
+    label: 'IX.br: membro',
+    tooltip: 'Número de PTTs do IX.br em cujo cadastro de participantes o AS consta, com ou sem sessão com o route server. Ser membro e ter sessão com o route server são coisas diferentes: grandes redes costumam usar acordos bilaterais, que não aparecem aqui. 0 quer dizer que o AS não consta em nenhum cadastro; — é snapshot sem a lista de participantes.',
     align: 'right',
-    w: 'w-[58px]',
+    w: 'w-[62px]',
+  },
+  {
+    key: 'ixps_direct_count',
+    label: 'IX.br: sessão RS',
+    tooltip: 'Número de PTTs do IX.br em que este AS tem sessão BGP com o route server e anuncia rotas por ele (primeiro AS do caminho nas rotas coletadas). Sessões bilaterais não são observáveis aqui, e membro sem sessão no route server não conta: ausência de sessão não indica ausência no PTT.',
+    align: 'right',
+    w: 'w-[66px]',
   },
   {
     key: 'ixps_origin_v6_count',
@@ -300,12 +307,11 @@ function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stabi
           </>
         )}
       </td>
+      <td className="px-2 py-1.5 text-right tabular-nums" data-testid="ixps-membro">
+        {entry.ixps_membro_count == null ? <span className="text-gray-400" title="snapshot sem a lista de participantes">—</span> : <span className="text-primario-700 font-medium">{entry.ixps_membro_count}</span>}
+      </td>
       <td className="px-2 py-1.5 text-right tabular-nums">
-        {entry.ixps_direct_count > 0 ? (
-          <span className="text-primario-700 font-medium">{entry.ixps_direct_count}</span>
-        ) : (
-          <span className="text-gray-400">—</span>
-        )}
+        <span className="text-primario-700 font-medium">{entry.ixps_direct_count}</span>
       </td>
       <td className="px-2 py-1.5 text-right tabular-nums">
         {(entry.ixps_origin_v6_count ?? 0) > 0 ? (

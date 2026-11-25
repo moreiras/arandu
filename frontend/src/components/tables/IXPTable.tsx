@@ -2,8 +2,9 @@ import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Link } from '../layout/LinkDatado'
 import { BarraDeAbas } from '../../features/entidade/EntityPage'
-import { coletaDaFamilia, type IXPIndexEntry, type IXPIndexAfi } from '../../types/api'
+import { coletaDaFamilia, type IXPIndexEntry, type IXPIndexAfi, type IXPListResponse } from '../../types/api'
 import { Dica } from '../ui/Dica'
+import { LinhaProveniencia } from '../ui/Kpi'
 
 interface IXPTableProps {
   ixps: IXPIndexEntry[]
@@ -11,11 +12,16 @@ interface IXPTableProps {
   totalGlobalASNs?: number
   /** Usuários finais BR estimados visíveis por IXP, por código. */
   estUsers?: Record<string, number>
+  /** Fonte e data das colunas do grupo "Interligação" (`/ixps`, `interligacao`). */
+  interligacao?: IXPListResponse['interligacao']
+  /** Data do snapshot (AAAA-MM-DD), referência da curadoria de CDNs. */
+  dataSnapshot?: string
 }
 
 type SortKey =
   | 'name' | 'uf' | 'region' | 'code'
   | 'asn_members' | 'asn_direct' | 'asn_dif' | 'asn_origin' | 'asn_br_coverage' | 'asn_ft_coverage' | 'asn_est_users'
+  | 'asn_origin_br' | 'cdns' | 'rs_v6' | 'rs_v4'
   | 'v6_prefixes' | 'v6_space' | 'v6_ft_coverage' | 'v6_reg_coverage'
   | 'v4_prefixes' | 'v4_space' | 'v4_ft_coverage' | 'v4_reg_coverage'
 
@@ -46,6 +52,7 @@ type SortDir = 'asc' | 'desc'
  */
 const GRUPOS = [
   { id: 'ases', rotulo: 'Sistemas autônomos', descricao: 'Participantes, route server, originadores, coberturas e usuários estimados' },
+  { id: 'interligacao', rotulo: 'Interligação', descricao: 'Sessões nos route servers (IPv6 e IPv4) e CDNs da lista curada com ASN no cadastro do PTT' },
   { id: 'ipv6', rotulo: 'IPv6', descricao: 'Prefixos, espaço e coberturas em IPv6' },
   { id: 'ipv4', rotulo: 'IPv4', descricao: 'Prefixos, espaço e coberturas em IPv4' },
 ] as const
@@ -67,6 +74,11 @@ const DICA_VAZIA = 'Coleta feita, mas o looking glass respondeu com a tabela vaz
 
 function CelulaVazia() {
   return <span className="text-gray-500" title={DICA_VAZIA}>zero rotas<span className="sr-only">: {DICA_VAZIA}</span></span>
+}
+
+/** "up / down" das sessões de uma família nos route servers; `null` (sem route server consultado) é "n/d", nunca zero. */
+export function sessoesRs(f: { up: number; down: number } | null | undefined): string {
+  return f ? `${f.up.toLocaleString('pt-BR')} / ${f.down.toLocaleString('pt-BR')}` : 'n/d'
 }
 
 function num(v: number | undefined | null, decimals = 0): string {
@@ -97,6 +109,7 @@ function sortValue(
     case 'asn_direct': return ixp.asn_direct_union_count ?? 0
     case 'asn_dif': return foraDoRouteServer(ixp)?.n ?? 0
     case 'asn_origin': return ixp.asn_origin_union_count ?? 0
+    case 'asn_origin_br': return ixp.br_asns_origin_union_count ?? null
     case 'asn_br_coverage':
       return totalBrASNs
         ? (ixp.br_asns_origin_union_count ?? 0) / totalBrASNs
@@ -106,6 +119,9 @@ function sortValue(
         ? (ixp.asn_origin_union_count ?? 0) / totalGlobalASNs
         : (ixp.asn_origin_union_count ?? 0)
     case 'asn_est_users': return estUsers?.[ixp.code] ?? 0
+    case 'cdns': return ixp.cdns_curados ?? null
+    case 'rs_v6': return ixp.route_servers?.v6?.sessoes ?? null
+    case 'rs_v4': return ixp.route_servers?.v4?.sessoes ?? null
     case 'v6_prefixes': return v6?.unique_prefixes ?? null
     case 'v6_space': return v6?.ixp_space_units ?? null
     case 'v6_ft_coverage': return v6?.ixp_vs_fulltable_space_pct ?? null
@@ -172,7 +188,7 @@ export function foraDoRouteServer(ixp: Pick<IXPIndexEntry, 'ixbr_members_count' 
   return { n, pct: (n / membros) * 100 }
 }
 
-export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTableProps) {
+export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers, interligacao, dataSnapshot }: IXPTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('name')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
   const [params, setParams] = useSearchParams()
@@ -227,8 +243,11 @@ export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTa
             <th colSpan={4} scope="colgroup" className="sticky left-0 z-30 px-2 py-1.5 text-left font-semibold text-gray-500 bg-gray-50">
               PTT
             </th>
-            {grupo === 'ases' && <th colSpan={7} scope="colgroup" className="px-2 py-1.5 text-center font-semibold text-gray-500 border-l border-gray-200 bg-gray-50">
+            {grupo === 'ases' && <th colSpan={8} scope="colgroup" className="px-2 py-1.5 text-center font-semibold text-gray-500 border-l border-gray-200 bg-gray-50">
               Sistemas autônomos
+            </th>}
+            {grupo === 'interligacao' && <th colSpan={3} scope="colgroup" className="px-2 py-1.5 text-center font-semibold text-gray-500 border-l border-gray-200 bg-gray-50">
+              Interligação
             </th>}
             {grupo === 'ipv6' && <th colSpan={4} scope="colgroup" className="px-2 py-1.5 text-center font-semibold text-v6-700 border-l border-gray-200 bg-gray-50">
               IPv6
@@ -247,9 +266,15 @@ export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTa
             <Th label="Diretos no route server" tooltip="ASNs com sessão direta com o route server (RS) deste PTT, união de IPv6 e IPv4" sortKey="asn_direct" {...thProps} />
             <Th label="Fora do route server" tooltip="Participantes do cadastro do IX.br sem sessão com o route server nesta coleta, e a % dos participantes. Pode ser peering só bilateral ou porta sem sessão; o dado não distingue." sortKey="asn_dif" {...thProps} />
             <Th label="Originadores" tooltip="ASNs de todos os países que originam (são o último AS do AS_PATH) algum prefixo visível neste PTT, união IPv6 ∪ IPv4 (snapshots anteriores a 2026-11: o maior entre IPv6 e IPv4)" sortKey="asn_origin" {...thProps} />
+            <Th label="dos quais brasileiros" tooltip="ASNs brasileiros (delegados pela LACNIC ao Brasil) entre os originadores deste PTT, união IPv6 ∪ IPv4. É um subconjunto de Originadores (em snapshots anteriores a 2026-11 o total gravava o maior entre IPv6 e IPv4 e podia ficar abaixo deste número)." sortKey="asn_origin_br" {...thProps} />
             <Th label="Cobertura Registro.br" tooltip="% dos ASNs brasileiros cadastrados no Registro.br que aparecem como originadores neste PTT (união IPv6 ∪ IPv4)" sortKey="asn_br_coverage" {...thProps} />
             <Th label="Cobertura tabela global" tooltip="% dos ASNs presentes na tabela global (RouteViews) que aparecem como originadores neste PTT" sortKey="asn_ft_coverage" {...thProps} />
             <Th label="Usuários alcançáveis (est., não somam)" tooltip="Usuários estimados alcançáveis por este PTT (IPv4): usuários do APNIC de cada ASN que origina prefixos no PTT × fração do espaço IPv4 visível ali, inclusive o que chega por trânsito. O mesmo usuário conta em cada PTT onde o seu ASN aparece: a soma das linhas não é o total do país nem o do IX.br" sortKey="asn_est_users" {...thProps} />
+            </>}
+            {grupo === 'interligacao' && <>
+            <Th label="CDNs da lista curada" tooltip="Número de CDNs da lista curada do site com ASN no cadastro de participantes do PTT. A lista é incompleta por natureza e a coluna não mede tráfego nem cache local; 0 quer dizer nenhum CDN da lista, não ausência de conteúdo." sortKey="cdns" {...thProps} className="border-l border-gray-200" />
+            <Th label="Sessões no route server IPv6 (up / down)" tooltip="Sessões BGP IPv6 com os route servers do PTT na data da coleta: no ar e fora do ar. Só entram os route servers com cache de vizinhos atual. Down não diz a causa; n/d é route server sem coleta, não zero." sortKey="rs_v6" {...thProps} />
+            <Th label="Sessões no route server IPv4 (up / down)" tooltip="O mesmo para IPv4. Não é peering bilateral, que o route server não observa." sortKey="rs_v4" {...thProps} />
             </>}
             {grupo === 'ipv6' && <>
             <Th label="Prefixos" tooltip="Prefixos IPv6 únicos visíveis neste PTT" sortKey="v6_prefixes" {...thProps} className="border-l border-gray-200" />
@@ -328,6 +353,9 @@ export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTa
                 <td className={`px-2 py-2 text-right tabular-nums text-gray-700 transition-colors ${hoverBg} ${colBg('asn_origin')}`}>
                   {num(ixp.asn_origin_union_count)}
                 </td>
+                <td className={`px-2 py-2 text-right tabular-nums text-gray-700 transition-colors ${hoverBg} ${colBg('asn_origin_br')}`}>
+                  {num(ixp.br_asns_origin_union_count)}
+                </td>
                 <td className={`px-2 py-2 text-right tabular-nums text-gray-700 transition-colors ${hoverBg} ${colBg('asn_br_coverage')}`}>
                   {brCovPct != null ? pct(brCovPct) : '—'}
                 </td>
@@ -337,6 +365,13 @@ export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTa
                 <td className={`px-2 py-2 text-right tabular-nums text-gray-700 transition-colors ${hoverBg} ${colBg('asn_est_users')}`}>
                   {estUsers?.[ixp.code] != null ? num(estUsers[ixp.code]) : '—'}
                 </td>
+                </>}
+                {grupo === 'interligacao' && <>
+                <td className={`px-2 py-2 text-right tabular-nums text-gray-700 border-l border-gray-100 transition-colors ${hoverBg} ${colBg('cdns')}`}>
+                  {ixp.cdns_curados == null ? 'n/d' : ixp.cdns_curados > 0 ? <Link to="/cdns" className="text-primario-600 hover:underline" aria-label={`${num(ixp.cdns_curados)} CDNs da lista curada em ${ixp.name}; abrir a página de CDNs`}>{num(ixp.cdns_curados)}</Link> : '0'}
+                </td>
+                <td className={`px-2 py-2 text-right tabular-nums text-gray-700 transition-colors ${hoverBg} ${colBg('rs_v6')}`}>{sessoesRs(ixp.route_servers?.v6)}</td>
+                <td className={`px-2 py-2 text-right tabular-nums text-gray-700 transition-colors ${hoverBg} ${colBg('rs_v4')}`}>{sessoesRs(ixp.route_servers?.v4)}</td>
                 </>}
                 {grupo === 'ipv6' && <>
                 {/* IPv6 group */}
@@ -374,6 +409,13 @@ export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTa
         </tbody>
       </table>
     </div>
+    {grupo === 'interligacao' && (
+      <div className="mt-1 text-xs text-gray-600">
+        <LinhaProveniencia selo="fato" fonte={`${interligacao?.route_servers?.fonte ?? 'route servers do IX.br (Alice-LG)'}: sessões`} dataRef={interligacao?.route_servers?.coletado_em} />
+        <LinhaProveniencia selo="fato" fonte={`${interligacao?.cdns?.fonte ?? 'lista curada de CDNs'}${interligacao?.cdns ? ` (${interligacao.cdns.cdns_na_lista} CDNs na lista)` : ''}: coluna de CDNs`} dataRef={interligacao?.cdns?.snapshot ?? dataSnapshot} />
+        <p>Estado na data da coleta; sessão down não indica a causa e route server sem cache de vizinhos atual fica fora da contagem. Quem troca tráfego só por sessões bilaterais não aparece nas sessões.</p>
+      </div>
+    )}
     </div>
   )
 }

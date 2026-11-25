@@ -65,6 +65,26 @@ export function LinkInstalacao({ f }: { f: Pick<FacilityResumo, 'id' | 'nome'> }
 
 export const localDe = (f: Pick<FacilityResumo, 'cidade' | 'uf' | 'pais'>) => [f.cidade, f.uf ?? (f.pais && f.pais !== 'BR' ? f.pais : undefined)].filter(Boolean).join(' / ') || '—'
 
+/** PTTs de uma instalação na lista: até 3 com código (IX.br, depois externos) e "+n outros" para o resto, com o texto acessível dizendo quantos o site não acompanha. O nome da cidade vai como texto do link e o código como complemento. */
+export function PttsDaInstalacao({ f, nomes }: { f: Pick<FacilityResumo, 'ptts_detalhe' | 'n_ptts'>; nomes?: Record<string, string> }) {
+  const ptts = f.ptts_detalhe ?? []
+  const comCodigo = ptts.filter((p) => p.code)
+  const visiveis = comCodigo.slice(0, 3)
+  const sobra = ptts.length - visiveis.length
+  const naoAcompanhados = ptts.filter((p) => !p.code).length
+  if (ptts.length === 0) return <span className="text-gray-500">—</span>
+  return (
+    <span className="inline-flex flex-wrap gap-x-1.5 items-baseline">
+      {visiveis.map((p) => (
+        <Link key={p.ix_id} to={p.tipo === 'ixbr' ? `/ixp/${p.code}` : `/ixp-externo/${p.code}`} className="text-primario-600 hover:underline">
+          {p.tipo === 'ixbr' && nomes?.[p.code!] ? `${nomes[p.code!]} (${p.code!.toUpperCase()})` : p.code!.toUpperCase()}
+        </Link>
+      ))}
+      {sobra > 0 && <span className="text-gray-600" title={`${sobra} PTT(s) a mais${naoAcompanhados ? `, ${naoAcompanhados} do PeeringDB que o site não acompanha` : ''}`}>+{sobra} outro{sobra > 1 ? 's' : ''}<span className="sr-only">{`: ${sobra} PTT${sobra > 1 ? 's' : ''} a mais${naoAcompanhados ? `, ${naoAcompanhados} do PeeringDB que o site não acompanha` : ''}`}</span></span>}
+    </span>
+  )
+}
+
 /** Link de um PTT: IX.br em /ixp/{code}, externo em /ixp-externo/{code}; PTT sem cadastro no Arandurapé vira só texto. */
 export function PttRotulo({ p }: { p: { ix_id: number; code?: string; nome?: string; tipo: string } }) {
   const rotulo = p.nome ?? (p.code ? p.code.toUpperCase() : `PTT ${p.ix_id} no PeeringDB`)

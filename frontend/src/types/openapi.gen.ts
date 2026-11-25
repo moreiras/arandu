@@ -1288,7 +1288,10 @@ export interface paths {
         };
         /**
          * Matriz de presença de CDNs nos IXPs
-         * @description Retorna matriz de presença de CDNs/provedores nos IXPs do IX.br e externos.
+         * @description Retorna matriz de presença de CDNs/provedores nos IXPs do IX.br e externos. Em cada CDN, `ixbr` são os PTTs do IX.br onde um ASN da CDN consta no cadastro de participantes (membro);
+         *     `ixbr_rs` os que, além de membro, têm sessão com o route server; `ixbr_sem_rs` os de membro sem sessão observada (pode haver peering bilateral, que o route server não vê);
+         *     `ixbr_origem` os PTTs onde a CDN não é membro mas prefixos dela aparecem nas rotas, por outro participante (inferido, não indica cache local); `ixbr_sem_coleta` os PTTs sem coleta válida do looking glass;
+         *     `asns_sem_documento` os ASNs da lista curada sem documento no snapshot. Calculado na leitura, também para snapshots antigos.
          */
         get: operations["get_cdn_presence_api_v1_cdns_presence_get"];
         put?: never;
@@ -1806,6 +1809,8 @@ export interface paths {
          * Uma instalação do PeeringDB com PTTs, carriers e redes vinculadas
          * @description Instalação do PeeringDB: organização, localização, datas de criação e atualização, o indicador `cadastro` (inferido das datas), os PTTs onde o cadastro diz que ela está (`ixps`, com o código do Arandurapé quando o PTT é conhecido),
          *     carriers, campus e as redes vinculadas (`redes`, só nas instalações do Brasil). Vínculo é declaração no cadastro: não indica tráfego nem contrato.
+         *     `?include=redes_perfil` acrescenta a cada rede do Brasil a situação em cada PTT do IX.br do prédio (`situacao`: sessão com o route server, no cadastro sem sessão, só origina [inferido] ou sem presença),
+         *     usuários estimados do APNIC (`usuarios_apnic`) e IPv6, e o resumo por PTT em `redes_perfil`; PTTs externos vêm como "sem dado de sessão".
          */
         get: operations["get_facility_api_v1_facilities__fac_id__get"];
         put?: never;
@@ -2394,6 +2399,9 @@ export interface paths {
          *     Quando não há dados coletados para um AFI, o campo correspondente é `{"status": "missing"}`. Cada AFI traz `coleta` (`ok`, `vazia`:
          *     a coleta funcionou e o looking glass respondeu com a tabela vazia, `missing`); `status` só é `ok` com rotas nas duas famílias.
          *
+         *     Cada entrada traz também `route_servers` (sessões up e down por família nos route servers com cache de vizinhos atual, `null` sem route server consultado) e `cdns_curados`
+         *     (CDNs da lista curada com ASN no cadastro do PTT); `interligacao` diz a fonte e a data dessas duas colunas.
+         *
          *     Use `?status=ok` para ver apenas IXPs com coleta completa (`?status=partial` lista os que têm uma família vazia ou ausente), ou `?uf=SP`
          *     para filtrar por estado.
          */
@@ -2683,6 +2691,33 @@ export interface paths {
          *     do que `/ixps/{code}/potential` resume (raio fixo de 80 km); `/analytics/ixps/{code}/nearby` é o alias antigo.
          */
         get: operations["ixp_nearby_do_ptt_api_v1_ixps__code__nearby_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ixps/{code}/participantes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tabela única de participantes de um PTT do IX.br
+         * @description Uma linha por ASN visto no cadastro do IX.br, no looking glass ou nos route servers do PTT, com as colunas que a página de PTT mostrava em blocos separados:
+         *     `membro` (cadastro de participantes), `direto` (sessão com o route server vista no looking glass, por família; `null` quando a família não teve coleta válida),
+         *     `originador` (prefixo visto no PTT, só para ASN brasileiro), `sessao_rs` (sessões up/down no route server, Alice-LG), `rejeicao` (rotas filtradas ÷ rotas recebidas nas sessões up, do mesmo instante),
+         *     `rejeicao_detalhe` (rotas rejeitadas por motivo, de outra coleta, com `idade_dias` e `herdado`) e `cdns` (CDNs da lista curada que são membros do PTT).
+         *     Membro sem sessão com o route server pode trocar tráfego por sessão bilateral, que estas fontes não observam; nenhuma coluna indica causa nem qualidade.
+         *
+         *     Filtros: `q` (ASN ou parte do nome), `uf` (UF da sede), `filtro` e `ordem` (a ordem padrão é por ASN, neutra). Paginação por `page` e `limit` (prévia de 100 linhas; além disso, login).
+         *     `contagens` traz o total de cada filtro para o PTT inteiro. Nenhum contato (PeeringDB, RDAP) entra aqui.
+         */
+        get: operations["ixp_participantes_tabela_api_v1_ixps__code__participantes_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5178,6 +5213,11 @@ export interface components {
              */
             ixps_direct_count: number;
             /**
+             * Ixps Membro Count
+             * @description Número de PTTs do IX.br em cujo cadastro de participantes o AS consta, com ou sem sessão com o route server (`ixps_membro`); `null` se o snapshot não tem a lista de participantes
+             */
+            ixps_membro_count?: number | null;
+            /**
              * Ixps Origin Count
              * @description Número de IXPs onde prefixos deste AS são visíveis
              */
@@ -5457,6 +5497,11 @@ export interface components {
              */
             br_asns_origin_union_count?: number | null;
             /**
+             * Cdns Curados
+             * @description CDNs da lista curada com ASN no cadastro de participantes do PTT (curadoria incompleta por natureza; não mede tráfego); `null` sem o produto no snapshot
+             */
+            cdns_curados?: number | null;
+            /**
              * Code
              * @description Código do IXP (slug do IX.br)
              */
@@ -5471,6 +5516,11 @@ export interface components {
              * @description Nome da cidade
              */
             name: string;
+            /**
+             * Route Servers
+             * @description Sessões nos route servers do IX.br por família (`v6`, `v4`: `up`, `down`, `sessoes`, `rs`), só dos route servers com cache de vizinhos atual; `rs_sem_vizinhos_atuais` conta os que ficaram de fora. `null` na família sem route server consultado e no PTT sem route server: n/d, não zero. Estado na data da coleta; down não diz a causa.
+             */
+            route_servers?: unknown | null;
             /**
              * Status
              * @description Status da coleta: **ok** (rotas em v6 e v4), **partial** (uma família sem bruto ou com a tabela vazia; ver `coleta` em cada família), **missing** (sem dados)
@@ -5499,6 +5549,11 @@ export interface components {
              * @description Total de IXPs retornados
              */
             count: number;
+            /**
+             * Interligacao
+             * @description Fonte e data das colunas `route_servers` e `cdns_curados` (`route_servers.coletado_em`, `cdns.cdns_na_lista`).
+             */
+            interligacao?: unknown | null;
             /** Ixps */
             ixps: components["schemas"]["IXPIndexEntry"][];
             /** Snapshot Date */
@@ -6468,7 +6523,7 @@ export interface operations {
                 ipv6_only?: boolean;
                 /** @description Busca por nome (substring, case-insensitive) ou número exato do AS */
                 q?: string | null;
-                /** @description Campo para ordenação. Valores: apnic_users, apnic_v6_users, asn, cnpj, epppd, epppd_v4, epppd_v6, external_ixps_count, has_aspa, has_rpki, has_scm, has_seac, has_smp, has_stfc, ixps_direct_count, ixps_origin_v4_count, ixps_origin_v6_count, name, pct_v6, pdb_registered */
+                /** @description Campo para ordenação. Valores: apnic_users, apnic_v6_users, asn, cnpj, epppd, epppd_v4, epppd_v6, external_ixps_count, has_aspa, has_rpki, has_scm, has_seac, has_smp, has_stfc, ixps_direct_count, ixps_membro_count, ixps_origin_v4_count, ixps_origin_v6_count, name, pct_v6, pdb_registered */
                 sort_by?: string | null;
                 /** @description True para ordem decrescente */
                 sort_desc?: boolean;
@@ -8626,6 +8681,8 @@ export interface operations {
         parameters: {
             query?: {
                 date?: string | null;
+                /** @description `redes_perfil`: a situação de cada rede do Brasil em cada PTT do IX.br do prédio (sessão com o route server, no cadastro sem sessão, só origina, sem presença), com usuários APNIC e IPv6, e o resumo por PTT. */
+                include?: string | null;
             };
             header?: never;
             path: {
@@ -9931,6 +9988,54 @@ export interface operations {
                 limit?: number;
                 /** @description Data do snapshot (YYYY-MM-DD). */
                 date?: string | null;
+            };
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ixp_participantes_tabela_api_v1_ixps__code__participantes_get: {
+        parameters: {
+            query?: {
+                /** @description Data do snapshot (YYYY-MM-DD). */
+                date?: string | null;
+                /** @description ASN (com ou sem o prefixo AS) ou parte do nome. */
+                q?: string | null;
+                /** @description UF da sede do ASN. */
+                uf?: string | null;
+                /** @description Um de: todos, sem-v6, sem-v4, sem-direto, membro-sem-sessao-rs, sessao-sem-cadastro, com-cdn, com-rejeicao. */
+                filtro?: string;
+                /** @description Um de: asn, nome, uf, sessoes_rs, rejeicao. */
+                ordem?: string;
+                /** @description Ordem decrescente. */
+                desc?: boolean;
+                limit?: number;
+                page?: number;
             };
             header?: never;
             path: {

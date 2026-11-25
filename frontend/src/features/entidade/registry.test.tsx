@@ -62,20 +62,20 @@ describe('blocos de ASN', () => {
 })
 
 describe('blocos de PTT', () => {
-  const ctx = (v4: unknown, v6: unknown, sem: number[]) => ({ v4, v6, membersWithoutDirect: sem }) as any
+  const ctx = (v4: unknown, v6: unknown) => ({ v4, v6 }) as any
 
-  it('fixa os 18 blocos e a ordem de exibição', () => {
+  it('fixa os 17 blocos e a ordem de exibição (a tabela única de participantes substitui "Participantes e filtros" e "Membros sem peering direto")', () => {
     expect(blocosDe('ixp').map((b) => b.id)).toEqual([
       'destaque', 'indicadores-as', 'indicadores-v6', 'indicadores-v4', 'potencial', 'route-servers', 'rejeicoes', 'instalacoes', 'mapa', 'hilbert-v6', 'hilbert-v4',
-      'linha-do-tempo', 'participantes-filtrados', 'entrou-saiu', 'membros-sem-direto', 'conteudo', 'peers-v6', 'peers-v4',
+      'linha-do-tempo', 'participantes', 'entrou-saiu', 'conteudo', 'peers-v6', 'peers-v4',
     ])
   })
 
-  it('Hilbert e membros sem peering só aparecem com dado (regras da página de antes)', () => {
+  it('Hilbert só aparece com dado e a tabela de participantes aparece sempre (regras da página de antes)', () => {
     const ap = (c: any) => blocosDe('ixp').filter((b) => !b.aplicavel || b.aplicavel(c)).map((b) => b.id)
-    expect(ap(ctx(null, null, []))).not.toEqual(expect.arrayContaining(['hilbert-v6']))
-    expect(ap(ctx(null, null, []))).not.toContain('membros-sem-direto')
-    expect(ap(ctx({}, {}, [64496]))).toEqual(expect.arrayContaining(['hilbert-v6', 'hilbert-v4', 'membros-sem-direto']))
+    expect(ap(ctx(null, null))).not.toEqual(expect.arrayContaining(['hilbert-v6']))
+    expect(ap(ctx(null, null))).toContain('participantes')
+    expect(ap(ctx({}, {}))).toEqual(expect.arrayContaining(['hilbert-v6', 'hilbert-v4', 'participantes']))
   })
 })
 
