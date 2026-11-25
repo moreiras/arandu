@@ -7,7 +7,7 @@
 from datetime import date
 
 from api.services import instalacoes as svc
-from products.instalacoes.build import (calcular_cobertura, calcular_instalacoes, calcular_portas, classe_cadastro, lotes_de_registro, _ptts)
+from products.instalacoes.build import (calcular_cobertura, calcular_instalacoes, calcular_portas, classe_cadastro, _ptts)
 
 HOJE = date(2026, 11, 5)
 
@@ -89,32 +89,19 @@ def test_blocos_da_api_cobrem_ausencia_e_nao_inventam():
     assert svc.linhas_facilities(None) == [] and svc.linhas_facilidades_rede(None, None) == [] and svc.linhas_redes_peering(None, None, None) == []
 
 
-def _doc_com_lote():
-    """INS-E1 / INST-E3: 12 instalações no Brasil, 8 com `atualizado` no mesmo dia (2025-09-26, lote); uma tem vínculo recente, uma só tem criação própria, uma não tem nada além do lote."""
+def test_data_de_cadastro_do_peeringdb_conta_como_vem_inclusive_a_de_2025_09_26():
+    # P9: nenhuma data é descartada nem explicada; várias instalações com o mesmo dia de registro seguem a regra de sempre
     facs = {str(i): {"id": i, "nome": f"I{i}", "pais": "BR", "uf": "SP", "criado": "2024-02-01T00:00:00Z", "atualizado": "2025-09-26T22:40:00Z"} for i in range(1, 9)}
-    facs.update({str(i): {"id": i, "nome": f"I{i}", "pais": "BR", "uf": "SP", "criado": "2018-01-01T00:00:00Z", "atualizado": f"2026-0{i - 8}-10T00:00:00Z"} for i in range(9, 13)})
-    facs["8"]["criado"] = "2025-09-26T22:41:00Z"                                # criação também no lote: sem data própria
-    facs["7"]["criado"] = "2016-03-14T00:00:00Z"                                # criada em 2016 e só tocada pelo lote
-    return {"facilities": facs, "netfac": [[1, 64496, "2016-03-14T00:00:00Z", "2026-11-04T00:00:00Z"]], "ixfac": [], "carrierfac": [], "carriers": {}, "campus": {}}
-
-
-def test_data_de_registro_em_lote_nao_conta_para_a_classe_e_as_duas_datas_aparecem():
-    doc = _doc_com_lote()
-    assert lotes_de_registro(doc["facilities"]) == [{"data": "2025-09-26", "n": 8}]
+    doc = {"facilities": facs, "netfac": [[1, 64496, "2016-03-14T00:00:00Z", "2026-11-04T00:00:00Z"]], "ixfac": [], "carrierfac": [], "carriers": {}, "campus": {}}
     inst, _ = calcular_instalacoes(doc, {}, HOJE, {})
-    c1 = inst["1"]["cadastro"]                                                  # vínculo de 2026-11-04 decide: recente, e o selo mostra as duas datas
-    assert (c1["classe"], c1["ultima_atualizacao"], c1["registro_atualizado"], c1["vinculo_atualizado"], c1["registro_em_lote"]) == ("recente", "2026-11-04", "2025-09-26", "2026-11-04", True)
-    assert inst["2"]["cadastro"]["classe"] == "parado" and inst["2"]["cadastro"]["ultima_atualizacao"] == "2024-02-01"     # sem vínculo: a criação do registro (o lote não conta)
-    assert inst["7"]["cadastro"]["ultima_atualizacao"] == "2016-03-14" and inst["7"]["cadastro"]["classe"] == "antigo"
-    c8 = inst["8"]["cadastro"]
-    assert c8["classe"] is None and c8["ultima_atualizacao"] is None and c8["registro_em_lote"] is True and "sem data própria" in c8["rotulo"]
-    assert inst["9"]["cadastro"]["registro_em_lote"] is False and inst["9"]["cadastro"]["ultima_atualizacao"] == "2026-01-10"
-    cob = calcular_cobertura(inst, {"por_asn": {}}, {}, doc, 0, set())
-    assert sum(cob["cadastro_br"].values()) == 12 and cob["cadastro_br"]["sem_data"] == 1
+    c1, c2 = inst["1"]["cadastro"], inst["2"]["cadastro"]
+    assert (c1["classe"], c1["ultima_atualizacao"], c1["registro_atualizado"], c1["vinculo_atualizado"]) == ("recente", "2026-11-04", "2025-09-26", "2026-11-04")
+    assert (c2["classe"], c2["ultima_atualizacao"], c2["registro_atualizado"], c2["vinculo_atualizado"]) == ("parado", "2025-09-26", "2025-09-26", None)
+    assert not {"registro_em_lote", "data_em_lote"} & set(c2)
+    assert calcular_cobertura(inst, {"por_asn": {}}, {}, doc, 0, set())["cadastro_br"] == {"recente": 1, "parado": 7}
 
 
-def test_sem_lote_a_regra_antiga_vale_e_resumo_leva_as_duas_datas():
+def test_resumo_leva_as_duas_datas():
     inst, _ = calcular_instalacoes(DOC, PTTS, HOJE, NOMES)
-    assert inst["1"]["cadastro"]["registro_em_lote"] is False and lotes_de_registro(DOC["facilities"]) == []
     r = svc.resumo(inst["1"])["cadastro"]
     assert r["registro_atualizado"] == "2026-10-01" and r["vinculo_atualizado"] == "2021-01-02" and r["ultima_atualizacao"] == "2026-10-01"

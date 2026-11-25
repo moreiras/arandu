@@ -2556,11 +2556,9 @@ export interface ReclamacoesOperadora extends QualMeta {
 /** Instalações do PeeringDB: cadastro AUTODECLARADO; `cadastro` é inferência pelas datas de atualização e não diz nada da operação. Sem contatos. */
 export interface FacilityMeta {
   snapshot_date: string; coletado_em: string | null; fonte: { nome: string; url?: string | null; citacao?: string | null; aup?: string | null; coletado_em?: string | null }; limites: string
-  /** Data de `atualizado` compartilhada por muitas instalações (atualização em massa no PeeringDB, hipótese): não conta para o selo de cadastro. Ausente antes do PT-16. */
-  data_em_lote?: { data: string; n: number } | null
-  regra_cadastro?: { versao: number; lote_fracao: number; lote_minimo: number }
+  regra_cadastro?: { versao: number }
 }
-export interface CadastroInferido { classe: 'recente' | 'parado' | 'antigo' | null; ultima_atualizacao: string | null; dias: number | null; inferido: true; rotulo?: string; registro_atualizado?: string | null; vinculo_atualizado?: string | null; registro_em_lote?: boolean }
+export interface CadastroInferido { classe: 'recente' | 'parado' | 'antigo' | null; ultima_atualizacao: string | null; dias: number | null; inferido: true; rotulo?: string; registro_atualizado?: string | null; vinculo_atualizado?: string | null }
 export interface FacilityResumo {
   id: number; nome: string | null; org_nome?: string; cidade?: string; uf?: string; pais?: string; lat?: number; lon?: number; escopo?: 'brasil' | 'ptt_externo'
   n_redes?: number; redes_declaradas?: number; n_ptts: number; n_carriers: number; campus_id?: number; criado?: string; atualizado?: string; cadastro?: CadastroInferido

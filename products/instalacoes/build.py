@@ -17,7 +17,6 @@ operação da instalação nem da empresa (sem veredito). Nenhum contato entra a
 """
 from __future__ import annotations
 
-import math
 import statistics
 from collections import defaultdict
 from datetime import date, datetime
@@ -31,10 +30,7 @@ from core.jsonio import carregar_json, carregar_json_gz, gravar_json_gz
 LIMITE_RECENTE_DIAS = 365
 LIMITE_PARADO_DIAS = 1095
 ROTULOS_CADASTRO = {"recente": "cadastro com atividade em até 12 meses", "parado": "sem atividade no cadastro há 1 a 3 anos", "antigo": "sem atividade no cadastro há mais de 3 anos"}
-# Data de registro compartilhada por muitas instalações no mesmo dia (atualização em massa no PeeringDB, hipótese) não diz nada de cada organização: não conta para a classe.
-# Lote = data de `atualizado` repetida em pelo menos LOTE_FRACAO das instalações do Brasil e em pelo menos LOTE_MINIMO delas.
-LOTE_FRACAO = 0.10
-LOTE_MINIMO = 5
+# Versão da regra do indicador de cadastro: 2 = rótulos sem "atualizado/parado"; a data de cada registro do PeeringDB conta como vem, sem descartar nenhuma.
 REGRA_CADASTRO_VERSAO = 2
 
 LIMITES = ("Cadastro autodeclarado por organizações no PeeringDB, sem verificação independente: instalação ou vínculo (rede, PTT, carrier) pode faltar, sobrar ou estar desatualizado. "
@@ -58,21 +54,9 @@ def _dt(v: Optional[str]) -> Optional[date]:
         return None
 
 
-def lotes_de_registro(facilities: dict) -> list[dict]:
-    """Datas de `atualizado` compartilhadas por LOTE_FRACAO das instalações do Brasil (e ao menos LOTE_MINIMO): `[{data, n}]`, a mais numerosa primeiro."""
-    br = [f for f in facilities.values() if f.get("pais") == "BR"]
-    cont: dict[str, int] = defaultdict(int)
-    for f in br:
-        d = _dt(f.get("atualizado"))
-        if d:
-            cont[d.isoformat()] += 1
-    piso = max(LOTE_MINIMO, math.ceil(LOTE_FRACAO * len(br)))
-    return sorted(({"data": d, "n": n} for d, n in cont.items() if n >= piso), key=lambda x: (-x["n"], x["data"]))
-
-
-def classe_cadastro(datas: list[Optional[str]], hoje: date, ignorar: frozenset[str] = frozenset()) -> Optional[dict]:
-    """Leitura de 'cadastro vivo ou abandonado' pela data mais recente entre `datas` (ISO), sem as de `ignorar` (datas de lote); None se nenhuma data conta. Inferido."""
-    ds = [d for d in (_dt(x) for x in datas) if d and d.isoformat() not in ignorar]
+def classe_cadastro(datas: list[Optional[str]], hoje: date) -> Optional[dict]:
+    """Leitura de 'cadastro vivo ou abandonado' pela data mais recente entre `datas` (ISO); None se nenhuma data existe. Inferido."""
+    ds = [d for d in (_dt(x) for x in datas) if d]
     if not ds:
         return None
     ultima = max(ds)
@@ -111,7 +95,6 @@ def calcular_instalacoes(doc: dict, ptts: dict[int, dict], hoje: date, nomes: di
     carriers_de: dict[str, list] = defaultdict(list)
     for cid, fid in doc["carrierfac"]:
         carriers_de[str(fid)].append(cid)
-    lote = frozenset(x["data"] for x in lotes_de_registro(facs))
     saida = {}
     for fid, f in facs.items():
         no_brasil = f.get("pais") == "BR"
@@ -121,15 +104,10 @@ def calcular_instalacoes(doc: dict, ptts: dict[int, dict], hoje: date, nomes: di
         if no_brasil:
             d["n_redes"] = len(vinc)
             d["n_redes_br"] = sum(1 for a, *_ in vinc if nomes.get(str(a), {}).get("is_br"))
-        cad = classe_cadastro([f.get("criado"), f.get("atualizado"), *(v[2] for v in vinc)], hoje, lote)
-        reg = (f.get("atualizado") or "")[:10] or None
-        ult_v = max((v[2] for v in vinc if v[2]), default=None)
-        em_lote = bool(reg and reg in lote)
-        datas = {"registro_atualizado": reg, "vinculo_atualizado": (ult_v or "")[:10] or None, "registro_em_lote": em_lote}
+        cad = classe_cadastro([f.get("atualizado"), *(v[2] for v in vinc)], hoje)
         if cad:
-            d["cadastro"] = {**cad, **datas}
-        elif em_lote:       # só a data do lote: sem data própria, e a tela diz isso em vez de inventar uma classe
-            d["cadastro"] = {"classe": None, "ultima_atualizacao": None, "dias": None, "rotulo": "sem data própria no cadastro", "inferido": True, **datas}
+            ult_v = max((v[2] for v in vinc if v[2]), default=None)
+            d["cadastro"] = {**cad, "registro_atualizado": (f.get("atualizado") or "")[:10] or None, "vinculo_atualizado": (ult_v or "")[:10] or None}
         saida[fid] = d
     vinculos = {"por_instalacao": {k: sorted(v) for k, v in por_inst.items()},
                 "por_asn": {k: sorted(v) for k, v in sorted(por_asn.items(), key=lambda kv: int(kv[0]))},
@@ -145,7 +123,7 @@ def calcular_cobertura(instalacoes: dict, vinculos: dict, ptts: dict[int, dict],
     asns_com_fac = {int(a) for a in vinculos["por_asn"]}
     classes = defaultdict(int)
     for f in br:
-        classes[(f.get("cadastro") or {}).get("classe") or "sem_data"] += 1
+        classes[(f.get("cadastro") or {}).get("classe", "sem_data")] += 1
     return {
         "instalacoes_br": len(br), "instalacoes_ptt_externo": len(instalacoes) - len(br),
         "com_coordenadas": sum(1 for f in br if f.get("lat") is not None and f.get("lon") is not None),
@@ -218,13 +196,11 @@ def publicar_instalacoes(base: Path, date_str: str, log) -> dict:
     cobertura = calcular_cobertura(instalacoes, vinculos, ptts, doc, n_br, br_pdb)
     fonte = {"nome": "PeeringDB", "url": "https://www.peeringdb.com", "citacao": doc.get("citacao"), "aup": "https://www.peeringdb.com/aup"}
     cab = {"snapshot_date": date_str, "generated_at": now_iso(), "coletado_em": doc.get("fetched_at"), "fonte": fonte}
-    lotes = lotes_de_registro(doc["facilities"])
     destino = published_path(base, date_str) / "instalacoes"
     destino.mkdir(parents=True, exist_ok=True)
     gravar_json_gz(destino / "instalacoes.json.gz", {**cab, "limites": LIMITES, "cobertura": cobertura, "instalacoes": instalacoes, "carriers": doc["carriers"], "campus": doc["campus"],
                                                     "limiares_cadastro_dias": {"recente": LIMITE_RECENTE_DIAS, "parado": LIMITE_PARADO_DIAS},
-                                                    "regra_cadastro": {"versao": REGRA_CADASTRO_VERSAO, "lote_fracao": LOTE_FRACAO, "lote_minimo": LOTE_MINIMO},
-                                                    "data_em_lote": lotes[0] if lotes else None, "lotes_de_registro": lotes})
+                                                    "regra_cadastro": {"versao": REGRA_CADASTRO_VERSAO}})
     gravar_json_gz(destino / "vinculos.json.gz", {**cab, "limites": LIMITES, **vinculos})
     gravar_json_gz(destino / "atributos_rede.json.gz", {**cab, "limites": LIMITES_ATRIBUTOS, "asns": calcular_atributos(doc, hoje, br_pdb)})
     portas = calcular_portas(ixps_doc, br_pdb or {int(a) for a in doc["redes"]})

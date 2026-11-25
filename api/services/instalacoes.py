@@ -28,8 +28,7 @@ class InstalacoesErro(Exception):
 
 
 def _meta(doc: dict) -> dict:
-    return {"snapshot_date": doc["snapshot_date"], "coletado_em": doc.get("coletado_em"), "fonte": doc.get("fonte"), "limites": doc.get("limites"),
-            "data_em_lote": doc.get("data_em_lote"), "regra_cadastro": doc.get("regra_cadastro")}
+    return {"snapshot_date": doc["snapshot_date"], "coletado_em": doc.get("coletado_em"), "fonte": doc.get("fonte"), "limites": doc.get("limites"), "regra_cadastro": doc.get("regra_cadastro")}
 
 
 def resumo(f: dict) -> dict:
@@ -39,7 +38,7 @@ def resumo(f: dict) -> dict:
            "escopo": f.get("escopo"), "n_redes": f.get("n_redes"), "redes_declaradas": f.get("redes_declaradas"), "n_ptts": len(f.get("ixps") or []), "n_carriers": len(f.get("carriers") or []),
            "campus_id": f.get("campus_id"), "criado": f.get("criado"), "atualizado": f.get("atualizado"),
            "cadastro": {"classe": c.get("classe"), "ultima_atualizacao": c.get("ultima_atualizacao"), "dias": c.get("dias"), "inferido": True,
-                        "registro_atualizado": c.get("registro_atualizado"), "vinculo_atualizado": c.get("vinculo_atualizado"), "registro_em_lote": c.get("registro_em_lote")} if c else None}
+                        "registro_atualizado": c.get("registro_atualizado"), "vinculo_atualizado": c.get("vinculo_atualizado")} if c else None}
     return {k: v for k, v in out.items() if v is not None}
 
 

@@ -493,7 +493,6 @@
    "chaves": [
     "asn",
     "coletado_em",
-    "data_em_lote",
     "fonte",
     "items",
     "limites",
@@ -1185,7 +1184,6 @@
    "chaves": [
     "cobertura",
     "coletado_em",
-    "data_em_lote",
     "escopo",
     "filtros",
     "fonte",
@@ -1210,7 +1208,6 @@
     "cidade",
     "coletado_em",
     "criado",
-    "data_em_lote",
     "escopo",
     "fonte",
     "id",
@@ -1620,7 +1617,6 @@
   "GET /api/v1/ixps/{code}/facilities": {
    "chaves": [
     "coletado_em",
-    "data_em_lote",
     "fonte",
     "items",
     "limites",

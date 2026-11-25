@@ -768,7 +768,6 @@
     "cidade",
     "coletado_em",
     "criado",
-    "data_em_lote",
     "escopo",
     "fonte",
     "id",
@@ -799,7 +798,6 @@
    "chaves": [
     "cobertura",
     "coletado_em",
-    "data_em_lote",
     "escopo",
     "filtros",
     "fonte",

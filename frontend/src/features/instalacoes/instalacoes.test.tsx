@@ -21,7 +21,7 @@ import { InstalacoesAsnBloco } from '../asn/blocks/InstalacoesAsnBloco'
 import { InstalacoesPtt } from '../ptt/blocks/InstalacoesBloco'
 import { FacilitiesPage } from '../../pages/FacilitiesPage'
 import { FacilityPage } from '../../pages/FacilityPage'
-import { AtribuicaoPeeringDb, SeloCadastro, escapar, fmtMbps } from './comum'
+import { SeloCadastro, escapar, fmtMbps } from './comum'
 import { paraGeoJson } from './MapaInstalacoes'
 import type { FacilitiesAsn, FacilitiesLista, FacilitiesPtt, FacilityDetalhe, PeeringAsn, PortasIxp } from '../../types/api'
 
@@ -48,22 +48,11 @@ describe('comum', () => {
     expect(document.body.textContent).not.toMatch(/abandonad|inativ|fechad|falid/i)
   })
 
-  it('INST-E3: o selo mostra as duas datas (registro e último vínculo) e diz qual decidiu; lote sem outra data vira "sem data própria"', () => {
-    const { unmount } = render(<SeloCadastro c={{ classe: 'recente', ultima_atualizacao: '2026-11-06', dias: 0, inferido: true, registro_atualizado: '2025-09-26', vinculo_atualizado: '2026-11-06', registro_em_lote: true }} />)
-    expect(screen.getByTestId('selo-cadastro').textContent).toBe('cadastro com atividade em até 12 meses por vínculo de rede · registro: 2025-09-26 (data de lote) · último vínculo de rede: 2026-11-06')
-    unmount()
-    const u2 = render(<SeloCadastro c={{ classe: 'antigo', ultima_atualizacao: '2016-03-14', dias: 3500, inferido: true, registro_atualizado: '2025-09-26', vinculo_atualizado: null, registro_em_lote: true }} />)
-    expect(screen.getByTestId('selo-cadastro').textContent).toContain('pela criação do registro')
-    expect(screen.getByTestId('selo-cadastro').textContent).toContain('último vínculo de rede: —')
-    u2.unmount()
-    render(<SeloCadastro c={{ classe: null, ultima_atualizacao: null, dias: null, inferido: true, registro_atualizado: '2025-09-26', vinculo_atualizado: null, registro_em_lote: true }} />)
-    expect(screen.getByTestId('selo-cadastro').textContent).toContain('sem data própria no cadastro')
-    expect(document.body.textContent).not.toMatch(/parado|abandonad/i)
-  })
-
-  it('INS-E1: a nota do lote diz a data, quantas instalações a compartilham e que é inferido', () => {
-    render(<AtribuicaoPeeringDb meta={{ ...meta, data_em_lote: { data: '2025-09-26', n: 280 } }} />)
-    expect(screen.getByTestId('nota-lote-cadastro').textContent).toBe('A data de registro 2025-09-26 é compartilhada por 280 instalações e não indica ação da organização (inferido): ela não conta para o selo de cadastro.')
+  it('INST-E3 e P9: o selo mostra as duas datas do PeeringDB como vêm, inclusive 2025-09-26, sem explicar nem inferir a razão da data', () => {
+    render(<SeloCadastro c={{ classe: 'parado', ultima_atualizacao: '2025-09-26', dias: 405, inferido: true, registro_atualizado: '2025-09-26', vinculo_atualizado: null }} />)
+    const t = screen.getByTestId('selo-cadastro').textContent!
+    expect(t).toBe('sem atividade no cadastro há 1 a 3 anos · registro: 2025-09-26 · último vínculo de rede: —')
+    expect(document.body.textContent).not.toMatch(/lote|compartilhad|sem data própria/i)
   })
 
   it('só vira ponto no mapa a instalação com coordenada, e a classe do cadastro vai para a cor', () => {
