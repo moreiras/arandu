@@ -211,9 +211,33 @@ def bloco_sobreposicao_operadora(doc: Optional[dict], cnpj: str) -> Optional[dic
     return {**_meta_mg(doc), "concorrentes": doc["sobreposicao"][cnpj]}
 
 
-def resumo_mercado_grupos(doc: dict) -> dict:
-    """O que o Panorama de mercado mostra: faixas, quantos municípios mudam de faixa e o HHI por UF (sem a lista de municípios)."""
-    return {**_meta_mg(doc), "resumo": doc["resumo"], "ufs": doc["ufs"]}
+FAIXAS = ("competitivo", "moderado", "concentrado")
+
+
+def _por_faixa(muns: list[dict], chave: str) -> dict:
+    """Quantos municípios caem em cada faixa de HHI (`sem_dado` quando o município não tem HHI); as faixas somam o total, nenhum município sai."""
+    out = {f: 0 for f in FAIXAS}
+    out["sem_dado"] = 0
+    for m in muns:
+        out[m.get(chave) or "sem_dado"] += 1
+    return out
+
+
+def resumo_mercado_grupos(doc: dict, hhi_nacional_cnpj: Optional[dict] = None) -> dict:
+    """O que o Panorama de mercado mostra: faixas, quantos municípios mudam de faixa e o HHI por UF (sem a lista de municípios).
+
+    PT-23: acrescenta, no país e em cada UF, quantos municípios ficam em cada faixa de HHI local (por CNPJ e por grupo inferido), calculado sobre `municipios` do documento,
+    e o HHI nacional por CNPJ (`brasil`, do produto de indicadores) como contraste: o HHI da UF soma operadoras de todos os municípios e não substitui o do município."""
+    muns = list(doc["municipios"].values())
+    ufs = {}
+    for uf, v in doc["ufs"].items():
+        mu = [m for m in muns if m["uf"] == uf]
+        ufs[uf] = {**v, "municipios": len(mu), "municipios_por_faixa_cnpj": _por_faixa(mu, "faixa_cnpj"), "municipios_por_faixa_grupo": _por_faixa(mu, "faixa_grupo")}
+    out = {**_meta_mg(doc), "resumo": {**doc["resumo"], "por_faixa_cnpj": _por_faixa(muns, "faixa_cnpj"), "por_faixa_grupo": _por_faixa(muns, "faixa_grupo")}, "ufs": ufs}
+    if hhi_nacional_cnpj:
+        out["brasil"] = {"hhi_cnpj": hhi_nacional_cnpj.get("hhi"), "acessos": hhi_nacional_cnpj.get("acessos"), "n_cnpjs": hhi_nacional_cnpj.get("n_operadoras"),
+                         "nota": "HHI do mercado fixo do país inteiro por CNPJ (cálculo do projeto, método diferente do local); o município é onde o cliente escolhe a operadora."}
+    return out
 
 
 def bloco_serie_municipio(doc: Optional[dict], ibge: str) -> Optional[dict]:
