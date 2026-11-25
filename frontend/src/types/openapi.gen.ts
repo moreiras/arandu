@@ -1913,7 +1913,8 @@ export interface paths {
         };
         /**
          * Grupos societários (cruzamento de quadro societário via Receita Federal)
-         * @description Uma linha por grupo societário (`grupo_id`): CNPJs membros, classificação
+         * @description Uma linha por grupo societário (`grupo_id`, estável: `grp_` + o menor CNPJ básico do conjunto): `nome` do grupo com a regra que o escolheu
+         *     (`nome_regra`: marca curada, senão o CNPJ com mais acessos fixos declarados ao SICI), CNPJs membros, classificação
          *     (`total` — toda relação interna é quadro idêntico/controle exclusivo;
          *     `parcial` — toda relação é sócio em comum/controle não exclusivo; `misto` —
          *     tem as duas; `individual` — empresa sem relação societária com nenhuma outra
@@ -1977,7 +1978,8 @@ export interface paths {
          *
          *     **Só estrutura entre empresas (PJ):** a resposta não traz sócio pessoa física, nome de sócio nem CPF. Cada soma vem com a contagem de empresas que têm o dado: ausência não é zero
          *     (o crédito cobre só operações diretas do BNDES; as sanções, a data do arquivo da CGU; os contratos, o rodízio de leitura do PNCP). `grupo_id` é o de `GET /grupos`
-         *     (`ind_<cnpj básico>` para empresa individual).
+         *     (`ind_<cnpj básico>` para empresa individual). Só sócio com participação societária liga empresas (administrador, diretor e presidente sem participação não ligam).
+         *     Um `grupo_id` antigo (o id de snapshots anteriores era a raiz da union-find) devolve o grupo atual que contém aquele CNPJ básico, com `redirecionado_de` e o `grupo_id` estável.
          */
         get: operations["get_grupo_api_v1_grupos__grupo_id__get"];
         put?: never;

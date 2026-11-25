@@ -67,7 +67,7 @@ async function carregar(tipo: Tipo, id: string, date?: string): Promise<Relatori
     return { titulo: `${p.nome}/${p.uf}`, subtitulo: `IBGE ${p.ibge}`, frases: sinteseMunicipio(p.nome, ctx), quadro: compararMunicipios([p]), fontes: ['anatel_sici', 'ibge_censo_pnad', 'curada_pix'], snapshot: p.snapshot_date, caminho: `/municipio/${p.ibge}` }
   }
   const g = await fetchGrupo(id, date)
-  const nome = g.cnpjs[0]?.empresa || g.grupo_id
+  const nome = g.nome || g.cnpjs[0]?.empresa || g.grupo_id
   return { titulo: g.tamanho > 1 ? `Grupo de ${nome}` : nome, subtitulo: `${g.empresas} empresa${g.empresas === 1 ? '' : 's'}`, frases: [], quadro: quadroGrupo(g), fontes: ['anatel_sici', 'receita_cnpj', 'registro_br'], snapshot: g.snapshot_date, caminho: `/grupo/${g.grupo_id}` }
 }
 

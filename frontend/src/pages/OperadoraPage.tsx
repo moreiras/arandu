@@ -36,10 +36,9 @@ export function OperadoraPage() {
   const financiamento = useFinanciamentoOperadora(cnpj)
   const contratos = useContratosOperadora(cnpj)
   const { data, dataMovel, dataStfc, dataSeac } = q.dados ?? {}
-  // o grupo vem do cruzamento societário (mesma chave do bloco "Empresas relacionadas": a resposta é reaproveitada ao abrir a aba Empresa)
-  const temGrupo = !!(data?.grupo_cnpjs?.length || dataMovel?.grupo_cnpjs?.length)
+  // OPERADORA-E10: o grupo societário vem de `/grupos/empresa/{cnpj}`, chamado sempre (a resposta é reaproveitada ao abrir a aba Empresa); o do SICI vem do perfil
   const dataAtiva = useActiveDate()
-  const relacionadas = useQuery({ queryKey: ['empresas-relacionadas', cnpj, dataAtiva], queryFn: () => fetchEmpresasRelacionadas(cnpj!, dataAtiva ?? undefined), enabled: temGrupo && !!cnpj && !!dataAtiva, staleTime: Infinity, retry: false })
+  const relacionadas = useQuery({ queryKey: ['empresas-relacionadas', cnpj, dataAtiva], queryFn: () => fetchEmpresasRelacionadas(cnpj!, dataAtiva ?? undefined), enabled: !!cnpj && !!dataAtiva, staleTime: Infinity, retry: false })
 
   if (q.isLoading) return <div className="text-sm text-gray-400">Carregando…</div>
   // "Não há informação" só para 404/204: erro de acesso, de taxa ou de rede não diz nada sobre o CNPJ.
@@ -88,7 +87,7 @@ export function OperadoraPage() {
       <CabecalhoOperadora
         nome={nome} grupo={grupo} porte={porte} hasScm={hasScm} hasSmp={hasSmp} hasStfc={hasStfc} hasSeac={hasSeac} credenciadaSmp={credenciamentoSmp(servicos)}
         razaoSocial={outorga?.razao_social} cnpjFinal={cnpjFinal} municipio={outorga?.municipio} uf={outorga?.uf}
-        grupoCnpjs={grupoCnpjs} grupoId={relacionadas.data?.grupo_id ?? undefined} contactsAvailable={contactsAvailable} fetchContacts={fetchContacts} asns={asns} vinculados={vinculados} snapshot={snapshot}
+        grupoCnpjs={grupoCnpjs} grupoSocietario={relacionadas.data?.grupo_societario} grupoSocietarioCarregando={relacionadas.isLoading} contactsAvailable={contactsAvailable} fetchContacts={fetchContacts} asns={asns} vinculados={vinculados} snapshot={snapshot}
       />
       {!versaoAntiga && <FichaOperadora nome={nome} ctx={ctx} />}
       {/* cadastro, crédito/sanções e contratos somem quando não há registro (404); com erro de acesso ou rede, a página avisa */}
