@@ -54,13 +54,14 @@ beforeEach(() => {
 })
 
 describe('home nova', () => {
-  it('tem busca grande, três portas por público, números, cartograma, destaques e o que mudou', async () => {
+  it('tem busca grande, síntese, cinco portas por lente, números, cartograma, destaques e o que mudou', async () => {
     montar()
     expect(screen.getByRole('heading', { level: 1, name: SITE.nomeExtenso })).toBeInTheDocument()
     expect(screen.getAllByRole('combobox', { name: 'Buscar no site' }).length).toBeGreaterThan(0)
     expect(screen.getByText('Por exemplo:')).toBeInTheDocument()
-    expect(PORTAS).toHaveLength(3)
+    expect(PORTAS).toHaveLength(5)
     for (const p of PORTAS) expect(screen.getByTestId(`porta-${p.id}`)).toBeInTheDocument()
+    expect(await screen.findByTestId('sintese-topo')).toBeInTheDocument()
     // 8 de rede e mercado + 4 de IPv6 e segurança
     expect(await screen.findAllByTestId('kpi')).toHaveLength(12)
     expect(await screen.findByText('41,2%')).toBeInTheDocument()

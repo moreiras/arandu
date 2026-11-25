@@ -10,6 +10,7 @@ import { BrasilEmNumeros } from '../features/home/BrasilEmNumeros'
 import { Destaques } from '../features/home/Destaques'
 import { OQueMudou } from '../features/home/OQueMudou'
 import { PortasPorPublico } from '../features/home/PortasPorPublico'
+import { SinteseHome } from '../features/home/SinteseHome'
 import { CartogramaUfs, METRICAS_NORMALIZADAS } from '../features/estados/CartogramaUfs'
 import { ProvenienciaCompacta } from '../components/ui'
 import { useFontes, useUfs } from '../hooks/entidades'
@@ -17,7 +18,7 @@ import { useFontes, useUfs } from '../hooks/entidades'
 const EXEMPLOS = ['Vivo', 'São Paulo', 'AS28573', 'RPKI', '2804::/32']
 
 /**
- * Home: o que é, para quem é e por onde começar, em um olhar. Busca grande, três portas por público (experimento),
+ * Home: o que é, para quem é e por onde começar, em um olhar. Busca grande, síntese em texto (PT-22), cinco portas por lente de leitura (PT-27, experimento),
  * "o Brasil em números", cartograma por UF com indicador normalizado, destaques do snapshot e o que mudou. A rota `/inicio-classico` redireciona para cá.
  */
 export function HomePage() {
@@ -33,6 +34,7 @@ export function HomePage() {
         <div className="mt-4 max-w-2xl"><SearchBar grande exemplos={EXEMPLOS} /></div>
       </section>
 
+      <SinteseHome />
       <PortasPorPublico />
       <BrasilEmNumeros />
 
