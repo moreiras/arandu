@@ -13,6 +13,8 @@ import { EstadoDados } from '../components/ui/EstadoDados'
 import { fraseEvento, inicioDosSnapshots, ROTULO_ESTADO, TIPOS_DA_PAGINA } from '../features/historico/rotulos'
 import { UFS, nomeUf } from '../lib/ufs'
 import { NotaRevisao } from '../components/ui/NotaRevisao'
+import { ComoLer } from '../components/ui/ComoLer'
+import { VerDados } from '../components/ui/VerDados'
 import { notasParaTipos } from '../lib/notasRevisao'
 
 const POR_PAGINA = 100
@@ -98,6 +100,20 @@ export function MudancasPage() {
         <p className="text-xs text-gray-500">
           {resumo.data.snapshots_com_historico} snapshots com histórico · {Object.keys(resumo.data.por_data).length} datas com mudanças · {total.toLocaleString('pt-BR')} resultados com este filtro.
         </p>
+      )}
+      {resumo.data && Object.keys(resumo.data.por_data).length > 0 && (
+        <section className="space-y-1" aria-label="Eventos por data" data-testid="mudancas-por-data">
+          {Object.entries(resumo.data.datas_atipicas ?? {}).map(([d, a]) => (
+            <p key={d} className="text-xs text-aviso-700" data-testid="data-atipica">
+              Data atípica marcada, {d}: os eventos de {a.tipos.map((t) => t.replace(/_/g, ' ')).join(', ')} dessa data têm uma ressalva ({a.motivo}). A contagem foi mantida e não deve ser comparada com a das outras datas.
+            </p>
+          ))}
+          <VerDados titulo="Ver eventos por data (tabela)" rotulos={{ data: 'Data', eventos: 'Eventos (todos os estados)', marca: 'Marca' }} campos={['data', 'eventos', 'marca']}
+            dados={Object.entries(resumo.data.por_data).sort(([a], [b]) => (a < b ? 1 : -1)).map(([d, n]) => ({ data: d, eventos: n, marca: resumo.data?.datas_atipicas?.[d] ? 'data atípica' : '' }))} />
+          <ComoLer>
+            <p>A contagem por data soma todos os estados e os tipos de evento do filtro da API (sem eventos de provedor). Datas atípicas ficam na série, marcadas, e não são comparadas com as demais: a regra de comparabilidade é a mesma das séries do site, e o texto completo dela está em Comparar datas e nas séries.</p>
+          </ComoLer>
+        </section>
       )}
       {resumo.isError && !lista.isError && <EstadoDados erro={resumo.error} oQue="o resumo das mudanças" mensagem="O resumo das mudanças não está publicado." />}
       {lista.isLoading && <p className="text-sm text-gray-400" role="status">Carregando…</p>}

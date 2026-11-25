@@ -1279,6 +1279,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/cdns/mudancas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mudanças na matriz de CDNs entre dois snapshots, com regra de comparabilidade
+         * @description Diferença observada no cadastro de membros dos PTTs do IX.br entre dois snapshots (`a` anterior a `b`): CDNs que passaram a constar (`entradas`) ou deixaram de constar (`saidas`) como
+         *     membro de um PTT. Não diz que a CDN ligou ou desligou serviço, nem a causa. `catalogo` traz à parte as mudanças de curadoria da lista de CDNs (CDN incluída ou retirada, ASN incluído ou retirado)
+         *     e `nao_comparaveis` os pares CDN e PTT que não entram na conta (conjunto de ASNs da CDN diferente nas duas datas ou PTT sem lista de membros numa delas), com o motivo. Ordem neutra: por CDN e PTT.
+         */
+        get: operations["cdns_mudancas_api_v1_cdns_mudancas_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/cdns/presence": {
         parameters: {
             query?: never;
@@ -2120,6 +2142,30 @@ export interface paths {
          *     Coluna ausente na linha = sem dado naquele snapshot (por exemplo `n_provedores` antes do bloco de relações), nunca zero inventado.
          */
         get: operations["historico_asn_api_v1_history_asns__asn__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/history/brasil/series": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Séries nacionais por snapshot com regra de comparabilidade (roteamento e segurança)
+         * @description Séries do país, uma por métrica, reaproveitando o que cada snapshot publicou: `familia=roteamento` (estado RPKI de origem das rotas brasileiras, IPv6 antes de IPv4)
+         *     ou `familia=seguranca` (classe pronto do índice de prontidão, índice médio ponderado por usuários, ROV e DNSSEC). Cada ponto traz `comparavel_com_anterior` e os
+         *     `motivos` do corte (medida ausente, base ou método diferentes, cobertura que variou 25% ou mais, data atípica); a `variacao` é a do último trecho comparável e não é
+         *     calculada quando não há dois pontos comparáveis. `desenhar_linha` só é verdadeiro com 4 pontos comparáveis seguidos. `regra` traz o texto do "Como ler". `from` recorta as datas;
+         *     sem `from` num snapshot atual, a série inteira exige login.
+         */
+        get: operations["series_nacionais_api_v1_history_brasil_series_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -7790,6 +7836,42 @@ export interface operations {
             };
         };
     };
+    cdns_mudancas_api_v1_cdns_mudancas_get: {
+        parameters: {
+            query: {
+                /** @description Data A, a mais antiga (AAAA-MM-DD). */
+                a: string;
+                /** @description Data B (AAAA-MM-DD). */
+                b: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_cdn_presence_api_v1_cdns_presence_get: {
         parameters: {
             query?: {
@@ -9107,6 +9189,44 @@ export interface operations {
             path: {
                 asn: number;
             };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    series_nacionais_api_v1_history_brasil_series_get: {
+        parameters: {
+            query?: {
+                /** @description roteamento | seguranca. */
+                familia?: string;
+                /** @description Data inicial (AAAA-MM-DD). */
+                from?: string | null;
+                /** @description Data final (AAAA-MM-DD). */
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;

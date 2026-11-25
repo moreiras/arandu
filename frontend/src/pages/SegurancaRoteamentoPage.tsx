@@ -19,6 +19,7 @@ import { useOrdenacao } from '../lib/ordenacao'
 import { AvisosRecorte, textoPeso } from '../components/ui/AvisoRecorte'
 
 import { EstadoRpkiRotas, RpkiPublicacao } from '../features/panorama/AbaSeguranca'
+import { SeriesDaFamilia } from '../features/series/SeriesDaFamilia'
 const num = (v: number | null | undefined, c = 1) => (v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c }))
 const inteiro = (v?: number | null) => (v == null ? '—' : Math.round(v).toLocaleString('pt-BR'))
 const PORTES: Record<string, string> = { sem_usuarios: 'Sem usuários estimados', ate_1000: 'Até 1.000 usuários', de_1000_a_10000: '1.000 a 10.000 usuários', de_10000_a_100000: '10.000 a 100.000 usuários', de_100000_a_1000000: '100.000 a 1 milhão', acima_de_1000000: 'Mais de 1 milhão de usuários' }
@@ -197,6 +198,8 @@ export function SegurancaRoteamentoPage() {
         <ComoLer><p>A classe vem do índice, que soma os pilares <strong>medidos</strong> do ASN com os pesos das regras: pilar sem dado fica fora e os pesos dos demais são renormalizados. Por isso um ASN pode estar em "pronto" sem ter ROV medido (as duas linhas acima separam os casos) e a quantidade em cada classe depende de quantos ASNs têm ROV medido, que muda de um snapshot para outro: o ROV de um ASN só entra com pelo menos 100 amostras do APNIC na janela de 7 dias, e o volume de amostras da fonte muda de semana em semana. Compare classes entre snapshots só com a mesma cobertura do pilar Filtragem ({inteiro(br.cobertura_pilares.filtragem)} ASNs neste).</p></ComoLer>
         <p className="text-xs text-gray-500">ASNs com dado em cada pilar: {PILARES.map((id) => `${r.regras.pilares[id].nome} ${inteiro(br.cobertura_pilares[id])}`).join(' · ')}. O anti-spoofing só existe para os ASNs com testes do CAIDA Spoofer.</p>
       </section>
+      {/* Série por snapshot com a regra de comparabilidade (PT-28): o corte aparece onde a cobertura ou as regras mudam. */}
+      <SeriesDaFamilia familia="seguranca" titulo="Evolução por snapshot" />
       {/* A publicação no RPKI e o estado das rotas no total do país (os mesmos números do Panorama técnico). */}
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-4" aria-label="RPKI no Brasil">
         <h2 className="text-titulo-3 text-gray-800">RPKI no Brasil</h2>

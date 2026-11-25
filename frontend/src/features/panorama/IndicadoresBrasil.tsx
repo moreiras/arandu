@@ -36,6 +36,7 @@ export function ComoLerNumerosPais() {
     <ComoLer titulo="Como ler: IPv6, médias ponderadas e medianas">
       <p>Três medidas de IPv6 contam coisas diferentes: &ldquo;ASNs brasileiros que anunciam IPv6&rdquo; conta redes com prefixo IPv6 na tabela global; &ldquo;Usuários com IPv6&rdquo; conta usuários estimados pelo APNIC Labs; e ter bloco IPv6 alocado, anunciado ou visto num PTT é outra medida, que não indica anúncio nem uso.</p>
       <p>ROV e DNSSEC aparecem como média ponderada pelas amostras do APNIC Labs, que dá mais peso às redes com mais medições. A mediana trata cada rede igual e as faixas mostram quantas redes ficam em cada parte da escala; por isso a mediana pode ficar longe da média. A prontidão em segurança de roteamento usa outra ponderação, pelos usuários estimados de cada rede.</p>
+      <p>A variação do IPv6 em pontos percentuais vem da série semanal do histórico, que usa outra base de ASNs e de usuários que este indicador; por isso é a variação do percentual na própria série, nunca a diferença entre dois totais de bases distintas. Onde os pontos não são comparáveis a variação não aparece. As séries de segurança e de roteamento, com a regra completa, estão em Estado da segurança de roteamento e na Tabela BGP.</p>
     </ComoLer>
   )
 }

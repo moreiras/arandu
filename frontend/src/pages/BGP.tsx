@@ -21,6 +21,7 @@ import { AccessPanel } from '../components/AccessPanel'
 import { useSearchParams } from 'react-router-dom'
 import { ComoLer } from '../components/ui/ComoLer'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
+import { SeriesDaFamilia } from '../features/series/SeriesDaFamilia'
 
 function Section({ title, desc, children }: {
   title: string
@@ -181,6 +182,9 @@ export function BGP() {
           <PrefixLengthHistogram data={data.prefix_length_dist.v4} afi="v4" />
         </div>
       </Section>
+
+      {/* Série semanal do estado RPKI das rotas brasileiras, com a regra de comparabilidade (PT-28) */}
+      <SeriesDaFamilia familia="roteamento" titulo="Estado RPKI das rotas brasileiras, por snapshot" />
 
       </>}
       {aba === 'prefixos' && <>
