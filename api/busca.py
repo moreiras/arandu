@@ -115,13 +115,17 @@ def _municipios() -> dict[str, tuple[str, str, float]]:
 
 def montar(store: Any, date_str: str) -> list[dict[str, Any]]:
     """Todos os itens pesquisáveis do snapshot. Custa algumas centenas de ms; chamado uma vez por data."""
+    from core import pessoa_natural
+
     itens: list[dict[str, Any]] = []
     marcas = _marcas_por_raiz()
+    # EI/MEI (D1, PT-11): o nome civil não entra no índice, nem para ser achado por ele; entra o nome fantasia ou o rótulo
+    idx = store.pessoa_natural_indice(date_str) if hasattr(store, "pessoa_natural_indice") else None
 
     # Operadoras e nomes alternativos dos ASNs que elas operam.
     nomes_do_asn: dict[int, list[str]] = {}
     grupos_sici: dict[str, int] = {}
-    for o in store.operadora_index(date_str) or []:
+    for o in pessoa_natural.aplicar(store.operadora_index(date_str) or [], idx):
         cnpj = str(o.get("cnpj") or "")
         if not cnpj:
             continue
@@ -146,7 +150,7 @@ def montar(store: Any, date_str: str) -> list[dict[str, Any]]:
     except Exception:  # snapshot sem a coleção: a busca segue com os nomes do índice
         pass
 
-    for a in store.asn_index(date_str) or []:
+    for a in pessoa_natural.aplicar(store.asn_index(date_str) or [], idx):
         n = a.get("asn")
         if n is None:
             continue
@@ -155,7 +159,7 @@ def montar(store: Any, date_str: str) -> list[dict[str, Any]]:
 
     # Grupos econômicos: rótulo do SICI (ex.: TELECOM AMERICAS) e grupos societários pelos nomes das empresas (só PJ).
     try:
-        grupos = store.grupos_societarios_overview(date_str) or []
+        grupos = pessoa_natural.aplicar(store.grupos_societarios_overview(date_str) or [], idx)
     except Exception:  # índice ausente em snapshot antigo: a busca segue sem grupos
         grupos = []
     for g in grupos:

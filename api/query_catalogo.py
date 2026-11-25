@@ -1495,7 +1495,7 @@ RECIPES: list[dict] = [
     {
         "pergunta": "ASes com sede a ≤20 km de Vitória",
         "ferramenta": "query",
-        "nota": "`near` resolve o lugar e aplica o raio; não chame within_radius à mão. Contatos não saem pelo `query`: só por `asn_contatos`, com chave e cota.",
+        "nota": "`near` resolve o lugar e aplica o raio; não chame within_radius à mão. Nas coleções com posição de sede (asns, scms, smps, stfcs, seacs, operadoras, operadoras_movel) o raio mínimo é de 2 km (privacidade do endereço). Contatos não saem pelo `query`: só por `asn_contatos`, com chave e cota.",
         "args": {
             "collection": "asns",
             "near": {"place": "Vitória", "radius_km": 20},

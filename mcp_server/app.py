@@ -157,10 +157,24 @@ if _guarda is not None:
     _com_guarda(mcp, _guarda)
 
 
+def _sem_pessoa_natural(valor):
+    """Resultado de tool e resource sem o nome civil de EI/MEI nem o ponto exato da sede (D1, PT-11): última barreira do MCP, igual à da REST."""
+    from core import pessoa_natural
+
+    try:
+        idx = _store.pessoa_natural_indice()
+    except AttributeError:                                      # Store falsa dos testes
+        return valor
+    return pessoa_natural.na_saida(valor, idx)
+
+
 def _com_identidade(servidor) -> int:
     """Resultado de cada tool, resource e template com o nome do site: os artefatos do pipeline dizem "o Arandurapé coletou" (limitações,
     metodologia, fonte) e o cliente repetia o nome do software nas respostas e nas citações. As descrições já passam por `_aplicar_identidade`."""
     from core.site import com_identidade_nos_dados
+
+    def na_saida(valor):
+        return com_identidade_nos_dados(_sem_pessoa_natural(valor))
 
     def envolver(fn):
         if getattr(fn, "_identidade", False):
@@ -168,11 +182,11 @@ def _com_identidade(servidor) -> int:
         if inspect.iscoroutinefunction(fn):
             @functools.wraps(fn)
             async def envoltorio(*a, __fn=fn, **kw):
-                return com_identidade_nos_dados(await __fn(*a, **kw))
+                return na_saida(await __fn(*a, **kw))
         else:
             @functools.wraps(fn)
             def envoltorio(*a, __fn=fn, **kw):
-                return com_identidade_nos_dados(__fn(*a, **kw))
+                return na_saida(__fn(*a, **kw))
         for attr in ("_previa", "_usage_logged", "_guarda"):
             if getattr(fn, attr, False):
                 setattr(envoltorio, attr, True)
