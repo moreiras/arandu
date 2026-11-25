@@ -406,6 +406,7 @@ Todos os campos declarados no catálogo, por fonte e por produto. `⚠️` marca
 | `br-routes[].a` | list[int] | AS-PATH (mais representativo entre os coletores) da rota brasileira. | — | — |
 | `br-routes[].c` | list[str] | Communities BGP associadas (standard e large). | — | routing_analysis → routing_analysis.json |
 | `routes-{afi}.stats` | dict | Totais da tabela (rotas, prefixos únicos, ASNs diretos, de origem e stub). | — | snapshot → summary.json#global_table |
+| `origins-multi-{afi}.prefixos[prefixo][asn]` | list[str] | Prefixos com duas ou mais origens (último AS do AS-PATH) entre todas as rotas de todos os coletores (MOAS); para cada origem, os coletores em que algum ponto de observação a viu. Só entram os prefixos com 2+ origens. | Fato observado, sem causa. A origem de um AS_SET final é o último ASN do conjunto (não ordenado). `coletores` lista os coletores que entraram na família; arquivo presente com `prefixos` vazio é nenhum MOAS observado entre eles. Licença e termos os da fonte (RouteViews CC BY 4.0; RIPE RIS não verificado). | routing_analysis → routing_analysis.json#moas; routing_analysis → routing_analysis.json#moas_resumo |
 | `fulltable_manifest.{v6,v4}.sources` | list[str] | URLs dos dumps efetivamente usados em cada AFI. | Mostra quais coletores entraram; checado por publish.coleta_checks. | — |
 
 ### [global_prefix_geo](fontes/global_prefix_geo.md) — Geolocalização dos prefixos vistos nos IXPs (DB-IP City Lite)

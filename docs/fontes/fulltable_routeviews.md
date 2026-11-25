@@ -4,7 +4,7 @@
 
 `fulltable_routeviews` · tipo **bruta** · ativa
 
-Baixa RIBs MRT TABLE_DUMP_V2 (RFC 6396) de vários coletores RouteViews e RIPE RIS, processa em streaming e grava prefixos únicos, origem por prefixo e grafo de adjacências de AS-PATH, com o recorte das rotas brasileiras. Não guarda os dumps (raw vazio).
+Baixa RIBs MRT TABLE_DUMP_V2 (RFC 6396) de vários coletores RouteViews e RIPE RIS, processa em streaming e grava prefixos únicos, origem por prefixo e grafo de adjacências de AS-PATH, com o recorte das rotas brasileiras, e os prefixos com mais de uma origem observada (MOAS) com as origens por coletor. Não guarda os dumps (raw vazio).
 
 ## Resumo
 
@@ -31,7 +31,7 @@ Baixa RIBs MRT TABLE_DUMP_V2 (RFC 6396) de vários coletores RouteViews e RIPE R
 
 ## Saídas
 
-- **Normalizado (normalized/):** `summary/routes-{afi}.json.gz`, `summary/origin-prefixes-{afi}.json.gz`, `summary/prefix-set-{afi}.json.gz`, `summary/aspath-adj-{afi}.json.gz`, `summary/aspaths-{afi}/{coletor}.tsv.gz`, `summary/br-routes-{afi}.json.gz`, `summary/fulltable_manifest.json`
+- **Normalizado (normalized/):** `summary/routes-{afi}.json.gz`, `summary/origin-prefixes-{afi}.json.gz`, `summary/prefix-set-{afi}.json.gz`, `summary/aspath-adj-{afi}.json.gz`, `summary/aspaths-{afi}/{coletor}.tsv.gz`, `summary/br-routes-{afi}.json.gz`, `summary/origins-multi-{afi}.json.gz`, `summary/fulltable_manifest.json`
 
 ## Dicionário de campos
 
@@ -45,11 +45,12 @@ Baixa RIBs MRT TABLE_DUMP_V2 (RFC 6396) de vários coletores RouteViews e RIPE R
 | `br-routes[].a` | list[int] | AS-PATH (mais representativo entre os coletores) da rota brasileira. | — | — |
 | `br-routes[].c` | list[str] | Communities BGP associadas (standard e large). | — | routing_analysis → routing_analysis.json |
 | `routes-{afi}.stats` | dict | Totais da tabela (rotas, prefixos únicos, ASNs diretos, de origem e stub). | — | snapshot → summary.json#global_table |
+| `origins-multi-{afi}.prefixos[prefixo][asn]` | list[str] | Prefixos com duas ou mais origens (último AS do AS-PATH) entre todas as rotas de todos os coletores (MOAS); para cada origem, os coletores em que algum ponto de observação a viu. Só entram os prefixos com 2+ origens. | Fato observado, sem causa. A origem de um AS_SET final é o último ASN do conjunto (não ordenado). `coletores` lista os coletores que entraram na família; arquivo presente com `prefixos` vazio é nenhum MOAS observado entre eles. Licença e termos os da fonte (RouteViews CC BY 4.0; RIPE RIS não verificado). | routing_analysis → routing_analysis.json#moas; routing_analysis → routing_analysis.json#moas_resumo |
 | `fulltable_manifest.{v6,v4}.sources` | list[str] | URLs dos dumps efetivamente usados em cada AFI. | Mostra quais coletores entraram; checado por publish.coleta_checks. | — |
 
 ## Limites
 
-Visão agregada de poucos coletores (6 v6/7 v4); não vê tudo da Internet e a escolha de AS-PATH por prefixo é determinística, não 'o' caminho real. Dump de horário diferente por coletor (00h/02h).
+Visão agregada de poucos coletores (7 v6/8 v4, ver COLLECTORS); não vê tudo da Internet e a escolha de AS-PATH por prefixo é determinística, não 'o' caminho real. Dump de horário diferente por coletor (00h/02h), então uma troca de origem entre os horários dos dumps aparece como MOAS.
 
 ## Retenção
 
