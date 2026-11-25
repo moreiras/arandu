@@ -98,6 +98,17 @@ parênteses remetem à análise.
   tipos não mudam. Nas datas recentes saem também eventos de ASNs que deixaram o snapshot (o `asn_sumido` deles continua). Relatório
   por data e tipo gerado por `python -m products.history.regenerar_eventos`; a troca da camada servida é feita na implantação.
   A nota aparece também em /mudancas (quando o filtro inclui eventos de ROA, ASPA ou RPKI) e em /snapshots (PT-06c).
+- **Nota de revisão: grupos societários (D5), 2026-11-25.** Só sócio com participação societária, nas duas empresas, liga empresas num
+  grupo; administrador, diretor e presidente sem participação deixam de ligar (tabela de qualificações conferida no arquivo oficial de
+  Qualificações dos dados abertos de CNPJ da Receita, 2026-11). Medido com dado real (snapshot 2026-11-22, etapa `socios_grupos` rodada
+  em diretório de teste): grupos 1.420 → 1.336; CNPJs básicos em grupo 3.667 → 3.385; 460 pares ligados só por cargo sem participação
+  deixam de ligar; 151 grupos se desfazem ou encolhem. Exemplos: TIM (raiz 02421421) e a raiz 40166794 deixam de formar grupo (eram
+  ligadas só por diretores); BRISANET (04601397) e 44250088 idem. O nome do grupo passa a seguir regra visível (marca curada, senão o
+  CNPJ com mais acessos) e o `grupo_id` passa a ser `grp_` + menor raiz do grupo, com tabela de equivalência e redirecionamento dos links
+  antigos; séries históricas por grupo de snapshots anteriores usam os ids antigos. "Mercado consolidado" passa a selo inferido.
+  Operadora mostra "Grupo no SICI (declarado à Anatel)" e "Grupo societário (inferido do quadro societário da Receita)". S.A. terá
+  tratamento à parte (o quadro da Receita traz a diretoria, não os acionistas) (GRUPOS-E1, GRUPO-E4, GRUPO-E12, GRUPO-E14, MUN-E4,
+  OPERADORA-E10).
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
