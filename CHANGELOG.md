@@ -167,6 +167,14 @@ parênteses remetem à análise.
   passa a usar `acessos_municipio` por UF com `mes_referencia`, em vez de `operadoras` por `uf_sede`; o `llms.txt` descreve os limites
   reais (TRANSV-E13, DADOS-E1, DADOS-E2).
 - **Acessibilidade.** As fatias dos gráficos de rosca do panorama têm nome acessível (PT-29).
+- **Participantes por PTT (PT-24).** Nova tabela única de participantes em cada PTT (`GET /ixps/{code}/participantes`, classe
+  `metered`, prévia de 100 linhas): membro do cadastro, sessão com route server por família, originador, sessões no route server,
+  rotas filtradas sobre recebidas, idade da coleta e CDNs da lista curada; família sem coleta aparece como "sem coleta". A lista de
+  PTTs ganha o grupo "Interligação" (sessões up/down por família e CDNs) e a coluna "dos quais brasileiros". Instalações mostram a
+  situação de cada rede do prédio no PTT local (`/facilities/{id}?include=redes_perfil`) e a cobertura de PTT nomeada; a matriz de
+  CDNs separa membro com sessão, membro sem sessão e presença só via outro AS; `/ases` separa "membro" de "sessão RS"
+  (`ixps_membro_count`). Esquemas do front: `/ixps` 4, `/cdns/presence` 2, `/facilities` 3 (IXP 5.5, IXPS 5.1 e 5.4, CDNS 5.1,
+  INSTALACAO 5.1, INSTALACOES 5.1, ASES 5.1).
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
