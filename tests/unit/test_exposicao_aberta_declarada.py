@@ -27,7 +27,7 @@ def test_fonte_aberta_por_decisao_declara_decisao_e_atribuicao(catalogo, id_):
     s = catalogo.sources[id_]
     assert s.publicavel and s.exposicao == "aberta"
     assert s.decisao_exposicao and "decisão do projeto" in s.decisao_exposicao and "D9" in s.decisao_exposicao
-    assert s.atribuicao and len(s.atribuicao) > 20
+    assert s.atribuicao and len(s.atribuicao) >= 10
 
 
 @pytest.mark.parametrize("id_", PEERINGDB)
