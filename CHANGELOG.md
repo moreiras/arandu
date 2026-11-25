@@ -212,6 +212,14 @@ parênteses remetem à análise.
   IX.br não divulga em que PIX cada participante se conecta; o cruzamento é rede→prédio e prédio→PTT, ambos do PeeringDB).
 - **Replay de paridade.** `scripts/replay.py` recompõe o fragmento `relacoes` dos documentos de ASN (cópia do build ou, se limpo, a
   partir do publicado); replay de 2026-11-22: 0 diferenças novas.
+- **Decisões de fechamento do mantenedor (2026-11-25).** A série nacional (`/history/brasil/series`) abre sem login, com a série
+  inteira, por conter só totais do Brasil; séries por ASN, PTT, UF e operadora seguem a regra de histórico. O corpo do 429 só sugere a
+  chave de MCP quando ela está ligada. `/uso-aceitavel` lê de `/api/v1/limites` o orçamento e o custo por chamada e traz o e-mail de
+  contato. Os overlays de produção e sem nginx repassam `MCP_KEY_ATIVA` e `MCP_COTA_DIARIA` à API.
+- **Segurança: X-Forwarded-For.** O nginx do frontend só aceita o X-Forwarded-For dos IPs da borda declarados em `NGINX_REAL_IP_FROM`
+  (lista de IPv6 e IPv4 separados por espaço ou vírgula; vazio = ninguém); as faixas privadas do Docker deixam de ser confiadas.
+  **Quem implanta atrás de borda precisa declarar o IP dela**, senão todos os clientes aparecem com o IP da borda e dividem o
+  orçamento; valor mal formado impede a subida do frontend. A imagem do frontend precisa ser reconstruída (BuildKit).
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
