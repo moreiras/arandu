@@ -1282,6 +1282,36 @@
  ],
  "receita_dump_reference": "2026-09",
  "regra_qualificacao": {
+  "a_confirmar": [
+   "00",
+   "01",
+   "02",
+   "03",
+   "04",
+   "06",
+   "07",
+   "20",
+   "21",
+   "27",
+   "34",
+   "36",
+   "44",
+   "45",
+   "50",
+   "54",
+   "59",
+   "63",
+   "65",
+   "66",
+   "67",
+   "68",
+   "69",
+   "75",
+   "76",
+   "77",
+   "78",
+   "79"
+  ],
   "classes": {
    "acionista": {
     "codigos": [
@@ -1398,7 +1428,7 @@
     "liga": true
    }
   },
-  "fonte": "Receita Federal, dados abertos do CNPJ, tabela de qualificação do sócio (Qualificacoes)",
+  "fonte": "Receita Federal, dados abertos do CNPJ, tabela de qualificação do sócio (Qualificacoes.zip, pasta 2026-11, consultada em 2026-11-25)",
   "nao_classificada": {
    "codigos": [],
    "descricao": "código ausente ou fora da tabela adotada",
