@@ -20,6 +20,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator, Optional
 
+from api.auth.politica import POLITICA_NAO_REGISTRADA, POLITICA_VERSAO_VIGENTE
+
 PRAZO_EXCLUSAO_DIAS = 30
 
 _SCHEMA = """
@@ -34,6 +36,26 @@ CREATE TABLE IF NOT EXISTS contas (
     exclusao_solicitada_em TEXT
 );
 """
+
+# Colunas posteriores à criação da tabela: aceite da política (versão e data, sem IP, e-mail nem cookie). `ALTER TABLE` é a migração das
+# bases existentes; as contas antigas ficam "não registrada" (sem data) até o próximo login.
+_COLUNAS_ACEITE = (
+    ("politica_versao", f"TEXT NOT NULL DEFAULT '{POLITICA_NAO_REGISTRADA}'"),
+    ("aceite_em", "TEXT"),
+)
+
+
+def _migrar(con: sqlite3.Connection) -> None:
+    """Idempotente: só acrescenta a coluna que falta, sem tocar nos dados."""
+    existentes = {r["name"] for r in con.execute("PRAGMA table_info(contas)")}
+    for nome, tipo in _COLUNAS_ACEITE:
+        if nome not in existentes:
+            try:
+                con.execute(f"ALTER TABLE contas ADD COLUMN {nome} {tipo}")
+            except sqlite3.OperationalError:
+                # outro processo migrou entre a leitura e o ALTER
+                if nome not in {r["name"] for r in con.execute("PRAGMA table_info(contas)")}:
+                    raise
 
 
 def _agora() -> datetime:
@@ -53,6 +75,7 @@ def _db(data_path: Path) -> Iterator[sqlite3.Connection]:
     try:
         con.execute("PRAGMA journal_mode=WAL")
         con.executescript(_SCHEMA)
+        _migrar(con)
         yield con
     finally:
         con.close()
@@ -68,6 +91,8 @@ class Conta:
     ultimo_acesso: str
     sessao_valida_desde: Optional[str]
     exclusao_solicitada_em: Optional[str]
+    politica_versao: str = POLITICA_NAO_REGISTRADA
+    aceite_em: Optional[str] = None
 
     @property
     def desativada(self) -> bool:
@@ -99,7 +124,7 @@ def por_email(data_path: Path, email: str) -> Optional[Conta]:
 
 
 def registrar_login(data_path: Path, email: str, nome: str, provedor: str) -> Optional[Conta]:
-    """Cria a conta no primeiro login ou atualiza o último acesso. Devolve `None` se a conta está com exclusão pendente (login recusado)."""
+    """Cria a conta no primeiro login ou atualiza o último acesso, e grava a versão vigente da política e a data do aceite. Devolve `None` se a conta está com exclusão pendente (login recusado)."""
     # o e-mail é comparado sem distinção de maiúsculas (`Fulano@x` e `fulano@x` eram duas contas);
     # conta nova grava em minúsculas, e as antigas gravadas com maiúsculas continuam sendo achadas.
     email = normalizar_email(email)
@@ -109,9 +134,12 @@ def registrar_login(data_path: Path, email: str, nome: str, provedor: str) -> Op
         try:
             r = con.execute("SELECT * FROM contas WHERE lower(email)=?", (email,)).fetchone()
             if r is None:
-                con.execute("INSERT INTO contas (conta_id, email, nome, provedor, criada_em, ultimo_acesso) VALUES (?,?,?,?,?,?)", (str(uuid.uuid4()), email, nome, provedor, agora, agora))
+                con.execute("INSERT INTO contas (conta_id, email, nome, provedor, criada_em, ultimo_acesso, politica_versao, aceite_em) VALUES (?,?,?,?,?,?,?,?)", (str(uuid.uuid4()), email, nome, provedor, agora, agora, POLITICA_VERSAO_VIGENTE, agora))
             elif r["exclusao_solicitada_em"] is None:
                 con.execute("UPDATE contas SET nome=?, ultimo_acesso=? WHERE conta_id=?", (nome, agora, r["conta_id"]))
+                if r["politica_versao"] != POLITICA_VERSAO_VIGENTE:
+                    # primeiro login depois da migração ou de uma nova versão: grava a vigente e quando; na mesma versão a data original se mantém
+                    con.execute("UPDATE contas SET politica_versao=?, aceite_em=? WHERE conta_id=?", (POLITICA_VERSAO_VIGENTE, agora, r["conta_id"]))
             con.execute("COMMIT")
         except Exception:
             con.execute("ROLLBACK")
