@@ -1225,6 +1225,8 @@ export interface GrupoSocietarioCnpj {
   cnpj: string
   empresa: string
   assinantes: number
+  /** `false` só na S.A.: o quadro da Receita traz gestão, não acionistas (P8). Ausente nas demais. */
+  grupo_inferivel?: false
   asns?: number[]
   has_scm?: boolean
   has_smp?: boolean
@@ -1235,8 +1237,18 @@ export interface GrupoSocietarioCnpj {
 /** Regra pela qual o nome do grupo foi escolhido (D5): marca curada, o CNPJ com mais acessos no SICI, ou o menor CNPJ (nenhum declara acessos). */
 export type NomeGrupoRegra = 'marca_curada' | 'maior_acesso_sici' | 'menor_cnpj'
 
-export interface GrupoSocietarioRow {
+/** S.A. no agrupamento (P8): o quadro da Receita de S.A. não traz acionistas, então não liga. Presente só quando `grupo_inferivel` é `false`. */
+export interface GrupoNaoInferivel {
+  grupo_inferivel?: false
+  grupo_inferivel_motivo?: string
+  grupo_inferivel_rotulo?: string
+  como_ler?: string
+}
+
+export interface GrupoSocietarioRow extends GrupoNaoInferivel {
   grupo_id: string
+  /** Quantas empresas (raízes) do grupo são S.A. */
+  sociedades_anonimas?: number
   /** Nome de exibição do grupo e a regra visível que o escolheu; é rótulo de navegação do conjunto inferido, não "o grupo econômico" da marca. */
   nome: string
   nome_regra: NomeGrupoRegra
@@ -1265,7 +1277,8 @@ export interface GrupoSocietarioListResponse {
 }
 
 /** `GET /grupos/{grupo_id}`: o grupo consolidado, só estrutura entre empresas (PJ); cada soma diz quantas empresas têm o dado. */
-export interface GrupoDetalhe {
+export interface GrupoDetalhe extends GrupoNaoInferivel {
+  sociedades_anonimas?: number
   snapshot_date: string
   grupo_id: string
   /** Preenchido quando a rota recebeu um `grupo_id` antigo (raiz da union-find de snapshots anteriores): o id pedido; `grupo_id` é o estável (GRUPO-E14). */
@@ -1310,7 +1323,7 @@ export interface EmpresaRelacionada {
 }
 
 /** O grupo societário do CNPJ para o cabeçalho da operadora: nome por regra visível e os outros integrantes (inferido do quadro da Receita). */
-export interface GrupoSocietarioResumo {
+export interface GrupoSocietarioResumo extends GrupoNaoInferivel {
   grupo_id: string
   classificacao: GrupoClassificacao
   tamanho: number
@@ -1322,7 +1335,7 @@ export interface GrupoSocietarioResumo {
   integrantes_total: number
 }
 
-export interface EmpresasRelacionadasResponse {
+export interface EmpresasRelacionadasResponse extends GrupoNaoInferivel {
   snapshot_date: string
   cnpj: string
   /** `null` se o CNPJ não está no cruzamento. */

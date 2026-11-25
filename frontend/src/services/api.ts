@@ -868,8 +868,9 @@ export function fetchAcessosStats(date?: string, top = 20): Promise<SiciStats> {
 const ESQUEMA_VINCULO_ASN = 2
 
 /** `esquema` 3 nas rotas de grupo: o grupo só se forma por sócio com participação, tem `nome` por regra visível, `grupo_id` estável (menor CNPJ básico; id antigo
- *  redireciona) e `grupo_societario` na resposta de `/grupos/empresa`. O mesmo `?date=` servia a versão antiga do cache imutável. */
-const ESQUEMA_GRUPOS = 3
+ *  redireciona) e `grupo_societario` na resposta de `/grupos/empresa`. `esquema` 4 (P8): S.A. com `grupo_inferivel: false`, `grupo_inferivel_rotulo` e `como_ler`
+ *  (o quadro da Receita de S.A. não traz acionistas). O mesmo `?date=` servia a versão antiga do cache imutável. */
+const ESQUEMA_GRUPOS = 4
 
 /** Perfil consolidado da operadora (SCM, SMP, STFC e SeAC, ASNs e rede) numa chamada; 204 = CNPJ sem informação. */
 export function fetchOperadoraPerfil(cnpj: string, date?: string, historicoCompleto = false): Promise<PerfilOperadora | null> {

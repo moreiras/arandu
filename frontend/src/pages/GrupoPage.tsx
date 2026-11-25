@@ -14,6 +14,7 @@ import { AccessPanel } from '../components/AccessPanel'
 import { AccessError } from '../services/api'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import type { GrupoCtx } from '../features/grupo/contexto'
+import { SemInferenciaSA } from '../features/grupo/SemInferenciaSA'
 import '../features/grupo'
 
 const ROTULO: Record<string, string> = { total: 'correspondência total', misto: 'misto', parcial: 'correspondência parcial', individual: 'empresa individual' }
@@ -55,6 +56,7 @@ export function GrupoPage() {
         snapshot={g.snapshot_date}
         acoes={<AcoesEntidade tipo="grupo" id={g.grupo_id} />}
       >
+        {g.grupo_inferivel === false && g.tamanho <= 1 && <div className="mt-1"><SemInferenciaSA /></div>}
         {g.nome_regra_texto && (
           <p className="text-xs text-gray-500 mt-1" data-testid="grupo-nome-regra">
             Nome do grupo: {g.nome_regra_texto}. É um rótulo de navegação do conjunto inferido, não afirma controle de uma empresa sobre outra. Identificador estável: {g.grupo_id}.

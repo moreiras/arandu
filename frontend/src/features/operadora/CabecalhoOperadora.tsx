@@ -12,6 +12,8 @@ import { ContactsReveal, type ContactsAvailable } from '../../components/Contact
 import { OutorgaBadge, OutorgaBadges } from '../../components/OutorgaBadge'
 import type { AsnVinculado, GrupoCnpjEntry, GrupoSocietarioResumo } from '../../types/api'
 import { fmtCnpj } from './ui'
+import { ROTULO_SA_NAO_INFERIVEL, COMO_LER_SA } from '../grupo/SemInferenciaSA'
+import { ComoLer } from '../../components/ui/ComoLer'
 import type { ServicoOperadora } from './servicos'
 
 /** Rótulo curto do vínculo ASN ↔ CNPJ (D5) na tela. */
@@ -99,7 +101,13 @@ export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc
             <dd className="contents">
               {grupoSocietarioCarregando && !grupoSocietario ? <span>carregando…</span>
                 : !grupoSocietario ? <span>sem informação do quadro societário neste snapshot</span>
-                : grupoSocietario.tamanho <= 1 ? (
+                : grupoSocietario.grupo_inferivel === false && grupoSocietario.tamanho <= 1 ? (
+                  <>
+                    <span className="font-medium text-gray-700" data-testid="rotulo-sa">{ROTULO_SA_NAO_INFERIVEL}</span>
+                    <span>(grupo declarado ao SICI: {grupo && grupo !== 'OUTROS' ? <span className="font-medium text-gray-700">{grupo}</span> : 'nenhum'})</span>
+                    <Link to={`/grupo/${encodeURIComponent(grupoSocietario.grupo_id)}`} className="text-primario-600 hover:underline font-medium">ver o grupo</Link>
+                  </>
+                ) : grupoSocietario.tamanho <= 1 ? (
                   <>
                     <span>só este CNPJ, sem ligação societária com outra operadora</span>
                     <Link to={`/grupo/${encodeURIComponent(grupoSocietario.grupo_id)}`} className="text-primario-600 hover:underline font-medium">ver o grupo</Link>
@@ -114,10 +122,12 @@ export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc
                       </span>
                     ))}
                     {grupoSocietario.integrantes_total > grupoSocietario.integrantes.length && <span>e mais {grupoSocietario.integrantes_total - grupoSocietario.integrantes.length}</span>}
+                    {grupoSocietario.grupo_inferivel === false && <span data-testid="rotulo-sa-em-grupo">(o quadro desta S.A. não foi usado: a ligação vem do quadro de outra empresa)</span>}
                   </>
                 )}
             </dd>
           </div>
+          {grupoSocietario?.grupo_inferivel === false && <ComoLer className="max-w-3xl"><p>{grupoSocietario.como_ler || COMO_LER_SA}</p></ComoLer>}
         </dl>
         <ContactsReveal
           available={contactsAvailable}
