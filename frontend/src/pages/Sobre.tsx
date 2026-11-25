@@ -1,5 +1,6 @@
 import { SITE } from '../lib/site'
 import { TetosDeUso } from '../components/TetosDeUso'
+import { CorrecoesNoChangelog } from '../components/ui/CorrecoesNoChangelog'
 
 export function Sobre() {
   return (
@@ -76,9 +77,9 @@ export function Sobre() {
       <section className="space-y-3">
         <h2 className="text-base font-semibold text-gray-800">Como funciona</h2>
         <p className="text-sm text-gray-600 leading-relaxed">
-          Os dados são coletados semanalmente de fontes públicas e processados em um pipeline
-          offline. Cada coleta gera um <em>snapshot</em> imutável: nenhum dado é sobrescrito,
-          e os dois snapshots mais recentes abrem sem login; os anteriores continuam guardados e abrem com login. Todos os resultados são
+          Os dados de fontes públicas são processados em um pipeline offline e publicados
+          semanalmente; cada fonte é coletada no seu próprio calendário. Cada publicação gera um
+          {' '}<em>snapshot</em> datado. <CorrecoesNoChangelog /> Os dois snapshots mais recentes abrem sem login; os anteriores continuam guardados e abrem com login. Todos os resultados são
           pré-computados — a interface nunca aguarda processamento em tempo real.
         </p>
         <p className="text-sm text-gray-600 leading-relaxed">

@@ -4,6 +4,7 @@ import { fetchSnapshot, fetchRpkiSummary, fetchOutorgasStats } from '../services
 import { useActiveDate, useSnapshots } from '../hooks/useSnapshot'
 import { useState } from 'react'
 import { NotaRevisao } from '../components/ui/NotaRevisao'
+import { CorrecoesNoChangelog } from '../components/ui/CorrecoesNoChangelog'
 import { ColetaSnapshot, IndicadoresSnapshot, type LinhaIndicador, type ManifestoSnapshot } from '../features/snapshots/ManifestoSnapshot'
 
 function fmtN(n: number | null | undefined): string {
@@ -75,7 +76,7 @@ export function Snapshots() {
       <div>
         <h1 className="text-titulo-1 text-gray-900">Snapshots</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Histórico de snapshots publicados. Cada snapshot é imutável após publicação.
+          Histórico de snapshots publicados. <CorrecoesNoChangelog />
         </p>
       </div>
 

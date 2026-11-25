@@ -48,7 +48,7 @@ export const GRUPOS_MENU: GrupoMenu[] = [
     { rotulo: 'Explorar dados', to: '/explorar', descricao: 'Filtre e cruze os conjuntos de dados' },
     { rotulo: 'API e MCP', to: '/dados', descricao: 'Acesso programático e para assistentes de IA' },
     { rotulo: 'Fontes e metodologia', to: '/fontes', descricao: 'De onde vem cada dado, com data e frescor' },
-    { rotulo: 'Snapshots', to: '/snapshots', descricao: 'Versões datadas e imutáveis dos dados' },
+    { rotulo: 'Snapshots', to: '/snapshots', descricao: 'Versões datadas dos dados' },
     { rotulo: 'Sobre', to: '/sobre', descricao: 'O projeto, a licença e os créditos' },
     { rotulo: 'Mapa do site', to: '/mapa-do-site', descricao: 'Todas as páginas, por tema' },
   ] },
