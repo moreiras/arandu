@@ -139,6 +139,9 @@ parênteses remetem à análise.
   salvo correção registrada no CHANGELOG do projeto; quando a correção altera um número publicado, as páginas afetadas trazem uma nota
   datada." O Sobre passa a dizer que os dados são publicados semanalmente e que cada fonte é coletada no seu próprio calendário. Sem
   registro estruturado de correções: elas ficam neste CHANGELOG (TRANSV-E16).
+- **Selo, fonte e data visíveis (PT-14).** Os KPIs do panorama (66) e da Home mostram, em texto e não só em dica, a natureza do
+  número (fato, estimado ou inferido), a fonte e a data de referência ("Estimado · APNIC Labs · ref. 2026-11-15"), legíveis por leitor
+  de tela. O /sobre explica os três selos, com o texto da mesma fonte usada nos KPIs e no relatório (TRANSV-E3, INST 5.4).
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
