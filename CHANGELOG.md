@@ -113,11 +113,21 @@ parênteses remetem à análise.
 - **Acesso, lista nominal e citação (PT-12; D2, D3, D9).** Lista nominal de prontidão pública com salvaguardas (pilar sem dado é "não
   medido", ordem neutra, aviso de método). "Citar" passa a trazer os valores, a data do snapshot e as fontes, e avisa que o link abre
   sem login enquanto a data estiver entre as recentes; quem abre data antiga sem login vê o aviso de snapshot histórico. `/snapshots`
-  e o detalhe de PTT externo passam a exigir login (as páginas abertas usam `/brasil/snapshots`); as chamadas das páginas de entrada
+  passa a exigir login (as páginas abertas usam `/brasil/snapshots`); o detalhe de PTT externo continua sem login (D9 revista pelo
+  mantenedor em 2026-11-25); as chamadas das páginas de entrada
   ficam abertas (`/brasil/destaques`, `/cdns/presence`, `/rpki/summary`, `/prontidao/resumo`, `/changes/summary` recente). Orçamento
   anônimo esgotado responde 429 com `Retry-After` até a meia-noite UTC e corpo explicando o limite. Listas mostram ao anônimo uma
   prévia de 100 linhas. As 11 fontes de exposição aberta declaram a decisão e a atribuição no catálogo e em /fontes (SEG-E2, INST-E1,
   REL-E7, TRANSV-E19, IXE-E4, TRANSV-E20, DADOS-E1, EXP-E4, OPERADORAS-E1).
+  Atribuições: "Fonte: PeeringDB" nas fontes do PeeringDB e "Fonte: Anatel" nas camadas geo de outorgas, com a geocodificação do
+  OpenStreetMap (ODbL) onde ela entra. `/uso-aceitavel` publica os tetos de uso sem login (600 s por dia, 3 s por chamada, 429 com
+  `Retry-After` até a meia-noite UTC, rede = IPv4 inteiro ou IPv6 /64).
+- **Pessoa natural (PT-11, D1).** Empresário individual e MEI (natureza jurídica da Receita) aparecem pelo nome fantasia ou como
+  "Empresário individual" com ASN e CNPJ mascarado, em tela, REST, MCP e CSV, inclusive no nome de ASN e na razão social do
+  cadastro; o ponto do mapa vai ao centróide do município e o endereço sai. A regra vale na publicação, na leitura, no motor de
+  consulta, na busca e na saída de todas as respostas, inclusive de snapshots já publicados. Buscas por proximidade de sedes exigem
+  raio de pelo menos 2 km. Nas transferências IPv4, nome estrangeiro sem marcador de empresa é tratado como pessoa provável e omitido
+  (MAPA-E3, INS-E3, GRUPO-E16, TRANSV-E14, OPERADORA-E16, BGP-E18, MUN-E19, IPV4-E14).
 
 ## v2.1.3
 
