@@ -53,7 +53,12 @@ def cdns_alcance(request: Request, date: Optional[str] = Query(None, description
 @router.get(
     "/cdns/presence",
     summary="Matriz de presença de CDNs nos IXPs",
-    description="Retorna matriz de presença de CDNs/provedores nos IXPs do IX.br e externos.",
+    description="""
+Retorna matriz de presença de CDNs/provedores nos IXPs do IX.br e externos. Em cada CDN, `ixbr` são os PTTs do IX.br onde um ASN da CDN consta no cadastro de participantes (membro);
+`ixbr_rs` os que, além de membro, têm sessão com o route server; `ixbr_sem_rs` os de membro sem sessão observada (pode haver peering bilateral, que o route server não vê);
+`ixbr_origem` os PTTs onde a CDN não é membro mas prefixos dela aparecem nas rotas, por outro participante (inferido, não indica cache local); `ixbr_sem_coleta` os PTTs sem coleta válida do looking glass;
+`asns_sem_documento` os ASNs da lista curada sem documento no snapshot. Calculado na leitura, também para snapshots antigos.
+""",
 )
 def get_cdn_presence(
     request: Request,
@@ -68,4 +73,32 @@ def get_cdn_presence(
     if data is None:
         raise HTTPException(404, "Dados de presença de CDNs não disponíveis para este snapshot")
 
-    return data
+    return _com_estados(store, date_str, data)
+
+
+#: estados de cada CDN por PTT (membro com sessão, membro sem sessão, só via outro AS), por data: o documento de cada ASN da lista curada é lido uma vez
+_ESTADOS_CACHE: dict = {}
+
+
+def _com_estados(store: Store, date_str: str, data: dict) -> dict:
+    from api.services import cdn_estados as ce
+
+    if date_str not in _ESTADOS_CACHE:
+        direto: dict[str, set[int]] = {}
+        coleta_ok: dict[str, bool] = {}
+        for e in store.ixp_index(date_str):
+            code = e.get("code")
+            doc = (store.ixp_detail(date_str, code) or {}) if code else {}
+            fams = [doc.get(a) for a in ("v6", "v4") if isinstance(doc.get(a), dict) and doc[a].get("coleta") == "ok"]
+            direto[code] = {a for f in fams for a in f.get("asn_direct") or []}
+            coleta_ok[code] = bool(fams)
+
+        def origem_de(asn: int):
+            d = store.asn_detail(date_str, asn)
+            return None if d is None else set(d.get("ixps_origin") or [])
+
+        _ESTADOS_CACHE[date_str] = ce.estados(data.get("cdns") or [], direto, coleta_ok, origem_de)
+        while len(_ESTADOS_CACHE) > 2:
+            _ESTADOS_CACHE.pop(next(iter(_ESTADOS_CACHE)))
+    est = _ESTADOS_CACHE[date_str]
+    return {**data, "cdns": [{**c, **est.get(c["name"], {})} for c in data.get("cdns") or []], "estados": ce.ESTADOS, "estados_limites": ce.LIMITES}

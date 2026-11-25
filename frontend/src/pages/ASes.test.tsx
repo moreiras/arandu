@@ -50,6 +50,23 @@ describe('/ases: política editorial (D6, ASES-E9, ASES-E10)', () => {
     expect(screen.getByText('AS64500').closest('tr')!.textContent).toContain('em progresso')
   })
 
+  it('"IX.br: membro" (cadastro) e "IX.br: sessão RS" são colunas distintas; 0 é 0 e snapshot sem a lista é "—" (PT-24 / ASES-E5.1)', async () => {
+    const pagina = [{ ...itens[0], ixps_membro_count: 7, ixps_direct_count: 0 }, { ...itens[1], ixps_membro_count: 0, ixps_direct_count: 11 }, { ...itens[2], ixps_membro_count: null, ixps_direct_count: 0 }]
+    server.use(http.get('*/api/v1/asns', () => HttpResponse.json({ items: pagina, total: 3, pages: 1, page: 1 })))
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><ASes /></MemoryRouter></QueryClientProvider>)
+    await waitFor(() => expect(screen.getByText('AS275784')).toBeTruthy())
+    const cab = screen.getAllByRole('columnheader').map((c) => c.textContent ?? '')
+    expect(cab.findIndex((t) => /IX\.br: membro/.test(t))).toBeGreaterThan(-1)
+    expect(cab.findIndex((t) => /IX\.br: sessão RS/.test(t))).toBeGreaterThan(cab.findIndex((t) => /IX\.br: membro/.test(t)))
+    expect(document.body.textContent).not.toMatch(/Dir\. IX\.br/)
+    const cel = (asn: string) => Array.from(screen.getByText(asn).closest('tr')!.querySelectorAll('td'))
+    const membro = (asn: string) => screen.getByText(asn).closest('tr')!.querySelector('[data-testid="ixps-membro"]')!.textContent
+    expect(membro('AS275784')).toBe('7')                      // TIM-like: membro em 7 PTTs e sem sessão com o route server
+    expect(cel('AS275784').some((td) => td.textContent === '0')).toBe(true)
+    expect(membro('AS53214')).toBe('0')
+    expect(membro('AS64500')).toBe('—')
+  })
+
   it('o tooltip de %IPv6 não descreve faixas de cor', async () => {
     montar()
     await waitFor(() => expect(screen.getByText('AS275784')).toBeTruthy())

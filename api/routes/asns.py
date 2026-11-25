@@ -79,7 +79,7 @@ def _contacts_available(scm_data: list[dict], pdb_contacts: list[dict], geo_org:
 _SORT_FIELDS = {
     "asn", "name", "cnpj",
     "apnic_users", "apnic_v6_users", "pct_v6",
-    "ixps_direct_count", "ixps_origin_v4_count", "ixps_origin_v6_count",
+    "ixps_direct_count", "ixps_membro_count", "ixps_origin_v4_count", "ixps_origin_v6_count",
     "has_rpki", "has_aspa", "pdb_registered", "has_scm", "has_smp", "has_stfc",
     "has_seac", "external_ixps_count",
 }
@@ -209,6 +209,12 @@ def list_asns(
             if q_lower in str(a.get("asn", "")) or q_lower in a.get("name", "").lower()
         ]
 
+    pres = store.asn_ix_presence(date_str).get("asns") or {}
+
+    def _membro(a: dict) -> Optional[int]:
+        """PTTs do IX.br em cujo cadastro o AS consta; `None` se o snapshot não tem lista de participantes (0 quando a lista existe e o AS não consta)."""
+        return len((pres.get(str(a.get("asn"))) or {}).get("m") or []) if pres else None
+
     est = store.bgp_stability_por_asn(date_str) if (extras and "bgp_stability" in extras) or sort_by in _SORT_BGP else {}
     if pront and sort_by == "prontidao_indice":
         def _kp(a):
@@ -221,6 +227,11 @@ def list_asns(
             v = (est.get(a.get("asn")) or {}).get(_c)
             return (1, 0) if v is None else (0, -v if sort_desc else v)
         index = sorted(index, key=_k)
+    elif sort_by == "ixps_membro_count":
+        def _km(a):
+            v = _membro(a)
+            return (1, 0) if v is None else (0, -v if sort_desc else v)
+        index = sorted(index, key=_km)
     elif sort_by and sort_by in _SORT_FIELDS:
         if sort_by == "name":
             index = sorted(index, key=lambda a: (a.get("name") or "").lower(), reverse=sort_desc)
@@ -254,6 +265,7 @@ def list_asns(
          "has_seac": a.get("asn") in seac_asns,
          "cnpj": (geo.get(a.get("asn")) or {}).get("cnpj"),
          "uf": (geo.get(a.get("asn")) or {}).get("uf") or None,
+         "ixps_membro_count": _membro(a),
          **(est.get(a.get("asn"), {"epppd": None, "epppd_v4": None, "epppd_v6": None}) if extras and "bgp_stability" in extras else {}),
          **({"prontidao_indice": None, "prontidao_classe": None, **pront.get(a.get("asn"), {})} if pront else {})}
         for a in index[start : start + limit]
