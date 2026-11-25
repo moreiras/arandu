@@ -92,6 +92,23 @@ describe('montarCorpo', () => {
   })
 })
 
+describe('histórico (EXP-E4)', () => {
+  it('"a partir de" vai ao corpo só nas coleções de histórico e sobrevive à URL', () => {
+    const e = estadoInicial('eventos')
+    e.de = '2026-11-15'
+    expect(montarCorpo(e, schema)).toMatchObject({ de: '2026-11-15' })
+    expect(deUrl(paraUrl(e), { ...schema, collections: { ...schema.collections, eventos: { description: '', key: '', fields: [] } } })?.de).toBe('2026-11-15')
+    const o = estadoInicial('operadoras')
+    o.de = '2026-11-15'
+    expect(montarCorpo(o, schema)).not.toHaveProperty('de')
+  })
+  it('data malformada é recusada em vez de ir ao servidor', () => {
+    const e = estadoInicial('eventos')
+    e.de = '15/11/2026'
+    expect(() => montarCorpo(e, schema)).toThrow(/AAAA-MM-DD/)
+  })
+})
+
 describe('URL', () => {
   it('ida e volta preserva a consulta (inclusive acentos)', () => {
     const e = estadoInicial('operadoras')

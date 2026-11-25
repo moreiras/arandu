@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { CampoSchema, Condicao, EstadoConsulta, Operador, SchemaConsulta } from './consulta'
-import { LIMITES, ROTULO_OP, chavesDeOrdemNaAgregacao, familia, operadoresDoCampo } from './consulta'
+import { COLECOES_HISTORICO, LIMITES, ROTULO_OP, chavesDeOrdemNaAgregacao, familia, operadoresDoCampo } from './consulta'
 
 const CAMPO = 'border border-gray-300 rounded-md px-2 py-1 text-sm bg-white'
 
@@ -145,6 +145,11 @@ export function Construtor({ schema, estado, onChange, onExecutar, executando }:
           <select aria-label="Sentido" className={CAMPO} value={estado.ordem.dir} onChange={(e) => set({ ordem: { campo: estado.ordem!.campo, dir: e.target.value as 'asc' | 'desc' } })}>
             <option value="desc">maior primeiro</option><option value="asc">menor primeiro</option>
           </select>
+        )}
+        {COLECOES_HISTORICO.includes(estado.colecao) && (
+          <label title="Sem login, o histórico começa no snapshot mais antigo liberado; antes dele a consulta pede login.">A partir de{' '}
+            <input type="date" aria-label="A partir de" className={CAMPO} value={estado.de ?? ''} onChange={(e) => set({ de: e.target.value || undefined })} />
+          </label>
         )}
         <label>Linhas{' '}
           <select aria-label="Linhas por página" className={CAMPO} value={estado.limite} onChange={(e) => set({ limite: Number(e.target.value) })}>{LIMITES.map((l) => <option key={l} value={l}>{l}</option>)}</select>
