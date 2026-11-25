@@ -29,6 +29,9 @@ class _Store:
     def operadora_index(self, d):
         return []
 
+    def _load_sici(self, d):          # operadoras_presentes_uf (PT-05) lê o SICI fixo; aqui o teste não depende dele
+        return None
+
 
 def _svc(ixps, pix, sici):
     s = PerfisService(_Store(ixps, pix, sici))
