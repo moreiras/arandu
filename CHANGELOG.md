@@ -68,6 +68,26 @@ parênteses remetem à análise.
   `/ufs/{uf}` e `/satelites/resumo` passa a 2 (OPERADORA-E8, OPERADORA-E9, REL-E1 a REL-E5, OPERADORAS-E2, OPERADORAS-E3,
   OPERADORAS-E8, OPERADORAS-E12, RANKINGS-E2, RANKINGS-E4, PANORAMA-E1, PANORAMA-E2, PANORAMA-E5, REGULATORIO-E1, MUN-E1, MUN-E2,
   MUN-E8, UF-E2, UF-E7, HOME-E3, EXP-E1, EXP-E2, EXP-E5, EXP-E7, LOC-E3, LOC-E4).
+- **Pipeline, coleta e estado do dado (PT-06).**
+  - "ASN brasileiro" é o ASN delegado pela LACNIC/Registro.br com país BR (`is_br`), regra única em todo o site, inclusive na
+    análise de rotas e em `/brasil/indicadores`, que usavam a lista de ASNs do Registro.br: 21 ASNs saem do conjunto brasileiro
+    (9.150 → 9.129 em 2026-11-22). "Rota brasileira" é a de prefixo contido em bloco alocado pelo Registro.br; a origem do anúncio
+    não define. A categoria "apenas origem BR" deixa de compor o total (as categorias somam o total), e rotas de ASN brasileiro em
+    espaço de outro RIR ficam numa contagem de apoio, fora do total (D4).
+  - PTT com tabela de rotas vazia numa família aparece como coleta parcial ("tabela vazia"), nunca "ok" com 0%: é o caso do IPv6
+    de ap, fec e rao desde 2026-10-31, quando o looking glass passou a responder sem rotas com os route servers ativos (a causa do
+    lado da coleta é hipótese). Vale também para snapshots já publicados (a marcação é feita na leitura).
+  - Eventos de ROA, ASPA e RPKI só são gerados quando o campo de origem estava coberto nos dois snapshots comparados; campo ausente
+    não vira zero. A regra é versionada (`eventos_regra = 2`); a camada de eventos publicada será regenerada com nota de revisão
+    datada (D7), corrigindo o pico de 2026-07-05.
+  - 33 PIX ganham coordenada com fonte registrada (facility do PeeringDB consultada em 2026-11-24, ou a página do PTT no IX.br);
+    16 seguem sem, listados com o motivo. CEP de Lajeado corrigido. cxj, igu e laj voltam ao mapa e às distâncias.
+  - `/ufs`: contagem de PTTs e distância usam a mesma lista; em snapshot sem SICI, acessos e municípios saem nulos, não zero.
+  - Cetic: caixa de frase preserva "Internet", "IX.br" e "IPv6"; margem registrada como zero não vira "±0,0", e precisão baixa
+    é avisada. Feed Atom: título conta eventos (não ASes), `updated` na data de confirmação e links por entidade. A API de
+    snapshot repassa `manifest.comparado_com`.
+  `esquema` de `/ufs`, `/ixps`, `/routing-analysis` e `/brasil/indicadores` sobe (BGP-E3, IXP-E1, IXP-E2, IXPS-E4, TRANSV-E8,
+  MAPA-E1, EST-E1, EST-E2, USO-E1, USO-E2, TRANSV-E18, HOME-E1).
 
 ## v2.1.3
 
