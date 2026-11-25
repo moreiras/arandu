@@ -139,8 +139,8 @@ não é publicado; modelo, versão do prompt e hash dos fatos ficam gravados com
 - **Tolerante a rajada, restritivo no acumulado:** janelas de minuto, hora e dia ao mesmo tempo, com custo por rota (as caras pesam
   mais), e no máximo poucos cálculos simultâneos por cliente além do teto global (`api/concurrency.py`).
 - **Camadas independentes:** Cloudflare e nginx seguram inundação; a aplicação segura identidade, custo e janelas longas. Nenhuma
-  confia que a anterior funcionou. Atrás de proxy, o IP real só vem de quem está na frente (`docker/nginx-real-ip*.inc`); sem isso todos os
-  clientes dividem o mesmo limite.
+  confia que a anterior funcionou. Atrás de proxy, o IP real só vem de quem está na frente e declarado em `NGINX_REAL_IP_FROM` (ver "IP real do cliente no nginx");
+  sem isso todos os clientes dividem o mesmo limite.
 - 429 sempre com `Retry-After`, mensagem que diz qual limite e quanto esperar, e `no-store`.
 
 ### Memória e desempenho da API
@@ -415,6 +415,19 @@ estão em `consolidadas.py`. `guia.py` é a tabela *tarefa → tool* que gera as
 React, Vite, TypeScript e Tailwind. Consome a API REST; o build estático é servido pelo nginx do contêiner `frontend`. As páginas de
 entidade são compostas por blocos que declaram de que dado dependem e de que fontes vêm (`features/<entidade>/index.ts`).
 
+**IP real do cliente no nginx.** O `X-Forwarded-For` só vale vindo de um proxy seu; senão qualquer cliente escolhe o próprio IP e, se escolher um do
+`ALLOWED_IPS`, vira "allowed" (sem login nem orçamento). Por isso o nginx do frontend confia só nos IPs da borda declarados em
+`NGINX_REAL_IP_FROM` no `.env`: lista separada por espaço ou vírgula, IPv6 e IPv4, IPs ou prefixos. Na subida do contêiner,
+`docker/entrypoint-real-ip-borda.sh` (instalado em `/docker-entrypoint.d/`) gera `/tmp/real-ip-borda.inc` com um `set_real_ip_from`
+por entrada, e o `nginx-frontend.conf` o inclui ao lado de `real-ip.inc`, que traz só `real_ip_header X-Forwarded-For` e
+`real_ip_recursive on`. Sem a variável nenhum `set_real_ip_from` é emitido, o cabeçalho é ignorado e vale o `$remote_addr`; valor mal
+formado derruba a subida (não cai em "confiar em todos"). As faixas do Docker (172.16/12, 192.168/16, fc00::/7) já não são confiadas
+por padrão, porque com Docker rootless ou `userland-proxy` a conexão do cliente chega pelo gateway da bridge, dentro delas. Os arquivos
+alternativos (`nginx-real-ip-cloudflare.inc`, `nginx-real-ip.exemplo-sem-borda.inc`) continuam valendo por `NGINX_REAL_IP_INC` e se somam
+a `NGINX_REAL_IP_FROM`. Atrás de uma borda, declare o IP com que ela chega ao frontend (o `x_real_ip` de `/auth/diag` sem a variável mostra
+o endereço da conexão). Conferir depois de mudar: `bash tests/nginx/test_gate.sh` (casos de XFF de IP não confiável e de IP declarado). O
+laboratório IPv6 (T7, `tests/ipv6/`) usa o nginx do Debian sem a variável, ou seja, sem confiar em ninguém, e não foi alterado.
+
 **Rota nova da SPA e o 404 real.** O nginx (`docker/nginx-frontend.conf`) só responde 200 com o `index.html` quando o primeiro
 segmento do caminho é uma rota da SPA, listada no `map $uri $rota_spa`; qualquer outro caminho recebe o mesmo `index.html` com status
 404, e a SPA mostra a página "não encontrada". Sem essa lista, toda URL inventada respondia 200 (*soft 404*): buscadores indexavam
@@ -461,7 +474,8 @@ O [`.env.example`](.env.example) lista as variáveis, comentadas. As principais:
 | `SITE_*` | Identidade da instância: nome, endereço, contato e código-fonte (`core/site.py`) |
 | `PEERINGDB_API_KEY` | Chave da API do PeeringDB para as coletas (opcional) |
 | `WEB_NETWORK_NAME` | Rede Docker externa, com o overlay `docker-compose.no-nginx.yml` |
-| `NGINX_REAL_IP_INC` | Include de IP real do nginx (`docker/nginx-real-ip*.inc`) |
+| `NGINX_REAL_IP_FROM` | IPs ou prefixos da borda em quem o nginx do frontend confia para o `X-Forwarded-For` (espaço ou vírgula; vazio = ninguém) |
+| `NGINX_REAL_IP_INC` | Include alternativo do cabeçalho de IP real do nginx (`docker/nginx-real-ip*.inc`) |
 
 `DATA_DIR` (raiz dos dados; `/data` nos contêineres) e `LOG_FORMAT` (`json` ou `text`) só valem fora dos contêineres, ao rodar um
 módulo direto no host.
