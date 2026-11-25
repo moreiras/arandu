@@ -115,6 +115,14 @@ parênteses remetem à análise.
   Operadora mostra "Grupo no SICI (declarado à Anatel)" e "Grupo societário (inferido do quadro societário da Receita)". S.A. terá
   tratamento à parte (o quadro da Receita traz a diretoria, não os acionistas) (GRUPOS-E1, GRUPO-E4, GRUPO-E12, GRUPO-E14, MUN-E4,
   OPERADORA-E10).
+- **Datas por fonte e estado da coleta (PT-16).** /snapshots mostra cada indicador com valor, selo, fonte e data de referência, e um
+  cartão de coleta (PTTs coletados de configurados, versão do processamento, verificações). /fontes mostra a licença e o uso comercial
+  em rótulos legíveis, o aviso de itens do cadastro ainda não conferidos, o frescor ("atrasada (limite N dias)") e estados distintos
+  (desativada, sem versão para o snapshot, curadoria, coleta manual); snapshot sem `manifest.sources` diz isso, sem data inventada.
+  Route servers: a cobertura do rodízio chega ao produto e à tela ("N de M vizinhos lidos nesta rodada, K mantidos, S sem leitura,
+  leitura mais antiga com D dias"). Instalações: o selo de cadastro mostra as datas do PeeringDB como vêm (registro e último vínculo),
+  sem inferir a razão delas (decisão de 2026-11-25). Id `rpki` do bloco de grupo corrigido para `rpki_collector` (SNAP 5.1, SNAP 5.3,
+  TRANSV-E9, FONT-E1 a FONT-E5, IXP-E4, COMM-E4, INS-E1, INST-E3).
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
