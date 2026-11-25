@@ -1067,10 +1067,35 @@ export function fetchMapPrefixes(date?: string): Promise<GeoJSONFeatureCollectio
   return get('/api/v1/map/prefixes', { date })
 }
 
+/** Um ROA (VRP) que cobre o prefixo, de qualquer AS; `autoriza_origem` nulo quando não há origem observada. */
+export interface RoaQueCobre { prefix: string; asn: number; maxLength: number; ta: string; autoriza_origem: boolean | null }
+
+/** Validação de origem (RFC 6811) do par prefixo × origem observada; `nao_avaliado` quando o prefixo não é anunciado. */
+export interface RpkiObservado {
+  estado: 'valid' | 'invalid' | 'not_found' | 'nao_avaliado'
+  motivo: 'origem_diferente' | 'maxlength_excedido' | 'sem_roa' | 'sem_anuncio' | null
+  asn: number | null
+  roas_que_cobrem: RoaQueCobre[]
+}
+
 export interface PrefixoInfo {
   prefix: string
+  /** A grafia pedida, quando difere da canônica. */
+  prefixo_informado?: string
   ip_version: 4 | 6
+  /** Depreciado: é o AS do Registro.br (= `registro_asn`), não a origem observada. */
   origin_asn: number | null
+  escopo?: 'alocacao_registro_br' | 'rota_dentro_de_alocacao' | 'fora_do_registro_br' | 'registro_br_indisponivel'
+  /** Alocação do Registro.br igual ao prefixo ou que o contém. */
+  alocacao_registro_br?: string | null
+  /** Detentor: AS a que o Registro.br associa a alocação. */
+  registro_asn?: number | null
+  registro_asn_nome?: string | null
+  /** Último AS do caminho na tabela global coletada (ou nos route servers do IX.br); nulo sem anúncio. */
+  observed_origin_asn?: number | null
+  observed_origin_nome?: string | null
+  observed_origin_fonte?: 'tabela_global' | 'route_servers_ixbr' | null
+  rpki_observado?: RpkiObservado | null
   uf?: string | null
   country?: string | null
   geo_confidence?: string | null
@@ -1079,13 +1104,13 @@ export interface PrefixoInfo {
   geo_org: { name?: string; cnpj?: string; city?: string; uf?: string; municipio?: string; geo_confidence?: string; geo_source?: string } | null
 }
 
-/** Um prefixo geolocalizado (`GET /prefixes/{prefix}`); 404 se não consta do Registro.br neste snapshot. A barra do CIDR fica no caminho. */
+/** Um prefixo (`GET /prefixes/{prefix}`): alocação do Registro.br ou rota observada; 404 se não é nenhum dos dois neste snapshot, 422 se a grafia não é CIDR. A barra do CIDR fica no caminho. */
 export function fetchPrefix(prefix: string, date?: string): Promise<PrefixoInfo> {
   return get(`/api/v1/prefixes/${prefix}`, { date })
 }
 
 /** Resultado de `GET /prefixes/lookup`: consulta de roteamento, sem posição nenhuma. */
-export interface PrefixoDoIp { prefix: string; ip_version: 4 | 6; origin_asn: number | null; snapshot_date: string; consulta: string }
+export interface PrefixoDoIp { prefix: string; ip_version: 4 | 6; origin_asn: number | null; registro_asn?: number | null; observed_origin_asn?: number | null; snapshot_date: string; consulta: string }
 
 /** Prefixo mais específico que contém o IP (`GET /prefixes/lookup`); 404 se nenhum prefixo conhecido o contém. */
 export function fetchPrefixDoIp(ip: string, date?: string): Promise<PrefixoDoIp> {

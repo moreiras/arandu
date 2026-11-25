@@ -14,7 +14,7 @@ import { CartogramaUfs, METRICAS_NORMALIZADAS } from '../features/estados/Cartog
 import { ProvenienciaCompacta } from '../components/ui'
 import { useFontes, useUfs } from '../hooks/entidades'
 
-const EXEMPLOS = ['Vivo', 'São Paulo', 'AS28573', 'RPKI', '177.75.0.0/16']
+const EXEMPLOS = ['Vivo', 'São Paulo', 'AS28573', 'RPKI', '2804::/32']
 
 /**
  * Home: o que é, para quem é e por onde começar, em um olhar. Busca grande, três portas por público (experimento),

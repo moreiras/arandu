@@ -6,7 +6,7 @@
 import type { PrefixoInfo } from '../../services/api'
 import type { ASNDocument } from '../../types/api'
 
-/** O que um bloco da página de prefixo recebe: o prefixo geolocalizado e, quando já chegou, o documento do AS originador. */
+/** O que um bloco da página de prefixo recebe: o detalhe do prefixo e, quando já chegou, o documento do AS da origem observada (PTTs e ASPA). */
 export interface PrefixoCtx {
   prefix: string
   info: PrefixoInfo
