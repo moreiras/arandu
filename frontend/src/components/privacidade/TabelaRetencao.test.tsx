@@ -15,7 +15,7 @@ describe('TabelaRetencao (D10)', () => {
     expect(screen.getAllByRole('row')).toHaveLength(retencao.linhas.length + 1)
     for (const l of retencao.linhas) {
       expect(screen.getByText(l.registro)).toBeTruthy()
-      expect(screen.getByText(l.prazo)).toBeTruthy()
+      expect(screen.getAllByText(l.prazo).length).toBeGreaterThan(0)
     }
   })
 
