@@ -104,8 +104,9 @@ describe('página de instalações', () => {
     server.use(http.get('*/api/v1/facilities', ({ request }) => { chamadas.push(new URL(request.url).searchParams); return HttpResponse.json(corpo) }))
     const { container } = montar(<FacilitiesPage />, '/instalacoes')
     await screen.findByText('Datacenter Exemplo SP-1')
-    expect(screen.getByTestId('total-instalacoes').textContent).toMatch(/2 instalação\(ões\) · 38 de 40 PTTs do IX.br/)
-    expect(screen.getByTestId('total-instalacoes').textContent).toContain('(sem instalação: AC, THE)')                    // INST-E2: quem falta, nomeado
+    expect(screen.getByTestId('total-instalacoes').textContent).toMatch(/2 instalação\(ões\)/)
+    expect(screen.getByTestId('cobertura-ptts').textContent).toMatch(/38 de 40 aparecem em alguma instalação do PeeringDB/)
+    expect(screen.getByTestId('cobertura-ptts').textContent).toContain('Sem instalação cadastrada no PeeringDB nesta coleta: AC, THE.')                    // INST-E2: quem falta, nomeado
     expect(container.querySelector('b')?.textContent ?? '').not.toBe('Exemplo')                              // "<b>" do nome é texto, não elemento
     expect(screen.getByText('Colo <b>Exemplo</b> RJ')).toBeTruthy()
     expect(screen.getByTestId('mapa-instalacoes')).toBeTruthy()
@@ -144,5 +145,53 @@ describe('página de uma instalação', () => {
     montar(<Routes><Route path="/instalacao/:id" element={<FacilityPage />} /></Routes>, '/instalacao/1')
     await screen.findByText('Instalação não encontrada')
     expect(screen.getByText('Ver instalações').getAttribute('href')).toBe('/instalacoes')
+  })
+})
+
+describe('cobertura de PTTs e coluna PTTs da lista (PT-24 / INST-E5.1)', () => {
+  const cobertura = { instalacoes_br: 2, com_ptt: 2, com_carrier: 2, ptts_ixbr: 40, ptts_ixbr_com_instalacao: 37, ptts_ixbr_sem_instalacao: ['ac', 'the'], ptts_externos: 5, ptts_externos_com_instalacao: 4, asns_br_no_peeringdb: 10, asns_br_com_instalacao: 4,
+    cadastro_br: { recente: 1 }, ptts_ixbr_nomes: { ac: 'Rio Branco', the: 'Teresina', rao: 'Ribeirão Preto', sp: 'São Paulo', ce: 'Fortaleza' }, ptts_ixbr_site: 40, ptts_ixbr_sem_mapeamento: ['rao'], ptts_ixbr_fora_do_site: [] }
+  const sp4 = { ...f1, ptts_detalhe: [{ ix_id: 1, code: 'sp', tipo: 'ixbr' as const }, { ix_id: 2, code: 'decix-sp', tipo: 'externo' as const }, { ix_id: 3, code: 'equinix-sp', tipo: 'externo' as const }, { ix_id: 4, code: 'netix', tipo: 'externo' as const }, { ix_id: 3476, tipo: 'outro' as const }, { ix_id: 3478, tipo: 'outro' as const }], n_ptts: 6 }
+  const so_outro = { ...f2, ptts_detalhe: [{ ix_id: 2784, tipo: 'outro' as const }], n_ptts: 1 }
+  const corpo: FacilitiesLista = { ...meta, escopo: { pais: 'BR' }, ordem: 'x', total: 2, items: [sp4, so_outro], cobertura }
+
+  it('a cobertura é nomeada: quem não tem instalação e quem o mapeamento não alcança, sem adjetivo', async () => {
+    server.use(http.get('*/api/v1/facilities', () => HttpResponse.json(corpo)))
+    montar(<FacilitiesPage />, '/instalacoes')
+    const c = await screen.findByTestId('cobertura-ptts')
+    expect(c.textContent).toContain('37 de 40 aparecem em alguma instalação do PeeringDB')
+    expect(c.textContent).toContain('Sem instalação cadastrada no PeeringDB nesta coleta: Rio Branco (AC), Teresina (THE).')
+    expect(c.textContent).toContain('Sem registro do PTT no PeeringDB ligado ao site: Ribeirão Preto (RAO).')
+    expect(c.textContent).not.toMatch(/falha|problema|ausente/i)
+  })
+
+  it('a coluna PTTs mostra IX.br primeiro, até 3 códigos e "+n outros" com o texto acessível; só PTT não acompanhado vira "+1 outro"', async () => {
+    server.use(http.get('*/api/v1/facilities', () => HttpResponse.json(corpo)))
+    montar(<FacilitiesPage />, '/instalacoes')
+    await screen.findByText('Datacenter Exemplo SP-1')
+    const linha = screen.getByText('Datacenter Exemplo SP-1').closest('tr')!
+    const celula = linha.querySelectorAll('td')[4]
+    expect(Array.from(celula.querySelectorAll('a')).map((a) => a.textContent)).toEqual(['São Paulo (SP)', 'DECIX-SP', 'EQUINIX-SP'])
+    expect(celula.querySelector('a')!.getAttribute('href')).toBe('/ixp/sp')
+    expect(celula.querySelectorAll('a')[1].getAttribute('href')).toBe('/ixp-externo/decix-sp')
+    expect(celula.textContent).toContain('+3 outros')
+    expect(celula.textContent).toContain('3 PTTs a mais, 2 do PeeringDB que o site não acompanha')
+    const so = screen.getByText('Colo <b>Exemplo</b> RJ').closest('tr')!.querySelectorAll('td')[4]
+    expect(so.querySelectorAll('a')).toHaveLength(0)
+    expect(so.textContent).toContain('+1 outro')
+  })
+
+  it('os filtros de PTT e carrier vão para a API e para a URL', async () => {
+    const chamadas: URLSearchParams[] = []
+    server.use(http.get('*/api/v1/facilities', ({ request }) => { chamadas.push(new URL(request.url).searchParams); return HttpResponse.json(corpo) }))
+    montar(<FacilitiesPage />, '/instalacoes?ptt=sp&carrier=1&uf=SP')
+    await screen.findByText('Datacenter Exemplo SP-1')
+    expect(chamadas[0].get('ptt')).toBe('sp')
+    expect(chamadas[0].get('com_carrier')).toBe('true')
+    expect(chamadas[0].get('uf')).toBe('SP')
+    expect((screen.getByRole('combobox', { name: /PTT do IX\.br/ }) as HTMLSelectElement).value).toBe('sp')
+    expect(screen.getByRole('checkbox', { name: /só com carrier/ })).toBeChecked()
+    fireEvent.change(screen.getByRole('combobox', { name: /PTT do IX\.br/ }), { target: { value: 'ce' } })
+    await waitFor(() => expect(chamadas.some((c) => c.get('ptt') === 'ce')).toBe(true))
   })
 })

@@ -55,7 +55,8 @@ def list_facilities(
 ) -> dict:
     d = _data(request, date)
     try:
-        return s.lista(_doc(request, d), pais, uf, q, ptt, cadastro, com_ptt, com_carrier, ordem, limit, (page - 1) * limit)
+        site = {e["code"]: e.get("name") or e["code"] for e in request.app.state.store.ixp_index(d) if e.get("code")}
+        return s.lista(_doc(request, d), pais, uf, q, ptt, cadastro, com_ptt, com_carrier, ordem, limit, (page - 1) * limit, site)
     except s.InstalacoesErro as e:
         raise HTTPException(e.status, e.mensagem)
 
@@ -66,14 +67,43 @@ def list_facilities(
     description="""
 Instalação do PeeringDB: organização, localização, datas de criação e atualização, o indicador `cadastro` (inferido das datas), os PTTs onde o cadastro diz que ela está (`ixps`, com o código do Arandurapé quando o PTT é conhecido),
 carriers, campus e as redes vinculadas (`redes`, só nas instalações do Brasil). Vínculo é declaração no cadastro: não indica tráfego nem contrato.
+`?include=redes_perfil` acrescenta a cada rede do Brasil a situação em cada PTT do IX.br do prédio (`situacao`: sessão com o route server, no cadastro sem sessão, só origina [inferido] ou sem presença),
+usuários estimados do APNIC (`usuarios_apnic`) e IPv6, e o resumo por PTT em `redes_perfil`; PTTs externos vêm como "sem dado de sessão".
 """,
 )
-def get_facility(fac_id: int, request: Request, date: Optional[str] = Query(None)) -> dict:
+def get_facility(
+    fac_id: int, request: Request, date: Optional[str] = Query(None),
+    include: Optional[str] = Query(None, description="`redes_perfil`: a situação de cada rede do Brasil em cada PTT do IX.br do prédio (sessão com o route server, no cadastro sem sessão, só origina, sem presença), com usuários APNIC e IPv6, e o resumo por PTT."),
+) -> dict:
     d = _data(request, date)
-    r = s.detalhe(_doc(request, d), request.app.state.store.vinculos_instalacoes_doc(d), fac_id)
+    store = request.app.state.store
+    extras = {x.strip() for x in (include or "").split(",") if x.strip()}
+    if extras - {"redes_perfil"}:
+        raise HTTPException(400, f"include inválido: {sorted(extras - {'redes_perfil'})}; válido: ['redes_perfil']")
+    r = s.detalhe(_doc(request, d), store.vinculos_instalacoes_doc(d), fac_id)
     if r is None:
         raise HTTPException(404, f"Instalação {fac_id} não encontrada no snapshot {d}.")
+    if "redes_perfil" in extras and r.get("escopo") == "brasil":
+        r = _com_redes_perfil(store, d, r)
     return r
+
+
+def _com_redes_perfil(store, d: str, r: dict) -> dict:
+    """Junta ao detalhe os documentos dos PTTs do IX.br do prédio (cadastro, sessão com o route server e originadores) e o índice de ASNs: tudo já carregado e em cache na API."""
+    ptts: dict[str, dict] = {}
+    externos = []
+    for x in r.get("ixps") or []:
+        doc = store.ixp_detail(d, x["code"]) if x.get("tipo") == "ixbr" and x.get("code") else None
+        if doc is None:
+            externos.append({k: x.get(k) for k in ("ix_id", "code", "nome", "tipo")})
+            continue
+        fam = {a: (doc.get(a) or {}) for a in ("v6", "v4")}
+        ptts[x["code"]] = {"nome": x.get("nome") or doc.get("name") or x["code"], "coleta": {a: f.get("coleta") or "missing" for a, f in fam.items()},
+                           "direto": {a for f in fam.values() if f.get("coleta") == "ok" for a in f.get("asn_direct") or []},
+                           "origem": {a for f in fam.values() if f.get("coleta") == "ok" for a in f.get("br_asns_origin") or []},
+                           "membros": store._load_ixp_members(d, x["code"])}
+    mapa = store.asn_map(d)
+    return s.redes_perfil(r, ptts, externos, lambda a: {"usuarios": (mapa.get(a) or {}).get("apnic_users"), "ipv6": (mapa.get(a) or {}).get("has_ipv6")})
 
 
 @router.get(
