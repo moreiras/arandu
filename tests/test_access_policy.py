@@ -245,15 +245,15 @@ def test_snapshots_diff_segue_a_regra_de_historico_e_nao_a_de_snapshots_login():
 
 
 @pytest.mark.parametrize("path", ["/api/v1/external-ixps/decix-rj", "/api/v1/external-ixps/amsix"])
-def test_ptt_externo_exige_login_e_a_lista_continua_aberta(path):
-    """IXE-E4: o detalhe (membros do PeeringDB, AUP) era `metered` e respondia 200 ao anônimo com a docstring dizendo "Requer autenticação"."""
-    assert c(path, {"date": RECENT[0]}) == LOGIN
+def test_ptt_externo_e_medido_e_a_lista_continua_aberta(path):
+    """PT-12b (revisão da D9, 2026-11-25): o detalhe do PTT externo não exige login; é `metered`, como antes do PT-12."""
+    assert c(path, {"date": RECENT[0]}) == METERED
     assert c("/api/v1/external-ixps", {"date": RECENT[0]}) == OPEN
 
 
 def test_comparador_com_ptt_externo_segue_a_classe_do_ptt_externo():
-    assert c("/api/v1/ixp-compare/members", {"ixps": "ixbr:sp,ext:decix-rj"}) == LOGIN
-    assert c("/api/v1/ixp-compare/members", {"ixps": "ext:amsix, ext:decix-rj"}) == LOGIN
+    assert c("/api/v1/ixp-compare/members", {"ixps": "ixbr:sp,ext:decix-rj"}) == METERED
+    assert c("/api/v1/ixp-compare/members", {"ixps": "ext:amsix, ext:decix-rj"}) == METERED
     assert c("/api/v1/ixp-compare/members", {"ixps": "ixbr:sp,ixbr:rj"}) == METERED
 
 

@@ -31,12 +31,11 @@ def test_fonte_aberta_por_decisao_declara_decisao_e_atribuicao(catalogo, id_):
 
 
 @pytest.mark.parametrize("id_", PEERINGDB)
-def test_fontes_peeringdb_registram_o_motivo_da_diferenca_com_o_ptt_externo(catalogo, id_):
-    """O detalhe do PTT externo vai para `login` enquanto `peeringdb_*` segue aberta: o catálogo diz por quê e que não é conclusão jurídica."""
+def test_fontes_peeringdb_registram_a_abertura_como_decisao_do_projeto_sem_a_aup(catalogo, id_):
+    """PT-12b (revisão da D9, 2026-11-25): o PTT externo não exige login; o catálogo não justifica a abertura (nem o login) pela AUP."""
     t = catalogo.sources[id_].decisao_exposicao
-    assert "/external-ixps/{code}" in t or "ptt externo" in t.lower()
-    assert "não uma conclusão jurídica" in t
-    assert "AUP" in t
+    assert "decisão do projeto" in t
+    assert "AUP" not in t and "redistribuição" not in t and "exigem login" not in t and "exige login" not in t
 
 
 def test_atribuicao_cita_a_licenca_que_o_catalogo_declara(catalogo):

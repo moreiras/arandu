@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useAuth } from './AuthContext'
-import { motivoLoginDaRota, routeAccess } from './accessPolicy'
+import { routeAccess } from './accessPolicy'
 import { AccessPanel } from '../components/AccessPanel'
 
 /** Porta de acesso de uma página avançada (`metered`) ou restrita (`login`).
@@ -26,7 +26,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 
   const access = routeAccess(location.pathname)
   if (access === 'login') {
-    return <AccessPanel reason={motivoLoginDaRota(location.pathname)} />
+    return <AccessPanel reason="historico" />
   }
   if (access === 'metered' && anon?.limitReached) {
     return <AccessPanel reason="esgotado" />

@@ -58,7 +58,7 @@ _OPEN_PATTERNS: Sequence[str] = (
     r"/ixps",
     r"/ixps/estimated-users",
     r"/ixps/[^/]+/hilbert/v4/detail",
-    r"/external-ixps",                # só a lista com contagens: sem membros (o detalhe `/external-ixps/{code}` é `login`)
+    r"/external-ixps",                # a lista com contagens; o detalhe `/external-ixps/{code}` é `metered`
     r"/asns/ix-presence",
     r"/hilbert/v4",
     r"/hilbert/v4/detail",
@@ -102,8 +102,7 @@ _PAGED_METERED_PATTERNS: Sequence[str] = (r"/acessos/divergencias", r"/acessos/d
 
 # ── Login: contatos e o que é de alto valor ──────────────────────────────────
 # `/snapshots` e `/snapshots/{data}` (D9): a lista inteira de datas e o resumo de qualquer data. As páginas de entrada usam `/brasil/snapshots`.
-# `/external-ixps/{code}`: a lista de membros do PeeringDB só para quem entrou (AUP do PeeringDB; ver `login_externo` abaixo).
-_LOGIN_PATTERNS: Sequence[str] = (r"/.*/contacts", r"/snapshots", r"/snapshots/[^/]+", r"/external-ixps/[^/]+")
+_LOGIN_PATTERNS: Sequence[str] = (r"/.*/contacts", r"/snapshots", r"/snapshots/[^/]+")
 
 # ── Cache na borda (Cloudflare) para rotas `metered` ─────────────────────────
 # A borda não passa pelo gate: o que ela guarda é entregue a quem já esgotou o orçamento. Rota `metered` sai com
@@ -218,14 +217,10 @@ def classify(
             return Classification(OPEN, "historico-recente-resumo")      # contagens agregadas da janela atual, sem linhas: entrada (Home, /mudancas)
         return Classification(METERED, "historico-recente")
 
-    # Contatos, `/snapshots*` e detalhe de PTT externo: sempre `login`. Depois do histórico, porque `/snapshots/diff` (duas datas atuais) é
+    # Contatos e `/snapshots*`: sempre `login`. Depois do histórico, porque `/snapshots/diff` (duas datas atuais) é
     # `metered` e o padrão `/snapshots/[^/]+` o capturaria.
     if _matches(_LOGIN, rel):
-        return Classification(LOGIN, "snapshots" if rel.startswith("/snapshots") else "externo" if rel.startswith("/external-ixps/") else "contatos")
-
-    # Comparador com PTT externo (`ext:`): os membros vêm do PeeringDB, a mesma classe de `/external-ixps/{code}`.
-    if rel == "/ixp-compare/members" and any(k.strip().startswith("ext:") for k in (query.get("ixps") or "").split(",")):
-        return Classification(LOGIN, "externo")
+        return Classification(LOGIN, "snapshots" if rel.startswith("/snapshots") else "contatos")
 
     # Histórico: snapshot que não é um dos atuais.
     if recent_dates:

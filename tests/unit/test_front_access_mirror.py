@@ -40,11 +40,12 @@ def test_historico_e_login_no_frontend_e_no_servidor():
     assert "historico" in src.lower()          # o servidor também trata datas fora das 2 mais recentes como login
 
 
-def test_ptt_externo_e_login_no_servidor_e_no_frontend():
-    """D9 / IXE-E4: `/external-ixps/{code}` (API) e `/ixp-externo/:code` (SPA) são `login`; a lista de PTTs externos continua aberta."""
-    assert "/ixp-externo/" in re.search(r"const LOGIN_PREFIX = \[(.*?)\]", TS, re.S).group(1)
-    from api.auth.access_policy import LOGIN, OPEN, classify
-    assert classify("GET", "/api/v1/external-ixps/decix-rj", {}, ["2026-11-15"]).cls == LOGIN
+def test_ptt_externo_nao_exige_login_no_servidor_nem_no_frontend():
+    """PT-12b (revisão da D9, 2026-11-25): `/external-ixps/{code}` (API) e `/ixp-externo/:code` (SPA) são `metered`; a lista de PTTs externos continua aberta."""
+    assert "LOGIN_PREFIX" not in TS and "externo" not in _set("LOGIN_EXACT")
+    from api.auth.access_policy import METERED, OPEN, classify
+    assert classify("GET", "/api/v1/external-ixps/decix-rj", {}, ["2026-11-15"]).cls == METERED
+    assert classify("GET", "/api/v1/ixp-compare/members", {"ixps": "ixbr:sp,ext:decix-rj"}, ["2026-11-15"]).cls == METERED
     assert classify("GET", "/api/v1/external-ixps", {}, ["2026-11-15"]).cls == OPEN
     main = (ROOT / "frontend" / "src" / "main.tsx").read_text(encoding="utf-8")
     assert re.search(r'path="ixp-externo/:code" element=\{<P>', main)             # a rota existe e passa pela porta de acesso

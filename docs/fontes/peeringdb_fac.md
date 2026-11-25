@@ -12,7 +12,7 @@ Instalações (`fac`) do Brasil e as dos PTTs externos já cadastrados, com os v
 |---|---|
 | Módulo / arquivo | `sources.peeringdb_fac.collect` |
 | Publicável | sim (exposição: aberta) |
-| Decisão sobre a exposição | Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB (AUP): o projeto publica atributos e agregados por rede e por instalação, sem contatos; a lista completa de membros de um PTT externo (`/external-ixps/{code}`) exige login, porque é a redistribuição em massa que a AUP restringe e que a rota já declarava "Requer autenticação". A diferença é uma escolha de risco do projeto, não uma conclusão jurídica; a consulta jurídica segue aberta. |
+| Decisão sobre a exposição | Aberta por decisão do projeto (D9, 2026-11-24; PTT externo revisto em 2026-11-25): o que a fonte alimenta é servido sem login na interface, na API e no MCP, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB: o projeto publica atributos e agregados por rede e por instalação, sem contatos. |
 | Atribuição exigida | PeeringDB (https://www.peeringdb.com). Uso sujeito à AUP (https://www.peeringdb.com/aup); a forma de atribuição que o PeeringDB exige não foi verificada. |
 | Política de falha | opcional |
 | Cadência (origem atualiza) | continua |

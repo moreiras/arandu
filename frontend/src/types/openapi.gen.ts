@@ -1762,9 +1762,6 @@ export interface paths {
          * @description Retorna lista completa de membros de um IXP externo com indicação de ASNs brasileiros.
          *
          *     Dados provenientes exclusivamente do PeeringDB (membros autodeclarados).
-         *
-         *     **Requer autenticação** — lista de membros é dado PeeringDB redistribuído; acesso restrito a
-         *     usuários autenticados conforme AUP do PeeringDB.
          */
         get: operations["get_external_ixp_api_v1_external_ixps__code__get"];
         put?: never;
@@ -2369,9 +2366,6 @@ export interface paths {
          *     snapshot (`GET /asns/{asn}`); o cadastro do IX.br inclui ASNs privados e ASNs
          *     sem registro no Registro.br/LACNIC, que não têm página. É a base para os diagramas de Venn/UpSet e a
          *     exportação em CSV da página de comparação.
-         *
-         *     **Requer autenticação** quando algum dos IXPs é externo — lista de membros
-         *     PeeringDB é dado redistribuído, mesma regra de `GET /external-ixps/{code}`.
          */
         get: operations["ixp_compare_members_api_v1_ixp_compare_members_get"];
         put?: never;

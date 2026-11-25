@@ -12,7 +12,7 @@ Posição de ASNs não brasileiros: coordenadas da organização no PeeringDB (o
 |---|---|
 | Módulo / arquivo | `sources.peeringdb_intl_geo.enrich` |
 | Publicável | sim (exposição: aberta) |
-| Decisão sobre a exposição | Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Mistura OpenStreetMap (ODbL 1.0, via Nominatim) e coordenadas de organização do PeeringDB (AUP); o projeto publica só a posição por ASN, sem contatos. O PTT externo com lista de membros exige login (ver peeringdb_ixps); a diferença é uma escolha de risco do projeto, não uma conclusão jurídica. |
+| Decisão sobre a exposição | Aberta por decisão do projeto (D9, 2026-11-24; PTT externo revisto em 2026-11-25): o que a fonte alimenta é servido sem login na interface, na API e no MCP, e a abertura é intencional, não um padrão esquecido. Mistura OpenStreetMap (ODbL 1.0, via Nominatim) e coordenadas de organização do PeeringDB; o projeto publica só a posição por ASN, sem contatos. |
 | Atribuição exigida | © colaboradores do OpenStreetMap, ODbL 1.0 (geocodificação pelo Nominatim); coordenadas de organização: PeeringDB (https://www.peeringdb.com), sujeito à AUP. |
 | Política de falha | opcional |
 | Cadência (origem atualiza) | continua |

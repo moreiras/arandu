@@ -5887,7 +5887,7 @@
       "modulo": "sources.peeringdb_fac.collect",
       "publicavel": true,
       "exposicao": "aberta",
-      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB (AUP): o projeto publica atributos e agregados por rede e por instalação, sem contatos; a lista completa de membros de um PTT externo (`/external-ixps/{code}`) exige login, porque é a redistribuição em massa que a AUP restringe e que a rota já declarava \"Requer autenticação\". A diferença é uma escolha de risco do projeto, não uma conclusão jurídica; a consulta jurídica segue aberta.",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24; PTT externo revisto em 2026-11-25): o que a fonte alimenta é servido sem login na interface, na API e no MCP, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB: o projeto publica atributos e agregados por rede e por instalação, sem contatos.",
       "atribuicao": "PeeringDB (https://www.peeringdb.com). Uso sujeito à AUP (https://www.peeringdb.com/aup); a forma de atribuição que o PeeringDB exige não foi verificada.",
       "descricao": "Instalações (`fac`) do Brasil e as dos PTTs externos já cadastrados, com os vínculos de redes (`netfac`, só instalações do Brasil), de PTTs (`ixfac`) e de carriers (`carrierfac`), os carriers, os campus e os atributos de peering de cada rede do Brasil que está no PeeringDB (`net`, em lotes de 500 ASNs). Cerca de 30 requisições por coleta, uma por vez, com pausa de 1,5 s. Escopo restrito ao Brasil e às instalações dos PTTs cadastrados (sem dump mundial). Os campos de contato (`*_email`, `*_phone`) e `notes` NÃO são mantidos, porque o normalizador usa lista branca e o bruto não é gravado (só o manifesto das requisições).",
       "origem": {
@@ -5997,7 +5997,7 @@
       "modulo": "sources.peeringdb_intl_geo.enrich",
       "publicavel": true,
       "exposicao": "aberta",
-      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Mistura OpenStreetMap (ODbL 1.0, via Nominatim) e coordenadas de organização do PeeringDB (AUP); o projeto publica só a posição por ASN, sem contatos. O PTT externo com lista de membros exige login (ver peeringdb_ixps); a diferença é uma escolha de risco do projeto, não uma conclusão jurídica.",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24; PTT externo revisto em 2026-11-25): o que a fonte alimenta é servido sem login na interface, na API e no MCP, e a abertura é intencional, não um padrão esquecido. Mistura OpenStreetMap (ODbL 1.0, via Nominatim) e coordenadas de organização do PeeringDB; o projeto publica só a posição por ASN, sem contatos.",
       "atribuicao": "© colaboradores do OpenStreetMap, ODbL 1.0 (geocodificação pelo Nominatim); coordenadas de organização: PeeringDB (https://www.peeringdb.com), sujeito à AUP.",
       "descricao": "Posição de ASNs não brasileiros: coordenadas da organização no PeeringDB (org_coords) ou centroide da cidade via Nominatim.",
       "origem": {
@@ -6082,7 +6082,7 @@
       "modulo": "sources.peeringdb_ixps.collect",
       "publicavel": true,
       "exposicao": "aberta",
-      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB (AUP). A lista de IXPs externos com contagens de membros é aberta; a lista completa de membros de um PTT externo (`/external-ixps/{code}`) e o comparador com `ext:` exigem login, porque é a redistribuição em massa que a AUP restringe e que a rota já declarava \"Requer autenticação\". Os membros dos PTTs do IX.br seguem abertos (origem: IX.br). A diferença é uma escolha de risco do projeto, não uma conclusão jurídica; a consulta jurídica segue aberta.",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24; PTT externo revisto em 2026-11-25): o que a fonte alimenta é servido sem login na interface, na API e no MCP, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB. A lista de IXPs externos com contagens de membros, o detalhe de cada PTT externo (`/external-ixps/{code}`) e o comparador com `ext:` são servidos sem login (consulta medida), como as demais superfícies do PeeringDB. Os membros dos PTTs do IX.br seguem abertos (origem: IX.br).",
       "atribuicao": "PeeringDB (https://www.peeringdb.com). Uso sujeito à AUP (https://www.peeringdb.com/aup); a forma de atribuição que o PeeringDB exige não foi verificada.",
       "descricao": "Para os IXPs externos configurados e para os 40 IXPs do IX.br, consulta /api/netixlan do PeeringDB e lista os ASNs presentes em cada um; cruza o cadastro do PeeringDB com o do IX.br.",
       "origem": {
@@ -6186,7 +6186,7 @@
       "modulo": "sources.peeringdb_networks.collect",
       "publicavel": true,
       "exposicao": "aberta",
-      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB (AUP): o projeto publica atributos por rede (política de peering, tipo, as-set), sem contatos; o PTT externo com lista de membros exige login (ver peeringdb_ixps). A diferença é uma escolha de risco do projeto, não uma conclusão jurídica; a consulta jurídica segue aberta.",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24; PTT externo revisto em 2026-11-25): o que a fonte alimenta é servido sem login na interface, na API e no MCP, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB: o projeto publica atributos por rede (política de peering, tipo, as-set), sem contatos.",
       "atribuicao": "PeeringDB (https://www.peeringdb.com). Uso sujeito à AUP (https://www.peeringdb.com/aup); a forma de atribuição que o PeeringDB exige não foi verificada.",
       "descricao": "Para os ASNs brasileiros do LACNIC, consulta /api/net?asn__in= em lotes e extrai política de peering, tipo de rede, tráfego declarado, IRR as-set e site.",
       "origem": {

@@ -50,6 +50,7 @@
  "/api/v1/erbs/resumo",
  "/api/v1/espectro/faixas",
  "/api/v1/espectro/resumo",
+ "/api/v1/external-ixps/{code}",
  "/api/v1/facilities",
  "/api/v1/facilities/{fac_id}",
  "/api/v1/fust/municipios",
