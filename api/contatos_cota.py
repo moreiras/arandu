@@ -73,6 +73,14 @@ def _v(nome: str) -> int:
         return PADROES[nome]
 
 
+def tetos_da_conta() -> dict:
+    """Os tetos de contatos de uma conta, em vigor (variável de ambiente ou `PADROES`), para `GET /api/v1/limites`. Só o que a conta vê: o teto
+    global, o da rede e o limiar de suspensão ficam fora (publicá-los ensinaria a esgotar a cota dos demais)."""
+    return {"por_10_minutos": _v("CONTATOS_CONTA_RAJADA"), "por_hora": _v("CONTATOS_CONTA_HORA"), "por_dia": _v("CONTATOS_CONTA_DIA"),
+            "por_30_dias": _v("CONTATOS_CONTA_30D"), "por_dia_conta_nova": _v("CONTATOS_CONTA_NOVA_DIA"),
+            "dias_de_conta_nova": _v("CONTATOS_CONTA_NOVA_DIAS")}
+
+
 @dataclass(frozen=True)
 class Resultado:
     ok: bool

@@ -166,6 +166,8 @@
   mcp: rota_rpki
 - http: GET /schema
   mcp: describe_schema
+- http: GET /limites
+  sem_mcp: "tetos de uso do site e do próprio MCP, para quem escreve o cliente; não é dado do mapa e as instruções do MCP já estão no teto de tamanho"
 - http: GET /snapshots
   mcp: historico_snapshots
 - http: GET /snapshots/{date_str}

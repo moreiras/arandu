@@ -88,6 +88,7 @@ _OPEN_PATTERNS: Sequence[str] = (
     r"/grupos",
     r"/grupos/[^/]+/prefixos-geo",
     r"/schema",
+    r"/limites",                      # os tetos de uso em vigor (D9): a página /dados e os scripts leem; igual para todos
     r"/cdns/presence",                # resumo de presença de CDNs (aba Resumo do panorama)
     r"/prontidao/resumo",             # agregado do país, UFs e porte (sem lista nominal)
     r"/rpki/summary",                 # ASes com ROA e ASPA (cartão do snapshot e panorama)

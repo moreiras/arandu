@@ -75,6 +75,7 @@ from api.auth.internas import router as internas_router
 from api import deprecation
 from api.precompressao import PreBrotliMiddleware
 from api.routes import meta
+from api.routes import limites as limites_routes
 from api.routes import documentacao
 from api.routes import brasil as brasil_routes
 from core.site import SITE
@@ -579,6 +580,7 @@ app.include_router(perfis.router, prefix="/api/v1", tags=["perfis"])
 app.include_router(outorgas.router, prefix="/api/v1", tags=["outorgas"])
 app.include_router(sitemap.router)
 app.include_router(documentacao.router)
+app.include_router(limites_routes.router, prefix="/api/v1", tags=["limites"])
 app.include_router(brasil_routes.router, prefix="/api/v1", tags=["brasil"])
 from api.routes import busca as busca_rota  # noqa: E402
 app.include_router(busca_rota.router, prefix="/api/v1", tags=["busca"])

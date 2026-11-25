@@ -30,6 +30,7 @@ services:
       - PEERINGDB_CLIENT_SECRET=${PEERINGDB_CLIENT_SECRET:-}
       - INTERNAL_API_TOKEN=${INTERNAL_API_TOKEN:-}
       - MCP_KEY_ATIVA=${MCP_KEY_ATIVA:-0}          # chave de MCP (desligada por padrão); precisa de MCP_KEY_PEPPER
+      - MCP_COTA_DIARIA=${MCP_COTA_DIARIA:-1000}   # a API só a publica em /api/v1/limites; quem aplica é o MCP (mesmo valor nos dois)
       - MCP_KEY_PEPPER=${MCP_KEY_PEPPER:-}         # 32+ caracteres, só no .env; nunca no repositório
       - ALLOWED_IPS=${ALLOWED_IPS:-}
       # Identidade do site: vazio = padrão de core/site.py (Arandurapé, http://localhost)
