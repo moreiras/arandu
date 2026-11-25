@@ -4753,6 +4753,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/territorio/resumo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Agregados por distância ao PTT mais próximo, para o país ou uma UF
+         * @description Para o país (ou `uf`): quantos municípios, habitantes estimados, domicílios projetados e acessos fixos declarados ficam a mais de 100 km em linha reta de um PTT do IX.br e quantos ficam
+         *     até 100 km, com a razão de acessos por domicílio projetado de cada grupo e as contagens de municípios com penetração calculada, abaixo do porte mínimo e com mais acessos que domicílios.
+         *     É comparação de médias entre grupos, sem causa: renda, urbanização e densidade explicam parte da diferença. A distância é do centróide, não o trajeto de fibra. Mesmas datas e limites das
+         *     demais rotas de território.
+         */
+        get: operations["territorio_resumo_api_v1_territorio_resumo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/transito/ufs": {
         parameters: {
             query?: never;
@@ -13277,6 +13300,40 @@ export interface operations {
         parameters: {
             query?: {
                 date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    territorio_resumo_api_v1_territorio_resumo_get: {
+        parameters: {
+            query?: {
+                date?: string | null;
+                uf?: string | null;
             };
             header?: never;
             path?: never;

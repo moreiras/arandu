@@ -13,6 +13,8 @@ import { corLegivel } from '../lib/contraste'
 import { CoberturaIxbr } from '../features/panorama/CoberturaIxbr'
 import { NotaVariosTotais } from '../components/ui/NotaVariosTotais'
 import { rotuloDe } from '../lib/universos'
+import { SinteseTopo } from '../components/ui/SinteseTopo'
+import { REGRAS_SINTESE_LISTA_PTTS, sinteseListaPtts } from '../features/ptt/sinteseListaPtts'
 
 // ─── number formatting helpers ───────────────────────────────────────────────
 
@@ -212,6 +214,9 @@ function IXPsLista() {
   return (
     <div className="space-y-8">
       <h1 className="text-titulo-1 text-gray-900">IXPs</h1>
+
+      <SinteseTopo frases={sinteseListaPtts(ixps, externalIXPs, summary, summary?.snapshot_date ?? resolvedDate)} snapshot={summary?.snapshot_date ?? resolvedDate} regras={REGRAS_SINTESE_LISTA_PTTS}
+        comoLer="O IX.br e os IXPs de fora são listas diferentes e não se somam." />
 
       <NotaVariosTotais>Os PTTs do IX.br e os IXPs de fora são listas diferentes e não se somam num número só. Um ASN pode ter sessão com o route server, constar do cadastro de participantes ou apenas originar prefixo visto no PTT: são três conjuntos de tamanhos muito diferentes. A soma dos usuários estimados por PTT conta o mesmo usuário em cada PTT onde o ASN aparece.</NotaVariosTotais>
 

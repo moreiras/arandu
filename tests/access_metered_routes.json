@@ -139,6 +139,7 @@
  "/api/v1/cdns/mudancas",
  "/api/v1/asns/{asn}/interconexao",
  "/api/v1/territorio/rede",
+ "/api/v1/territorio/resumo",
  "/api/v1/territorio/municipio/{ibge}/semelhantes",
  "/api/v1/territorio/ranking",
  "/api/v1/transito/ufs",

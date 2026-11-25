@@ -1,0 +1,13 @@
+{
+  "_nota": "Células das tabelas do Cetic.br que a síntese do topo de /uso-da-internet cita. Cada entrada casa por igualdade com tabela, dimensao, recorte, item e resposta. Se a edição seguinte mudar uma tabela ou resposta, a frase some na tela e o teste tests/unit/test_cetic_sintese_temas.py falha de modo visível. Critério editorial: indicadores de acesso, conexão e interconexão; nenhum ordenado por melhor ou pior.",
+  "domicilios": [
+    { "id": "a4", "tabela": "A4", "dimensao": "Total", "recorte": "Total", "item": "", "resposta": "Sim" },
+    { "id": "a4_classe_a", "tabela": "A4", "dimensao": "Classe social", "recorte": "A", "item": "", "resposta": "Sim" },
+    { "id": "a4_classe_de", "tabela": "A4", "dimensao": "Classe social", "recorte": "DE", "item": "", "resposta": "Sim" },
+    { "id": "a5_banda_larga_fixa", "tabela": "A5", "dimensao": "Total", "recorte": "Total", "item": "Banda larga fixa", "resposta": "Total - Banda larga fixa" }
+  ],
+  "provedores": [
+    { "id": "e1a", "tabela": "E1A", "dimensao": "Total", "recorte": "Total", "item": "", "resposta": "Sim" },
+    { "id": "c1", "tabela": "C1", "dimensao": "Total", "recorte": "Total", "item": "", "resposta": "Sim" }
+  ]
+}

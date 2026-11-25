@@ -10,6 +10,7 @@ import { TvPorAssinaturaSection } from '../components/stats/TvPorAssinaturaSecti
 import { PaginaPanorama, type AbaPanorama } from '../features/panorama/PaginaPanorama'
 import { MaioresMercado } from '../features/mercado/MaioresMercado'
 import { ConcentracaoPanorama } from '../features/mercado/ConcentracaoPanorama'
+import { SinteseMercado } from '../features/mercado/BlocoSinteseMercado'
 import { useResumo } from '../features/panorama/useResumo'
 import { Navigate, useSearchParams } from 'react-router-dom'
 
@@ -33,5 +34,5 @@ export function PanoramaMercado() {
   const [params] = useSearchParams()
   // A antiga aba "Grupos econômicos" (CNPJs com vários ASNs) não era de mercado nem de grupo econômico: foi para /ases (regra 8: nada some sem alias).
   if (params.get('aba') === 'grupos') return <Navigate to={ABA_GRUPOS_MOVIDA} replace />
-  return <PaginaPanorama titulo="Panorama de mercado" descricao="Acessos e operadoras de banda larga, telefonia e TV por assinatura, a partir do que as empresas declaram à Anatel. Reúne as seções de mercado de Estatísticas." abas={ABAS_MERCADO} />
+  return <PaginaPanorama titulo="Panorama de mercado" descricao="Acessos e operadoras de banda larga, telefonia e TV por assinatura, a partir do que as empresas declaram à Anatel. Reúne as seções de mercado de Estatísticas." abas={ABAS_MERCADO} topo={<SinteseMercado />} />
 }

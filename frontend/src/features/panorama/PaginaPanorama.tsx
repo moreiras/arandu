@@ -18,8 +18,10 @@ export interface AbaPanorama extends AbaDef {
  * Página de panorama: um tema com abas por lente (estado em `?aba=`, como as páginas de entidade) e carga por aba. Reúne o conteúdo de Visão geral e
  * Estatísticas (que viraram aliases), agrupado por tema.
  */
-export function PaginaPanorama({ titulo, descricao, abas, rodape, aliases = {} }: {
+export function PaginaPanorama({ titulo, descricao, abas, rodape, topo, aliases = {} }: {
   titulo: string; descricao: string; abas: AbaPanorama[]; rodape?: ReactNode
+  /** Bloco acima das abas (a síntese em texto da página, PT-22). */
+  topo?: ReactNode
   /** Abas que mudaram de nome ou foram fundidas: `?aba=antiga` abre a nova e a URL é reescrita (regra 8 do AGENTS.md: nada some sem alias). */
   aliases?: Record<string, string>
 }) {
@@ -47,6 +49,7 @@ export function PaginaPanorama({ titulo, descricao, abas, rodape, aliases = {} }
         <h1 className="text-titulo-1 text-gray-900">{titulo}</h1>
         <p className="mt-1 text-sm text-gray-500 max-w-3xl">{descricao}{date ? <> Snapshot <span className="font-mono">{date}</span>.</> : null}</p>
       </div>
+      {topo}
       <BarraDeAbas abas={abas} ativa={ativa.id} aoEscolher={abrir} />
       <div role="tabpanel" id={`painel-${ativa.id}`} aria-labelledby={`aba-${ativa.id}`} tabIndex={-1} className="space-y-8">
         <p className="text-sm text-gray-500">{ativa.descricao}</p>

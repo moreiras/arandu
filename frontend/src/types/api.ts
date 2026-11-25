@@ -2128,6 +2128,26 @@ export interface LinhaTerritorio extends TerritorioNumeros {
   ptt_proximo?: string
   sem_ptt_proximo?: boolean
 }
+/** Soma de um grupo de municípios em `GET /territorio/resumo`; a razão é nula sem município com domicílios projetados (nunca zero). */
+export interface AgregadoTerritorio {
+  municipios: number
+  populacao_estimada: number
+  domicilios_projetados: number
+  acessos: number
+  nao_visto: number
+  acessos_por_domicilio: number | null
+}
+/** `GET /territorio/resumo` (PT-22): agregados do país ou da UF por distância em linha reta ao PTT do IX.br mais próximo; os três grupos somam o `total`. */
+export interface ResumoTerritorio extends TerritorioMeta {
+  escopo: { uf?: string; pais?: string }
+  raio_sem_ptt_km: number
+  total: AgregadoTerritorio
+  a_mais_de_100km: AgregadoTerritorio
+  ate_100km: AgregadoTerritorio
+  sem_distancia: AgregadoTerritorio
+  penetracao: { porte_minimo_domicilios: number; municipios_com_penetracao: number; municipios_abaixo_do_porte: number; municipios_sem_domicilios: number; com_mais_acessos_que_domicilios: number }
+  criterio: string
+}
 export interface RankingTerritorio {
   snapshot_date: string
   mes_referencia_sici: string

@@ -10,6 +10,8 @@ import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import { LinhaProveniencia } from '../components/ui/Kpi'
+import { SinteseTopo } from '../components/ui/SinteseTopo'
+import { REGRAS_SINTESE_CDNS, sinteseCdns } from '../features/cdncap/sinteseCdns'
 import { CdnMudancas } from '../features/cdncap/CdnMudancas'
 
 // ─── CDN categories ───────────────────────────────────────────────────────────
@@ -465,6 +467,8 @@ export function CDNPage() {
           </p>
         )}
       </div>
+
+      <SinteseTopo frases={sinteseCdns(data)} snapshot={data?.snapshot_date} regras={REGRAS_SINTESE_CDNS} comoLer="Os números do resumo são do catálogo inteiro, sem os filtros da matriz." />
 
       {/* Source toggles */}
       <div className="flex flex-wrap gap-1 border-b border-gray-200 pb-3">

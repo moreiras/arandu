@@ -183,6 +183,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /territorio/municipio/{ibge}/semelhantes` | — | ✔ | MCP: comparação de apresentação (municípios do mesmo porte); o MCP já tem query(collection=municipios), que filtra e ordena por domicílios, penetração e fibra |
 | `GET /territorio/ranking` | `query:municipios` | ✔ |  |
 | `GET /territorio/rede` | — | ✔ | MCP: resumo de apresentação por UF (estimativas e inferências com cobertura); o MCP já tem query(collection=municipios) e as tools de segurança de roteamento e de trânsito |
+| `GET /territorio/resumo` | — | ✔ | MCP: agregado de apresentação da síntese de /municipios (país ou UF, por distância ao PTT); o MCP já tem query(collection=municipios) com group_by sem_ptt_proximo e aggregate, que devolve os mesmos agregados com filtro |
 | `GET /transito/ufs` | `query:transito_uf` | — | UI: a página da UF usa o bloco pelo ?include=transito do perfil; a lista das 27 UFs só existe na API e no MCP |
 | `GET /transito/ufs/{uf}` | `query:transito_uf` | — | UI: a página da UF usa o detalhe pelo mesmo endpoint dentro do bloco de trânsito; o MCP traz as linhas pela coleção |
 | `GET /ufs` | `uf_detalhe` | ✔ |  |

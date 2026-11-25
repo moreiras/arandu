@@ -7,6 +7,8 @@ import type { ReactNode } from 'react'
 import { Link } from '../../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { Kpi, NotaVariosTotais } from '../../components/ui'
+import { SinteseTopo } from '../../components/ui/SinteseTopo'
+import { REGRAS_SINTESE_TECNICA, sinteseTecnica } from './sinteseTecnica'
 import { rotuloDe } from '../../lib/universos'
 import { HomeMap } from '../../components/maps/HomeMap'
 import { SnapshotHealth } from '../dashboard/Estatisticas'
@@ -57,6 +59,7 @@ export function ResumoTecnico() {
   const pttsIxbr = s ? (s.ixps_ok ?? 0) + (s.ixps_partial ?? 0) + (s.ixps_missing ?? 0) : null
   return (
     <div className="space-y-8" data-testid="resumo-tecnico">
+      <SinteseTopo frases={sinteseTecnica(s, br, ref)} snapshot={ref} regras={REGRAS_SINTESE_TECNICA} />
       <SnapshotHealth summary={s} loading={carregando} />
       <NotaVariosTotais />
 
