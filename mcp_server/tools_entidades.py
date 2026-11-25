@@ -555,58 +555,33 @@ def list_prefixes(
 
 @mcp.tool()
 def get_prefix(prefix: Optional[str] = None, ip: Optional[str] = None, date: Optional[str] = None) -> dict:
-    """Detalhes de um prefixo BR declarado no Registro.br: ASN originador, UF e país (base DB-IP City Lite) e geo_org do ASN.
+    """Detalhe de um prefixo: detentor no Registro.br, origem observada, RPKI do anúncio, UF e país; o mesmo de `GET /prefixes/{prefix}`.
 
-    Latitude, longitude e cidade do prefixo não são servidas.
+    Aceita qualquer grafia CIDR e responde na forma canônica. Abre alocações do Registro.br e rotas observadas fora delas.
+    `registro_asn` é o detentor (AS a que o Registro.br associa a alocação igual ou que contém o prefixo); `observed_origin_asn` é a
+    origem observada (tabela global coletada, uma origem por prefixo, ou route servers do IX.br; ver `observed_origin_fonte`), nula
+    se o prefixo não é anunciado como está. Os dois podem diferir por motivos legítimos. `rpki_observado` valida só o par
+    anunciado (`nao_avaliado` sem anúncio), com `motivo` e os ROAs de qualquer AS que cobrem o prefixo. `origin_asn` está
+    depreciado: é o AS do Registro.br, não a origem observada. Latitude, longitude e cidade do prefixo não são servidas.
 
-    Com `ip` (em vez de `prefix`) acha o prefixo mais específico que contém o endereço (longest-prefix match) e devolve só `prefix`,
-    `ip_version`, `origin_asn` e `consulta`: é uma consulta de roteamento, sem posição (nem UF). Para o detalhe, chame de novo com `prefix`.
+    Com `ip` (em vez de `prefix`) acha a alocação do Registro.br mais específica que contém o endereço (longest-prefix match) e
+    devolve só `prefix`, `ip_version`, `registro_asn`, `observed_origin_asn`, `origin_asn` e `consulta`: é uma consulta de
+    roteamento, sem posição (nem UF). Para o detalhe, chame de novo com `prefix`.
 
     Args:
-        prefix: Prefixo CIDR (ex.: "200.160.0.0/20" ou "2001:12ff::/32"). Use este OU ip.
+        prefix: Prefixo CIDR (ex.: "2804::/32" ou "177.75.0.0/20"). Use este OU ip.
         ip: Endereço IPv6 ou IPv4 sem máscara (ex.: "200.160.2.3").
         date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.
     """
+    from fastapi import HTTPException
+    from api.routes.prefixes import PrefixoAusente, PrefixoInvalido, detalhe_prefixo, resumo_do_ip
+
     d = _resolve(date)
-    consulta = None
-    if ip:
-        import ipaddress
-        from fastapi import HTTPException
-        from api.routes.prefixes import prefixo_mais_especifico
-        try:
-            endereco = ipaddress.ip_address(ip.strip())
-        except ValueError:
-            raise ValueError(f"'{ip}' não é um endereço IP válido")
-        try:
-            prefix = prefixo_mais_especifico(_store, d, endereco)
-        except HTTPException as exc:
-            raise ValueError(str(exc.detail))
-        consulta = str(endereco)
-    elif not prefix:
+    if not ip and not prefix:
         raise ValueError("Informe prefix ou ip.")
-    gj = _store.geo_map(d, "prefixes")
-    if gj is None:
-        raise ValueError(f"Geolocalização de prefixos indisponível no snapshot {d}.")
-    feature = next(
-        (f for f in gj.get("features", []) if (f.get("properties") or {}).get("prefix") == prefix),
-        None,
-    )
-    if feature is None:
-        raise ValueError(f"Prefixo '{prefix}' não encontrado no snapshot {d}.")
-    from core.geoip import sem_posicao
-    props = sem_posicao(feature.get("properties") or {})
-    if consulta:
-        return {"prefix": prefix, "ip_version": props.get("ip_version"), "origin_asn": props.get("origin_asn"),
-                "snapshot_date": d, "consulta": consulta}
-    result = {
-        **props,
-        "snapshot_date": d,
-        "geo_org": None,
-    }
-    asn = props.get("origin_asn")
-    if asn is not None:
-        asn_doc = _store.asn_detail(d, int(asn))
-        if asn_doc:
-            from api.privacidade import geo_org_publico
-            result["geo_org"] = geo_org_publico(asn_doc.get("geo_org"))   # a mesma projeção da REST (sem contato, endereço nem coordenada)
-    return result
+    try:
+        return resumo_do_ip(_store, d, ip) if ip else detalhe_prefixo(_store, d, prefix)
+    except (PrefixoInvalido, PrefixoAusente) as exc:
+        raise ValueError(str(exc))
+    except HTTPException as exc:
+        raise ValueError(str(exc.detail))

@@ -93,7 +93,7 @@ def test_lookup_por_ip_e_so_consulta_de_roteamento(api):
     ip = str(next(ipaddress.ip_network(pref).hosts()))
     r = api.get("/api/v1/prefixes/lookup", params={"ip": ip}, headers=ALLOWED)
     assert r.status_code == 200
-    assert set(r.json()) == {"prefix", "ip_version", "origin_asn", "snapshot_date", "consulta"}
+    assert set(r.json()) == {"prefix", "ip_version", "origin_asn", "registro_asn", "observed_origin_asn", "snapshot_date", "consulta"}
 
 
 def test_mapa_explorer_responde_as_camadas_do_ptt_e_o_near_ix(api):  # noqa: F811

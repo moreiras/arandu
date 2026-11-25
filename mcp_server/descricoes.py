@@ -222,16 +222,16 @@ DESCRICOES: dict[str, str] = {
         '"visao_geral"; "historico"; "carga" = ASes com mais updates em weeks semanas, por família. Args: asn, modo, weeks, limit.'
     ),
     'rota_prefixo': (
-        'UM prefixo BR: AS originador e UF. Com ip (sem máscara) acha o prefixo mais específico que contém o endereço. Args: '
-        'prefix OU ip.'
+        'UM prefixo (qualquer grafia CIDR): detentor no Registro.br, origem observada (tabela global ou route servers), RPKI do '
+        'anúncio e UF. Com ip (sem máscara) acha a alocação mais específica que contém o endereço. Args: prefix OU ip.'
     ),
     'rota_prefixos': (
         'Lista prefixos BR do Registro.br com filtro simples (origin_asn, uf, ip_version 4|6). Contagem ou agrupamento: '
         'query(collection="prefixes"). Args: origin_asn, uf, ip_version, limit.'
     ),
     'rota_rpki': (
-        'RPKI: sem prefix, a adoção de ROA/ASPA nos AS brasileiros; com prefix (e asn), a validade ROA desse anúncio. Args: '
-        'prefix, asn.'
+        'RPKI: sem prefix, a adoção de ROA/ASPA nos AS brasileiros; com prefix, a validade ROA da origem observada (ou do asn '
+        'informado), com motivo e ROAs que cobrem. Args: prefix, asn.'
     ),
     'uf_detalhe': (
         'Perfil de uma UF (totais, PTTs, municípios com distância ao PTT, maiores operadoras); sem uf, uma linha por UF (bom '

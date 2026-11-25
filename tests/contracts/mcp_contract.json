@@ -1300,13 +1300,21 @@
   },
   "rota_prefixo": {
    "chaves": [
+    "alocacao_registro_br",
     "country",
+    "escopo",
     "geo_confidence",
     "geo_org",
     "geo_source",
     "ip_version",
+    "observed_origin_asn",
+    "observed_origin_fonte",
+    "observed_origin_nome",
     "origin_asn",
     "prefix",
+    "registro_asn",
+    "registro_asn_nome",
+    "rpki_observado",
     "snapshot_date",
     "uf"
    ],

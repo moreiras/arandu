@@ -167,9 +167,10 @@ SCHEMA: dict[str, dict] = {
         "key": "prefix",
         "description": "Prefixos BR (Registro.br) com UF e país. Latitude, longitude e cidade por prefixo não são servidas.",
         "fields": [
-            _f("prefix", "string", "CIDR", example="177.75.0.0/16"),
+            _f("prefix", "string", "CIDR", example="177.75.0.0/20"),
             _f("ip_version", "int", "Versão IP", enum=[4, 6]),
-            _f("origin_asn", "int", "ASN originador", example=28604),
+            _f("origin_asn", "int", "AS a que o Registro.br associa o prefixo (detentor; não é a origem observada, que está em "
+               "global_prefixes e em rota_prefixo)", example=28178),
             _f("uf", "string", "UF"),
             _f("country", "string", "País"),
             _f("geo_confidence", "string", "Confiança da geolocalização"),
