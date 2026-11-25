@@ -19008,6 +19008,74 @@
     ]
    }
   },
+  "/api/v1/territorio/resumo": {
+   "get": {
+    "description": "Para o país (ou `uf`): quantos municípios, habitantes estimados, domicílios projetados e acessos fixos declarados ficam a mais de 100 km em linha reta de um PTT do IX.br e quantos ficam\naté 100 km, com a razão de acessos por domicílio projetado de cada grupo e as contagens de municípios com penetração calculada, abaixo do porte mínimo e com mais acessos que domicílios.\nÉ comparação de médias entre grupos, sem causa: renda, urbanização e densidade explicam parte da diferença. A distância é do centróide, não o trajeto de fibra. Mesmas datas e limites das\ndemais rotas de território.",
+    "operationId": "territorio_resumo_api_v1_territorio_resumo_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "date",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Date"
+      }
+     },
+     {
+      "in": "query",
+      "name": "uf",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Uf"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Territorio Resumo Api V1 Territorio Resumo Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Agregados por distância ao PTT mais próximo, para o país ou uma UF",
+    "tags": [
+     "territorio"
+    ]
+   }
+  },
   "/api/v1/transito/ufs": {
    "get": {
     "description": "Por UF: ASNs do Brasil com sede nela, quantos têm provedor inferido (nível provável ou superior), provedores distintos, HHI (0 a 10.000) sobre a participação de cada provedor\nnos ASNs da UF, participação do maior e dos três maiores, e a fração de provedores estrangeiros. A UF é a da sede da organização. É inferência (ARC v2) sobre rotas observadas, não\ncontratos nem tráfego; veja `limites` e `cobertura` na resposta.",

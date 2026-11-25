@@ -2868,6 +2868,29 @@
    "status": 200,
    "tipo": "objeto"
   },
+  "GET /api/v1/territorio/resumo": {
+   "chaves": [
+    "a_mais_de_100km",
+    "ano_projecao_domicilios",
+    "ate_100km",
+    "censo_ano",
+    "criterio",
+    "escopo",
+    "estimativa_ano",
+    "fonte",
+    "formulas",
+    "limites",
+    "mes_referencia_sici",
+    "penetracao",
+    "pnad_ano",
+    "raio_sem_ptt_km",
+    "sem_distancia",
+    "snapshot_date",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
   "GET /api/v1/transito/ufs": {
    "chaves": [
     "detail"

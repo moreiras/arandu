@@ -222,6 +222,8 @@
   sem_mcp: "blob de visualização ({ibge: valor} de todos os municípios para o mapa); o MCP já tem query(collection=qualidade_uf) e o resumo do RQUAL, e a média entre prestadoras não é uma medida da Anatel"
 - http: GET /mercado/grupos
   sem_mcp: "resumo de apresentação do Panorama de mercado; o MCP já tem query(collection=municipios) e operadoras, e o HHI por grupo é uma inferência que a interface rotula"
+- http: GET /territorio/resumo
+  sem_mcp: "agregado de apresentação da síntese de /municipios (país ou UF, por distância ao PTT); o MCP já tem query(collection=municipios) com group_by sem_ptt_proximo e aggregate, que devolve os mesmos agregados com filtro"
 - http: GET /territorio/rede
   sem_mcp: "resumo de apresentação por UF (estimativas e inferências com cobertura); o MCP já tem query(collection=municipios) e as tools de segurança de roteamento e de trânsito"
 - http: GET /cdns/alcance

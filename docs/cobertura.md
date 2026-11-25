@@ -4,7 +4,7 @@ Gerado por `python3 scripts/gen_cobertura.py` a partir do OpenAPI, do MCP, do fr
 Não edite à mão. Rota nova precisa de uma entrada em `serve/capabilities/_manuais.yaml` (ou de uma capacidade declarada); lacuna
 sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rotas que os substituem.
 
-- Rotas de dados (GET, não deprecated): **176**; com tool no MCP: **141**; consumidas pela interface: **144**.
+- Rotas de dados (GET, não deprecated): **177**; com tool no MCP: **141**; consumidas pela interface: **145**.
 - Pendências marcadas (`pendente:`): **0**; lacunas sem justificativa: **0**.
 - Tools do MCP geradas de capacidade declarada: **2** de 58.
 
@@ -182,6 +182,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /territorio/municipio/{ibge}/semelhantes` | — | ✔ | MCP: comparação de apresentação (municípios do mesmo porte); o MCP já tem query(collection=municipios), que filtra e ordena por domicílios, penetração e fibra |
 | `GET /territorio/ranking` | `query:municipios` | ✔ |  |
 | `GET /territorio/rede` | — | ✔ | MCP: resumo de apresentação por UF (estimativas e inferências com cobertura); o MCP já tem query(collection=municipios) e as tools de segurança de roteamento e de trânsito |
+| `GET /territorio/resumo` | — | ✔ | MCP: agregado de apresentação da síntese de /municipios (país ou UF, por distância ao PTT); o MCP já tem query(collection=municipios) com group_by sem_ptt_proximo e aggregate, que devolve os mesmos agregados com filtro |
 | `GET /transito/ufs` | `query:transito_uf` | — | UI: a página da UF usa o bloco pelo ?include=transito do perfil; a lista das 27 UFs só existe na API e no MCP |
 | `GET /transito/ufs/{uf}` | `query:transito_uf` | — | UI: a página da UF usa o detalhe pelo mesmo endpoint dentro do bloco de trânsito; o MCP traz as linhas pela coleção |
 | `GET /ufs` | `uf_detalhe` | ✔ |  |

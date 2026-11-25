@@ -142,3 +142,46 @@ def semelhantes(doc: dict, linhas: list[dict], ibge: str, limite: int = 8) -> di
     return {**meta(doc), "ibge": ibge, "criterio": f"mesmo porte: entre {1 / FAIXA_PORTE:g}× e {FAIXA_PORTE:g}× os domicílios projetados do município",
             "total_do_porte": len(pares) + 1, "municipio": linha(base), "posicao": {"penetracao": posicao("penetracao"), "fibra_pct": posicao("fibra_pct")},
             "items": [linha(r) for r in pares[:limite]]}
+
+
+# Municípios menores que isto em domicílios ficam fora das listas de penetração (o filtro `dom` da página `/municipios`); o resumo conta quantos são.
+PORTE_MINIMO_DOMICILIOS = 1000
+
+
+def _agrega(rs: list[dict]) -> dict:
+    """Soma de um grupo de municípios. Soma só o que existe (ausência não vira zero na linha); a razão usa só os municípios com domicílios projetados."""
+    com_dom = [r for r in rs if (r.get("domicilios_projetados") or 0) > 0]
+    dom = sum(r["domicilios_projetados"] for r in com_dom)
+    acessos_com_dom = sum(r.get("acessos") or 0 for r in com_dom)
+    return {
+        "municipios": len(rs),
+        "populacao_estimada": sum(r.get("populacao_estimada") or r.get("populacao") or 0 for r in rs),
+        "domicilios_projetados": sum(r.get("domicilios_projetados") or 0 for r in rs),
+        "acessos": sum(r.get("acessos") or 0 for r in rs),
+        "nao_visto": sum(r.get("nao_visto") or 0 for r in rs),
+        "acessos_por_domicilio": round(acessos_com_dom / dom, 3) if dom else None,
+    }
+
+
+def resumo(doc: dict, linhas: list[dict], uf: Optional[str]) -> dict:
+    """Agregados do país (ou de uma UF) por distância ao PTT: a base da síntese de `/municipios` (PT-22). Todos os municípios da tabela do IBGE entram; os grupos
+    `a_mais_de_100km` e `ate_100km` não se sobrepõem e `sem_distancia` junta os sem centróide, de modo que as três contagens somam o total. É comparação de médias entre
+    grupos, sem causa: renda, urbanização e densidade explicam parte da diferença, e a resposta não afirma nenhuma delas."""
+    uf = uf.upper() if uf else None
+    if uf and not any(r["uf"] == uf for r in linhas):
+        raise TerritorioErro(404, f"UF {uf} desconhecida.")
+    sel = [r for r in linhas if not uf or r["uf"] == uf]
+    longe = [r for r in sel if r.get("sem_ptt_proximo") is True]
+    perto = [r for r in sel if r.get("sem_ptt_proximo") is False]
+    sem_dist = [r for r in sel if r.get("sem_ptt_proximo") is None]
+    porte = [r for r in sel if (r.get("domicilios") or 0) >= PORTE_MINIMO_DOMICILIOS and r.get("penetracao") is not None]
+    return {
+        **meta(doc), "escopo": {"uf": uf} if uf else {"pais": "BR"}, "raio_sem_ptt_km": 100,
+        "total": _agrega(sel), "a_mais_de_100km": _agrega(longe), "ate_100km": _agrega(perto), "sem_distancia": _agrega(sem_dist),
+        "penetracao": {"porte_minimo_domicilios": PORTE_MINIMO_DOMICILIOS, "municipios_com_penetracao": len(porte),
+                       "municipios_abaixo_do_porte": sum(1 for r in sel if r.get("domicilios") is not None and r["domicilios"] < PORTE_MINIMO_DOMICILIOS),
+                       "municipios_sem_domicilios": sum(1 for r in sel if r.get("domicilios") is None),
+                       "com_mais_acessos_que_domicilios": sum(1 for r in porte if r["penetracao"] > 1)},
+        "criterio": "agregado por distância em linha reta do centróide do município ao PTT do IX.br mais próximo (100 km); razão = acessos fixos declarados ÷ domicílios projetados, "
+                    "só dos municípios com domicílios projetados",
+    }

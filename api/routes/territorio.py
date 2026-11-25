@@ -6,6 +6,7 @@
 """
 Penetração de banda larga fixa e mercado não visto.
 
+  * `GET /territorio/resumo` — agregados do país (ou de uma UF) por distância ao PTT, para a síntese de `/municipios`.
   * `GET /territorio/ranking` — municípios por penetração, mercado não visto, população, domicílios, acessos ou distância ao PTT mais próximo;
     `sem_ptt_proximo=true` lista as cidades a mais de 100 km de um PTT.
 
@@ -46,6 +47,30 @@ def territorio_ranking(
         raise HTTPException(404, f"Penetração não publicada no snapshot {d}.")
     try:
         return t.ranking(doc, store.territorio_linhas(d), campo, uf, asc, sem_ptt_proximo, min_domicilios, limit, (page - 1) * limit)
+    except t.TerritorioErro as e:
+        raise HTTPException(e.status, e.mensagem)
+
+
+@router.get(
+    "/territorio/resumo",
+    summary="Agregados por distância ao PTT mais próximo, para o país ou uma UF",
+    description="""
+Para o país (ou `uf`): quantos municípios, habitantes estimados, domicílios projetados e acessos fixos declarados ficam a mais de 100 km em linha reta de um PTT do IX.br e quantos ficam
+até 100 km, com a razão de acessos por domicílio projetado de cada grupo e as contagens de municípios com penetração calculada, abaixo do porte mínimo e com mais acessos que domicílios.
+É comparação de médias entre grupos, sem causa: renda, urbanização e densidade explicam parte da diferença. A distância é do centróide, não o trajeto de fibra. Mesmas datas e limites das
+demais rotas de território.
+""",
+)
+def territorio_resumo(request: Request, date: Optional[str] = Query(None), uf: Optional[str] = Query(None)) -> dict:
+    store = request.app.state.store
+    d = store.resolve_date(date)
+    if d is None:
+        raise HTTPException(404, "Nenhum snapshot disponível")
+    doc = store.territorio_doc(d)
+    if not doc:
+        raise HTTPException(404, f"Território não publicado no snapshot {d}.")
+    try:
+        return t.resumo(doc, store.territorio_linhas(d), uf)
     except t.TerritorioErro as e:
         raise HTTPException(e.status, e.mensagem)
 
