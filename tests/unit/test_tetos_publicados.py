@@ -49,6 +49,13 @@ def test_identificacao_por_rede_ipv4_inteiro_e_ipv6_64():
     assert rede_do_ip("2001:db8:a:b:1:2:3:4") == rede_do_ip("2001:db8:a:b:ffff::1") == "2001:db8:a:b::/64"
 
 
+def test_uso_aceitavel_publica_os_tetos_do_codigo():
+    """PT-12b: o texto aprovado de /uso-aceitavel cita 600 s, 3 s e a rede (IPv4 inteiro ou IPv6 /64), os mesmos números de `lib/tetos.ts`."""
+    uso = " ".join((ROOT / "frontend" / "src" / "pages" / "UsoAceitavel.tsx").read_text(encoding="utf-8").split())
+    assert f"o orçamento diário é de {_teto('orcamentoDiarioSegundos')} s e cada chamada de script custa {_teto('custoPorChamadaSegundos')} s" in uso
+    assert "429 com Retry-After até a meia-noite UTC. A rede é o IPv4 inteiro ou o prefixo IPv6 /64." in uso
+
+
 def test_sobre_e_dados_publicam_os_tetos_e_o_aviso_do_link_de_citacao():
     for pagina in ("Sobre.tsx", "DadosPage.tsx"):
         assert "<TetosDeUso" in (ROOT / "frontend" / "src" / "pages" / pagina).read_text(encoding="utf-8"), pagina
