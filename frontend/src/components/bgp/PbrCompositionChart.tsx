@@ -89,12 +89,11 @@ export function PbrCompositionChart({ data }: Props) {
         <>
           <p className="text-xs text-gray-600 mt-2">
             Rota brasileira é a de prefixo contido em bloco alocado pelo Registro.br; a origem do anúncio não define.{' '}
-            <strong>Completo</strong>: prefixo brasileiro anunciado por ASN da lista do Registro.br.{' '}
+            <strong>Completo</strong>: prefixo brasileiro anunciado por ASN brasileiro (delegado pela LACNIC ao Brasil).{' '}
             <strong>Apenas prefixo BR</strong>: prefixo brasileiro anunciado por outro ASN. As duas somam o total.
           </p>
           <p className="text-xs text-gray-600 mt-1">
-            Fora do total, como apoio: rotas de ASN da lista do Registro.br em espaço de outro RIR (bloco legado ou transferido, ou rede
-            estrangeira com CNPJ no Brasil):{' '}
+            Fora do total, como apoio: rotas de ASN brasileiro em espaço de outro RIR (bloco legado ou transferido, por exemplo):{' '}
             {apoio.map((a, i) => <span key={a.afi}>{i > 0 && '; '}{a.afi}: {fmt(a.routes)} rotas de {fmt(a.asns)} ASNs</span>)}.
           </p>
         </>

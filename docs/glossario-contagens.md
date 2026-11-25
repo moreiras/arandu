@@ -16,9 +16,9 @@ Um total depende de três escolhas, e cada página fez as suas.
 
 1. **A regra de "brasileiro".** Há duas listas de ASNs em produção. A da delegação LACNIC com país BR (`is_br`, 9.129) é usada pelo
    índice de ASNs, pelos PTTs, pela home e pelo resumo do snapshot. A do Registro.br (`nicbr-asn-blk`, 9.150) é usada pela análise
-   de rotas (`/bgp`, `/brasil/indicadores`); ela contém os 9.129 e mais 21 ASNs de empresas estrangeiras com CNPJ no Brasil
-   (AS174, AS2914, AS8075 e outros). A decisão D4 fixa `is_br` para "ASN brasileiro" e o bloco do Registro.br para "rota
-   brasileira".
+   de rotas (`/bgp`, `/brasil/indicadores`) até a unificação; ela contém os 9.129 e mais 21 ASNs (AS174, AS2914, AS8075 e
+   outros). A decisão D4 fixa `is_br` como regra única de "ASN brasileiro" em todo o site, inclusive na análise de rotas (os 21 saem
+   do conjunto brasileiro), e o bloco do Registro.br para "rota brasileira".
 2. **O que conta como presença.** Num PTT do IX.br um ASN pode ter sessão com o route server, constar do cadastro de participantes
    ou originar prefixo visto no looking glass, inclusive sem estar no PTT (pelo trânsito de outro). São três conjuntos de tamanho
    muito diferente (3.134, 3.792 e 40.375 ASNs).
@@ -45,7 +45,7 @@ mesma página são defeito.
   Registro.br", o que está errado.
 
 ### Alocados pelo Registro.br
-- **Nome na tela:** "ASNs na lista do Registro.br (inclui 21 de empresas estrangeiras)".
+- **Nome na tela:** "ASNs na lista do Registro.br (21 a mais que a delegação LACNIC ao Brasil)".
 - **Definição:** ASNs do arquivo `nicbr-asn-blk` do Registro.br, com os blocos IPv6 e IPv4 de cada um. Contém os 9.129 `is_br`; os
   21 a mais estão listados em `analise-obint/consolidacao/v1-reproducao.md`, seção 1 (fora do repositório).
 - **Origem:** `normalized/{data}/summary/registro_br.json.gz`; `products/snapshot/build.py:55-66` (`summary.registro_br_asns`, com

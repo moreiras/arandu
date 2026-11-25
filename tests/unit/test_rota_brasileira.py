@@ -73,3 +73,13 @@ def test_as174_fora_dos_filtraveis_e_da_agregacao_com_prefixo_de_outro_rir(tmp_p
     assert not any(p.startswith(("2408:", "2605:")) for p in filtraveis)
     agreg = [r for r in ra["aggregation_by_asn"] if r["asn"] == 174]
     assert agreg == []                                        # o único bloco brasileiro do AS174 é um /32 sem mais-específico
+
+
+def test_asn_brasileiro_pela_delegacao_lacnic(tmp_path):
+    """Com `lacnic_delegated` (is_br), AS174 deixa de ser ASN brasileiro: sua rota no bloco brasileiro continua rota brasileira,
+    como "apenas prefixo BR", e as de outros RIRs saem até da contagem de apoio."""
+    _gz(tmp_path / "normalized" / D / "summary" / "lacnic_delegated.json.gz", {"br_asns": [64500]})
+    ra, _ = _montar(tmp_path)
+    c = ra["pbr_composition"]["v6"]
+    assert ra["summary"]["v6"]["pbr_routes"] == 4 and c["strict_br"]["routes"] == 2 and c["prefix_only_br"]["routes"] == 2
+    assert c["asn_br_fora_de_bloco"]["routes"] == 0 and ra["br_asns_registered"] == 1

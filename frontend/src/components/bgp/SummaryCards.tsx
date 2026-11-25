@@ -135,8 +135,10 @@ export function SummaryCards({ data }: Props) {
           accent="gray"
           label="ASNs BR visíveis na tabela"
           value={`${fmt(data.br_asns_visible ?? 0)} / ${fmt(data.br_asns_registered ?? 0)}`}
-          sub="visíveis de alocados pelo Registro.br"
-          tooltip="Sistemas autônomos brasileiros (IPv6 ou IPv4) que aparecem como originadores de pelo menos uma rota na tabela global, sobre o total de ASNs alocados pelo Registro.br. Diferença indica ASNs sem anúncios visíveis nos coletores utilizados."
+          sub={porPrefixo ? 'visíveis dos ASNs brasileiros (delegação LACNIC)' : 'visíveis de alocados pelo Registro.br'}
+          tooltip={porPrefixo
+            ? 'Sistemas autônomos brasileiros (delegados pela LACNIC ao Brasil) que aparecem como originadores de pelo menos uma rota (IPv6 ou IPv4) na tabela global, sobre o total deles. Diferença indica ASNs sem anúncios visíveis nos coletores utilizados.'
+            : 'Sistemas autônomos da lista do Registro.br (21 a mais que a delegação LACNIC ao Brasil em 2026-11-22) que aparecem como originadores de pelo menos uma rota na tabela global, sobre o total da lista, como este snapshot foi gerado.'}
         />
       </div>
     </div>

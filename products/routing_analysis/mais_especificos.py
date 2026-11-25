@@ -16,6 +16,7 @@ def _classify_pbr(
     origin_prefixes_v4: dict,
     origin_prefixes_v6: dict,
     registro_br: dict,
+    br_asns: set[int] | None = None,
 ) -> tuple[list[dict], list[dict]]:
     """Classifica as rotas com prefixo em bloco do Registro.br ou origem num ASN da lista do Registro.br.
 
@@ -24,7 +25,8 @@ def _classify_pbr(
     As rotas brasileiras (P_BR) são só as `is_prefix_br` (`separar_rota_br`); as de origem BR fora de bloco do Registro.br são
     contadas à parte.
     """
-    br_asns = {a["asn"] for a in registro_br.get("asns", [])}
+    if br_asns is None:                       # sem a delegação LACNIC: a lista do Registro.br (9.150 em 2026-11-22, 21 a mais que is_br)
+        br_asns = {a["asn"] for a in registro_br.get("asns", [])}
 
     # Trie de blocos alocados pelo Registro.br
     trie_v4 = _PrefixTrie()
@@ -62,10 +64,17 @@ def _classify_pbr(
     )
 
 
+def asns_brasileiros(lacnic_delegated: dict | None, registro_br: dict) -> set[int]:
+    """"ASN brasileiro" = delegação LACNIC com país BR (`is_br`), a mesma regra do índice de ASNs, dos PTTs e da home (D4). Sem o
+    arquivo da delegação, cai na lista do Registro.br."""
+    br = (lacnic_delegated or {}).get("br_asns")
+    return {int(a) for a in br} if br else {a["asn"] for a in registro_br.get("asns", [])}
+
+
 def separar_rota_br(rotas: list[dict]) -> tuple[list[dict], list[dict]]:
     """(P_BR, ASN BR fora de bloco). Rota brasileira = prefixo contido em bloco alocado pelo Registro.br; a origem não define (D4).
-    A rota de ASN da lista do Registro.br em espaço de outro RIR (bloco legado ou transferido, ou rede estrangeira com CNPJ no Brasil,
-    como o AS174 fora do `2804:5330::/32`) não é rota brasileira: fica numa contagem à parte, fora do total."""
+    A rota de ASN brasileiro (delegação LACNIC com país BR) em espaço de outro RIR (bloco legado ou transferido, por exemplo) não é rota
+    brasileira: fica numa contagem à parte, fora do total."""
     pbr = [r for r in rotas if r["is_prefix_br"]]
     fora = [r for r in rotas if not r["is_prefix_br"]]
     return pbr, fora
