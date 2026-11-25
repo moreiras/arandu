@@ -7,18 +7,18 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchIXPs, fetchHealth, fetchSnapshot } from '../../services/api'
 import { useActiveDate } from '../../hooks/useSnapshot'
 import { IXPMetricsChart } from '../../components/charts/IXPMetricsChart'
-import type { IXPIndexAfi, IXPIndexEntry } from '../../types/api'
+import { coletaDaFamilia, type IXPIndexAfi, type IXPIndexEntry } from '../../types/api'
 
 export type GrupoCobertura = 'ipv4' | 'ipv6' | 'asns'
 
 function getV4(ixp: IXPIndexEntry): IXPIndexAfi | null {
   const v = ixp.v4
-  return v && 'total_routes' in v ? (v as IXPIndexAfi) : null
+  return v && 'total_routes' in v && coletaDaFamilia(v) === 'ok' ? (v as IXPIndexAfi) : null      // tabela vazia: sem medida, não 0%
 }
 
 function getV6(ixp: IXPIndexEntry): IXPIndexAfi | null {
   const v = ixp.v6
-  return v && 'total_routes' in v ? (v as IXPIndexAfi) : null
+  return v && 'total_routes' in v && coletaDaFamilia(v) === 'ok' ? (v as IXPIndexAfi) : null      // tabela vazia: sem medida, não 0%
 }
 
 function n(v: number | undefined | null) {

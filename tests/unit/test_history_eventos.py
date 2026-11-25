@@ -154,3 +154,108 @@ def test_primeiro_snapshot_nao_tem_eventos_e_reconstruir_e_idempotente(tmp_path)
     build.construir(tmp_path, D[1], _Log(), force=True)
     assert (tmp_path / "history" / "events" / f"{D[1]}.jsonl.gz").read_bytes() == antes
     assert [e["tipo"] for e in _eventos(tmp_path, D[1])] == ["asn_novo"]
+
+
+# --- campo-fonte ausente não vira zero (TRANSV-E8, D7) ------------------------------------------------------------------------------
+
+def _estrangeiro(asn, **kw):
+    """ASN estrangeiro como sai hoje: sem o enriquecimento RPKI/ASPA (só ASN BR passa pela etapa de saúde)."""
+    return {"asn": asn, "is_br": False, "global_prefixes_v4": ["203.0.113.0/24"], "global_prefixes_v4_count": 1, **kw}
+
+
+def test_campo_presente_so_num_snapshot_nao_gera_evento(tmp_path):
+    """Cenário da V1: em 2026-06-28 os estrangeiros tinham `roa_list`, `aspa_providers` e `rpki_validation`; a partir de 2026-07-05 não.
+    A regra antiga lia a ausência como zero e gerou 50.127 `roa_perdido` (AS9997: 11 ROAs e depois "0", prefixos iguais)."""
+    roas = [{"prefix": f"203.0.113.0/{24 + i}", "asn": 9997} for i in range(3)]
+    _snap(tmp_path, D[0], [_estrangeiro(9997, roa_list=roas, aspa_providers=[{"asn": 1}], rpki_validation={"203.0.113.0/24": "invalid"})])
+    _snap(tmp_path, D[1], [_estrangeiro(9997)])
+    _snap(tmp_path, D[2], [_estrangeiro(9997)])
+    assert {e["tipo"] for e in _eventos(tmp_path, D[1])} == set()
+    assert {e["tipo"] for e in _eventos(tmp_path, D[2])} == set()
+    ln = build.ler_jsonl_gz(tmp_path / "history" / "weekly" / D[1] / "asn.jsonl.gz")[0]
+    assert "n_roa" not in ln and "n_aspa" not in ln and "rpki_invalid" not in ln            # ausência fica ausência, não zero
+    assert ln["tem_roa_list"] is False and ln["tem_saude"] is False
+    l0 = build.ler_jsonl_gz(tmp_path / "history" / "weekly" / D[0] / "asn.jsonl.gz")[0]
+    assert l0["n_roa"] == 3 and l0["tem_roa_list"] is True
+
+
+def test_campo_presente_nos_dois_continua_gerando_evento(tmp_path):
+    """Estrangeiro com o campo nos dois snapshots que de fato remove os ROAs (a lista fica vazia) continua gerando `roa_perdido`."""
+    _snap(tmp_path, D[0], [_estrangeiro(9997, roa_list=[{"prefix": "203.0.113.0/24"}], rpki_validation={"203.0.113.0/24": "invalid"})])
+    _snap(tmp_path, D[1], [_estrangeiro(9997, roa_list=[], rpki_validation={"203.0.113.0/24": "not_found"})])
+    assert {e["tipo"] for e in _eventos(tmp_path, D[1])} == {"roa_perdido", "rpki_invalido_resolvido"}
+
+
+def test_aspa_removido_por_asn_br_com_saude_nos_dois_gera_evento(tmp_path):
+    """`aspa_providers` só existe quando há ASPA: num documento que passou pela etapa de saúde (tem `alerts`), a ausência é zero de fato."""
+    _snap(tmp_path, D[0], [_doc(1, aspa_providers=[{"asn": 9}])])
+    _snap(tmp_path, D[1], [_doc(1)])
+    assert {e["tipo"] for e in _eventos(tmp_path, D[1])} == {"aspa_perdido"}
+
+
+def test_asn_br_sem_saude_num_snapshot_nao_gera_evento(tmp_path):
+    doc = _doc(1, roa_list=[{"prefix": "198.18.1.0/24"}], aspa_providers=[{"asn": 9}], rpki_validation={"198.18.1.0/24": "invalid"})
+    sem = {k: v for k, v in _doc(1).items() if k not in ("roa_list", "rpki_validation", "alerts")}
+    _snap(tmp_path, D[0], [doc])
+    _snap(tmp_path, D[1], [sem])
+    assert _eventos(tmp_path, D[1]) == []
+    _snap(tmp_path, D[2], [doc])                            # a cobertura volta: o que já existia não vira "ganho"
+    assert _eventos(tmp_path, D[2]) == []
+
+
+def test_linha_antiga_sem_marcador_e_completada_antes_de_comparar(tmp_path):
+    """Histórico gravado pela regra 1 (sem `tem_*`): o snapshot anterior é completado lendo o publicado antes da comparação."""
+    import gzip as gz
+
+    _snap(tmp_path, D[0], [_estrangeiro(9997, roa_list=[{"prefix": "203.0.113.0/24"}])])
+    arq = tmp_path / "history" / "weekly" / D[0] / "asn.jsonl.gz"
+    velhas = [{k: v for k, v in ln.items() if not k.startswith("tem_")} | {"n_roa": ln.get("n_roa", 0)} for ln in build.ler_jsonl_gz(arq)]
+    arq.write_bytes(gz.compress("".join(json.dumps(x) + "\n" for x in velhas).encode()))
+    _snap(tmp_path, D[1], [_estrangeiro(9997)])
+    assert _eventos(tmp_path, D[1]) == []
+    assert build.ler_jsonl_gz(arq)[0]["tem_roa_list"] is True
+
+
+def test_documento_de_snapshot_compactado_e_lido_do_zip(tmp_path):
+    """Snapshot antigo passa ao formato 2 (`asns.zip`): o gerador de eventos tem de ler os documentos de lá."""
+    import shutil
+    import zipfile
+
+    _snap(tmp_path, D[0], [_doc(1, ixp_member_codes=["rj"])])
+    pub = tmp_path / "published" / D[0]
+    with zipfile.ZipFile(pub / "asns.zip", "w") as z:
+        for p in (pub / "asns").iterdir():
+            z.write(p, p.name)
+    shutil.rmtree(pub / "asns")
+    from products.history.snapshot import Snap
+    assert Snap(tmp_path, D[0]).doc(1)["ixp_member_codes"] == ["rj"]
+    _snap(tmp_path, D[1], [_doc(1, ixp_member_codes=["rj", "sp"])])
+    assert {(e["tipo"], e["chave"]) for e in _eventos(tmp_path, D[1])} == {("ixp_entrada", "sp")}
+
+
+def test_regenerar_eventos_aplica_a_regra_nova_e_relata_antes_e_depois(tmp_path):
+    """A regeneração (D7) completa os marcadores das linhas, refaz os eventos de todas as datas e devolve a contagem por tipo antes e depois."""
+    import gzip as gz
+    from products.history import regenerar_eventos as reg
+
+    _snap(tmp_path, D[0], [_estrangeiro(9997, roa_list=[{"prefix": "203.0.113.0/24"}]), _doc(1)])
+    _snap(tmp_path, D[1], [_estrangeiro(9997), _doc(1, ixp_member_codes=["sp"])])
+    # simula o histórico gravado pela regra 1: linhas sem marcador e o artefato `roa_perdido` em D[1]
+    for d in D[:2]:
+        arq = tmp_path / "history" / "weekly" / d / "asn.jsonl.gz"
+        velhas = [{k: v for k, v in ln.items() if not k.startswith("tem_")} for ln in build.ler_jsonl_gz(arq)]
+        arq.write_bytes(gz.compress("".join(json.dumps(x) + "\n" for x in velhas).encode()))
+    ev = tmp_path / "history" / "events" / f"{D[1]}.jsonl.gz"
+    artefato = {"id": "x", "data": D[1], "tipo": "roa_perdido", "entidade": "asn:9997", "chave": "", "de": 1, "para": 0, "janela": 1,
+                "estado": "confirmado", "asn": 9997, "confirmado": True, "confirmado_em": D[1]}
+    ev.write_bytes(gz.compress("".join(json.dumps(x) + "\n" for x in [artefato, *build.ler_jsonl_gz(ev)]).encode()))
+    rel = reg.regenerar(tmp_path, _Log())
+    assert rel["regra"] == evs.REGRA_VERSAO
+    assert rel["datas"][D[1]]["roa_perdido"] == {"antes": 1, "depois": 0}
+    assert rel["datas"][D[1]]["ixp_entrada"] == {"antes": 1, "depois": 1}
+    assert {e["tipo"] for e in _eventos(tmp_path, D[1])} == {"ixp_entrada"}
+    idx = json.loads((tmp_path / "history" / "index.json").read_text(encoding="utf-8"))
+    assert {s["date"]: s["eventos_regra"] for s in idx["snapshots"]} == {D[0]: evs.REGRA_VERSAO, D[1]: evs.REGRA_VERSAO}
+    assert all("tem_roa_list" in ln for ln in build.ler_jsonl_gz(tmp_path / "history" / "weekly" / D[0] / "asn.jsonl.gz"))
+    assert reg.regenerar(tmp_path, _Log())["datas"][D[1]]["ixp_entrada"] == {"antes": 1, "depois": 1}     # idempotente
+    assert not list((tmp_path / "history").rglob("*.tmp"))

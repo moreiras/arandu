@@ -40,3 +40,21 @@ def test_refresh_atualiza_so_o_bloco_do_manifesto(tmp_path):
     got = sd.read_sidecar(tmp_path, "2026-10-11")
     assert got["summary"] == {"k": 7} and got["manifest"]["coleta"] == "completa" and "checksums" not in got["manifest"]
     assert sd.refresh_manifest_meta(tmp_path, "2000-01-01") is False
+
+
+def test_manifest_meta_repassa_comparado_com():
+    """A home calcula a variação contra `manifest.comparado_com`; sem o campo, os KPIs de rede nunca mostravam variação (HOME-E1)."""
+    assert sd.manifest_meta({"coleta": "completa", "comparado_com": "2026-11-15"})["comparado_com"] == "2026-11-15"
+    assert sd.manifest_meta({"coleta": "completa"})["comparado_com"] is None
+
+
+def test_sidecar_gravado_sem_comparado_com_le_o_campo_do_manifesto(tmp_path):
+    d = tmp_path / "published" / "2026-11-22"
+    d.mkdir(parents=True)
+    sd.write_sidecar(tmp_path, "2026-11-22", {"date": "2026-11-22", "summary": {}, "manifest": {"coleta": "completa"}})
+    (d / "manifest.json").write_text(json.dumps({"coleta": "completa", "comparado_com": "2026-11-15"}))
+    before = (d / sd.SIDECAR).read_bytes()
+    assert sd.read_sidecar(tmp_path, "2026-11-22")["manifest"]["comparado_com"] == "2026-11-15"
+    assert (d / sd.SIDECAR).read_bytes() == before                     # leitura: o publicado não é regravado
+    (d / "manifest.json").write_text(json.dumps({"coleta": "completa"}))
+    assert sd.read_sidecar(tmp_path, "2026-11-22")["manifest"]["comparado_com"] is None

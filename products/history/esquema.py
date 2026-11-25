@@ -10,7 +10,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
-HISTORY_SCHEMA_VERSION = 1
+HISTORY_SCHEMA_VERSION = 2              # 2: marcadores `tem_*` de presença do campo-fonte; contagem sem cobertura fica ausente
 
 
 class _Base(BaseModel):
@@ -30,11 +30,17 @@ class LinhaAsn(_Base):
     n_ixd: int = 0                       # PTTs onde o ASN é par direto (observado)
     n_ixm: int = 0                       # PTTs onde é membro cadastrado
     n_provedores: Optional[int] = None   # provedores confirmado+ (ARC); ausente = snapshot sem o bloco de relações
-    n_roa: int = 0
-    n_aspa: int = 0                      # objetos ASPA publicados pelo próprio AS
-    rpki_valid: int = 0
-    rpki_invalid: int = 0
-    rpki_not_found: int = 0
+    # RPKI e ASPA vêm da etapa de saúde (`products/asn_saude`); ausentes quando o documento não tem o campo nem passou pela etapa
+    # (hoje, os ASNs estrangeiros): ausência de cobertura nunca vira zero.
+    n_roa: Optional[int] = None
+    n_aspa: Optional[int] = None         # objetos ASPA publicados pelo próprio AS
+    rpki_valid: Optional[int] = None
+    rpki_invalid: Optional[int] = None
+    rpki_not_found: Optional[int] = None
+    tem_roa_list: Optional[bool] = None          # o documento traz `roa_list`
+    tem_rpki_validation: Optional[bool] = None   # o documento traz `rpki_validation`
+    tem_aspa_providers: Optional[bool] = None    # o documento traz `aspa_providers` (só existe quando há ASPA)
+    tem_saude: Optional[bool] = None             # o documento passou pela etapa de saúde (`alerts`): campo RPKI/ASPA ausente é zero de fato
     n_alertas: Optional[int] = None      # só ASN BR tem alertas
     hash_alertas: Optional[str] = None   # hash dos ids de alerta (compara conjuntos sem guardá-los)
     hash_relacoes: Optional[str] = None  # hash dos provedores confirmado+

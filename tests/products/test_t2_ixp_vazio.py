@@ -29,5 +29,10 @@ def test_ixp_com_tabela_vazia_e_publicado_com_zero_rotas(dataset, tmp_path, monk
     doc = json.loads((pub / "ixps" / f"{code}.json").read_text(encoding="utf-8"))
     assert doc["ixp"] == code
     summary = json.loads((pub / "summary.json").read_text(encoding="utf-8"))
-    assert summary["ixps_ok"] == len(PTTS)
-    assert summary["ixps_missing"] == 0 and summary["ixps_failed"] == []
+    # Tabela vazia é coleta feita com zero rotas: nem "ok" (era "ok" com 0% de cobertura, IXP-E1) nem "missing" (IXP-E2).
+    entrada = next(e for e in json.loads((pub / "ixps" / "index.json").read_text(encoding="utf-8")) if e["code"] == code)
+    assert entrada["status"] == "partial"
+    assert entrada["v6"]["coleta"] == entrada["v4"]["coleta"] == "vazia" and entrada["v6"]["total_routes"] == 0
+    assert entrada["v6"]["br_prefix_coverage_pct"] is None
+    assert summary["ixps_ok"] == len(PTTS) - 1 and summary["ixps_partial"] == 1
+    assert summary["ixps_missing"] == 0 and summary["ixps_failed"] == [code]

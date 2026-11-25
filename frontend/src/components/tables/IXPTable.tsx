@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { BarraDeAbas } from '../../features/entidade/EntityPage'
-import type { IXPIndexEntry, IXPIndexAfi } from '../../types/api'
+import { coletaDaFamilia, type IXPIndexEntry, type IXPIndexAfi } from '../../types/api'
 import { Dica } from '../ui/Dica'
 
 interface IXPTableProps {
@@ -56,6 +56,18 @@ function getAfi(entry: IXPIndexEntry, afi: 'v4' | 'v6'): IXPIndexAfi | null {
   return a as IXPIndexAfi
 }
 
+/** Família com dado medido: sem bruto ou com a tabela vazia do looking glass, as medidas da família são "n/d", não zero. */
+function medida(entry: IXPIndexEntry, afi: 'v4' | 'v6'): IXPIndexAfi | null {
+  const a = getAfi(entry, afi)
+  return a && coletaDaFamilia(a) === 'ok' ? a : null
+}
+
+const DICA_VAZIA = 'Coleta feita, mas o looking glass respondeu com a tabela vazia nesta família: zero rotas coletadas, sem medida de cobertura.'
+
+function CelulaVazia() {
+  return <span className="text-gray-500" title={DICA_VAZIA}>zero rotas<span className="sr-only">: {DICA_VAZIA}</span></span>
+}
+
 function num(v: number | undefined | null, decimals = 0): string {
   if (v == null) return '—'
   return v.toLocaleString('pt-BR', { maximumFractionDigits: decimals })
@@ -72,9 +84,9 @@ function sortValue(
   totalBrASNs?: number,
   totalGlobalASNs?: number,
   estUsers?: Record<string, number>,
-): number | string {
-  const v4 = getAfi(ixp, 'v4')
-  const v6 = getAfi(ixp, 'v6')
+): number | string | null {
+  const v4 = medida(ixp, 'v4')
+  const v6 = medida(ixp, 'v6')
   switch (key) {
     case 'name': return ixp.name
     case 'uf': return ixp.uf
@@ -93,14 +105,14 @@ function sortValue(
         ? (ixp.asn_origin_union_count ?? 0) / totalGlobalASNs
         : (ixp.asn_origin_union_count ?? 0)
     case 'asn_est_users': return estUsers?.[ixp.code] ?? 0
-    case 'v6_prefixes': return v6?.unique_prefixes ?? 0
-    case 'v6_space': return v6?.ixp_space_units ?? 0
-    case 'v6_ft_coverage': return v6?.ixp_vs_fulltable_space_pct ?? 0
-    case 'v6_reg_coverage': return v6?.br_prefix_coverage_pct ?? 0
-    case 'v4_prefixes': return v4?.unique_prefixes ?? 0
-    case 'v4_space': return v4?.ixp_space_units ?? 0
-    case 'v4_ft_coverage': return v4?.ixp_vs_fulltable_space_pct ?? 0
-    case 'v4_reg_coverage': return v4?.br_prefix_coverage_pct ?? 0
+    case 'v6_prefixes': return v6?.unique_prefixes ?? null
+    case 'v6_space': return v6?.ixp_space_units ?? null
+    case 'v6_ft_coverage': return v6?.ixp_vs_fulltable_space_pct ?? null
+    case 'v6_reg_coverage': return v6?.br_prefix_coverage_pct ?? null
+    case 'v4_prefixes': return v4?.unique_prefixes ?? null
+    case 'v4_space': return v4?.ixp_space_units ?? null
+    case 'v4_ft_coverage': return v4?.ixp_vs_fulltable_space_pct ?? null
+    case 'v4_reg_coverage': return v4?.br_prefix_coverage_pct ?? null
   }
 }
 
@@ -179,6 +191,7 @@ export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTa
     return [...ixps].sort((a, b) => {
       const va = sortValue(a, sortKey, totalBrASNs, totalGlobalASNs, estUsers)
       const vb = sortValue(b, sortKey, totalBrASNs, totalGlobalASNs, estUsers)
+      if (va == null || vb == null) return va == null ? (vb == null ? 0 : 1) : -1      // n/d no fim, em qualquer direção
       let cmp = 0
       if (typeof va === 'string' && typeof vb === 'string') {
         cmp = va.localeCompare(vb, 'pt-BR')
@@ -327,7 +340,7 @@ export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTa
                 {grupo === 'ipv6' && <>
                 {/* IPv6 group */}
                 <td className={`px-2 py-2 text-right tabular-nums text-gray-700 border-l border-gray-100 transition-colors ${hoverBg} ${colBg('v6_prefixes')}`}>
-                  {num(v6?.unique_prefixes)}
+                  {v6 && coletaDaFamilia(v6) === 'vazia' ? <CelulaVazia /> : num(v6?.unique_prefixes)}
                 </td>
                 <td className={`px-2 py-2 text-right tabular-nums text-gray-700 transition-colors ${hoverBg} ${colBg('v6_space')}`}>
                   {v6?.ixp_space_units != null ? num(v6.ixp_space_units, 0) : '—'}
@@ -342,7 +355,7 @@ export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTa
                 {grupo === 'ipv4' && <>
                 {/* IPv4 group */}
                 <td className={`px-2 py-2 text-right tabular-nums text-gray-700 border-l border-gray-100 transition-colors ${hoverBg} ${colBg('v4_prefixes')}`}>
-                  {num(v4?.unique_prefixes)}
+                  {v4 && coletaDaFamilia(v4) === 'vazia' ? <CelulaVazia /> : num(v4?.unique_prefixes)}
                 </td>
                 <td className={`px-2 py-2 text-right tabular-nums text-gray-700 transition-colors ${hoverBg} ${colBg('v4_space')}`}>
                   {v4?.ixp_space_units != null ? num(v4.ixp_space_units) : '—'}

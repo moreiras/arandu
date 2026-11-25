@@ -1474,11 +1474,11 @@
       "type": "string"
      },
      "v4": {
-      "description": "Métricas IPv4 completas. `{status: 'missing'}` se sem dados.",
+      "description": "Métricas IPv4 completas, com `coleta` (ok, vazia, missing; com `vazia` as porcentagens sobre rotas são `null`). `{status: 'missing'}` se sem dados.",
       "title": "V4"
      },
      "v6": {
-      "description": "Métricas IPv6 completas. `{status: 'missing'}` se sem dados.",
+      "description": "Métricas IPv6 completas, com `coleta` (ok, vazia, missing; com `vazia` as porcentagens sobre rotas são `null`). `{status: 'missing'}` se sem dados.",
       "title": "V6"
      }
     },
@@ -1573,7 +1573,7 @@
       "type": "string"
      },
      "status": {
-      "description": "Status da coleta: **ok** (v6+v4), **partial** (só v6 ou v4), **missing** (sem dados)",
+      "description": "Status da coleta: **ok** (rotas em v6 e v4), **partial** (uma família sem bruto ou com a tabela vazia; ver `coleta` em cada família), **missing** (sem dados)",
       "examples": [
        "ok"
       ],
@@ -1589,11 +1589,11 @@
       "type": "string"
      },
      "v4": {
-      "description": "Métricas IPv4. `{status: 'missing'}` se sem dados.",
+      "description": "Métricas IPv4, com `coleta` (ok, vazia, missing). `{status: 'missing'}` se sem dados.",
       "title": "V4"
      },
      "v6": {
-      "description": "Métricas IPv6. `{status: 'missing'}` se sem dados.",
+      "description": "Métricas IPv6, com `coleta` (ok, vazia, missing). `{status: 'missing'}` se sem dados.",
       "title": "V6"
      }
     },
@@ -8366,7 +8366,7 @@
   },
   "/api/v1/feed/mudancas.atom": {
    "get": {
-    "description": "Feed Atom com as diferenças **observadas** entre snapshots, uma entrada por data e tipo, só as confirmadas e só as dos 2 snapshots mais recentes\n(a série antiga exige login). Não traz eventos de provedor (inferência) nem nomes de empresas, e não atribui causa nem intenção.",
+    "description": "Feed Atom com as diferenças **observadas** entre snapshots, uma entrada por data de confirmação e tipo, só as confirmadas num dos 2 snapshots\nmais recentes (a série antiga exige login); `updated` é a data em que o evento se confirmou. Em entrada e saída de PTT o título conta pares AS-PTT\ne, à parte, os ASes distintos. Não traz eventos de provedor (inferência) nem nomes de empresas, e não atribui causa nem intenção.",
     "operationId": "feed_mudancas_api_v1_feed_mudancas_atom_get",
     "responses": {
      "200": {
@@ -10267,7 +10267,7 @@
   },
   "/api/v1/ixps": {
    "get": {
-    "description": "Retorna a lista compacta de todos os IXPs do IX.br com métricas resumidas por AFI (v6/v4).\n\nCada entrada inclui contagens de ASNs, prefixos e percentuais de cobertura.\nQuando não há dados coletados para um AFI, o campo correspondente é `{\"status\": \"missing\"}`.\n\nUse `?status=ok` para ver apenas IXPs com coleta completa, ou `?uf=SP` para filtrar por estado.",
+    "description": "Retorna a lista compacta de todos os IXPs do IX.br com métricas resumidas por AFI (v6/v4).\n\nCada entrada inclui contagens de ASNs, prefixos e percentuais de cobertura.\nQuando não há dados coletados para um AFI, o campo correspondente é `{\"status\": \"missing\"}`. Cada AFI traz `coleta` (`ok`, `vazia`:\na coleta funcionou e o looking glass respondeu com a tabela vazia, `missing`); `status` só é `ok` com rotas nas duas famílias.\n\nUse `?status=ok` para ver apenas IXPs com coleta completa (`?status=partial` lista os que têm uma família vazia ou ausente), ou `?uf=SP`\npara filtrar por estado.",
     "operationId": "list_ixps_api_v1_ixps_get",
     "parameters": [
      {
@@ -10418,7 +10418,7 @@
   },
   "/api/v1/ixps/{code}": {
    "get": {
-    "description": "Retorna o documento completo de um IXP, com métricas detalhadas separadas por AFI.\n\n**Métricas por AFI (v4 / v6):**\n- `asn_direct` — lista completa de ASNs em peering direto\n- `br_asns_direct` / `br_asns_origin` — subconjuntos brasileiros\n- `br_prefix_coverage_pct` — % do espaço de endereços BR (Registro.br) visível aqui\n- `ixp_vs_fulltable_space_pct` — % do espaço global coberto pelos prefixos deste IXP\n\nQuando não há dados coletados para um AFI, o campo retorna `{\"status\": \"missing\"}`.\n\n**Códigos de IXP:** `sp`, `rj`, `bsb`, `curitiba`, `poa`, `bel`, `manaus`, `fortaleza`, etc.\nConsulte `/api/v1/ixps` para a lista completa.",
+    "description": "Retorna o documento completo de um IXP, com métricas detalhadas separadas por AFI.\n\n**Métricas por AFI (v4 / v6):**\n- `asn_direct` — lista completa de ASNs em peering direto\n- `br_asns_direct` / `br_asns_origin` — subconjuntos brasileiros\n- `br_prefix_coverage_pct` — % do espaço de endereços BR (Registro.br) visível aqui\n- `ixp_vs_fulltable_space_pct` — % do espaço global coberto pelos prefixos deste IXP\n\nQuando não há dados coletados para um AFI, o campo retorna `{\"status\": \"missing\"}`. Cada AFI traz `coleta`: `ok` (o looking glass\ndevolveu rotas), `vazia` (a coleta funcionou e o looking glass respondeu com a tabela vazia; as porcentagens sobre rotas saem `null`, porque\nzero rotas não é zero de cobertura) ou `missing`.\n\n**Códigos de IXP:** `sp`, `rj`, `bsb`, `curitiba`, `poa`, `bel`, `manaus`, `fortaleza`, etc.\nConsulte `/api/v1/ixps` para a lista completa.",
     "operationId": "get_ixp_api_v1_ixps__code__get",
     "parameters": [
      {
@@ -16026,7 +16026,7 @@
   },
   "/api/v1/routing-analysis": {
    "get": {
-    "description": "Retorna análise completa da tabela de roteamento global com foco em ASNs e\nprefixos brasileiros (P_BR). Inclui composição de P_BR, histograma de\nprefix length, more specifics, potencial de agregação, cobertura Registro.br,\nprefixos potencialmente filtráveis. `moas` vem nulo, com o motivo em `moas_indisponivel`: a tabela usada guarda uma origem por\nprefixo e não detecta origem múltipla.\n\nQuando `has_path_data` é `true`, o campo `as_path_stats` é preenchido com\nestatísticas de AS_PATH, prepending, upstream aparente, higiene e communities.",
+    "description": "Retorna análise completa da tabela de roteamento global com foco em ASNs e\nprefixos brasileiros (P_BR). Rota brasileira = prefixo contido em bloco alocado pelo Registro.br; a origem não define. Em\n`pbr_composition`, `strict_br` + `prefix_only_br` = `total`; `asn_br_fora_de_bloco` (alias `origin_only_br`, com `fora_do_total`)\nconta à parte as rotas de ASN da lista do Registro.br em espaço de outro RIR. Inclui composição de P_BR, histograma de\nprefix length, more specifics, potencial de agregação, cobertura Registro.br,\nprefixos potencialmente filtráveis. `moas` vem nulo, com o motivo em `moas_indisponivel`: a tabela usada guarda uma origem por\nprefixo e não detecta origem múltipla.\n\nQuando `has_path_data` é `true`, o campo `as_path_stats` é preenchido com\nestatísticas de AS_PATH, prepending, upstream aparente, higiene e communities.",
     "operationId": "get_routing_analysis_api_v1_routing_analysis_get",
     "parameters": [
      {
@@ -18201,7 +18201,7 @@
   },
   "/api/v1/ufs": {
    "get": {
-    "description": "Uma linha por UF com os números que a página `/estados` mostra: PTTs com coleta, municípios e acessos fixos\ndeclarados ao SICI, `fibra_pct` (meio de acesso \"Fibra\"), ASNs BR e **usuários estimados** (soma APNIC dos ASNs\nda UF, pela geolocalização da organização — estimativa, não censo), municípios a mais de 100 km de um PTT e, quando há o produto de território,\n`domicilios` (projetados, IBGE) e `penetracao` (acessos fixos ÷ domicílios; é razão, não percentual, e pode passar de 1 porque um domicílio tem vários acessos).",
+    "description": "Uma linha por UF com os números que a página `/estados` mostra: `ptts` (PTTs do IX.br na UF no snapshot, com ou sem coleta: a mesma\nlista usada na distância) e `ptts_com_coleta`, municípios e acessos fixos declarados ao SICI (`null` quando o snapshot não tem o SICI;\nausência, não zero), `fibra_pct` (meio de acesso \"Fibra\"), ASNs BR e **usuários estimados** (soma APNIC dos ASNs\nda UF, pela geolocalização da organização — estimativa, não censo), municípios a mais de 100 km de um PTT e, quando há o produto de território,\n`domicilios` (projetados, IBGE) e `penetracao` (acessos fixos ÷ domicílios; é razão, não percentual, e pode passar de 1 porque um domicílio tem vários acessos).",
     "operationId": "ufs_resumo_api_v1_ufs_get",
     "parameters": [
      {

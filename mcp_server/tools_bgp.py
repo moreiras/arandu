@@ -23,6 +23,10 @@ _LIMITE_SECAO_BYTES = 4000        # seção maior que isto só é descrita no í
 def routing_analysis(secao: Optional[str] = None, limit: int = 50, offset: int = 0, date: Optional[str] = None) -> dict:
     """Análise BGP global focada nos prefixos brasileiros (P_BR): composição, tamanhos de prefixo, more specifics, agregação.
 
+    Rota brasileira = prefixo contido em bloco alocado pelo Registro.br; a origem não define. Em `pbr_composition`, `strict_br` +
+    `prefix_only_br` = `total`; `asn_br_fora_de_bloco` (alias `origin_only_br`) fica fora do total: rotas de ASN da lista do Registro.br
+    em espaço de outro RIR. Snapshots gerados antes desta regra não têm `total` e somavam `origin_only_br` ao total.
+
     Sem `secao` devolve o índice: os campos pequenos inteiros e, das seções grandes, só o nome e o tamanho em `secoes_grandes`.
     Com `secao` devolve aquela seção; lista ou mapa com mais de `limit` entradas vem fatiado (`total`, `offset`, `truncado`) — algumas
     seções têm dezenas de MB (cobertura do Registro.br). Inclui prefixos potencialmente filtráveis e, quando `has_path_data` é

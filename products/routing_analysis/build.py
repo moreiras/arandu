@@ -6,6 +6,9 @@
 """
 Análise da tabela BGP global com foco em ASNs e prefixos brasileiros (P_BR).
 
+Rota brasileira (P_BR) = prefixo contido em bloco alocado pelo Registro.br; a origem do anúncio não define (decisão D4). Rota de
+ASN da lista do Registro.br em espaço de outro RIR fica em `pbr_composition.{afi}.asn_br_fora_de_bloco`, fora do total.
+
 Inputs (normalized/{date}/summary/):
   origin-prefixes-{afi}.json.gz  — {str(asn): [prefixos]}
   registro_br.json.gz            — {asns: [{asn, name, cnpj, prefixes_v4, prefixes_v6}]}
@@ -30,7 +33,7 @@ from core.moas import MOTIVO as MOAS_MOTIVO
 from products.routing_analysis.agregacao import _aggregation_savings_by_origin, _aggregation_table  # noqa: F401
 from products.routing_analysis.as_path import _as_path_stats, _community_stats, _hygiene_issues, _top_prependers, _upstream_diversity  # noqa: F401
 from products.routing_analysis.cobertura import _global_comparison, _moas_analysis, _registro_br_coverage, _too_specific  # noqa: F401
-from products.routing_analysis.mais_especificos import _analyze_more_specifics, _classify_pbr, _prefix_length_hist, _top_asns_more_specifics  # noqa: F401
+from products.routing_analysis.mais_especificos import _analyze_more_specifics, _classify_pbr, _prefix_length_hist, _top_asns_more_specifics, separar_rota_br  # noqa: F401
 from products.routing_analysis.rpki import _build_rpki_index, _rpki_status  # noqa: F401
 from products.routing_analysis import resumo as resumo_rotas
 from products.routing_analysis.util import _AS_TRANS, _NO_ADVERTISE, _NO_EXPORT, _PRIVATE_AS_RANGES, _PrefixTrie, _is_blackhole_candidate, _is_private_as, _is_private_community, _net_span, _safe_prefixlen, _union_span, normalize_path  # noqa: F401
@@ -73,8 +76,11 @@ def run(date_str: str, base: Path, log) -> bool:
 
     # ---- Classificação P_BR ----
     log.info("classifying pbr routes")
-    pbr_v4, pbr_v6 = _classify_pbr(op_v4, op_v6, registro_br)
-    log.info("pbr classified", pbr_v4=len(pbr_v4), pbr_v6=len(pbr_v6))
+    todas_v4, todas_v6 = _classify_pbr(op_v4, op_v6, registro_br)
+    # Rota brasileira = prefixo em bloco do Registro.br (D4); origem BR fora de bloco vai para a contagem à parte.
+    pbr_v4, fora_v4 = separar_rota_br(todas_v4)
+    pbr_v6, fora_v6 = separar_rota_br(todas_v6)
+    log.info("pbr classified", pbr_v4=len(pbr_v4), pbr_v6=len(pbr_v6), fora_de_bloco_v4=len(fora_v4), fora_de_bloco_v6=len(fora_v6))
 
     # ---- Sumário ----
     def _summary(pbr: list[dict], prefix_set: list, routes_stats: dict, afi: str) -> dict:
@@ -97,26 +103,30 @@ def run(date_str: str, base: Path, log) -> bool:
         "v6": _summary(pbr_v6, ps_v6, rt_v6, "v6"),
     }
 
-    # ASNs BR visíveis (união IPv4+IPv6, sem dupla contagem) vs. total registrado
-    br_origin_v4 = {r["origin_as"] for r in pbr_v4 if r["is_origin_br"]}
-    br_origin_v6 = {r["origin_as"] for r in pbr_v6 if r["is_origin_br"]}
+    # ASNs da lista do Registro.br visíveis como origem de qualquer rota (união IPv4+IPv6, sem dupla contagem) vs. total registrado
+    br_origin_v4 = {r["origin_as"] for r in todas_v4 if r["is_origin_br"]}
+    br_origin_v6 = {r["origin_as"] for r in todas_v6 if r["is_origin_br"]}
     br_asns_visible    = len(br_origin_v4 | br_origin_v6)
     br_asns_registered = len(br_asns)
 
     # ---- Composição P_BR ----
-    def _composition(pbr: list[dict]) -> dict:
-        strict      = [r for r in pbr if r["is_origin_br"] and r["is_prefix_br"]]
-        origin_only = [r for r in pbr if r["is_origin_br"] and not r["is_prefix_br"]]
-        prefix_only = [r for r in pbr if not r["is_origin_br"] and r["is_prefix_br"]]
+    # strict_br + prefix_only_br = total (soma das categorias igual ao total de rotas brasileiras). `asn_br_fora_de_bloco` (alias antigo:
+    # `origin_only_br`) é apoio: rota de ASN da lista do Registro.br em espaço de outro RIR, fora do total (D4).
+    def _composition(pbr: list[dict], fora: list[dict]) -> dict:
+        strict      = [r for r in pbr if r["is_origin_br"]]
+        prefix_only = [r for r in pbr if not r["is_origin_br"]]
+        apoio = {"routes": len(fora), "asns": len({r["origin_as"] for r in fora}), "fora_do_total": True}
         return {
             "strict_br":      {"routes": len(strict),      "asns": len({r["origin_as"] for r in strict})},
-            "origin_only_br": {"routes": len(origin_only), "asns": len({r["origin_as"] for r in origin_only})},
             "prefix_only_br": {"routes": len(prefix_only), "asns": len({r["origin_as"] for r in prefix_only})},
+            "total":          {"routes": len(pbr),         "asns": len({r["origin_as"] for r in pbr})},
+            "asn_br_fora_de_bloco": apoio,
+            "origin_only_br": dict(apoio),
         }
 
     pbr_composition = {
-        "v4": _composition(pbr_v4),
-        "v6": _composition(pbr_v6),
+        "v4": _composition(pbr_v4, fora_v4),
+        "v6": _composition(pbr_v6, fora_v6),
     }
 
     # ---- Histograma prefix length ----
@@ -245,7 +255,7 @@ def run(date_str: str, base: Path, log) -> bool:
     # Resumo de poucos KB para o Panorama técnico (a API não carrega os ~14 MB para servir os totais).
     resumo_rotas.gravar(pub, resumo_rotas.montar(
         date_str, pbr_v4, pbr_v6, rpki_index, summary=summary, more_specifics=more_specifics,
-        too_specific=too_specific, vrps=len(vrp_list)))
+        too_specific=too_specific, vrps=len(vrp_list), fora_de_bloco={"v4": len(fora_v4), "v6": len(fora_v6)}))
     log.info("routing_analysis written", path=str(out_path),
              pbr_v4=len(pbr_v4), pbr_v6=len(pbr_v6),
              has_path_data=has_path_data)

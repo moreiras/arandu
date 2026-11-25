@@ -128,8 +128,13 @@ export interface SnapshotSummary {
 // IXPs
 // -------------------------------------------------------------------------
 
+/** Coleta de uma família no PTT: `ok` (o looking glass devolveu rotas), `vazia` (a coleta funcionou e o looking glass respondeu com a
+ * tabela vazia: zero rotas, não zero de cobertura) ou `missing` (sem bruto). Ausente em respostas antigas. */
+export type ColetaAfi = 'ok' | 'vazia' | 'missing'
+
 /** Métricas compactas por AFI no índice de IXPs (/api/v1/ixps) */
 export interface IXPIndexAfi {
+  coleta?: ColetaAfi
   total_routes: number
   unique_prefixes: number
   ixp_space: number
@@ -140,8 +145,9 @@ export interface IXPIndexAfi {
   asn_stub_count: number
   /** ASNs brasileiros originando prefixos neste IXP */
   br_asns_origin_count: number
-  br_prefix_coverage_pct: number
-  ixp_vs_fulltable_space_pct: number
+  /** `null` com a tabela vazia (`coleta: 'vazia'`). */
+  br_prefix_coverage_pct: number | null
+  ixp_vs_fulltable_space_pct: number | null
 }
 
 /** Entrada no índice de IXPs — campos compactos, sem listas */
@@ -166,6 +172,7 @@ export interface IXPIndexEntry {
 
 /** Documento completo de IXP (/api/v1/ixps/{code}) — quando há dados para o AFI */
 export interface IXPAfiFull {
+  coleta?: ColetaAfi
   total_routes: number
   unique_prefixes: number
   ixp_space: number
@@ -208,13 +215,21 @@ export interface IXPMembersResponse {
 /** Retornado quando não há dados coletados para um AFI neste IXP */
 export interface IXPAfiMissing {
   status: string
+  coleta?: ColetaAfi
 }
 
 export type IXPAfi = IXPAfiFull | IXPAfiMissing
 
-/** Type guard: retorna true quando o AFI tem dados completos */
+/** Type guard: retorna true quando o AFI tem dados completos. A família com a tabela vazia (`coleta: 'vazia'`) não tem: zero rotas não
+ * mede cobertura, e as porcentagens vêm nulas. */
 export function isIXPAfiFull(afi: IXPAfi): afi is IXPAfiFull {
-  return 'total_routes' in afi
+  return 'total_routes' in afi && afi.coleta !== 'vazia'
+}
+
+/** Estado da coleta de uma família, inclusive em respostas sem o campo `coleta`. */
+export function coletaDaFamilia(afi: IXPAfi | IXPIndexAfi | null | undefined): ColetaAfi {
+  if (!afi || !('total_routes' in afi)) return 'missing'
+  return afi.coleta ?? (afi.total_routes ? 'ok' : 'vazia')
 }
 
 export interface PathNodeIXPStats {
@@ -928,14 +943,18 @@ export interface PerfilMunicipio {
 /** Uma linha de `GET /ufs`: números da UF para a página /estados. */
 export interface ResumoUf {
   uf: string
+  /** PTTs do IX.br na UF no snapshot, com ou sem coleta (a mesma lista da distância). */
   ptts: number
-  municipios: number
-  acessos: number
+  /** Dos `ptts`, os que tiveram coleta neste snapshot (ausente em respostas antigas). */
+  ptts_com_coleta?: number
+  /** `null` quando o snapshot não tem o SICI (ausência, não zero); o mesmo vale para `acessos` e `municipios_sem_ptt`. */
+  municipios: number | null
+  acessos: number | null
   fibra_pct: number | null
   asns: number
   /** Soma APNIC dos ASNs BR da UF (estimativa). */
   usuarios: number
-  municipios_sem_ptt: number
+  municipios_sem_ptt: number | null
   /** Domicílios projetados (IBGE) dos municípios com dado de território; ausente se o snapshot não tem o produto. */
   domicilios?: number | null
   /** Acessos fixos ÷ domicílios projetados (razão; 0,8 = 80 acessos por 100 domicílios). */
@@ -948,8 +967,9 @@ export interface PerfilUf {
   uf: string
   mes_referencia?: string | null
   totais: {
-    municipios: number; acessos: number; fibra_pct: number | null; asns: number; usuarios: number
-    municipios_sem_ptt: number; acessos_sem_ptt: number; raio_sem_ptt_km: number
+    /** `null` quando o snapshot não tem o SICI (ausência, não zero). */
+    municipios: number | null; acessos: number | null; fibra_pct: number | null; asns: number; usuarios: number
+    municipios_sem_ptt: number | null; acessos_sem_ptt: number | null; raio_sem_ptt_km: number
   }
   territorio?: TerritorioUf | null
   /** HHI por CNPJ e por grupo da UF (`include=mercado_grupos`). */
@@ -2773,7 +2793,8 @@ export interface ResumoRoteamento {
   snapshot_date: string
   definicao: string
   vrps: number | null
-  rotas_br: Record<'v6' | 'v4', { pbr_routes: number | null; pbr_pct: number | null; br_origin_asns: number | null; total_routes_global: number | null }>
+  /** `asn_br_fora_de_bloco`: rotas de ASN da lista do Registro.br em espaço de outro RIR, fora do total (ausente antes da regra de D4). */
+  rotas_br: Record<'v6' | 'v4', { pbr_routes: number | null; pbr_pct: number | null; br_origin_asns: number | null; total_routes_global: number | null; asn_br_fora_de_bloco?: number | null }>
   rpki: Record<'v6' | 'v4', EstadoRpkiFamilia>
   saude: Record<'v6' | 'v4', { mais_especificos: number | null; mais_especificos_pct: number | null; filtraveis: number | null }> & { /** Sempre nulo: a coleta não detecta MOAS (motivo em `moas_indisponivel`). */ moas: { prefixos: number; lista_truncada: boolean } | null; moas_indisponivel?: string }
   limites: string

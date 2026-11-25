@@ -20,6 +20,11 @@ from typing import Iterable, Optional
 from products.history.linhas import provedores_firmes
 from products.history.snapshot import SERVICOS, Snap
 
+# Versão da regra de detecção, gravada no índice do histórico. 1: contagem de ROA, ASPA e RPKI ausente era lida como zero (o
+# artefato de 2026-07-05: `roa_list` de estrangeiros publicado só em 2026-06-28). 2: os eventos de ROA, ASPA e RPKI só se geram
+# quando o campo-fonte está coberto nos dois snapshots comparados (`linhas.presenca`).
+REGRA_VERSAO = 2
+
 # tipo → (janela de confirmação em snapshots, negativo?)
 TIPOS: dict[str, tuple[int, bool]] = {
     "asn_novo": (2, False), "asn_sumido": (2, True),
@@ -60,6 +65,12 @@ def _ativo(ln: Optional[dict]) -> bool:
     return bool(ln and ln.get("is_br") and (ln.get("p4") or ln.get("p6")))
 
 
+def _coberto(ln: Optional[dict], campo: str) -> bool:
+    """O snapshot cobriu o campo-fonte (`roa_list`, `aspa_providers`, `rpki_validation`) deste ASN: o documento traz o campo ou passou
+    pela etapa de saúde, que o gravaria se houvesse. Linha sem os marcadores (regra 1) não está coberta: sem evidência, sem evento."""
+    return bool(ln) and (ln.get(f"tem_{campo}") is True or ln.get("tem_saude") is True)
+
+
 def _alertas(doc: dict) -> set[str]:
     return {a["id"] for a in doc.get("alerts") or []}
 
@@ -84,19 +95,22 @@ def detectar(atual: Snap, anterior: Snap) -> list[dict]:
             continue
         if not parcial and _ativo(p) and not _ativo(a):
             ev.append(_evento(d, "asn_sumido", e, "", True, False, uf))
-        # contagens simples
-        if a.get("n_roa", 0) > 0 and p.get("n_roa", 0) == 0:
-            ev.append(_evento(d, "roa_ganho", e, "", p.get("n_roa", 0), a["n_roa"], uf))
-        if not parcial and a.get("n_roa", 0) == 0 and p.get("n_roa", 0) > 0:
-            ev.append(_evento(d, "roa_perdido", e, "", p["n_roa"], 0, uf))
-        if a.get("n_aspa", 0) > 0 and p.get("n_aspa", 0) == 0:
-            ev.append(_evento(d, "aspa_ganho", e, "", 0, a["n_aspa"], uf))
-        if not parcial and a.get("n_aspa", 0) == 0 and p.get("n_aspa", 0) > 0:
-            ev.append(_evento(d, "aspa_perdido", e, "", p["n_aspa"], 0, uf))
-        if a.get("rpki_invalid", 0) > 0 and p.get("rpki_invalid", 0) == 0:
-            ev.append(_evento(d, "rpki_invalido_novo", e, "", 0, a["rpki_invalid"], uf))
-        if a.get("rpki_invalid", 0) == 0 and p.get("rpki_invalid", 0) > 0:
-            ev.append(_evento(d, "rpki_invalido_resolvido", e, "", p["rpki_invalid"], 0, uf))
+        # contagens simples: só com o campo-fonte coberto nos dois snapshots (ausência nunca vira zero)
+        if _coberto(a, "roa_list") and _coberto(p, "roa_list"):
+            if a.get("n_roa", 0) > 0 and p.get("n_roa", 0) == 0:
+                ev.append(_evento(d, "roa_ganho", e, "", p.get("n_roa", 0), a["n_roa"], uf))
+            if not parcial and a.get("n_roa", 0) == 0 and p.get("n_roa", 0) > 0:
+                ev.append(_evento(d, "roa_perdido", e, "", p["n_roa"], 0, uf))
+        if _coberto(a, "aspa_providers") and _coberto(p, "aspa_providers"):
+            if a.get("n_aspa", 0) > 0 and p.get("n_aspa", 0) == 0:
+                ev.append(_evento(d, "aspa_ganho", e, "", 0, a["n_aspa"], uf))
+            if not parcial and a.get("n_aspa", 0) == 0 and p.get("n_aspa", 0) > 0:
+                ev.append(_evento(d, "aspa_perdido", e, "", p["n_aspa"], 0, uf))
+        if _coberto(a, "rpki_validation") and _coberto(p, "rpki_validation"):
+            if a.get("rpki_invalid", 0) > 0 and p.get("rpki_invalid", 0) == 0:
+                ev.append(_evento(d, "rpki_invalido_novo", e, "", 0, a["rpki_invalid"], uf))
+            if a.get("rpki_invalid", 0) == 0 and p.get("rpki_invalid", 0) > 0:
+                ev.append(_evento(d, "rpki_invalido_resolvido", e, "", p["rpki_invalid"], 0, uf))
         # conjuntos: só abre os documentos quando o hash mudou
         mudou = [k for k in ("hash_ixm", "hash_ixd", "hash_relacoes", "hash_pfx") if a.get(k) != p.get(k)]
         if comparavel_alertas and a.get("hash_alertas") != p.get("hash_alertas"):
@@ -211,12 +225,12 @@ def vale_em(ev: dict, s: Snap) -> Optional[bool]:
         return _ativo(ln) if tipo == "asn_novo" else not _ativo(ln)
     if ln is None:
         return None
-    if tipo.startswith("roa_"):
-        return ln.get("n_roa", 0) > 0 if tipo == "roa_ganho" else ln.get("n_roa", 0) == 0
-    if tipo.startswith("aspa_"):
-        return ln.get("n_aspa", 0) > 0 if tipo == "aspa_ganho" else ln.get("n_aspa", 0) == 0
-    if tipo.startswith("rpki_invalido"):
-        return ln.get("rpki_invalid", 0) > 0 if tipo == "rpki_invalido_novo" else ln.get("rpki_invalid", 0) == 0
+    for prefixo, campo, contagem in (("roa_", "roa_list", "n_roa"), ("aspa_", "aspa_providers", "n_aspa"),
+                                     ("rpki_invalido", "rpki_validation", "rpki_invalid")):
+        if tipo.startswith(prefixo):
+            if not _coberto(ln, campo):
+                return None
+            return ln.get(contagem, 0) > 0 if tipo in ("roa_ganho", "aspa_ganho", "rpki_invalido_novo") else ln.get(contagem, 0) == 0
     doc = s.doc(asn)
     if not doc:
         return None

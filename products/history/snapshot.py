@@ -13,6 +13,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import Optional
 
+from core import layout
 from core.common import published_path, read_json_gz
 
 SERVICOS = ("scm", "smp", "stfc", "seac")
@@ -58,8 +59,9 @@ class Snap:
             return {ln["ixp"] for ln in (json.loads(x) for x in f if x.strip()) if ln.get("status") == "ok"}
 
     def doc(self, asn: int) -> Optional[dict]:
-        p = self.pub / "asns" / f"{asn}.json"
-        return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
+        """Documento publicado do ASN, nos dois formatos do snapshot (`asns/` ou, depois da compactação, `asns.zip`)."""
+        b = layout.ler_bytes(self.pub, f"asns/{asn}.json")
+        return json.loads(b) if b is not None else None
 
     @cached_property
     def outorgas(self) -> dict[str, set[str]]:

@@ -312,12 +312,16 @@ export function fetchSnapshot(date: string): Promise<SnapshotDetails> {
   return get(`/api/v1/snapshots/${date}`)
 }
 
+// `coleta` por família (ok, vazia, missing) e `status: partial` com a tabela vazia: a resposta de snapshot publicado mudou e o `?date=` é
+// imutável no cache, então a URL muda junto.
+const ESQUEMA_IXPS = 2
+
 export function fetchIXPs(date?: string, status?: string, uf?: string): Promise<IXPListResponse> {
-  return get('/api/v1/ixps', { date, status, uf })
+  return get('/api/v1/ixps', { date, status, uf, esquema: ESQUEMA_IXPS })
 }
 
 export function fetchIXP(code: string, date?: string): Promise<IXPDocument> {
-  return get(`/api/v1/ixps/${code}`, { date })
+  return get(`/api/v1/ixps/${code}`, { date, esquema: ESQUEMA_IXPS })
 }
 
 /** Perfil consolidado do PTT: o documento mais membros (com nomes), usuários estimados, potencial, assinantes, a linha do índice e os totais do snapshot. */
@@ -341,7 +345,7 @@ export type IxpPerfil = IXPDocument & {
 export const blocoHistorico = (completo: boolean) => (completo ? 'historico_completo' : 'historico')
 
 export function fetchIXPPerfil(code: string, date?: string, historicoCompleto = false): Promise<IxpPerfil> {
-  return get(`/api/v1/ixps/${code}`, { date, include: `membros,usuarios_estimados,potencial,assinantes,indice,totais,${blocoHistorico(historicoCompleto)},route_servers,rejeicoes,facilities,portas`, opcional: true })
+  return get(`/api/v1/ixps/${code}`, { date, esquema: ESQUEMA_IXPS, include: `membros,usuarios_estimados,potencial,assinantes,indice,totais,${blocoHistorico(historicoCompleto)},route_servers,rejeicoes,facilities,portas`, opcional: true })
 }
 
 /** Um acerto da busca universal. `url` é o caminho da página no site. */
@@ -948,8 +952,12 @@ export function fetchTerritorioMapa(indicador: string, date?: string): Promise<T
   return get('/api/v1/territorio/mapa', { indicador, date })
 }
 
+// `ptts` passou a contar os PTTs do snapshot com ou sem coleta (+ `ptts_com_coleta`) e acessos/municípios sem SICI saem `null`; o `?date=`
+// é imutável no cache: subir quando a resposta de `/ufs` ou `/ufs/{uf}` mudar para um snapshot já publicado.
+const ESQUEMA_UFS = 2
+
 export function fetchUfs(date?: string): Promise<{ snapshot_date: string; mes_referencia?: string | null; total: number; items: ResumoUf[] }> {
-  return get('/api/v1/ufs', { date })
+  return get('/api/v1/ufs', { date, esquema: ESQUEMA_UFS })
 }
 
 /** Perfil consolidado da UF numa chamada. */
@@ -1205,8 +1213,9 @@ export async function postHeartbeat(): Promise<AnonInfo | null> {
  * Muda a URL quando a resposta muda sem a data mudar. 2: as listas de AS_PATH (prepending e upstreams) passaram a trazer o topo de cada
  * coluna ordenável (2.0.28), inclusive no snapshot de 2026-11-15, corrigido no lugar; a URL antiga fica `immutable` no navegador e na borda.
  * 3: `moas` passou a vir nulo, com `moas_indisponivel`, em todas as datas (a coleta guarda uma origem por prefixo).
+ * 4: rota brasileira só por prefixo em bloco do Registro.br; `pbr_composition` com `total` e `asn_br_fora_de_bloco` (D4).
  */
-const ESQUEMA_ROUTING_ANALYSIS = 3
+const ESQUEMA_ROUTING_ANALYSIS = 4
 
 export function fetchRoutingAnalysis(date?: string): Promise<RoutingAnalysis> {
   return get('/api/v1/routing-analysis', { date, esquema: ESQUEMA_ROUTING_ANALYSIS })
@@ -1328,8 +1337,9 @@ export function fetchCeticIndicadores(opts: { pesquisa: string; tabela: string; 
  * Versão do formato de `/brasil/indicadores` que esta interface espera. A resposta com `?date=` de snapshot publicado sai `immutable`
  * por um ano (api/main.py), no navegador e no cache do nginx: quando a rota ganha campo (ex.: bloco `rpki`), a URL tem de mudar,
  * senão quem já abriu a página continua com a resposta antiga. A API ignora o parâmetro. 3: `rpki.rotas.saude.moas` nulo em todas as datas.
+ * 4: `rpki.rotas.rotas_br.{afi}.asn_br_fora_de_bloco` e rota brasileira só por prefixo (D4).
  */
-const ESQUEMA_BRASIL_INDICADORES = 3
+const ESQUEMA_BRASIL_INDICADORES = 4
 
 /** Agregados do país para a home e o Panorama técnico: IPv6 do APNIC, DNSSEC, ROV, prontidão e RPKI. Rota aberta. */
 export function fetchBrasilIndicadores(date?: string): Promise<BrasilIndicadores> {

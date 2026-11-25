@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useEffect, useState } from 'react'
-import type { IXPIndexAfi } from '../../types/api'
+import { coletaDaFamilia, type IXPIndexAfi } from '../../types/api'
 import { corLegivel } from '../../lib/contraste'
 
 export function num(v: number | null | undefined, decimals = 0): string {
@@ -65,6 +65,7 @@ export function HeroStat({
 export function getIndexAfi(afi: unknown): IXPIndexAfi | null {
   if (!afi || typeof afi !== 'object') return null
   if (!('total_routes' in (afi as object))) return null
+  if (coletaDaFamilia(afi as IXPIndexAfi) !== 'ok') return null       // tabela vazia do looking glass: sem medida, não 0%
   return afi as IXPIndexAfi
 }
 

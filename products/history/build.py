@@ -10,7 +10,7 @@ Saídas em `data/history/` (camada derivada e reconstruível; o publicado segue 
   weekly/{date}/{ixp,operadora,uf}.jsonl.gz   séries agregadas (products/history/agregados.py), operadora e UF com média móvel de 28 dias
   events/{date}.jsonl.gz       eventos detectados nesta data em relação ao snapshot anterior com histórico (products/history/eventos.py);
                                o estado (pendente, confirmado, revertido) é reavaliado a cada snapshot novo, com regravação atômica
-  index.json                   snapshots com histórico, estado da coleta, PTTs coletados, `rules_version` e `built_at`
+  index.json                   snapshots com histórico, estado da coleta, PTTs coletados, `rules_version`, `eventos_regra` e `built_at`
 A pasta se chama `weekly`, mas há uma por snapshot, semanal ou diário.
 Idempotente: sem `--force`, snapshot já construído é pulado."""
 from __future__ import annotations
@@ -24,6 +24,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from core import layout
 from core.common import configure_logging, data_dir, published_path, read_json_gz, today_str
 from products.history import agregados as ag
 from products.history import eventos as evs
@@ -136,10 +137,41 @@ def _datas_indice(base: Path) -> list[str]:
     return sorted(s["date"] for s in indice.get("snapshots", []))
 
 
+def completar_presenca(base: Path, date_str: str, log=None) -> int:
+    """Linhas de ASN gravadas pela regra 1 (sem os marcadores `tem_*`) são refeitas do documento publicado da data, em qualquer dos dois
+    formatos do snapshot; linha cujo documento não se lê fica como está (sem marcador = sem cobertura). Devolve quantas mudaram.
+    Idempotente: com todas as linhas marcadas, não lê nem grava nada."""
+    arq = dir_semanal(base, date_str) / "asn.jsonl.gz"
+    linhas = ler_jsonl_gz(arq)
+    if all("tem_saude" in ln for ln in linhas):
+        return 0
+    pub = published_path(base, date_str)
+    novas, mudou = [], 0
+    for ln in linhas:
+        if "tem_saude" not in ln:
+            b = layout.ler_bytes(pub, f"asns/{ln['asn']}.json")
+            if b is not None:
+                ln = linha_asn(json.loads(b))
+                mudou += 1
+        novas.append(ln)
+    if mudou:
+        n, sha = gravar_jsonl_gz(arq, novas)
+        caminho = raiz_historico(base) / "index.json"
+        indice = json.loads(caminho.read_text(encoding="utf-8")) if caminho.exists() else {}
+        entrada = next((x for x in indice.get("snapshots", []) if x["date"] == date_str), None)
+        if entrada is not None:
+            atualizar_indice(base, date_str, {**{k: v for k, v in entrada.items() if k != "date"}, "asn_linhas": n, "asn_sha256": sha})
+        if log:
+            log.info("history marcadores de presença completados", date=date_str, linhas=mudou)
+    return mudou
+
+
 def gerar_eventos(base: Path, date_str: str, log) -> dict:
     """Eventos de `date_str` contra o snapshot anterior com histórico e reavaliação dos eventos pendentes de datas anteriores."""
     datas = sorted(set(_datas_indice(base)) | {date_str})
     anteriores = [d for d in datas if d < date_str]
+    if anteriores:
+        completar_presenca(base, anteriores[-1], log)            # histórico gravado pela regra 1: sem isso, nenhum evento de ROA/ASPA/RPKI
     eventos = evs.detectar(Snap(base, date_str), Snap(base, anteriores[-1])) if anteriores else []
     gravar_jsonl_gz(dir_eventos(base) / f"{date_str}.jsonl.gz", eventos)
     reavaliados = 0
@@ -157,7 +189,8 @@ def gerar_eventos(base: Path, date_str: str, log) -> dict:
     for e in eventos:
         por_tipo[e["tipo"]] = por_tipo.get(e["tipo"], 0) + 1
     log.info("history eventos", date=date_str, eventos=len(eventos), anterior=anteriores[-1] if anteriores else None, reavaliados=reavaliados)
-    return {"eventos_n": len(eventos), "eventos": por_tipo, "anterior": anteriores[-1] if anteriores else None, "reavaliados": reavaliados}
+    return {"eventos_n": len(eventos), "eventos": por_tipo, "anterior": anteriores[-1] if anteriores else None, "reavaliados": reavaliados,
+            "eventos_regra": evs.REGRA_VERSAO}
 
 
 def construir(base: Path, date_str: str, log, force: bool = False) -> dict:

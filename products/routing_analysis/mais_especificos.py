@@ -17,10 +17,12 @@ def _classify_pbr(
     origin_prefixes_v6: dict,
     registro_br: dict,
 ) -> tuple[list[dict], list[dict]]:
-    """Classifica todas as rotas em P_BR.
+    """Classifica as rotas com prefixo em bloco do Registro.br ou origem num ASN da lista do Registro.br.
 
-    Retorna (pbr_routes_v4, pbr_routes_v6) — listas de dicts com campos:
+    Retorna (rotas_v4, rotas_v6) — listas de dicts com campos:
       prefix, afi, origin_as, is_origin_br, is_prefix_br
+    As rotas brasileiras (P_BR) são só as `is_prefix_br` (`separar_rota_br`); as de origem BR fora de bloco do Registro.br são
+    contadas à parte.
     """
     br_asns = {a["asn"] for a in registro_br.get("asns", [])}
 
@@ -58,6 +60,15 @@ def _classify_pbr(
         _classify(origin_prefixes_v4, trie_v4, "v4"),
         _classify(origin_prefixes_v6, trie_v6, "v6"),
     )
+
+
+def separar_rota_br(rotas: list[dict]) -> tuple[list[dict], list[dict]]:
+    """(P_BR, ASN BR fora de bloco). Rota brasileira = prefixo contido em bloco alocado pelo Registro.br; a origem não define (D4).
+    A rota de ASN da lista do Registro.br em espaço de outro RIR (bloco legado ou transferido, ou rede estrangeira com CNPJ no Brasil,
+    como o AS174 fora do `2804:5330::/32`) não é rota brasileira: fica numa contagem à parte, fora do total."""
+    pbr = [r for r in rotas if r["is_prefix_br"]]
+    fora = [r for r in rotas if not r["is_prefix_br"]]
+    return pbr, fora
 
 
 def _analyze_more_specifics(pbr_routes: list[dict]) -> tuple[dict, list[dict]]:

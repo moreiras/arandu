@@ -76,7 +76,9 @@ def _enrich_top_communities(data: dict) -> None:
     summary="Análise BGP global — prefixos brasileiros",
     description="""
 Retorna análise completa da tabela de roteamento global com foco em ASNs e
-prefixos brasileiros (P_BR). Inclui composição de P_BR, histograma de
+prefixos brasileiros (P_BR). Rota brasileira = prefixo contido em bloco alocado pelo Registro.br; a origem não define. Em
+`pbr_composition`, `strict_br` + `prefix_only_br` = `total`; `asn_br_fora_de_bloco` (alias `origin_only_br`, com `fora_do_total`)
+conta à parte as rotas de ASN da lista do Registro.br em espaço de outro RIR. Inclui composição de P_BR, histograma de
 prefix length, more specifics, potencial de agregação, cobertura Registro.br,
 prefixos potencialmente filtráveis. `moas` vem nulo, com o motivo em `moas_indisponivel`: a tabela usada guarda uma origem por
 prefixo e não detecta origem múltipla.

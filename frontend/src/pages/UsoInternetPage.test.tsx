@@ -65,6 +65,19 @@ describe('página Uso da Internet', () => {
     expect(screen.getByText(/margem oficial é de 1,077 a 1,143 vez/)).toBeTruthy()
   })
 
+  it('margem registrada como zero não aparece como "±0,0" e a nota conta as células (USO-E1)', async () => {
+    const zero = (recorte: string, dimensao: string, resposta: string, proporcao: number) => ({ ...linha(recorte, dimensao, resposta, proporcao, 100), margem_proporcao: 0 })
+    server.use(
+      http.get('*/api/v1/cetic/tabelas', () => HttpResponse.json({ ...meta, total: 1, items: [{ tabela: 'A1', codigo: 'A1', titulo: 'Empresas provedoras que possuem sistema autônomo', universo: 'x', notas: [] }] })),
+      http.get('*/api/v1/cetic/estimativas', () => HttpResponse.json({ detail: 'x' }, { status: 404 })),
+      http.get('*/api/v1/cetic/indicadores', () => HttpResponse.json({ ...meta, filtros: {}, total: 3, items: [zero('Total', 'Total', 'Sim', 43.61), zero('Total', 'Total', 'Não', 56.39), linha('Norte', 'Região', 'Sim', 29.36, 10)] })),
+    )
+    montar()
+    await waitFor(() => expect(screen.getByText('43,6')).toBeTruthy())
+    expect(screen.queryByText('±0,0')).toBeNull()
+    expect(screen.getByTestId('nota-margem-zero')).toHaveTextContent(/^2 células têm margem de erro registrada como zero/)
+  })
+
   it('diz que as tabelas não estão publicadas quando a API devolve 404', async () => {
     server.use(http.get('*/api/v1/cetic/tabelas', () => HttpResponse.json({ detail: 'x' }, { status: 404 })))
     montar()

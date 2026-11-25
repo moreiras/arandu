@@ -14,7 +14,7 @@ export function PainelBloco({ dados }: BlocoProps<UfCtx>) {
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
         <KPI label="PTTs" value={fmt(ixps.length)} hint="IX.br na UF" />
-        <KPI label="Acessos fixos" value={fmt(totais.acessos)} hint={`${fmt(totais.municipios)} municípios com banda larga`} />
+        <KPI label="Acessos fixos" value={fmt(totais.acessos)} hint={totais.acessos == null ? 'sem SICI neste snapshot' : `${fmt(totais.municipios)} municípios com banda larga`} />
         <KPI label="Fibra" value={totais.fibra_pct == null ? '—' : `${totais.fibra_pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`} hint="dos acessos fixos (FTTH/FTTB)" />
         <KPI label="Usuários estimados" value={fmt(totais.usuarios)} hint={`${fmt(totais.asns)} ASNs BR sediados (APNIC)`} />
         <KPI label="Operadoras com acesso na UF" value={fmt(operadorasPresentesTotal)} hint={`CNPJs com acesso fixo declarado na UF; ${fmt(operadorasTotal)} com sede na UF`} />

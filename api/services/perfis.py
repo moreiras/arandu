@@ -129,15 +129,19 @@ class PerfisService:
         return (c[0], c[1]) if c else None
 
     def ptts_pontos(self, date_str: str) -> list[dict]:
-        """PTTs com coordenadas, um por (código, local de PIX), na ordem da configuração. Cacheado por data."""
+        """PTTs com coordenadas, um por (código, local de PIX), na ordem da configuração. Cacheado por data.
+
+        Só os PTTs do snapshot (`ixps/index.json` da data, com ou sem coleta): é a mesma lista da contagem de PTTs por UF, e um PTT que
+        ainda não existia na data não serve de "PTT mais próximo". Sem índice na data, vale a configuração inteira."""
         if date_str not in self._ptts_pontos:
             vistos: set[tuple] = set()
             out: list[dict] = []
+            do_snapshot = {e.get("code") for e in self.ixp_index(date_str) or []}
             for f in self._pix_features(date_str):
                 c = f.get("geometry", {}).get("coordinates") or []
                 p = f.get("properties", {})
                 code = p.get("ixp_code")
-                if len(c) < 2 or not code or (code, c[0], c[1]) in vistos:
+                if len(c) < 2 or not code or (code, c[0], c[1]) in vistos or (do_snapshot and code not in do_snapshot):
                     continue
                 vistos.add((code, c[0], c[1]))
                 out.append({"codigo": code, "nome": p.get("ixp_name") or code, "lon": c[0], "lat": c[1]})
@@ -292,6 +296,8 @@ class PerfisService:
         quer = lambda b: blocos is None or b in blocos  # noqa: E731
         municipios = self._municipios_da_uf(date_str, uf)
         fixos = self.sici_municipios(date_str)
+        tem_sici = bool(fixos)                 # snapshot sem SICI: acessos e municípios são ausência, não zero
+        tem_distancia = tem_sici and bool(self.ptts_pontos(date_str))
         asns = self.asns_por_uf(date_str).get(uf, {"quantidade": 0, "usuarios": 0})
         acessos = sum(m["acessos"] for m in municipios)
         sem_ptt = [m for m in municipios if m["km_ptt"] is not None and m["km_ptt"] > self.RAIO_SEM_PTT_KM]
@@ -299,9 +305,11 @@ class PerfisService:
             "snapshot_date": date_str, "uf": uf,
             "mes_referencia": (self.sici_meta(date_str) or {}).get("mes_referencia"),
             "totais": {
-                "municipios": len(municipios), "acessos": acessos, "fibra_pct": self._fibra_pct(municipios, fixos),
+                "municipios": len(municipios) if tem_sici else None, "acessos": acessos if tem_sici else None,
+                "fibra_pct": self._fibra_pct(municipios, fixos),
                 "asns": asns["quantidade"], "usuarios": asns["usuarios"],
-                "municipios_sem_ptt": len(sem_ptt), "acessos_sem_ptt": sum(m["acessos"] for m in sem_ptt),
+                "municipios_sem_ptt": len(sem_ptt) if tem_distancia else None,
+                "acessos_sem_ptt": sum(m["acessos"] for m in sem_ptt) if tem_distancia else None,
                 "raio_sem_ptt_km": self.RAIO_SEM_PTT_KM,
             },
         }
@@ -356,10 +364,15 @@ class PerfisService:
             por_uf: dict[str, list[dict]] = {}
             for ibge, m in fixos.items():
                 por_uf.setdefault((m.get("uf") or "").upper(), []).append({"ibge": ibge, "acessos": m.get("acessos", 0)})
+            # PTTs da UF: os do snapshot, com ou sem coleta (a mesma lista da distância, `ptts_pontos`); `ptts_com_coleta` à parte.
             ptts_uf: dict[str, int] = {}
+            ptts_coleta_uf: dict[str, int] = {}
             for e in self.ixp_index(date_str):
-                if e.get("uf") and e.get("status") != "missing":
-                    ptts_uf[e["uf"].upper()] = ptts_uf.get(e["uf"].upper(), 0) + 1
+                if e.get("uf"):
+                    u = e["uf"].upper()
+                    ptts_uf[u] = ptts_uf.get(u, 0) + 1
+                    ptts_coleta_uf[u] = ptts_coleta_uf.get(u, 0) + (e.get("status") != "missing")
+            tem_sici = bool(fixos)                 # snapshot sem SICI: acessos e municípios são ausência, não zero
             pontos = self.ptts_pontos(date_str)
             asns = self.asns_por_uf(date_str)
             # Penetração por UF: acessos fixos ÷ domicílios projetados, só dos municípios que têm domicílios no produto de território.
@@ -384,10 +397,11 @@ class PerfisService:
                     if cen and pontos and self.ptt_mais_proximo(date_str, cen[0], cen[1])["km"] > self.RAIO_SEM_PTT_KM:
                         sem += 1
                 linhas.append({
-                    "uf": uf, "ptts": ptts_uf.get(uf, 0), "municipios": len(muns),
-                    "acessos": sum(m["acessos"] for m in muns), "fibra_pct": self._fibra_pct(muns, fixos),
+                    "uf": uf, "ptts": ptts_uf.get(uf, 0), "ptts_com_coleta": ptts_coleta_uf.get(uf, 0),
+                    "municipios": len(muns) if tem_sici else None,
+                    "acessos": sum(m["acessos"] for m in muns) if tem_sici else None, "fibra_pct": self._fibra_pct(muns, fixos),
                     "asns": asns.get(uf, {}).get("quantidade", 0), "usuarios": asns.get(uf, {}).get("usuarios", 0),
-                    "municipios_sem_ptt": sem,
+                    "municipios_sem_ptt": sem if tem_sici and pontos else None,
                     "domicilios": dom_uf.get(uf) or None,
                     "penetracao": round(acessos_dom_uf[uf] / dom_uf[uf], 4) if dom_uf.get(uf) else None,
                 })

@@ -15,6 +15,7 @@ import { SITE } from '../lib/site'
 import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
+import { TEXTO_ZERO_REGISTRADO, estadoMargem } from '../features/cetic/margem'
 
 const PESQUISAS = [
   { id: 'domicilios', rotulo: 'TIC Domicílios', descricao: 'Uso de internet e equipamentos nos domicílios brasileiros' },
@@ -243,9 +244,14 @@ export function UsoInternetPage() {
                           const l = celulas.get(`${r}||${c}`)
                           const v = medida === 'proporcao' ? l?.proporcao ?? null : l?.total ?? null
                           const m = medida === 'proporcao' ? l?.margem_proporcao ?? null : l?.margem_total ?? null
+                          const estado = estadoMargem(v, m, medida)
                           return (
                             <td key={c} className="px-2 py-1 text-right tabular-nums whitespace-nowrap">
-                              {medida === 'proporcao' ? pct(v) : inteiro(v)}{v != null && m != null && <span className="text-gray-500"> ±{medida === 'proporcao' ? pct(m) : inteiro(m)}</span>}
+                              {medida === 'proporcao' ? pct(v) : inteiro(v)}
+                              {estado === 'zero_registrado'
+                                ? <span className="text-gray-500" title={TEXTO_ZERO_REGISTRADO}> ±—<span className="sr-only"> ({TEXTO_ZERO_REGISTRADO})</span></span>
+                                : v != null && m != null && <span className="text-gray-500"> ±{medida === 'proporcao' ? pct(m) : inteiro(m)}</span>}
+                              {estado === 'precisao_baixa' && <span className="text-aviso-900"> · precisão baixa</span>}
                             </td>
                           )
                         })}
@@ -255,6 +261,18 @@ export function UsoInternetPage() {
                 </tbody>
               </table>
             </div>
+            {(() => {
+              const zeradas = recortes.reduce((n, r) => n + colunas.filter((c) => {
+                const l = celulas.get(`${r}||${c}`)
+                return medida === 'proporcao' && estadoMargem(l?.proporcao, l?.margem_proporcao, 'proporcao') === 'zero_registrado'
+              }).length, 0)
+              return zeradas > 0 && (
+                <p className="text-xs text-gray-600 mt-1" data-testid="nota-margem-zero">
+                  {zeradas.toLocaleString('pt-BR')} {zeradas === 1 ? 'célula tem' : 'células têm'} {TEXTO_ZERO_REGISTRADO}, com proporção entre 0% e
+                  100%; numa pesquisa amostral isso não é precisão perfeita, e a margem aparece como "±—".
+                </p>
+              )
+            })()}
             </details>
           )}
           {escolhida.notas.length > 0 && (

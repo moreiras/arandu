@@ -115,6 +115,11 @@ class GeolocalizacaoService:
                 ]
                 if geolocated:
                     result[code] = geolocated
+            # PIX sem coordenada fica fora do mapa e da distância ao PTT: avisa em vez de descartar calado
+            sem = sorted(f"{code}:{e.get('name')}" for code, entries in raw.items() for e in (entries or [])
+                         if e.get("lat") is None or e.get("lon") is None)
+            if sem:
+                _log.warning("pix.yaml: %d PIX sem coordenada fora do mapa: %s", len(sem), ", ".join(sem))
             self._pix_config = result
         except Exception as exc:
             _log.warning("failed to load pix.yaml: %s", exc)

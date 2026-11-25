@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from core.ixp_coleta import marcar_ptt
 from core.common import load_ixps, normalized_path, published_path, raw_bgp_ixp, raw_existente, raw_path
 from core.jsonio import carregar_json, carregar_json_gz
 
@@ -198,8 +199,10 @@ def publicar_ixp_index(
         if members_data is not None:
             entry["ixbr_members_count"] = members_data.get("members_count")
 
+        if doc:
+            marcar_ptt(entry)              # `coleta` por família; tabela vazia num LG que respondeu não é "ok" (nem 0% de cobertura)
         index.append(entry)
-        log.debug("ixp indexed", code=code, status=status)
+        log.debug("ixp indexed", code=code, status=entry["status"])
 
     # Carrega o agregado pré-computado pelo metrics.py (métricas reais, não aproximações)
     agg_doc = carregar_json(pub_dir / "_aggregate.json") or {}

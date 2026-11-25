@@ -107,6 +107,7 @@ except ImportError:
 
 from core.common import codigo_valido, published_path
 from core.geoip import extrair_geo
+from core.ixp_coleta import marcar_ptt
 from core.ixp_geo import first_ip, slash20_blocks
 
 _log = logging.getLogger("arandurape")
@@ -605,6 +606,7 @@ class Store:
             return cache[code]
         result = self._read_json(self._pub(date_str) / "ixps" / f"{code}.json")
         if result is not None:
+            marcar_ptt(result)                 # `coleta` por família (ok, vazia, missing); com a tabela vazia, porcentagens nulas
             self._ixp_detail_cache.setdefault(date_str, {})[code] = result
         return result
 

@@ -563,7 +563,8 @@ def test_perfil_e_resumo_das_ufs_batem_com_as_rotas_antigas(api, ctx):
     assert [o["cnpj"] for o in perfil["operadoras"]["items"]] == [o["cnpj"] for o in ops["items"]]
     linha = next(r for r in resumo["items"] if r["uf"] == uf)
     assert linha["acessos"] == perfil["totais"]["acessos"] and linha["usuarios"] == perfil["totais"]["usuarios"]
-    assert linha["ptts"] == len([i for i in antigo_ixps if i.get("status") != "missing"])
+    assert linha["ptts"] == len(antigo_ixps) == len(perfil["ixps"])           # a mesma lista da distância (EST-E1)
+    assert linha["ptts_com_coleta"] == len([i for i in antigo_ixps if i.get("status") != "missing"])
     assert linha["municipios_sem_ptt"] == perfil["totais"]["municipios_sem_ptt"]
     so = api.get(f"/api/v1/ufs/{uf}", params={"blocos": "municipios"}, headers=ALLOWED).json()
     assert "municipios" in so and "ixps" not in so and "operadoras" not in so and "totais" in so
@@ -773,8 +774,8 @@ def test_feed_atom_das_mudancas_so_confirmadas_sem_provedor_e_aberto(api):
     texto = r.text.lower()
     assert "provedor" not in texto and "@" not in texto and "não indica causa" in texto
     conf = api.get("/api/v1/changes", params={"limit": 500, "from": "2000-01-01"}, headers=ALLOWED).json()["items"]
-    esperadas = {(e["data"], e["tipo"]) for e in conf if not e["tipo"].startswith("provedor")}
-    assert len(entradas) == len(esperadas) > 0                                   # uma entrada por (data, tipo) confirmado
+    esperadas = {(e["confirmado_em"], e["tipo"]) for e in conf if not e["tipo"].startswith("provedor")}
+    assert len(entradas) == len(esperadas) > 0                                   # uma entrada por (data de confirmação, tipo)
 
 
 def test_historico_para_anonimo_so_a_partir_dos_snapshots_atuais(api):

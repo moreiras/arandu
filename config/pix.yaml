@@ -38,6 +38,10 @@ pix:
     address: Rua José Augusto Tourinho Dantas, 344 - Bairro Praia do Flamengo, Salvador
       - BA
     cep: '41603110'
+    lat: -12.904138
+    lon: -38.362818
+    coord_fonte: https://www.peeringdb.com/api/fac/8555
+    coord_data: '2026-11-24'
   bel:
   - name: '[PIX RNP]'
     address: Rua Augusto Correia ,1, Bélem - PA - 66075-110
@@ -72,6 +76,10 @@ pix:
   - name: '[PIX DIPELNET]'
     address: Rua Minas Gerais, 1332 Sala 303 - Centro, 85812-035 - Cascavel - PR
     cep: '85812035'
+    lat: -24.94549
+    lon: -53.444846
+    coord_fonte: https://www.peeringdb.com/api/fac/11668
+    coord_data: '2026-11-24'
   cas:
   - name: '[PIX DESKTOP]'
     address: Rua Conceição, 233 - Centro - Ed. Ouro Verde - sl 2713, 13010-050 - Campinas
@@ -88,6 +96,10 @@ pix:
     address: Av. Pierre Simon de Laplace, 1211 - Techno Park, 13069-320 - Campinas
       - SP
     cep: '13069320'
+    lat: -22.850918
+    lon: -47.154706
+    coord_fonte: https://www.peeringdb.com/api/fac/2812
+    coord_data: '2026-11-24'
   - name: '[PIX ASCENTY-VIN]'
     address: Av. João Batista Nunes, 50 - Distrito Industrial Benedito Storani, 13288-162
       - Vinhedo - SP
@@ -96,6 +108,10 @@ pix:
     address: Rua Saturnino de Brito, 45 - Cidade Universitária Zeferino Vaz, 13083-889
       - Barão Geraldo - Campinas - SP
     cep: '13083889'
+    lat: -22.817439
+    lon: -47.062779
+    coord_fonte: https://www.peeringdb.com/api/fac/11666
+    coord_data: '2026-11-24'
   cau:
   - name: '[PIX BR.Digital]'
     address: Rua Nazaré da Mata, 246  - Bairro Vassouras, 55028-570 - Caruaru - PE
@@ -133,6 +149,11 @@ pix:
     address: Rua 14, n. 1161 Sala:1 Posição I - Bairro Alto Alegre II, Maracanau -
       CE - 61921-430
     cep: '61921430'
+    lat: -3.830803
+    lon: -38.611253
+    coord_fonte: https://www.peeringdb.com/api/fac/5140
+    coord_data: '2026-11-24'
+    coord_nota: "facility Ascenty FTZ01 ligada ao IX ce; no PeeringDB a rua é Tv. Francisco Marrocos Portela, 1161 (mesmo número e cidade)"
   - name: '[PIX Tecto]'
     address: Rua Raimundo Esteves, n. 333 - Praia do Futuro, Fortaleza - CE - 60182-330
     cep: '60182330'
@@ -163,6 +184,10 @@ pix:
   - name: '[PIX Brasil TecPar]'
     address: Av.  Isaac Póvoas, 901 Sala 201 - Centro, 78045-200 - Cuiabá, MT
     cep: '78045200'
+    lat: -15.594931
+    lon: -56.102861
+    coord_fonte: https://www.peeringdb.com/api/fac/4987
+    coord_data: '2026-11-24'
   - name: '[PIX CEPROMAT]'
     address: 78050-970 - Cuiaba - MT
     cep: '78050970'
@@ -194,6 +219,11 @@ pix:
   - name: '[PIX ANID]'
     address: Rua João A. Filho s/n, Quarenta - Campina Grande - PB, Coordenadas:,
       07°13',2''S, 035°53',4''O
+    lat: -7.217222
+    lon: -35.884444
+    coord_fonte: https://old.ix.br/adesao/cpv
+    coord_data: '2026-11-24'
+    coord_nota: "a página publica 07°13',2''S 035°53',4''O, lido como graus, minutos e segundos"
   - name: '[PIX RNP]'
     address: Av. Aprígio Veloso, 882 - Bloco CN, Sala 125 - PoP-PB/RNP, 58429-900
       - Campina Grande - PB
@@ -205,9 +235,17 @@ pix:
     address: Rua Garibaldi, 789 - Sala 202 - 20º Andar,  Edifício Estrela, Caxias
       do Sul - RS
     cep: '95084900'
+    lat: -29.168144
+    lon: -51.183052
+    coord_fonte: https://www.peeringdb.com/api/fac/11669
+    coord_data: '2026-11-24'
   - name: '[PIX Bitcom]'
     address: Rua Bento Gonçalves, 1012 - Nossa Sra. de Lourdes, Caxias do Sul - RS
     cep: '95020410'
+    lat: -29.165828
+    lon: -51.171375
+    coord_fonte: https://www.peeringdb.com/api/fac/11193
+    coord_data: '2026-11-24'
   df:
   - name: '[PIX Elea-BSB1]'
     address: 70713-000 - Brasília - DF
@@ -215,6 +253,10 @@ pix:
     lat: -15.787273
     lon: -47.885107
   - name: '[PIX Elea-BSB2]'
+    lat: -15.789087
+    lon: -47.910974
+    coord_fonte: https://www.peeringdb.com/api/fac/11610
+    coord_data: '2026-11-24'
   - name: '[PIX RNP]'
     address: 70070-914, Brasil
     cep: '70070914'
@@ -226,6 +268,10 @@ pix:
     lat: -15.803258
     lon: -47.885477
   - name: '[PIX Serpro]'
+    lat: -15.783974
+    lon: -47.869808
+    coord_fonte: https://www.peeringdb.com/api/fac/11662
+    coord_data: '2026-11-24'
   - name: '[PIX BR.Digital]'
     address: 71736-205 - Brasília - DF
     cep: '71736205'
@@ -263,6 +309,10 @@ pix:
     address: Av. T-63, 3182 - 14º Ed. Aquarius Center - Setor Bueno, 74115-100 - Goiânia  -
       GO
     cep: '74115100'
+    lat: -16.714319
+    lon: -49.264947
+    coord_fonte: https://www.peeringdb.com/api/fac/2223
+    coord_data: '2026-11-24'
   - name: '[PIX SAMM - Serra Dourada]'
     address: Rua Casorina Bittencourt Alves, 349 - Sala 01 - Bloco C, 74810-370 -
       Goiânia  - GO
@@ -271,6 +321,10 @@ pix:
     address: Av. T-63, 3182 - 8 Andar - Ed. Aquarius Center - Setor Bueno, 74115-100
       - Goiania - GO
     cep: '74115100'
+    lat: -16.714439
+    lon: -49.26442
+    coord_fonte: https://www.peeringdb.com/api/fac/11691
+    coord_data: '2026-11-24'
   - name: '[PIX Everest Digital]'
     address: Av. Fued José Sebba, 700 - Térreo 2 - Jardim Goiás, 74805-100 - Goiania
       - GO
@@ -288,6 +342,10 @@ pix:
     address: Av. Tancredo Neves, 6731 | Caixa Postal 2039 | CEP 85.867-900, Tecnologia
       da Informação e Comunicação - Fundação PTI, Av. Tancredo Neves, 6731 | Caixa
       Postal 2039 | CEP 85.867-900
+    lat: -25.446945
+    lon: -54.585134
+    coord_fonte: https://www.peeringdb.com/api/fac/2851
+    coord_data: '2026-11-24'
   - name: '[PIX BR.Digital]'
     address: Rua Lamartine Babo, 1000 - Sala 301, Parque Monjolo - Foz do Iguaçu -
       PR - CEP 85864-330
@@ -307,7 +365,11 @@ pix:
   laj:
   - name: '[PIX / Univates]'
     address: Rua Avelino Talini, 171, Lajeado - RS
-    cep: '37147040'
+    cep: '95900000'  # CEP da facility PIX Univates no PeeringDB (fac 11693); o anterior, 37147040, é da faixa de MG
+    lat: -29.44453
+    lon: -51.954833
+    coord_fonte: https://www.peeringdb.com/api/fac/11693
+    coord_data: '2026-11-24'
   mao:
   - name: '[PIX PRODAM]'
     address: Rua Jonathas Pedrosa, 1937, 69020-110 - Manaus - AM
@@ -321,10 +383,18 @@ pix:
     address: Av. Ephigênio Salles, 711 , Parque 10 de Novembro, 69055-736 - Manaus
       - AM
     cep: '69055736'
+    lat: -3.089192
+    lon: -60.008626
+    coord_fonte: https://www.peeringdb.com/api/fac/11699
+    coord_data: '2026-11-24'
   - name: '[PIX RIVERNET]'
     address: Av. Boulevard Álvaro Maia, 2357 - Sala 806 - Cond. Corporate Trade Center
       - Adrianópolis, 69057-035 - Manaus - AM
     cep: '69057035'
+    lat: -3.115364
+    lon: -60.01181
+    coord_fonte: https://www.peeringdb.com/api/fac/12214
+    coord_data: '2026-11-24'
   - name: '[PIX Bemol]'
     address: Rua Miranda Leão, 41 - Centro, 69005-040 - Manaus - AM
     cep: '69005040'
@@ -482,6 +552,11 @@ pix:
   - name: '[PIX CLARO]'
     address: Rua Senador Pompeu, 119 - 17o. andar - Centro, Rio de Janeiro - RJ
     cep: '20221291'
+    lat: -22.900642
+    lon: -43.188142
+    coord_fonte: https://www.peeringdb.com/api/fac/11707
+    coord_data: '2026-11-24'
+    coord_nota: "facility PIX Embratel RJ, mesmo endereço (Rua Senador Pompeu, 119, 17º andar)"
   - name: '[PIX Elea-RJO1]'
     address: Rua Vargem Grande, s/n, Jacarépagua, Rio de Janeiro - RJ
     cep: '22775020'
@@ -564,6 +639,10 @@ pix:
     lat: -30.030169
     lon: -51.230007
   - name: '[PIX Elea-POA1]'
+    lat: -30.034458
+    lon: -51.1911
+    coord_fonte: https://www.peeringdb.com/api/fac/11612
+    coord_data: '2026-11-24'
   - name: '[PIX Elea-POA2]'
     address: Rua Voluntários da Pátria, 1555 - Centro Histórico, 90030-002 - Porto
       Alegre - RS
@@ -595,6 +674,10 @@ pix:
   - name: '[PIX Brasil TecPar]'
     address: Rua Gomes Portinho, 17 - Sala 201, 93510-360 - Novo Hamburgo, RS
     cep: '93510360'
+    lat: -29.686585
+    lon: -51.129226
+    coord_fonte: https://www.peeringdb.com/api/fac/5273
+    coord_data: '2026-11-24'
   - name: '[PIX Cirion]'
     address: Av. Carlos Gomes, 141 - Sala 806, Bairro Auxiliadora - Porto Alegre -
       RS, Cirion (Auxiliadora), Av. Mariland, 131, Bairro Auxiliadora - Porto Alegre
@@ -611,6 +694,10 @@ pix:
     address: Rua Mariante, 193 - Sala 101 - Moinhos de Vento, 90430-003 - Porto Alegre,
       RS
     cep: '90430003'
+    lat: -30.029477
+    lon: -51.204482
+    coord_fonte: https://www.peeringdb.com/api/fac/7126
+    coord_data: '2026-11-24'
   - name: '[PIX VERO]'
     address: Av. Carlos Gomes, 141 - Sala 309 - Auxiliadora, 90480-003 - Porto Alegre,
       RS
@@ -647,6 +734,10 @@ pix:
   - name: '[PIX IFSC-SJ]'
     address: Rua José Lino Kretzer, 608 - Praia Comprida, São José - SC, CEP 88103-902
     cep: '88103902'
+    lat: -27.608476
+    lon: -48.633269
+    coord_fonte: https://www.peeringdb.com/api/fac/11689
+    coord_data: '2026-11-24'
   - name: '[PIX Cloud DC]'
     address: Av. dos Lagos, 41 - Bairro Pedra Branca, Palhoça - SC, CEP 88137-100
     cep: '88137100'
@@ -686,10 +777,19 @@ pix:
   - name: '[PIX ELEA-SPO1]'
     address: Av Guido Caloi, 1000 - Bloco 7, Jardim São Luis - São Paulo - SP
     cep: 05802140
+    lat: -23.653242
+    lon: -46.725456
+    coord_fonte: https://www.peeringdb.com/api/fac/11609
+    coord_data: '2026-11-24'
   - name: '[PIX ELEA-SPO2]'
     address: Avenida Marginal Direita à Rodovia Anchieta, KM 17,5, Jordanópolis -
       São Bernardo do Campo - SP
     cep: 09891340
+    lat: -23.677319
+    lon: -46.569368
+    coord_fonte: https://www.peeringdb.com/api/fac/15433
+    coord_data: '2026-11-24'
+    coord_nota: "no PeeringDB o endereço é Av. Marginal Direita Anchieta, 1241, Jordanópolis (aqui, km 17,5)"
   - name: '[PIX TAKODA]'
     address: R. Bento Branco de Andrade Filho, 621 - Jardim Don Bosco, São Paulo -
       SP
@@ -743,6 +843,10 @@ pix:
   - name: '[PIX Cirion]'
     address: Av. Eid Mansur, 666, Parque São George - Cotia - SP
     cep: 06708070
+    lat: -23.597933
+    lon: -46.848808
+    coord_fonte: https://www.peeringdb.com/api/fac/1057
+    coord_data: '2026-11-24'
   - name: '[PIX TIM]'
     address: Av. Alfredo Egídio de Souza Aranha, 100, 04726-170 - São Paulo - SP
     cep: '04726170'
@@ -775,6 +879,10 @@ pix:
   - name: '[PIX Sba Edge]'
     address: Rua Jose Abrantes, 186 - Santo Amaro, Sao Paulo - SP - CEP 04756-010
     cep: '04756010'
+    lat: -23.64713
+    lon: -46.717466
+    coord_fonte: https://www.peeringdb.com/api/fac/4162
+    coord_data: '2026-11-24'
   - name: '[PIX CLARO]'
     address: Rua dos Ingleses, 600, Sao Paulo - SP - CEP 01329-000
     cep: 01329000
@@ -803,6 +911,10 @@ pix:
   - name: '[PIX ASCENTY SP2]'
     address: Av. Roberto Pinto Sobrinho, 350 - Vila Menck, 06268-120 - Osasco - SP
     cep: 06268120
+    lat: -23.492259
+    lon: -46.777232
+    coord_fonte: https://www.peeringdb.com/api/fac/7580
+    coord_data: '2026-11-24'
   - name: '[PIX ASCENTY VIN]'
     address: Av. João Batista Nunes, 50 - Distrito Industrial Benedito Storani, 13288-162
       - Vinhedo - SP
@@ -861,9 +973,17 @@ pix:
   - name: '[PIX VIX Datacenter]'
     address: Rua Sérgio Cardoso, 75 - Bairro Dom Bosco, Cariacica - ES - 29147-350
     cep: '29147350'
+    lat: -20.336156
+    lon: -40.390571
+    coord_fonte: https://www.peeringdb.com/api/fac/15163
+    coord_data: '2026-11-24'
   - name: '[PIX NUV]'
     address: Rua Fioravante Cassini, 28 - Bairro Diamantina, Serra - ES - 29160-855
     cep: '29160855'
+    lat: -20.221521
+    lon: -40.270879
+    coord_fonte: https://www.peeringdb.com/api/fac/12556
+    coord_data: '2026-11-24'
   mg:
   - name: '[PIX RNP / POP-MG]'
     address: Av. Antônio Carlos, 6627 - Pampulha, Belo Horizonte, MG
@@ -900,6 +1020,10 @@ pix:
     address: Rodovia Celso Garcia Cid - PR 445 Km 380 - Campus Universitário, Londrina
       - PR
     cep: '86055900'
+    lat: -23.326811
+    lon: -51.203821
+    coord_fonte: https://www.peeringdb.com/api/fac/11692
+    coord_data: '2026-11-24'
   # Antes [PIX PERSIS TELECOM]; mesmo endereço (ix.br/adesao e PeeringDB, 2026-11-20).
   - name: '[PIX IRED TELECOM]'
     address: Av. Jules Verne, 1111 - Pq Industrial Cacique, Londrina - PR
@@ -915,6 +1039,10 @@ pix:
   - name: '[PIX RNP / POP-PR]'
     address: R. Francisco H. dos Santos, 100, Jardim das Américas, Curitiba - PR
     cep: '81530900'
+    lat: -25.447474
+    lon: -49.232784
+    coord_fonte: https://www.peeringdb.com/api/fac/8259
+    coord_data: '2026-11-24'
   - name: '[PIX Cirion]'
     address: Rua do Semeador, 350, C.I.C, Curitiba - PR
     cep: '81270050'
@@ -923,6 +1051,11 @@ pix:
   - name: '[PIX Elea-CTA1]'
     address: Tv. Teixeira de Freitas, 75, Mercês, Curitiba - PR
     cep: '80410905'
+    lat: -25.424768
+    lon: -49.281141
+    coord_fonte: https://www.peeringdb.com/api/fac/11613
+    coord_data: '2026-11-24'
+    coord_nota: "no PeeringDB o número é 73 (aqui, 75), mesma travessa"
   - name: '[PIX LIGGA TELECOM]'
     address: Rua Augusto Stresser, 453, Alto da Glória, Curitiba - PR
     cep: '80040310'
@@ -931,6 +1064,10 @@ pix:
   - name: '[PIX BR.Digital]'
     address: Rua Professor Rubens Elke Braga, 107, Bairro Parolin, Curitiba - PR
     cep: '80220320'
+    lat: -25.459116
+    lon: -49.259552
+    coord_fonte: https://www.peeringdb.com/api/fac/5131
+    coord_data: '2026-11-24'
   - name: '[PIX DBUG]'
     address: Rua José de Alencar, 60, Cristo Rei, Curitiba - PR
     cep: '80050240'

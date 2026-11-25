@@ -1753,8 +1753,9 @@ export interface paths {
         };
         /**
          * Feed Atom: o que mudou (só eventos confirmados dos snapshots atuais)
-         * @description Feed Atom com as diferenças **observadas** entre snapshots, uma entrada por data e tipo, só as confirmadas e só as dos 2 snapshots mais recentes
-         *     (a série antiga exige login). Não traz eventos de provedor (inferência) nem nomes de empresas, e não atribui causa nem intenção.
+         * @description Feed Atom com as diferenças **observadas** entre snapshots, uma entrada por data de confirmação e tipo, só as confirmadas num dos 2 snapshots
+         *     mais recentes (a série antiga exige login); `updated` é a data em que o evento se confirmou. Em entrada e saída de PTT o título conta pares AS-PTT
+         *     e, à parte, os ASes distintos. Não traz eventos de provedor (inferência) nem nomes de empresas, e não atribui causa nem intenção.
          */
         get: operations["feed_mudancas_api_v1_feed_mudancas_atom_get"];
         put?: never;
@@ -2315,9 +2316,11 @@ export interface paths {
          * @description Retorna a lista compacta de todos os IXPs do IX.br com métricas resumidas por AFI (v6/v4).
          *
          *     Cada entrada inclui contagens de ASNs, prefixos e percentuais de cobertura.
-         *     Quando não há dados coletados para um AFI, o campo correspondente é `{"status": "missing"}`.
+         *     Quando não há dados coletados para um AFI, o campo correspondente é `{"status": "missing"}`. Cada AFI traz `coleta` (`ok`, `vazia`:
+         *     a coleta funcionou e o looking glass respondeu com a tabela vazia, `missing`); `status` só é `ok` com rotas nas duas famílias.
          *
-         *     Use `?status=ok` para ver apenas IXPs com coleta completa, ou `?uf=SP` para filtrar por estado.
+         *     Use `?status=ok` para ver apenas IXPs com coleta completa (`?status=partial` lista os que têm uma família vazia ou ausente), ou `?uf=SP`
+         *     para filtrar por estado.
          */
         get: operations["list_ixps_api_v1_ixps_get"];
         put?: never;
@@ -2367,7 +2370,9 @@ export interface paths {
          *     - `br_prefix_coverage_pct` — % do espaço de endereços BR (Registro.br) visível aqui
          *     - `ixp_vs_fulltable_space_pct` — % do espaço global coberto pelos prefixos deste IXP
          *
-         *     Quando não há dados coletados para um AFI, o campo retorna `{"status": "missing"}`.
+         *     Quando não há dados coletados para um AFI, o campo retorna `{"status": "missing"}`. Cada AFI traz `coleta`: `ok` (o looking glass
+         *     devolveu rotas), `vazia` (a coleta funcionou e o looking glass respondeu com a tabela vazia; as porcentagens sobre rotas saem `null`, porque
+         *     zero rotas não é zero de cobertura) ou `missing`.
          *
          *     **Códigos de IXP:** `sp`, `rj`, `bsb`, `curitiba`, `poa`, `bel`, `manaus`, `fortaleza`, etc.
          *     Consulte `/api/v1/ixps` para a lista completa.
@@ -3959,7 +3964,9 @@ export interface paths {
         /**
          * Análise BGP global — prefixos brasileiros
          * @description Retorna análise completa da tabela de roteamento global com foco em ASNs e
-         *     prefixos brasileiros (P_BR). Inclui composição de P_BR, histograma de
+         *     prefixos brasileiros (P_BR). Rota brasileira = prefixo contido em bloco alocado pelo Registro.br; a origem não define. Em
+         *     `pbr_composition`, `strict_br` + `prefix_only_br` = `total`; `asn_br_fora_de_bloco` (alias `origin_only_br`, com `fora_do_total`)
+         *     conta à parte as rotas de ASN da lista do Registro.br em espaço de outro RIR. Inclui composição de P_BR, histograma de
          *     prefix length, more specifics, potencial de agregação, cobertura Registro.br,
          *     prefixos potencialmente filtráveis. `moas` vem nulo, com o motivo em `moas_indisponivel`: a tabela usada guarda uma origem por
          *     prefixo e não detecta origem múltipla.
@@ -4550,8 +4557,9 @@ export interface paths {
         };
         /**
          * Resumo das 27 UFs (acessos, fibra, usuários estimados e PTTs)
-         * @description Uma linha por UF com os números que a página `/estados` mostra: PTTs com coleta, municípios e acessos fixos
-         *     declarados ao SICI, `fibra_pct` (meio de acesso "Fibra"), ASNs BR e **usuários estimados** (soma APNIC dos ASNs
+         * @description Uma linha por UF com os números que a página `/estados` mostra: `ptts` (PTTs do IX.br na UF no snapshot, com ou sem coleta: a mesma
+         *     lista usada na distância) e `ptts_com_coleta`, municípios e acessos fixos declarados ao SICI (`null` quando o snapshot não tem o SICI;
+         *     ausência, não zero), `fibra_pct` (meio de acesso "Fibra"), ASNs BR e **usuários estimados** (soma APNIC dos ASNs
          *     da UF, pela geolocalização da organização — estimativa, não censo), municípios a mais de 100 km de um PTT e, quando há o produto de território,
          *     `domicilios` (projetados, IBGE) e `penetracao` (acessos fixos ÷ domicílios; é razão, não percentual, e pode passar de 1 porque um domicílio tem vários acessos).
          */
@@ -5263,12 +5271,12 @@ export interface components {
             uf: string;
             /**
              * V4
-             * @description Métricas IPv4 completas. `{status: 'missing'}` se sem dados.
+             * @description Métricas IPv4 completas, com `coleta` (ok, vazia, missing; com `vazia` as porcentagens sobre rotas são `null`). `{status: 'missing'}` se sem dados.
              */
             v4: unknown;
             /**
              * V6
-             * @description Métricas IPv6 completas. `{status: 'missing'}` se sem dados.
+             * @description Métricas IPv6 completas, com `coleta` (ok, vazia, missing; com `vazia` as porcentagens sobre rotas são `null`). `{status: 'missing'}` se sem dados.
              */
             v6: unknown;
         };
@@ -5306,7 +5314,7 @@ export interface components {
             name: string;
             /**
              * Status
-             * @description Status da coleta: **ok** (v6+v4), **partial** (só v6 ou v4), **missing** (sem dados)
+             * @description Status da coleta: **ok** (rotas em v6 e v4), **partial** (uma família sem bruto ou com a tabela vazia; ver `coleta` em cada família), **missing** (sem dados)
              */
             status: string;
             /**
@@ -5316,12 +5324,12 @@ export interface components {
             uf: string;
             /**
              * V4
-             * @description Métricas IPv4. `{status: 'missing'}` se sem dados.
+             * @description Métricas IPv4, com `coleta` (ok, vazia, missing). `{status: 'missing'}` se sem dados.
              */
             v4: unknown;
             /**
              * V6
-             * @description Métricas IPv6. `{status: 'missing'}` se sem dados.
+             * @description Métricas IPv6, com `coleta` (ok, vazia, missing). `{status: 'missing'}` se sem dados.
              */
             v6: unknown;
         };

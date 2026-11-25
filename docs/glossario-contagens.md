@@ -80,7 +80,10 @@ mesma página são defeito.
 - **Valor:** 8.732 (IPv6 7.573; IPv4 7.955). Sem nenhum prefixo visível: 397, o mesmo conjunto nas duas listas. Na base do
   Registro.br (`routing_analysis.json`, `br_asns_visible`, `products/routing_analysis/build.py:99-102`): 8.753 de 9.150, porque
   os 21 extras são todos visíveis. Em P_BR (`routing_analysis_resumo.json`, `br_origin_asns`, base Registro.br): 7.589 em IPv6 e
-  7.976 em IPv4.
+  7.976 em IPv4. Esses valores são de antes da regra de rota brasileira de D4 (PT-06): P_BR passou a ser só a rota com prefixo em
+  bloco do Registro.br, e `br_origin_asns` conta os ASNs da lista com alguma rota nesses blocos; as rotas de ASN da lista em espaço
+  de outro RIR ficam em `pbr_composition.{afi}.asn_br_fora_de_bloco`, fora do total. `br_asns_visible` mantém a base de antes
+  (ASN da lista visível como origem de qualquer rota).
 - **Onde aparece:** `/ases` (proposta de síntese), panorama técnico (86,7% de IPv6 sobre 8.732), `/bgp` (8.753 / 9.150),
   `/snapshots`, `SummaryTable`.
 
