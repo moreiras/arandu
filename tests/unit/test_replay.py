@@ -62,3 +62,50 @@ def test_compare_trees_conta_e_nao_compara_artefatos_copiados(tmp_path):
         _w(tmp_path / side / "rpki" / "vrp_list.json.gz", {"v": val}, gz=True)
     rep = replay.compare_trees(tmp_path / "o", tmp_path / "r", expected=[])
     assert rep["contagem"] == {"igual": 1, "nova": 1, "copiado": 1}
+
+
+def test_replay_expected_bem_formado():
+    """Toda entrada tem arquivo, tipo válido, motivo e regex que compila; sem travessão na redação."""
+    import re
+
+    exp = replay.load_expected()
+    assert exp, "replay_expected.json não carregou"
+    for e in exp:
+        assert e.get("arquivo") and e.get("motivo"), e
+        assert e.get("tipo") in ("conteudo", "ordem", "so_original", "so_replay"), e
+        if e.get("caminhos_regex"):
+            re.compile(e["caminhos_regex"])
+        assert "—" not in e["motivo"] and "–" not in e["motivo"], e["arquivo"]
+
+
+def test_diferencas_dos_pacotes_obint_sao_explicadas_e_o_resto_continua_nova(tmp_path):
+    """Fixture reduzida do replay de 2026-11-22: só os caminhos que cada pacote muda casam; outro campo do mesmo arquivo segue "nova"."""
+    exp = replay.load_expected()
+    casos = [
+        ("summary.json", {"ixps_ok": 1, "ixps_partial": 0, "ixps_failed": ["a"]}, {"ixps_ok": 0, "ixps_partial": 1, "ixps_failed": []}),
+        ("ixps/sp.json", {"asn_origin_union_count": 10}, {"asn_origin_union_count": 12}),
+        ("rs_policy/linhas.json.gz", {"x": 1}, {"x": 1, "cobertura_total_nivel2": {"n": 1}}),
+        ("external-ixps/decix-rj.json", {"member_count": 16, "portas": 16}, {"member_count": 14, "redes": 14, "portas": 16}),
+        ("regulatorio/satelites.json.gz", {"ngeo": [{"cnpj": "1"}, {"cnpj": "1"}], "resumo": {"ngeo": 2}},
+         {"ngeo": [{"cnpj": "1"}], "resumo": {"ngeo": 1, "ngeo_sistemas": 1}, "ngeo_sistemas": [{}]}),
+        ("qualidade/rqual.json.gz", {"prestadoras": [{"raizes": ["1"]}]}, {"prestadoras": [{"raizes": ["1", "2"], "base_casamento": "x"}]}),
+        ("mercado_grupos.json.gz", {"ufs": {"SP": {"hhi_cnpj": 1}}}, {"ufs": {"SP": {"hhi_cnpj": 1, "avisos_cnpj": [], "n_cnpjs": 3}}}),
+        ("seguranca/asns.json.gz", {"brasil": {"rov": {"x": 1}}}, {"brasil": {"rov": {"x": 1, "avisos": [], "peso_top1": 0.2}}}),
+        ("asns/1.json", {"asn": 1, "relacoes": {"provedores": []}}, {"asn": 1}),
+        ("ipv4/mercado.json.gz", {"limites": "a"}, {"limites": "b"}),
+    ]
+    for rel, a, b in casos:
+        pa, pb = _w(tmp_path / "a" / rel, a, gz=rel.endswith(".gz")), _w(tmp_path / "b" / rel, b, gz=rel.endswith(".gz"))
+        r = replay.compare_file(rel, pa, pb, exp)
+        assert r["classe"] == "explicada", (rel, r)
+    for rel, a, b in [
+        ("summary.json", {"ixps_ok": 1, "n_asns": 5}, {"ixps_ok": 0, "n_asns": 6}),
+        ("ixps/sp.json", {"asn_origin_union_count": 1, "asn_direct_union_count": 3}, {"asn_origin_union_count": 2, "asn_direct_union_count": 4}),
+        ("asns/1.json", {"asn": 1, "nome": "a", "relacoes": {}}, {"asn": 1, "nome": "b"}),
+        ("seguranca/asns.json.gz", {"brasil": {"rov": {"pct": 1}}}, {"brasil": {"rov": {"pct": 2, "avisos": []}}}),
+    ]:
+        pa, pb = _w(tmp_path / "a2" / rel, a, gz=rel.endswith(".gz")), _w(tmp_path / "b2" / rel, b, gz=rel.endswith(".gz"))
+        assert replay.compare_file(rel, pa, pb, exp)["classe"] == "nova", rel
+    pa = _w(tmp_path / "a3/omissao_sici.json.gz", {}, gz=True)
+    assert replay.compare_file("omissao_sici.json.gz", pa, None, exp)["classe"] == "explicada"
+    assert replay.compare_file("outro.json.gz", pa, None, exp)["classe"] == "nova"
