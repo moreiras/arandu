@@ -45,7 +45,7 @@ def test_atribuicao_cita_a_licenca_que_o_catalogo_declara(catalogo):
         assert licenca in catalogo.sources[id_].atribuicao, id_
         assert licenca.split()[0] in catalogo.sources[id_].origem.licenca, id_
     for id_ in ("scm_geo", "seac_geo", "smp_geo", "stfc_geo"):
-        assert "Anatel" in catalogo.sources[id_].atribuicao
+        assert catalogo.sources[id_].atribuicao.startswith("Fonte: Anatel") and "ODbL" in catalogo.sources[id_].atribuicao, id_
     for id_ in PEERINGDB:
         a = catalogo.sources[id_].atribuicao
         assert a.startswith("Fonte: PeeringDB") and "AUP" not in a and "verificada" not in a, id_
