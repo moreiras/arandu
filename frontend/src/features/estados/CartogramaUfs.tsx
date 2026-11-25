@@ -39,7 +39,8 @@ export const METRICAS: MetricaUf[] = [
   { id: 'acessos', rotulo: 'Acessos fixos', valor: (u) => u.acessos, texto: compacto },
   { id: 'fibra', rotulo: '% de fibra', valor: (u) => u.fibra_pct, texto: (v) => `${v.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}%`, normalizada: true,
     nota: '% dos acessos fixos em fibra (SICI/Anatel).' },
-  { id: 'usuarios', rotulo: 'Usuários estimados', valor: (u) => u.usuarios, texto: compacto },
+  { id: 'usuarios', rotulo: 'Usuários (sede da rede)', valor: (u) => u.usuarios, texto: compacto,
+    nota: 'Usuários estimados (APNIC) em ASNs com sede na UF: a UF é a da sede do ASN, não a de quem usa. Não é a população conectada nem o uso de Internet na UF; para isso, a página Uso da Internet (TIC Domicílios).' },
   { id: 'ptts', rotulo: 'PTTs', valor: (u) => u.ptts, texto: n0 },
   { id: 'penetracao', rotulo: 'Acessos por 100 domicílios', valor: (u) => (u.penetracao == null ? null : u.penetracao * 100), texto: n0, normalizada: true,
     nota: 'Acessos fixos declarados à Anatel ÷ domicílios projetados do IBGE, por 100. Estimativa: um domicílio pode ter vários acessos ou nenhum, e o Censo é de 2022.' },
@@ -125,7 +126,7 @@ export function CartogramaUfs({ ufs, metricas, titulo = 'Brasil por UF', inicial
       {metrica.nota && <p className="mt-2 text-xs text-gray-600">{metrica.nota}{pequeno ? ` Cada quadrado é uma UF no lugar aproximado do mapa. ${LEGENDA_SEQUENCIAL}` : ''}</p>}
       {!pequeno && <p className="mt-3 text-xs text-gray-500">
         Cada quadrado é uma UF no lugar aproximado do mapa (mesmo tamanho para todas). {LEGENDA_SEQUENCIAL} Acessos e fibra: SICI/Anatel,
-        banda larga fixa; usuários: estimativa APNIC dos ASNs da UF (não é censo); PTTs: IX.br com coleta.
+        banda larga fixa; usuários: estimativa APNIC dos ASNs com sede na UF (não é censo nem a população conectada); PTTs: IX.br com coleta.
       </p>}
       <VerDados dados={linhasTabela(ufs)} rotulos={ROTULOS_TABELA} campos={Object.keys(ROTULOS_TABELA)} titulo="Ver dados (tabela das UFs)" />
     </section>
@@ -134,7 +135,7 @@ export function CartogramaUfs({ ufs, metricas, titulo = 'Brasil por UF', inicial
 
 // Cabeçalhos com a unidade; diferentes dos botões de métrica, para o nome acessível de cada controle ser único.
 const ROTULOS_TABELA: Record<string, string> = {
-  uf: 'UF', nome: 'Nome', acessos: 'Acessos fixos (SICI)', fibra: 'Fibra (% dos acessos)', usuarios: 'Usuários estimados (APNIC)', ptts: 'PTTs (IX.br)',
+  uf: 'UF', nome: 'Nome', acessos: 'Acessos fixos (SICI)', fibra: 'Fibra (% dos acessos)', usuarios: 'Usuários estimados em ASNs sediados na UF (APNIC)', ptts: 'PTTs (IX.br)',
   penetracao: 'Acessos / 100 domicílios', longe: 'Municípios longe de PTT (%)', municipios: 'Municípios com acessos', asns: 'ASNs',
 }
 

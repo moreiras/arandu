@@ -32,7 +32,7 @@ export const INDICADORES_MUNICIPAIS: IndicadorMapa[] = [
     metodo: 'quantis', classes: 5, selo: 'estimado', fontes: ['anatel_sici', 'ibge_censo_pnad'], sentido: 'mais-e-melhor' },
   { id: 'penetracao_pf', rotulo: 'Acessos de pessoa física por 100 domicílios', normalizacao: 'acessos fixos de pessoa física ÷ domicílios projetados × 100', unidade: 'acessos por 100 domicílios', casas: 0,
     metodo: 'quantis', classes: 5, selo: 'estimado', fontes: ['anatel_sici', 'ibge_censo_pnad'], sentido: 'mais-e-melhor' },
-  { id: 'nao_visto_pct', rotulo: 'Mercado não visto (% dos domicílios)', normalizacao: 'domicílios com internet sem acesso fixo de pessoa física ÷ domicílios projetados × 100 (estimativa que inclui quem usa só o celular)', unidade: '% dos domicílios', casas: 0,
+  { id: 'nao_visto_pct', rotulo: 'Domicílios sem acesso fixo de pessoa física (% dos domicílios, estimativa PNAD)', normalizacao: 'domicílios com internet sem acesso fixo de pessoa física ÷ domicílios projetados × 100 (estimativa que inclui quem usa só o celular)', unidade: '% dos domicílios', casas: 0,
     metodo: 'quantis', classes: 5, selo: 'estimado', fontes: ['anatel_sici', 'ibge_censo_pnad'], sentido: 'neutro' },
   { id: 'acessos_por_mil_hab', rotulo: 'Acessos por mil habitantes', normalizacao: 'acessos fixos declarados ÷ população estimada × 1.000', unidade: 'acessos por mil habitantes', casas: 0,
     metodo: 'quantis', classes: 5, selo: 'estimado', fontes: ['anatel_sici', 'ibge_censo_pnad'], sentido: 'mais-e-melhor' },

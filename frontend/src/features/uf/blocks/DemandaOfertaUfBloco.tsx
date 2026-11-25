@@ -8,6 +8,7 @@ import type { UfCtx } from '../contexto'
 import type { DemandaOfertaClasse, DemandaOfertaLinha } from '../../../types/api'
 import { SITE } from '../../../lib/site'
 import { Link } from '../../../components/layout/LinkDatado'
+import { ComoLer } from '../../../components/ui/ComoLer'
 
 export const CLASSES: Record<DemandaOfertaClasse, { rotulo: string; cor: string }> = {
   oferta_abaixo_da_demanda: { rotulo: 'oferta abaixo da demanda', cor: 'text-aviso-700' },
@@ -44,7 +45,7 @@ export function DemandaOfertaUfBloco({ dados }: BlocoProps<UfCtx>) {
               <th className="px-2 py-1 text-right" title="Domicílios do IBGE projetados × proporção com banda larga fixa (TIC)">Demanda (domicílios)</th>
               <th className="px-2 py-1 text-right" title="Acessos fixos de pessoa física declarados ao SICI">Oferta (acessos PF)</th>
               <th className="px-2 py-1 text-right">Razão (95%)</th>
-              <th className="px-2 py-1 text-right" title="max(0, demanda − acessos de pessoa física)">Não visto</th>
+              <th className="px-2 py-1 text-right" title="max(0, demanda − acessos de pessoa física)">Domicílios sem acesso fixo de PF (estimativa, TIC)</th>
               <th className="px-2 py-1">Leitura</th>
             </tr>
           </thead>
@@ -62,6 +63,9 @@ export function DemandaOfertaUfBloco({ dados }: BlocoProps<UfCtx>) {
           </tbody>
         </table>
       </div>
+      <ComoLer>
+        <p>Esta aba traz duas estimativas de domicílios sem acesso fixo de pessoa física, com bases diferentes, e elas não coincidem. Na penetração (PNAD), a base é a taxa de domicílios com utilização de Internet, que inclui quem usa só o celular. Aqui, na demanda (TIC Domicílios), a base é a proporção de domicílios com banda larga fixa como principal conexão, com margem de erro da amostra.</p>
+      </ComoLer>
       <p className="text-xs text-gray-500">
         Estimativa do {SITE.nome} · TIC Domicílios {d.tic_edicao} (Cetic.br|NIC.br, CC BY 4.0), SICI de {d.mes_referencia_sici ?? 's/d'}, domicílios do IBGE. {d.limites}{' '}
         <Link to="/uso-da-internet" className="text-primario-600 hover:underline">Todas as UFs</Link>.

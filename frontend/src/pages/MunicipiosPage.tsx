@@ -12,6 +12,7 @@ import { MapaSobDemanda } from '../features/estados/MapaSobDemanda'
 import { UFS, nomeUf } from '../lib/ufs'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
 import { Dica } from '../components/ui/Dica'
+import { ComoLer } from '../components/ui/ComoLer'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import { AvisosRecorte } from '../components/ui/AvisoRecorte'
 import { useActiveDate } from '../hooks/useSnapshot'
@@ -34,8 +35,8 @@ const CAB_TERRITORIO: [string, string | undefined, string?][] = [
   ['População est.', 'População estimada pelo IBGE (1º de julho do ano mais recente).', 'populacao_estimada'],
   ['Domicílios (proj.)', 'Estimativa: domicílios do Censo 2022 × crescimento de domicílios da UF na PNAD. É a base da penetração.', 'domicilios_projetados'],
   ['Acessos fixos', 'Acessos fixos declarados ao SICI (Anatel) no mês de referência.', 'acessos'],
-  ['Por domicílio', 'Acessos fixos ÷ domicílios projetados. Pode passar de 1: acesso não é domicílio.', 'penetracao'],
-  ['Não visto (estim.)', 'Estimativa de domicílios com Internet sem acesso fixo de pessoa física: domicílios projetados × taxa de Internet da UF (PNAD) − acessos de pessoa física. Inclui quem usa só o celular.', 'nao_visto'],
+  ['Por domicílio', 'Acessos fixos ÷ domicílios projetados. Pode passar de 1: acesso não é domicílio, e há acessos de empresas.', 'penetracao'],
+  ['Sem acesso fixo PF (est.)', 'Estimativa de domicílios com Internet sem acesso fixo de pessoa física (taxa da PNAD, não a da TIC): domicílios projetados × taxa de Internet da UF (PNAD) − acessos de pessoa física. Inclui quem usa só o celular.', 'nao_visto'],
   ['Fibra', 'Parcela dos acessos fixos em fibra óptica.', 'fibra_pct'],
   ['Reclam. /100 mil', 'Reclamações na Anatel no último ano completo ÷ população × 100 mil; só municípios com 30 ou mais reclamações.', 'reclam_100mil'],
   ['PTT mais próximo', 'PTT do IX.br mais próximo em linha reta do centro do município (ordena pela distância).', 'km_ptt'],
@@ -64,8 +65,8 @@ type Lente = (typeof LENTES)[number]['id']
 
 const ORDENS_MERCADO: Record<string, string> = { acessos: 'Acessos declarados', hhi: 'Concentração (HHI)', n_operadoras: 'Operadoras declarantes', var_aa_pct: 'Variação em 12 meses (%)' }
 const CAMPOS_TERRITORIO: Record<string, string> = {
-  acessos: 'Acessos fixos declarados', penetracao: 'Acessos fixos por domicílio', penetracao_pf: 'Acessos de pessoa física por domicílio', nao_visto: 'Mercado não visto (estimativa)',
-  nao_visto_pct: 'Mercado não visto, % dos domicílios (estimativa)', domicilios_projetados: 'Domicílios (projeção)', populacao_estimada: 'População estimada',
+  acessos: 'Acessos fixos declarados', penetracao: 'Acessos fixos por domicílio', penetracao_pf: 'Acessos de pessoa física por domicílio', nao_visto: 'Domicílios sem acesso fixo de pessoa física (estimativa, PNAD)',
+  nao_visto_pct: 'Domicílios sem acesso fixo de pessoa física, % dos domicílios (estimativa, PNAD)', domicilios_projetados: 'Domicílios (projeção)', populacao_estimada: 'População estimada',
   fibra_pct: 'Fibra nos acessos fixos (%)', km_ptt: 'Distância ao PTT mais próximo (km)',
   reclam_100mil: 'Reclamações na Anatel por 100 mil hab. (30 ou mais no ano)',
 }
@@ -123,6 +124,11 @@ export function MunicipiosPage() {
       <BarraDeAbas abas={LENTES} ativa={lente} aoEscolher={trocaLente} rotulo="Lentes da lista" />
       <div role="tabpanel" id={`painel-${lente}`} aria-labelledby={`aba-${lente}`} className="space-y-5">
       <p className="text-sm text-gray-500">{descricao}</p>
+      {lente === 'penetracao' && (
+        <ComoLer aberto>
+          <p>Acessos fixos por domicílio acima de 1 significam mais acessos declarados à Anatel do que domicílios projetados no município. Acesso não é domicílio: um domicílio pode ter vários acessos, e há acessos de empresas (B2B) na conta. Em alguns municípios um único CNPJ concentra a maior parte dos acessos declarados (confira o líder na lente Mercado); a causa não é apurada aqui, e declaração na sede da empresa ou faturamento são hipóteses, não fatos. Valores bem acima de 1 merecem cautela: não indicam população atendida.</p>
+        </ComoLer>
+      )}
       <div className="flex flex-wrap items-end gap-3 text-sm">
         <label className="flex flex-col gap-0.5"><span className="text-xs text-gray-500">UF</span>
           <select value={uf} onChange={(e) => muda('uf', e.target.value)} className="border border-gray-200 rounded px-2 py-1 bg-white">

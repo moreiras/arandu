@@ -242,7 +242,7 @@ describe('página de UF', () => {
     expect(within(semPtt).getByRole('link', { name: 'Distante' })).toHaveAttribute('href', '/municipio/3203205')
     expect(within(semPtt).queryByRole('link', { name: 'Vitória' })).toBeNull()      // Vitória tem PTT a poucos km
     expect(screen.getByRole('heading', { name: 'Operadoras na UF' })).toBeInTheDocument()
-    expect(await screen.findByText('Usuários estimados')).toBeInTheDocument()
+    expect(await screen.findByText('Usuários estimados em ASNs sediados na UF')).toBeInTheDocument()
     expect(screen.getByText('345.678')).toBeInTheDocument()
     expect(screen.getByText('78,5%')).toBeInTheDocument()
     // gráfico de faixas de distância: 9.000 acessos a até 50 km e 300 a mais de 100 km
