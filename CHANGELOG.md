@@ -88,6 +88,15 @@ parênteses remetem à análise.
     snapshot repassa `manifest.comparado_com`.
   `esquema` de `/ufs`, `/ixps`, `/routing-analysis` e `/brasil/indicadores` sobe (BGP-E3, IXP-E1, IXP-E2, IXPS-E4, TRANSV-E8,
   MAPA-E1, EST-E1, EST-E2, USO-E1, USO-E2, TRANSV-E18, HOME-E1).
+- **Nota de revisão: eventos de ROA, ASPA e RPKI (D7), 2026-11-25.** A camada de eventos de todos os snapshots (2026-06-28 a
+  2026-11-22) foi regenerada com a regra 2 (`eventos_regra = 2`), que só gera evento de ROA, ASPA ou RPKI quando o campo de origem
+  estava coberto nos dois snapshots comparados (campo presente ou documento que passou pela etapa de saúde). Causa: campo ausente era
+  contado como zero; o `roa_list` de ASNs estrangeiros foi publicado só em 2026-06-28 e deixou de ser em 2026-07-05, e a perda do
+  campo virou perda de ROA. Contagens antes → depois, em 2026-07-05: `roa_perdido` 50.127 → 63 (os 63 de ASN brasileiro),
+  `aspa_perdido` 1.827 → 2, `rpki_invalido_resolvido` 1.815 → 14. No total das 20 datas: `roa_perdido` 50.919 → 834, `aspa_perdido`
+  1.864 → 38, `rpki_invalido_resolvido` 2.069 → 267, `roa_ganho` 1.140 → 1.135; `aspa_ganho`, `rpki_invalido_novo` e todos os demais
+  tipos não mudam. Nas datas recentes saem também eventos de ASNs que deixaram o snapshot (o `asn_sumido` deles continua). Relatório
+  por data e tipo gerado por `python -m products.history.regenerar_eventos`; a troca da camada servida é feita na implantação.
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
