@@ -27,11 +27,13 @@ const montar = (rota: string) => render(
 describe('Regulatório', () => {
   it('aba Multas: totais, lista com link para a operadora e aviso de que não é condenação definitiva', async () => {
     let grupoPedido: string | null = 'x'
+    let ordemPedida: string | null = 'x'
     server.use(
       http.get('*/api/v1/multas/resumo', () => HttpResponse.json(multasResumo)),
       http.get('*/api/v1/multas/empresas', ({ request }) => {
         grupoPedido = new URL(request.url).searchParams.get('grupo')
-        return HttpResponse.json({ ...meta, grupo: grupoPedido, ordem: 'saldo', total: 1, limit: 20, offset: 0, items: [empresa] })
+        ordemPedida = new URL(request.url).searchParams.get('ordem')
+        return HttpResponse.json({ ...meta, grupo: grupoPedido, ordem: ordemPedida ?? 'empresa', regra_ordem: 'Ordem alfabética pelo nome da empresa e, em empate, pela raiz do CNPJ e pelo serviço (neutra).', aviso: 'Multa constituída não é condenação definitiva.', total: 1, limit: 20, offset: 0, items: [empresa] })
       }),
     )
     montar('/regulatorio?aba=multas')
@@ -39,6 +41,9 @@ describe('Regulatório', () => {
     expect(screen.getAllByText(/não é condenação definitiva/).length).toBeGreaterThan(0)
     expect(screen.getByText(/10 de pessoa física/)).toBeTruthy()
     expect(grupoPedido).toBeNull()
+    expect(ordemPedida).toBeNull()                                                     // D6: sem `ordem`, a API entrega a ordem alfabética
+    expect(screen.getByTestId('regra-multas').textContent).toMatch(/Ordem alfabética pelo nome da empresa.*Multa constituída não é condenação definitiva/)
+    expect(screen.getByText('1 quitada(s) · 2 devedor')).toBeTruthy()                 // a situação em texto
     fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: 'SMP' } })
     await waitFor(() => expect(grupoPedido).toBe('SMP'))
   })

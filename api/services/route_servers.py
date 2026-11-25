@@ -12,7 +12,10 @@ from __future__ import annotations
 
 from typing import Optional
 
+#: ordem padrão da lista (D6): neutra, por PTT e depois ASN; nenhuma ordem do pior para o melhor é a padrão
+CRITERIO_PADRAO = "ptt_asn"
 CRITERIOS = {
+    "ptt_asn": "PTT e ASN (ordem neutra: PTT em ordem alfabética do código e, dentro dele, ASN crescente)",
     "sessoes_down": "sessões down em route servers com vizinhos atuais (número absoluto), com o total de sessões do membro ao lado",
     "dias_down": "maior tempo de queda, em dias, de uma sessão em route server com vizinhos atuais",
     "uso_limite": "maior uso do limite de importação entre as sessões up (rotas recebidas ÷ import_limit)",
@@ -56,13 +59,14 @@ def bloco_asn(doc: Optional[dict], asn: int) -> Optional[dict]:
 
 
 def ranking(doc_ixps: dict, criterio: str, ixp: Optional[str], apenas_down: bool, limit: int, offset: int) -> dict:
-    """Membros (ASN × PTT) ordenados por `criterio`, em ordem decrescente; empate pelo ASN. Só números medidos, sem adjetivo."""
+    """Membros (ASN × PTT) ordenados por `criterio`. O padrão, `ptt_asn`, é neutro (PTT e ASN crescentes) e traz todos os membros com sessão; os demais critérios
+    ordenam do maior para o menor número medido, empate pelo PTT e ASN, e só trazem quem tem o número. Só números medidos, sem adjetivo."""
     if criterio not in CRITERIOS:
         raise RouteServersErro(400, f"criterio inválido: {criterio}. Use: {', '.join(CRITERIOS)}")
     ixp = ixp.lower() if ixp else None
     if ixp and ixp not in doc_ixps["ixps"]:
         raise RouteServersErro(404, f"PTT '{ixp}' sem route server publicado.")
-    chave = {"sessoes_down": "down_certo", "dias_down": "max_dias_down", "uso_limite": "max_uso_limite", "sessoes": "sessoes"}[criterio]
+    chave = {"ptt_asn": "sessoes", "sessoes_down": "down_certo", "dias_down": "max_dias_down", "uso_limite": "max_uso_limite", "sessoes": "sessoes"}[criterio]
     linhas = []
     for code, p in doc_ixps["ixps"].items():
         if ixp and code != ixp:
@@ -73,9 +77,12 @@ def ranking(doc_ixps: dict, criterio: str, ixp: Optional[str], apenas_down: bool
             linhas.append({"ixp": code, "asn": m["asn"], "nome": m.get("nome"), "sessoes": m["sessoes"], "up": m["up"], "down": m["down"], "down_certo": m["down_certo"],
                            "max_dias_down": m.get("max_dias_down"), "max_uso_limite": m.get("max_uso_limite"), "membro_down": m["membro_down"],
                            "rs_incerto": m.get("rs_incerto", 0)})
-    linhas.sort(key=lambda r: (-(r[chave] or 0), r["ixp"], r["asn"]))
+    if criterio == "ptt_asn":
+        linhas.sort(key=lambda r: (r["ixp"], r["asn"]))
+    else:
+        linhas.sort(key=lambda r: (-(r[chave] or 0), r["ixp"], r["asn"]))
     itens = [{"posicao": offset + i + 1, **r} for i, r in enumerate(linhas[offset:offset + limit])]
-    return {**_meta(doc_ixps), "criterio": CRITERIOS[criterio] + " (decrescente)", "escopo": {"ixp": ixp} if ixp else {"pais": "BR"},
+    return {**_meta(doc_ixps), "criterio": CRITERIOS[criterio] + ("" if criterio == "ptt_asn" else " (decrescente)"), "escopo": {"ixp": ixp} if ixp else {"pais": "BR"},
             "filtros": {"apenas_down": apenas_down}, "total": len(linhas), "items": itens}
 
 
