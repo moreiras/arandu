@@ -81,7 +81,7 @@ class GlobalTableStats(BaseModel):
 
 
 class IXPAggregateStats(BaseModel):
-    asn_direct_union_count: int = Field(description="ASNs em peering direto em qualquer IXP (união v4∪v6, sem repetição)")
+    asn_direct_union_count: int = Field(description="ASNs com sessão em route server em algum PTT do IX.br (união v4∪v6, sem repetição); não é o cadastro de participantes")
     asn_origin_union_count: int = Field(description="ASNs originando prefixos em qualquer IXP (união v4∪v6, sem repetição)")
     br_asns_origin_union_count: int = Field(description="ASNs BR originando prefixos em qualquer IXP (união v4∪v6, exato)")
     v4_prefixes: int
@@ -104,10 +104,10 @@ class SnapshotSummary(BaseModel):
     ixps_ok: int = Field(description="IXPs com coleta completa (v4 + v6)", examples=[12])
     ixps_partial: int = Field(description="IXPs com coleta parcial (apenas v4 ou v6)", examples=[8])
     ixps_missing: int = Field(description="IXPs sem dados coletados", examples=[19])
-    total_asns_br: int = Field(description="ASNs brasileiros segundo o Registro.br", examples=[9104])
+    total_asns_br: int = Field(description="ASNs brasileiros: os que a LACNIC delegou ao Brasil (is_br). A lista do Registro.br, com alguns ASNs a mais, é registro_br_asns", examples=[9104])
     total_asns_global: int = Field(description="Total de ASNs observados (BR + globais)", examples=[86885])
     br_asns_with_ipv6: int = Field(description="ASNs BR com algum IPv6: alocado no Registro.br, visível na tabela global ou visto num PTT do IX.br (não é o mesmo que anunciar; para anúncio veja br_asns_ft_v6)", examples=[1823])
-    br_ipv6_pct: float = Field(description="% dos ASNs BR alocados com algum IPv6 (alocado, na tabela global ou num PTT); não mede anúncio", examples=[20.02])
+    br_ipv6_pct: float = Field(description="% dos ASNs brasileiros (LACNIC) com algum IPv6 (alocado, na tabela global ou num PTT); não mede anúncio", examples=[20.02])
     registro_br_prefixes_v4: int = Field(description="Prefixos IPv4 declarados no Registro.br", examples=[18432])
     registro_br_prefixes_v6: int = Field(description="Prefixos IPv6 declarados no Registro.br", examples=[4201])
     m3_prefixes_v4: int = Field(description="O mesmo que registro_br_prefixes_v4 (nome mantido por compatibilidade)", examples=[18432])
@@ -143,7 +143,7 @@ class IXPIndexAfi(BaseModel):
     total_routes: int = Field(description="Total de rotas recebidas neste AFI", examples=[892341])
     unique_prefixes: int = Field(description="Prefixos únicos observados", examples=[62418])
     ixp_space: int = Field(description="Espaço de endereços coberto (número de endereços)", examples=[1073741824])
-    asn_direct_count: int = Field(description="ASNs em peering direto no IXP", examples=[487])
+    asn_direct_count: int = Field(description="ASNs com sessão em route server no PTT", examples=[487])
     asn_origin_count: int = Field(description="ASNs originadores de prefixos visíveis", examples=[23104])
     asn_stub_count: int = Field(description="ASNs diretos com exatamente 1 originador (stubs)", examples=[312])
     br_prefix_coverage_pct: Optional[float] = Field(
@@ -172,7 +172,7 @@ class IXPIndexEntry(BaseModel):
         examples=["ok"],
     )
     asn_direct_union_count: Optional[int] = Field(
-        None, description="ASNs em peering direto (união v6 ∪ v4)", examples=[487]
+        None, description="ASNs com sessão em route server (união v6 ∪ v4)", examples=[487]
     )
     asn_origin_union_count: Optional[int] = Field(
         None, description="ASNs originadores de prefixos, todos os países (união v6 ∪ v4; snapshots anteriores a 2026-11 gravavam o maior dos dois)", examples=[23104]
@@ -261,7 +261,7 @@ class ASNIndexEntry(BaseModel):
         description="Prefixos IPv6 observados na tabela de roteamento global",
         examples=[26],
     )
-    ixps_direct_count: int = Field(description="Número de IXPs onde este AS faz peering direto", examples=[12])
+    ixps_direct_count: int = Field(description="Número de PTTs do IX.br onde este AS tem sessão com o route server (não é o cadastro de participantes)", examples=[12])
     ixps_origin_count: int = Field(description="Número de IXPs onde prefixos deste AS são visíveis", examples=[38])
     ixps_origin_v4_count: Optional[int] = Field(None, description="Número de IXPs onde este AS origina prefixos IPv4")
     ixps_origin_v6_count: Optional[int] = Field(None, description="Número de IXPs onde este AS origina prefixos IPv6")
@@ -347,7 +347,7 @@ class ASNDocumentResponse(BaseModel):
     global_prefixes_v6_count: int = Field(examples=[26])
     has_ipv6: bool = Field(examples=[True])
     ixps_direct: list[str] = Field(
-        description="Códigos dos IXPs onde este AS faz peering direto",
+        description="Códigos dos PTTs onde este AS tem sessão com o route server",
         examples=[["sp", "rj", "bsb"]],
     )
     ixps_origin: list[str] = Field(

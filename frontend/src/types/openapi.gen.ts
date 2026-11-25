@@ -2440,7 +2440,7 @@ export interface paths {
          * @description Retorna o documento completo de um IXP, com métricas detalhadas separadas por AFI.
          *
          *     **Métricas por AFI (v4 / v6):**
-         *     - `asn_direct` — lista completa de ASNs em peering direto
+         *     - `asn_direct` — lista completa de ASNs com sessão em route server
          *     - `br_asns_direct` / `br_asns_origin` — subconjuntos brasileiros
          *     - `br_prefix_coverage_pct` — % do espaço de endereços BR (Registro.br) visível aqui
          *     - `ixp_vs_fulltable_space_pct` — % do espaço global coberto pelos prefixos deste IXP
@@ -2470,7 +2470,7 @@ export interface paths {
         };
         /**
          * Empresas e assinantes SCM (SICI) dos peers diretos de um IXP
-         * @description Para cada ASN em peering direto no IXP:
+         * @description Para cada ASN com sessão em route server no PTT:
          *
          *     - `asns[asn]` — `cnpj`, `empresa`, badges de outorga (`has_scm`, `has_smp`,
          *       `has_stfc`, `has_seac`), `usuarios_apnic` e `assinantes_diretos` (acessos SICI
@@ -2700,7 +2700,7 @@ export interface paths {
         };
         /**
          * Estatísticas por peer direto de um IXP
-         * @description Retorna estatísticas de prefixos por ASN em peering direto no IXP.
+         * @description Retorna estatísticas de prefixos por ASN com sessão em route server no PTT.
          *
          *     Para cada peer, inclui:
          *     - `total_prefixes` — total de prefixos únicos anunciados
@@ -3033,7 +3033,7 @@ export interface paths {
          *
          *     ```json
          *     {"field": "has_rpki", "op": "eq", "value": false}
-         *     {"field": "ixps_direct", "op": "contains", "value": "sp"}
+         *     {"field": "ixps_sessao_rs", "op": "contains", "value": "sp"}
          *     {"field": "pct_v6", "op": "gte", "value": 30}
          *     {"field": "porte", "op": "eq", "value": "MICRO EMPRESA"}
          *     {"and": [...], "or": [...], "not": {...}}
@@ -3820,7 +3820,7 @@ export interface paths {
          *     `external_ixps`, `cdns`, `prefixes`.
          *
          *     Álgebra de conjuntos na mesma collection sai de graça via filtro composto — ex.:
-         *     ASes diretos no SP mas não no RJ: `ixps_direct contains "sp" AND ncontains "rj"`.
+         *     ASes com sessão em route server no SP mas não no RJ: `ixps_sessao_rs contains "sp" AND ncontains "rj"` (`ixps_membro` é o cadastro de participantes; `ixps_direct` é o nome antigo dele).
          */
         post: operations["post_query_api_v1_query__collection__post"];
         delete?: never;
@@ -4901,7 +4901,7 @@ export interface components {
             };
             /**
              * Ixps Direct
-             * @description Códigos dos IXPs onde este AS faz peering direto
+             * @description Códigos dos PTTs onde este AS tem sessão com o route server
              */
             ixps_direct: string[];
             /**
@@ -5151,7 +5151,7 @@ export interface components {
             is_br: boolean;
             /**
              * Ixps Direct Count
-             * @description Número de IXPs onde este AS faz peering direto
+             * @description Número de PTTs do IX.br onde este AS tem sessão com o route server (não é o cadastro de participantes)
              */
             ixps_direct_count: number;
             /**
@@ -5320,7 +5320,7 @@ export interface components {
         IXPAggregateStats: {
             /**
              * Asn Direct Union Count
-             * @description ASNs em peering direto em qualquer IXP (união v4∪v6, sem repetição)
+             * @description ASNs com sessão em route server em algum PTT do IX.br (união v4∪v6, sem repetição); não é o cadastro de participantes
              */
             asn_direct_union_count: number;
             /**
@@ -5409,7 +5409,7 @@ export interface components {
         IXPIndexEntry: {
             /**
              * Asn Direct Union Count
-             * @description ASNs em peering direto (união v6 ∪ v4)
+             * @description ASNs com sessão em route server (união v6 ∪ v4)
              */
             asn_direct_union_count?: number | null;
             /**
@@ -5599,7 +5599,7 @@ export interface components {
             br_asns_with_ipv6: number;
             /**
              * Br Ipv6 Pct
-             * @description % dos ASNs BR alocados com algum IPv6 (alocado, na tabela global ou num PTT); não mede anúncio
+             * @description % dos ASNs brasileiros (LACNIC) com algum IPv6 (alocado, na tabela global ou num PTT); não mede anúncio
              */
             br_ipv6_pct: number;
             /** Generated At */
@@ -5652,7 +5652,7 @@ export interface components {
             snapshot_date: string;
             /**
              * Total Asns Br
-             * @description ASNs brasileiros segundo o Registro.br
+             * @description ASNs brasileiros: os que a LACNIC delegou ao Brasil (is_br). A lista do Registro.br, com alguns ASNs a mais, é registro_br_asns
              */
             total_asns_br: number;
             /**

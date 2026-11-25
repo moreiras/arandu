@@ -124,7 +124,7 @@ def all_ixp_estimated_users(
 Retorna o documento completo de um IXP, com métricas detalhadas separadas por AFI.
 
 **Métricas por AFI (v4 / v6):**
-- `asn_direct` — lista completa de ASNs em peering direto
+- `asn_direct` — lista completa de ASNs com sessão em route server
 - `br_asns_direct` / `br_asns_origin` — subconjuntos brasileiros
 - `br_prefix_coverage_pct` — % do espaço de endereços BR (Registro.br) visível aqui
 - `ixp_vs_fulltable_space_pct` — % do espaço global coberto pelos prefixos deste IXP
@@ -243,7 +243,7 @@ def ixp_members(
     "/ixps/{code}/peers",
     summary="Estatísticas por peer direto de um IXP",
     description="""
-Retorna estatísticas de prefixos por ASN em peering direto no IXP.
+Retorna estatísticas de prefixos por ASN com sessão em route server no PTT.
 
 Para cada peer, inclui:
 - `total_prefixes` — total de prefixos únicos anunciados
@@ -308,7 +308,7 @@ def peeringdb_dos_peers(store: Store, date_str: str, code: str, asns: list[str])
     "/ixps/{code}/assinantes",
     summary="Empresas e assinantes SCM (SICI) dos peers diretos de um IXP",
     description="""
-Para cada ASN em peering direto no IXP:
+Para cada ASN com sessão em route server no PTT:
 
 - `asns[asn]` — `cnpj`, `empresa`, badges de outorga (`has_scm`, `has_smp`,
   `has_stfc`, `has_seac`), `usuarios_apnic` e `assinantes_diretos` (acessos SICI

@@ -52,6 +52,10 @@ PROIBIDOS: list[tuple[str, tuple[str, ...], str]] = [
      ("frontend/src/pages/ASes.tsx",), "ASES-E2: ixps_direct é sessão com o route server"),
     (r"Execute o pipeline|Pipeline completo:|summary\.json não disponível|📭",
      ("frontend/src/pages", "frontend/src/components/layout", "frontend/src/features/panorama"), "TRANSV-E15: instrução de operador na vista pública"),
+    (r"ASes brasileiros alocados|ASNs? alocados pelo Registro\.br|ASNs BR alocados|ASNs brasileiros segundo o Registro\.br",
+     ("frontend/src", "api", "mcp_server"), "TRANSV-E4/PT-15: 9.129 é a delegação da LACNIC ao Brasil (is_br); a lista do Registro.br tem 9.150"),
+    (r"ASNs em peering direto|Participantes diretos|Direto em PTT|usuários brasileiros visíveis via este IXP",
+     ("frontend/src",), "PT-15: sessão em route server não é peering direto, e usuários por PTT são alcançáveis e não aditivos"),
     (r"nunca transitiva|controla quem",
      ("frontend/src", "api", "mcp_server"), "GRUPO-E4: o grupo é componente conexo (cadeia de ligações) e não mede controle"),
 ]

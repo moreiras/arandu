@@ -51,9 +51,16 @@ def glossario() -> str:
     """Conceitos-chave para interpretar os dados corretamente."""
     return com_identidade("""# Glossário Arandurape
 
-- **ASN direto vs. originador** — um AS é *direto* quando aparece no primeiro hop
-  do AS_PATH (faz peering físico no IXP); é *originador* quando seus prefixos são
-  visíveis no IXP, possivelmente via um upstream.
+- **Sessão em route server × membro × originador** — três conjuntos de ASNs de um PTT do
+  IX.br, de tamanhos muito diferentes. *Sessão com o route server* (`ixps_sessao_rs` na
+  collection `asns`, `ixps_direct` no documento do AS e `ixps_direct_count`): o AS aparece
+  como primeiro hop do AS_PATH no looking glass; não é peering bilateral. *Membro do
+  cadastro* (`ixps_membro`; `ixps_direct` da collection `asns` é o nome antigo dele):
+  consta na lista oficial de participantes, com ou sem sessão. *Originador*: seus
+  prefixos são visíveis no PTT, possivelmente via um upstream.
+
+- **ASN brasileiro** — `is_br`: os ASNs que a LACNIC delegou ao Brasil. A lista do
+  Registro.br (`registro_br_asns`) tem alguns ASNs a mais e é a base da análise de rotas.
 
 - **Prefixos RIR vs. global** — `rir_prefixes` vêm do Registro.br (fonte
   autoritativa de alocação); `global_prefixes` são observados na tabela global e
@@ -91,8 +98,10 @@ def glossario() -> str:
 - **CAP** — Provedor de Aplicações de Conteúdo (Content/Application Provider),
   tratado junto com CDNs na matriz de presença.
 
-- **Usuários estimados** — estimativa de usuários finais BR visíveis por IXP,
-  derivada das estimativas de usuários por AS do APNIC Labs.
+- **Usuários estimados** — estimativa do APNIC Labs por AS. Por IXP, é a estimativa de
+  usuários alcançáveis (IPv4), ponderada pelo espaço visível no PTT, e não é aditiva: o
+  mesmo usuário conta em cada PTT onde o seu AS aparece (a soma dos 40 PTTs passa de
+  três vezes o total do país). Por UF, vale a UF da sede do AS, não a de quem usa.
 
 - **SCM (Serviço de Comunicação Multimídia)** — serviço de telecomunicação
   (código 045 Anatel) que engloba provedores de acesso à internet (ISPs),
@@ -102,8 +111,9 @@ def glossario() -> str:
 
 - **Outorga SCM** — autorização regulatória (não é licença) concedida pela Anatel
   para prestar o SCM. Situação: ATI (ativa), EXT (extinta), SUS (suspensa).
-  Ter outorga NÃO significa estar operando: metade dos CNPJs licenciados não
-  declara nenhum acesso ao SICI (20.166 licenciados contra 9.776 operando).
+  Ter outorga NÃO significa estar operando: cerca de metade dos CNPJs com outorga SCM não
+  declara nenhum acesso fixo ao SICI. Os totais de declarantes dependem do universo (CNPJs
+  no SICI fixo, CNPJs com outorga SCM que declararam acesso fixo, ou fixo ou móvel).
 
 - **SICI (Sistema de Coleta de Informações)** — declaração mensal obrigatória das
   prestadoras à Anatel: quantos acessos em serviço, em que município, com que
