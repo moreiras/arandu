@@ -34,7 +34,9 @@ export function MetricCard({
   sub?: string
   accent?: Accent
 }) {
-  const valClass = accent ? ACCENT[accent].text : 'text-gray-900'
+  // PT-30: o número é sempre neutro. Cor sem significado (vermelho, azul, roxo) parece juízo; `accent` fica só por compatibilidade de chamada.
+  void accent
+  const valClass = 'text-gray-900'
   return (
     <div className="bg-white rounded-lg border border-gray-200 px-4 py-3">
       <div className="text-xs text-gray-500 mb-1">{label}</div>

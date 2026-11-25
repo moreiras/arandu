@@ -24,15 +24,15 @@ import { SeloMarca } from './SeloMarca'
  * PT-30: dentro de um `GrupoFontes` (`FontesEDatas.tsx`) o cartão mostra só o selo pequeno (`SeloMarca`, com nome acessível) e entrega
  * fonte e data ao bloco recolhido "Fontes e datas destes números" da seção, que agrega e deduplica. Fora de um grupo, nada muda.
  */
-/** Acentos sóbrios por tipo de indicador: faixa lateral e fundo suaves, valor em tom escuro (contraste AA conferido em `tokens.test.ts`). */
+/** Acentos sóbrios por tipo de indicador: faixa lateral e fundo suaves; o valor é sempre neutro (PT-30), pois cor no número sugere juízo. */
 const TONS = {
-  primario: { caixa: 'border-l-4 border-l-primario-500 bg-primario-50/60', valor: 'text-primario-800' },
-  v4: { caixa: 'border-l-4 border-l-v4-500 bg-v4-50/60', valor: 'text-v4-800' },
-  v6: { caixa: 'border-l-4 border-l-v6-500 bg-v6-50/60', valor: 'text-v6-800' },
-  mercado: { caixa: 'border-l-4 border-l-mercado-500 bg-mercado-50/60', valor: 'text-mercado-800' },
-  tecnico: { caixa: 'border-l-4 border-l-tecnico-500 bg-tecnico-50/60', valor: 'text-tecnico-800' },
-  estimado: { caixa: 'border-l-4 border-l-estimado-500 bg-estimado-50/60', valor: 'text-estimado-800' },
-  ok: { caixa: 'border-l-4 border-l-ok-500 bg-ok-50/60', valor: 'text-ok-800' },
+  primario: { caixa: 'border-l-4 border-l-primario-500 bg-primario-50/60', valor: 'text-gray-900' },
+  v4: { caixa: 'border-l-4 border-l-v4-500 bg-v4-50/60', valor: 'text-gray-900' },
+  v6: { caixa: 'border-l-4 border-l-v6-500 bg-v6-50/60', valor: 'text-gray-900' },
+  mercado: { caixa: 'border-l-4 border-l-mercado-500 bg-mercado-50/60', valor: 'text-gray-900' },
+  tecnico: { caixa: 'border-l-4 border-l-tecnico-500 bg-tecnico-50/60', valor: 'text-gray-900' },
+  estimado: { caixa: 'border-l-4 border-l-estimado-500 bg-estimado-50/60', valor: 'text-gray-900' },
+  ok: { caixa: 'border-l-4 border-l-ok-500 bg-ok-50/60', valor: 'text-gray-900' },
 } as const
 export type TomKpi = keyof typeof TONS
 
@@ -67,7 +67,7 @@ export function Kpi({ rotulo, valor, referencia, variacao, selo, fonte, dataRef,
   valor: ReactNode
   /** Termo de comparação, ex.: "mediana da UF: 42%". */
   referencia?: string
-  /** Variação já formatada, com sinal, ex.: "+3,1 p.p."; `bom` pinta de verde ou vermelho (omita se o sentido não é bom nem ruim). */
+  /** Variação já formatada, com sinal, ex.: "+3,1 p.p."; `bom` é aceito por compatibilidade, mas não pinta mais (PT-30: sem verde nem vermelho de juízo). */
   variacao?: { texto: string; bom?: boolean }
   /** Natureza do dado (fato, estimado ou inferido); aparece por extenso na linha de proveniência. */
   selo?: Selo
@@ -88,7 +88,7 @@ export function Kpi({ rotulo, valor, referencia, variacao, selo, fonte, dataRef,
         : <LinhaProveniencia selo={selo} fonte={fonte} dataRef={dataRef} />}
       {(variacao || referencia) && (
         <div className="mt-0.5 flex flex-wrap gap-x-2 text-xs text-gray-500">
-          {variacao && <span className={variacao.bom === undefined ? '' : variacao.bom ? 'text-ok-700' : 'text-perigo-700'}>{variacao.texto}</span>}
+          {variacao && <span>{variacao.texto}</span>}
           {referencia && <span>{referencia}</span>}
         </div>
       )}
