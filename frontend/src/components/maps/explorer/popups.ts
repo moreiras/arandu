@@ -95,7 +95,29 @@ export function htmlScm(p: Props): string {
   lines.push(asns.length
     ? `<span style="font-size:.82em;color:#555">${asns.map(a => `AS${escapar(a)}`).join(', ')}</span>`
     : `<span style="font-size:.78em;color:#9ca3af">Outorga SCM sem ASN no BGP</span>`)
+  const sici = linhaSici(p)
+  if (sici) lines.push(sici)
   return lines.join('<br/>')
+}
+
+/**
+ * Declaração de acessos da outorga (PT-26, mapa 5.4): só o fato e o mês de referência, sem adjetivo. O mês do SICI difere da data do snapshot.
+ * Os campos `sici_*` vêm da camada; sem eles (snapshot antigo) nada é afirmado.
+ */
+export function linhaSici(p: Props): string {
+  if (p.sici_ativo === undefined) return ''
+  const mes = typeof p.sici_mes_referencia === 'string' && p.sici_mes_referencia ? p.sici_mes_referencia : ''
+  const fmt = (v: unknown) => Number(v ?? 0).toLocaleString('pt-BR')
+  let texto: string
+  if (p.sici_ativo === true || p.sici_ativo === 'true') {
+    const partes = [`${fmt(p.sici_acessos)} acessos (pessoa física ${fmt(p.sici_pf)}, jurídica ${fmt(p.sici_pj)})`]
+    if (Number(p.sici_municipios)) partes.push(`${fmt(p.sici_municipios)} ${Number(p.sici_municipios) === 1 ? 'município' : 'municípios'}`)
+    if (p.sici_tecnologia) partes.push(String(p.sici_tecnologia))
+    texto = `SICI${mes ? ` ${mes}` : ''}: ${partes.join(', ')}`
+  } else {
+    texto = `Sem acessos declarados no SICI${mes ? ` em ${mes}` : ' no mês de referência do snapshot'}`
+  }
+  return `<span style="font-size:.82em;color:#555">${escapar(texto)}</span>`
 }
 
 export function htmlEnlaceTerrestre(p: Props): string {

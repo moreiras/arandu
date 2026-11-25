@@ -44,7 +44,7 @@ def aplicar_sici_registro(rec: dict, agg: dict | None, mes_ref: str) -> bool:
 def aplicar_sici_feature(props: dict, agg: dict | None, mes_ref: str) -> None:
     """O GeoJSON do mapa de SCMs também ganha os acessos, para dimensionar as bolhas."""
     props["sici_ativo"] = bool(agg)
-    props["sici_mes_referencia"] = mes_ref if agg else ""
+    props["sici_mes_referencia"] = mes_ref                    # o mês consultado, também para quem não declarou ("sem acessos declarados em AAAA-MM")
     props["sici_acessos"] = agg["acessos"] if agg else 0
     props["sici_pf"] = agg["pf"] if agg else 0
     props["sici_pj"] = agg["pj"] if agg else 0

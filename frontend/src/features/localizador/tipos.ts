@@ -36,6 +36,9 @@ export interface ScmGeoFeature {
     has_asn: boolean
     asns: number[] | string
     situacao?: string
+    /** Declarou acessos no mês de referência do SICI (ausente em snapshot antigo). */
+    sici_ativo?: boolean
+    sici_mes_referencia?: string
   }
 }
 
