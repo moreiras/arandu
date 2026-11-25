@@ -8,17 +8,13 @@ import { IX_TAG_CLASS, SCM_SELO, SICI_COLOR, V4_STRONG, V6_STRONG, asnsDoRaio, f
 import type { Entity, TagIx } from './tipos'
 
 /** Painel direito: resumo do raio, participação em IXes e a lista de entidades (ASes e SCMs deduplicados por CNPJ). */
-export function PainelEntidades({ className, entities, entityCounts, markerPos, stats, filteredAsnsCount, nearestIx, ixLabel, ixCounts,
+export function PainelEntidades({ className, entities, entityCounts, markerPos, stats,
   copied, onCopy, onCsv, temPresenca, tagsDoAs }: {
   className: string
   entities: Entity[]
   entityCounts: { asns: number; cnpjsComAsn: number; scms: number }
   markerPos: [number, number] | null
   stats: { sedesAsn: number; asnsComPrefixo: number; sedesScm: number; scmsComUsuarios: number }
-  filteredAsnsCount: number
-  nearestIx: string | null
-  ixLabel: (code: string) => string
-  ixCounts: { nearMember: number; nearOrigin: number; anyMember: number; otherNotNear: number }
   copied: boolean
   onCopy: () => void
   onCsv: () => void
@@ -70,25 +66,6 @@ export function PainelEntidades({ className, entities, entityCounts, markerPos, 
             {stats.scmsComUsuarios > 0 && (
               <p>{stats.scmsComUsuarios} SCM{stats.scmsComUsuarios !== 1 ? 's' : ''} com usuários</p>
             )}
-          </div>
-        )}
-        {filteredAsnsCount > 0 && nearestIx && (
-          <div className="text-xs text-gray-500 leading-snug space-y-0.5 pt-0.5 border-t border-gray-100">
-            <div>
-              <span className="font-semibold text-gray-700">{ixCounts.nearMember}</span> participam de{' '}
-              <span className="font-medium">{ixLabel(nearestIx)}</span>
-            </div>
-            <div>
-              <span className="font-semibold text-gray-700">{ixCounts.nearOrigin}</span> têm prefixos vistos nos route servers de{' '}
-              {ixLabel(nearestIx)} (anunciados pelo próprio AS ou por terceiros)
-            </div>
-            <div>
-              <span className="font-semibold text-gray-700">{ixCounts.anyMember}</span> participam de algum IX do IX.br
-            </div>
-            <div>
-              <span className="font-semibold text-gray-700">{ixCounts.otherNotNear}</span> participam de outro IX, mas não de{' '}
-              {ixLabel(nearestIx)}
-            </div>
           </div>
         )}
       </div>

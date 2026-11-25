@@ -2814,6 +2814,18 @@
    "status": 200,
    "tipo": "objeto"
   },
+  "GET /api/v1/territorio/infra-proximos": {
+   "chaves": [
+    "camadas",
+    "indisponiveis",
+    "instalacoes",
+    "ponto",
+    "raio_km",
+    "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
   "GET /api/v1/territorio/mapa": {
    "chaves": [
     "ano_projecao_domicilios",

@@ -2,15 +2,17 @@ import { useCallback, useMemo, useState } from 'react'
 import { useActiveDate } from '../hooks/useSnapshot'
 import {
   agruparPorCoordenada, contagemEntidades, contagensIx, etiquetasIx, filtrarNoRaio, indicesScm, mapaDeNomes, montarEntidades,
-  municipiosSiciNoRaio, mercadoNoRaio, operadoresSici, outorgasSemDeclaracaoNoRaio, pixNoRaio, resumoDoRaio, scmsNoRaio,
+  municipiosSiciNoRaio, mercadoNoRaio, operadoresSici, outorgasSemDeclaracaoNoRaio, pixNoRaio, presencaPorPtt, resumoDoRaio, scmsNoRaio,
 } from '../features/localizador/calculos'
 import type { Ponto, PresencaIx } from '../features/localizador/calculos'
 import { baixarCsv, montarCsv } from '../features/localizador/csv'
-import { nearestIxCode } from '../features/localizador/geo'
+import { distanciasPtt, nearestIxCode } from '../features/localizador/geo'
 import { PainelControles } from '../features/localizador/PainelControles'
 import { PainelEntidades } from '../features/localizador/PainelEntidades'
+import { BlocoInterconexao } from '../features/localizador/BlocoInterconexao'
 import { BlocoMercado } from '../features/localizador/BlocoMercado'
-import { SinteseLocalizador } from '../features/localizador/BlocoSinteseLocalizador'
+import { ESPERA_SINTESE_MS, SinteseLocalizador, useAtrasado } from '../features/localizador/BlocoSinteseLocalizador'
+import { InfraFisicaRaio } from '../features/territorio/InfraFisicaRaio'
 import { LugarAmbiguo, geocodeQuery, useLocalizadorDados } from '../features/localizador/useLocalizadorDados'
 import { useMapaLocalizador } from '../features/localizador/useMapaLocalizador'
 import { Link } from '../components/layout/LinkDatado'
@@ -35,6 +37,8 @@ export function Localizador() {
   const [modal, setModal] = useState<{ title: string; html: string } | null>(null)
 
   const dados = useLocalizadorDados(date, show.prefixes)
+  // o raio muda a cada pixel do controle: a consulta de infraestrutura espera o valor assentar
+  const raioAssentado = useAtrasado(radius, ESPERA_SINTESE_MS)
   const { asnGeo, prefixGeo, ixList, ixPresence, pixGeo, scmGeo, siciMunData, municipioCentroids } = dados
 
   // Nomes dos IXes (código → nome de cidade) para as tags "IX <cidade>".
@@ -44,6 +48,7 @@ export function Localizador() {
     return m
   }, [ixList])
   const ixLabel = useCallback((code: string) => `IX ${ixNames[code] ?? code.toUpperCase()}`, [ixNames])
+  const pttLabel = useCallback((code: string) => `${ixNames[code] ?? code.toUpperCase()} (${code})`, [ixNames])
 
   const asnNameMap = useMemo(() => mapaDeNomes(asnGeo), [asnGeo])
   const { filteredAsns, asnDots, prefixBubbles } = useMemo(
@@ -75,7 +80,13 @@ export function Localizador() {
 
   // Para cada AS: IXes onde é membro / origina prefixos; tags e contagens de participação.
   const ixOf = useCallback((asn: number): PresencaIx => ixPresence?.asns[String(asn)] ?? { m: [], o: [] }, [ixPresence])
-  const tagsDoAs = useCallback((asn: number) => etiquetasIx(ixOf(asn).m, nearestIx, ixLabel), [ixOf, nearestIx, ixLabel])
+  const presenca = useMemo(
+    () => presencaPorPtt(filteredAsns.map(a => a.asn), ixOf, markerPos, markerPos ? distanciasPtt(markerPos[0], markerPos[1]) : []),
+    [filteredAsns, ixOf, markerPos],
+  )
+  // etiquetas e CSV partem do PTT de referência (o de mais membros entre as redes do raio), com o mais próximo em linha reta quando não há membros
+  const pttRef = presenca.referencia?.code ?? nearestIx
+  const tagsDoAs = useCallback((asn: number) => etiquetasIx(ixOf(asn).m, pttRef, ixLabel), [ixOf, pttRef, ixLabel])
   const ixCounts = useMemo(() => contagensIx(filteredAsns, ixOf, nearestIx), [filteredAsns, ixOf, nearestIx])
 
   const { mapDivRef, mapRef } = useMapaLocalizador({
@@ -113,8 +124,8 @@ export function Localizador() {
   }, [entities])
 
   const handleCsv = useCallback(
-    () => baixarCsv(montarCsv(entities, ixOf, nearestIx, ixLabel), nearestIx),
-    [entities, ixOf, nearestIx, ixLabel],
+    () => baixarCsv(montarCsv(entities, ixOf, nearestIx, ixLabel, presenca), nearestIx),
+    [entities, ixOf, nearestIx, ixLabel, presenca],
   )
 
   const panelBase =
@@ -178,14 +189,22 @@ export function Localizador() {
 
         <PainelEntidades
           className={`${panelBase} top-3 right-3 bottom-3 w-60 flex flex-col`}
-          entities={entities} entityCounts={entityCounts} markerPos={markerPos} stats={stats} filteredAsnsCount={filteredAsns.length}
-          nearestIx={nearestIx} ixLabel={ixLabel} ixCounts={ixCounts} copied={copied} onCopy={handleCopy} onCsv={handleCsv}
+          entities={entities} entityCounts={entityCounts} markerPos={markerPos} stats={stats}
+          copied={copied} onCopy={handleCopy} onCsv={handleCsv}
           temPresenca={!!ixPresence} tagsDoAs={tagsDoAs}
         />
       </div>
 
       {erroBusca && <EstadoDados erro={erroBusca.erro} oQue={'a busca por "' + erroBusca.termo + '"'} mensagem={erroBusca.mensagem ?? 'Lugar não encontrado: "' + erroBusca.termo + '". Tente o nome do município (ex.: Vitória ou Bom Jesus/PI).'} />}
       {dados.erro && <EstadoDados erro={dados.erro} oQue="algumas camadas do mapa" />}
+
+      {markerPos && !!ixPresence && (
+        <BlocoInterconexao presenca={presenca} pttLabel={pttLabel} snapshot={ixPresence.snapshot_date ?? date ?? null} />
+      )}
+
+      {markerPos && (
+        <InfraFisicaRaio lat={markerPos[0]} lon={markerPos[1]} raioKm={raioAssentado} date={date} />
+      )}
 
       {markerPos && mercado && siciMunData && (
         <BlocoMercado mercado={mercado} mesReferencia={siciMunData.mes_referencia} snapshot={siciMunData.snapshot_date}

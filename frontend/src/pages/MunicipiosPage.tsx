@@ -14,6 +14,7 @@ import { BarraDeAbas } from '../features/entidade/EntityPage'
 import { Dica } from '../components/ui/Dica'
 import { ComoLer } from '../components/ui/ComoLer'
 import { EstadoDados } from '../components/ui/EstadoDados'
+import { rotuloPix } from '../lib/geo'
 import { AvisosRecorte } from '../components/ui/AvisoRecorte'
 import { useActiveDate } from '../hooks/useSnapshot'
 import { SinteseTopo } from '../components/ui/SinteseTopo'
@@ -41,7 +42,8 @@ const CAB_TERRITORIO: [string, string | undefined, string?][] = [
   ['Sem acesso fixo PF (est.)', 'Estimativa de domicílios com Internet sem acesso fixo de pessoa física (taxa da PNAD, não a da TIC): domicílios projetados × taxa de Internet da UF (PNAD) − acessos de pessoa física. Inclui quem usa só o celular.', 'nao_visto'],
   ['Fibra', 'Parcela dos acessos fixos em fibra óptica.', 'fibra_pct'],
   ['Reclam. /100 mil', 'Reclamações na Anatel no último ano completo ÷ população × 100 mil; só municípios com 30 ou mais reclamações.', 'reclam_100mil'],
-  ['PTT mais próximo', 'PTT do IX.br mais próximo em linha reta do centro do município (ordena pela distância).', 'km_ptt'],
+  ['Redes com sede (inferido)', 'ASNs brasileiros cuja organização tem sede no município (pelo CNPJ), quantos têm sessão direta em PTT do IX.br e quantos têm rotas vistas num PTT (que podem chegar por trânsito de outro AS). Sede não é área de operação; a contagem não é ranking de cidades.'],
+  ['Ponto de interconexão mais próximo', 'Distância do centróide do município ao PIX (local de interconexão) mais próximo de qualquer PTT do IX.br, em linha reta (inferido). Não mede o caminho da fibra nem o custo; ordena pela distância.', 'km_ptt'],
 ]
 /** Cabeçalho; com `aoOrdenar`, o rótulo vira botão de ordenação (teclado; NBR 17225 5.1.13) e a ordem fica na URL. */
 const Th = ({ r, dica, esq, ativa, crescente, aoOrdenar }: { r: string; dica?: string; esq?: boolean; ativa?: boolean; crescente?: boolean; aoOrdenar?: () => void }) => (
@@ -191,7 +193,8 @@ export function MunicipiosPage() {
                     <td className="px-2 py-1 text-right tabular-nums">{n(r.acessos)}</td><td className="px-2 py-1 text-right tabular-nums">{razao(r.penetracao)}</td><td className="px-2 py-1 text-right tabular-nums">{n(r.nao_visto)}</td>
                     <td className="px-2 py-1 text-right tabular-nums">{r.fibra_pct == null ? '—' : `${r.fibra_pct.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}%`}</td>
                     <td className="px-2 py-1 text-right tabular-nums" title={r.reclam_ano ? `ano ${r.reclam_ano}` : undefined}>{r.reclam_100mil == null ? '—' : n(Math.round(r.reclam_100mil))}</td>
-                    <td className="px-2 py-1 text-xs text-right">{r.ptt_proximo ? `${r.ptt_proximo.toUpperCase()} · ${r.km_ptt?.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} km` : '—'}</td>
+                    <td className="px-2 py-1 text-xs text-right" data-testid="redes-sede">{r.redes_sede ? (r.redes_sede.asns === 0 ? '0 ASNs' : `${n(r.redes_sede.asns)} ASNs · ${n(r.redes_sede.sessao_ptt)} com sessão em PTT · ${n(r.redes_sede.rotas_ptt)} com rotas vistas em PTT`) : '—'}</td>
+                    <td className="px-2 py-1 text-xs text-right">{r.ptt_proximo ? `${rotuloPix(r.pix_proximo)}PTT ${r.ptt_proximo.toUpperCase()} · ${r.km_ptt?.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} km` : '—'}</td>
                   </tr>
                 ))}
               </tbody>

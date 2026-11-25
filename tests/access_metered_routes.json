@@ -142,6 +142,7 @@
  "/api/v1/territorio/resumo",
  "/api/v1/territorio/municipio/{ibge}/semelhantes",
  "/api/v1/territorio/ranking",
+ "/api/v1/territorio/infra-proximos",
  "/api/v1/transito/ufs",
  "/api/v1/transito/ufs/{uf}",
  "/api/v1/ufs/{uf}"

@@ -4667,6 +4667,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/territorio/infra-proximos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Infraestrutura física e instalações do PeeringDB num raio em torno de um ponto
+         * @description Para o ponto `lat`/`lon`: quantas feições das camadas leves do mapa passam a até `raio_km` (cabos submarinos, pontos de aterrissagem, enlaces terrestres da UIT e linhas de transmissão
+         *     de energia) e as `limit` mais próximas de cada uma, com a distância em km, a fonte e, nos enlaces, a contagem por `status` (por exemplo operacional ou planejado). Traz também as instalações
+         *     cadastradas no PeeringDB a até `raio_instalacoes_km`. Distância em linha reta até a geometria, com projeção local; as geometrias são aproximadas, não informam capacidade disponível nem
+         *     quem opera, e a instalação é cadastro autodeclarado. Proximidade de uma linha de energia ou de um cabo não indica que as redes locais a usam. Sem GeoJSON; rodovias ficam de fora (arquivo grande).
+         *     Mesma regra do `infra_proximos` do MCP.
+         */
+        get: operations["territorio_infra_proximos_api_v1_territorio_infra_proximos_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/territorio/mapa": {
         parameters: {
             query?: never;
@@ -4719,7 +4743,7 @@ export interface paths {
         /**
          * Municípios por penetração, mercado não visto ou distância ao PTT
          * @description Municípios ordenados por `campo` (penetracao, penetracao_pf, nao_visto, nao_visto_pct, populacao, populacao_estimada, domicilios, domicilios_projetados, acessos, km_ptt, fibra_pct, reclam_100mil). `uf` restringe; `sem_ptt_proximo=true` mantém só os a mais de 100 km de um PTT (linha reta do
-         *     centróide); `min_domicilios` evita o ruído de municípios muito pequenos. Cada linha traz população, domicílios, acessos, penetração, o não visto estimado e o PTT mais próximo.
+         *     centróide); `min_domicilios` evita o ruído de municípios muito pequenos. Cada linha traz população, domicílios, acessos, penetração, o não visto estimado e o PTT mais próximo (`ptt_proximo`, `ptt_proximo_nome`) com o PIX, o local de interconexão, mais próximo (`pix_proximo`).
          *     O `nao_visto` é max(0, domicílios projetados × taxa de internet da UF − acessos de pessoa física): estimativa que inclui quem usa só o celular (PNAD). Fórmulas e limites vêm na resposta.
          */
         get: operations["territorio_ranking_api_v1_territorio_ranking_get"];
@@ -13160,6 +13184,44 @@ export interface operations {
             path: {
                 cnpj: string;
             };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    territorio_infra_proximos_api_v1_territorio_infra_proximos_get: {
+        parameters: {
+            query: {
+                lat: number;
+                lon: number;
+                date?: string | null;
+                raio_km?: number;
+                raio_instalacoes_km?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;

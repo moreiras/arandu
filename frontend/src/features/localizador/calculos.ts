@@ -359,7 +359,7 @@ export type PresencaIx = { m: string[]; o: string[] }
  * Tags de participação por AS (membro), na ordem: mais próximo → principais → "algum outro IX" → "nenhum IX".
  */
 export function etiquetasIx(membros: string[], nearestIx: string | null, ixLabel: (code: string) => string): TagIx[] {
-  if (membros.length === 0) return [{ code: '', label: 'Nenhum IX', kind: 'none' }]
+  if (membros.length === 0) return [{ code: '', label: 'Não é participante de PTT', kind: 'none' }]
   const named = new Set<string>([...(nearestIx ? [nearestIx] : []), ...MAJOR_IX])
   const memberSet = new Set(membros)
   const tags: TagIx[] = []
@@ -372,7 +372,7 @@ export function etiquetasIx(membros: string[], nearestIx: string | null, ixLabel
     }
   }
   if (membros.some(c => !named.has(c))) {
-    tags.push({ code: '', label: 'Algum IX do IX.br', kind: 'other' })
+    tags.push({ code: '', label: 'Algum outro PTT do IX.br', kind: 'other' })
   }
   return tags
 }
@@ -390,4 +390,62 @@ export function contagensIx(filteredAsns: AsnNaLista[], ixOf: (asn: number) => P
     }
   }
   return { nearMember, nearOrigin, anyMember, otherNotNear }
+}
+
+export interface LinhaPtt {
+  code: string
+  /** distância em linha reta do ponto à cidade do PTT (inferido: coordenada aproximada da cidade) */
+  km: number
+  /** ASNs da lista no raio que constam do cadastro de participantes do PTT */
+  membros: number
+  /** ASNs da lista sem cadastro no PTT, mas com prefixos vistos nos route servers dele (podem chegar por trânsito de outro participante) */
+  soOriginados: number
+}
+
+export interface PresencaPtt {
+  total: number
+  linhas: LinhaPtt[]
+  /** PTT com mais membros entre as redes do raio (desempate pela menor distância); null se nenhuma rede do raio é membro de PTT */
+  referencia: LinhaPtt | null
+  /** PTT do IX.br mais próximo em linha reta, com membros ou não */
+  maisProximo: LinhaPtt | null
+  algumMembro: number
+  /** sem cadastro em PTT, com prefixos vistos em route server de algum PTT */
+  semSessaoComPrefixos: number
+  semSessaoSemPrefixos: number
+}
+
+/**
+ * Presença real das redes do raio nos PTTs (PT-25, localizador 5.1): para cada PTT, quantas das redes listadas são membros do cadastro de participantes e quantas
+ * só têm prefixos vistos nos route servers dele. O PTT de referência é o de mais membros (desempate pela distância), não o mais próximo em linha reta; os dois
+ * aparecem. O denominador é a lista do raio (ASNs distintos, sedes e presentes só por prefixo).
+ */
+export function presencaPorPtt(asns: number[], ixOf: (asn: number) => PresencaIx, ponto: Ponto | null, distancias: Array<{ code: string; km: number }>): PresencaPtt {
+  const unicos = [...new Set(asns)]
+  const membros = new Map<string, number>()
+  const originados = new Map<string, number>()
+  let algumMembro = 0, semComPrefixos = 0, semSemPrefixos = 0
+  for (const a of unicos) {
+    const { m, o } = ixOf(a)
+    const ms = new Set(m)
+    for (const c of ms) membros.set(c, (membros.get(c) ?? 0) + 1)
+    for (const c of new Set(o)) if (!ms.has(c)) originados.set(c, (originados.get(c) ?? 0) + 1)
+    if (ms.size > 0) algumMembro++
+    else if (o.length > 0) semComPrefixos++
+    else semSemPrefixos++
+  }
+  const km = new Map(distancias.map(d => [d.code, d.km]))
+  const codigos = new Set<string>([...membros.keys(), ...originados.keys(), ...distancias.slice(0, 1).map(d => d.code)])
+  const linhas: LinhaPtt[] = [...codigos]
+    .filter(c => km.has(c))
+    .map(c => ({ code: c, km: km.get(c)!, membros: membros.get(c) ?? 0, soOriginados: originados.get(c) ?? 0 }))
+    .sort((a, b) => b.membros - a.membros || a.km - b.km || b.soOriginados - a.soOriginados)
+  const comMembros = linhas.filter(l => l.membros > 0)
+  const maisProx = distancias[0]
+  return {
+    total: unicos.length, linhas: ponto ? linhas : [],
+    referencia: ponto && comMembros.length ? comMembros[0] : null,
+    maisProximo: ponto && maisProx ? (linhas.find(l => l.code === maisProx.code) ?? null) : null,
+    algumMembro, semSessaoComPrefixos: semComPrefixos, semSessaoSemPrefixos: semSemPrefixos,
+  }
 }

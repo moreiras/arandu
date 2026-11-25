@@ -120,6 +120,46 @@ def test_territorio_linhas_traz_ptt_proximo_e_marca_quem_esta_a_mais_de_100_km()
     assert linhas["1100015"]["km_ptt"] == 250.0 and linhas["1100015"]["sem_ptt_proximo"] is True and linhas["1100015"]["ptt_proximo"] == "sp"
 
 
+def test_territorio_linhas_traz_o_nome_do_pix_mais_proximo_alem_do_ptt():
+    """PT-25 / municipios 5.3: o PTT sozinho esconde que o ponto mais próximo é o PIX de outra cidade (Monte Carlo/SC aponta para Nova Prata)."""
+    from api.services.perfis import PerfisService
+
+    doc = {"municipios": {"3550308": {"nome": "São Paulo", "uf": "SP", "domicilios": 10}}}
+    serv = PerfisService(_LojaFalsa(doc))
+    serv.ptt_mais_proximo = lambda d, lon, lat: {"codigo": "rs", "nome": "Porto Alegre", "pix": "[PIX ADYLNET]", "km": 191.0}      # type: ignore[method-assign]
+    ln = serv.territorio_linhas("2026-10-31")[0]
+    assert (ln["ptt_proximo"], ln["ptt_proximo_nome"], ln["pix_proximo"]) == ("rs", "Porto Alegre", "[PIX ADYLNET]")
+
+
+def test_territorio_linhas_traz_redes_com_sede_e_a_interligacao_delas():
+    """PT-25 / municipios 5.3: a distância ao PIX não diz se as redes do município já estão interligadas; sem o produto `regiao`, o campo não existe (não vira zero)."""
+    from api.services.perfis import PerfisService
+
+    class Loja(_LojaFalsa):
+        def regiao_doc(self, date_str):
+            return {"asns": {"1": {"d": ["sp"], "o": ["sp"]}, "2": {"d": [], "o": ["sp"]}, "3": {"d": [], "o": []}}, "municipios": {"3550308": {"h": [1, 2, 3]}}}
+
+    doc = {"municipios": {"3550308": {"nome": "São Paulo", "uf": "SP", "domicilios": 10}, "1100015": {"nome": "Alta Floresta D'Oeste", "uf": "RO", "domicilios": 5}}}
+    com, sem = PerfisService(Loja(doc)), PerfisService(_LojaFalsa(doc))
+    for serv in (com, sem):
+        serv.ptt_mais_proximo = lambda d, lon, lat: {"codigo": "sp", "km": 1.0}      # type: ignore[method-assign]
+    linhas = {x["ibge"]: x for x in com.territorio_linhas("2026-10-31")}
+    assert linhas["3550308"]["redes_sede"] == {"asns": 3, "sessao_ptt": 1, "rotas_ptt": 2}
+    assert linhas["1100015"]["redes_sede"] == {"asns": 0, "sessao_ptt": 0, "rotas_ptt": 0}
+    assert all("redes_sede" not in x for x in sem.territorio_linhas("2026-10-31"))
+
+
+def test_todo_ptt_do_pix_yaml_tem_ao_menos_um_pix_com_coordenada():
+    """PT-25 / MAPA-E1: PTT sem nenhum PIX com lat/lon some do mapa e da distância municipal (Foz do Iguaçu apontava para `cac` por falta de `igu`)."""
+    import yaml
+    from pathlib import Path
+
+    raiz = Path(__file__).resolve().parents[2]
+    pix = (yaml.safe_load((raiz / "config" / "pix.yaml").read_text(encoding="utf-8")) or {}).get("pix") or {}
+    sem = sorted(c for c, es in pix.items() if not any(e.get("lat") is not None and e.get("lon") is not None for e in (es or [])))
+    assert pix and not sem, f"PTT sem nenhum PIX com coordenada: {sem}"
+
+
 def test_pix_config_vem_de_config_na_raiz_do_repositorio():
     """Sem pix.yaml (mesmo caminho dos centróides) nenhum PTT teria coordenadas e a distância ao PTT mais próximo não existiria."""
     from api.services.geolocalizacao import GeolocalizacaoService

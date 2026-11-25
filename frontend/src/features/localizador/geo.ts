@@ -28,6 +28,13 @@ export function nearestIxCode(lat: number, lon: number): string | null {
   return best
 }
 
+/** Distância em linha reta (km) do ponto à cidade de cada PTT, do menor para o maior valor. Só os PTTs com coordenada conhecida. */
+export function distanciasPtt(lat: number, lon: number): Array<{ code: string; km: number }> {
+  return Object.entries(IXP_COORDS)
+    .map(([code, [ilat, ilon]]) => ({ code, km: distKm(lat, lon, ilat, ilon) }))
+    .sort((a, b) => a.km - b.km || a.code.localeCompare(b.code))
+}
+
 /** Polígono geodésico aproximando um círculo de raio em km — substitui L.circle. */
 export function circlePolygon(lat: number, lon: number, radiusKm: number, points = 72): GeoJSON.Feature<GeoJSON.Polygon> {
   const R = 6371

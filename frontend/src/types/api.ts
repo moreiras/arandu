@@ -2107,6 +2107,8 @@ export interface TerritorioMunicipio extends TerritorioMeta, TerritorioNumeros {
   area_km2?: number
   sem_declaracao_sici?: boolean
   ptt_proximo?: string
+  ptt_proximo_nome?: string
+  pix_proximo?: string | null
   km_ptt?: number
   sem_ptt_proximo?: boolean
 }
@@ -2126,7 +2128,24 @@ export interface LinhaTerritorio extends TerritorioNumeros {
   reclam_100mil?: number
   reclam_ano?: number
   ptt_proximo?: string
+  ptt_proximo_nome?: string
+  /** Nome do PIX (local de interconexão) mais próximo, do cadastro do IX.br; o PTT é `ptt_proximo`. */
+  pix_proximo?: string | null
+  /** ASNs brasileiros com sede no município (pelo CNPJ), com sessão direta em PTT e com rotas vistas num PTT; ausente se o produto não foi publicado. Sede não é área de operação. */
+  redes_sede?: { asns: number; sessao_ptt: number; rotas_ptt: number }
   sem_ptt_proximo?: boolean
+}
+/** Uma feição próxima: distância ao ponto e propriedades curtas da camada (nome, status, dono…). */
+export interface ItemInfra { distancia_km: number; name?: string; status?: string; [propriedade: string]: string | number | boolean | undefined }
+export interface CamadaInfra { camada: string; fonte: string; total: number; itens: ItemInfra[]; por_status?: Record<string, number> }
+/** `GET /territorio/infra-proximos`: camadas leves do mapa e instalações do PeeringDB num raio. Distância em linha reta (inferido); geometria aproximada. */
+export interface InfraProximos {
+  snapshot_date: string
+  ponto: { lat: number; lon: number }
+  raio_km: number
+  camadas: Partial<Record<'cabos' | 'pontos_aterrissagem' | 'enlaces' | 'linhas_transmissao', CamadaInfra>>
+  indisponiveis: string[]
+  instalacoes: { raio_km: number; total: number; fonte: string; itens: Array<{ distancia_km: number; id: number | null; nome: string | null; cidade: string | null; uf: string | null }> }
 }
 /** Soma de um grupo de municípios em `GET /territorio/resumo`; a razão é nula sem município com domicílios projetados (nunca zero). */
 export interface AgregadoTerritorio {

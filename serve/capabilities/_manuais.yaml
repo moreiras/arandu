@@ -234,6 +234,8 @@
   mcp: asn_interconexao
 - http: GET /territorio/ranking
   mcp: query:municipios
+- http: GET /territorio/infra-proximos
+  mcp: infra_proximos
 - http: GET /regiao
   sem_mcp: "agregado de um conjunto de municípios para a página de município (raio); o MCP tem asn_ix_presence, ixp_nearby e get_asn para o mesmo tipo de pergunta por ASN ou PTT"
 - http: GET /brasil/indicadores

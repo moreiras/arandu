@@ -8,23 +8,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from core.geo import distancia_ao_geometria_km
+from api.services.infra import CAMADAS_INFRA, PADRAO, resumo_infra
 from mcp_server.contexto import _resolve, _store, mcp
-
-# nome na tool → (camada em maps/<camada>.geojson, rótulo). As quatro primeiras são leves; rodovias (~135 MB) só quando pedida.
-CAMADAS_INFRA = {
-    "cabos": ("submarine_cables", "Cabos submarinos (TeleGeography)"),
-    "pontos_aterrissagem": ("submarine_landing_points", "Pontos de aterrissagem de cabos submarinos"),
-    "enlaces": ("itu_transmission", "Enlaces terrestres de transmissão (ITU)"),
-    "linhas_transmissao": ("power_transmission_lines", "Linhas de transmissão de energia"),
-    "rodovias": ("ibge_rodovias", "Rodovias (IBGE)"),
-}
-PADRAO = ("cabos", "pontos_aterrissagem", "enlaces", "linhas_transmissao")
-
-
-def _resumo_props(props: dict) -> dict:
-    """Propriedades escalares curtas da feição (nome, dono, ano…), sem listas nem textos longos."""
-    return {k: v for k, v in (props or {}).items() if isinstance(v, (str, int, float, bool)) and not (isinstance(v, str) and len(v) > 80)}
 
 
 @mcp.tool()
@@ -60,29 +45,5 @@ def infra_nearby(
     if invalidas:
         raise ValueError(f"camadas inválidas: {invalidas}; válidas: {', '.join(CAMADAS_INFRA)}")
     d = _resolve(date)
-
-    def mede(f: dict) -> Optional[float]:
-        dist = distancia_ao_geometria_km(f.get("geometry"), lat, lon)
-        return dist if dist is not None and dist <= raio else None
-
-    saida, indisponiveis = {}, []
-    for nome in escolhidas:
-        camada, rotulo = CAMADAS_INFRA[nome]
-        achadas: list[tuple[float, dict]] = []
-        if nome == "rodovias":
-            gj = _store.geo_map_filtrado(d, camada, lambda f: mede(f) is not None)
-            feicoes = (gj or {}).get("features") if gj is not None else None
-        else:
-            gj = _store.geo_map(d, camada)
-            feicoes = (gj or {}).get("features") if gj is not None else None
-        if feicoes is None:
-            indisponiveis.append(nome)
-            continue
-        for f in feicoes:
-            dist = mede(f)
-            if dist is not None:
-                achadas.append((dist, f))
-        achadas.sort(key=lambda x: x[0])
-        saida[nome] = {"camada": rotulo, "total": len(achadas),
-                       "itens": [{"distancia_km": round(dist, 1), **_resumo_props(f.get("properties"))} for dist, f in achadas[:limit]]}
-    return {"snapshot_date": d, "ponto": {"lat": lat, "lon": lon}, "raio_km": raio, "camadas": saida, "indisponiveis": indisponiveis}
+    r = resumo_infra(_store, d, lat, lon, raio, escolhidas, limit)
+    return {"snapshot_date": d, "ponto": {"lat": lat, "lon": lon}, "raio_km": raio, **r}
