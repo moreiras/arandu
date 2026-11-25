@@ -16,6 +16,7 @@ def _classify_pbr(
     origin_prefixes_v4: dict,
     origin_prefixes_v6: dict,
     registro_br: dict,
+    br_asns: set[int] | None = None,
 ) -> tuple[list[dict], list[dict]]:
     """Classifica as rotas com prefixo em bloco do Registro.br ou origem num ASN da lista do Registro.br.
 
@@ -24,7 +25,8 @@ def _classify_pbr(
     As rotas brasileiras (P_BR) são só as `is_prefix_br` (`separar_rota_br`); as de origem BR fora de bloco do Registro.br são
     contadas à parte.
     """
-    br_asns = {a["asn"] for a in registro_br.get("asns", [])}
+    if br_asns is None:                       # sem a delegação LACNIC: a lista do Registro.br (inclui 21 ASNs de empresas estrangeiras)
+        br_asns = {a["asn"] for a in registro_br.get("asns", [])}
 
     # Trie de blocos alocados pelo Registro.br
     trie_v4 = _PrefixTrie()
@@ -60,6 +62,13 @@ def _classify_pbr(
         _classify(origin_prefixes_v4, trie_v4, "v4"),
         _classify(origin_prefixes_v6, trie_v6, "v6"),
     )
+
+
+def asns_brasileiros(lacnic_delegated: dict | None, registro_br: dict) -> set[int]:
+    """"ASN brasileiro" = delegação LACNIC com país BR (`is_br`), a mesma regra do índice de ASNs, dos PTTs e da home (D4). Sem o
+    arquivo da delegação, cai na lista do Registro.br."""
+    br = (lacnic_delegated or {}).get("br_asns")
+    return {int(a) for a in br} if br else {a["asn"] for a in registro_br.get("asns", [])}
 
 
 def separar_rota_br(rotas: list[dict]) -> tuple[list[dict], list[dict]]:

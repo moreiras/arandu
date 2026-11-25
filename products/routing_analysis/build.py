@@ -33,7 +33,7 @@ from core.moas import MOTIVO as MOAS_MOTIVO
 from products.routing_analysis.agregacao import _aggregation_savings_by_origin, _aggregation_table  # noqa: F401
 from products.routing_analysis.as_path import _as_path_stats, _community_stats, _hygiene_issues, _top_prependers, _upstream_diversity  # noqa: F401
 from products.routing_analysis.cobertura import _global_comparison, _moas_analysis, _registro_br_coverage, _too_specific  # noqa: F401
-from products.routing_analysis.mais_especificos import _analyze_more_specifics, _classify_pbr, _prefix_length_hist, _top_asns_more_specifics, separar_rota_br  # noqa: F401
+from products.routing_analysis.mais_especificos import _analyze_more_specifics, _classify_pbr, _prefix_length_hist, _top_asns_more_specifics, asns_brasileiros, separar_rota_br  # noqa: F401
 from products.routing_analysis.rpki import _build_rpki_index, _rpki_status  # noqa: F401
 from products.routing_analysis import resumo as resumo_rotas
 from products.routing_analysis.util import _AS_TRANS, _NO_ADVERTISE, _NO_EXPORT, _PRIVATE_AS_RANGES, _PrefixTrie, _is_blackhole_candidate, _is_private_as, _is_private_community, _net_span, _safe_prefixlen, _union_span, normalize_path  # noqa: F401
@@ -67,7 +67,7 @@ def run(date_str: str, base: Path, log) -> bool:
     # Índice de nomes de ASN (published/{date}/asns/index.json se disponível)
     asn_names = _load_asn_names(pub, log)
 
-    br_asns = {a["asn"] for a in registro_br.get("asns", [])}
+    br_asns = asns_brasileiros(_safe_load(norm / "lacnic_delegated.json.gz", log, "lacnic_delegated"), registro_br)
 
     log.info("inputs loaded",
              origin_asns_v4=len(op_v4), origin_asns_v6=len(op_v6),
@@ -76,7 +76,7 @@ def run(date_str: str, base: Path, log) -> bool:
 
     # ---- Classificação P_BR ----
     log.info("classifying pbr routes")
-    todas_v4, todas_v6 = _classify_pbr(op_v4, op_v6, registro_br)
+    todas_v4, todas_v6 = _classify_pbr(op_v4, op_v6, registro_br, br_asns)
     # Rota brasileira = prefixo em bloco do Registro.br (D4); origem BR fora de bloco vai para a contagem à parte.
     pbr_v4, fora_v4 = separar_rota_br(todas_v4)
     pbr_v6, fora_v6 = separar_rota_br(todas_v6)
