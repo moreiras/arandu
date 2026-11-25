@@ -1351,6 +1351,9 @@ OPS_GUIDE: dict[str, str] = {
     "contains/ncontains": "substring em string (case-insensitive) OU pertinência em array. "
                           "É o operador para campos array como ixps_direct/ixps_origin/asns.",
     "exists": "value true/false — campo presente e não-nulo.",
+    "aggregate/group_by": "agregação (group_by e/ou aggregate): `count` sem field conta linhas do grupo; `count` com field conta só os valores não nulos "
+                          "daquele campo; sum/avg/min/max ignoram nulos. `sort` vale para os grupos e nomeia o alias do agregado (`count`, `sum_acessos` ou o `as`) "
+                          "ou um campo de group_by; `limit` e `page` cortam os grupos (sem eles vêm todos, até 5.000) e a resposta traz `total_grupos`.",
     "within_radius": "geo; prefira a conveniência `near` no corpo da query (não monte à mão).",
 }
 
@@ -1561,6 +1564,7 @@ RECIPES: list[dict] = [
             "filter": {"field": "ixps_seen", "op": "contains", "value": "sp"},
             "group_by": ["country"],
             "aggregate": [{"fn": "count"}],
+            "sort": [{"field": "count", "dir": "desc"}],
             "limit": 20,
         },
     },

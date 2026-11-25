@@ -20,6 +20,7 @@ export interface RespostaConsulta {
   limit?: number
   items?: Array<Record<string, unknown>>
   matched?: number
+  total_grupos?: number
   groups?: Array<{ key: Record<string, unknown>; [k: string]: unknown }>
 }
 
@@ -51,7 +52,7 @@ export function Resultado({ colecao, resposta, pagina, onPagina, ordem, onOrdem,
       sortingFn: (a, b) => { const x = a.original[n], y = b.original[n]; return typeof x === 'number' && typeof y === 'number' ? x - y : String(x ?? '').localeCompare(String(y ?? '')) } }))
   }, [linhas, colecao, noServidor, camposOrdenaveis])
 
-  const total = resposta.mode === 'aggregate' ? (resposta.groups?.length ?? 0) : resposta.total ?? linhas.length
+  const total = resposta.mode === 'aggregate' ? (resposta.total_grupos ?? resposta.groups?.length ?? 0) : resposta.total ?? linhas.length
   return (
     <section aria-label="Resultado da consulta" className="space-y-2">
       <div className="text-sm text-gray-600" role="status">

@@ -113,6 +113,17 @@ export function converterValor(c: CampoSchema | undefined, op: Operador, texto: 
 
 export interface Predicado { field: string; op: Operador; value: unknown }
 
+/** Cálculos que vão ao servidor (`count` sem campo e os que têm campo) com o nome que a resposta lhes dá (`as`). */
+function calculos(e: EstadoConsulta): Array<{ fn: string; field?: string; as?: string }> {
+  const ags = e.agregados.filter((a) => a.fn === 'count' || a.campo)
+  return (ags.length ? ags : [{ fn: 'count', campo: '' }]).map((a) => (a.campo ? { fn: a.fn, field: a.campo, as: `${a.fn}_${a.campo}` } : { fn: a.fn }))
+}
+
+/** Chaves por que a agregação pode ser ordenada: os campos de `group_by` e os nomes dos cálculos (`count`, `sum_acessos`). */
+export function chavesDeOrdemNaAgregacao(e: EstadoConsulta): string[] {
+  return [...e.agrupar, ...calculos(e).map((c) => c.as ?? c.fn)]
+}
+
 /** Estado → corpo da consulta. Condições incompletas (campo vazio) são ignoradas; valores inválidos lançam `Error`. */
 export function montarCorpo(e: EstadoConsulta, schema: SchemaConsulta): Record<string, unknown> {
   const col = schema.collections[e.colecao]
@@ -124,10 +135,10 @@ export function montarCorpo(e: EstadoConsulta, schema: SchemaConsulta): Record<s
   if (e.perto && e.perto.lugar.trim()) corpo.near = { place: e.perto.lugar.trim(), radius_km: e.perto.raio }
   if (e.modo === 'agregar') {
     if (e.agrupar.length) corpo.group_by = e.agrupar
-    const ags = e.agregados.filter((a) => a.fn === 'count' || a.campo)
-    corpo.aggregate = (ags.length ? ags : [{ fn: 'count', campo: '' }]).map((a) => (a.campo ? { fn: a.fn, field: a.campo, as: `${a.fn}_${a.campo}` } : { fn: a.fn }))
+    corpo.aggregate = calculos(e)
   } else if (e.colunas.length) corpo.select = e.colunas
-  if (e.ordem?.campo) corpo.sort = [{ field: e.ordem.campo, dir: e.ordem.dir }]
+  // na agregação o servidor ordena os grupos por campo de `group_by` ou por cálculo; um campo da coleção fora disso seria recusado
+  if (e.ordem?.campo && (e.modo !== 'agregar' || chavesDeOrdemNaAgregacao(e).includes(e.ordem.campo))) corpo.sort = [{ field: e.ordem.campo, dir: e.ordem.dir }]
   corpo.limit = e.limite
   if (e.pagina > 1) corpo.page = e.pagina
   return corpo

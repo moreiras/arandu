@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { CampoSchema, Condicao, EstadoConsulta, Operador, SchemaConsulta } from './consulta'
-import { LIMITES, ROTULO_OP, familia, operadoresDoCampo } from './consulta'
+import { LIMITES, ROTULO_OP, chavesDeOrdemNaAgregacao, familia, operadoresDoCampo } from './consulta'
 
 const CAMPO = 'border border-gray-300 rounded-md px-2 py-1 text-sm bg-white'
 
@@ -137,7 +137,8 @@ export function Construtor({ schema, estado, onChange, onExecutar, executando }:
       <div className="flex flex-wrap items-center gap-3 text-sm text-gray-700">
         <label>Ordenar por{' '}
           <select aria-label="Ordenar por" className={CAMPO} value={estado.ordem?.campo ?? ''} onChange={(e) => set({ ordem: e.target.value ? { campo: e.target.value, dir: estado.ordem?.dir ?? 'desc' } : null })}>
-            <option value="">(sem ordem)</option>{campos.map((f) => <option key={f.name} value={f.name}>{f.name}</option>)}
+            <option value="">(sem ordem)</option>
+            {(estado.modo === 'agregar' ? chavesDeOrdemNaAgregacao(estado) : campos.map((f) => f.name)).map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
         </label>
         {estado.ordem && (
