@@ -74,6 +74,7 @@ export function OperadoraPage() {
   const grupoCnpjs = mergeGrupoCnpjs(data?.grupo_cnpjs, dataMovel?.grupo_cnpjs)
   const porte = data?.porte || dataMovel?.porte
   const asns = data?.asns?.length ? data.asns : (dataMovel?.asns ?? [])
+  const vinculados = data?.asns_vinculados ?? dataMovel?.asns_vinculados ?? []
   const rede = data?.rede || dataMovel?.rede
   const contactsAvailable = data?.contacts_available ?? dataMovel?.contacts_available
   const fetchContacts = data
@@ -87,7 +88,7 @@ export function OperadoraPage() {
       <CabecalhoOperadora
         nome={nome} grupo={grupo} porte={porte} hasScm={hasScm} hasSmp={hasSmp} hasStfc={hasStfc} hasSeac={hasSeac} credenciadaSmp={credenciamentoSmp(servicos)}
         razaoSocial={outorga?.razao_social} cnpjFinal={cnpjFinal} municipio={outorga?.municipio} uf={outorga?.uf}
-        grupoCnpjs={grupoCnpjs} grupoId={relacionadas.data?.grupo_id ?? undefined} contactsAvailable={contactsAvailable} fetchContacts={fetchContacts} asns={asns} snapshot={snapshot}
+        grupoCnpjs={grupoCnpjs} grupoId={relacionadas.data?.grupo_id ?? undefined} contactsAvailable={contactsAvailable} fetchContacts={fetchContacts} asns={asns} vinculados={vinculados} snapshot={snapshot}
       />
       {!versaoAntiga && <FichaOperadora nome={nome} ctx={ctx} />}
       {/* cadastro, crédito/sanções e contratos somem quando não há registro (404); com erro de acesso ou rede, a página avisa */}

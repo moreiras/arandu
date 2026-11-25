@@ -316,7 +316,7 @@ export function GruposPage() {
     const q = norm(busca.trim())
     const qDigits = busca.replace(/\D/g, '')
     const filtrados = q
-      ? grupos.filter(g => g.cnpjs.some(c =>
+      ? grupos.filter(g => (g.asns ?? []).some(a => `as${a}` === q.replace(/\s/g, '') || String(a) === q) || g.cnpjs.some(c =>
           norm(c.empresa || '').includes(q)
           || (qDigits.length >= 4 && c.cnpj.includes(qDigits))
           || (c.asns ?? []).some(a => `as${a}` === q.replace(/\s/g, '') || String(a) === q)))

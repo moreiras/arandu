@@ -21,7 +21,7 @@ describe('síntese da operadora', () => {
     expect(f.map((x) => x.id)).toEqual(['outorgas', 'acessos', 'variacao', 'municipios', 'asns'])
     expect(f.find((x) => x.id === 'acessos')!.texto).toMatch(/12\.345 acessos .* 2026-08, 0,42% .* \(31º por acessos\)/)
     expect(f.every((x) => x.selo === 'fato')).toBe(true)
-    expect(REGRAS_VERSAO).toBe('sintese-operadora-2')
+    expect(REGRAS_VERSAO).toBe('sintese-operadora-3')
   })
 
   it('sem indicadores nem municípios, não inventa frase', () => {
@@ -34,6 +34,21 @@ describe('síntese da operadora', () => {
   it('empresa com outorga SCM sem declaração diz só o fato e o mês', () => {
     const f = sinteseOperadora('X', { ...base, indicadores: { mes_referencia: '2026-08', metodologia: 'm', sem_declaracao: { razao_social: 'X', uf: 'SP', n_outorgas: 1, desde: null, asns: [], usuarios_apnic: null, classe: 'sem_usuarios' } } as any } as OperadoraCtx)
     expect(f.find((x) => x.id === 'sem-declaracao')!.texto).toBe('Tem outorga SCM, mas não declarou acessos ao SICI em 2026-08.')
+  })
+
+  it('vínculo ASN ↔ CNPJ (D5): mesmo CNPJ é fato; raiz, marca e AS estrangeiro são frases à parte com selo inferido', () => {
+    const vinc = [
+      { asn: 26615, vinculo: 'raiz', selo: 'inferido', cnpj_registro: '02421421011741' },
+      { asn: 14571, vinculo: 'marca', selo: 'inferido', cnpj_registro: '76535764000143', marca: 'OI', base: 'b', data: '2026-11-07' },
+      { asn: 14593, vinculo: 'estrangeiro', selo: 'inferido', cnpj_registro: null, marca: 'STARLINK', base: 'b', data: '2026-11-24' },
+    ]
+    const f = sinteseOperadora('X', { ...base, data: { asns: [], asns_vinculados: vinc } as any } as OperadoraCtx)
+    const por = Object.fromEntries(f.map((x) => [x.id, x]))
+    expect(por.asns).toEqual({ id: 'asns', selo: 'fato', texto: 'Não tem ASN próprio no Registro.br com este CNPJ.' })
+    expect(por['asns-raiz']).toEqual({ id: 'asns-raiz', selo: 'inferido', texto: 'O AS26615 está registrado em outro CNPJ da mesma raiz (matriz ou filial da mesma empresa).' })
+    expect(por['asns-marca'].selo).toBe('inferido')
+    expect(por['asns-marca'].texto).toBe('Pela marca OI (tabela curada do projeto), liga-se a AS14571, de outra empresa.')
+    expect(por['asns-estrangeiro'].texto).toBe('Pela marca STARLINK (tabela curada do projeto), é atendida por AS estrangeiro: AS14593.')
   })
 
   it('indicadores sem valor não viram KPI vazio na ficha', () => {

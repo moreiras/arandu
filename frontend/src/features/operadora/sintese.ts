@@ -5,13 +5,14 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { Selo } from '../../components/entidade'
 import type { OperadoraCtx } from './contexto'
+import type { AsnVinculado } from '../../types/api'
 import { credenciamentoSmp, siglasComOutorga } from './servicos'
 
 /**
  * Frase-síntese da operadora: regras fixas, sem modelo de linguagem, como a do AS (`features/asn/sintese.ts`). Cada frase sai de campos do snapshot, leva o selo e
  * a versão das regras. Regra sem dado não gera frase. **Nunca** diz que uma empresa "tem problema": só o que a fonte declara ou mede.
  */
-export const REGRAS_VERSAO = 'sintese-operadora-2'
+export const REGRAS_VERSAO = 'sintese-operadora-3'
 
 export interface Frase { id: string; texto: string; selo: Selo }
 
@@ -45,7 +46,20 @@ export function sinteseOperadora(nome: string, c: OperadoraCtx): Frase[] {
   const d = c.data
   if (d?.municipios) f.push({ id: 'municipios', selo: 'fato', texto: `Declara acessos em ${plural(d.municipios, 'município', 'municípios')}${c.hasSici ? `; ${p1(c.b2cPct)}% dos acessos são de pessoa física (B2C).` : '.'}` })
   const asns = d?.asns?.length ? d.asns : (c.dataMovel?.asns ?? [])
-  f.push({ id: 'asns', selo: 'fato', texto: asns.length ? `Tem ${plural(asns.length, 'ASN', 'ASNs')} no Registro.br.` : 'Não tem ASN próprio no Registro.br.' })
+  // sintese-operadora-3 (D5): o fato é o ASN no mesmo CNPJ; raiz, marca e AS estrangeiro vêm em frases à parte, com selo inferido
+  f.push({ id: 'asns', selo: 'fato', texto: asns.length ? `Tem ${plural(asns.length, 'ASN', 'ASNs')} no Registro.br com este CNPJ.` : 'Não tem ASN próprio no Registro.br com este CNPJ.' })
+  const vinc = d?.asns_vinculados ?? c.dataMovel?.asns_vinculados ?? []
+  const as_ = (xs: AsnVinculado[]) => lista(xs.map((x) => `AS${x.asn}`))
+  const raiz = vinc.filter((x) => x.vinculo === 'raiz')
+  if (raiz.length) f.push({ id: 'asns-raiz', selo: 'inferido', texto: `${raiz.length === 1 ? 'O' : 'Os'} ${as_(raiz)} ${raiz.length === 1 ? 'está registrado' : 'estão registrados'} em outro CNPJ da mesma raiz (matriz ou filial da mesma empresa).` })
+  for (const tipo of ['marca', 'estrangeiro'] as const) {
+    const xs = vinc.filter((x) => x.vinculo === tipo)
+    if (!xs.length) continue
+    const marca = xs[0].marca ? ` ${xs[0].marca}` : ''
+    f.push({ id: `asns-${tipo}`, selo: 'inferido', texto: tipo === 'marca'
+      ? `Pela marca${marca} (tabela curada do projeto), liga-se a ${as_(xs)}, de outra empresa.`
+      : `Pela marca${marca} (tabela curada do projeto), é atendida por AS estrangeiro: ${as_(xs)}.` })
+  }
   return f
 }
 

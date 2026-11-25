@@ -24,6 +24,17 @@ export interface Cartao {
 
 export const CARTOES = (dados as unknown as { cartoes: Cartao[] }).cartoes
 
+/** Rótulo de tela para valores codificados de um campo usado como complemento da linha (o vínculo ASN ↔ CNPJ da decisão D5). */
+const ROTULOS_CAMPO: Record<string, Record<string, string>> = {
+  asn_vinculo: { cnpj: 'ASN no mesmo CNPJ', raiz: 'ASN pela raiz do CNPJ (inferido)', marca: 'ASN pela marca (inferido)', estrangeiro: 'AS estrangeiro (inferido)', nenhum: 'sem AS vinculado' },
+}
+
+/** Texto do complemento: o rótulo do valor quando o campo tem um, senão o próprio valor. */
+export function textoComplemento(campo: string, v: unknown): string {
+  const s = String(v ?? '')
+  return ROTULOS_CAMPO[campo]?.[s] ?? s
+}
+
 /** Troca `{campo}` do link pelo valor da linha. */
 export function linkDaLinha(modelo: string, item: Record<string, unknown>): string {
   return modelo.replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(String(item[k] ?? '')))

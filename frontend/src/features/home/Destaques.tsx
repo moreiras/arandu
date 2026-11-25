@@ -33,6 +33,7 @@ function UmDestaque({ d, fontes }: { d: Destaque; fontes?: FonteEntrada[] | null
           {total != null ? total.toLocaleString('pt-BR') : q.isLoading ? '…' : '—'}
         </span>
         <span className="font-medium">{d.unidade}</span> {d.frase}
+        {total === 0 && <span className="block text-xs text-gray-500">Nenhum caso neste snapshot.</span>}
       </p>
       {bloqueado && <p className="mt-1 text-xs text-aviso-700" role="status">O tempo de uso sem login acabou; entre para ver o número.</p>}
       {q.isError && !bloqueado && <p className="mt-1 text-xs text-gray-500" role="status">Não foi possível carregar agora.</p>}

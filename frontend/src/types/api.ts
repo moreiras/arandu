@@ -1068,6 +1068,22 @@ export interface SiciStats {
   top_operadoras_por_asn: OperadoraPorAsnRow[]
 }
 
+/** Vínculo ASN ↔ CNPJ (decisão D5), do mais forte ao mais fraco: `cnpj` = mesmo CNPJ (fato); `raiz` = outro CNPJ da mesma raiz de 8
+ *  dígitos, matriz ou filial (inferido); `marca` = raiz de outra empresa da mesma marca na tabela curada (inferido); `estrangeiro` = AS de
+ *  fora do Brasil ligado pela marca (inferido). */
+export type AsnVinculo = 'cnpj' | 'raiz' | 'marca' | 'estrangeiro'
+
+export interface AsnVinculado {
+  asn: number
+  vinculo: AsnVinculo
+  selo: 'fato' | 'inferido'
+  /** CNPJ do ASN no Registro.br; nulo no `estrangeiro`. */
+  cnpj_registro: string | null
+  marca?: string
+  base?: string
+  data?: string
+}
+
 export interface OperadoraRow {
   cnpj: string
   razao_social: string
@@ -1092,7 +1108,10 @@ export interface OperadoraRow {
   tecnologia?: string
   meio?: string
   asns: number[]
+  /** ASN brasileiro vinculado (`asn_vinculo` cnpj, raiz ou marca). */
   com_asn: boolean
+  asn_vinculo?: AsnVinculo | 'nenhum'
+  asns_vinculados?: number[]
   acessos_compartilhados?: boolean
   lat?: number | null
   lon?: number | null
@@ -1121,6 +1140,8 @@ export interface OperadoraRedeAsn {
   has_aspa: boolean
   ixps_direct_count: number
   alerts_count: number
+  /** `cnpj` ou `raiz`: a rede soma só os ASNs da mesma pessoa jurídica. */
+  vinculo?: AsnVinculo
 }
 
 export interface OperadoraRedeAlertGroup {
@@ -1206,6 +1227,9 @@ export interface GrupoSocietarioRow {
   usuarios_apnic: number
   /** Algum AS de alguma empresa do grupo origina bloco na tabela BGP global. */
   visibilidade_bgp: boolean
+  /** ASNs do grupo (mesmo CNPJ e mesma raiz, cada um uma vez) e os que entram só pela raiz (vínculo inferido, D5). */
+  asns?: number[]
+  asns_raiz?: number[]
   cnpjs: GrupoSocietarioCnpj[]
   municipios: GrupoSocietarioMunicipio[]
 }
@@ -1229,7 +1253,10 @@ export interface GrupoDetalhe {
   usuarios_apnic: number
   visibilidade_bgp: boolean
   cnpjs: GrupoSocietarioCnpj[]
+  /** ASNs do grupo: mesmo CNPJ de uma das empresas (fato) e mesma raiz de 8 dígitos (inferido), cada um uma vez. */
   asns: number[]
+  asns_vinculados?: Array<Omit<AsnVinculado, 'marca' | 'base' | 'data'>>
+  regra_vinculo?: string
   municipios: GrupoSocietarioMunicipio[]
   credito_publico: { empresas_com_registro: number; operacoes: number; contratado: number; desembolsado: number; natureza: string }
   sancoes: { empresas_com_registro: number; vigentes: number; futuras: number; encerradas: number; natureza: string }
@@ -1268,6 +1295,10 @@ export interface OperadoraDetalhe extends Partial<Omit<SiciAcessos, 'cnpj' | 'as
   snapshot_date: string
   cnpj: string
   asns: number[]
+  /** Vínculo ASN ↔ CNPJ (D5): `asns` são os do mesmo CNPJ; `asns_vinculados`, todos, com o vínculo e o selo de cada um. */
+  asn_vinculo?: AsnVinculo | 'nenhum'
+  asns_vinculados?: AsnVinculado[]
+  regra_vinculo?: string
   outorgas_scm: SCMRecord[]
   rede: OperadoraRede | null
   municipios_detalhe?: (SiciMunicipioRow & { ibge: string })[]
@@ -1374,11 +1405,15 @@ export interface OrganizacaoVariosAsns {
   total_apnic_users: number
   total_v4_blocks: number
   total_v6_blocks: number
-  asns: AsnDaOrganizacao[]
+  asns: Array<AsnDaOrganizacao & { cnpj?: string; vinculo?: 'cnpj' | 'raiz' }>
+  /** Só com `chave=raiz`: a raiz de 8 dígitos e quantos CNPJs distintos dela têm ASN. */
+  raiz?: string
+  cnpjs?: number
 }
 
 export interface AsnsPorOrganizacaoResponse {
   snapshot_date: string
+  chave?: 'cnpj' | 'raiz'
   total: number
   groups: OrganizacaoVariosAsns[]
 }
@@ -1703,6 +1738,10 @@ export interface OperadoraMovelDetalhe extends Partial<Omit<SiciMovelAcessos, 'c
   snapshot_date: string
   cnpj: string
   asns: number[]
+  /** Vínculo ASN ↔ CNPJ (D5): `asns` são os do mesmo CNPJ; `asns_vinculados`, todos, com o vínculo e o selo de cada um. */
+  asn_vinculo?: AsnVinculo | 'nenhum'
+  asns_vinculados?: AsnVinculado[]
+  regra_vinculo?: string
   outorgas_smp: SMPRecord[]
   rede: OperadoraRede | null
   municipios_detalhe?: (MovelMunicipioRow & { ibge: string })[]
