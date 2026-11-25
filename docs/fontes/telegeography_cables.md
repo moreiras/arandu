@@ -12,6 +12,8 @@ Cabos submarinos e pontos de aterragem do Submarine Cable Map (API v3).
 |---|---|
 | Módulo / arquivo | `sources.telegeography_cables.collect` |
 | Publicável | sim (exposição: aberta) |
+| Decisão sobre a exposição | Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. A licença é CC BY-SA 4.0 conforme o coletor declara, com atribuição mantida na interface (mapTheme.ts); não foi verificada na origem (ver pendências). |
+| Atribuição exigida | TeleGeography, Submarine Cable Map (https://www.submarinecablemap.com), CC BY-SA 4.0 conforme declarado no coletor. |
 | Política de falha | usar_ultima_valida |
 | Cadência (origem atualiza) | irregular |
 | Coleta hoje → alvo | semanal → mensal |

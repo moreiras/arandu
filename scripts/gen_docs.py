@@ -52,6 +52,10 @@ def doc_fonte(s: Source, cat: Catalog) -> str:
     L += ["## Resumo", "", "| | |", "|---|---|"]
     L.append(f"| Módulo / arquivo | `{s.modulo or s.arquivo}` |")
     L.append(f"| Publicável | {'sim' if s.publicavel else 'não'} (exposição: {s.exposicao}) |")
+    if s.decisao_exposicao:
+        L.append(f"| Decisão sobre a exposição | {_cel(s.decisao_exposicao)} |")
+    if s.atribuicao:
+        L.append(f"| Atribuição exigida | {_cel(s.atribuicao)} |")
     L.append(f"| Política de falha | {s.politica_falha} |")
     L.append(f"| Cadência (origem atualiza) | {s.cadencia.fonte_atualiza} |")
     L.append(f"| Coleta hoje → alvo | {s.cadencia.coleta_atual} → {s.cadencia.coleta} |")
@@ -199,6 +203,7 @@ def catalogo_publico(cat: Catalog) -> str:
         o = s.origem
         return {
             "id": s.id, "nome": s.nome, "tipo": s.tipo, "ativa": s.ativa, "modulo": s.modulo, "descricao": s.descricao,
+            "exposicao": s.exposicao, **({"decisao_exposicao": s.decisao_exposicao} if s.decisao_exposicao else {}), **({"atribuicao": s.atribuicao} if s.atribuicao else {}),
             "origem": ({k: v for k, v in o.model_dump(exclude_none=True).items() if k in ("url", "formato", "licenca", "termos", "uso_comercial", "nota")} if o else {}),
             "cadencia": s.cadencia.model_dump(exclude_none=True) if s.cadencia else {},
             "politica_falha": s.politica_falha, "nao_verificado": nao_verificados(s),

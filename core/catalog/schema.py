@@ -116,6 +116,8 @@ class Source(_Base):
     arquivo: Optional[str] = None                  # arquivo em config/ (curada)
     publicavel: bool                               # False: nunca chega a published/, API ou MCP
     exposicao: Literal["aberta", "login", "nenhuma"] = "aberta"   # nível de acesso do que é servido; 'login' = só usuário logado
+    decisao_exposicao: Optional[str] = None        # por que a exposição é a que é, quando é decisão do projeto (D9); só com exposicao=aberta
+    atribuicao: Optional[str] = None               # a atribuição exigida pela fonte, como deve aparecer em quem a republica
     descricao: str
     origem: Optional[Origem] = None
     cadencia: CadenciaFonte
@@ -159,6 +161,8 @@ class Source(_Base):
             raise ValueError("publicavel=false exige exposicao=nenhuma")
         if self.publicavel and self.exposicao == "nenhuma":
             raise ValueError("exposicao=nenhuma exige publicavel=false")
+        if self.decisao_exposicao and self.exposicao != "aberta":
+            raise ValueError("'decisao_exposicao' só vale com exposicao=aberta")
         if self.tipo == "bruta" and self.origem is None:
             raise ValueError("fonte bruta exige 'origem'")
         if self.tipo == "derivada" and not self.entradas:

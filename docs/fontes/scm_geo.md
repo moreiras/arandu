@@ -12,6 +12,8 @@ Geocodifica o endereço da sede de cada outorga SCM (endereço completo → CEP 
 |---|---|
 | Módulo / arquivo | `sources.scm_geo.enrich` |
 | Publicável | sim (exposição: aberta) |
+| Decisão sobre a exposição | Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Posição geocodificada da sede das outorgas (endereço do cadastro da Anatel), com a licença ODbL 1.0 do OpenStreetMap; a atribuição é obrigatória. |
+| Atribuição exigida | Endereços das outorgas: Anatel, dados abertos. Geocodificação: © colaboradores do OpenStreetMap, ODbL 1.0 (Nominatim). |
 | Política de falha | opcional |
 | Cadência (origem atualiza) | continua |
 | Coleta hoje → alvo | semanal → semanal |

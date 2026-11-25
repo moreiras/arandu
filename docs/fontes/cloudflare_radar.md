@@ -12,6 +12,8 @@ Séries do Cloudflare Radar para o Brasil: percentual de IPv6 das requisições 
 |---|---|
 | Módulo / arquivo | `sources.cloudflare_radar.collect` |
 | Publicável | sim (exposição: aberta) |
+| Decisão sobre a exposição | Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. A licença é CC BY-NC 4.0 (uso comercial restrito): a atribuição é obrigatória em todo derivado e a questão do uso não comercial segue em aberto (ver pendências). |
+| Atribuição exigida | Cloudflare Radar (radar.cloudflare.com), CC BY-NC 4.0. |
 | Política de falha | usar_ultima_valida |
 | Cadência (origem atualiza) | continua |
 | Coleta hoje → alvo | diaria → diaria |

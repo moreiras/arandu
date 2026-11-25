@@ -12,6 +12,8 @@ Medições de rede do OONI (Open Observatory of Network Interference) feitas por
 |---|---|
 | Módulo / arquivo | `sources.ooni_bloqueios.collect` |
 | Publicável | sim (exposição: aberta) |
+| Decisão sobre a exposição | Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. A licença é CC BY-NC-SA 4.0 (uso comercial restrito): os agregados derivados saem sob a mesma licença, com atribuição em todo canal; a questão do NC segue em aberto (ver pendências). |
+| Atribuição exigida | OONI, Open Observatory of Network Interference (ooni.org), CC BY-NC-SA 4.0; agregados derivados sob a mesma licença. |
 | Política de falha | opcional |
 | Cadência (origem atualiza) | continua |
 | Coleta hoje → alvo | semanal → semanal |

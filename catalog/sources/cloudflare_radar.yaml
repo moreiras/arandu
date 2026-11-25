@@ -5,6 +5,9 @@ tipo: bruta
 ativa: true
 modulo: sources.cloudflare_radar.collect
 publicavel: true
+exposicao: aberta
+decisao_exposicao: 'Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. A licença é CC BY-NC 4.0 (uso comercial restrito): a atribuição é obrigatória em todo derivado e a questão do uso não comercial segue em aberto (ver pendências).'
+atribuicao: 'Cloudflare Radar (radar.cloudflare.com), CC BY-NC 4.0.'
 descricao: 'Séries do Cloudflare Radar para o Brasil: percentual de IPv6 das requisições HTTP de pessoas por ASN (rodízio de dias: todos os ASNs do Brasil conhecidos pelo Radar, ~9,2 mil), participação no tráfego e
   velocidade/latência dos ASNs de topo, vazamentos e sequestros de BGP dos últimos 28 dias com ASN do Brasil e a consulta de quedas e anomalias do país. Requer token de conta com `Account → Radar → Read`.'
 origem:

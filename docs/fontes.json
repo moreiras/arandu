@@ -3022,6 +3022,8 @@
       "modulo": "sources.cloudflare_radar.collect",
       "publicavel": true,
       "exposicao": "aberta",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. A licença é CC BY-NC 4.0 (uso comercial restrito): a atribuição é obrigatória em todo derivado e a questão do uso não comercial segue em aberto (ver pendências).",
+      "atribuicao": "Cloudflare Radar (radar.cloudflare.com), CC BY-NC 4.0.",
       "descricao": "Séries do Cloudflare Radar para o Brasil: percentual de IPv6 das requisições HTTP de pessoas por ASN (rodízio de dias: todos os ASNs do Brasil conhecidos pelo Radar, ~9,2 mil), participação no tráfego e velocidade/latência dos ASNs de topo, vazamentos e sequestros de BGP dos últimos 28 dias com ASN do Brasil e a consulta de quedas e anomalias do país. Requer token de conta com `Account → Radar → Read`.",
       "origem": {
         "url": "https://api.cloudflare.com/client/v4/radar/",
@@ -5663,6 +5665,8 @@
       "modulo": "sources.ooni_bloqueios.collect",
       "publicavel": true,
       "exposicao": "aberta",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. A licença é CC BY-NC-SA 4.0 (uso comercial restrito): os agregados derivados saem sob a mesma licença, com atribuição em todo canal; a questão do NC segue em aberto (ver pendências).",
+      "atribuicao": "OONI, Open Observatory of Network Interference (ooni.org), CC BY-NC-SA 4.0; agregados derivados sob a mesma licença.",
       "descricao": "Medições de rede do OONI (Open Observatory of Network Interference) feitas por sondas de voluntários no Brasil, lidas do bucket público de dados abertos `ooni-data-eu-fra` (Amazon Open Data) e agregadas por ASN × teste × dia EM FLUXO: o bruto é descartado, nada de medição por sonda, `report_id`, input, IP da sonda ou nome de rede. Fase A: testes leves (whatsapp, telegram, signal, facebookmessenger, tor, psiphon), todos os arquivos do dia. Fase B: webconnectivity por AMOSTRA (3 horas UTC por dia, teto de 3 GB por execução). O veredito é o da própria sonda (ooni/spec), não o do backend do OONI: não é prova de censura.",
       "origem": {
         "url": "https://ooni-data-eu-fra.s3.amazonaws.com/",
@@ -5862,6 +5866,8 @@
       "modulo": "sources.peeringdb_fac.collect",
       "publicavel": true,
       "exposicao": "aberta",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB (AUP): o projeto publica atributos e agregados por rede e por instalação, sem contatos; a lista completa de membros de um PTT externo (`/external-ixps/{code}`) exige login, porque é a redistribuição em massa que a AUP restringe e que a rota já declarava \"Requer autenticação\". A diferença é uma escolha de risco do projeto, não uma conclusão jurídica; a consulta jurídica segue aberta.",
+      "atribuicao": "PeeringDB (https://www.peeringdb.com). Uso sujeito à AUP (https://www.peeringdb.com/aup); a forma de atribuição que o PeeringDB exige não foi verificada.",
       "descricao": "Instalações (`fac`) do Brasil e as dos PTTs externos já cadastrados, com os vínculos de redes (`netfac`, só instalações do Brasil), de PTTs (`ixfac`) e de carriers (`carrierfac`), os carriers, os campus e os atributos de peering de cada rede do Brasil que está no PeeringDB (`net`, em lotes de 500 ASNs). Cerca de 30 requisições por coleta, uma por vez, com pausa de 1,5 s. Escopo restrito ao Brasil e às instalações dos PTTs cadastrados (sem dump mundial). Os campos de contato (`*_email`, `*_phone`) e `notes` NÃO são mantidos, porque o normalizador usa lista branca e o bruto não é gravado (só o manifesto das requisições).",
       "origem": {
         "url": "https://www.peeringdb.com/api/fac",
@@ -5970,6 +5976,8 @@
       "modulo": "sources.peeringdb_intl_geo.enrich",
       "publicavel": true,
       "exposicao": "aberta",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Mistura OpenStreetMap (ODbL 1.0, via Nominatim) e coordenadas de organização do PeeringDB (AUP); o projeto publica só a posição por ASN, sem contatos. O PTT externo com lista de membros exige login (ver peeringdb_ixps); a diferença é uma escolha de risco do projeto, não uma conclusão jurídica.",
+      "atribuicao": "© colaboradores do OpenStreetMap, ODbL 1.0 (geocodificação pelo Nominatim); coordenadas de organização: PeeringDB (https://www.peeringdb.com), sujeito à AUP.",
       "descricao": "Posição de ASNs não brasileiros: coordenadas da organização no PeeringDB (org_coords) ou centroide da cidade via Nominatim.",
       "origem": {
         "url": "https://nominatim.openstreetmap.org/search",
@@ -6053,6 +6061,8 @@
       "modulo": "sources.peeringdb_ixps.collect",
       "publicavel": true,
       "exposicao": "aberta",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB (AUP). A lista de IXPs externos com contagens de membros é aberta; a lista completa de membros de um PTT externo (`/external-ixps/{code}`) e o comparador com `ext:` exigem login, porque é a redistribuição em massa que a AUP restringe e que a rota já declarava \"Requer autenticação\". Os membros dos PTTs do IX.br seguem abertos (origem: IX.br). A diferença é uma escolha de risco do projeto, não uma conclusão jurídica; a consulta jurídica segue aberta.",
+      "atribuicao": "PeeringDB (https://www.peeringdb.com). Uso sujeito à AUP (https://www.peeringdb.com/aup); a forma de atribuição que o PeeringDB exige não foi verificada.",
       "descricao": "Para os IXPs externos configurados e para os 40 IXPs do IX.br, consulta /api/netixlan do PeeringDB e lista os ASNs presentes em cada um; cruza o cadastro do PeeringDB com o do IX.br.",
       "origem": {
         "url": "https://www.peeringdb.com/api/netixlan?ixlan_id={id}",
@@ -6155,6 +6165,8 @@
       "modulo": "sources.peeringdb_networks.collect",
       "publicavel": true,
       "exposicao": "aberta",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB (AUP): o projeto publica atributos por rede (política de peering, tipo, as-set), sem contatos; o PTT externo com lista de membros exige login (ver peeringdb_ixps). A diferença é uma escolha de risco do projeto, não uma conclusão jurídica; a consulta jurídica segue aberta.",
+      "atribuicao": "PeeringDB (https://www.peeringdb.com). Uso sujeito à AUP (https://www.peeringdb.com/aup); a forma de atribuição que o PeeringDB exige não foi verificada.",
       "descricao": "Para os ASNs brasileiros do LACNIC, consulta /api/net?asn__in= em lotes e extrai política de peering, tipo de rede, tráfego declarado, IRR as-set e site.",
       "origem": {
         "url": "https://www.peeringdb.com/api/net",
@@ -7083,6 +7095,8 @@
       "modulo": "sources.scm_geo.enrich",
       "publicavel": true,
       "exposicao": "aberta",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Posição geocodificada da sede das outorgas (endereço do cadastro da Anatel), com a licença ODbL 1.0 do OpenStreetMap; a atribuição é obrigatória.",
+      "atribuicao": "Endereços das outorgas: Anatel, dados abertos. Geocodificação: © colaboradores do OpenStreetMap, ODbL 1.0 (Nominatim).",
       "descricao": "Geocodifica o endereço da sede de cada outorga SCM (endereço completo → CEP → município) com cache persistente em geo_cache/scm.json.gz, adicionando lat/lon e rótulo de confiança.",
       "origem": {
         "url": "https://nominatim.openstreetmap.org/search",
@@ -7171,6 +7185,8 @@
       "modulo": "sources.seac_geo.enrich",
       "publicavel": true,
       "exposicao": "aberta",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Posição geocodificada da sede das outorgas (endereço do cadastro da Anatel), com a licença ODbL 1.0 do OpenStreetMap; a atribuição é obrigatória.",
+      "atribuicao": "Endereços das outorgas: Anatel, dados abertos. Geocodificação: © colaboradores do OpenStreetMap, ODbL 1.0 (Nominatim).",
       "descricao": "Geocodifica o endereço da sede de cada outorga SEAC (endereço completo → CEP → município) com cache persistente em geo_cache/seac.json.gz, adicionando lat/lon e rótulo de confiança.",
       "origem": {
         "url": "https://nominatim.openstreetmap.org/search",
@@ -7458,6 +7474,8 @@
       "modulo": "sources.smp_geo.enrich",
       "publicavel": true,
       "exposicao": "aberta",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Posição geocodificada da sede das outorgas (endereço do cadastro da Anatel), com a licença ODbL 1.0 do OpenStreetMap; a atribuição é obrigatória.",
+      "atribuicao": "Endereços das outorgas: Anatel, dados abertos. Geocodificação: © colaboradores do OpenStreetMap, ODbL 1.0 (Nominatim).",
       "descricao": "Geocodifica o endereço da sede de cada outorga SMP (endereço completo → CEP → município) com cache persistente em geo_cache/smp.json.gz, adicionando lat/lon e rótulo de confiança.",
       "origem": {
         "url": "https://nominatim.openstreetmap.org/search",
@@ -7662,6 +7680,8 @@
       "modulo": "sources.stfc_geo.enrich",
       "publicavel": true,
       "exposicao": "aberta",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Posição geocodificada da sede das outorgas (endereço do cadastro da Anatel), com a licença ODbL 1.0 do OpenStreetMap; a atribuição é obrigatória.",
+      "atribuicao": "Endereços das outorgas: Anatel, dados abertos. Geocodificação: © colaboradores do OpenStreetMap, ODbL 1.0 (Nominatim).",
       "descricao": "Geocodifica o endereço da sede de cada outorga STFC (endereço completo → CEP → município) com cache persistente em geo_cache/stfc.json.gz, adicionando lat/lon e rótulo de confiança.",
       "origem": {
         "url": "https://nominatim.openstreetmap.org/search",
@@ -7750,6 +7770,8 @@
       "modulo": "sources.telegeography_cables.collect",
       "publicavel": true,
       "exposicao": "aberta",
+      "decisao_exposicao": "Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. A licença é CC BY-SA 4.0 conforme o coletor declara, com atribuição mantida na interface (mapTheme.ts); não foi verificada na origem (ver pendências).",
+      "atribuicao": "TeleGeography, Submarine Cable Map (https://www.submarinecablemap.com), CC BY-SA 4.0 conforme declarado no coletor.",
       "descricao": "Cabos submarinos e pontos de aterragem do Submarine Cable Map (API v3).",
       "origem": {
         "url": "https://www.submarinecablemap.com/api/v3/",
@@ -12617,7 +12639,7 @@
           "nome": "brasil / por_uf / por_faixa_porte / por_operadora",
           "tipo": "dict",
           "significado": "Por grupo (país, UF, porte por usuários estimados do APNIC, operadora), ASNs por classe, média ponderada pelos usuários estimados, mediana e cobertura de cada pilar.",
-          "tratamento": "Agregados; não há lista nominal dos piores. Operadora = raiz do CNPJ do ASN.",
+          "tratamento": "Agregados. A lista por ASN é outra visão, pública e com ordem padrão por ASN (`prontidao_asn`). Operadora = raiz do CNPJ do ASN.",
           "publicado_em": [
             "prontidao → prontidao/asns.json.gz#por_uf",
             "prontidao → prontidao/asns.json.gz#por_faixa_porte",
