@@ -44,8 +44,8 @@
   },
   {
    "id": "grandes-sem-asn",
-   "titulo": "Grandes operadoras sem ASN próprio",
-   "pergunta": "Que operadoras com mais de 5 mil assinantes ainda não têm ASN?",
+   "titulo": "Grandes operadoras sem ASN brasileiro vinculado",
+   "pergunta": "Que operadoras com mais de 5 mil assinantes não têm ASN brasileiro ligado pelo CNPJ, pela raiz do CNPJ ou pela marca (vínculo inferido, exceto pelo CNPJ)?",
    "consulta": {
     "tipo": "query",
     "colecao": "operadoras",
@@ -67,7 +67,8 @@
      "select": [
       "empresa",
       "cnpj",
-      "acessos"
+      "acessos",
+      "asn_vinculo"
      ],
      "sort": [
       {
@@ -80,6 +81,7 @@
    },
    "linha": {
     "rotulo": "empresa",
+    "complemento": "asn_vinculo",
     "valor": "acessos",
     "unidade": "acessos",
     "link": "/operadora/{cnpj}"

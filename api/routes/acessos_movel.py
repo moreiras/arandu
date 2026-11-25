@@ -30,7 +30,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from api.auth.deps import require_user
 from api.ratelimit import limiter, LIMIT_CONTACTS
 from api import contatos_cota
-from api.routes.acessos import _operadora_rede
+from api.routes.acessos import vinculo_da_operadora
 from api.routes.asns import _contacts_available, montar_contatos_operadora
 from api.store import Store
 
@@ -153,7 +153,7 @@ def acessos_movel_operadoras(
         u = uf.upper()
         rows = [r for r in rows if (r.get("uf_sede") or "").upper() == u]
     if com_asn is not None:
-        rows = [r for r in rows if bool(r.get("asns")) is com_asn]
+        rows = [r for r in rows if bool(r.get("com_asn")) is com_asn]
     if min_acessos is not None:
         rows = [r for r in rows if r.get("acessos", 0) >= min_acessos]
     if q:
@@ -219,7 +219,7 @@ def acessos_movel_operadora(
         "cnpj": clean,
         "asns": asns,
         "outorgas_smp": outorgas,
-        "rede": _operadora_rede(store, date_str, asns),
+        **vinculo_da_operadora(store, date_str, clean),
     }
 
     if agg:

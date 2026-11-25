@@ -215,6 +215,28 @@ mesma página são defeito.
 - **Onde aparece:** cartões de `/operadoras` ("Outorgas", "CNPJs únicos", "CNPJs com ASN"), barras por UF, `/outorgas/stats`; MCP
   `outorga_lista`, `outorga_detalhe`.
 
+## Operadora com ASN (vínculo ASN ↔ CNPJ)
+
+- **Nome na tela:** "com ASN no mesmo CNPJ" (fato) e "com ASN brasileiro vinculado" (inclui vínculo inferido); "AS estrangeiro"
+  para o caso da marca atendida por AS de fora. Nunca "ASN próprio" para o vínculo pela raiz ou pela marca.
+- **Definição (decisão D5):** `asn_vinculo` é o vínculo mais forte entre o CNPJ e algum ASN: `cnpj` (ASN registrado no Registro.br
+  com o mesmo CNPJ de 14 dígitos, fato), `raiz` (com outro CNPJ da mesma raiz de 8 dígitos, matriz ou filial, inferido), `marca`
+  (com a raiz de outra empresa da mesma marca em `config/curada_marcas_operadoras.yaml`, inferido), `estrangeiro` (AS de fora do
+  Brasil ligado à marca pela seção `asns_estrangeiros` da mesma tabela, inferido) ou `nenhum`. `com_asn` é verdadeiro para `cnpj`,
+  `raiz` e `marca`. `asns` continua sendo o do mesmo CNPJ; `asns_vinculados` traz todos.
+- **Somas:** rede de operadora e de grupo somam só `cnpj` e `raiz` (a mesma pessoa jurídica), cada ASN uma vez; `marca` e
+  `estrangeiro` são listados à parte. O grupo societário não usa `marca` (um ASN não pode somar em dois grupos).
+- **Origem:** `api/services/operadoras.py` (`vinculo_asn_index`, `asns_vinculados`, `asns_do_grupo`), sobre
+  `normalized/{data}/summary/geo_orgs.json.gz` e a tabela curada.
+- **Valor:** não medido nesta versão. Antes da regra, o destaque "sem ASN próprio" da home contava 125 operadoras com mais de 5 mil
+  acessos (snapshot 2026-11-22, `com_asn` por CNPJ exato); a queda depois da regra se explica pela contagem de `asn_vinculo` das
+  que saíram.
+- **Onde aparece:** `/operadora/:cnpj` (cabeçalho, síntese e rede), `/grupo/:id`, `/grupos`, `/ases` (agrupar por raiz), destaque e
+  cartão "Grandes operadoras sem ASN brasileiro vinculado" da home, `/acessos/operadoras` e `/outorgas` (filtro `com_asn`); MCP
+  `query(collection=operadoras)`, `operadora_ranking`, `operadora_detalhe`, `operadora_grupo`, `operadora_resolver`.
+- **Não muda:** `provedores_fixos_ativos` e `provedores_moveis_ativos` do resumo do snapshot e a cobertura de declaração de
+  `/acessos/stats` seguem pelo ASN no mesmo CNPJ.
+
 ## Municípios
 
 ### Tabela do IBGE (referência)

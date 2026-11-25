@@ -40,7 +40,14 @@ CENARIOS = {
     7: "Contatos PeeringDB e telefone de outorga não aparecem em rotas públicas",
     8: "Município sem PTT a menos de 100 km: lacuna (Tabajara do Norte)",
     9: "Membro estrangeiro que só anuncia IPv6 no za: originadores do PTT são a união IPv6 ∪ IPv4, maior que o maior dos dois",
+    10: "Vínculo ASN ↔ CNPJ (D5): AS registrado em filial de operadora sem ASN no próprio CNPJ (4200000201 na raiz de SemASN6), operadora "
+        "sem ASN ligada pela marca curada DELTA (SemASN4) e operadora com AS estrangeiro (SemASN5, EPSILON → 4200000100)",
 }
+
+#: Cenário 10: o AS registrado no Registro.br com o CNPJ de uma filial (0002) da operadora "Provedor Sem ASN 6", que declara ao SICI pela
+#: matriz sem ASN no próprio CNPJ (como a Hughes: SICI na matriz, AS28613 na filial)
+AS_FILIAL = 4200000201
+SEM_ASN_FILIAL = 205                  # `make_cnpj(205)`: a matriz (6ª operadora sem ASN de `market.operators`)
 
 
 def cnpj_dv(base12: str) -> str:
@@ -54,8 +61,8 @@ def cnpj_dv(base12: str) -> str:
     return d1 + d2
 
 
-def make_cnpj(n: int) -> str:
-    base = f"{90000000 + n:08d}0001"
+def make_cnpj(n: int, filial: int = 1) -> str:
+    base = f"{90000000 + n:08d}{filial:04d}"
     return base + cnpj_dv(base)
 
 
@@ -160,6 +167,12 @@ def build_world(instant: str = T1, seed: int = 1, extra_asns: int = 0) -> World:
 
     # 3) um CNPJ com dois ASNs: 64501 usa o CNPJ de 64500 (acessos_compartilhados)
     ases[64501].cnpj = ases[64500].cnpj
+
+    # 10) AS registrado em filial: a operadora (matriz) declara ao SICI e tem outorga; o AS da filial só aparece no Registro.br (como o
+    # AS28613 da Hughes). Fora dos PTTs e com blocos fora dos pools (o fim do 198.18.0.0/15 e um /48 antes do pool estrangeiro).
+    sede = MUNICIPIOS[(SEM_ASN_FILIAL - 200 + 3) % len(MUNICIPIOS)]          # a mesma sede da operadora em `market.operators`
+    ases[AS_FILIAL] = AS(AS_FILIAL, "Provedor Sem ASN 6 Ltda (filial)", "BR", "access", uf=sede[2], municipio_ibge=sede[0],
+                         cnpj=make_cnpj(SEM_ASN_FILIAL, filial=2), v4=["198.19.255.0/24"], v6=["2001:db8:7fff::/48"], users=12000, v6_users=6000)
 
     # Cenários plantados que mexem no mapa de prefixos
     # 6) origem do 198.18.8.0/24 muda de 64502 para 64503 entre T0 e T1

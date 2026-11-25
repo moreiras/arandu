@@ -85,6 +85,7 @@ class PerfisService:
             if not l["razao_social"]:
                 l["razao_social"] = f.get("empresa") or m.get("empresa") or ""
             l["servicos"].sort(key=self._SERVICOS_ORDEM.index)
+            l.update(self.vinculo_resumo(date_str, cnpj))                # `asn_vinculo`, `asns_vinculados` e `com_asn` (D5)
         out = sorted(linhas.values(), key=lambda r: r["cnpj"])
         if len(cache) >= 2:
             cache.pop(next(iter(cache)))

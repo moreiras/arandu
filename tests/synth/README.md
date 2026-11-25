@@ -24,6 +24,7 @@ O repositório guarda o **gerador** (`world.py`, `market.py`, `infra.py`, `gener
 | 7 | Contatos PeeringDB nunca em `published/` (o telefone de outorga é checado na API, no T4) | varredura de `published/` |
 | 8 | Município sem PTT a < 100 km (Tabajara do Norte) fica fora do raio de todos os PTTs | `Store.ixp_nearby_breakdown` |
 | 9 | Membro estrangeiro só com IPv6 no `za`: originadores = união IPv6 ∪ IPv4 > max (IXP-E3) | `ixps/index.json`, `tests/products/test_t2_originadores_uniao.py` |
+| 10 | Vínculo ASN ↔ CNPJ (D5): AS 4200000201 registrado em filial (0002) da operadora `SemASN6`, que declara pela matriz sem ASN próprio (`raiz`); `SemASN4` ligada pela marca curada DELTA aos ASNs de 64499 (`marca`); `SemASN5` com AS estrangeiro (EPSILON → 4200000100) | `geo_orgs`, `curada_marcas_sintetica.yaml`, `tests/products/test_t4_vinculo_asn.py` |
 
 Também há divergência APNIC × Anatel plantada (64504 `apnic_alto`, 64505 `apnic_baixo`) e um novo membro em T1 (zb).
 

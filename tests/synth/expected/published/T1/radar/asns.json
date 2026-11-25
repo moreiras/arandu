@@ -42,8 +42,8 @@
   "asns_com_dado_ipv6": 2,
   "asns_com_leitura_ipv6": 3,
   "asns_com_velocidade": 1,
-  "asns_do_brasil_no_snapshot": 36,
-  "asns_na_lista_do_radar": 37,
+  "asns_do_brasil_no_snapshot": 37,
+  "asns_na_lista_do_radar": 38,
   "asns_no_topo_de_trafego": 1,
   "leitura_mais_antiga": "2026-09-20",
   "leitura_mais_recente": "2026-09-20"
@@ -146,7 +146,7 @@
    "ipv6_ponderado_pelo_trafego_pct": null
   },
   "RN": {
-   "asns": 2,
+   "asns": 3,
    "asns_com_ipv6": 0,
    "asns_no_ponderado": 0,
    "bgp": {

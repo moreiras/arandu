@@ -34,21 +34,33 @@ def normalizar(s: str | None) -> str:
 
 
 def carregar_curada(caminho: Path | None = None) -> dict:
-    """`{"versao", "curada_em", "fonte_da_curadoria", "marcas": {normalizada: {"marca", "raizes", "base"}}}`. Falha alto em raiz mal formada."""
+    """`{"versao", "curada_em", "fonte_da_curadoria", "marcas": {normalizada: {"marca", "raizes", "base", "data"}}, "aliases_consumidor_gov", "asns_estrangeiros"}`.
+
+    `asns_estrangeiros` liga a raiz de uma operadora brasileira a ASNs de fora do Brasil da mesma marca (Starlink → AS14593): o vínculo
+    `estrangeiro` do índice ASN ↔ CNPJ (`api/services/operadoras.py`). Fica fora de `marcas` porque não liga nome de marca a raiz (não
+    mexe no RQUAL nem no Consumidor.gov.br). Falha alto em raiz mal formada e em entrada sem base ou data."""
     doc = yaml.safe_load((caminho or CAMINHO_CURADA).read_text(encoding="utf-8"))
     marcas = {}
     for m in doc["marcas"]:
         raizes = [str(r) for r in m["raizes"]]
         if not raizes or any(not re.fullmatch(r"\d{8}", r) for r in raizes):
             raise ValueError(f"curada_marcas_operadoras: raiz inválida em {m['marca']}: {raizes}")
-        marcas[normalizar(m["marca"])] = {"marca": m["marca"], "raizes": raizes, "base": m["base"]}
+        marcas[normalizar(m["marca"])] = {"marca": m["marca"], "raizes": raizes, "base": m["base"], "data": str(m.get("data") or doc["curada_em"])}
     aliases = {}
     for a in doc.get("aliases_consumidor_gov") or []:
         alvo = normalizar(a["marca"])
         if alvo not in marcas:
             raise ValueError(f"curada_marcas_operadoras: o alias {a['nome']!r} aponta para a marca {a['marca']!r}, que não está na tabela")
         aliases[normalizar(a["nome"])] = {"nome": a["nome"], "alvo": alvo, "base": a["base"]}
-    return {"versao": doc["versao"], "curada_em": str(doc["curada_em"]), "fonte_da_curadoria": doc["fonte_da_curadoria"], "marcas": marcas, "aliases_consumidor_gov": aliases}
+    estrangeiros = []
+    for e in doc.get("asns_estrangeiros") or []:
+        raizes = [str(r) for r in e["raizes"]]
+        asns = [int(a) for a in e["asns"]]
+        if not raizes or any(not re.fullmatch(r"\d{8}", r) for r in raizes) or not asns or not e.get("base") or not e.get("data"):
+            raise ValueError(f"curada_marcas_operadoras: entrada de AS estrangeiro incompleta em {e.get('marca')}: raízes, ASNs, base e data são obrigatórios")
+        estrangeiros.append({"marca": e["marca"], "raizes": raizes, "asns": asns, "base": e["base"], "data": str(e["data"])})
+    return {"versao": doc["versao"], "curada_em": str(doc["curada_em"]), "fonte_da_curadoria": doc["fonte_da_curadoria"], "marcas": marcas, "aliases_consumidor_gov": aliases,
+            "asns_estrangeiros": estrangeiros}
 
 
 def indice_fantasia(outorgas: Iterable[dict]) -> dict[str, set[str]]:

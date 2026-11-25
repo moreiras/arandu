@@ -40,9 +40,12 @@ tem as duas; `individual` — empresa sem relação societária com nenhuma outr
 da base, listada como "grupo de uma empresa só", `grupo_id` = `ind_{cnpj básico}`),
 total de assinantes (acessos fixos declarados ao SICI/SCM — não
 inclui móvel) e a distribuição municipal agregada desses acessos. Cada CNPJ
-traz os ASNs associados (`asns`) e as flags de outorga Anatel.
-`visibilidade_bgp` = algum AS de alguma empresa do grupo origina ao menos um
-bloco IPv6/IPv4 na tabela BGP global.
+traz os ASNs registrados com o mesmo CNPJ (`asns`) e as flags de outorga Anatel.
+O grupo traz `asns`: os do mesmo CNPJ de uma das empresas mais os de outro CNPJ
+da mesma raiz de 8 dígitos (filial que não declara; vínculo `raiz`, inferido,
+listados à parte em `asns_raiz`). `usuarios_apnic` soma cada ASN uma vez;
+`visibilidade_bgp` = algum desses ASes origina ao menos um bloco IPv6/IPv4 na
+tabela BGP global.
 
 Alimenta a página "Grupos de Empresas" (scatter + mapa + tabela) num único
 payload — evita round-trip por interação do usuário.
@@ -121,7 +124,8 @@ def get_grupo(
     con_doc = store.contratos_operadoras_doc(date_str) or {}
     con_ops = con_doc.get("operadoras") or {}
     lidas = [con_ops[r] for r in raizes if con_ops.get(r)]
-    asns = sorted({a for c in g["cnpjs"] for a in (c.get("asns") or [])})
+    vinculados = store.asns_do_grupo(date_str, [c["cnpj"] for c in g["cnpjs"]])
+    asns = [v["asn"] for v in sorted(vinculados, key=lambda v: v["asn"])]
     resposta = {
         "snapshot_date": date_str,
         "grupo_id": grupo_id,
@@ -132,6 +136,8 @@ def get_grupo(
         "visibilidade_bgp": g["visibilidade_bgp"],
         "cnpjs": g["cnpjs"],
         "asns": asns,
+        "asns_vinculados": vinculados,
+        "regra_vinculo": "ASNs do grupo: os registrados no Registro.br com o CNPJ de uma das empresas (`vinculo` = `cnpj`, fato) e os registrados em outro CNPJ da mesma raiz de 8 dígitos, como uma filial que não declara (`raiz`, inferido). Marca curada não liga ASN a grupo. Somas de usuários e visibilidade usam cada ASN uma vez.",
         "municipios": g["municipios"],
         "empresas": len(raizes),
         "credito_publico": {

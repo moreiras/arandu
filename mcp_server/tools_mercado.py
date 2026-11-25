@@ -284,7 +284,8 @@ def top_operators(
     Args:
         uf: UF da SEDE da operadora (cadastro SCM) — não é onde estão os clientes.
         ibge: Código IBGE — ranking dentro de um município específico.
-        com_asn: True/False para filtrar por ter ASN próprio.
+        com_asn: True/False para filtrar por ter ASN brasileiro vinculado: mesmo CNPJ (fato), mesma raiz de 8 dígitos ou marca da
+            tabela curada (inferidos). Cada item traz `asn_vinculo` (cnpj, raiz, marca, estrangeiro ou nenhum) e `asns_vinculados`.
         min_acessos: Mínimo de acessos declarados.
         metric: acessos | capacidade (só fixa) | municipios.
         limit: Quantas operadoras retornar.
@@ -302,9 +303,9 @@ def top_operators(
         mun = sici.municipio(d, str(ibge).strip())
         if not mun:
             raise ValueError(f"Município IBGE {ibge} sem acessos declarados.")
-        rows = [dict(o) for o in mun.get("operadores", [])]
+        rows = [{**o, **_store.vinculo_resumo(d, o.get("cnpj", ""))} for o in mun.get("operadores", [])]
         if com_asn is not None:
-            rows = [r for r in rows if bool(r.get("asns")) is com_asn]
+            rows = [r for r in rows if bool(r.get("com_asn")) is com_asn]
         if min_acessos is not None:
             rows = [r for r in rows if r.get("acessos", 0) >= min_acessos]
         return {
@@ -318,18 +319,18 @@ def top_operators(
         u = uf.upper()
         rows = [r for r in rows if (r.get("uf_sede") or "").upper() == u]
     if com_asn is not None:
-        rows = [r for r in rows if bool(r.get("asns")) is com_asn]
+        rows = [r for r in rows if bool(r.get("com_asn")) is com_asn]
     if min_acessos is not None:
         rows = [r for r in rows if r.get("acessos", 0) >= min_acessos]
     key = {"acessos": "acessos", "capacidade": "capacidade_mbps",
            "municipios": "municipios"}.get(metric, "acessos")
     rows.sort(key=lambda r: r.get(key) or 0, reverse=True)
     fields = ("cnpj", "empresa", "razao_social", "uf_sede", "acessos", "acessos_pf",
-              "acessos_pj", "municipios", "capacidade_mbps", "tecnologia", "asns",
+              "acessos_pj", "municipios", "capacidade_mbps", "tecnologia", "asns", "asn_vinculo", "asns_vinculados",
               "grupo_economico", "acessos_compartilhados")
     if servico == "movel":
         fields = ("cnpj", "empresa", "razao_social", "uf_sede", "acessos", "acessos_pf", "acessos_pj", "acessos_m2m", "municipios",
-                  "geracao_predominante", "asns", "grupo_economico", "acessos_compartilhados")
+                  "geracao_predominante", "asns", "asn_vinculo", "asns_vinculados", "grupo_economico", "acessos_compartilhados")
     return {
         "snapshot_date": d, "servico": servico, "mes_referencia": meta["mes_referencia"],
         "metric": key, "total": len(rows),
@@ -505,7 +506,7 @@ def list_outorgas(
         uf: UF da sede.
         municipio: Município da sede (substring).
         q: Razão social, nome fantasia ou CNPJ.
-        com_asn: True = só com ASN; False = só sem ASN.
+        com_asn: True = só com ASN brasileiro vinculado (mesmo CNPJ, mesma raiz ou marca curada; ver `asn_vinculo` de cada linha); False = os demais.
         ativo: True = só quem declara acessos ao SICI; com `servico` só SCM conta o fixo, só SMP o móvel, senão fixo ou móvel.
         porte: Porte declarado ao SICI (ex.: "Pequeno Porte", "Grande Porte").
         min_acessos: Mínimo de acessos declarados.
@@ -555,7 +556,9 @@ def economic_group(
     da base, `grupo_id` = `ind_{cnpj básico}`) e, em `relacionadas`, as empresas com relação DIRETA (nunca por transitividade):
     `mesmo_grupo` (quadro de sócios idêntico ou controle exclusivo) e `relacionadas_parcial` (sócio em comum, com a contagem, ou controle
     não exclusivo — CPF de PF vem parcialmente mascarado, não é certeza). `assinantes` são os acessos FIXOS declarados ao SICI (não
-    inclui móvel). `visibilidade_bgp` = algum AS do grupo origina bloco na tabela global. Para filtrar/cruzar grupos em lote use
+    inclui móvel). `asns` do grupo: os registrados com o CNPJ de uma das empresas e, pela raiz de 8 dígitos (vínculo inferido), os de filiais
+    que não estão no grupo, listados também em `asns_raiz`; `usuarios_apnic` soma cada ASN uma vez. `visibilidade_bgp` = algum desses AS
+    origina bloco na tabela global. Para filtrar/cruzar grupos em lote use
     `query(collection="socios")`.
 
     Args:

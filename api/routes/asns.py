@@ -341,12 +341,16 @@ def asn_ix_presence(
 
 @router.get(
     "/asns/by-organization",
-    summary="Organizações com vários ASNs (mesmo CNPJ)",
+    summary="Organizações com vários ASNs (mesmo CNPJ ou mesma raiz de CNPJ)",
     description="""
 Agrupa os ASNs brasileiros pelo CNPJ da organização (Registro.br) e retorna as
 organizações com **mais de um ASN**, ordenadas pelo número de ASNs (e usuários APNIC
 como desempate). Para cada uma inclui os ASNs com nome, usuários estimados,
 blocos IPv6/IPv4 (full table), RPKI/ASPA e participação em IXes.
+
+`chave=raiz` agrupa pela raiz de 8 dígitos (matriz e filiais da mesma pessoa jurídica: vínculo `raiz` da decisão D5, inferido):
+cada ASN traz o seu `cnpj` e `vinculo` (`cnpj` quando é o CNPJ da linha, `raiz` quando é outro CNPJ da raiz), e a linha traz
+`cnpjs` (quantos CNPJs distintos). Somas: cada ASN uma vez (os usuários estimados de ASes diferentes podem se sobrepor).
 
 É uma única pessoa jurídica com vários ASNs (separação de serviços, regiões,
 incorporações etc.), **não** um grupo econômico: grupos de empresas ligadas por
@@ -358,6 +362,7 @@ def asns_por_organizacao(
     request: Request,
     date: Optional[str] = Query(None, description="Data do snapshot (YYYY-MM-DD)."),
     limit: int = Query(30, ge=1, le=200, description="Número de organizações a retornar."),
+    chave: str = Query("cnpj", pattern="^(cnpj|raiz)$", description="`cnpj` (padrão): mesmo CNPJ de 14 dígitos; `raiz`: mesma raiz de 8 dígitos (matriz e filiais)."),
 ) -> dict:
     store: Store = request.app.state.store
     date_str = store.resolve_date(date)
@@ -370,7 +375,7 @@ def asns_por_organizacao(
         cnpj = re.sub(r"\D", "", r.get("cnpj") or "")
         if len(cnpj) != 14:
             continue
-        groups.setdefault(cnpj, []).append(r)
+        groups.setdefault(cnpj if chave == "cnpj" else cnpj[:8], []).append(r)
 
     def _asn_detail(r: dict) -> dict:
         return {
@@ -388,13 +393,25 @@ def asns_por_organizacao(
             "ixps_direct_count": r.get("ixps_direct_count") or 0,
         }
 
+    def _cnpj(r: dict) -> str:
+        return re.sub(r"\D", "", r.get("cnpj") or "")
+
     items = []
-    for cnpj, members in groups.items():
+    for chave_grupo, members in groups.items():
         if len(members) < 2:
             continue
         members.sort(key=lambda r: -(r.get("apnic_users") or 0))
+        if chave == "cnpj":
+            cnpj, extra, asns = chave_grupo, {}, [_asn_detail(m) for m in members]
+        else:
+            # o CNPJ da linha é a matriz (0001) quando algum ASN está nela; senão, o do ASN com mais usuários
+            cnpjs = sorted({_cnpj(m) for m in members})
+            cnpj = next((c for c in cnpjs if c[8:12] == "0001"), _cnpj(members[0]))
+            extra = {"raiz": chave_grupo, "cnpjs": len(cnpjs)}
+            asns = [{**_asn_detail(m), "cnpj": _cnpj(m), "vinculo": "cnpj" if _cnpj(m) == cnpj else "raiz"} for m in members]
         items.append({
             "cnpj": cnpj,
+            **extra,
             "razao_social": next((m.get("razao_social") for m in members if m.get("razao_social")), ""),
             "nome_fantasia": next((m.get("nome_fantasia") for m in members if m.get("nome_fantasia")), ""),
             "uf": next((m.get("uf") for m in members if m.get("uf")), ""),
@@ -402,12 +419,12 @@ def asns_por_organizacao(
             "total_apnic_users": sum(m.get("apnic_users") or 0 for m in members),
             "total_v4_blocks": sum(m.get("rir_prefixes_v4_count") or 0 for m in members),
             "total_v6_blocks": sum(m.get("rir_prefixes_v6_count") or 0 for m in members),
-            "asns": [_asn_detail(m) for m in members],
+            "asns": asns,
         })
 
     items.sort(key=lambda g: (-g["asn_count"], -g["total_apnic_users"]))
 
-    return {"snapshot_date": date_str, "total": len(items), "groups": items[:limit]}
+    return {"snapshot_date": date_str, "chave": chave, "total": len(items), "groups": items[:limit]}
 
 
 @router.get(
@@ -420,7 +437,7 @@ def economic_groups(
     date: Optional[str] = Query(None, description="Data do snapshot (YYYY-MM-DD)."),
     limit: int = Query(30, ge=1, le=200, description="Número de organizações a retornar."),
 ) -> dict:
-    return asns_por_organizacao(request, date, limit)
+    return asns_por_organizacao(request, date, limit, "cnpj")
 
 
 def documento_asn(store: Store, date_str: str, asn: int) -> Optional[dict]:
@@ -476,6 +493,11 @@ def documento_asn(store: Store, date_str: str, asn: int) -> Optional[dict]:
             if other != asn:
                 same.append({"asn": other, "name": names.get(str(other)) or ""})
     doc["same_cnpj_asns"] = same
+    # Outros ASNs da mesma raiz de CNPJ em outro CNPJ (matriz ou filial da mesma pessoa jurídica): vínculo `raiz` da decisão D5, inferido.
+    doc["same_raiz_asns"] = [
+        {"asn": v["asn"], "name": names.get(str(v["asn"])) or "", "cnpj": v["cnpj_registro"], "vinculo": "raiz", "selo": "inferido"}
+        for v in store.asns_vinculados(date_str, cnpj_digits) if v["vinculo"] == "raiz"
+    ] if len(cnpj_digits) == 14 else []
 
     # Nomes alternativos (com origem), deduplicados contra o nome do AS.
     alt: list[dict] = []

@@ -70,16 +70,18 @@ function Mercado({ dados }: BlocoProps<GrupoCtx>) {
 
 function Rede({ dados }: BlocoProps<GrupoCtx>) {
   const g = dados.grupo
+  const porRaiz = new Set((g.asns_vinculados ?? []).filter((v) => v.vinculo === 'raiz').map((v) => v.asn))
   return (
     <div className="space-y-2 text-sm">
       {g.asns.length ? (
         <>
           <p className="text-gray-600">{n(g.asns.length)} {g.asns.length === 1 ? 'ASN' : 'ASNs'} das empresas do grupo; {g.visibilidade_bgp ? 'ao menos um origina blocos na tabela BGP global.' : 'nenhum origina blocos na tabela BGP global neste snapshot.'}</p>
           <div className="flex flex-wrap gap-2">
-            {g.asns.map((a) => <Link key={a} to={`/asn/${a}`} className="px-2.5 py-1 rounded border border-primario-200 bg-primario-50 text-primario-700 text-xs hover:bg-primario-100">AS{a}</Link>)}
+            {g.asns.map((a) => <Link key={a} to={`/asn/${a}`} className="px-2.5 py-1 rounded border border-primario-200 bg-primario-50 text-primario-700 text-xs hover:bg-primario-100">AS{a}{porRaiz.has(a) && <span className="text-gray-500"> (mesma raiz, inferido)</span>}</Link>)}
           </div>
+          {porRaiz.size > 0 && <p className="text-xs text-gray-500">{n(porRaiz.size)} {porRaiz.size === 1 ? 'ASN está registrado' : 'ASNs estão registrados'} em outro CNPJ da mesma raiz de uma empresa do grupo (filial que não está na lista): vínculo inferido. Usuários e visibilidade contam cada ASN uma vez.</p>}
         </>
-      ) : <p className="text-gray-600">Nenhuma empresa do grupo tem ASN próprio no Registro.br.</p>}
+      ) : <p className="text-gray-600">Nenhuma empresa do grupo tem ASN no Registro.br, nem pelo CNPJ nem pela raiz do CNPJ.</p>}
     </div>
   )
 }

@@ -85,7 +85,7 @@ def montar_lista(store: Store, date_str: str, *, servico: Optional[str] = None, 
         ql, qd = q.lower(), _DIGITS.sub("", q)
         linhas = [r for r in linhas if ql in r["razao_social"].lower() or ql in r["nome_fantasia"].lower() or (qd and qd in r["cnpj"])]
     if com_asn is not None:
-        linhas = [r for r in linhas if bool(r["asns"]) is com_asn]
+        linhas = [r for r in linhas if bool(r["com_asn"]) is com_asn]
     if ativo is not None:
         # com um só serviço, "declara" é o acesso daquele serviço: SCM = fixo, SMP = móvel. Sem isso a aba SCM contava quem só
         # declara móvel (9.919 contra 9.917 CNPJs com SCM no SICI fixo). Com vários ou nenhum, fixo ou móvel (`ativo`).
@@ -145,7 +145,7 @@ def listar_outorgas(
     uf: Optional[str] = Query(None, description="UF da sede."),
     municipio: Optional[str] = Query(None, description="Município da sede (substring)."),
     q: Optional[str] = Query(None, description="Razão social, nome fantasia ou CNPJ."),
-    com_asn: Optional[bool] = Query(None, description="true = só com ASN; false = só sem ASN."),
+    com_asn: Optional[bool] = Query(None, description="true = só com ASN brasileiro vinculado (mesmo CNPJ, mesma raiz ou marca curada; ver `asn_vinculo`); false = os demais."),
     ativo: Optional[bool] = Query(None, description="true = só quem declara acessos ao SICI; false = só quem não declara. "
                                   "Com `servico=SCM` sozinho conta só o acesso fixo; com `servico=SMP` sozinho, só o móvel; "
                                   "nos demais casos, fixo ou móvel."),

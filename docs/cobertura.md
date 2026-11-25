@@ -21,7 +21,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /acessos/stats` | `historico_acessos` | ✔ |  |
 | `GET /analytics/operators/reach` | `operadora_alcance` | — | UI: sem tela própria hoje; atende o MCP e clientes externos |
 | `GET /asns` | `asn_lista` | ✔ |  |
-| `GET /asns/by-organization` | — | ✔ | MCP: ASNs do mesmo CNPJ: asn_detalhe traz same_cnpj_asns por AS; o ranking de CNPJs com vários ASNs sai de query(collection=asns, group_by=cnpj) |
+| `GET /asns/by-organization` | — | ✔ | MCP: ASNs do mesmo CNPJ: asn_detalhe traz same_cnpj_asns e same_raiz_asns por AS; o ranking de CNPJs ou raízes com vários ASNs sai de query(collection=asns, group_by=cnpj ou cnpj_root) |
 | `GET /asns/ix-presence` | `asn_ix_presence` | ✔ |  |
 | `GET /asns/names` | `asn_names` | ✔ |  |
 | `GET /asns/{asn}` | `asn_detalhe` | ✔ |  |

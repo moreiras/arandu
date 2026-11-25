@@ -795,6 +795,28 @@
   {
    "geometry": {
     "coordinates": [
+     -35.2,
+     -5.8
+    ],
+    "type": "Point"
+   },
+   "properties": {
+    "asn": 4200000201,
+    "city": "Potiguara",
+    "cnpj": "90000205000240",
+    "country": "BR",
+    "geo_confidence": "city_centroid",
+    "geo_source": "nominatim",
+    "name": "Provedor Sem ASN 6 Ltda (filial)",
+    "nome_fantasia": "",
+    "razao_social": "",
+    "uf": "RN"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
      -74.0,
      40.0
     ],

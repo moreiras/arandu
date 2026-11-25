@@ -3588,7 +3588,7 @@
       "arquivo": "config/curada_marcas_operadoras.yaml",
       "publicavel": true,
       "exposicao": "aberta",
-      "descricao": "Tabela curada que liga o nome da marca ou da prestadora, como aparece no RQUAL e nas reclamações da Anatel, à raiz do CNPJ (8 dígitos). Feita à mão com a razão social e o nome fantasia das outorgas da Anatel e os grupos do SICI; marca fora da tabela só casa por nome fantasia único (regra automática, rotulada) e, sem casamento, fica sem CNPJ. Usada também pelo Consumidor.gov.br.",
+      "descricao": "Tabela curada que liga o nome da marca ou da prestadora, como aparece no RQUAL e nas reclamações da Anatel, à raiz do CNPJ (8 dígitos). Feita à mão com a razão social e o nome fantasia das outorgas da Anatel e os grupos do SICI; marca fora da tabela só casa por nome fantasia único (regra automática, rotulada) e, sem casamento, fica sem CNPJ. Usada também pelo Consumidor.gov.br e pelo vínculo ASN ↔ CNPJ (decisão D5), em que `marca` liga as raízes de uma mesma marca e `asns_estrangeiros` traz AS de fora do Brasil da marca.",
       "origem": {
         "formato": "YAML mantido à mão em config/",
         "licenca": "Curadoria do projeto (dados públicos; nada de pessoa física)",
@@ -3627,6 +3627,14 @@
             "qualidade → qualidade/rqual.json.gz#prestadoras",
             "qualidade → qualidade/reclamacoes.json.gz#marcas"
           ],
+          "sensivel": false
+        },
+        {
+          "nome": "asns_estrangeiros[].marca / raizes / asns / base / data",
+          "tipo": "str / lista / lista / str / data",
+          "significado": "AS de fora do Brasil ligado pela marca a uma operadora brasileira (raízes), com o que sustenta o vínculo e a data da conferência.",
+          "tratamento": "Vínculo `estrangeiro` do índice ASN ↔ CNPJ (decisão D5), lido pela API (`api/services/operadoras.py`); a seção `marcas` dá o vínculo `marca`. Selo inferido; o AS estrangeiro não entra nas somas de rede da operadora.",
+          "publicado_em": [],
           "sensivel": false
         }
       ],

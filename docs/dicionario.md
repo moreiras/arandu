@@ -364,6 +364,7 @@ Todos os campos declarados no catálogo, por fonte e por produto. `⚠️` marca
 | Campo | Tipo | Significado | Tratamento | Publicado em |
 |---|---|---|---|---|
 | `marcas[].marca / raizes / base` | str / lista / str | Marca como na fonte, raízes de CNPJ (8 dígitos) a que ela se liga e o que sustenta o vínculo. | Uma marca pode ter várias raízes (grupo econômico). Casamento sempre rotulado como curado ou automático; sem casamento a marca fica sem CNPJ. | qualidade → qualidade/rqual.json.gz#prestadoras; qualidade → qualidade/reclamacoes.json.gz#marcas |
+| `asns_estrangeiros[].marca / raizes / asns / base / data` | str / lista / lista / str / data | AS de fora do Brasil ligado pela marca a uma operadora brasileira (raízes), com o que sustenta o vínculo e a data da conferência. | Vínculo `estrangeiro` do índice ASN ↔ CNPJ (decisão D5), lido pela API (`api/services/operadoras.py`); a seção `marcas` dá o vínculo `marca`. Selo inferido; o AS estrangeiro não entra nas somas de rede da operadora. | — |
 
 ### [curada_peeringdb_ixps](fontes/curada_peeringdb_ixps.md) — IXPs consultados no PeeringDB (config/peeringdb_ixps.yaml)
 

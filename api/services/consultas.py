@@ -439,7 +439,8 @@ class ConsultasService:
     def resolve_operator(self, date_str: str, name: str) -> dict:
         """Marca/operador → ASNs, nesta ordem (o resultado diz qual valeu em `metodo`):
 
-        1. `curada`: a tabela marca → raiz de CNPJ (`config/curada_marcas_operadoras.yaml`, `core.marcas`) e os ASNs dessas raízes;
+        1. `curada`: a tabela marca → raiz de CNPJ (`config/curada_marcas_operadoras.yaml`, `core.marcas`) e os ASNs dessas raízes, mais os
+           ASNs estrangeiros da marca (seção `asns_estrangeiros`, devolvidos também em `asns_estrangeiros`);
         2. `sici`: operadora do SICI com o nome (empresa) ou o grupo econômico igual à marca;
         3. `cdn`: CDN/CAP de `cdns.json`;
         4. `nome_do_as`: trecho do nome do AS, só ASNs brasileiros (os estrangeiros só sem nenhum brasileiro), agrupado pela raiz de CNPJ.
@@ -456,13 +457,29 @@ class ConsultasService:
         metodo, base = None, None
 
         try:
-            curada = marcas.casar(name, marcas.carregar_curada(), {}, automatico=False)
+            tabela = marcas.carregar_curada()
+            curada = marcas.casar(name, tabela, {}, automatico=False)
         except Exception:
-            curada = None
+            tabela, curada = {}, None
+        estrangeiros: set[int] = set()
         if curada:
             raizes = set(curada["raizes"])
             asns = {r["asn"] for r in tab if r.get("cnpj_root") in raizes}
             metodo, base = "curada", curada["base"]
+        else:
+            # marca só da seção `asns_estrangeiros` (Starlink → AS14593): o vínculo `estrangeiro` da decisão D5
+            e = next((e for e in tabela.get("asns_estrangeiros") or [] if marcas.normalizar(e["marca"]) == n), None) if n else None
+            if e:
+                raizes = set(e["raizes"])
+                asns = {r["asn"] for r in tab if r.get("cnpj_root") in raizes}
+                curada = {"raizes": e["raizes"]}
+                metodo, base = "curada", e["base"]
+        if curada:
+            raizes = set(curada["raizes"])
+            for e in tabela.get("asns_estrangeiros") or []:
+                if raizes & set(e["raizes"]):
+                    estrangeiros.update(e["asns"])
+            asns |= estrangeiros
 
         if not asns and n:
             try:
@@ -500,6 +517,8 @@ class ConsultasService:
 
         out = {"snapshot_date": date_str, "query": name, "asns": sorted(asns), "cdn_matches": matches,
                "metodo": metodo, "base": base, "nomes": {str(a): nomes.get(a) for a in sorted(asns)[:40]}}
+        if estrangeiros:
+            out["asns_estrangeiros"] = sorted(estrangeiros)       # AS de fora do Brasil ligado à marca pela tabela curada (vínculo inferido)
         if not asns:
             out["aviso"] = "nenhum AS casou: tente o nome da empresa (outorga_lista(q=...)) ou o CNPJ"
         return out

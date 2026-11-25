@@ -262,9 +262,16 @@ SCHEMA: dict[str, dict] = {
             _f("meio", "string", "Meio de acesso predominante",
                enum=["Fibra", "Cabo Coaxial", "Rádio", "Satélite", "Cabo Metálico"]),
             _f("asns", "array[int]",
-               "ASNs do Registro.br com o mesmo CNPJ. Use contains/ncontains.",
+               "ASNs do Registro.br com o mesmo CNPJ (fato). Os ligados pela raiz ou pela marca estão em asns_vinculados. Use contains/ncontains.",
                example=[265394]),
-            _f("com_asn", "bool", "Tem ao menos um ASN"),
+            _f("asn_vinculo", "string",
+               "Vínculo mais forte do CNPJ com algum ASN (decisão D5): cnpj = ASN registrado no Registro.br com o mesmo CNPJ (fato); "
+               "raiz = com outro CNPJ da mesma raiz de 8 dígitos, matriz ou filial (inferido); marca = com a raiz de outra empresa da "
+               "mesma marca na tabela curada (inferido); estrangeiro = AS de fora do Brasil ligado pela marca (inferido, ex.: Starlink); "
+               "nenhum.", enum=["cnpj", "raiz", "marca", "estrangeiro", "nenhum"]),
+            _f("asns_vinculados", "array[int]",
+               "Todos os ASNs ligados ao CNPJ por qualquer vínculo de asn_vinculo (inclui os de `asns`). Use contains/ncontains."),
+            _f("com_asn", "bool", "Tem ASN brasileiro vinculado: asn_vinculo é cnpj, raiz ou marca (estrangeiro e nenhum = falso)"),
             _f("acessos_compartilhados", "bool",
                "CNPJ com mais de um ASN: o total é atribuído integralmente a CADA um. "
                "NUNCA some ASes do mesmo CNPJ — conta o mesmo assinante várias vezes."),
@@ -290,7 +297,14 @@ SCHEMA: dict[str, dict] = {
             _f("acessos", "int", "Acessos DESTA operadora NESTE município"),
             _f("share", "number", "Participação da operadora no município (%)"),
             _f("asns", "array[int]", "ASNs da operadora. Use contains/ncontains."),
-            _f("com_asn", "bool", "A operadora tem ASN próprio"),
+            _f("asn_vinculo", "string",
+               "Vínculo mais forte do CNPJ com algum ASN (decisão D5): cnpj = ASN registrado no Registro.br com o mesmo CNPJ (fato); "
+               "raiz = com outro CNPJ da mesma raiz de 8 dígitos, matriz ou filial (inferido); marca = com a raiz de outra empresa da "
+               "mesma marca na tabela curada (inferido); estrangeiro = AS de fora do Brasil ligado pela marca (inferido, ex.: Starlink); "
+               "nenhum.", enum=["cnpj", "raiz", "marca", "estrangeiro", "nenhum"]),
+            _f("asns_vinculados", "array[int]",
+               "Todos os ASNs ligados ao CNPJ por qualquer vínculo de asn_vinculo (inclui os de `asns`). Use contains/ncontains."),
+            _f("com_asn", "bool", "A operadora tem ASN brasileiro vinculado: asn_vinculo é cnpj, raiz ou marca"),
             _f("municipio_acessos", "int", "Total de acessos do município (todas)"),
             _f("municipio_operadores", "int", "Quantas operadoras atendem o município"),
             _f("municipio_hhi", "int",
@@ -352,7 +366,14 @@ SCHEMA: dict[str, dict] = {
                enum=["2G", "3G", "4G", "5G"]),
             _f("asns", "array[int]", "ASNs do Registro.br com o mesmo CNPJ.",
                example=[27699]),
-            _f("com_asn", "bool", "Tem ao menos um ASN"),
+            _f("asn_vinculo", "string",
+               "Vínculo mais forte do CNPJ com algum ASN (decisão D5): cnpj = ASN registrado no Registro.br com o mesmo CNPJ (fato); "
+               "raiz = com outro CNPJ da mesma raiz de 8 dígitos, matriz ou filial (inferido); marca = com a raiz de outra empresa da "
+               "mesma marca na tabela curada (inferido); estrangeiro = AS de fora do Brasil ligado pela marca (inferido, ex.: Starlink); "
+               "nenhum.", enum=["cnpj", "raiz", "marca", "estrangeiro", "nenhum"]),
+            _f("asns_vinculados", "array[int]",
+               "Todos os ASNs ligados ao CNPJ por qualquer vínculo de asn_vinculo (inclui os de `asns`). Use contains/ncontains."),
+            _f("com_asn", "bool", "Tem ASN brasileiro vinculado: asn_vinculo é cnpj, raiz ou marca (estrangeiro e nenhum = falso)"),
             _f("acessos_compartilhados", "bool",
                "CNPJ com mais de um ASN: o total é atribuído integralmente a CADA um. "
                "NUNCA some ASes do mesmo CNPJ."),
@@ -377,7 +398,14 @@ SCHEMA: dict[str, dict] = {
             _f("acessos", "int", "Acessos móveis DESTA operadora NESTE município"),
             _f("share", "number", "Participação da operadora no município (%)"),
             _f("asns", "array[int]", "ASNs da operadora. Use contains/ncontains."),
-            _f("com_asn", "bool", "A operadora tem ASN próprio"),
+            _f("asn_vinculo", "string",
+               "Vínculo mais forte do CNPJ com algum ASN (decisão D5): cnpj = ASN registrado no Registro.br com o mesmo CNPJ (fato); "
+               "raiz = com outro CNPJ da mesma raiz de 8 dígitos, matriz ou filial (inferido); marca = com a raiz de outra empresa da "
+               "mesma marca na tabela curada (inferido); estrangeiro = AS de fora do Brasil ligado pela marca (inferido, ex.: Starlink); "
+               "nenhum.", enum=["cnpj", "raiz", "marca", "estrangeiro", "nenhum"]),
+            _f("asns_vinculados", "array[int]",
+               "Todos os ASNs ligados ao CNPJ por qualquer vínculo de asn_vinculo (inclui os de `asns`). Use contains/ncontains."),
+            _f("com_asn", "bool", "A operadora tem ASN brasileiro vinculado: asn_vinculo é cnpj, raiz ou marca"),
             _f("municipio_acessos", "int", "Total de acessos móveis do município (todas)"),
             _f("municipio_operadores", "int", "Quantas operadoras atendem o município"),
             _f("municipio_hhi", "int", "Concentração do município (HHI)."),
@@ -407,7 +435,7 @@ SCHEMA: dict[str, dict] = {
                "transitivamente). Mesmo grupo_id = conectados por alguma "
                "cadeia de relações, não necessariamente quadro idêntico entre "
                "todos os membros — para isso, ver `mesmo_grupo`."),
-            _f("tamanho_grupo", "int", "Quantos CNPJs (empresas) fazem parte do grupo_id"),
+            _f("tamanho_grupo", "int", "Quantas empresas (raízes de CNPJ de 8 dígitos) fazem parte do grupo_id; matriz e filiais contam uma vez"),
             _f("socios", "array[object]",
                "Sócios do CNPJ conforme a Receita: {tipo (fisica|juridica|"
                "estrangeiro), qualificacao; nome e documento (CNPJ básico) só para "
@@ -1339,7 +1367,7 @@ RECIPES: list[dict] = [
         "args": {"escopo": "asn:28571", "metrics": "users,prefixes_v4,roa"},
     },
     {
-        "pergunta": "Operadoras com mais de 5.000 assinantes que ainda não têm ASN próprio",
+        "pergunta": "Operadoras com mais de 5.000 assinantes sem ASN brasileiro vinculado (nem pelo CNPJ, nem pela raiz, nem pela marca)",
         "ferramenta": "query",
         "args": {
             "collection": "operadoras",
@@ -1347,7 +1375,7 @@ RECIPES: list[dict] = [
                 {"field": "acessos", "op": "gte", "value": 5000},
                 {"field": "com_asn", "op": "eq", "value": False},
             ]},
-            "select": ["empresa", "cnpj", "acessos", "municipios", "uf_sede"],
+            "select": ["empresa", "cnpj", "acessos", "asn_vinculo", "municipios", "uf_sede"],
             "sort": [{"field": "acessos", "dir": "desc"}],
             "limit": 50,
         },

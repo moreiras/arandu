@@ -10,12 +10,15 @@ import { Link } from 'react-router-dom'
 import { EntityHeader } from '../../components/entidade'
 import { ContactsReveal, type ContactsAvailable } from '../../components/ContactsReveal'
 import { OutorgaBadge, OutorgaBadges } from '../../components/OutorgaBadge'
-import type { GrupoCnpjEntry } from '../../types/api'
+import type { AsnVinculado, GrupoCnpjEntry } from '../../types/api'
 import { fmtCnpj } from './ui'
 import type { ServicoOperadora } from './servicos'
 
+/** Rótulo curto do vínculo ASN ↔ CNPJ (D5) na tela. */
+const ROTULO_VINCULO: Record<string, string> = { cnpj: 'mesmo CNPJ', raiz: 'mesma raiz do CNPJ', marca: 'mesma marca', estrangeiro: 'AS estrangeiro' }
+
 /** Cabeçalho da página de operadora: nome com selos de outorga, grupo, porte, razão social/CNPJ/sede, outros CNPJs do grupo, contatos e ASNs. */
-export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc, hasSeac, credenciadaSmp, razaoSocial, cnpjFinal, municipio, uf, grupoCnpjs, grupoId, contactsAvailable, fetchContacts, asns, snapshot }: {
+export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc, hasSeac, credenciadaSmp, razaoSocial, cnpjFinal, municipio, uf, grupoCnpjs, grupoId, contactsAvailable, fetchContacts, asns, vinculados = [], snapshot }: {
   nome: string
   grupo?: string
   porte?: string
@@ -35,6 +38,8 @@ export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc
   contactsAvailable?: ContactsAvailable
   fetchContacts: () => Promise<any>
   asns: number[]
+  /** Vínculo ASN ↔ CNPJ (D5) além do mesmo CNPJ: raiz, marca e estrangeiro, com selo inferido. */
+  vinculados?: AsnVinculado[]
   snapshot?: string
 }) {
   return (
@@ -97,9 +102,15 @@ export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc
           ))}
           {!asns.length && (
             <span className="text-xs text-gray-400 border border-gray-200 rounded px-2.5 py-1">
-              sem ASN próprio no Registro.br
+              sem ASN no Registro.br com este CNPJ
             </span>
           )}
+          {vinculados.filter(v => v.vinculo !== 'cnpj').map(v => (
+            <Link key={v.asn} to={`/asn/${v.asn}`} title={ROTULO_VINCULO[v.vinculo] + (v.marca ? `: ${v.marca}` : '')}
+                  className="px-2.5 py-1 rounded border border-dashed border-gray-300 bg-white text-gray-700 text-xs hover:bg-gray-50">
+              AS{v.asn} <span className="text-gray-500">({ROTULO_VINCULO[v.vinculo]}, inferido)</span>
+            </Link>
+          ))}
         </div>
     </EntityHeader>
   )

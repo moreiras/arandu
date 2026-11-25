@@ -79,7 +79,7 @@ def acessos_stats(
     # Cobertura de declaração: quantos licenciados (outorga SCM) de fato reportam ao
     # SICI, no total e restrito aos que têm ASN no Registro.br com o mesmo CNPJ.
     licenciados = [r for r in all_rows if r.get("licenciado")]
-    licenciados_com_asn = [r for r in licenciados if r.get("com_asn")]
+    licenciados_com_asn = [r for r in licenciados if r.get("asns")]
     licenciados_informaram = [r for r in licenciados if r.get("ativo")]
     licenciados_com_asn_informaram = [r for r in licenciados_com_asn if r.get("ativo")]
     cobertura_declaracao = {
@@ -176,7 +176,7 @@ def acessos_operadoras(
     limit: int = Query(100, ge=1, le=1000),
     uf: Optional[str] = Query(None, description="UF da sede (cadastro SCM)."),
     q: Optional[str] = Query(None, description="Busca por empresa, razão social ou CNPJ."),
-    com_asn: Optional[bool] = Query(None, description="Filtra por ter/não ter ASN."),
+    com_asn: Optional[bool] = Query(None, description="Filtra por ter/não ter ASN brasileiro vinculado (mesmo CNPJ, mesma raiz ou marca curada; ver `asn_vinculo`)."),
     ativo: Optional[bool] = Query(None, description="true = só quem declara acesso no mês; false = só quem não declara. "
                                   "Omitido: `fixa` = true (a lista do SICI fixo); `movel` = todas (outorgadas e credenciadas "
                                   "do SMP, com e sem declaração)."),
@@ -205,7 +205,7 @@ def acessos_operadoras(
         u = uf.upper()
         rows = [r for r in rows if (r.get("uf_sede") or "").upper() == u]
     if com_asn is not None:
-        rows = [r for r in rows if bool(r.get("asns")) is com_asn]
+        rows = [r for r in rows if bool(r.get("com_asn")) is com_asn]
     if min_acessos is not None:
         rows = [r for r in rows if r.get("acessos", 0) >= min_acessos]
     if tecnologia:
@@ -258,8 +258,10 @@ def _asn_rede_detail(full: dict) -> dict:
     }
 
 
-def _operadora_rede(store: Store, date_str: str, asns: list[int]) -> Optional[dict]:
+def _operadora_rede(store: Store, date_str: str, asns: list[int], vinculos: Optional[dict[int, str]] = None) -> Optional[dict]:
     """Agrega dados de BGP/RPKI/IX.br/alertas de todos os ASNs de um CNPJ.
+
+    `asns` são os da mesma pessoa jurídica (vínculos `cnpj` e `raiz`, D5); `vinculos` ({asn: vínculo}) marca cada linha de `asns` da resposta.
 
     Soma direta (usuários, blocos) + união (IXPs, RPKI/ASPA) + alertas agrupados
     por categoria/severidade (concatenados, nunca somados — cada alerta é de um
@@ -307,7 +309,21 @@ def _operadora_rede(store: Store, date_str: str, asns: list[int]) -> Optional[di
         "has_rpki": any(d.get("roa_list") for d in docs),
         "has_aspa": any(d.get("aspa_providers") for d in docs),
         "alertas": {"total": total_alerts, "por_categoria": alertas_por_categoria},
-        "asns": [_asn_rede_detail(d) for d in docs],
+        "asns": [{**_asn_rede_detail(d), **({"vinculo": vinculos.get(d.get("asn"))} if vinculos else {})} for d in docs],
+    }
+
+
+def vinculo_da_operadora(store: Store, date_str: str, cnpj: str) -> dict:
+    """Campos do vínculo ASN ↔ CNPJ (D5) na resposta de uma operadora e a rede sobre os ASNs da mesma pessoa jurídica (`cnpj` e `raiz`)."""
+    from api.services.operadoras import REGRA_VINCULO
+
+    vinculados = store.asns_vinculados(date_str, cnpj)
+    mesma_pj = {v["asn"]: v["vinculo"] for v in vinculados if v["vinculo"] in ("cnpj", "raiz")}
+    return {
+        "asn_vinculo": vinculados[0]["vinculo"] if vinculados else "nenhum",
+        "asns_vinculados": vinculados,
+        "regra_vinculo": REGRA_VINCULO,
+        "rede": _operadora_rede(store, date_str, sorted(mesma_pj), mesma_pj),
     }
 
 
@@ -319,6 +335,11 @@ Unifica, por CNPJ: outorga(s) SCM, ASNs do Registro.br com agregação de rede
 (usuários, blocos IPv4/v6, IX.br, RPKI/ASPA, alertas) e, quando a operadora
 declara ao SICI, os acessos de banda larga fixa. Existe se **qualquer** desses
 três existir — o bloco `sici` vem ausente quando não há declaração.
+
+`asns` são os registrados com o mesmo CNPJ (fato). `asns_vinculados` traz todos os ASNs ligados ao CNPJ, cada um com `vinculo`
+(`cnpj`, `raiz` = outro CNPJ da mesma raiz de 8 dígitos, `marca` = tabela curada, `estrangeiro` = AS de fora ligado pela marca) e
+`selo` (fato só no `cnpj`); `asn_vinculo` é o mais forte (ou `nenhum`). `rede` soma os ASNs de `cnpj` e `raiz` (a mesma pessoa
+jurídica) e marca o `vinculo` de cada um; os de `marca` e `estrangeiro` não entram na soma. Regra em `regra_vinculo`.
 """,
 )
 def acessos_operadora(
@@ -351,7 +372,7 @@ def acessos_operadora(
         "cnpj": clean,
         "asns": asns,
         "outorgas_scm": outorgas,
-        "rede": _operadora_rede(store, date_str, asns),
+        **vinculo_da_operadora(store, date_str, clean),
     }
 
     if agg:

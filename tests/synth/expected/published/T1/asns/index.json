@@ -1378,5 +1378,28 @@
   "rir_prefixes_v6_count": 0,
   "space_v4": 3,
   "space_v6": 0
+ },
+ {
+  "apnic_users": 12000,
+  "apnic_v6_users": 6000,
+  "asn": 4200000201,
+  "external_ixps_count": 0,
+  "global_prefixes_v4_count": 1,
+  "global_prefixes_v6_count": 1,
+  "has_aspa": false,
+  "has_ipv6": true,
+  "has_rpki": true,
+  "is_br": true,
+  "ixps_direct_count": 0,
+  "ixps_origin_count": 0,
+  "ixps_origin_v4_count": 0,
+  "ixps_origin_v6_count": 0,
+  "name": "Provedor Sem ASN 6 Ltda (filial)",
+  "pct_v6": 50.0,
+  "pdb_registered": false,
+  "rir_prefixes_v4_count": 1,
+  "rir_prefixes_v6_count": 1,
+  "space_v4": 1,
+  "space_v6": 1
  }
 ]

@@ -49,3 +49,30 @@ describe('/ases, organizações com vários ASNs: linha expansível por teclado 
     expect(botao).toHaveAttribute('aria-expanded', 'false')
   })
 })
+
+describe('/ases, agrupar por raiz do CNPJ (ASES 5.3, PT-09)', () => {
+  it('o interruptor pede chave=raiz e mostra a filial com o vínculo inferido', async () => {
+    const pedidos: string[] = []
+    server.use(http.get('*/api/v1/asns/by-organization', ({ request }) => {
+      const chave = new URL(request.url).searchParams.get('chave') ?? ''
+      pedidos.push(chave)
+      if (chave !== 'raiz') return HttpResponse.json({ snapshot_date: '2026-09-20', chave, total: 1, groups: [
+        { cnpj: '90000001000129', razao_social: 'Provedor Exemplo Ltda', nome_fantasia: '', uf: 'SP', asn_count: 2, total_apnic_users: 20, total_v4_blocks: 2, total_v6_blocks: 2, asns: [asn(64500), asn(64501)] }] })
+      return HttpResponse.json({ snapshot_date: '2026-09-20', chave, total: 1, groups: [
+        { cnpj: '90000001000129', raiz: '90000001', cnpjs: 2, razao_social: 'Provedor Exemplo Ltda', nome_fantasia: '', uf: 'SP', asn_count: 3, total_apnic_users: 30, total_v4_blocks: 3, total_v6_blocks: 3,
+          asns: [{ ...asn(64500), cnpj: '90000001000129', vinculo: 'cnpj' }, { ...asn(64501), cnpj: '90000001000129', vinculo: 'cnpj' }, { ...asn(64502), cnpj: '90000001000200', vinculo: 'raiz' }] }] })
+    }))
+    render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <MemoryRouter><OrganizacoesVariosAsns /></MemoryRouter>
+      </QueryClientProvider>,
+    )
+    await screen.findByRole('table', { name: 'Organizações com vários ASNs' })
+    fireEvent.click(screen.getByRole('button', { name: 'Raiz do CNPJ' }))
+    expect(await screen.findByText(/2 CNPJs da raiz/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Raiz do CNPJ' })).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByRole('button', { name: 'ASNs de Provedor Exemplo Ltda' }))
+    expect(screen.getByText(/mesma raiz, inferido/)).toBeInTheDocument()
+    expect(pedidos).toEqual(['cnpj', 'raiz'])
+  })
+})

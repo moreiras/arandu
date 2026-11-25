@@ -251,6 +251,11 @@ export interface paths {
          *     (usuários, blocos IPv4/v6, IX.br, RPKI/ASPA, alertas) e, quando a operadora
          *     declara ao SICI, os acessos de banda larga fixa. Existe se **qualquer** desses
          *     três existir — o bloco `sici` vem ausente quando não há declaração.
+         *
+         *     `asns` são os registrados com o mesmo CNPJ (fato). `asns_vinculados` traz todos os ASNs ligados ao CNPJ, cada um com `vinculo`
+         *     (`cnpj`, `raiz` = outro CNPJ da mesma raiz de 8 dígitos, `marca` = tabela curada, `estrangeiro` = AS de fora ligado pela marca) e
+         *     `selo` (fato só no `cnpj`); `asn_vinculo` é o mais forte (ou `nenhum`). `rede` soma os ASNs de `cnpj` e `raiz` (a mesma pessoa
+         *     jurídica) e marca o `vinculo` de cada um; os de `marca` e `estrangeiro` não entram na soma. Regra em `regra_vinculo`.
          */
         get: operations["acessos_operadora_api_v1_acessos_operadora__cnpj__get"];
         put?: never;
@@ -410,11 +415,15 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Organizações com vários ASNs (mesmo CNPJ)
+         * Organizações com vários ASNs (mesmo CNPJ ou mesma raiz de CNPJ)
          * @description Agrupa os ASNs brasileiros pelo CNPJ da organização (Registro.br) e retorna as
          *     organizações com **mais de um ASN**, ordenadas pelo número de ASNs (e usuários APNIC
          *     como desempate). Para cada uma inclui os ASNs com nome, usuários estimados,
          *     blocos IPv6/IPv4 (full table), RPKI/ASPA e participação em IXes.
+         *
+         *     `chave=raiz` agrupa pela raiz de 8 dígitos (matriz e filiais da mesma pessoa jurídica: vínculo `raiz` da decisão D5, inferido):
+         *     cada ASN traz o seu `cnpj` e `vinculo` (`cnpj` quando é o CNPJ da linha, `raiz` quando é outro CNPJ da raiz), e a linha traz
+         *     `cnpjs` (quantos CNPJs distintos). Somas: cada ASN uma vez (os usuários estimados de ASes diferentes podem se sobrepor).
          *
          *     É uma única pessoa jurídica com vários ASNs (separação de serviços, regiões,
          *     incorporações etc.), **não** um grupo econômico: grupos de empresas ligadas por
@@ -1848,9 +1857,12 @@ export interface paths {
          *     da base, listada como "grupo de uma empresa só", `grupo_id` = `ind_{cnpj básico}`),
          *     total de assinantes (acessos fixos declarados ao SICI/SCM — não
          *     inclui móvel) e a distribuição municipal agregada desses acessos. Cada CNPJ
-         *     traz os ASNs associados (`asns`) e as flags de outorga Anatel.
-         *     `visibilidade_bgp` = algum AS de alguma empresa do grupo origina ao menos um
-         *     bloco IPv6/IPv4 na tabela BGP global.
+         *     traz os ASNs registrados com o mesmo CNPJ (`asns`) e as flags de outorga Anatel.
+         *     O grupo traz `asns`: os do mesmo CNPJ de uma das empresas mais os de outro CNPJ
+         *     da mesma raiz de 8 dígitos (filial que não declara; vínculo `raiz`, inferido,
+         *     listados à parte em `asns_raiz`). `usuarios_apnic` soma cada ASN uma vez;
+         *     `visibilidade_bgp` = algum desses ASes origina ao menos um bloco IPv6/IPv4 na
+         *     tabela BGP global.
          *
          *     Alimenta a página "Grupos de Empresas" (scatter + mapa + tabela) num único
          *     payload — evita round-trip por interação do usuário.
@@ -4862,6 +4874,13 @@ export interface components {
                 [key: string]: unknown;
             }[] | null;
             /**
+             * Same Raiz Asns
+             * @description ASNs do Registro.br com outro CNPJ da mesma raiz de 8 dígitos (matriz ou filial): [{asn, name, cnpj, vinculo, selo}]; vínculo `raiz` da decisão D5, inferido
+             */
+            same_raiz_asns?: {
+                [key: string]: unknown;
+            }[] | null;
+            /**
              * Scm
              * @description Outorgas SCM (Serviço de Comunicação Multimídia) da Anatel vinculadas ao CNPJ deste AS
              */
@@ -6066,7 +6085,7 @@ export interface operations {
                 uf?: string | null;
                 /** @description Busca por empresa, razão social ou CNPJ. */
                 q?: string | null;
-                /** @description Filtra por ter/não ter ASN. */
+                /** @description Filtra por ter/não ter ASN brasileiro vinculado (mesmo CNPJ, mesma raiz ou marca curada; ver `asn_vinculo`). */
                 com_asn?: boolean | null;
                 /** @description true = só quem declara acesso no mês; false = só quem não declara. Omitido: `fixa` = true (a lista do SICI fixo); `movel` = todas (outorgadas e credenciadas do SMP, com e sem declaração). */
                 ativo?: boolean | null;
@@ -6280,6 +6299,8 @@ export interface operations {
                 date?: string | null;
                 /** @description Número de organizações a retornar. */
                 limit?: number;
+                /** @description `cnpj` (padrão): mesmo CNPJ de 14 dígitos; `raiz`: mesma raiz de 8 dígitos (matriz e filiais). */
+                chave?: string;
             };
             header?: never;
             path?: never;
@@ -10734,7 +10755,7 @@ export interface operations {
                 municipio?: string | null;
                 /** @description Razão social, nome fantasia ou CNPJ. */
                 q?: string | null;
-                /** @description true = só com ASN; false = só sem ASN. */
+                /** @description true = só com ASN brasileiro vinculado (mesmo CNPJ, mesma raiz ou marca curada; ver `asn_vinculo`); false = os demais. */
                 com_asn?: boolean | null;
                 /** @description true = só quem declara acessos ao SICI; false = só quem não declara. Com `servico=SCM` sozinho conta só o acesso fixo; com `servico=SMP` sozinho, só o móvel; nos demais casos, fixo ou móvel. */
                 ativo?: boolean | null;

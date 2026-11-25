@@ -28,6 +28,7 @@ export const CATEGORY_LABEL: Record<string, string> = {
 export function RedeSection({ rede }: { rede: OperadoraRede }) {
   const [showAsns, setShowAsns] = useState(false)
   const idTabela = useId()
+  const porRaiz = rede.asns.filter((a) => a.vinculo === 'raiz').length
   const { ordenados, props } = useOrdenacao(rede.asns, {
     asn: { valor: (a) => a.asn, primeiro: 'asc' },
     nome: (a) => a.name || null,
@@ -45,8 +46,9 @@ export function RedeSection({ rede }: { rede: OperadoraRede }) {
         Rede (BGP · RPKI · IX.br)
       </h2>
       <p className="text-xs text-gray-400 mb-3">
-        Agregado de {rede.asn_count} ASN{rede.asn_count !== 1 ? 's' : ''} do Registro.br com este CNPJ.
-        Usuários e blocos são somados; IX.br e RPKI/ASPA são união (basta um ASN ter).
+        Agregado de {rede.asn_count} ASN{rede.asn_count !== 1 ? 's' : ''} do Registro.br com este CNPJ
+        {porRaiz > 0 && <> ou com outro CNPJ da mesma raiz ({porRaiz} pela raiz, vínculo inferido)</>}.
+        Usuários e blocos são somados, cada ASN uma vez; IX.br e RPKI/ASPA são união (basta um ASN ter).
       </p>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-3">
@@ -127,6 +129,7 @@ export function RedeSection({ rede }: { rede: OperadoraRede }) {
                 <tr key={a.asn} className="hover:bg-gray-50">
                   <td className="px-2 py-1">
                     <Link to={`/asn/${a.asn}`} className="text-primario-600 hover:underline font-mono">AS{a.asn}</Link>
+                    {a.vinculo === 'raiz' && <span className="ml-1 text-gray-400">(mesma raiz, inferido)</span>}
                   </td>
                   <td className="px-2 py-1 text-gray-600 truncate max-w-[180px]">{a.name || '—'}</td>
                   <td className="px-2 py-1 text-right tabular-nums">{fmt(a.apnic_users)}</td>

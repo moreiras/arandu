@@ -9,7 +9,7 @@ import { AccessError, fetchCaminho, queryColecao } from '../../services/api'
 import { Provenance, type FonteEntrada } from '../../components/entidade'
 import { useActiveDate } from '../../hooks/useSnapshot'
 import { formatarCnpj, rotulosRepetidos } from '../../lib/marca'
-import { formatarValor, linkDaLinha, type Cartao } from './cartoes'
+import { formatarValor, linkDaLinha, textoComplemento, type Cartao } from './cartoes'
 import { useCartaoDerivado, type EstadoCartao } from './derivados'
 import { ERRO_ORCAMENTO_ESGOTADO, useOrcamentoAvancado } from '../../auth/AuthContext'
 
@@ -63,7 +63,7 @@ function CartaoVisual({ cartao, fontes, estado }: { cartao: Cartao; fontes?: Fon
                 <span className="text-xs text-gray-400 w-4 text-right">{i + 1}</span>
                 <Link to={linkDaLinha(cartao.linha.link, it)} className="text-primario-600 hover:underline truncate flex-1">
                   {String(it[cartao.linha.rotulo] ?? '—')}
-                  {cartao.linha.complemento && <span className="text-gray-400"> · {String(it[cartao.linha.complemento] ?? '')}</span>}
+                  {cartao.linha.complemento && <span className="text-gray-400"> · {textoComplemento(cartao.linha.complemento, it[cartao.linha.complemento])}</span>}
                   {cnpj && repetidos.has(String(it[cartao.linha.rotulo] ?? '—')) && <span className="text-gray-400 text-xs"> · CNPJ {formatarCnpj(cnpj)}</span>}
                 </Link>
                 <span className="tabular-nums text-gray-700">{formatarValor(it[cartao.linha.valor])}</span>

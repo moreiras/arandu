@@ -27,6 +27,12 @@ def relacoes_do_grupo(g: dict, socios: Optional[dict], nome: Callable[[str], str
     by = socios.get("by_cnpj", {})
     membros = [c["cnpj"] for c in g["cnpjs"]]
     dentro = set(membros)
+    # GRUPO-E7: a empresa é a raiz de 8 dígitos (como `tamanho` e `empresas`); as filiais repetiam a mesma ligação. Cada raiz fala pela
+    # matriz (0001) quando ela está no grupo, senão pelo menor CNPJ; ligação entre CNPJs da mesma raiz não é ligação entre empresas.
+    rep_raiz: dict[str, str] = {}
+    for c in sorted(membros, key=lambda c: (c[8:12] != "0001", c)):
+        rep_raiz.setdefault(c[:8], c)
+    representante = {c: rep_raiz[c[:8]] for c in membros}
     pares: dict[tuple, dict] = {}
     fora: dict[str, dict] = {}
     holdings: dict[str, dict] = {}
@@ -45,12 +51,15 @@ def relacoes_do_grupo(g: dict, socios: Optional[dict], nome: Callable[[str], str
                     f = fora.setdefault(outro, {"cnpj": outro, "tipo": tipo, "socios_em_comum": e.get("socios_em_comum"), "liga_a": []})
                     f["liga_a"].append(cnpj)
                     continue
+                a, b = representante[cnpj], representante[outro]
+                if a == b:
+                    continue
                 if t == "controle_parcial_exercido":
-                    de, para = cnpj, outro
+                    de, para = a, b
                 elif t == "controle_parcial_recebido":
-                    de, para = outro, cnpj
+                    de, para = b, a
                 else:
-                    de, para = sorted((cnpj, outro))                      # ligação simétrica: uma linha por par
+                    de, para = sorted((a, b))                              # ligação simétrica: uma linha por par
                 chave = (tipo, de, para)
                 p = pares.setdefault(chave, {"tipo": tipo, "de": de, "para": para, "socios": None})
                 n = e.get("socios_em_comum") if tipo == "socios_em_comum" else e.get("total_socios_da_controlada") if tipo == "controle_parcial" else None
@@ -60,7 +69,9 @@ def relacoes_do_grupo(g: dict, socios: Optional[dict], nome: Callable[[str], str
     ligacoes.sort(key=lambda x: (ORDEM.index(x["tipo"]), x["de_nome"].lower(), x["para_nome"].lower()))
     fora_lista = sorted(({**f, "empresa": nome(f["cnpj"]), "tipo_rotulo": TIPOS[f["tipo"]], "liga_a": sorted(set(f["liga_a"]))} for f in fora.values()), key=lambda f: f["empresa"].lower())
     return {
-        "grupo_id": g["grupo_id"], "classificacao": g.get("classificacao"), "empresas": len(membros), "referencia_receita": socios.get("receita_dump_reference"),
+        "grupo_id": g["grupo_id"], "classificacao": g.get("classificacao"), "empresas": len(rep_raiz), "cnpjs": len(membros),
+        "unidade": "empresa = raiz de 8 dígitos do CNPJ; as filiais estão recolhidas na matriz (ou no menor CNPJ da raiz)",
+        "referencia_receita": socios.get("receita_dump_reference"),
         "ligacoes": ligacoes, "tipos": TIPOS,
         "fora_do_grupo": {"total": len(fora_lista), "itens": fora_lista[:LIMITE_FORA]},
         "controladoras_externas": sorted(({**h, "controla": sorted(set(h["controla"]))} for h in holdings.values()), key=lambda h: (h["razao_social"] or "").lower()),

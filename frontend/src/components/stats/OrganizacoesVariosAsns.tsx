@@ -67,6 +67,7 @@ function LinhaOrganizacao({ group, rank }: { group: OrganizacaoVariosAsns; rank:
                   {fmtCnpj(group.cnpj)}
                 </Link>
                 {group.uf ? ` · ${group.uf}` : ''}
+                {group.cnpjs != null && group.cnpjs > 1 ? ` · ${group.cnpjs} CNPJs da raiz` : ''}
               </div>
             </div>
           </div>
@@ -102,6 +103,7 @@ function LinhaOrganizacao({ group, rank }: { group: OrganizacaoVariosAsns; rank:
                       <Link to={`/asn/${a.asn}`} className="text-primario-600 hover:underline" onClick={e => e.stopPropagation()}>
                         AS{a.asn}
                       </Link>
+                      {a.vinculo === 'raiz' && a.cnpj && <span className="ml-1 font-sans text-gray-400">CNPJ {fmtCnpj(a.cnpj)} (mesma raiz, inferido)</span>}
                     </td>
                     <td className="py-1 pr-2 text-gray-700 truncate max-w-[260px]" title={a.name}>{a.name || '—'}</td>
                     <td className="py-1 px-2 text-right tabular-nums text-gray-700">{fmtN(a.apnic_users)}</td>
@@ -129,9 +131,11 @@ function LinhaOrganizacao({ group, rank }: { group: OrganizacaoVariosAsns; rank:
  */
 export function OrganizacoesVariosAsns({ date, ancorar = false }: { date?: string; ancorar?: boolean }) {
   const { pronto, esgotado } = useOrcamentoAvancado()
+  const [chave, setChave] = useState<'cnpj' | 'raiz'>('cnpj')
   const { data, isError, error } = useQuery<AsnsPorOrganizacaoResponse>({
-    queryKey: ['asns-por-organizacao', date],
-    queryFn: () => fetchAsnsPorOrganizacao(date, 50),
+    queryKey: ['asns-por-organizacao', date, chave],
+    queryFn: () => fetchAsnsPorOrganizacao(date, 50, chave),
+    placeholderData: (anterior) => anterior,                       // ao trocar o agrupamento, a seção não some enquanto carrega
     enabled: pronto && !esgotado,
     staleTime: 10 * 60 * 1000,
     retry: false,
@@ -150,10 +154,22 @@ export function OrganizacoesVariosAsns({ date, ancorar = false }: { date?: strin
         Organizações com vários ASNs
       </h2>
       <p className="text-xs text-gray-500">
-        Mesmo CNPJ no Registro.br com dois ou mais ASNs; as 50 primeiras por número de ASNs. Os motivos variam (separação de serviços,
+        {chave === 'cnpj'
+          ? 'Mesmo CNPJ no Registro.br com dois ou mais ASNs'
+          : 'Mesma raiz de CNPJ (8 dígitos: matriz e filiais da mesma empresa) com dois ou mais ASNs; juntar CNPJs da raiz é vínculo inferido'}; as 50 primeiras por número de ASNs. Os motivos variam (separação de serviços,
         regiões, redes incorporadas) e não indicam grupo econômico: empresas ligadas por sócios ou controle estão
         em <Link to="/grupos" className="text-primario-600 hover:underline">Grupos econômicos</Link>. Clique numa linha para ver os ASNs.
+        Usuários somam cada ASN uma vez; usuários estimados de ASes diferentes podem se sobrepor.
       </p>
+      <div role="group" aria-label="Agrupar por" className="flex items-center gap-2 text-xs">
+        <span className="text-gray-500">Agrupar por:</span>
+        {(['cnpj', 'raiz'] as const).map((k) => (
+          <button key={k} type="button" aria-pressed={chave === k} onClick={() => setChave(k)}
+            className={`min-h-6 rounded border px-2 py-0.5 ${chave === k ? 'border-primario-500 bg-primario-50 text-primario-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+            {k === 'cnpj' ? 'CNPJ' : 'Raiz do CNPJ'}
+          </button>
+        ))}
+      </div>
       {bloqueado ? (
         <p className="text-sm text-aviso-700 bg-aviso-50 border border-aviso-200 rounded px-3 py-2" role="status">
           Esta lista usa páginas avançadas e o tempo de uso sem login acabou. Entre para ver.
@@ -165,7 +181,7 @@ export function OrganizacoesVariosAsns({ date, ancorar = false }: { date?: strin
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200 text-gray-500">
               <th scope="col" className="px-3 py-1.5 text-right font-medium w-8">#</th>
-              <th scope="col" className="px-3 py-1.5 text-left font-medium">Organização (CNPJ)</th>
+              <th scope="col" className="px-3 py-1.5 text-left font-medium">{chave === 'cnpj' ? 'Organização (CNPJ)' : 'Organização (raiz do CNPJ)'}</th>
               <th scope="col" className="px-3 py-1.5 text-right font-medium w-20">ASNs</th>
               <th scope="col" className="px-3 py-1.5 text-right font-medium w-28">Usuários</th>
               <th scope="col" className="px-3 py-1.5 text-right font-medium w-24">Blocos v6</th>

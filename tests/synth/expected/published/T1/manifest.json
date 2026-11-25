@@ -2,40 +2,40 @@
  "checks": {
   "asn_names": {
    "anterior_pct_hifen": 0.0,
-   "anterior_total": 60,
+   "anterior_total": 61,
    "limite_pct": 3.0,
    "limite_pontos_hifen": 15.0,
    "pct_hifen": 0.0,
    "status": "ok",
-   "total": 60,
+   "total": 61,
    "variacao_pct": 0.0,
    "variacao_pontos_hifen": 0.0
   },
   "asns_br": {
-   "anterior": 36,
+   "anterior": 37,
    "limite_pct": 1.0,
    "status": "ok",
-   "valor": 36,
+   "valor": 37,
    "variacao_pct": 0.0
   },
   "pdb_registrados": {
    "limite_pct": 20.0,
-   "pct_dos_asns_br": 50.0,
+   "pct_dos_asns_br": 48.6,
    "status": "ok",
    "valor": 18
   },
   "prefixos_v4": {
-   "anterior": 76,
+   "anterior": 77,
    "limite_pct": 3.0,
    "status": "ok",
-   "valor": 76,
+   "valor": 77,
    "variacao_pct": 0.0
   },
   "prefixos_v6": {
-   "anterior": 43,
+   "anterior": 44,
    "limite_pct": 3.0,
    "status": "ok",
-   "valor": 43,
+   "valor": 44,
    "variacao_pct": 0.0
   },
   "ptt_coletados": {
@@ -44,18 +44,18 @@
    "status": "ok"
   },
   "vrps": {
-   "anterior": 78,
+   "anterior": 80,
    "limite_pct": 5.0,
    "status": "ok",
-   "valor": 78,
+   "valor": 80,
    "variacao_pct": 0.0
   }
  },
  "coleta": "completa",
  "coleta_ok": true,
  "comparado_com": "2026-09-13",
- "ft_space_v4": 49152,
- "ft_space_v6": 66490920078804604608839680,
+ "ft_space_v4": 49408,
+ "ft_space_v6": 67699845898419233783545856,
  "fulltable_v4_status": "ok",
  "fulltable_v6_status": "ok",
  "geolite2_version": "2026-09",
@@ -71,10 +71,10 @@
  ],
  "ixps_failed": [],
  "layout_version": 1,
- "m3_prefixes_v4": 76,
- "m3_prefixes_v6": 43,
- "registro_br_prefixes_v4": 76,
- "registro_br_prefixes_v6": 43,
+ "m3_prefixes_v4": 77,
+ "m3_prefixes_v6": 44,
+ "registro_br_prefixes_v4": 77,
+ "registro_br_prefixes_v6": 44,
  "registro_br_status": "ok",
  "rules": {
   "agregacao_elevada": 1,
@@ -853,6 +853,6 @@
    "versao": null
   }
  ],
- "total_asns_br": 36,
- "total_asns_global": 60
+ "total_asns_br": 37,
+ "total_asns_global": 61
 }

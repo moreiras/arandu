@@ -781,8 +781,11 @@ export function fetchMapQuery(body: MapQueryBody, date?: string, signal?: AbortS
   return post('/api/v1/map/query', body, date ? { date } : undefined, signal)
 }
 
-export function fetchAsnsPorOrganizacao(date?: string, limit = 30): Promise<AsnsPorOrganizacaoResponse> {
-  return get('/api/v1/asns/by-organization', { date, limit })
+/** `esquema` 2: a resposta ganhou `chave` e o modo por raiz de CNPJ (PT-09, D5). */
+const ESQUEMA_ORGANIZACOES = 2
+
+export function fetchAsnsPorOrganizacao(date?: string, limit = 30, chave: 'cnpj' | 'raiz' = 'cnpj'): Promise<AsnsPorOrganizacaoResponse> {
+  return get('/api/v1/asns/by-organization', { date, limit, chave, esquema: ESQUEMA_ORGANIZACOES })
 }
 
 export function fetchASNGeo(
@@ -829,7 +832,7 @@ export function fetchOutorgas(opts: {
   sort_desc?: boolean
 }): Promise<PaginatedOutorgas> {
   const { servico, todos, ...resto } = opts
-  return get('/api/v1/outorgas', { ...resto, ...(servico?.length ? { servico: servico.join(',') } : {}), ...(todos ? { todos: true } : {}) })
+  return get('/api/v1/outorgas', { ...resto, ...(servico?.length ? { servico: servico.join(',') } : {}), ...(todos ? { todos: true } : {}), esquema: ESQUEMA_VINCULO_ASN })
 }
 
 /** Totais e quebras de um serviço (`GET /outorgas/stats?servico=`); o corpo de cada serviço tem o seu tipo. */
@@ -847,9 +850,13 @@ export function fetchAcessosStats(date?: string, top = 20): Promise<SiciStats> {
   return get('/api/v1/acessos/stats', { date, top })
 }
 
+/** `esquema` 2: respostas com o vínculo ASN ↔ CNPJ da decisão D5 (`asn_vinculo`, `asns_vinculados`, rede e grupos pela raiz do CNPJ, `com_asn`
+ *  pela raiz e pela marca). O mesmo `?date=` servia a versão antiga do cache imutável. */
+const ESQUEMA_VINCULO_ASN = 2
+
 /** Perfil consolidado da operadora (SCM, SMP, STFC e SeAC, ASNs e rede) numa chamada; 204 = CNPJ sem informação. */
 export function fetchOperadoraPerfil(cnpj: string, date?: string, historicoCompleto = false): Promise<PerfilOperadora | null> {
-  return get(`/api/v1/operadoras/${cnpj}`, { date, include: `${blocoHistorico(historicoCompleto)},indicadores,erbs,multas,prontidao,qualidade,reclamacoes,consumidor,mercado_grupos`, opcional: true })
+  return get(`/api/v1/operadoras/${cnpj}`, { date, include: `${blocoHistorico(historicoCompleto)},indicadores,erbs,multas,prontidao,qualidade,reclamacoes,consumidor,mercado_grupos`, opcional: true, esquema: ESQUEMA_VINCULO_ASN })
 }
 
 export function fetchOperadoraContacts(cnpj: string, date?: string): Promise<OperadoraContactsResponse> {
@@ -857,11 +864,11 @@ export function fetchOperadoraContacts(cnpj: string, date?: string): Promise<Ope
 }
 
 export function fetchGruposSocietarios(date?: string): Promise<GrupoSocietarioListResponse> {
-  return get('/api/v1/grupos', { date })
+  return get('/api/v1/grupos', { date, esquema: ESQUEMA_VINCULO_ASN })
 }
 
 export function fetchEmpresasRelacionadas(cnpj: string, date?: string): Promise<EmpresasRelacionadasResponse> {
-  return get(`/api/v1/grupos/empresa/${cnpj}`, { date })
+  return get(`/api/v1/grupos/empresa/${cnpj}`, { date, esquema: ESQUEMA_VINCULO_ASN })
 }
 
 export interface GrupoPrefixoGeoFeature {
@@ -878,19 +885,19 @@ export interface GrupoPrefixosGeoResponse {
 }
 
 export function fetchGrupo(grupoId: string, date?: string): Promise<GrupoDetalhe> {
-  return get(`/api/v1/grupos/${encodeURIComponent(grupoId)}`, { date, opcional: true })
+  return get(`/api/v1/grupos/${encodeURIComponent(grupoId)}`, { date, opcional: true, esquema: ESQUEMA_VINCULO_ASN })
 }
 
 /** Um bloco extra do grupo: `mercado` → `mercado_fixo`, `regulatorio`, `tecnico`. Cada aba busca o seu quando abre. */
 export async function fetchGrupoBloco<T>(grupoId: string, include: 'mercado' | 'regulatorio' | 'tecnico' | 'relacoes', date?: string): Promise<T | null> {
-  const r = await get<Record<string, unknown>>(`/api/v1/grupos/${encodeURIComponent(grupoId)}`, { date, include })
+  const r = await get<Record<string, unknown>>(`/api/v1/grupos/${encodeURIComponent(grupoId)}`, { date, include, esquema: ESQUEMA_VINCULO_ASN })
   return (r[include === 'mercado' ? 'mercado_fixo' : include] as T | null | undefined) ?? null
 }
 
 /** O grupo com mercado, regulatório e técnico numa chamada só, para o comparador. */
 export async function fetchGrupoComparavel(grupoId: string, date?: string): Promise<import('../features/comparar/entidades').GrupoComparavel> {
   const r = await get<GrupoDetalhe & { mercado_fixo?: import('../types/api').GrupoMercadoFixo | null; regulatorio?: import('../types/api').GrupoRegulatorio | null; tecnico?: import('../types/api').GrupoTecnico | null }>(
-    `/api/v1/grupos/${encodeURIComponent(grupoId)}`, { date, include: 'mercado,regulatorio,tecnico' })
+    `/api/v1/grupos/${encodeURIComponent(grupoId)}`, { date, include: 'mercado,regulatorio,tecnico', esquema: ESQUEMA_VINCULO_ASN })
   const { mercado_fixo, regulatorio, tecnico, ...grupo } = r
   return { grupo: grupo as GrupoDetalhe, mercado: mercado_fixo ?? null, regulatorio: regulatorio ?? null, tecnico: tecnico ?? null }
 }
@@ -898,7 +905,7 @@ export async function fetchGrupoComparavel(grupoId: string, date?: string): Prom
 export const fetchGrupoMercado = (grupoId: string, date?: string) => fetchGrupoBloco<import('../types/api').GrupoMercadoFixo>(grupoId, 'mercado', date)
 
 export function fetchGrupoPrefixosGeo(grupoId: string, date?: string): Promise<GrupoPrefixosGeoResponse> {
-  return get(`/api/v1/grupos/${grupoId}/prefixos-geo`, { date })
+  return get(`/api/v1/grupos/${grupoId}/prefixos-geo`, { date, esquema: ESQUEMA_VINCULO_ASN })
 }
 
 export function fetchMunicipioAcessos(
