@@ -6,7 +6,7 @@ import {
 } from 'recharts'
 import type { BgpStability, AsStability, NoiseCategory, BgpStabilityDeep, BgpStabilityHistoryEntry, BgpStabilityCarga } from '../../types/bgpStability'
 import { ClassificationBadge } from './ClassificationBadge'
-import { NoiseCategoryBadge }  from './NoiseCategoryBadge'
+import { NoiseCategoryBadge, faixaNumerica }  from './NoiseCategoryBadge'
 import { DailySparkline }      from './DailySparkline'
 import { BgpActivityChart }    from './BgpActivityChart'
 import { CargaBgpSemanas }     from './CargaBgpSemanas'
@@ -25,11 +25,7 @@ function fmtEpppd(v: number): string {
 function EppdCell({ v, ann, wd, attrUpd, days }: {
   v: number; ann: number; wd: number; attrUpd: number; days?: number
 }) {
-  const color =
-    v > 20 ? 'text-perigo-600 font-semibold' :
-    v > 5  ? 'text-alerta-500 font-medium' :
-    v > 1  ? 'text-aviso-600' :
-             'text-gray-600'
+  const color = 'text-gray-700'      // cor única: o número é um fato, sem faixa de "bom" ou "ruim" (BGP-E9)
   const periodLabel = days ? `em ${days} dias` : 'no período'
   const tip = ann + wd + attrUpd > 0
     ? `${ann.toLocaleString('pt-BR')} anúncios · ${wd.toLocaleString('pt-BR')} retiradas · ${attrUpd.toLocaleString('pt-BR')} attr-updates (total ${periodLabel})`
@@ -86,12 +82,6 @@ function DistributionChart({ data }: DistChartProps) {
 
 const CATEGORY_ORDER: NoiseCategory[] = ['estavel', 'inquieto', 'barulhento', 'critico']
 
-const CATEGORY_META: Record<NoiseCategory, { label: string; threshold: string }> = {
-  estavel:    { label: 'Estável',    threshold: '< mediana' },
-  inquieto:   { label: 'Inquieto',   threshold: 'mediana – média' },
-  barulhento: { label: 'Barulhento', threshold: 'média – 100× mediana' },
-  critico:    { label: 'Crítico',    threshold: '> 100× mediana' },
-}
 
 export type ContagemCategorias = Record<NoiseCategory, number> & { total: number }
 
@@ -148,9 +138,9 @@ function CategoryTable({ counts, stats }: CategoryTableProps) {
             return (
               <tr key={cat} className="hover:bg-gray-50">
                 <td className="py-1.5 pr-3">
-                  <NoiseCategoryBadge category={cat} size="xs" />
+                  <NoiseCategoryBadge category={cat} size="xs" limites={stats} />
                 </td>
-                <td className="py-1.5 pr-3 text-gray-500">{CATEGORY_META[cat].threshold}</td>
+                <td className="py-1.5 pr-3 text-gray-700 tabular-nums">{faixaNumerica(cat, stats)}</td>
                 <td className="py-1.5 pr-2 text-right tabular-nums font-medium text-gray-700">
                   {n.toLocaleString('pt-BR')}
                 </td>
@@ -173,7 +163,7 @@ function CategoryTable({ counts, stats }: CategoryTableProps) {
 
 // ─── Linha da tabela Top 10 ───────────────────────────────────────────────────
 
-function StabilityRow({ entry }: { entry: AsStability }) {
+function StabilityRow({ entry, limites }: { entry: AsStability; limites?: { median: number; mean: number } | null }) {
   const dailyTotals = entry.daily.map(d => d.total_events)
   const { period: p } = entry
 
@@ -219,7 +209,7 @@ function StabilityRow({ entry }: { entry: AsStability }) {
       </td>
       <td className="py-1.5 pr-2">
         {entry.noise_category
-          ? <NoiseCategoryBadge category={entry.noise_category} size="xs" />
+          ? <NoiseCategoryBadge category={entry.noise_category} size="xs" limites={limites} />
           : <ClassificationBadge classification={entry.classification} severity={entry.severity} size="xs" />}
       </td>
       <td className="py-1.5 pr-3">
@@ -371,8 +361,8 @@ export function StabilitySection({ data, deepData, history, carga, categorias, t
       {stats && (
         <div className="border border-gray-100 rounded-lg p-4 bg-gray-50">
           <h3 className="text-sm font-semibold text-gray-700 mb-3">
-            Classificação de ruído BGP
-            <Tip text="Classificação de todos os ASes BR por nível de ruído, usando a mediana e a média do conjunto como limiares. 100× a mediana define o limiar crítico." />
+            Faixas de updates por prefixo por dia (método do projeto, inferido)
+            <Tip text="Faixas de todos os ASes BR, usando a mediana e a média do conjunto da semana como limiares; 100 vezes a mediana é o limite da última faixa. É uma convenção do projeto, relativa ao conjunto: não é critério de norma nem de operador, e a cor mais escura diz só faixa mais alta." />
           </h3>
           <CategoryTable counts={contagem} stats={stats} />
         </div>
@@ -392,10 +382,10 @@ export function StabilitySection({ data, deepData, history, carga, categorias, t
         </div>
       )}
 
-      {/* Top ASes mais ruidosos */}
+      {/* Top ASes com mais updates por prefixo por dia */}
       <div>
         <h3 className="text-sm font-semibold text-gray-700 mb-2">
-          {showAll && listaCompleta ? `${allMed.length} ASes com severidade média ou maior` : 'Top 10 ASes mais ruidosos'}
+          {showAll && listaCompleta ? `${allMed.length} ASes com severidade média ou maior` : 'Top 10 ASes com mais updates por prefixo por dia'}
           <Tip text="Ordenados por events/prefixo/dia no período de 7 dias (v6+v4 combinados). Clique nos cabeçalhos para ordenar. O Sparkline mostra os 7 dias — barras uniformes indicam problema crônico; barra isolada indica evento pontual." />
         </h3>
         <div className="overflow-x-auto">
@@ -449,7 +439,7 @@ export function StabilitySection({ data, deepData, history, carga, categorias, t
             </thead>
             <tbody className="divide-y divide-gray-100">
               {rows.map(a => (
-                <StabilityRow key={a.asn} entry={a} />
+                <StabilityRow key={a.asn} entry={a} limites={stats} />
               ))}
             </tbody>
           </table>
@@ -481,8 +471,8 @@ export function StabilitySection({ data, deepData, history, carga, categorias, t
       {deepData && deepData.suspected_upstreams.length > 0 && (
         <div>
           <h3 className="text-sm font-semibold text-gray-700 mb-2">
-            Upstreams suspeitos — correlação cross-AS
-            <Tip text="ASes de trânsito que aparecem como upstream dominante em múltiplos ASes ruidosos simultaneamente. Quando dois ou mais ASes flapam em sincronia e compartilham o mesmo upstream, o problema provavelmente está no provedor de trânsito." />
+            Upstreams em comum — correlação entre ASes
+            <Tip text="ASes de trânsito que aparecem como upstream dominante em vários ASes com muitos updates no mesmo período. É coincidência observada no dado; a causa (provedor, cliente ou outra) não é observável aqui." />
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-xs border-collapse">
@@ -521,7 +511,7 @@ export function StabilitySection({ data, deepData, history, carga, categorias, t
             </table>
           </div>
           <p className="text-xs text-gray-400 mt-1">
-            Análise dos top {deepData.top_n} ASes mais ruidosos. Gerado em {deepData.generated_at?.slice(0, 10)}.
+            Análise dos {deepData.top_n} ASes com mais updates por prefixo por dia. Gerado em {deepData.generated_at?.slice(0, 10)}.
           </p>
         </div>
       )}

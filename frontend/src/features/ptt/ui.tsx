@@ -134,10 +134,9 @@ export function PctCell({
   tooltip?: string
 }) {
   const v = value ?? null
-  const color =
-    v == null ? 'text-gray-400' : v >= 30 ? 'text-ok-700' : v >= 10 ? 'text-aviso-600' : 'text-gray-500'
-  const barColor =
-    v == null ? 'bg-gray-200' : v >= 30 ? 'bg-ok-400' : v >= 10 ? 'bg-aviso-400' : 'bg-gray-300'
+  // cor única: a porcentagem é um fato, sem faixa de "bom" ou "ruim" (IXP-E10)
+  const color = v == null ? 'text-gray-400' : 'text-gray-800'
+  const barColor = v == null ? 'bg-gray-200' : 'bg-primario-300'
   return (
     <div className="bg-white rounded border border-gray-200 px-3 py-2 min-w-0" title={tooltip}>
       <div className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5 break-words">
