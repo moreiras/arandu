@@ -39,7 +39,7 @@ ROTAS = [   # (caminho, campos de topo obrigatórios)
 ]
 TOOLS_CHAVE = ["historico_snapshots", "asn_detalhe", "ixp_detalhe", "query", "describe_schema", "ixp_lista", "operadora_ranking"]   # nomes por domínio
 TOOLS_CONTATOS = ("asn_contatos", "operadora_contatos")    # as únicas com contato, e só com chave de MCP
-PAGINAS = ["/", "/privacidade", "/ixps", "/asns"]       # SPA: todas devolvem o index.html
+PAGINAS = ["/", "/privacidade", "/ixps", "/ases"]       # rotas do SPA (main.tsx); desconhecida dá 404 desde o PT-29
 
 
 Transport = Callable[[str, str, dict | None, dict | None], tuple[int, dict, bytes]]

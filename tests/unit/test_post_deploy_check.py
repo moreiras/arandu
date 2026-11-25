@@ -95,3 +95,16 @@ def test_snapshot_parcial_reprova_a_sanidade_de_coleta():
 
 def test_contrato_do_mcp_tem_ao_menos_52_tools_visiveis():
     assert pdc.contract_tools() >= 52     # piso: sobe a cada tool nova
+
+
+def test_paginas_verificadas_sao_rotas_do_spa():
+    """Desde o 404 real (PT-29), página que não é rota do SPA dá 404: a lista do pós-implantação tem de citar rotas que existem."""
+    import re
+    from pathlib import Path
+    from scripts import post_deploy_check as pdc
+    raiz = Path(__file__).resolve().parents[2]
+    main = (raiz / "frontend" / "src" / "main.tsx").read_text(encoding="utf-8")
+    rotas = set(re.findall(r'path="([^":*]+)"', main))
+    for p in pdc.PAGINAS:
+        if p != "/":
+            assert p.strip("/").split("/")[0] in rotas, p
