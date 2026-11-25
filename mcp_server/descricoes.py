@@ -179,7 +179,7 @@ DESCRICOES: dict[str, str] = {
     ),
     'operadora_grupo': (
         'Grupo econômico de uma empresa (cnpj) ou de um grupo_id: CNPJs membros (cnpjs_total), assinantes somados, empresas '
-        'ligadas por sócios (só a contagem de sócios em comum). Grupo inferido do quadro societário (S.A.: `grupo_inferivel`=false). '
+        'ligadas por sócios (só a contagem de sócios em comum). Inferido do quadro societário; S.A.: `grupo_inferivel`=false. '
         'Args: cnpj, grupo_id, limit.'
     ),
     'operadora_ranking': (
