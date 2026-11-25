@@ -1,0 +1,119 @@
+{
+  "gerado_por": "scripts/gen_retencao.py",
+  "linhas": [
+    {
+      "id": "log_servidor_web",
+      "registro": "Registro de acesso do servidor web",
+      "contem_ip": true,
+      "valor": {
+        "tamanho_mb": 5,
+        "arquivos": 3
+      },
+      "prazo": "sem prazo fixo; rotação por tamanho (5 MB, 3 arquivos)",
+      "fonte": "docker-compose.prod.yml (serviço frontend, logging); docker/nginx-frontend.conf (log_format temporizado)"
+    },
+    {
+      "id": "log_acesso_conta",
+      "registro": "Registro de páginas visitadas por quem tem conta (identificador interno e IP)",
+      "contem_ip": true,
+      "valor": {
+        "meses": 3
+      },
+      "prazo": "3 meses (o mês corrente conta como o primeiro)",
+      "fonte": "api/auth/storage.py (RETENCAO_LOG_MESES, log_access)"
+    },
+    {
+      "id": "registro_anonimo",
+      "registro": "Registro anônimo de uso (identificador por hash que muda a cada dia)",
+      "contem_ip": false,
+      "valor": {
+        "dias": 90
+      },
+      "prazo": "90 dias",
+      "fonte": "api/usage_log.py (RETENCAO_PADRAO_DIAS; USAGE_LOG_RETENTION_DAYS altera)"
+    },
+    {
+      "id": "registro_conta_detalhe",
+      "registro": "Registro de uso associado à conta, detalhado",
+      "contem_ip": false,
+      "valor": {
+        "dias": 90
+      },
+      "prazo": "90 dias",
+      "fonte": "api/uso_conta.py (RETENCAO_DETALHE_DIAS)"
+    },
+    {
+      "id": "registro_conta_agregado",
+      "registro": "Contagens de uso por dia, conta, origem e classe de rota",
+      "contem_ip": false,
+      "valor": {
+        "dias": 366
+      },
+      "prazo": "366 dias (12 meses); o identificador da conta só é retirado das contagens na exclusão da conta",
+      "fonte": "api/uso_conta.py (RETENCAO_AGREGADO_DIAS)"
+    },
+    {
+      "id": "exclusao_conta",
+      "registro": "Exclusão da conta",
+      "contem_ip": false,
+      "valor": {
+        "dias": 30
+      },
+      "prazo": "30 dias após o pedido",
+      "fonte": "api/auth/contas.py (PRAZO_EXCLUSAO_DIAS)"
+    },
+    {
+      "id": "cookie_anon_sid",
+      "registro": "Cookie de sessão sem login (anon_sid)",
+      "contem_ip": false,
+      "valor": {
+        "horas": 24
+      },
+      "prazo": "24 horas",
+      "fonte": "api/auth/anon_session.py (TTL_PADRAO_HORAS; ANON_SESSION_TTL_HOURS altera)"
+    },
+    {
+      "id": "cookie_auth_token",
+      "registro": "Cookie de sessão com login (auth_token)",
+      "contem_ip": false,
+      "valor": {
+        "dias": 30
+      },
+      "prazo": "30 dias",
+      "fonte": "api/auth/jwt_utils.py (_TTL_DAYS)"
+    },
+    {
+      "id": "tetos_mcp",
+      "registro": "Tetos de uso do MCP (contadores em memória, sem registro de IP)",
+      "contem_ip": false,
+      "valor": {
+        "anonimo": {
+          "minuto": 60,
+          "hora": 1000,
+          "dia": 5000
+        },
+        "conta": {
+          "minuto": 60,
+          "hora": 400
+        },
+        "conta_cota_diaria": 1000
+      },
+      "prazo": "por minuto, hora e dia (anônimo: 60/minuto, 1000/hora, 5000/dia; conta: 60/minuto, 400/hora e cota diária de 1000 chamadas)",
+      "fonte": "api/limites.py (PADROES['mcp']); mcp_server/chave.py (COTA_DIARIA_PADRAO, MCP_COTA_DIARIA altera)"
+    },
+    {
+      "id": "local_storage",
+      "registro": "Preferências guardadas no navegador (localStorage): leitura confortável, buscas recentes, orientação do mapa",
+      "contem_ip": false,
+      "valor": {
+        "chaves": [
+          "arandurape.busca.recentes",
+          "arandurape.leitura.confortavel",
+          "arandurape.mapa.orientacao"
+        ]
+      },
+      "prazo": "ficam no seu navegador até você limpá-las; nunca são enviadas ao servidor",
+      "fonte": "frontend/src/lib/buscaRecentes.ts, frontend/src/components/layout/LeituraConfortavel.tsx, frontend/src/lib/orientacaoMapa.ts"
+    }
+  ]
+}

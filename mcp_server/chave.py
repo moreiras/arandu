@@ -40,11 +40,14 @@ def ligada() -> bool:
     return os.environ.get("MCP_KEY_ATIVA", "0").strip().lower() in ("1", "true", "sim")
 
 
+COTA_DIARIA_PADRAO = 1000
+
+
 def cota_diaria() -> int:
     try:
-        return max(0, int(os.environ.get("MCP_COTA_DIARIA", "1000")))
+        return max(0, int(os.environ.get("MCP_COTA_DIARIA", str(COTA_DIARIA_PADRAO))))
     except ValueError:
-        return 1000
+        return COTA_DIARIA_PADRAO
 
 
 def _segundos_ate_meia_noite_utc() -> int:
