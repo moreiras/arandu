@@ -1194,6 +1194,40 @@
     "title": "Alert",
     "type": "object"
    },
+   "ChaveMcp": {
+    "properties": {
+     "ativa": {
+      "title": "Ativa",
+      "type": "boolean"
+     },
+     "contagem": {
+      "title": "Contagem",
+      "type": "string"
+     },
+     "cota_diaria": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cota Diaria"
+     },
+     "sem_teto_diario": {
+      "title": "Sem Teto Diario",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "ativa",
+     "sem_teto_diario",
+     "contagem"
+    ],
+    "title": "ChaveMcp",
+    "type": "object"
+   },
    "GlobalTableStats": {
     "additionalProperties": true,
     "properties": {
@@ -1720,6 +1754,118 @@
     "title": "IXPPresenceAfi",
     "type": "object"
    },
+   "Janela": {
+    "properties": {
+     "janela": {
+      "title": "Janela",
+      "type": "string"
+     },
+     "limite": {
+      "title": "Limite",
+      "type": "integer"
+     },
+     "segundos": {
+      "title": "Segundos",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "janela",
+     "segundos",
+     "limite"
+    ],
+    "title": "Janela",
+    "type": "object"
+   },
+   "Limites": {
+    "properties": {
+     "api": {
+      "$ref": "#/components/schemas/LimitesApi"
+     },
+     "contatos": {
+      "$ref": "#/components/schemas/TetosContatos"
+     },
+     "mcp": {
+      "$ref": "#/components/schemas/LimitesMcp"
+     },
+     "sem_conta": {
+      "$ref": "#/components/schemas/SemConta"
+     }
+    },
+    "required": [
+     "sem_conta",
+     "api",
+     "mcp",
+     "contatos"
+    ],
+    "title": "Limites",
+    "type": "object"
+   },
+   "LimitesApi": {
+    "properties": {
+     "chave_na_rest": {
+      "title": "Chave Na Rest",
+      "type": "boolean"
+     },
+     "com_conta": {
+      "items": {
+       "$ref": "#/components/schemas/Janela"
+      },
+      "title": "Com Conta",
+      "type": "array"
+     },
+     "custo_por_rota": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "title": "Custo Por Rota",
+      "type": "object"
+     },
+     "sem_conta": {
+      "items": {
+       "$ref": "#/components/schemas/Janela"
+      },
+      "title": "Sem Conta",
+      "type": "array"
+     }
+    },
+    "required": [
+     "sem_conta",
+     "com_conta",
+     "custo_por_rota",
+     "chave_na_rest"
+    ],
+    "title": "LimitesApi",
+    "type": "object"
+   },
+   "LimitesMcp": {
+    "properties": {
+     "chave": {
+      "$ref": "#/components/schemas/ChaveMcp"
+     },
+     "com_chave": {
+      "items": {
+       "$ref": "#/components/schemas/Janela"
+      },
+      "title": "Com Chave",
+      "type": "array"
+     },
+     "sem_chave": {
+      "items": {
+       "$ref": "#/components/schemas/Janela"
+      },
+      "title": "Sem Chave",
+      "type": "array"
+     }
+    },
+    "required": [
+     "sem_chave",
+     "com_chave",
+     "chave"
+    ],
+    "title": "LimitesMcp",
+    "type": "object"
+   },
    "PaginatedASNsResponse": {
     "properties": {
      "items": {
@@ -1776,6 +1922,61 @@
      "items"
     ],
     "title": "PaginatedASNsResponse",
+    "type": "object"
+   },
+   "SemConta": {
+    "properties": {
+     "ao_esgotar": {
+      "additionalProperties": true,
+      "title": "Ao Esgotar",
+      "type": "object"
+     },
+     "chamadas_medidas_por_dia": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Chamadas Medidas Por Dia"
+     },
+     "custo_por_chamada_segundos": {
+      "title": "Custo Por Chamada Segundos",
+      "type": "integer"
+     },
+     "identificacao": {
+      "title": "Identificacao",
+      "type": "string"
+     },
+     "orcamento_diario_segundos": {
+      "title": "Orcamento Diario Segundos",
+      "type": "integer"
+     },
+     "previa_linhas": {
+      "title": "Previa Linhas",
+      "type": "integer"
+     },
+     "renovacao": {
+      "title": "Renovacao",
+      "type": "string"
+     },
+     "snapshots_atuais": {
+      "title": "Snapshots Atuais",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "identificacao",
+     "orcamento_diario_segundos",
+     "custo_por_chamada_segundos",
+     "renovacao",
+     "ao_esgotar",
+     "previa_linhas",
+     "snapshots_atuais"
+    ],
+    "title": "SemConta",
     "type": "object"
    },
    "SnapshotDetailResponse": {
@@ -2139,6 +2340,44 @@
      "m3_prefixes_v6"
     ],
     "title": "SnapshotSummary",
+    "type": "object"
+   },
+   "TetosContatos": {
+    "properties": {
+     "dias_de_conta_nova": {
+      "title": "Dias De Conta Nova",
+      "type": "integer"
+     },
+     "por_10_minutos": {
+      "title": "Por 10 Minutos",
+      "type": "integer"
+     },
+     "por_30_dias": {
+      "title": "Por 30 Dias",
+      "type": "integer"
+     },
+     "por_dia": {
+      "title": "Por Dia",
+      "type": "integer"
+     },
+     "por_dia_conta_nova": {
+      "title": "Por Dia Conta Nova",
+      "type": "integer"
+     },
+     "por_hora": {
+      "title": "Por Hora",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "por_10_minutos",
+     "por_hora",
+     "por_dia",
+     "por_30_dias",
+     "por_dia_conta_nova",
+     "dias_de_conta_nova"
+    ],
+    "title": "TetosContatos",
     "type": "object"
    },
    "ValidationError": {
@@ -11731,6 +11970,28 @@
     "summary": "Route servers de um PTT: sessões dos membros e divergência com o cadastro",
     "tags": [
      "route-servers"
+    ]
+   }
+  },
+  "/api/v1/limites": {
+   "get": {
+    "description": "Orçamento sem conta (segundos por dia UTC e custo por chamada), janelas da API e do MCP com e sem conta, cota diária da chave de MCP,\ntetos de contatos por conta, prévia de listas e snapshots abertos. Os valores são lidos do código e da configuração da instalação; o\nestado da chave de MCP (`mcp.chave.ativa`) diz se a instalação a oferece.",
+    "operationId": "limites_de_uso_api_v1_limites_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Limites"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Limites de uso em vigor",
+    "tags": [
+     "limites"
     ]
    }
   },

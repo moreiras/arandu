@@ -4,7 +4,7 @@ Gerado por `python3 scripts/gen_cobertura.py` a partir do OpenAPI, do MCP, do fr
 Não edite à mão. Rota nova precisa de uma entrada em `serve/capabilities/_manuais.yaml` (ou de uma capacidade declarada); lacuna
 sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rotas que os substituem.
 
-- Rotas de dados (GET, não deprecated): **172**; com tool no MCP: **141**; consumidas pela interface: **140**.
+- Rotas de dados (GET, não deprecated): **173**; com tool no MCP: **141**; consumidas pela interface: **141**.
 - Pendências marcadas (`pendente:`): **0**; lacunas sem justificativa: **0**.
 - Tools do MCP geradas de capacidade declarada: **2** de 58.
 
@@ -121,6 +121,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /ixps/{code}/potential` | `ixp_potencial` | ✔ |  |
 | `GET /ixps/{code}/rejeicoes` | `ixp_rejeicoes` | — | UI: a página usa o mesmo bloco pelo ?include=rejeicoes do perfil |
 | `GET /ixps/{code}/route-servers` | `query:rs_sessoes` | — | UI: a página usa o mesmo bloco pelo ?include=route_servers do perfil |
+| `GET /limites` | — | ✔ | MCP: tetos de uso do site e do próprio MCP, para quem escreve o cliente; não é dado do mapa e as instruções do MCP já estão no teto de tamanho |
 | `GET /map/asns` | `viz` | ✔ |  |
 | `GET /map/asns-overview` | `viz` | ✔ |  |
 | `GET /map/erbs` | `query:erbs_municipio` | ✔ |  |

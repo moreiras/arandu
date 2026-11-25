@@ -2820,6 +2820,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/limites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Limites de uso em vigor
+         * @description Orçamento sem conta (segundos por dia UTC e custo por chamada), janelas da API e do MCP com e sem conta, cota diária da chave de MCP,
+         *     tetos de contatos por conta, prévia de listas e snapshots abertos. Os valores são lidos do código e da configuração da instalação; o
+         *     estado da chave de MCP (`mcp.chave.ativa`) diz se a instalação a oferece.
+         */
+        get: operations["limites_de_uso_api_v1_limites_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/map/asns": {
         parameters: {
             query?: never;
@@ -5247,6 +5269,17 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** ChaveMcp */
+        ChaveMcp: {
+            /** Ativa */
+            ativa: boolean;
+            /** Contagem */
+            contagem: string;
+            /** Cota Diaria */
+            cota_diaria?: number | null;
+            /** Sem Teto Diario */
+            sem_teto_diario: boolean;
+        };
         /** GlobalTableStats */
         GlobalTableStats: {
             /**
@@ -5493,6 +5526,43 @@ export interface components {
              */
             prefixes: string[];
         };
+        /** Janela */
+        Janela: {
+            /** Janela */
+            janela: string;
+            /** Limite */
+            limite: number;
+            /** Segundos */
+            segundos: number;
+        };
+        /** Limites */
+        Limites: {
+            api: components["schemas"]["LimitesApi"];
+            contatos: components["schemas"]["TetosContatos"];
+            mcp: components["schemas"]["LimitesMcp"];
+            sem_conta: components["schemas"]["SemConta"];
+        };
+        /** LimitesApi */
+        LimitesApi: {
+            /** Chave Na Rest */
+            chave_na_rest: boolean;
+            /** Com Conta */
+            com_conta: components["schemas"]["Janela"][];
+            /** Custo Por Rota */
+            custo_por_rota: {
+                [key: string]: number;
+            };
+            /** Sem Conta */
+            sem_conta: components["schemas"]["Janela"][];
+        };
+        /** LimitesMcp */
+        LimitesMcp: {
+            chave: components["schemas"]["ChaveMcp"];
+            /** Com Chave */
+            com_chave: components["schemas"]["Janela"][];
+            /** Sem Chave */
+            sem_chave: components["schemas"]["Janela"][];
+        };
         /** PaginatedASNsResponse */
         PaginatedASNsResponse: {
             /** Items */
@@ -5513,6 +5583,27 @@ export interface components {
              * @description Total de ASNs após filtros
              */
             total: number;
+        };
+        /** SemConta */
+        SemConta: {
+            /** Ao Esgotar */
+            ao_esgotar: {
+                [key: string]: unknown;
+            };
+            /** Chamadas Medidas Por Dia */
+            chamadas_medidas_por_dia?: number | null;
+            /** Custo Por Chamada Segundos */
+            custo_por_chamada_segundos: number;
+            /** Identificacao */
+            identificacao: string;
+            /** Orcamento Diario Segundos */
+            orcamento_diario_segundos: number;
+            /** Previa Linhas */
+            previa_linhas: number;
+            /** Renovacao */
+            renovacao: string;
+            /** Snapshots Atuais */
+            snapshots_atuais: number;
         };
         /** SnapshotDetailResponse */
         SnapshotDetailResponse: {
@@ -5662,6 +5753,21 @@ export interface components {
             total_asns_global: number;
         } & {
             [key: string]: unknown;
+        };
+        /** TetosContatos */
+        TetosContatos: {
+            /** Dias De Conta Nova */
+            dias_de_conta_nova: number;
+            /** Por 10 Minutos */
+            por_10_minutos: number;
+            /** Por 30 Dias */
+            por_30_dias: number;
+            /** Por Dia */
+            por_dia: number;
+            /** Por Dia Conta Nova */
+            por_dia_conta_nova: number;
+            /** Por Hora */
+            por_hora: number;
         };
         /** ValidationError */
         ValidationError: {
@@ -10039,6 +10145,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    limites_de_uso_api_v1_limites_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Limites"];
                 };
             };
         };

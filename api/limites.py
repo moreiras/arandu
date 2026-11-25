@@ -52,6 +52,22 @@ _ISENTOS_API = ("/health", "/auth/", "/api/v1/internal/")
 _NOME_JANELA = {1: "segundo", 60: "minuto", 3600: "hora", 86400: "dia"}
 
 
+def itens_efetivos(perfil: str, classe: str) -> list:
+    """Janelas em vigor de uma classe: a variável `<PERFIL>_ORCAMENTO_<CLASSE>` se existir, senão `PADROES`. Vazio = classe desligada.
+    É a única leitura: o middleware e `GET /api/v1/limites` partem daqui."""
+    bruto = os.environ.get(f"{perfil.upper()}_ORCAMENTO_{classe.upper()}")
+    bruto = PADROES[perfil][classe] if bruto is None else bruto.strip()
+    if not bruto or bruto == "0":
+        return []
+    return list(parse_many(bruto))
+
+
+def janelas_efetivas(perfil: str, classe: str) -> list[dict]:
+    """`itens_efetivos` como `[{"janela": "minuto", "segundos": 60, "limite": 120}, ...]`."""
+    return [{"janela": _NOME_JANELA.get(i.get_expiry(), f"{i.get_expiry()} s"), "segundos": i.get_expiry(), "limite": i.amount}
+            for i in itens_efetivos(perfil, classe)]
+
+
 def rede_do_ip(ip: str) -> str:
     """IPv4 inteiro; IPv6 pelo /64."""
     try:
@@ -193,11 +209,7 @@ class OrcamentoMiddleware:
 
     @staticmethod
     def _ler(perfil: str, classe: str) -> list:
-        bruto = os.environ.get(f"{perfil.upper()}_ORCAMENTO_{classe.upper()}")
-        bruto = PADROES[perfil][classe] if bruto is None else bruto.strip()
-        if not bruto or bruto == "0":
-            return []
-        return list(parse_many(bruto))
+        return itens_efetivos(perfil, classe)
 
     def _isento(self, scope) -> bool:
         if scope.get("method") == "OPTIONS":

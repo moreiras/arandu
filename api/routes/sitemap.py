@@ -27,6 +27,7 @@ from xml.sax.saxutils import escape
 from fastapi import APIRouter, Request
 from fastapi.responses import Response
 
+from api.limites_publicos import limites_publicados
 from api.store import Store
 from core.site import SITE
 
@@ -116,8 +117,25 @@ def security_txt() -> str:
             f"Canonical: {SITE.url}/.well-known/security.txt\n")
 
 
+def _janelas(js: list[dict]) -> str:
+    return ", ".join(f"{j['limite']}/{j['janela']}" for j in js)
+
+
+def _texto_mcp(mcp: dict) -> str:
+    """O que o llms.txt diz do MCP, do estado e dos números em vigor (a chave só é prometida se estiver ligada)."""
+    base = f"Sem chave, prévia como a do site sem login (listas curtas, os dois snapshots mais recentes) e {_janelas(mcp['sem_chave'])} por rede."
+    ch = mcp["chave"]
+    if not ch["ativa"]:
+        return base + " Comece por `describe_schema`."
+    teto = "sem teto diário" if ch["sem_teto_diario"] else f"cota de {ch['cota_diaria']} requisições por dia UTC"
+    return (f"{base} Com chave (gratuita, criada no perfil), sem os cortes da prévia: {_janelas(mcp['com_chave'])} e {teto}. "
+            "Comece por `describe_schema`.")
+
+
 def llms() -> str:
     b = SITE.url
+    lim = limites_publicados()
+    mcp = _texto_mcp(lim["mcp"])
     paginas = ", ".join(f"[{i['rotulo']}]({b}{i['caminho']})" for i in paginas_publicas()["menu"])
     return f"""# {SITE.titulo}
 
@@ -133,9 +151,10 @@ Todo número tem fonte e data: o snapshot (data da coleta) e, quando a fonte tem
 
 ## Para agentes de IA
 - As páginas são montadas no navegador: sem JavaScript chegam vazias. Os dados estão no MCP e na API.
-- MCP (Streamable HTTP): {b}/mcp. Sem chave, uma prévia como a do site sem login (listas curtas, os dois snapshots mais recentes);
-  com chave (gratuita, criada no perfil), sem esses cortes. Comece por `describe_schema`.
-- API REST: {b}/api/v1/ (OpenAPI em {b}/api/v1/openapi.json), anônima com os mesmos limites.
+- MCP (Streamable HTTP): {b}/mcp. {mcp}
+- API REST: {b}/api/v1/ (OpenAPI em {b}/api/v1/openapi.json). Sem conta: prévia (até {lim['sem_conta']['previa_linhas']} linhas, os {lim['sem_conta']['snapshots_atuais']} snapshots mais recentes) e
+  orçamento de {lim['sem_conta']['orcamento_diario_segundos']} s por dia UTC por rede, a {lim['sem_conta']['custo_por_chamada_segundos']} s por chamada medida; ao esgotá-lo, 429 com Retry-After.
+  A REST não tem chave. Valores em vigor: {b}/api/v1/limites
 - Cite a data do snapshot de cada número. Uso na resposta, sim; treino de modelos, não; coleta extensiva da base é proibida
   ([Uso aceitável]({b}/uso-aceitavel)). Contatos e dados de pessoa física não são servidos.
 

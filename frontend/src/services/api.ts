@@ -1,4 +1,5 @@
 import type { BrasilIndicadores,
+  Limites,
   HealthResponse,
   SnapshotListResponse,
   SnapshotDetails,
@@ -308,6 +309,11 @@ export function fetchHealth(): Promise<HealthResponse> {
  *  `/snapshots`, que é da classe `login` (D9). Outra URL por quem pede, nunca a mesma resposta para níveis diferentes (cache por URL). */
 export function fetchSnapshots(completo = false): Promise<SnapshotListResponse> {
   return get(completo ? '/api/v1/snapshots' : '/api/v1/brasil/snapshots')
+}
+
+/** Limites de uso em vigor (aberta, igual para todos): o quadro de /dados e o Sobre se montam daqui. */
+export function fetchLimites(): Promise<Limites> {
+  return get('/api/v1/limites')
 }
 
 /** Resumo e manifesto de um snapshot: aberto para as datas atuais, `login` para as anteriores (como `?date=` nas demais rotas). */

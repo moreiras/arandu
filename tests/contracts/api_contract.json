@@ -1782,6 +1782,16 @@
    "status": 200,
    "tipo": "objeto"
   },
+  "GET /api/v1/limites": {
+   "chaves": [
+    "api",
+    "contatos",
+    "mcp",
+    "sem_conta"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
   "GET /api/v1/map/asns": {
    "chaves": [
     "features",

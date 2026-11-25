@@ -1,0 +1,104 @@
+{
+ "sem_conta": {
+  "identificacao": "rede de origem: IPv4 inteiro, IPv6 pelo prefixo /64",
+  "orcamento_diario_segundos": 600,
+  "custo_por_chamada_segundos": 3,
+  "chamadas_medidas_por_dia": 200,
+  "renovacao": "meia-noite UTC",
+  "ao_esgotar": {
+   "status": 429,
+   "cabecalho": "Retry-After",
+   "corpo": "anon_limit_reached"
+  },
+  "previa_linhas": 100,
+  "snapshots_atuais": 2
+ },
+ "api": {
+  "sem_conta": [
+   {
+    "janela": "minuto",
+    "segundos": 60,
+    "limite": 120
+   },
+   {
+    "janela": "hora",
+    "segundos": 3600,
+    "limite": 1500
+   },
+   {
+    "janela": "dia",
+    "segundos": 86400,
+    "limite": 6000
+   }
+  ],
+  "com_conta": [
+   {
+    "janela": "minuto",
+    "segundos": 60,
+    "limite": 240
+   },
+   {
+    "janela": "hora",
+    "segundos": 3600,
+    "limite": 4000
+   },
+   {
+    "janela": "dia",
+    "segundos": 86400,
+    "limite": 20000
+   }
+  ],
+  "custo_por_rota": {
+   "/api/v1/asns": 1,
+   "/api/v1/query": 3,
+   "/api/v1/map/query": 5,
+   "demais": 1
+  },
+  "chave_na_rest": false
+ },
+ "mcp": {
+  "sem_chave": [
+   {
+    "janela": "minuto",
+    "segundos": 60,
+    "limite": 60
+   },
+   {
+    "janela": "hora",
+    "segundos": 3600,
+    "limite": 1000
+   },
+   {
+    "janela": "dia",
+    "segundos": 86400,
+    "limite": 5000
+   }
+  ],
+  "com_chave": [
+   {
+    "janela": "minuto",
+    "segundos": 60,
+    "limite": 60
+   },
+   {
+    "janela": "hora",
+    "segundos": 3600,
+    "limite": 400
+   }
+  ],
+  "chave": {
+   "ativa": false,
+   "cota_diaria": 1000,
+   "sem_teto_diario": false,
+   "contagem": "requisições POST ao MCP por dia UTC"
+  }
+ },
+ "contatos": {
+  "por_10_minutos": 10,
+  "por_hora": 20,
+  "por_dia": 40,
+  "por_30_dias": 300,
+  "por_dia_conta_nova": 10,
+  "dias_de_conta_nova": 7
+ }
+}
