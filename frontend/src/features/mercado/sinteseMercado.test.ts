@@ -9,7 +9,7 @@ import { PALAVRAS_PROIBIDAS } from '../../lib/sintese'
 import { parcelaTresMaiores, sinteseMercado } from './sinteseMercado'
 
 const fixo = { snapshot_date: '2026-11-22', mes_referencia: '2026-09', total_acessos: 58075574, operadoras_ativas: 9928,
-  top_operadoras: [{ acessos: 10000000 }, { acessos: 8000000 }, { acessos: 4540000 }, { acessos: 100 }] } as never
+  top_operadoras: [{ acessos: 10000000 }, { acessos: 8000000 }, { acessos: 4540000 }, { acessos: 100 }] } as any
 const movel = { snapshot_date: '2026-11-22', mes_referencia: '2026-08', total_acessos: 220900000, acessos_m2m: 36100000 } as never
 
 describe('sinteseMercado', () => {
