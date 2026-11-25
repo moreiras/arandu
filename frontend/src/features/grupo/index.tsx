@@ -9,6 +9,7 @@ import { AccessMunicipioMap } from '../../components/acessos/AccessMunicipioMap'
 import { AsnBadge, OutorgaBadges } from '../../components/OutorgaBadge'
 import { registrarAbas, registrarBloco, type BlocoDef, type BlocoProps } from '../entidade/registry'
 import { ConcorrentesBloco, SeriePosicaoBloco, UfsBloco } from './blocks/MercadoBlocos'
+import { OndeAtuaGrupoBloco } from './blocks/OndeAtuaGrupoBloco'
 import { RelacoesGrupoBloco } from './blocks/RelacoesGrupoBloco'
 import { AsesTecnicoBloco, OutorgasMultasBloco, PttsTransitoBloco, QualidadeReclamacoesBloco } from './blocks/RegulatorioTecnicoBlocos'
 import type { GrupoCtx } from './contexto'
@@ -155,6 +156,8 @@ def({ id: 'serie-posicao', aba: 'mercado', titulo: 'Posição e evolução no me
   nota: 'acessos declarados à Anatel (fato) somados por um agrupamento inferido do quadro societário', Componente: SeriePosicaoBloco })
 def({ id: 'ufs', aba: 'mercado', titulo: 'UFs onde atua e concentração do mercado', ordem: 24, depende: ['useGrupoMercado'], fontes: ['anatel_sici', 'receita_socios'], selo: 'inferido',
   nota: 'HHI do mercado da UF com os CNPJs do mesmo grupo contados como um (inferência societária)', Componente: UfsBloco })
+def({ id: 'onde-atua', aba: 'mercado', titulo: 'Onde o conjunto atua, município a município', ordem: 25, depende: ['useGrupoDetalhe'], fontes: ['anatel_sici', 'receita_socios'], selo: 'inferido',
+  nota: 'acessos declarados à Anatel (fato) somados por um agrupamento inferido; parcela e HHI locais são cálculo do projeto sobre acessos declarados, não domicílios nem receita', Componente: OndeAtuaGrupoBloco })
 def({ id: 'concorrentes', aba: 'mercado', titulo: 'Empresas presentes nos mesmos municípios', ordem: 26, depende: ['useGrupoMercado'], fontes: ['anatel_sici'], selo: 'fato',
   nota: 'presença conjunta nos municípios, não rivalidade', Componente: ConcorrentesBloco })
 def({ id: 'outorgas-multas', aba: 'regulatorio', titulo: 'Outorgas e multas', ordem: 34, depende: ['useGrupoBloco'], fontes: ['anatel_outorgas', 'anatel_multas'], selo: 'inferido',

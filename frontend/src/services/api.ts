@@ -887,8 +887,8 @@ const ESQUEMA_VINCULO_ASN = 2
 
 /** `esquema` 3 nas rotas de grupo: o grupo só se forma por sócio com participação, tem `nome` por regra visível, `grupo_id` estável (menor CNPJ básico; id antigo
  *  redireciona) e `grupo_societario` na resposta de `/grupos/empresa`. `esquema` 4 (P8): S.A. com `grupo_inferivel: false`, `grupo_inferivel_rotulo` e `como_ler`
- *  (o quadro da Receita de S.A. não traz acionistas). `esquema` 5 (PT-26): `indicadores.eventos` no município (sem declaração desde, primeira declaração). O mesmo `?date=` servia a versão antiga do cache imutável. */
-const ESQUEMA_GRUPOS = 5
+ *  (o quadro da Receita de S.A. não traz acionistas). `esquema` 5 (PT-26): `indicadores.eventos` no município (sem declaração desde, primeira declaração). `esquema` 6 (PT-23): `municipios_detalhe` da operadora ganhou `municipio_acessos`, `share`, `municipio_operadores`, `municipio_hhi` e `avisos_hhi`. O mesmo `?date=` servia a versão antiga do cache imutável. */
+const ESQUEMA_GRUPOS = 6
 
 /** Perfil consolidado da operadora (SCM, SMP, STFC e SeAC, ASNs e rede) numa chamada; 204 = CNPJ sem informação. */
 export function fetchOperadoraPerfil(cnpj: string, date?: string, historicoCompleto = false): Promise<PerfilOperadora | null> {
@@ -922,6 +922,11 @@ export interface GrupoPrefixosGeoResponse {
 
 export function fetchGrupo(grupoId: string, date?: string): Promise<GrupoDetalhe> {
   return get(`/api/v1/grupos/${encodeURIComponent(grupoId)}`, { date, opcional: true, esquema: ESQUEMA_GRUPOS })
+}
+
+/** Onde o grupo atua (PT-23): municípios com parcela, declarantes e HHI local, com filtro, ordem e paginação no servidor (prévia de 100 linhas; além disso, login). */
+export function fetchGrupoMunicipios(grupoId: string, opts: { date?: string; uf?: string; q?: string; ordem?: import('../types/api').OrdemGrupoMunicipios; desc?: boolean; limit?: number; page?: number } = {}): Promise<import('../types/api').GrupoMunicipios> {
+  return get(`/api/v1/grupos/${encodeURIComponent(grupoId)}/municipios`, { ...opts, esquema: ESQUEMA_GRUPOS })
 }
 
 /** Um bloco extra do grupo: `mercado` → `mercado_fixo`, `regulatorio`, `tecnico`. Cada aba busca o seu quando abre. */
@@ -1601,9 +1606,11 @@ export function fetchIxpPortas(code: string, date?: string): Promise<PortasIxp> 
   return get(`/api/v1/ixps/${code}/portas`, { date, opcional: true })
 }
 
+/** `esquema` 2 (PT-23): o resumo ganhou os municípios por faixa de HHI local (país e UF) e o HHI nacional por CNPJ. */
+const ESQUEMA_MERCADO_GRUPOS = 2
 /** Resumo do cruzamento de mercado por grupo: faixas, municípios que mudam de faixa e HHI por UF. */
 export function fetchMercadoGrupos(date?: string): Promise<import('../types/api').ResumoMercadoGrupos> {
-  return get('/api/v1/mercado/grupos', { date })
+  return get('/api/v1/mercado/grupos', { date, esquema: ESQUEMA_MERCADO_GRUPOS })
 }
 
 /** Maiores do mercado fixo: posição mês a mês das maiores operadoras e treemap por empresa ou grupo. */

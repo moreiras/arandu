@@ -3,23 +3,16 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { Link } from '../../../components/layout/LinkDatado'
 import { AccessHistoryChart } from '../../../components/acessos/AccessHistoryChart'
 import { MapaShareOperadora } from '../MapaShareOperadora'
 import { Barras, KPI, fmt, fmtCapacidade } from '../ui'
 import type { BlocoProps } from '../../entidade/registry'
 import type { OperadoraCtx } from '../contexto'
-import { useOrdenacao } from '../../../lib/ordenacao'
-import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { OndeAtua } from '../OndeAtua'
 
-const MUNICIPIOS_MAX = 500
-
-export function ScmBloco({ dados }: BlocoProps<OperadoraCtx>) {
+export function ScmBloco({ dados, snapshot }: BlocoProps<OperadoraCtx>) {
   const { data, hasScm, hasSici, b2cPct } = dados
-  // Ordena a lista inteira de municípios e só depois corta nos primeiros MUNICIPIOS_MAX.
-  const { ordenados: municipios, props } = useOrdenacao(data?.municipios_detalhe, {
-    nome: (m) => m.nome, uf: (m) => m.uf, acessos: (m) => m.acessos, pf: (m) => m.pf, pj: (m) => m.pj,
-  })
+  const municipios = data?.municipios_detalhe ?? []
   return (
     <div className="space-y-5">
           {data && (hasScm || hasSici) && (
@@ -63,6 +56,7 @@ export function ScmBloco({ dados }: BlocoProps<OperadoraCtx>) {
                 Onde estão os assinantes
               </h2>
               <MapaShareOperadora municipios={data.municipios_detalhe!} />
+              <p className="mt-1 text-xs text-gray-600">O mapa tem a alternativa em texto na tabela "Onde atua", abaixo, com os mesmos municípios, a parcela da operadora e o HHI local.</p>
             </div>
           )}
 
@@ -89,39 +83,7 @@ export function ScmBloco({ dados }: BlocoProps<OperadoraCtx>) {
           )}
 
           {data && hasSici && (data.municipios_detalhe?.length ?? 0) > 0 && (
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-              <div className="px-4 py-2 text-sm font-semibold text-gray-700 border-b border-gray-100">
-                Municípios atendidos ({data.municipios_detalhe!.length})
-              </div>
-              <div className="max-h-96 overflow-y-auto">
-                <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-gray-50">
-                    <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
-                      <ThOrdenavel {...props('nome')} className="px-4 py-1.5">Município</ThOrdenavel>
-                      <ThOrdenavel {...props('uf')} className="px-4 py-1.5 w-14">UF</ThOrdenavel>
-                      <ThOrdenavel {...props('acessos')} alinhar="right" className="px-4 py-1.5 w-28 text-right">Acessos</ThOrdenavel>
-                      <ThOrdenavel {...props('pf')} alinhar="right" className="px-4 py-1.5 w-24 text-right">B2C</ThOrdenavel>
-                      <ThOrdenavel {...props('pj')} alinhar="right" className="px-4 py-1.5 w-24 text-right">B2B</ThOrdenavel>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {municipios.slice(0, MUNICIPIOS_MAX).map(m => (
-                      <tr key={m.ibge} className="hover:bg-gray-50">
-                        <td className="px-4 py-1">
-                          <Link to={`/municipio/${m.ibge}`} className="text-primario-600 hover:underline">
-                            {m.nome}
-                          </Link>
-                        </td>
-                        <td className="px-4 py-1 text-gray-500">{m.uf}</td>
-                        <td className="px-4 py-1 text-right tabular-nums">{fmt(m.acessos)}</td>
-                        <td className="px-4 py-1 text-right tabular-nums text-gray-500">{fmt(m.pf)}</td>
-                        <td className="px-4 py-1 text-right tabular-nums text-gray-500">{fmt(m.pj)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <OndeAtua municipios={municipios} mesReferencia={data.mes_referencia ?? dados.indicadores?.mes_referencia} snapshot={snapshot} />
           )}
     </div>
   )

@@ -906,10 +906,14 @@ export interface SiciMunicipioRow {
   pf: number
   pj: number
   capacidade_mbps: number
-  municipio_acessos?: number
+  municipio_acessos?: number | null
   /** Participação do operador no município (%) */
   share?: number | null
-  municipio_operadores?: number
+  /** Declarantes no município (empresas que declararam acessos ao SICI) */
+  municipio_operadores?: number | null
+  /** HHI local por CNPJ (0 a 10.000), método do projeto; o aviso `poucos_casos` é rótulo, nada é suprimido (PT-23) */
+  municipio_hhi?: number | null
+  avisos_hhi?: string[] | null
 }
 
 export interface SiciAsnMunicipios {
@@ -2890,10 +2894,34 @@ export interface MercadoGruposUf extends MercadoGruposMeta {
 export interface SobreposicaoOperadora extends MercadoGruposMeta {
   concorrentes: Array<{ cnpj: string; empresa: string; municipios_em_comum: number; acessos_dele_nos_comuns: number; acessos_dela_nos_comuns: number; mesmo_grupo: boolean }>
 }
+/** Municípios em cada faixa de HHI local; `sem_dado` quando o município não tem HHI. A soma é o total de municípios (PT-23). */
+export type MunicipiosPorFaixa = Record<FaixaHhi | 'sem_dado', number>
 export interface ResumoMercadoGrupos extends MercadoGruposMeta {
-  resumo: { municipios: number; mudam_de_faixa: number; transicoes: Record<string, number>; grupos_com_mais_de_um_cnpj_no_mercado: number }
+  resumo: { municipios: number; mudam_de_faixa: number; transicoes: Record<string, number>; grupos_com_mais_de_um_cnpj_no_mercado: number
+    por_faixa_cnpj?: MunicipiosPorFaixa; por_faixa_grupo?: MunicipiosPorFaixa }
   ufs: Record<string, { hhi_cnpj: number | null; hhi_grupo: number | null; faixa_cnpj: FaixaHhi | null; faixa_grupo: FaixaHhi | null
-    acessos?: number; n_cnpjs?: number; n_grupos?: number; lider_grupo_share?: number | null; avisos_cnpj?: string[]; avisos_grupo?: string[] }>
+    acessos?: number; n_cnpjs?: number; n_grupos?: number; lider_grupo_share?: number | null; avisos_cnpj?: string[]; avisos_grupo?: string[]
+    municipios?: number; municipios_por_faixa_cnpj?: MunicipiosPorFaixa; municipios_por_faixa_grupo?: MunicipiosPorFaixa }>
+  /** HHI nacional por CNPJ, como contraste com o local (cálculo do projeto) */
+  brasil?: { hhi_cnpj: number | null; acessos: number | null; n_cnpjs: number | null; nota: string }
+}
+
+/** Uma linha de `GET /grupos/{id}/municipios`: o conjunto de CNPJs do grupo num município (PT-23). */
+export interface GrupoMunicipioLinha {
+  ibge: string; nome: string; uf: string
+  acessos: number; cnpjs_do_conjunto: number
+  municipio_acessos: number | null; parcela: number | null; declarantes: number | null
+  hhi_grupo: number | null; faixa_grupo: FaixaHhi | null; avisos_grupo: string[] | null
+  hhi_cnpj: number | null; faixa_cnpj: FaixaHhi | null
+}
+export type OrdemGrupoMunicipios = 'acessos' | 'parcela' | 'hhi' | 'nome' | 'uf'
+export interface GrupoMunicipios {
+  snapshot_date: string; grupo_id: string; mes_referencia: string | null; tamanho: number
+  grupo_inferivel?: boolean; grupo_inferivel_rotulo?: string; como_ler?: string
+  natureza: string; limites: string
+  resumo: { municipios: number; com_mais_da_metade: number; com_um_so_declarante: number; acessos: number; ufs: number }
+  filtros: { uf: string | null; q: string | null }; ordem: string; page: number; limit: number
+  total: number; items: GrupoMunicipioLinha[]
 }
 
 /** Rede no território: estimativas e inferências com cobertura. */
