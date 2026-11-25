@@ -67,9 +67,9 @@ def({ id: 'linha-do-tempo', titulo: 'Linha do tempo', ordem: 85, depende: ['useI
   aplicavel: (c) => !!c.historico, Componente: LinhaDoTempoPtt })
 def({ id: 'membros-sem-direto', semTitulo: true, titulo: 'Membros registrados sem peering direto', ordem: 90, depende: ['useIxp', 'ixp-members', 'asn-names'], fontes: ['ixbr_api', 'lg_ixbr', 'asn_names'], selo: 'fato',
   aplicavel: (c) => c.membersWithoutDirect.length > 0, Componente: MembrosSemDiretoBloco })
-def({ id: 'peers-v6', semTitulo: true, titulo: 'ASNs em peering direto — IPv6', ordem: 100, depende: ['useIxp', 'ixp-peers-v6', 'ixp-members', 'ixp-assinantes'], fontes: ['lg_ixbr', 'anatel_sici', 'apnic_pop'], selo: 'fato',
+def({ id: 'peers-v6', semTitulo: true, titulo: 'ASNs com sessão em route server — IPv6', ordem: 100, depende: ['useIxp', 'ixp-peers-v6', 'ixp-members', 'ixp-assinantes'], fontes: ['lg_ixbr', 'anatel_sici', 'apnic_pop'], selo: 'fato',
   nota: 'assinantes: acessos SCM declarados ao SICI', Componente: PeersV6Bloco })
-def({ id: 'peers-v4', semTitulo: true, titulo: 'ASNs em peering direto — IPv4', ordem: 110, depende: ['useIxp', 'ixp-peers-v4', 'ixp-members', 'ixp-assinantes'], fontes: ['lg_ixbr', 'anatel_sici', 'apnic_pop'], selo: 'fato',
+def({ id: 'peers-v4', semTitulo: true, titulo: 'ASNs com sessão em route server — IPv4', ordem: 110, depende: ['useIxp', 'ixp-peers-v4', 'ixp-members', 'ixp-assinantes'], fontes: ['lg_ixbr', 'anatel_sici', 'apnic_pop'], selo: 'fato',
   nota: 'assinantes: acessos SCM declarados ao SICI', Componente: PeersV4Bloco })
 
 def({ id: 'participantes-filtrados', titulo: 'Participantes e filtros', ordem: 88, depende: ['useIxp', 'ixp-members', 'useIxpPerfil'], fontes: ['ixbr_api', 'lg_ixbr', 'ixbr_alice', 'asn_names'], selo: 'fato',

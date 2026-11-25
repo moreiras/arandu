@@ -11,6 +11,8 @@ import { IXPVoronoiMap } from '../components/maps/IXPVoronoiMap'
 import type { IXPIndexEntry, ExternalIXPIndexEntry, SnapshotSummary } from '../types/api'
 import { corLegivel } from '../lib/contraste'
 import { CoberturaIxbr } from '../features/panorama/CoberturaIxbr'
+import { NotaVariosTotais } from '../components/ui/NotaVariosTotais'
+import { rotuloDe } from '../lib/universos'
 
 // ─── number formatting helpers ───────────────────────────────────────────────
 
@@ -88,6 +90,8 @@ function StatGroup({
 
 // ─── IXPsKpis ──────────────────────────────────────────────────────────────
 
+const UNIVERSO_USUARIOS_PAIS = 'usuários estimados em ASNs brasileiros'
+
 function IXPsKpis({
   ixps,
   externalIXPs,
@@ -112,7 +116,7 @@ function IXPsKpis({
       <StatItem
         loading={loading}
         value={fmtN(totalIXPs)}
-        label="IXPs no snapshot"
+        label="PTTs do IX.br e IXPs de fora (PeeringDB)"
         sub={`${fmtN(ixps.length)} IX.br · ${fmtN(externalIXPs.length)} outros`}
         accent="#d97706"
       />
@@ -125,27 +129,27 @@ function IXPsKpis({
       <StatItem
         loading={loading}
         value={fmtLarge(summary?.ixp_estimated_users_v4)}
-        label="usuários estimados"
-        sub="IPv4, espaço agregado visível no IX.br"
+        label={rotuloDe('usuariosIx')}
+        sub={summary?.br_apnic_users_total != null ? `de ${fmtLarge(summary.br_apnic_users_total)} ${UNIVERSO_USUARIOS_PAIS} (APNIC); a soma por PTT, na tabela, não é este total` : 'a soma por PTT, na tabela, não é este total'}
         accent="#0891b2"
       />
       <StatItem
         loading={loading}
         value={fmtN(summary?.ixp_aggregate?.asn_direct_union_count)}
-        label="ASNs em peering direto"
-        sub="união, todo o IX.br"
+        label={rotuloDe('sessaoRs')}
+        sub="união, todo o IX.br; não é peering bilateral"
       />
       <StatItem
         loading={loading}
         value={fmtN(summary?.ixp_aggregate?.asn_origin_union_count)}
-        label="ASNs originando prefixos"
-        sub="união, todo o IX.br"
+        label={rotuloDe('originadores')}
+        sub="união, todo o IX.br; inclui o que chega por trânsito"
         accent="#16a34a"
       />
       <StatItem
         loading={loading}
         value={fmtN(summary?.external_ixps_br_asn_union_count)}
-        label="ASNs BR em outros IXPs"
+        label={rotuloDe('externosBr')}
         sub="união por ASN (PeeringDB)"
         accent="#8b5cf6"
       />
@@ -208,6 +212,8 @@ function IXPsLista() {
   return (
     <div className="space-y-8">
       <h1 className="text-titulo-1 text-gray-900">IXPs</h1>
+
+      <NotaVariosTotais>Os PTTs do IX.br e os IXPs de fora são listas diferentes e não se somam num número só. Um ASN pode ter sessão com o route server, constar do cadastro de participantes ou apenas originar prefixo visto no PTT: são três conjuntos de tamanhos muito diferentes. A soma dos usuários estimados por PTT conta o mesmo usuário em cada PTT onde o ASN aparece.</NotaVariosTotais>
 
       <IXPsKpis
         ixps={ixps}

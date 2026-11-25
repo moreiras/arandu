@@ -119,7 +119,7 @@ export function SummaryTable({ globalTable, ixpAggregate, totalBrASNs }: Summary
             <tr>
               <th className="px-2 py-1.5 sticky left-0 bg-primario-50/40" />
               {/* AS */}
-              <Th label="Diretos no RS" tooltip="ASNs em peering direto com Route Server em qualquer IXP do IX.br — união IPv6 ∪ IPv4 sem repetição" className={thBorderL} />
+              <Th label="Diretos no RS" tooltip="ASNs com sessão com Route Server em algum PTT do IX.br — união IPv6 ∪ IPv4 sem repetição" className={thBorderL} />
               <Th label="Originadores" tooltip="ASNs originando prefixos em qualquer IXP do IX.br — união IPv6 ∪ IPv4 sem repetição" className={thBase} />
               <Th label="Cobertura Registro.br" tooltip="% dos ASNs brasileiros (Registro.br) que originam prefixos em algum IXP do IX.br" className={thBase} />
               <Th label="Cobertura tabela global" tooltip="% dos ASNs da tabela global que originam prefixos em algum IXP do IX.br" className={thBase} />

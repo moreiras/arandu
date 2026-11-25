@@ -6,6 +6,7 @@
 import type { TomKpi } from '../../components/ui'
 import type { Selo } from '../../components/entidade/proveniencia'
 import type { SiciStats, SnapshotSummary } from '../../types/api'
+import { rotuloDe } from '../../lib/universos'
 
 /** Um indicador da faixa "o Brasil em números": valor, variação desde a comparação anterior, a fonte e a data a que o número se refere. */
 export interface KpiHome {
@@ -29,7 +30,7 @@ const n1 = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 }
 const sinal = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '')
 const compacto = (v: number) => (v >= 1e6 ? `${n1(v / 1e6)} mi` : v >= 1e3 ? `${n0(v / 1e3)} mil` : n0(v))
 
-/** % dos ASes BR alocados com ao menos um prefixo IPv6 na tabela global. */
+/** % dos ASNs brasileiros (delegados pela LACNIC ao Brasil) com ao menos um prefixo IPv6 na tabela global. */
 function pctV6(r: (SnapshotSummary & Record<string, any>) | null | undefined): number | null {
   return r?.br_asns_ft_v6 != null && r.total_asns_br > 0 ? (100 * r.br_asns_ft_v6) / r.total_asns_br : null
 }
@@ -46,16 +47,16 @@ export function montarKpis(resumo: SnapshotSummary | null | undefined, anterior:
   const r = resumo as (SnapshotSummary & Record<string, any>) | null | undefined
   const a = anterior as (SnapshotSummary & Record<string, any>) | null | undefined
   const rede: KpiHome[] = [
-    { id: 'ases', selo: 'fato', tom: 'v4', rotulo: 'ASes brasileiros alocados', valor: r?.total_asns_br != null ? n0(r.total_asns_br) : null,
-      variacao: deltaInteiro(r?.total_asns_br, a?.total_asns_br, true), fonte: 'Registro.br (estatística delegated do LACNIC)', dataRef: dataSnapshot },
+    { id: 'ases', selo: 'fato', tom: 'v4', rotulo: rotuloDe('asnsLacnic'), valor: r?.total_asns_br != null ? n0(r.total_asns_br) : null,
+      variacao: deltaInteiro(r?.total_asns_br, a?.total_asns_br, true), fonte: 'LACNIC (delegated-extended)', dataRef: dataSnapshot },
     // Anúncio, não alocação: quase todo AS recebe bloco IPv6 com a designação, e `has_ipv6` (alocado ou anunciado) passa de 97%.
-    { id: 'ipv6', selo: 'fato', tom: 'v6', rotulo: 'ASes BR que anunciam IPv6 na tabela global', valor: pctV6(r) != null ? `${n1(pctV6(r)!)}%` : null,
+    { id: 'ipv6', selo: 'fato', tom: 'v6', rotulo: rotuloDe('asnsAnunciamV6'), valor: pctV6(r) != null ? `${n1(pctV6(r)!)}%` : null,
       variacao: (() => { const p = pctV6(r), q = pctV6(a); if (p == null || q == null) return undefined; const d = Math.round((p - q) * 10) / 10; return d === 0 ? { texto: 'sem variação' } : { texto: `${sinal(d)}${n1(Math.abs(d))} p.p. desde o snapshot anterior`, bom: d > 0 } })(),
-      fonte: 'tabela global (RouteViews), sobre os ASes alocados pelo Registro.br', dataRef: dataSnapshot },
+      fonte: 'tabela global (RouteViews), sobre os ASNs delegados pela LACNIC ao Brasil', dataRef: dataSnapshot },
     { id: 'ptts', selo: 'fato', tom: 'tecnico', rotulo: 'PTTs do IX.br com coleta', valor: r?.ixps_ok != null ? n0(r.ixps_ok) : null,
       variacao: deltaInteiro(r?.ixps_ok, a?.ixps_ok, true), fonte: 'looking glass do IX.br', dataRef: dataSnapshot },
-    { id: 'usuarios', selo: 'estimado', tom: 'estimado', rotulo: 'Usuários estimados nos ASes BR', valor: r?.br_apnic_users_total != null ? compacto(r.br_apnic_users_total) : null,
-      variacao: undefined, fonte: 'APNIC (estimativa, não é censo)', dataRef: dataSnapshot, estimado: true },
+    { id: 'usuarios', selo: 'estimado', tom: 'estimado', rotulo: rotuloDe('usuariosPais'), valor: r?.br_apnic_users_total != null ? compacto(r.br_apnic_users_total) : null,
+      variacao: undefined, fonte: 'APNIC (estimativa, não é censo)', dataRef: dataSnapshot },
   ]
   const serie = sici?.serie_total ?? []
   const ult = serie[serie.length - 1]
@@ -66,8 +67,8 @@ export function montarKpis(resumo: SnapshotSummary | null | undefined, anterior:
       variacao: ult && pen && pen.acessos > 0 ? (() => { const p = (100 * (ult.acessos - pen.acessos)) / pen.acessos; return { texto: `${sinal(p)}${n1(Math.abs(p))}% desde ${pen.mes.slice(5)}/${pen.mes.slice(0, 4)}`, bom: p > 0 } })() : undefined,
       fonte: 'SICI, Anatel (declarado pelas operadoras)', dataRef: sici?.mes_referencia ?? null },
     { id: 'fibra', selo: 'fato', tom: 'mercado', rotulo: 'Acessos em fibra', valor: fibra != null ? `${n0(fibra)}%` : null, fonte: 'SICI, Anatel', dataRef: sici?.mes_referencia ?? null },
-    { id: 'operadoras', selo: 'fato', tom: 'mercado', rotulo: 'Operadoras que declararam acessos', valor: sici ? n0(sici.operadoras_ativas) : null, fonte: 'SICI, Anatel', dataRef: sici?.mes_referencia ?? null },
-    { id: 'municipios', selo: 'fato', tom: 'mercado', rotulo: 'Municípios com banda larga fixa declarada', valor: sici ? n0(sici.municipios_atendidos) : null, fonte: 'SICI, Anatel', dataRef: sici?.mes_referencia ?? null },
+    { id: 'operadoras', selo: 'fato', tom: 'mercado', rotulo: rotuloDe('declarantesFixo'), valor: sici ? n0(sici.operadoras_ativas) : null, fonte: 'SICI, Anatel', dataRef: sici?.mes_referencia ?? null },
+    { id: 'municipios', selo: 'fato', tom: 'mercado', rotulo: 'Municípios (tabela do IBGE) com banda larga fixa declarada', valor: sici ? n0(sici.municipios_atendidos) : null, fonte: 'SICI, Anatel', dataRef: sici?.mes_referencia ?? null },
   ]
   return { rede, mercado }
 }

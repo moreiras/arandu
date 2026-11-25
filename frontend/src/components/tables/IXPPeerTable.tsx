@@ -25,7 +25,7 @@ interface PeerRow {
 }
 
 interface IXPPeerTableProps {
-  /** Lista de ASNs em peering direto */
+  /** Lista de ASNs com sessão em route server */
   asnDirect: number[]
   /** Subconjunto: stubs */
   asnStub: number[]

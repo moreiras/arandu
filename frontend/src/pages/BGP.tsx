@@ -3,6 +3,7 @@ import { fetchRoutingAnalysis, fetchBgpStability, fetchBgpStabilityDeep, fetchBg
 import { useActiveDate } from '../hooks/useSnapshot'
 import { useNearViewport } from '../hooks/useNearViewport'
 import { useState } from 'react'
+import { NotaVariosTotais } from '../components/ui/NotaVariosTotais'
 import { SummaryCards }            from '../components/bgp/SummaryCards'
 import { PbrCompositionChart }      from '../components/bgp/PbrCompositionChart'
 import { PrefixLengthHistogram }    from '../components/bgp/PrefixLengthHistogram'
@@ -166,6 +167,7 @@ export function BGP() {
       {aba === 'visao-geral' && <>
       {/* Cards de sumário */}
       <SummaryCards data={data} />
+      <NotaVariosTotais>Esta página usa a lista de ASNs do Registro.br, que tem alguns ASNs a mais que a delegação da LACNIC ao Brasil, a regra do restante do site; o cartão de ASNs visíveis diz qual base usa.</NotaVariosTotais>
 
       {/* Composição */}
       <Section

@@ -5,6 +5,8 @@ import { useActiveDate, useSnapshots } from '../hooks/useSnapshot'
 import { useState } from 'react'
 import { NotaRevisao } from '../components/ui/NotaRevisao'
 import { CorrecoesNoChangelog } from '../components/ui/CorrecoesNoChangelog'
+import { NotaVariosTotais } from '../components/ui/NotaVariosTotais'
+import { rotuloDe } from '../lib/universos'
 import { ColetaSnapshot, IndicadoresSnapshot, type LinhaIndicador, type ManifestoSnapshot } from '../features/snapshots/ManifestoSnapshot'
 
 function fmtN(n: number | null | undefined): string {
@@ -20,15 +22,16 @@ function fmtLarge(n: number | null | undefined): string {
 /** Cada indicador com a(s) fonte(s) do catálogo de que vem e a natureza do dado (IPv6 antes de IPv4). Os ids de fonte dão a data de `manifest.sources`. */
 function linhasDoSnapshot(sm: Record<string, any>, rpki: number | undefined, scm: number | undefined): LinhaIndicador[] {
   return [
-    { label: 'ASNs brasileiros no índice do snapshot', valor: fmtN(sm.total_asns_br), fontes: ['registro_br'], selo: 'fato' },
-    { label: 'ASN BR na full table', valor: fmtN(sm.global_table?.br_asns_in_ft), fontes: ['fulltable_routeviews'], selo: 'fato' },
+    { label: rotuloDe('asnsLacnic'), valor: fmtN(sm.total_asns_br), fontes: ['lacnic_delegated'], selo: 'fato' },
+    { label: rotuloDe('asnsRegistroBr'), valor: fmtN(sm.registro_br_asns), fontes: ['registro_br'], selo: 'fato' },
+    { label: rotuloDe('asnsVisiveis'), valor: fmtN(sm.global_table?.br_asns_in_ft), fontes: ['fulltable_routeviews'], selo: 'fato' },
     { label: 'ASN BR com prefixos IPv6 na full table', valor: fmtN(sm.br_asns_ft_v6), fontes: ['fulltable_routeviews'], selo: 'fato' },
     { label: 'ASN BR com prefixos IPv4 na full table', valor: fmtN(sm.br_asns_ft_v4), fontes: ['fulltable_routeviews'], selo: 'fato' },
-    { label: 'ASNs BR com rotas vistas no IX.br (originadores)', valor: fmtN(sm.ixp_aggregate?.br_asns_origin_union_count), fontes: ['lg_ixbr'], selo: 'fato' },
+    { label: rotuloDe('originadoresBr'), valor: fmtN(sm.ixp_aggregate?.br_asns_origin_union_count), fontes: ['lg_ixbr'], selo: 'fato' },
     { label: 'ASN BR com cadastro no PeeringDB', valor: fmtN(sm.br_asns_peeringdb), fontes: ['peeringdb_networks'], selo: 'fato' },
-    { label: 'Usuários BR estimados (APNIC)', valor: fmtLarge(sm.br_apnic_users_total), fontes: ['apnic_pop'], selo: 'estimado' },
+    { label: rotuloDe('usuariosPais'), valor: fmtLarge(sm.br_apnic_users_total), fontes: ['apnic_pop'], selo: 'estimado' },
     { label: 'ASN com objetos RPKI', valor: fmtN(rpki), fontes: ['rpki_collector'], selo: 'fato' },
-    { label: 'ASN BR geolocalizados', valor: fmtN(sm.br_asns_geolocalized), fontes: ['cnpj_geo'], selo: 'inferido' },
+    { label: 'ASNs brasileiros com coordenada da sede', valor: fmtN(sm.br_asns_geolocalized), fontes: ['cnpj_geo'], selo: 'inferido' },
     { label: 'Outorgas SCM', valor: fmtN(scm), fontes: ['anatel_outorgas'], selo: 'fato' },
   ]
 }
@@ -81,6 +84,7 @@ export function Snapshots() {
       </div>
 
       <NotaRevisao />
+      <NotaVariosTotais />
 
       {isError ? (
         <div className="text-center py-16 text-perigo-500 text-sm">

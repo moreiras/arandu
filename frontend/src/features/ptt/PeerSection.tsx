@@ -36,7 +36,7 @@ export function PeerSection({
     <div className={`rounded-lg border ${borderColor} px-5 py-4 space-y-4`}>
       <div className="flex items-baseline gap-3">
         <h2 className={`text-base font-semibold ${accent}`}>
-          ASNs em peering direto — {label}
+          ASNs com sessão em route server — {label}
         </h2>
         <span className="text-sm text-gray-500">
           {afi.asn_direct_count} peers
