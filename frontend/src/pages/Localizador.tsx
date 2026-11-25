@@ -2,13 +2,14 @@ import { useCallback, useMemo, useState } from 'react'
 import { useActiveDate } from '../hooks/useSnapshot'
 import {
   agruparPorCoordenada, contagemEntidades, contagensIx, etiquetasIx, filtrarNoRaio, indicesScm, mapaDeNomes, montarEntidades,
-  municipiosSiciNoRaio, operadoresSici, pixNoRaio, resumoDoRaio, scmsNoRaio,
+  municipiosSiciNoRaio, mercadoNoRaio, operadoresSici, outorgasSemDeclaracaoNoRaio, pixNoRaio, resumoDoRaio, scmsNoRaio,
 } from '../features/localizador/calculos'
 import type { Ponto, PresencaIx } from '../features/localizador/calculos'
 import { baixarCsv, montarCsv } from '../features/localizador/csv'
 import { nearestIxCode } from '../features/localizador/geo'
 import { PainelControles } from '../features/localizador/PainelControles'
 import { PainelEntidades } from '../features/localizador/PainelEntidades'
+import { BlocoMercado } from '../features/localizador/BlocoMercado'
 import { LugarAmbiguo, geocodeQuery, useLocalizadorDados } from '../features/localizador/useLocalizadorDados'
 import { useMapaLocalizador } from '../features/localizador/useMapaLocalizador'
 import { Link } from '../components/layout/LinkDatado'
@@ -54,6 +55,8 @@ export function Localizador() {
   const siciMunInRadius = useMemo(
     () => municipiosSiciNoRaio(markerPos, radius, siciMunData, municipioCentroids), [markerPos, radius, siciMunData, municipioCentroids])
   const siciOperadores = useMemo(() => operadoresSici(siciMunInRadius), [siciMunInRadius])
+  const mercado = useMemo(() => mercadoNoRaio(siciMunInRadius), [siciMunInRadius])
+  const outorgasSemDeclaracao = useMemo(() => outorgasSemDeclaracaoNoRaio(scmsInRadius), [scmsInRadius])
   const { asnToCnpj, cnpjAllAsns, scmCnpjs } = useMemo(() => indicesScm(scmGeo, asnGeo), [scmGeo, asnGeo])
   const entities = useMemo(
     () => montarEntidades({ filteredAsns, scmsInRadius, asnToCnpj, cnpjAllAsns, scmCnpjs, asnNameMap, showScms: show.scms, showSici: show.sici, siciOperadores }),
@@ -177,6 +180,11 @@ export function Localizador() {
 
       {erroBusca && <EstadoDados erro={erroBusca.erro} oQue={'a busca por "' + erroBusca.termo + '"'} mensagem={erroBusca.mensagem ?? 'Lugar não encontrado: "' + erroBusca.termo + '". Tente o nome do município (ex.: Vitória ou Bom Jesus/PI).'} />}
       {dados.erro && <EstadoDados erro={dados.erro} oQue="algumas camadas do mapa" />}
+
+      {markerPos && mercado && siciMunData && (
+        <BlocoMercado mercado={mercado} mesReferencia={siciMunData.mes_referencia} snapshot={siciMunData.snapshot_date}
+          outorgas={outorgasSemDeclaracao} />
+      )}
 
       {/* os municípios e as UFs da área, com link para as páginas deles. */}
       {markerPos && siciMunInRadius.length > 0 && (

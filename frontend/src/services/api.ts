@@ -439,9 +439,11 @@ export type AsnPerfil = ASNDocument & {
   exposicao?: ExposicaoAsn | null
   facilities?: FacilitiesAsn | null
   peering?: PeeringAsn | null
+  cadastro?: import('../types/api').AsnCadastro | null
+  recuperacao?: import('../types/api').AsnRecuperacao | null
 }
 export function fetchASNPerfil(asn: number | string, date?: string, historicoCompleto = false): Promise<AsnPerfil> {
-  return get(`/api/v1/asns/${asn}`, { date, include: `paths,ixp_peers,estabilidade,${blocoHistorico(historicoCompleto)},seguranca,prontidao,route_servers,politica_rs,organizacao,abuso,bloqueios,radar,exposicao,facilities,peering,transito,referencias`, opcional: true, esquema: ESQUEMA_INSTALACOES })
+  return get(`/api/v1/asns/${asn}`, { date, include: `paths,ixp_peers,estabilidade,${blocoHistorico(historicoCompleto)},seguranca,prontidao,route_servers,politica_rs,organizacao,abuso,bloqueios,radar,exposicao,facilities,peering,transito,referencias,cadastro,recuperacao`, opcional: true, esquema: ESQUEMA_INSTALACOES })
 }
 
 export function fetchASNContacts(asn: number | string, date?: string): Promise<ASNContactsResponse> {
@@ -885,8 +887,8 @@ const ESQUEMA_VINCULO_ASN = 2
 
 /** `esquema` 3 nas rotas de grupo: o grupo só se forma por sócio com participação, tem `nome` por regra visível, `grupo_id` estável (menor CNPJ básico; id antigo
  *  redireciona) e `grupo_societario` na resposta de `/grupos/empresa`. `esquema` 4 (P8): S.A. com `grupo_inferivel: false`, `grupo_inferivel_rotulo` e `como_ler`
- *  (o quadro da Receita de S.A. não traz acionistas). O mesmo `?date=` servia a versão antiga do cache imutável. */
-const ESQUEMA_GRUPOS = 4
+ *  (o quadro da Receita de S.A. não traz acionistas). `esquema` 5 (PT-26): `indicadores.eventos` no município (sem declaração desde, primeira declaração). O mesmo `?date=` servia a versão antiga do cache imutável. */
+const ESQUEMA_GRUPOS = 5
 
 /** Perfil consolidado da operadora (SCM, SMP, STFC e SeAC, ASNs e rede) numa chamada; 204 = CNPJ sem informação. */
 export function fetchOperadoraPerfil(cnpj: string, date?: string, historicoCompleto = false): Promise<PerfilOperadora | null> {
@@ -1002,10 +1004,10 @@ export function fetchUfs(date?: string): Promise<{ snapshot_date: string; mes_re
 }
 
 /** Perfil consolidado da UF numa chamada. */
-/** Sobe quando o corpo de `/ufs/{uf}` muda (2: `operadoras_presentes`, UF-E2): a URL com `date` é imutável no cache. */
-const ESQUEMA_UF = 2
+/** Sobe quando o corpo de `/ufs/{uf}` muda (2: `operadoras_presentes`, UF-E2; 3: `indicadores` com as contagens sem declaração, PT-26): a URL com `date` é imutável no cache. */
+const ESQUEMA_UF = 3
 export function fetchUfPerfil(uf: string, date?: string, historicoCompleto = false): Promise<PerfilUf> {
-  return get(`/api/v1/ufs/${uf}`, { date, esquema: ESQUEMA_UF, include: `${blocoHistorico(historicoCompleto)},territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio` })
+  return get(`/api/v1/ufs/${uf}`, { date, esquema: ESQUEMA_UF, include: `${blocoHistorico(historicoCompleto)},indicadores,territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio` })
 }
 
 export function fetchAcessosMunicipios(opts: {
@@ -1540,8 +1542,10 @@ export function fetchIpv4Subasignacoes(opts: { date?: string; asn?: number; conf
   return get('/api/v1/ipv4/subasignacoes', opts)
 }
 
-/** `esquema` 2: o selo de cadastro das instalações traz as datas de registro e de vínculo e ignora a data de lote (PT-16); vale também onde as instalações vêm embutidas (perfil do ASN). `esquema` 3: a lista traz `ptts` por instalação e a cobertura nomeada (PT-24). */
-const ESQUEMA_INSTALACOES = 3
+/** `esquema` 2: o selo de cadastro das instalações traz as datas de registro e de vínculo e ignora a data de lote (PT-16); vale também onde as instalações vêm embutidas (perfil do ASN).
+ *  `esquema` 3: a lista traz `ptts` por instalação e a cobertura nomeada (PT-24); o perfil do ASN ganhou `cadastro` e `recuperacao` (PT-26).
+ *  `esquema` 4: os dois pacotes subiram para 3 em paralelo; 4 garante URL nova para quem já guardou alguma das versões 3. */
+const ESQUEMA_INSTALACOES = 4
 
 /** Instalações do PeeringDB: lista filtrada (a 1ª página, até 100, é aberta; ampliar exige login), uma instalação, as de um PTT e as portas de um PTT externo. */
 export function fetchFacilities(opts: { date?: string; pais?: string; uf?: string; q?: string; ptt?: string; cadastro?: string; com_ptt?: boolean; com_carrier?: boolean; ordem?: string; limit?: number; page?: number }): Promise<FacilitiesLista> {

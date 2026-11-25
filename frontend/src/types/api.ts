@@ -471,6 +471,25 @@ export interface ReferenciasAsn {
   ixps_diretos_mediana: number | null
 }
 
+/** Cadastro público do CNPJ do ASN na Receita (`include=cadastro`, PT-26): situação, atividade e município, sem endereço nem contato. */
+export interface AsnCadastro {
+  cnpj: string
+  razao_social?: string
+  nome_fantasia?: string
+  descricao_situacao_cadastral?: string
+  descricao_motivo_situacao_cadastral?: string
+  cnae_fiscal?: number | string
+  cnae_fiscal_descricao?: string
+  municipio?: string
+  uf?: string
+  codigo_municipio_ibge?: number | string
+  /** Data (ISO) em que o cadastro foi lido pela coleta do OBINT. */
+  lido_em?: string | null
+  fonte: string
+  selo: 'fato'
+}
+/** ASN na lista de recursos em recuperação do Registro.br (`include=recuperacao`, PT-26); `null` quando não está. A lista não informa o motivo. */
+export interface AsnRecuperacao { asn: number; inicio: string; fim: string; primeira_vez_visto?: string | null; fonte: string; selo: 'fato' }
 export interface ASNDocument {
   asn: number
   snapshot_date: string
@@ -1008,6 +1027,8 @@ export interface PerfilUf {
     municipios_sem_ptt: number | null; acessos_sem_ptt: number | null; raio_sem_ptt_km: number
   }
   territorio?: TerritorioUf | null
+  /** Acessos, HHI, variações e contagens de CNPJs sem declaração da UF (`include=indicadores`). */
+  indicadores?: IndicadoresUf | null
   /** HHI por CNPJ e por grupo da UF (`include=mercado_grupos`). */
   mercado_grupos?: MercadoGruposUf | null
   /** IPv6 estimado, usuários atrás de ROV e dependência de trânsito da UF. */
@@ -1972,6 +1993,30 @@ export interface IndicadoresMunicipio {
   var_aa_pct?: number | null
   ganho_aa?: GanhoPerdaMunicipio
   perda_aa?: GanhoPerdaMunicipio
+  /** Fatos sobre a declaração no município (PT-26): CNPJ sem declaração desde um mês e primeira declaração. Ausente sem evento. */
+  eventos?: EventoDeclaracaoMunicipio[]
+}
+/** `include=indicadores` da UF: acessos, HHI e variações da UF e as contagens de CNPJs sem declaração (PT-26). */
+export interface IndicadoresUf {
+  mes_referencia: string
+  metodologia: string
+  acessos: number
+  n_operadoras: number
+  hhi: number
+  var_mm_pct?: number | null
+  var_aa_pct?: number | null
+  sem_declaracao?: { cnpjs_sem_declaracao: number; com_usuarios_apnic: number; sem_usuarios: number; nao_comparavel: number; usuarios_apnic: number }
+}
+export type EventoDeclaracaoMunicipio = {
+  cnpj: string
+  empresa: string
+  tipo: 'sem_declaracao_desde' | 'primeira_declaracao'
+  /** AAAA-MM: primeiro mês sem declaração (sem_declaracao_desde) ou o da primeira declaração. */
+  mes: string
+  ultimo_mes_declarado?: string
+  /** Acessos no município no mês `mes_acessos` (o último mês em que o município o tem, ou o da primeira declaração). */
+  acessos: number | null
+  mes_acessos: string
 }
 export interface RankingBase { snapshot_date: string; mes_referencia: string; fonte: string; metodologia: string; criterio: string; escopo: { uf?: string; pais?: string }; total: number }
 export interface LinhaRankingOperadora {
@@ -2007,6 +2052,8 @@ export interface ItemSemDeclaracao {
   classe: ClasseSemDeclaracao
   grupo_id?: string | null
   grupo_declara?: boolean
+  /** CNPJ da prestadora de origem, quando o CNPJ é credenciado de rede virtual no SMP (a origem declara os acessos dele; RGST, Res. 777/2025). */
+  rede_virtual_origem?: string
 }
 export interface LinhaSemDeclaracao extends Partial<ItemSemDeclaracao> { posicao: number; cnpj: string }
 export interface LinhaParou { posicao: number; cnpj: string; empresa: string; ultimo_mes_declarado: string; meses_sem_declarar: number; acessos_no_ultimo_mes: number }
@@ -2019,7 +2066,7 @@ export interface SemDeclaracaoSici {
   tipo: 'outorga_sem_declaracao' | 'parou_de_declarar'
   total: number
   parametros: Record<string, number>
-  por_uf?: Record<string, { cnpjs_sem_declaracao: number; com_usuarios_apnic: number; sem_usuarios: number; nao_comparavel: number; usuarios_apnic: number }>
+  por_uf?: Record<string, { cnpjs_sem_declaracao: number; com_usuarios_apnic: number; sem_usuarios: number; nao_comparavel: number; usuarios_apnic: number; grupo_declarou?: number; credenciadas_rede_virtual?: number }>
   items: Array<LinhaSemDeclaracao & Partial<LinhaParou>>
 }
 

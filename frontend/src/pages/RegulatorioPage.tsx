@@ -20,6 +20,7 @@ import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { useOrdenacao, type Ordem } from '../lib/ordenacao'
 import { useActiveDate } from '../hooks/useSnapshot'
 import { manterData } from '../lib/dataAtiva'
+import { NOTA_ATUALIZACAO_MULTAS, NOTA_MULTA_CONSTITUIDA } from '../lib/referencias'
 
 const ABAS = [
   { id: 'fust', rotulo: 'FUST' },
@@ -133,9 +134,19 @@ function Multas() {
   const th = thServidor(ordem, (c) => { setOrdem(c); setPage(1) })
   const r = resumo.data
   if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="as multas" mensagem="Multas não publicadas neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
-  const anos = [...r.por_ano].reverse().slice(0, 12)
+  const anos = [...r.por_ano].reverse()
+  const dataArquivo = r.data_arquivo ? new Date(r.data_arquivo) : null
+  const anoParcial = dataArquivo && !Number.isNaN(dataArquivo.getTime()) ? dataArquivo.getUTCFullYear() : null
+  const sit = r.brasil.situacoes ?? {}
+  const quitadas = sit.Quitado ?? 0
+  const abertas = (sit.Devedor ?? 0) + (sit.Parcial ?? 0)
   return (
     <div className="space-y-4">
+      <p className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-4 py-3" data-testid="sintese-multas">
+        A Anatel registra <strong>{inteiro(r.brasil.multas)}</strong> multas constituídas contra pessoas jurídicas de SCM, SMP, STFC e SeAC (fato, Anatel, arquivo de {dataArquivo ? dataArquivo.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'data não informada'}).
+        {r.brasil.multas > 0 && <> {inteiro(quitadas)} ({(100 * quitadas / r.brasil.multas).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%) constam como quitadas e {inteiro(abertas)} em aberto ({inteiro(sit.Devedor ?? 0)} devedor e {inteiro(sit.Parcial ?? 0)} parcial).</>}
+        {' '}O saldo devedor atualizado informado pela Anatel é {reais(r.brasil.saldo)}; o valor original somado é {reais(r.brasil.original)} e o pago, {reais(r.brasil.pago)}. {NOTA_MULTA_CONSTITUIDA}
+      </p>
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
         <div className="flex flex-wrap items-baseline gap-x-8 gap-y-1 text-sm">
           <div><span className="text-2xl font-semibold tabular-nums">{inteiro(r.brasil.multas)}</span> <span className="text-gray-500">multas constituídas contra {inteiro(r.brasil.empresas)} empresas/serviços</span></div>
@@ -143,12 +154,12 @@ function Multas() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {GRUPOS.map((g) => r.por_grupo[g] && (
-            <div key={g} className="border border-gray-100 rounded p-2 text-sm"><div className="font-medium">{g}</div><div className="tabular-nums">{inteiro(r.por_grupo[g].multas)} multas</div><div className="text-xs text-gray-500">{inteiro(r.por_grupo[g].empresas)} empresas · saldo {reais(r.por_grupo[g].saldo)}</div></div>
+            <div key={g} className="border border-gray-100 rounded p-2 text-sm"><div className="font-medium">{g}</div><div className="tabular-nums">{inteiro(r.por_grupo[g].multas)} multas</div><div className="text-xs text-gray-500">{inteiro(r.por_grupo[g].empresas)} empresas · saldo {reais(r.por_grupo[g].saldo)}</div><div className="text-xs text-gray-500">{situacaoTexto(r.por_grupo[g].situacoes ?? {})}</div></div>
           ))}
         </div>
         <table className="text-xs min-w-full"><caption className="sr-only">Multas por ano da sanção e serviço</caption>
           <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Ano da sanção</th>{GRUPOS.map((g) => <th scope="col" key={g} className="text-right px-2 py-1">{g}</th>)}<th scope="col" className="text-right px-2 py-1">Total</th></tr></thead>
-          <tbody>{anos.map((a) => <tr key={a.ano} className="border-t border-gray-100"><td className="px-2 py-1 font-medium">{a.ano}</td>{GRUPOS.map((g) => <td key={g} className="px-2 py-1 text-right tabular-nums">{inteiro(a[g] ?? 0)}</td>)}<td className="px-2 py-1 text-right tabular-nums">{inteiro(a.total)}</td></tr>)}</tbody>
+          <tbody>{anos.map((a) => <tr key={a.ano} className="border-t border-gray-100"><td className="px-2 py-1 font-medium">{a.ano}{a.ano === anoParcial && dataArquivo ? <span className="font-normal text-gray-500"> (parcial, até {dataArquivo.toLocaleDateString('pt-BR', { timeZone: 'UTC' })})</span> : null}</td>{GRUPOS.map((g) => <td key={g} className="px-2 py-1 text-right tabular-nums">{inteiro(a[g] ?? 0)}</td>)}<td className="px-2 py-1 text-right tabular-nums">{inteiro(a.total)}</td></tr>)}</tbody>
         </table>
       </section>
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
@@ -177,6 +188,7 @@ function Multas() {
           </>
         )}
       </section>
+      <p className="text-xs text-gray-500" data-testid="atualizacao-multas">{NOTA_ATUALIZACAO_MULTAS} O ano é o da aplicação da sanção.</p>
       <p className="text-xs text-gray-500">Lidas {inteiro(r.leitura.linhas)} multas; {inteiro(r.leitura.pessoa_fisica)} de pessoa física e {inteiro(r.leitura.fora_do_escopo)} de outros serviços (ou sem serviço) não são publicadas.</p>
       <Rodape m={r} />
     </div>

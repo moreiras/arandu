@@ -4,7 +4,7 @@
 
 `anatel_sici` · tipo **bruta** · ativa
 
-Acessos em serviço declarados mensalmente por prestadora (CNPJ), município, velocidade, tecnologia, meio e tipo de cliente (PF/PJ). Leitura incremental do ZIP de ~1 GB por HTTP Range; só baixa o ano corrente quando há mês novo e mantém cache imutável por mês.
+Acessos em serviço declarados mensalmente por prestadora (CNPJ), município, velocidade, tecnologia, meio e tipo de cliente (PF/PJ). Leitura incremental do ZIP de ~1 GB por HTTP Range; só baixa o ano corrente quando há mês novo e mantém cache imutável por mês. O nome "SICI" é o de uso do projeto e dos dados abertos; a declaração mensal das prestadoras é feita hoje no sistema Coleta de Dados da Anatel (Resolução Anatel nº 774/2025, que revogou a Resolução nº 712/2019), e os textos do site citam essa base vigente.
 
 ## Resumo
 

@@ -173,6 +173,38 @@ export function operadoresSici(municipios: MunicipioSici[]) {
   return [...byCnpj.values()].sort((a, b) => b.acessos - a.acessos)
 }
 
+export interface MercadoRaio {
+  acessos: number
+  operadoras: number
+  hhi: number
+  maiorParticipacao: number
+  linhas: { cnpj: string; empresa: string; acessos: number; participacao: number; municipios: number }[]
+}
+
+/**
+ * Mercado de banda larga fixa no raio (PT-26, localizador 5.4): por CNPJ, sobre os acessos declarados nos municípios cujo centro está no raio.
+ * Participação = acessos do CNPJ nesses municípios ÷ total desses municípios; HHI na mesma base (0 a 10.000). Cada linha é um CNPJ: empresas do mesmo
+ * grupo aparecem separadas. `null` sem acessos declarados no raio (nenhum número é inventado).
+ */
+export function mercadoNoRaio(municipios: MunicipioSici[]): MercadoRaio | null {
+  const linhas = operadoresSici(municipios)
+  const acessos = linhas.reduce((t, l) => t + l.acessos, 0)
+  if (!acessos) return null
+  const com = linhas.map(l => ({ ...l, participacao: (100 * l.acessos) / acessos }))
+  return {
+    acessos, operadoras: com.length,
+    hhi: Math.round(com.reduce((t, l) => t + l.participacao ** 2, 0)),
+    maiorParticipacao: Math.max(...com.map(l => l.participacao)),
+    linhas: com,
+  }
+}
+
+/** Outorgas SCM com sede no raio e quantas não têm acessos declarados no mês de referência (`sici_ativo === false`; sem o campo, não conta). */
+export function outorgasSemDeclaracaoNoRaio(scms: ScmGeoFeature[]): { total: number; semDeclaracao: number; cnpjsSemDeclaracao: number } {
+  const sem = scms.filter(f => f.properties.sici_ativo === false)
+  return { total: scms.length, semDeclaracao: sem.length, cnpjsSemDeclaracao: new Set(sem.map(f => f.properties.cnpj)).size }
+}
+
 /**
  * Índices de CNPJ ↔ ASN construídos sobre todos os features (não só os do raio), para que sedes de AS mostrem cor e badge SCM
  * mesmo com o overlay desativado.

@@ -12,11 +12,11 @@ import type { GrupoCtx } from '../contexto'
 import type { GrupoMercadoFixo } from '../../../types/api'
 import { useOrdenacao } from '../../../lib/ordenacao'
 import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { NOTA_FAIXAS_HHI, rotuloFaixaHhi } from '../../../lib/referencias'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`)
 const mes = (m: string) => m.slice(2).replace('-', '/')
-const FAIXA: Record<string, string> = { competitivo: 'competitivo', moderado: 'moderadamente concentrado', concentrado: 'concentrado' }
 const GRAU_FAIXA: Record<string, number> = { competitivo: 0, moderado: 1, concentrado: 2 }
 
 /** Tabela da série mensal (o "Ver dados" do gráfico); começa em ordem cronológica. */
@@ -40,7 +40,7 @@ function TabelaUfs({ porUf }: { porUf: GrupoMercadoFixo['por_uf'] }) {
       <tbody>{ordenados.map((u) => (
         <tr key={u.uf} className="border-b border-gray-100"><td className="py-1 pr-3"><Link to={`/uf/${u.uf}`} className="text-primario-600 hover:underline">{u.uf}</Link></td>
           <td className="pr-3 text-right tabular-nums">{n(u.acessos)}</td><td className="pr-3 text-right tabular-nums">{pct(u.parcela_do_grupo)}</td><td className="pr-3 text-right tabular-nums">{pct(u.parcela_na_uf)}</td>
-          <td className="pr-3 text-right tabular-nums">{n(u.hhi_grupo)}</td><td className="text-gray-600">{u.faixa_grupo ? FAIXA[u.faixa_grupo] ?? u.faixa_grupo : '—'}</td></tr>))}</tbody></table></div>
+          <td className="pr-3 text-right tabular-nums">{n(u.hhi_grupo)}</td><td className="text-gray-600">{rotuloFaixaHhi(u.faixa_grupo)}</td></tr>))}</tbody></table></div>
   )
 }
 
@@ -94,7 +94,7 @@ export function UfsBloco({ dados }: BlocoProps<GrupoCtx>) {
   return <ComMercado id={dados.grupo.grupo_id}>{(m) => (
     <div className="space-y-2" data-testid="grupo-ufs">
       <TabelaUfs porUf={m.por_uf} />
-      <p className="text-xs text-gray-500">Acessos fixos declarados pelas empresas do grupo, por UF. O HHI e a faixa são do mercado inteiro da UF (CNPJs do mesmo grupo contam como um) e dizem quão concentrado é o mercado, não se o grupo é o responsável. Faixas: competitivo (HHI até 1.500), moderado (1.500 a 2.500), concentrado (acima).</p>
+      <p className="text-xs text-gray-500">Acessos fixos declarados pelas empresas do grupo, por UF. O HHI e a faixa são do mercado inteiro da UF (CNPJs do mesmo grupo contam como um) e dizem quão concentrado é o mercado, não se o grupo é o responsável. {NOTA_FAIXAS_HHI}</p>
     </div>
   )}</ComMercado>
 }

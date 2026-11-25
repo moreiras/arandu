@@ -180,7 +180,7 @@ def bloco_uf(ind: Optional[dict], om: Optional[dict], uf: str) -> Optional[dict]
         return None
     out = {"mes_referencia": ind["mes_referencia"], "metodologia": METODOLOGIA, **ind["ufs"][uf]}
     if om:
-        out["sem_declaracao"] = om["por_uf"].get(uf) or {"cnpjs_sem_declaracao": 0, "com_usuarios_apnic": 0, "sem_usuarios": 0, "nao_comparavel": 0, "usuarios_apnic": 0}
+        out["sem_declaracao"] = om["por_uf"].get(uf) or {"cnpjs_sem_declaracao": 0, "com_usuarios_apnic": 0, "sem_usuarios": 0, "nao_comparavel": 0, "usuarios_apnic": 0, "grupo_declarou": 0, "credenciadas_rede_virtual": 0}
     return out
 
 

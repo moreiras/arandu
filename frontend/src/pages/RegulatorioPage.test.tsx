@@ -48,6 +48,22 @@ describe('Regulatório', () => {
     await waitFor(() => expect(grupoPedido).toBe('SMP'))
   })
 
+  it('aba Multas: síntese com a situação, ano parcial marcado, critério de atualização e nenhuma qualificação de infração (PT-26 / REG 5.2)', async () => {
+    server.use(
+      http.get('*/api/v1/multas/resumo', () => HttpResponse.json({ ...multasResumo, por_ano: [{ ano: 2025, SCM: 1, SMP: 0, STFC: 0, SeAC: 0, total: 1 }, { ano: 2026, SCM: 2, SMP: 0, STFC: 0, SeAC: 0, total: 2 }] })),
+      http.get('*/api/v1/multas/empresas', () => HttpResponse.json({ ...meta, grupo: null, ordem: 'empresa', total: 0, limit: 20, offset: 0, items: [] })),
+    )
+    montar('/regulatorio?aba=multas')
+    const sintese = (await screen.findByTestId('sintese-multas')).textContent ?? ''
+    expect(sintese).toMatch(/registra 5 multas constituídas contra pessoas jurídicas de SCM, SMP, STFC e SeAC/)
+    expect(sintese).toMatch(/3 \(60%\) constam como quitadas e 2 em aberto \(2 devedor e 0 parcial\)/)
+    expect(sintese).toMatch(/saldo devedor atualizado informado pela Anatel/)
+    expect(sintese).toMatch(/Multa constituída não é condenação definitiva/)
+    expect(screen.getByText(/2026/, { selector: 'td' }).textContent).toMatch(/parcial, até 02\/11\/2026/)
+    expect(screen.getByTestId('atualizacao-multas').textContent).toMatch(/Selic.*0,33% ao dia até 20%.*589\/2012.*10\.522\/2002/)
+    expect(document.body.textContent).not.toMatch(/infra[çc]|irregular|omi[s]s|culpa|devedor contumaz/i)
+  })
+
   it('aba Espectro: faixas de interesse e filtro por serviço', async () => {
     let servicoPedido: string | null = 'x'
     server.use(

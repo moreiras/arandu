@@ -7,6 +7,7 @@ import { TabelaOperadores } from '../TabelaOperadores'
 import type { BlocoProps } from '../../entidade/registry'
 import type { MunicipioCtx } from '../contexto'
 import { fmt, hhiLabel } from '../ui'
+import { NOTA_FAIXAS_HHI } from '../../../lib/referencias'
 
 export function MercadoFixoBloco({ dados }: BlocoProps<MunicipioCtx>) {
   const data = dados.fixo!
@@ -14,8 +15,7 @@ export function MercadoFixoBloco({ dados }: BlocoProps<MunicipioCtx>) {
   return (
     <div className="space-y-5">
       <div className={`text-xs rounded-lg px-3 py-2 border ${hhi.cor}`}>
-        Mercado <strong>{hhi.texto}</strong> (HHI {fmt(data.hhi)}; acima de 2500 é
-        considerado altamente concentrado, abaixo de 1500 competitivo).
+        HHI {fmt(data.hhi)} sobre acessos declarados: <strong>{hhi.texto}</strong>. {NOTA_FAIXAS_HHI}
         {' '}A contagem de operadoras inclui provedores via satélite, que declaram
         acessos em praticamente todos os municípios do país — por isso o share e o HHI
         descrevem melhor a competição local do que o número bruto de operadoras.

@@ -209,8 +209,8 @@ def municipality_broadband(
     """Quem oferece banda larga (ou telefonia móvel, com `servico="movel"`) em um município, com share e concentração.
 
     Responde "quais provedores atendem a cidade X", "qual a fatia de cada um",
-    "o mercado é concentrado". Traz o HHI (10000 = monopólio; abaixo de 1500 é
-    considerado competitivo) e quais operadoras têm ASN próprio.
+    "o mercado é concentrado". Traz o HHI (10000 = monopólio; faixas do projeto:
+    <1500, 1500 a 2499, 2500 ou mais) e quais operadoras têm ASN próprio.
 
     ATENÇÃO: operadoras de satélite (Starlink, Hughes) declaram acessos em
     praticamente todos os 5.570 municípios. Por isso nenhum município aparece com

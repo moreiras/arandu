@@ -58,7 +58,7 @@ Outorga/notificação não prova prestação efetiva de serviço nem tamanho da 
 ## Quem usa
 
 - **Fontes derivadas:** `bndes_operacoes`, `cgu_ceis_cnep`, `curada_marcas_operadoras`, `receita_cnpj`, `siasg_contratos`, `smp_geo`, `socios_grupos`
-- **Produtos:** `cadastro_empresas`, `consumidor`, `erbs`, `outorgas`, `qualidade`
+- **Produtos:** `cadastro_empresas`, `consumidor`, `erbs`, `outorgas`, `qualidade`, `sici_indicadores`
 
 ## Pendências (nao_verificado)
 

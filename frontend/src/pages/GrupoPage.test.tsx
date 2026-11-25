@@ -101,7 +101,7 @@ describe('/grupo/:id', () => {
     expect(screen.getByText(/subiu 1 posição/)).toBeInTheDocument()
     const ufs = await screen.findByRole('table', { name: 'Acessos do grupo por UF' })
     expect(within(ufs).getByRole('link', { name: 'SP' })).toHaveAttribute('href', '/uf/SP')
-    expect(within(ufs).getByText('moderadamente concentrado')).toBeInTheDocument()
+    expect(within(ufs).getByText('HHI de 1.500 a 2.499')).toBeInTheDocument()
     expect(within(await screen.findByRole('table', { name: 'Empresas presentes nos mesmos municípios' })).getByRole('link', { name: 'Concorrente SA' })).toHaveAttribute('href', '/operadora/22222222000122')
     expect(document.body.textContent).not.toMatch(/melhor|pior|vencedor/i)
   })

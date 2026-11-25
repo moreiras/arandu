@@ -58,6 +58,16 @@ describe('balões do mapa', () => {
     expect(sem).toContain('Outorga SCM sem ASN no BGP')
   })
 
+  it('outorga SCM: declaração ao SICI só como fato, com o mês, sem adjetivo (PT-26)', () => {
+    const declarou = htmlScm({ razao_social: 'A', sici_ativo: true, sici_mes_referencia: '2026-09', sici_acessos: 1082, sici_pf: 998, sici_pj: 84, sici_municipios: 5, sici_tecnologia: 'FTTH' })
+    expect(declarou).toContain('SICI 2026-09: 1.082 acessos (pessoa física 998, jurídica 84), 5 municípios, FTTH')
+    const nao = htmlScm({ razao_social: 'B', sici_ativo: false, sici_mes_referencia: '2026-09' })
+    expect(nao).toContain('Sem acessos declarados no SICI em 2026-09')
+    expect(htmlScm({ razao_social: 'C', sici_ativo: false })).toContain('no mês de referência do snapshot')    // snapshot antigo: sem mês na feição
+    expect(htmlScm({ razao_social: 'D' })).not.toContain('SICI')                                         // sem os campos, nada é afirmado
+    expect(declarou + nao).not.toMatch(/omi[s]s|irregular|infra[çc]|inadimpl/i)
+  })
+
   it('infraestrutura: enlace, cabo, ponto de aterrissagem, linha de transmissão e rodovia', () => {
     expect(htmlEnlaceTerrestre({ type_inf: 'Fibra', status: 'Operacional' })).toContain('ITU BBmaps · Operacional')
     expect(htmlEnlaceTerrestre({})).toContain('Enlace terrestre')

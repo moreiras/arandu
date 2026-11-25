@@ -6,6 +6,7 @@
 import { Navigate, useSearchParams } from 'react-router-dom'
 import { Link } from '../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
+import type { SemDeclaracaoSici } from '../types/api'
 import { fetchSemDeclaracaoSici, fetchRankingOperadoras, fetchRankingRouteServers } from '../services/api'
 import { useAuth } from '../auth/AuthContext'
 import { UFS, nomeUf } from '../lib/ufs'
@@ -17,6 +18,7 @@ import { EstadoDados } from '../components/ui/EstadoDados'
 import { PreviaLista } from '../components/ui/PreviaLista'
 import { PREVIEW_LIMIT } from '../auth/accessPolicy'
 import { alternarOrdem, type Ordem } from '../lib/ordenacao'
+import { NOTA_COLETA_ANATEL, NOTA_REDE_VIRTUAL } from '../lib/referencias'
 
 const POR_PAGINA = 25
 const POR_PAGINA_RANK = 25
@@ -39,7 +41,9 @@ const CRITERIOS_RS: Record<string, string> = {
 /** Mês de um ano antes de `AAAA-MM` (a base da variação em 12 meses). */
 const mesAnoAntes = (mes: string | undefined) => { const m = /^(\d{4})-(\d{2})$/.exec(mes ?? ''); return m ? `${Number(m[1]) - 1}-${m[2]}` : 'um ano antes' }
 const razao = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))
-const CLASSES: Record<string, string> = { com_usuarios_apnic: 'com usuários estimados (APNIC)', sem_usuarios: 'sem usuários estimados', nao_comparavel: 'sem ASN no CNPJ' }
+const CLASSES: Record<string, string> = { com_usuarios_apnic: 'ASN com 100 ou mais usuários estimados (APNIC)', sem_usuarios: 'ASN com menos de 100 usuários estimados (APNIC)', nao_comparavel: 'sem ASN ligado ao CNPJ' }
+/** Leitura de grupo com três valores em texto (RANKINGS-E2): `grupo_declara` ausente é CNPJ sem grupo societário identificado. Sem cor. */
+const leituraGrupo = (v: boolean | undefined) => (v === true ? 'outro CNPJ do grupo declarou' : v === false ? 'nenhum CNPJ do grupo declarou' : 'grupo não identificado')
 
 /**
  * `/rankings` — Rankings do SICI e outorgas sem declaração. Só dado declarado ou medido, com o critério e o mês de referência à vista, sem juízo
@@ -234,8 +238,10 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
           <p className="text-xs text-gray-500" data-testid="regra-ordem-rs">Ordem padrão: por PTT e, dentro dele, por ASN (neutra, não é uma ordem de desempenho). Para ordenar por um número medido, use "Ordenar por" ou o cabeçalho da coluna; quem não tem o número fica de fora dessas ordens. {rsq.data.limites} Sessões de route server cujo cache de vizinhos no Alice tem mais de 24 h, ou que não foi consultado, ficam fora da contagem de sessões down e do tempo de queda. Coletado em {rsq.data.coletado_em?.slice(0, 16).replace('T', ' ')} UTC.</p>
         </>
       )}
+      {aba === 'sem-declaracao' && om.data && tipo === 'outorga_sem_declaracao' && <SinteseSemDeclaracao dados={om.data} />}
+      {aba === 'sem-declaracao' && om.data && tipo === 'outorga_sem_declaracao' && !uf && <TabelaPorUf dados={om.data} />}
       {aba === 'sem-declaracao' && om.data && tipo === 'outorga_sem_declaracao' && (
-        <Tabela legenda={`Outorgas SCM sem declaração ao SICI em ${om.data.mes_referencia}`} cab={['#', 'Outorgada (SCM)', 'UF', 'Usuários estimados (APNIC)', 'Classe', 'Grupo (inferido)']}>
+        <Tabela legenda={`Outorgas SCM sem declaração ao SICI em ${om.data.mes_referencia}`} cab={['#', 'Outorgada (SCM)', 'UF', 'Usuários estimados (APNIC)', 'Classe', 'Grupo (inferido)', 'Rede virtual (fato)']}>
           {om.data.items.map((r) => (
             <tr key={r.cnpj}>
               <td className="px-2 py-1 text-gray-400 tabular-nums">{r.posicao}</td>
@@ -243,7 +249,8 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
               <td className="px-2 py-1 text-xs">{r.uf}</td>
               <td className="px-2 py-1 text-right tabular-nums">{n(r.usuarios_apnic)}</td>
               <td className="px-2 py-1 text-xs">{r.classe ? CLASSES[r.classe] : ''}</td>
-              <td className="px-2 py-1 text-xs text-gray-500">{r.grupo_declara ? <><span>outro CNPJ do grupo declarou</span> <span className="text-gray-400">(inferido do quadro societário)</span></> : ''}</td>
+              <td className="px-2 py-1 text-xs text-gray-500">{leituraGrupo(r.grupo_declara)}{r.grupo_declara !== undefined && <span className="text-gray-400"> (inferido do quadro societário)</span>}</td>
+              <td className="px-2 py-1 text-xs text-gray-500">{r.rede_virtual_origem ? <>credenciada de rede virtual; acessos declarados pela prestadora de origem <Link to={`/operadora/${r.rede_virtual_origem}`} className="text-primario-600 hover:underline">{r.rede_virtual_origem}</Link></> : ''}</td>
             </tr>
           ))}
         </Tabela>
@@ -275,9 +282,10 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
       <details className="text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
         <summary className="cursor-pointer text-gray-700">Como ler estas listas</summary>
         <ul className="list-disc pl-5 mt-2 space-y-1">
-          <li>Acessos são <strong>autodeclarados</strong> pelas operadoras ao SICI (Anatel), por CNPJ. Parcela e HHI são sobre acessos declarados, não sobre receita.</li>
-          <li>"Sem declaração ao SICI em AAAA-MM" diz só que o CNPJ tem outorga SCM e não tem acessos declarados naquele mês de referência. Não indica causa nem intenção; a única informação adicional é "outro CNPJ do grupo declarou", inferida do quadro societário.</li>
+          <li>Acessos são <strong>autodeclarados</strong> pelas operadoras à Anatel (SICI), por CNPJ. {NOTA_COLETA_ANATEL} Parcela e HHI são sobre acessos declarados, não sobre receita.</li>
+          <li>"Sem declaração ao SICI em AAAA-MM" diz só que o CNPJ tem outorga SCM e não tem acessos declarados naquele mês de referência. Não indica causa nem intenção; as únicas informações adicionais são "outro CNPJ do grupo declarou", inferida do quadro societário, e "credenciada de rede virtual", do contrato vigente na Anatel.</li>
           <li>Os usuários são <strong>estimados</strong> pela APNIC por medição estatística, somados nos ASNs do CNPJ. A classe "sem ASN" quer dizer que não há como observar usuários.</li>
+          <li>{NOTA_REDE_VIRTUAL} Por isso o credenciado pode não ter acessos declarados em seu nome; só aparece a causa "credenciada de rede virtual" quando o contrato vigente está no dado da Anatel.</li>
           <li>"Outro CNPJ do grupo declarou" usa os grupos societários (Receita Federal); grupo parcial não prova controle.</li>
           <li>Penetração = acessos fixos declarados ÷ domicílios do Censo 2022 projetados para o ano mais recente da PNAD pelo crescimento de domicílios da UF (aproximação: vale igual para todos os municípios dela); passa de 1 quando há mais de um acesso por domicílio. "Não visto" é <strong>estimativa</strong>: domicílios projetados × taxa de internet da UF (PNAD) − acessos de pessoa física, e inclui quem usa só o celular. A distância ao PTT é em linha reta do centróide do município.</li>
           <li>Janelas: "queda seguida" = 6 meses seguidos; "pararam de declarar" = 6 meses ou mais sem declaração e declaração nos últimos 36 meses.</li>
@@ -286,6 +294,49 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
       </details>
       </div>
     </div>
+  )
+}
+
+/** Síntese do recorte, gerada dos campos (nunca escrita à mão): fato para as contagens, estimado para os usuários da APNIC. */
+function SinteseSemDeclaracao({ dados }: { dados: SemDeclaracaoSici }) {
+  const ufs = Object.values(dados.por_uf ?? {})
+  const soma = (k: 'cnpjs_sem_declaracao' | 'com_usuarios_apnic' | 'sem_usuarios' | 'nao_comparavel' | 'grupo_declarou' | 'credenciadas_rede_virtual') => ufs.reduce((t, u) => t + (u[k] ?? 0), 0)
+  return (
+    <div className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 space-y-1" data-testid="sintese-sem-declaracao">
+      <p>
+        <strong>{n(soma('cnpjs_sem_declaracao'))}</strong> CNPJs com outorga SCM sem acessos declarados em {dados.mes_referencia} (fato, Anatel; snapshot {dados.snapshot_date}):
+        {' '}{n(soma('com_usuarios_apnic'))} com ASN e 100 ou mais usuários estimados pela APNIC (estimativa), {n(soma('sem_usuarios'))} com ASN e menos de 100 e {n(soma('nao_comparavel'))} sem ASN ligado ao CNPJ.
+      </p>
+      <p>
+        Em {n(soma('grupo_declarou'))} deles outro CNPJ do mesmo grupo declarou acessos no mês (inferido do quadro societário); {n(soma('credenciadas_rede_virtual'))} são credenciados de rede virtual no SMP.
+      </p>
+    </div>
+  )
+}
+
+/** Recorte territorial: uma linha por UF do cadastro (sede da outorga, não área de atuação). */
+function TabelaPorUf({ dados }: { dados: SemDeclaracaoSici }) {
+  const linhas = Object.entries(dados.por_uf ?? {}).sort(([a], [b]) => (a === '' ? 1 : b === '' ? -1 : a.localeCompare(b)))
+  if (!linhas.length) return null
+  return (
+    <details className="text-sm" data-testid="sem-declaracao-por-uf">
+      <summary className="cursor-pointer text-gray-700">Por UF de cadastro ({linhas.length} linhas)</summary>
+      <div className="mt-2 space-y-1">
+        <Tabela legenda={`Outorgas SCM sem declaração em ${dados.mes_referencia}, por UF do cadastro`} cab={['UF', 'Sem declaração', 'ASN, 100 ou mais usuários', 'ASN, menos de 100', 'Sem ASN', 'Usuários estimados (APNIC)']}>
+          {linhas.map(([u, v]) => (
+            <tr key={u || 'sem-uf'}>
+              <td className="px-2 py-1">{u ? <Link to={`/uf/${u}`} className="text-primario-600 hover:underline">{u} ({nomeUf(u)})</Link> : 'UF não informada'}</td>
+              <td className="px-2 py-1 text-right tabular-nums">{n(v.cnpjs_sem_declaracao)}</td>
+              <td className="px-2 py-1 text-right tabular-nums">{n(v.com_usuarios_apnic)}</td>
+              <td className="px-2 py-1 text-right tabular-nums">{n(v.sem_usuarios)}</td>
+              <td className="px-2 py-1 text-right tabular-nums">{n(v.nao_comparavel)}</td>
+              <td className="px-2 py-1 text-right tabular-nums">{n(v.usuarios_apnic)}</td>
+            </tr>
+          ))}
+        </Tabela>
+        <p className="text-xs text-gray-500">A UF é a do cadastro da outorga (sede da empresa), não a área de atuação. Usuários são estimativa da APNIC, somada nos ASNs do CNPJ.</p>
+      </div>
+    </details>
   )
 }
 

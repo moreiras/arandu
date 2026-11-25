@@ -389,6 +389,9 @@ export function LayerPanel({
               <button onClick={() => set({ scmMode: 'com_asn' })} className={opBtn(state.scmMode === 'com_asn')}>com ASN</button>
               <button onClick={() => set({ scmMode: 'sem_asn' })} className={opBtn(state.scmMode === 'sem_asn')}>sem ASN</button>
             </div>
+            <p className="text-xs text-gray-400 leading-snug" data-testid="nota-scm-sici">
+              O balão mostra os acessos declarados à Anatel no mês de referência do SICI (sistema Coleta de Dados, Resolução Anatel nº 774/2025). Sem acessos declarados é só um fato sobre a declaração: o mapa não avalia o cumprimento da norma.
+            </p>
             {recorteActive && state.scmMode !== 'com_asn' && (
               <p className="text-xs text-gray-400 leading-snug">
                 Outorgas sem ASN não são ASes: com filtros elas ficam de fora; só com proximidade, vale a localização da outorga.

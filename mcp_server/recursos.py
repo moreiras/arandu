@@ -148,7 +148,8 @@ def glossario() -> str:
   o CNPJ, e o nome comercial é o campo `empresa`.
 
 - **HHI** — índice de concentração do município (soma dos quadrados dos shares):
-  10000 é monopólio, abaixo de 1500 é competitivo. Cuidado: operadoras de satélite
+  10000 é monopólio; faixas do projeto: abaixo de 1500, 1500 a 2499, 2500 ou mais
+  (mesmos limiares do Guia H do CADE, 2016; o HHI municipal é cálculo do projeto). Cuidado: operadoras de satélite
   declaram acessos em quase todos os 5.570 municípios, então a CONTAGEM de
   operadores superestima a competição local — use share e HHI.
 """)
