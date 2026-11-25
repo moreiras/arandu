@@ -1962,11 +1962,10 @@ def test_snapshots_exigem_login_e_a_entrada_usa_brasil_snapshots(api):
     assert api.get("/api/v1/brasil/snapshots/2000-01-01", headers=ALLOWED).status_code == 404
 
 
-def test_ptt_externo_login_na_api_e_lista_sem_membros_aberta(api, ctx):
-    """IXE-E4: o detalhe do PTT externo (membros do PeeringDB) exige login; a lista é aberta e não carrega membros; o comparador com `ext:` segue a classe."""
+def test_ptt_externo_sem_login_na_api_e_lista_sem_membros_aberta(api, ctx):
+    """PT-12b (revisão da D9): o detalhe do PTT externo e o comparador com `ext:` não exigem login (`metered`); a lista é aberta e não carrega membros."""
     code = ctx["ext_code"]
-    r = api.get(f"/api/v1/external-ixps/{code}", headers=ANON)
-    assert r.status_code == 401 and r.json()["reason"] == "externo"
+    assert api.get(f"/api/v1/external-ixps/{code}", headers=ANON).status_code == 200
     assert api.get(f"/api/v1/external-ixps/{code}", headers=ALLOWED).status_code == 200
     lista = api.get("/api/v1/external-ixps", headers=ANON)
     assert lista.status_code == 200 and lista.json()["ixps"]
@@ -1974,9 +1973,9 @@ def test_ptt_externo_login_na_api_e_lista_sem_membros_aberta(api, ctx):
         assert "members" not in ixp and not any(isinstance(v, list) and len(v) > 20 for v in ixp.values()), ixp.get("code")      # só contagens
     ixbr = ctx["codes"].split(",")[0]
     comp = {"ixps": f"{ixbr},ext:{code}"}
-    assert api.get("/api/v1/ixp-compare/members", params=comp, headers=ANON).status_code == 401
+    assert api.get("/api/v1/ixp-compare/members", params=comp, headers=ANON).status_code == 200
     assert api.get("/api/v1/ixp-compare/members", params=comp, headers=ALLOWED).status_code == 200
-    assert api.get("/api/v1/ixp-compare/members", params={"ixps": ctx["codes"]}, headers=ANON).status_code == 200      # só PTTs do IX.br: medido, não login
+    assert api.get("/api/v1/ixp-compare/members", params={"ixps": ctx["codes"]}, headers=ANON).status_code == 200
 
 
 def test_rotas_de_entrada_da_home_e_do_panorama_abrem_ao_anonimo(api):

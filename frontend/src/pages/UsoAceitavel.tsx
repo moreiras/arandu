@@ -61,6 +61,10 @@ export function UsoAceitavel() {
       <section className="space-y-3">
         <h2 className="text-base font-semibold text-gray-800">4. Se as regras forem violadas</h2>
         <p className="text-sm text-gray-600 leading-relaxed">
+          Sem login, o orçamento diário é de 600 s e cada chamada de script custa 3 s; ao esgotá-lo a API responde 429 com
+          Retry-After até a meia-noite UTC. A rede é o IPv4 inteiro ou o prefixo IPv6 /64.
+        </p>
+        <p className="text-sm text-gray-600 leading-relaxed">
           O uso acima dos limites recebe resposta de limite (HTTP 429), sem suspensão. Violação desta política pode levar à{' '}
           <strong>revogação da chave e do acesso à conta</strong>, sem aviso prévio quando houver risco para o serviço ou
           para terceiros. Para contestar ou tirar dúvidas:{' '}

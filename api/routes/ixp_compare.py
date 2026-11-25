@@ -44,9 +44,6 @@ pedidos aquele ASN está presente — e `has_detail` — se o ASN tem documento 
 snapshot (`GET /asns/{asn}`); o cadastro do IX.br inclui ASNs privados e ASNs
 sem registro no Registro.br/LACNIC, que não têm página. É a base para os diagramas de Venn/UpSet e a
 exportação em CSV da página de comparação.
-
-**Requer autenticação** quando algum dos IXPs é externo — lista de membros
-PeeringDB é dado redistribuído, mesma regra de `GET /external-ixps/{code}`.
 """,
 )
 def ixp_compare_members(

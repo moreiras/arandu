@@ -37,18 +37,20 @@ def test_limitadores_por_rede_da_api_e_do_mcp_sao_os_padroes():
 def test_cota_diaria_do_mcp_com_chave(monkeypatch):
     monkeypatch.delenv("MCP_COTA_DIARIA", raising=False)
     from mcp_server import chave
-    padrao = [v for k, v in vars(chave).items() if "cota_diaria" in k.lower() and isinstance(v, int)]
-    texto = (ROOT / "mcp_server" / "chave.py").read_text(encoding="utf-8")
-    m = re.search(r'environ\.get\("MCP_COTA_DIARIA",\s*"(\d+)"\)', texto)
-    # o padrão pode estar escrito no environ.get ou numa constante (COTA_DIARIA_PADRAO, PT-13)
-    valor = int(m.group(1)) if m else (padrao[0] if len(padrao) == 1 else None)
-    assert valor == _teto("mcpCotaDiariaComChave") == 1000 and padrao in ([], [1000])
+    assert chave.COTA_DIARIA_PADRAO == chave.cota_diaria() == _teto("mcpCotaDiariaComChave") == 1000
 
 
 def test_identificacao_por_rede_ipv4_inteiro_e_ipv6_64():
     from api.auth.anon_session import rede_do_ip
     assert rede_do_ip("203.0.113.9") == "203.0.113.9"
     assert rede_do_ip("2001:db8:a:b:1:2:3:4") == rede_do_ip("2001:db8:a:b:ffff::1") == "2001:db8:a:b::/64"
+
+
+def test_uso_aceitavel_publica_os_tetos_do_codigo():
+    """PT-12b: o texto aprovado de /uso-aceitavel cita 600 s, 3 s e a rede (IPv4 inteiro ou IPv6 /64), os mesmos números de `lib/tetos.ts`."""
+    uso = " ".join((ROOT / "frontend" / "src" / "pages" / "UsoAceitavel.tsx").read_text(encoding="utf-8").split())
+    assert f"o orçamento diário é de {_teto('orcamentoDiarioSegundos')} s e cada chamada de script custa {_teto('custoPorChamadaSegundos')} s" in uso
+    assert "429 com Retry-After até a meia-noite UTC. A rede é o IPv4 inteiro ou o prefixo IPv6 /64." in uso
 
 
 def test_sobre_e_dados_publicam_os_tetos_e_o_aviso_do_link_de_citacao():

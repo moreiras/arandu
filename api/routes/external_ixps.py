@@ -62,9 +62,6 @@ def list_external_ixps(
 Retorna lista completa de membros de um IXP externo com indicação de ASNs brasileiros.
 
 Dados provenientes exclusivamente do PeeringDB (membros autodeclarados).
-
-**Requer autenticação** — lista de membros é dado PeeringDB redistribuído; acesso restrito a
-usuários autenticados conforme AUP do PeeringDB.
 """,
 )
 def get_external_ixp(

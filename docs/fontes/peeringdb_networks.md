@@ -12,8 +12,8 @@ Para os ASNs brasileiros do LACNIC, consulta /api/net?asn__in= em lotes e extrai
 |---|---|
 | Módulo / arquivo | `sources.peeringdb_networks.collect` |
 | Publicável | sim (exposição: aberta) |
-| Decisão sobre a exposição | Aberta por decisão do projeto (D9, 2026-11-24): o que a fonte alimenta é servido sem login na interface, na API e no MCP, salvo o que está dito a seguir, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB (AUP): o projeto publica atributos por rede (política de peering, tipo, as-set), sem contatos; o PTT externo com lista de membros exige login (ver peeringdb_ixps). A diferença é uma escolha de risco do projeto, não uma conclusão jurídica; a consulta jurídica segue aberta. |
-| Atribuição exigida | PeeringDB (https://www.peeringdb.com). Uso sujeito à AUP (https://www.peeringdb.com/aup); a forma de atribuição que o PeeringDB exige não foi verificada. |
+| Decisão sobre a exposição | Aberta por decisão do projeto (D9, 2026-11-24; PTT externo revisto em 2026-11-25): o que a fonte alimenta é servido sem login na interface, na API e no MCP, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB: o projeto publica atributos por rede (política de peering, tipo, as-set), sem contatos. |
+| Atribuição exigida | Fonte: PeeringDB |
 | Política de falha | critica |
 | Cadência (origem atualiza) | continua |
 | Coleta hoje → alvo | semanal → semanal |

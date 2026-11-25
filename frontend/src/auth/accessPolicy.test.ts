@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isHistoricalDate, LOGIN_REASONS, motivoLoginDaRota, PREVIEW_LIMIT, routeAccess } from './accessPolicy'
+import { isHistoricalDate, LOGIN_REASONS, PREVIEW_LIMIT, routeAccess } from './accessPolicy'
 
 describe('routeAccess (espelho de api/auth/access_policy.py)', () => {
   it.each(['/', '/login', '/sobre', '/privacidade', '/ixps', '/ases', '/scms', '/smps', '/stfcs', '/seacs', '/grupos'])(
@@ -12,13 +12,11 @@ describe('routeAccess (espelho de api/auth/access_policy.py)', () => {
 
   it('histórico exige login', () => expect(routeAccess('/snapshots')).toBe('login'))
 
-  it('PTT externo exige login (D9, IXE-E4), a lista de PTTs não', () => {
-    expect(routeAccess('/ixp-externo/decix-rj')).toBe('login')
-    expect(routeAccess('/ixp-externo/decix-rj/')).toBe('login')
+  it('PTT externo não exige login (PT-12b, revisão da D9): a página é metered e a lista de PTTs é open', () => {
+    expect(routeAccess('/ixp-externo/decix-rj')).toBe('metered')
+    expect(routeAccess('/ixp-externo/decix-rj/')).toBe('metered')
     expect(routeAccess('/ixps')).toBe('open')
-    expect(motivoLoginDaRota('/ixp-externo/decix-rj')).toBe('externo')
-    expect(motivoLoginDaRota('/snapshots')).toBe('historico')
-    expect(LOGIN_REASONS.externo).toMatch(/PeeringDB/)
+    expect(LOGIN_REASONS.externo).toBeUndefined()
   })
 
   it.each(['/mapa', '/bgp', '/estatisticas', '/ixps/sp', '/ases/64496', '/operadora/123', '/comparar'])(
