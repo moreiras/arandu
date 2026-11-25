@@ -187,7 +187,9 @@ def _mascarar_bytes(dados: bytes, indice=None) -> Optional[bytes]:
         from core.pessoa_natural import aplicar
 
         novo = aplicar(doc, indice)
-        mudou = novo is not doc
+        # `aplicar` devolve um objeto novo sempre que há titular, mesmo sem mudar nada: comparar o conteúdo, senão um documento já
+        # tratado seria reserializado e regravado (bytes e checksum mudam sem mudar o dado)
+        mudou = novo != doc
         doc = novo
     n: list = []
     mascarar_cpf_em(doc, n)

@@ -105,3 +105,18 @@ def test_divergencia_de_checksum_e_reportada_sem_corrigir(snap, tmp_path, capsys
     assert _script().main([str(dados), "--aplicar", "--corrigir-manifesto", "--copias", str(tmp_path / "orig")]) == 2
     assert _manifesto(pub)["checksums"]["outro.json"] == "sha256:" + "2" * 64
     assert "divergente: outro.json" in capsys.readouterr().out
+
+
+def test_documento_ja_tratado_nao_e_regravado_mesmo_com_outra_formatacao(snap):
+    """Idempotência no nível dos bytes: um documento que a regra já tratou não muda de conteúdo numa segunda passada, então não pode
+    voltar como "mudado" só porque `aplicar` devolve um objeto novo e a reserialização formata diferente do original (no moreiras, 821
+    membros por data do asns.zip apareciam como "a regravar" com o JSON idêntico)."""
+    from core import cpf, pessoa_natural
+
+    dados, _ = snap
+    idx = pessoa_natural.indice_do_snapshot(dados, DATA)
+    tratado = cpf._mascarar_bytes(json.dumps({"asn": 65001, "name": "FULANO DE TAL"}).encode(), idx)
+    assert tratado is not None                                               # 1ª passada: o nome civil sai
+    doc = json.loads(tratado)
+    outra_formatacao = json.dumps(doc, indent=3, ensure_ascii=True).encode()  # mesmo conteúdo, bytes diferentes
+    assert cpf._mascarar_bytes(outra_formatacao, idx) is None
