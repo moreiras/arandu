@@ -6,6 +6,7 @@
 import type { Selo } from '../../components/entidade'
 import type { ASNDocument, ReferenciasAsn } from '../../types/api'
 import { SITE } from '../../lib/site'
+import { RELACAO_PTT } from '../../lib/universos'
 
 /**
  * Frase-síntese do AS: gerada por **regras**, sem modelo de linguagem. Cada frase sai de campos do snapshot, leva o
@@ -85,7 +86,7 @@ export function sinteseAs(doc: ASNDocument, ref?: ReferenciasAsn | null): FraseC
   f.push({
     id: 'ptts', selo: 'fato', fonte: 'Looking glass do IX.br', dataRef,
     texto: diretos + origem > 0
-      ? `AS${doc.asn} tem sessão direta em ${plural(diretos, 'PTT do IX.br', 'PTTs do IX.br')} e aparece como originador em ${plural(origem, 'PTT', 'PTTs')}.`
+      ? `AS${doc.asn} tem sessão no route server em ${plural(diretos, 'PTT do IX.br', 'PTTs do IX.br')} e aparece como originador em ${plural(origem, 'PTT', 'PTTs')}.`
       : `AS${doc.asn} não aparece em PTTs do IX.br coletados neste snapshot.`,
   })
   const rpki = Object.values(doc.rpki_validation ?? {})
@@ -124,7 +125,7 @@ export function kpisAs(doc: ASNDocument, ref?: ReferenciasAsn | null): KpiAs[] {
   return [
     { id: 'v6', rotulo: 'Prefixos IPv6 anunciados', valor: doc.global_prefixes_v6_count ?? null, selo: 'fato', fonte: 'tabela global (RouteViews)' },
     { id: 'v4', rotulo: 'Prefixos IPv4 anunciados', valor: doc.global_prefixes_v4_count ?? null, referencia: med(ref?.prefixos_v4_mediana), selo: 'fato', fonte: 'tabela global (RouteViews)' },
-    { id: 'ptts', rotulo: 'PTTs com sessão em route server', valor: doc.ixps_direct?.length ?? null, referencia: med(ref?.ixps_diretos_mediana), selo: 'fato', fonte: 'looking glass do IX.br' },
+    { id: 'ptts', rotulo: RELACAO_PTT.pttsSessaoRs, valor: doc.ixps_direct?.length ?? null, referencia: med(ref?.ixps_diretos_mediana), selo: 'fato', fonte: 'looking glass do IX.br' },
     { id: 'usuarios', rotulo: 'Usuários estimados (APNIC)', valor: doc.apnic_users ?? null, selo: 'estimado', fonte: 'APNIC Labs',
       referencia: ref?.usuarios_posicao ? `${ref.usuarios_posicao.toLocaleString('pt-BR')}º de ${ref.usuarios_com_dado.toLocaleString('pt-BR')} ASes BR` : undefined },
     { id: 'v6usuarios', rotulo: 'Usuários IPv6', valor: doc.apnic_v6_pct_as ?? null, sufixo: '%', referencia: med(ref?.pct_v6_mediana, '%'), selo: 'estimado', fonte: 'APNIC Labs' },

@@ -22,7 +22,7 @@ describe('frase-síntese do AS (regras versionadas)', () => {
     const f = sinteseAs(base, ref)
     expect(f.map((x) => x.id)).toEqual(['anuncio', 'ptts', 'rpki', 'usuarios', 'transito'])
     expect(f[0].texto).toBe('AS64496 (Provedor 01 Telecom Ltda) anuncia 1 prefixo IPv6 e 3 prefixos IPv4 na tabela de roteamento global.')
-    expect(f[1].texto).toBe('AS64496 tem sessão direta em 2 PTTs do IX.br e aparece como originador em 3 PTTs.')
+    expect(f[1].texto).toBe('AS64496 tem sessão no route server em 2 PTTs do IX.br e aparece como originador em 3 PTTs.')
     expect(f[2].texto).toBe('2 de 4 prefixos anunciados têm ROA válido, e 1 está inválido.')
     expect(f[3]).toMatchObject({ selo: 'estimado', texto: 'O APNIC estima cerca de 3.068 usuários neste AS, que ocupa o 12º lugar entre os 900 ASes brasileiros com estimativa.' })
     expect(f.filter((x) => !['usuarios', 'transito'].includes(x.id)).every((x) => x.selo === 'fato')).toBe(true)

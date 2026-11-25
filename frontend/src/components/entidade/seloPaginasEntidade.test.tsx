@@ -43,7 +43,7 @@ describe('selo nas páginas de entidade (PT-14)', () => {
     const doc = { asn: 64496, name: 'X', snapshot_date: '2026-11-22', global_prefixes_v4_count: 3, global_prefixes_v6_count: 1, ixps_direct: ['sp'], ixps_origin: [], apnic_users: 3068, apnic_v6_pct_as: 20, alerts: [], rpki_validation: {} } as unknown as ASNDocument
     render(<FichaAsn doc={doc} />)
     expect(selo('Prefixos IPv6 anunciados')).toBe('fato')
-    expect(selo('PTTs com sessão em route server')).toBe('fato')
+    expect(selo('PTTs com sessão no route server')).toBe('fato')
     expect(selo('Usuários estimados (APNIC)')).toBe('estimado')
     expect(selo('Usuários IPv6')).toBe('estimado')
     const f = fontesDaSecao()
