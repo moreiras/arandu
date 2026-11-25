@@ -31,3 +31,9 @@ export function fmtKm(km: number | null | undefined): string {
   if (km == null || !Number.isFinite(km)) return '—'
   return `${km < 10 ? km.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) : Math.round(km).toLocaleString('pt-BR')} km`
 }
+
+/** Nome do PIX para a tela: o cadastro traz "[PIX BR.Digital]"; sai "PIX BR.Digital, " (com a vírgula, para emendar o PTT), ou vazio sem nome. */
+export function rotuloPix(nome: string | null | undefined): string {
+  const t = (nome ?? '').replace(/^\[|\]$/g, '').trim()
+  return t ? `${t}, ` : ''
+}

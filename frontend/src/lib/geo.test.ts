@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { describe, expect, it } from 'vitest'
-import { fmtKm, haversineKm, maisProximos } from './geo'
+import { fmtKm, haversineKm, maisProximos, rotuloPix } from './geo'
 
 describe('geo', () => {
   it('haversine: São Paulo–Rio ≈ 360 km; mesmo ponto = 0', () => {
@@ -32,5 +32,12 @@ describe('geo', () => {
     expect(fmtKm(123.4)).toBe('123 km')
     expect(fmtKm(null)).toBe('—')
     expect(fmtKm(NaN)).toBe('—')
+  })
+
+  it('rotuloPix: tira os colchetes do cadastro e emenda o PTT; sem nome fica vazio', () => {
+    expect(rotuloPix('[PIX BR.Digital]')).toBe('PIX BR.Digital, ')
+    expect(rotuloPix('[PIX / Univates]')).toBe('PIX / Univates, ')
+    expect(rotuloPix(null)).toBe('')
+    expect(rotuloPix('  ')).toBe('')
   })
 })

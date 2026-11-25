@@ -192,12 +192,30 @@ class PerfisService:
                     por_ibge[ibge] = round(n * 100000 / pop, 2)
         return {"ano": ano, "por_ibge": por_ibge}
 
+    def _redes_com_sede(self, date_str: str) -> Optional[dict[str, dict]]:
+        """IBGE → ASNs brasileiros com sede no município (`regiao`, pelo CNPJ da organização), quantos têm sessão direta em PTT do IX.br e quantos têm rotas vistas
+        num PTT (`ixps_origin`, que pode vir por trânsito de outro AS). None se o produto `regiao` não foi publicado na data (sem número, não zero)."""
+        try:
+            doc = self._s.regiao_doc(date_str)
+        except AttributeError:      # dublê de teste sem o produto
+            return None
+        if not doc:
+            return None
+        asns = doc.get("asns") or {}
+        out: dict[str, dict] = {}
+        for ibge, m in (doc.get("municipios") or {}).items():
+            sedes = [str(a) for a in (m.get("h") or [])]
+            out[ibge] = {"asns": len(sedes), "sessao_ptt": sum(1 for a in sedes if (asns.get(a) or {}).get("d")),
+                         "rotas_ptt": sum(1 for a in sedes if (asns.get(a) or {}).get("o"))}
+        return out
+
     def territorio_linhas(self, date_str: str) -> list[dict]:
-        """Uma linha por município do IBGE com população, domicílios, acessos, penetração, mercado não visto e o PTT mais próximo (km em linha reta
-        do centróide). Cacheada por data (as 2 mais recentes)."""
+        """Uma linha por município do IBGE com população, domicílios, acessos, penetração, mercado não visto, o PTT mais próximo (km em linha reta
+        do centróide) e `redes_sede` (ASNs com sede no município e quantos têm sessão ou rotas vistas em PTT). Cacheada por data (as 2 mais recentes)."""
         if date_str not in self._territorio_linhas:
             doc = self.territorio_doc(date_str) or {}
             reclam = self._reclamacoes_100mil(date_str)
+            redes = self._redes_com_sede(date_str)
             linhas = []
             for ibge, m in (doc.get("municipios") or {}).items():
                 ln = {"ibge": ibge, **m}
@@ -212,6 +230,8 @@ class PerfisService:
                     ln["fibra_pct"] = fibra
                 cen = self.municipio_centroide(ibge)
                 p = self.ptt_mais_proximo(date_str, cen[0], cen[1]) if cen else None
+                if redes is not None:
+                    ln["redes_sede"] = redes.get(ibge) or {"asns": 0, "sessao_ptt": 0, "rotas_ptt": 0}
                 if p:
                     ln.update({"ptt_proximo": p["codigo"], "km_ptt": p["km"], "sem_ptt_proximo": p["km"] > self.RAIO_SEM_PTT_KM,
                                "ptt_proximo_nome": p.get("nome"), "pix_proximo": p.get("pix")})

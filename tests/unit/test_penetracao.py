@@ -131,6 +131,24 @@ def test_territorio_linhas_traz_o_nome_do_pix_mais_proximo_alem_do_ptt():
     assert (ln["ptt_proximo"], ln["ptt_proximo_nome"], ln["pix_proximo"]) == ("rs", "Porto Alegre", "[PIX ADYLNET]")
 
 
+def test_territorio_linhas_traz_redes_com_sede_e_a_interligacao_delas():
+    """PT-25 / municipios 5.3: a distância ao PIX não diz se as redes do município já estão interligadas; sem o produto `regiao`, o campo não existe (não vira zero)."""
+    from api.services.perfis import PerfisService
+
+    class Loja(_LojaFalsa):
+        def regiao_doc(self, date_str):
+            return {"asns": {"1": {"d": ["sp"], "o": ["sp"]}, "2": {"d": [], "o": ["sp"]}, "3": {"d": [], "o": []}}, "municipios": {"3550308": {"h": [1, 2, 3]}}}
+
+    doc = {"municipios": {"3550308": {"nome": "São Paulo", "uf": "SP", "domicilios": 10}, "1100015": {"nome": "Alta Floresta D'Oeste", "uf": "RO", "domicilios": 5}}}
+    com, sem = PerfisService(Loja(doc)), PerfisService(_LojaFalsa(doc))
+    for serv in (com, sem):
+        serv.ptt_mais_proximo = lambda d, lon, lat: {"codigo": "sp", "km": 1.0}      # type: ignore[method-assign]
+    linhas = {x["ibge"]: x for x in com.territorio_linhas("2026-10-31")}
+    assert linhas["3550308"]["redes_sede"] == {"asns": 3, "sessao_ptt": 1, "rotas_ptt": 2}
+    assert linhas["1100015"]["redes_sede"] == {"asns": 0, "sessao_ptt": 0, "rotas_ptt": 0}
+    assert all("redes_sede" not in x for x in sem.territorio_linhas("2026-10-31"))
+
+
 def test_todo_ptt_do_pix_yaml_tem_ao_menos_um_pix_com_coordenada():
     """PT-25 / MAPA-E1: PTT sem nenhum PIX com lat/lon some do mapa e da distância municipal (Foz do Iguaçu apontava para `cac` por falta de `igu`)."""
     import yaml

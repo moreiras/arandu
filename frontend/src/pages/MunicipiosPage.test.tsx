@@ -43,6 +43,26 @@ describe('/municipios', () => {
     expect(pedido).toContain('min_domicilios=1000')
   })
 
+  it('lente de penetração: PIX mais próximo com o PTT e a distância; redes com sede e a interligação delas (PT-25 / municipios 5.3)', async () => {
+    let pedido = ''
+    server.use(http.get('*/api/v1/territorio/ranking', ({ request }) => {
+      pedido = new URL(request.url).search
+      return HttpResponse.json({ snapshot_date: '2026-09-20', criterio: 'c', limites: 'l', total: 2, items: [
+        { posicao: 1, ibge: '4210100', nome: 'Monte Carlo', uf: 'SC', populacao: 1, domicilios: 1, acessos: 10, penetracao: 1, nao_visto: 0, ptt_proximo: 'rs', ptt_proximo_nome: 'Porto Alegre', pix_proximo: '[PIX ADYLNET]', km_ptt: 191,
+          redes_sede: { asns: 20, sessao_ptt: 7, rotas_ptt: 19 } },
+        { posicao: 2, ibge: '1', nome: 'Sem Redes', uf: 'AC', populacao: 1, domicilios: 1, acessos: 1, penetracao: 1, nao_visto: 0, ptt_proximo: 'ac', km_ptt: 5, redes_sede: { asns: 0, sessao_ptt: 0, rotas_ptt: 0 } }] })
+    }))
+    montar('/municipios?lente=penetracao')
+    await waitFor(() => expect(screen.getByText('Monte Carlo')).toBeTruthy())
+    expect(pedido).toContain('esquema=2')
+    expect(screen.getByText('PIX ADYLNET, PTT RS · 191 km')).toBeTruthy()
+    const [com, sem] = screen.getAllByTestId('redes-sede')
+    expect(com.textContent).toBe('20 ASNs · 7 com sessão em PTT · 19 com rotas vistas em PTT')
+    expect(sem.textContent).toBe('0 ASNs')                      // sem rede com sede: só o zero, sem as outras contagens
+    expect(screen.getByText('Redes com sede (inferido)')).toBeTruthy()
+    expect(screen.getByText('Ponto de interconexão mais próximo')).toBeTruthy()
+  })
+
   it('trocar de lente mantém a UF e muda o que é pedido', async () => {
     let pedido = ''
     server.use(
