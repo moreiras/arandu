@@ -544,8 +544,9 @@ class OperadorasService:
         }
 
     def acessos_municipio_index(self, date_str: str) -> list[dict]:
-        """Uma linha por (município, operador): acessos, share e ASNs."""
+        """Uma linha por (município, operador): acessos, share e ASNs, com o mês do SICI (`mes_referencia`)."""
         rows: list[dict] = []
+        mes = self.sici_meta(date_str).get("mes_referencia") or None
         for ibge, mun in self.sici_municipios(date_str).items():
             for op in mun.get("operadores", []):
                 rows.append({
@@ -561,6 +562,7 @@ class OperadorasService:
                     "municipio_acessos": mun.get("acessos", 0),
                     "municipio_operadores": mun.get("operadores_count", 0),
                     "municipio_hhi": mun.get("hhi", 0),
+                    "mes_referencia": mes,
                 })
         return rows
 

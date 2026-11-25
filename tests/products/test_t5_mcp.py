@@ -679,3 +679,18 @@ def test_pt19_agregacao_do_query_e_igual_na_rest_e_no_mcp(srv, api):
     ruim = api.post("/api/v1/query/acessos_municipio", json={**corpo, "sort": [{"field": "acessos"}]}, headers=ALLOWED)
     assert ruim.status_code == 400 and "sum_acessos" in ruim.json()["detail"]
 
+
+def test_pt19_mes_referencia_do_sici_em_municipios_e_acessos_municipio(srv, api):
+    """PT-19 / TRANSV-E11: as duas collections trazem o mês do SICI, no schema e nas linhas, na REST e no MCP."""
+    from tests.products.api_contract import ALLOWED
+    d = srv._store.resolve_date(None)
+    mes = srv._store.sici_meta(d)["mes_referencia"]
+    assert re.fullmatch(r"\d{4}-\d{2}", mes)
+    for colecao in ("municipios", "acessos_municipio"):
+        assert any(c["name"] == "mes_referencia" for c in call(srv, "describe_schema", {"collection": colecao})["campos"]), colecao
+        linhas = call(srv, "query", {"collection": colecao, "limit": 5})["items"]
+        assert linhas and {r["mes_referencia"] for r in linhas} == {mes}, colecao
+        filtrado = call(srv, "query", {"collection": colecao, "filter": {"field": "mes_referencia", "op": "eq", "value": mes}, "limit": 1})
+        assert filtrado["total"] == call(srv, "query", {"collection": colecao, "limit": 1})["total"]
+        rest = api.post(f"/api/v1/query/{colecao}", json={"limit": 1}, headers=ALLOWED).json()
+        assert rest["items"][0]["mes_referencia"] == mes
