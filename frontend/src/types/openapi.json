@@ -3523,7 +3523,7 @@
   },
   "/api/v1/acessos/operadora/{cnpj}": {
    "get": {
-    "description": "Unifica, por CNPJ: outorga(s) SCM, ASNs do Registro.br com agregação de rede\n(usuários, blocos IPv4/v6, IX.br, RPKI/ASPA, alertas) e, quando a operadora\ndeclara ao SICI, os acessos de banda larga fixa. Existe se **qualquer** desses\ntrês existir — o bloco `sici` vem ausente quando não há declaração.\n\n`asns` são os registrados com o mesmo CNPJ (fato). `asns_vinculados` traz todos os ASNs ligados ao CNPJ, cada um com `vinculo`\n(`cnpj`, `raiz` = outro CNPJ da mesma raiz de 8 dígitos, `marca` = tabela curada, `estrangeiro` = AS de fora ligado pela marca) e\n`selo` (fato só no `cnpj`); `asn_vinculo` é o mais forte (ou `nenhum`). `rede` soma os ASNs de `cnpj` e `raiz` (a mesma pessoa\njurídica) e marca o `vinculo` de cada um; os de `marca` e `estrangeiro` não entram na soma. Regra em `regra_vinculo`.",
+    "description": "Unifica, por CNPJ: outorga(s) SCM, ASNs do Registro.br com agregação de rede\n(usuários, blocos IPv4/v6, IX.br, RPKI/ASPA, alertas) e, quando a operadora\ndeclara ao SICI, os acessos de banda larga fixa. Existe se **qualquer** desses\ntrês existir — o bloco `sici` vem ausente quando não há declaração.\n\n`municipios_detalhe` traz, por município, os acessos da operadora e, do total declarado no município (mês `mes_referencia` do SICI): `municipio_acessos`, `share`\n(parcela da operadora em %, nula sem o índice do município), `municipio_operadores` (declarantes) e `municipio_hhi` (HHI local por CNPJ, método do projeto).\n\n`asns` são os registrados com o mesmo CNPJ (fato). `asns_vinculados` traz todos os ASNs ligados ao CNPJ, cada um com `vinculo`\n(`cnpj`, `raiz` = outro CNPJ da mesma raiz de 8 dígitos, `marca` = tabela curada, `estrangeiro` = AS de fora ligado pela marca) e\n`selo` (fato só no `cnpj`); `asn_vinculo` é o mais forte (ou `nenhum`). `rede` soma os ASNs de `cnpj` e `raiz` (a mesma pessoa\njurídica) e marca o `vinculo` de cada um; os de `marca` e `estrangeiro` não entram na soma. Regra em `regra_vinculo`.",
     "operationId": "acessos_operadora_api_v1_acessos_operadora__cnpj__get",
     "parameters": [
      {
@@ -9368,6 +9368,155 @@
     ]
    }
   },
+  "/api/v1/grupos/{grupo_id}/municipios": {
+   "get": {
+    "description": "Uma linha por município em que ao menos um CNPJ do grupo declarou acessos fixos ao SICI no `mes_referencia` (que não é a data do snapshot): `acessos` do conjunto,\n`parcela` (acessos do conjunto ÷ acessos declarados por todas as empresas no município, em %), `declarantes` (empresas que declararam no município),\n`hhi_grupo` (HHI local contando os CNPJs do mesmo grupo como um; **inferido** do quadro societário) e `hhi_cnpj` (HHI local por CNPJ, o declarado), com a faixa de cada um\n(método do projeto; ver `limites`) e os `avisos` de recorte (`poucos_casos`; nada é suprimido). `resumo` conta os municípios do conjunto inteiro, não só os da página.\n\nFiltros: `uf` e `q` (parte do nome do município). Ordem: `acessos` (padrão, decrescente), `parcela`, `hhi`, `nome`, `uf`; empate pelo código IBGE. Paginação por `page` e `limit`\n(prévia de 100 linhas; além disso, login). Só estrutura entre empresas e municípios: nenhum sócio pessoa física. S.A. não tem grupo inferível (`grupo_inferivel: false`): o conjunto é o CNPJ.",
+    "operationId": "grupo_municipios_api_v1_grupos__grupo_id__municipios_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "grupo_id",
+      "required": true,
+      "schema": {
+       "title": "Grupo Id",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Data do snapshot (YYYY-MM-DD).",
+      "in": "query",
+      "name": "date",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Data do snapshot (YYYY-MM-DD).",
+       "title": "Date"
+      }
+     },
+     {
+      "description": "UF do município.",
+      "in": "query",
+      "name": "uf",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 2,
+         "minLength": 2,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "UF do município.",
+       "title": "Uf"
+      }
+     },
+     {
+      "description": "Parte do nome do município.",
+      "in": "query",
+      "name": "q",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 80,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Parte do nome do município.",
+       "title": "Q"
+      }
+     },
+     {
+      "description": "Um de: acessos, parcela, hhi, nome, uf.",
+      "in": "query",
+      "name": "ordem",
+      "required": false,
+      "schema": {
+       "default": "acessos",
+       "description": "Um de: acessos, parcela, hhi, nome, uf.",
+       "title": "Ordem",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Ordem decrescente (padrão); `false` para crescente.",
+      "in": "query",
+      "name": "desc",
+      "required": false,
+      "schema": {
+       "default": true,
+       "description": "Ordem decrescente (padrão); `false` para crescente.",
+       "title": "Desc",
+       "type": "boolean"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 25,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Grupo Municipios Api V1 Grupos  Grupo Id  Municipios Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Onde o grupo atua: municípios com parcela, declarantes e HHI local (PT-23)",
+    "tags": [
+     "grupos"
+    ]
+   }
+  },
   "/api/v1/grupos/{grupo_id}/prefixos-geo": {
    "get": {
     "description": "GeoJSON FeatureCollection com a distribuição geográfica dos blocos IPv6/IPv4\n(tabela de roteamento global) de todos os ASNs das empresas do grupo,\nagregados por cidade. Use como fallback no mapa **somente quando o grupo não\ntiver município nenhum** em `GET /grupos` (ou seja, nenhuma empresa do grupo\ndeclarou acessos ao SICI) — calculado sob demanda, não vem no payload de\n`GET /grupos` porque geolocalizar prefixo por prefixo é caro.\n\nCada feature tem `properties.afi` (\"v4\"|\"v6\") e `block_count`.",
@@ -13673,7 +13822,7 @@
   },
   "/api/v1/mercado/grupos": {
    "get": {
-    "description": "Resumo do cruzamento de mercado: o HHI do mercado fixo por UF **por CNPJ e por grupo econômico** (CNPJs do mesmo grupo contam como um) e quantos municípios mudam de faixa\n(competitivo, moderado, concentrado) ao juntar os CNPJs do grupo. O grupo é **inferido** do quadro societário em comum e o HHI é sobre acessos declarados, não receita. A lista por município e a\nsobreposição de concorrentes vêm de `include=mercado_grupos` nos perfis de município, UF e operadora.",
+    "description": "Resumo do cruzamento de mercado: o HHI do mercado fixo por UF **por CNPJ e por grupo econômico** (CNPJs do mesmo grupo contam como um) e quantos municípios mudam de faixa\n(competitivo, moderado, concentrado) ao juntar os CNPJs do grupo. No país e em cada UF, `municipios_por_faixa_cnpj` e `municipios_por_faixa_grupo` contam os municípios em cada faixa de HHI local\n(`sem_dado` quando o município não tem HHI; a soma é o total de municípios) e `brasil` traz o HHI nacional por CNPJ como contraste. O grupo é **inferido** do quadro societário em comum e o HHI é sobre acessos declarados, não receita. A lista por município e a\nsobreposição de concorrentes vêm de `include=mercado_grupos` nos perfis de município, UF e operadora.",
     "operationId": "mercado_grupos_api_v1_mercado_grupos_get",
     "parameters": [
      {

@@ -32,6 +32,7 @@ from api.auth.deps import require_user
 from api.ratelimit import limiter, LIMIT_CONTACTS
 from api import contatos_cota
 from api.routes.asns import _contacts_available, montar_contatos_operadora
+from api.services.onde_atua import enriquecer_municipios_operadora
 from api.store import Store
 
 router = APIRouter()
@@ -336,6 +337,9 @@ Unifica, por CNPJ: outorga(s) SCM, ASNs do Registro.br com agregação de rede
 declara ao SICI, os acessos de banda larga fixa. Existe se **qualquer** desses
 três existir — o bloco `sici` vem ausente quando não há declaração.
 
+`municipios_detalhe` traz, por município, os acessos da operadora e, do total declarado no município (mês `mes_referencia` do SICI): `municipio_acessos`, `share`
+(parcela da operadora em %, nula sem o índice do município), `municipio_operadores` (declarantes) e `municipio_hhi` (HHI local por CNPJ, método do projeto).
+
 `asns` são os registrados com o mesmo CNPJ (fato). `asns_vinculados` traz todos os ASNs ligados ao CNPJ, cada um com `vinculo`
 (`cnpj`, `raiz` = outro CNPJ da mesma raiz de 8 dígitos, `marca` = tabela curada, `estrangeiro` = AS de fora ligado pela marca) e
 `selo` (fato só no `cnpj`); `asn_vinculo` é o mais forte (ou `nenhum`). `rede` soma os ASNs de `cnpj` e `raiz` (a mesma pessoa
@@ -381,6 +385,7 @@ def acessos_operadora(
             ({"ibge": ibge, **mun} for ibge, mun in agg.get("por_municipio", {}).items()),
             key=lambda m: -m["acessos"],
         )
+        municipios = enriquecer_municipios_operadora(municipios, store.sici_municipios(date_str))      # parcela, declarantes e HHI locais (PT-23)
         result.update({
             "mes_referencia": meta.get("mes_referencia"),
             **{k: v for k, v in agg.items() if k != "por_municipio"},

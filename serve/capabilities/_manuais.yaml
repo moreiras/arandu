@@ -76,6 +76,8 @@
   mcp: operadora_grupo
 - http: GET /grupos/{grupo_id}
   mcp: grupo_perfil
+- http: GET /grupos/{grupo_id}/municipios
+  sem_mcp: "tabela de apresentação da página de grupo (parcela, declarantes e HHI local por município, paginada); o MCP tem grupo_perfil e query(collection=acessos_municipio), com parcela, declarantes e HHI por CNPJ"
 - http: GET /grupos/{grupo_id}/prefixos-geo
   sem_mcp: "blob de visualização (GeoJSON); fora do MCP"
 - http: GET /hilbert/v4

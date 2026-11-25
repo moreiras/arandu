@@ -293,3 +293,11 @@ def test_eventos_sem_de_nao_alcancam_o_historico_para_anonimo():
 def test_datas_atuais_sao_as_mesmas_da_rota_e_da_regra():
     from api.auth import access_policy as ap
     assert ap.N_DATAS_ATUAIS == 2
+
+
+def test_municipios_do_grupo_previa_medida_e_ampliar_exige_login():
+    path = "/api/v1/grupos/grp_09132659/municipios"
+    assert c(path, {"date": RECENT[0]}) == METERED
+    assert c(path, {"limit": str(PREVIEW_LIMIT)}) == METERED
+    assert c(path, {"page": "2"}) == LOGIN
+    assert c(path, {"limit": str(PREVIEW_LIMIT + 1)}) == LOGIN

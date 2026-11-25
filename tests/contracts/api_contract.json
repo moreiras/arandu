@@ -1365,6 +1365,25 @@
    "status": 200,
    "tipo": "objeto"
   },
+  "GET /api/v1/grupos/{grupo_id}/municipios": {
+   "chaves": [
+    "filtros",
+    "grupo_id",
+    "items",
+    "limit",
+    "limites",
+    "mes_referencia",
+    "natureza",
+    "ordem",
+    "page",
+    "resumo",
+    "snapshot_date",
+    "tamanho",
+    "total"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
   "GET /api/v1/grupos/{grupo_id}/prefixos-geo": {
    "chaves": [
     "features",
@@ -2008,6 +2027,7 @@
   },
   "GET /api/v1/mercado/grupos": {
    "chaves": [
+    "brasil",
     "faixas",
     "fonte",
     "limites",

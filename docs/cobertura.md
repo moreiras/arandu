@@ -4,7 +4,7 @@ Gerado por `python3 scripts/gen_cobertura.py` a partir do OpenAPI, do MCP, do fr
 Não edite à mão. Rota nova precisa de uma entrada em `serve/capabilities/_manuais.yaml` (ou de uma capacidade declarada); lacuna
 sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rotas que os substituem.
 
-- Rotas de dados (GET, não deprecated): **176**; com tool no MCP: **141**; consumidas pela interface: **144**.
+- Rotas de dados (GET, não deprecated): **177**; com tool no MCP: **141**; consumidas pela interface: **145**.
 - Pendências marcadas (`pendente:`): **0**; lacunas sem justificativa: **0**.
 - Tools do MCP geradas de capacidade declarada: **2** de 58.
 
@@ -88,6 +88,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /grupos` | `query:socios` | ✔ |  |
 | `GET /grupos/empresa/{cnpj}` | `operadora_grupo` | ✔ |  |
 | `GET /grupos/{grupo_id}` | `grupo_perfil` | ✔ |  |
+| `GET /grupos/{grupo_id}/municipios` | — | ✔ | MCP: tabela de apresentação da página de grupo (parcela, declarantes e HHI local por município, paginada); o MCP tem grupo_perfil e query(collection=acessos_municipio), com parcela, declarantes e HHI por CNPJ |
 | `GET /grupos/{grupo_id}/prefixos-geo` | — | ✔ | MCP: blob de visualização (GeoJSON); fora do MCP |
 | `GET /hilbert/v4` | `viz` | ✔ |  |
 | `GET /hilbert/v4/detail` | `viz` | ✔ |  |

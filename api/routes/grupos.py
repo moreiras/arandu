@@ -15,6 +15,9 @@ from __future__ import annotations
 import re
 from typing import Optional
 
+from collections import OrderedDict
+from threading import Lock
+
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from api.store import Store
@@ -191,6 +194,83 @@ def get_grupo(
     if "mercado" in extras:
         resposta["mercado_fixo"] = _mercado(store, date_str, g)
     return resposta
+
+
+#: linhas por município de um grupo, por (data, grupo): a lista pagina, filtra e reordena sobre a mesma montagem (a chave leva a data, como pede `api/memoria.py`)
+_cache_onde_atua: "OrderedDict[tuple[str, str], list[dict]]" = OrderedDict()
+_cache_onde_atua_lock = Lock()
+_CACHE_ONDE_ATUA_MAX = 24
+
+
+def _grupo_ou_404(store: Store, date_str: str, grupo_id: str) -> dict:
+    gs = store.grupos_societarios_overview(date_str)
+    g = next((x for x in gs if x["grupo_id"] == grupo_id), None)
+    if g is None:
+        atual = store.grupo_equivalente(date_str, grupo_id)
+        g = next((x for x in gs if x["grupo_id"] == atual), None) if atual else None
+    if g is None:
+        raise HTTPException(404, f"Grupo '{grupo_id}' não encontrado no snapshot '{date_str}'")
+    return g
+
+
+@router.get(
+    "/grupos/{grupo_id}/municipios",
+    summary="Onde o grupo atua: municípios com parcela, declarantes e HHI local (PT-23)",
+    description="""
+Uma linha por município em que ao menos um CNPJ do grupo declarou acessos fixos ao SICI no `mes_referencia` (que não é a data do snapshot): `acessos` do conjunto,
+`parcela` (acessos do conjunto ÷ acessos declarados por todas as empresas no município, em %), `declarantes` (empresas que declararam no município),
+`hhi_grupo` (HHI local contando os CNPJs do mesmo grupo como um; **inferido** do quadro societário) e `hhi_cnpj` (HHI local por CNPJ, o declarado), com a faixa de cada um
+(método do projeto; ver `limites`) e os `avisos` de recorte (`poucos_casos`; nada é suprimido). `resumo` conta os municípios do conjunto inteiro, não só os da página.
+
+Filtros: `uf` e `q` (parte do nome do município). Ordem: `acessos` (padrão, decrescente), `parcela`, `hhi`, `nome`, `uf`; empate pelo código IBGE. Paginação por `page` e `limit`
+(prévia de 100 linhas; além disso, login). Só estrutura entre empresas e municípios: nenhum sócio pessoa física. S.A. não tem grupo inferível (`grupo_inferivel: false`): o conjunto é o CNPJ.
+""",
+)
+def grupo_municipios(
+    grupo_id: str,
+    request: Request,
+    date: Optional[str] = Query(None, description="Data do snapshot (YYYY-MM-DD)."),
+    uf: Optional[str] = Query(None, min_length=2, max_length=2, description="UF do município."),
+    q: Optional[str] = Query(None, max_length=80, description="Parte do nome do município."),
+    ordem: str = Query("acessos", description="Um de: acessos, parcela, hhi, nome, uf."),
+    desc: bool = Query(True, description="Ordem decrescente (padrão); `false` para crescente."),
+    limit: int = Query(25, ge=1, le=200),
+    page: int = Query(1, ge=1),
+) -> dict:
+    from api.services import onde_atua as oa
+
+    store: Store = request.app.state.store
+    date_str = store.resolve_date(date)
+    if date_str is None:
+        raise HTTPException(404, "Nenhum snapshot disponível")
+    g = _grupo_ou_404(store, date_str, grupo_id)
+    dados = store._load_sici(date_str)
+    muns = store.sici_municipios(date_str)
+    if not dados or not muns:
+        raise HTTPException(404, f"O SICI não está publicado no snapshot '{date_str}'.")
+    chave = (date_str, g["grupo_id"])
+    with _cache_onde_atua_lock:
+        linhas = _cache_onde_atua.get(chave)
+        if linhas is not None:
+            _cache_onde_atua.move_to_end(chave)
+    if linhas is None:
+        linhas = oa.linhas_do_grupo([x["cnpj"] for x in g["cnpjs"]], dados.get("cnpjs", {}), muns, store.mercado_grupos(date_str))
+        with _cache_onde_atua_lock:
+            _cache_onde_atua[chave] = linhas
+            while len(_cache_onde_atua) > _CACHE_ONDE_ATUA_MAX:
+                _cache_onde_atua.popitem(last=False)
+    try:
+        r = oa.pagina(linhas, uf, q, ordem, desc, limit, (page - 1) * limit)
+    except oa.OndeAtuaErro as e:
+        raise HTTPException(e.status, e.mensagem)
+    return {
+        "snapshot_date": date_str, "grupo_id": g["grupo_id"], "mes_referencia": (store.sici_meta(date_str) or {}).get("mes_referencia"),
+        "tamanho": g["tamanho"], **{k: g[k] for k in ("grupo_inferivel", "grupo_inferivel_rotulo", "como_ler") if k in g},
+        "natureza": "fato (acessos declarados ao SICI, banda larga fixa) com agrupamento inferido; o HHI por CNPJ é o declarado", "limites": oa.LIMITES,
+        "resumo": oa.resumo_do_grupo(linhas),
+        "filtros": {"uf": uf, "q": q}, "ordem": oa.ORDENS[ordem] + (" (decrescente)" if desc else " (crescente)"), "page": page, "limit": limit,
+        **r,
+    }
 
 
 @router.get(

@@ -119,7 +119,8 @@ router.add_api_route("/omissao-sici", sem_declaracao_sici_alias, methods=["GET"]
     summary="Concentração por grupo econômico: faixas, municípios que mudam de faixa e HHI por UF",
     description="""
 Resumo do cruzamento de mercado: o HHI do mercado fixo por UF **por CNPJ e por grupo econômico** (CNPJs do mesmo grupo contam como um) e quantos municípios mudam de faixa
-(competitivo, moderado, concentrado) ao juntar os CNPJs do grupo. O grupo é **inferido** do quadro societário em comum e o HHI é sobre acessos declarados, não receita. A lista por município e a
+(competitivo, moderado, concentrado) ao juntar os CNPJs do grupo. No país e em cada UF, `municipios_por_faixa_cnpj` e `municipios_por_faixa_grupo` contam os municípios em cada faixa de HHI local
+(`sem_dado` quando o município não tem HHI; a soma é o total de municípios) e `brasil` traz o HHI nacional por CNPJ como contraste. O grupo é **inferido** do quadro societário em comum e o HHI é sobre acessos declarados, não receita. A lista por município e a
 sobreposição de concorrentes vêm de `include=mercado_grupos` nos perfis de município, UF e operadora.
 """,
 )
@@ -132,7 +133,8 @@ def mercado_grupos(request: Request, date: Optional[str] = Query(None)) -> dict:
     if not doc:
         raise HTTPException(404, f"Cruzamento de mercado não publicado no snapshot {d}.")
     from api.services.sici_indicadores import resumo_mercado_grupos
-    return resumo_mercado_grupos(doc)
+    ind = store.sici_indicadores(d) or {}
+    return resumo_mercado_grupos(doc, ind.get("brasil"))
 
 
 @router.get(
