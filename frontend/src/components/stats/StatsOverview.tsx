@@ -226,7 +226,7 @@ function RpkiSection({ rpki }: { rpki: RpkiSummary | null }) {
                   startAngle={90}
                   endAngle={-270}
                 >
-                  {donutData.map((e) => <Cell key={e.name} fill={e.color} />)}
+                  {donutData.map((e) => <Cell key={e.name} fill={e.color} aria-label={e.name} />)}
                 </Pie>
                 <Tooltip formatter={(v: number, name: string) => [fmtN(v), name]} />
               </PieChart>
@@ -367,7 +367,7 @@ export function StatsOverview({ summary, date }: { summary: SnapshotSummary | nu
               <ResponsiveContainer width="100%" height={150}>
                 <PieChart>
                   <Pie data={ipv6Donut} dataKey="value" innerRadius={46} outerRadius={66} paddingAngle={2} startAngle={90} endAngle={-270}>
-                    {ipv6Donut.map((e) => <Cell key={e.name} fill={e.color} />)}
+                    {ipv6Donut.map((e) => <Cell key={e.name} fill={e.color} aria-label={e.name} />)}
                   </Pie>
                   <Tooltip formatter={(v: number) => fmtN(v)} />
                 </PieChart>

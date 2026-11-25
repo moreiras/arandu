@@ -99,7 +99,7 @@ export function TvPorAssinaturaSection({ date }: { date?: string }) {
               <ResponsiveContainer width="100%" height={160}>
                 <PieChart>
                   <Pie data={donut} dataKey="value" innerRadius={48} outerRadius={68} paddingAngle={2} startAngle={90} endAngle={-270}>
-                    {donut.map(e => <Cell key={e.name} fill={e.color} />)}
+                    {donut.map(e => <Cell key={e.name} fill={e.color} aria-label={e.name} />)}
                   </Pie>
                   <Tooltip formatter={(v: number, name: string) => [fmt(v), name]} />
                 </PieChart>
