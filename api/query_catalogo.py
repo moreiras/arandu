@@ -315,6 +315,7 @@ SCHEMA: dict[str, dict] = {
             _f("asns_vinculados", "array[int]",
                "Todos os ASNs ligados ao CNPJ por qualquer vínculo de asn_vinculo (inclui os de `asns`). Use contains/ncontains."),
             _f("com_asn", "bool", "A operadora tem ASN brasileiro vinculado: asn_vinculo é cnpj, raiz ou marca"),
+            _f("mes_referencia", "string", "Mês da declaração ao SICI (AAAA-MM) de que vêm os acessos", example="2026-09"),
             _f("municipio_acessos", "int", "Total de acessos do município (todas)"),
             _f("municipio_operadores", "int", "Quantas operadoras atendem o município"),
             _f("municipio_hhi", "int",
@@ -631,6 +632,7 @@ SCHEMA["municipios"] = {
         _f("domicilios_projetados", "int", "Domicílios do Censo × crescimento de domicílios da UF na PNAD (estimativa; base da penetração)"),
         _f("fator_projecao_uf", "float", "Crescimento de domicílios da UF entre o Censo e o ano mais recente da PNAD"),
         _f("penetracao_censo", "float", "acessos ÷ domicílios do Censo (sem projeção; superestima a penetração atual)"),
+        _f("mes_referencia", "string", "Mês da declaração ao SICI (AAAA-MM) de que vêm `acessos`, `acessos_pf` e a penetração", example="2026-09"),
         _f("acessos", "int", "Acessos fixos declarados ao SICI (0 se o município não tem declaração)"),
         _f("acessos_pf", "int", "Acessos fixos de pessoa física"),
         _f("sem_declaracao_sici", "bool", "Nenhuma operadora declarou acessos no município"),
@@ -1351,6 +1353,9 @@ OPS_GUIDE: dict[str, str] = {
     "contains/ncontains": "substring em string (case-insensitive) OU pertinência em array. "
                           "É o operador para campos array como ixps_direct/ixps_origin/asns.",
     "exists": "value true/false — campo presente e não-nulo.",
+    "aggregate/group_by": "agregação (group_by e/ou aggregate): `count` sem field conta linhas do grupo; `count` com field conta só os valores não nulos "
+                          "daquele campo; sum/avg/min/max ignoram nulos. `sort` vale para os grupos e nomeia o alias do agregado (`count`, `sum_acessos` ou o `as`) "
+                          "ou um campo de group_by; `limit` e `page` cortam os grupos (sem eles vêm todos, até 5.000) e a resposta traz `total_grupos`.",
     "within_radius": "geo; prefira a conveniência `near` no corpo da query (não monte à mão).",
 }
 
@@ -1561,6 +1566,7 @@ RECIPES: list[dict] = [
             "filter": {"field": "ixps_seen", "op": "contains", "value": "sp"},
             "group_by": ["country"],
             "aggregate": [{"fn": "count"}],
+            "sort": [{"field": "count", "dir": "desc"}],
             "limit": 20,
         },
     },
@@ -1603,7 +1609,7 @@ RECIPES: list[dict] = [
                 {"field": "populacao", "op": "gte", "value": 20000},
                 {"field": "penetracao", "op": "lt", "value": 0.5},
             ]},
-            "select": ["ibge", "nome", "uf", "populacao", "domicilios", "acessos", "penetracao", "km_ptt", "ptt_proximo"],
+            "select": ["ibge", "nome", "uf", "populacao", "domicilios", "acessos", "penetracao", "km_ptt", "ptt_proximo", "mes_referencia"],
             "sort": [{"field": "populacao", "dir": "desc"}],
             "limit": 25,
         },

@@ -30,7 +30,8 @@ def describe_schema(collection: Optional[str] = None) -> dict:
         "filter": '{"field": "uf", "op": "eq", "value": "SC"} ou {"and": [...]} / {"or": [...]} / {"not": ...}',
         "ops": OPS_GUIDE,
         "sort": '[{"field": "apnic_users", "dir": "desc"}]',
-        "aggregate": '[{"fn": "count"}, {"fn": "sum", "field": "apnic_users"}] com group_by: ["uf"]',
+        "aggregate": '[{"fn": "count"}, {"fn": "sum", "field": "apnic_users"}] com group_by: ["uf"]. count sem field conta linhas, com field conta valores não nulos; '
+                     'sort, limit e page valem para os grupos (sort pelo alias, ex. sum_apnic_users, ou por campo de group_by); total_grupos na resposta',
         "near": '{"ixp": "vix", "radius_km": 50} | {"place": "Mossoró", "radius_km": 100} | {"point": [lat, lon], "radius_km": N}',
     }
     if collection is None:
@@ -62,8 +63,8 @@ def query(
     group_by: Optional[list] = None,
     aggregate: Optional[list] = None,
     near: Optional[dict] = None,
-    page: int = 1,
-    limit: int = 100,
+    page: Optional[int] = None,
+    limit: Optional[int] = None,
     date: Optional[str] = None,
     de: Optional[str] = None,
 ) -> dict:
@@ -90,7 +91,11 @@ def query(
             não pode ser anterior ao snapshot atual mais antigo.
     """
     d = _resolve(date)
-    body: dict = {"page": page, "limit": limit}
+    body: dict = {}                       # sem `limit`/`page` a lista vale 100 por página e a agregação devolve todos os grupos
+    if page is not None:
+        body["page"] = page
+    if limit is not None:
+        body["limit"] = limit
     if de is not None:
         body["de"] = de
     if filter is not None:

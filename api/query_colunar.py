@@ -109,7 +109,7 @@ def execute(tab: TabelaColunar, body: dict) -> dict:
     if body.get("group_by") or body.get("aggregate"):
         rows = _linhas_minimas(tab, idx, _campos_de(body))
         # o filtro já foi aplicado; `execute` por linhas só agrega
-        return _q.execute(rows, {k: v for k, v in body.items() if k not in ("filter", "sort", "select")})
+        return _q.execute(rows, {k: v for k, v in body.items() if k not in ("filter", "select")})
 
     sort = body.get("sort") or []
     if sort:

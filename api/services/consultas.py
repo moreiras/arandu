@@ -245,7 +245,8 @@ class ConsultasService:
         elif collection == "socios":
             rows = [self._socios_sem_endereco(r) for r in self.socios_grupos_index(date_str)]
         elif collection == "municipios":
-            rows = self.territorio_linhas(date_str)
+            mes = (self.sici_meta(date_str) or {}).get("mes_referencia") or None      # os acessos vêm do SICI fixo
+            rows = [{**r, "mes_referencia": mes} for r in self.territorio_linhas(date_str)]
         elif collection == "cetic_indicadores":
             from api.services.cetic import linhas as _linhas_cetic
             rows = _linhas_cetic([d for d in (self.cetic_doc(date_str, p) for p in ("domicilios", "provedores")) if d])

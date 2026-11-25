@@ -149,7 +149,9 @@ def validate(collection: str, body: dict, sample_row: Optional[dict] = None) -> 
     row_keys = set(sample_row or {})
     allowed_top = prefixes | row_keys
 
-    for ref in _field_refs(body):
+    agregando = bool(body.get("group_by") or body.get("aggregate"))
+    refs = _field_refs({**body, "sort": []} if agregando else body)    # na agregação o sort nomeia grupos e agregados (conferido em `execute`)
+    for ref in refs:
         if ref in known or ref in row_keys:
             continue
         if "." in ref and ref.split(".")[0] in allowed_top:
@@ -361,16 +363,17 @@ def _sort_key(field: str, desc: bool):
     return key
 
 
-def _ordenar(rows: list[dict], field: str, desc: bool) -> list[dict]:
+def _ordenar(rows: list, field: str, desc: bool, valor=None) -> list:
     """Ordena por um campo, ausentes sempre por último. `reverse` (estável) em vez de negar o valor: a negação só valia para números e
     `dir: desc` num campo de texto saía em ordem crescente."""
+    valor = valor or _get
     pres, aus = [], []
     for r in rows:
-        v = _get(r, field)
+        v = valor(r, field)
         (aus if v is _MISSING or v is None else pres).append(r)
 
     def chave(r):
-        v = _get(r, field)
+        v = valor(r, field)
         return int(v) if isinstance(v, bool) else v
     try:
         pres.sort(key=chave, reverse=desc)
@@ -383,6 +386,18 @@ def _project(row: dict, select: Optional[list[str]]) -> dict:
     if not select:
         return row
     return {f: (None if (_get(row, f) is _MISSING) else _get(row, f)) for f in select}
+
+
+def _alias_agg(agg: dict) -> str:
+    """Nome do agregado na resposta: `as`, ou `count` / `<fn>_<campo>`."""
+    fn = agg.get("fn")
+    return agg.get("as") or (fn if fn == "count" else f"{fn}_{agg.get('field')}")
+
+
+def _aliases(body: dict) -> list[str]:
+    """Aliases dos agregados do corpo (os de `count` sem `aggregate` incluídos), para validar `sort` no modo agregação."""
+    aggs = body.get("aggregate") or [{"fn": "count"}]
+    return [_alias_agg(a) for a in aggs if isinstance(a, dict)]
 
 
 def _aggregate(rows: list[dict], group_by: list[str], aggs: list[dict]) -> list[dict]:
@@ -405,11 +420,12 @@ def _aggregate(rows: list[dict], group_by: list[str], aggs: list[dict]) -> list[
             fn = agg.get("fn")
             if fn not in _AGG_FNS:
                 raise QueryError(f"função de agregação inválida: {fn!r}")
-            alias = agg.get("as") or (fn if fn == "count" else f"{fn}_{agg.get('field')}")
-            if fn == "count":
-                entry[alias] = len(bucket)
-                continue
+            alias = _alias_agg(agg)
             field = agg.get("field")
+            if fn == "count":
+                # sem campo: linhas do grupo; com campo: só as que têm valor (não nulo) naquele campo
+                entry[alias] = len(bucket) if not field else sum(1 for r in bucket if _get(r, field) not in (_MISSING, None))
+                continue
             if not field:
                 raise QueryError(f"agregação '{fn}' exige 'field'")
             vals = [v for v in (_get(r, field) for r in bucket) if v is not _MISSING and v is not None]
@@ -427,6 +443,21 @@ def _aggregate(rows: list[dict], group_by: list[str], aggs: list[dict]) -> list[
                 entry[alias] = max(vals)
         out.append(entry)
     return out
+
+
+def _ordenar_grupos(grupos: list[dict], sort: list, group_by: list[str], aliases: list[str]) -> None:
+    """Ordena os grupos no lugar. Cada chave de `sort` é um alias de agregado (`sum_acessos`, `count`) ou um campo de `group_by`; o alias
+    vence se os nomes coincidem. Ausentes (None) sempre por último; empates mantêm a ordem de aparição."""
+    for s in reversed(sort):
+        if not isinstance(s, dict) or "field" not in s:
+            raise QueryError(f"sort inválido: {s!r}")
+        campo = s["field"]
+        if campo not in aliases and campo not in group_by:
+            raise QueryError(f"sort '{campo}' não vale na agregação: ordene por um agregado ({', '.join(aliases)}) ou por um campo de group_by "
+                             f"({', '.join(group_by) or 'nenhum'}).")
+        achatados = [{campo: (g[campo] if campo in aliases else g["key"][campo])} for g in grupos]
+        ordem = _ordenar(list(range(len(grupos))), campo, s.get("dir") == "desc", lambda i, f: achatados[i][f])
+        grupos[:] = [grupos[i] for i in ordem]
 
 
 def execute(rows: list[dict], body: dict) -> dict:
@@ -447,8 +478,15 @@ def execute(rows: list[dict], body: dict) -> dict:
             aggs = [{"fn": "count"}]
         if not isinstance(aggs, list):
             raise QueryError("aggregate deve ser uma lista")
-        return {"mode": "aggregate", "matched": len(filtered),
-                "groups": _aggregate(filtered, group_by, aggs)}
+        grupos = _aggregate(filtered, group_by, aggs)
+        _ordenar_grupos(grupos, body.get("sort") or [], group_by, [_alias_agg(a) for a in aggs])
+        resp = {"mode": "aggregate", "matched": len(filtered), "total_grupos": len(grupos)}
+        if "limit" in body or "page" in body:       # sem `limit`/`page` valem todos os grupos, como antes (os cartões da home dependem disso)
+            limit = max(1, min(int(body.get("limit", 100)), 1000))
+            page = max(1, int(body.get("page", 1)))
+            resp.update(page=page, limit=limit, pages=(len(grupos) + limit - 1) // limit if grupos else 0)
+            grupos = grupos[(page - 1) * limit:page * limit]
+        return {**resp, "groups": grupos}
 
     # Modo lista
     sort = body.get("sort") or []

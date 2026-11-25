@@ -33,7 +33,13 @@ export interface EstadoConsulta {
   perto: { lugar: string; raio: number } | null
   agrupar: string[]
   agregados: Agregado[]
+  /** Início do histórico (AAAA-MM-DD), só para as coleções de `COLECOES_HISTORICO`: sem login o servidor exige `de` (EXP-E4). */
+  de?: string
 }
+
+/** Coleções de histórico: não dependem de `date`, e o `de` delimita o período. */
+export const COLECOES_HISTORICO = ['eventos', 'series_asn']
+const DATA_ISO = /^\d{4}-\d{2}-\d{2}$/
 
 export const LIMITES = [10, 25, 50, 100, 250, 500, 1000]
 
@@ -113,6 +119,17 @@ export function converterValor(c: CampoSchema | undefined, op: Operador, texto: 
 
 export interface Predicado { field: string; op: Operador; value: unknown }
 
+/** Cálculos que vão ao servidor (`count` sem campo e os que têm campo) com o nome que a resposta lhes dá (`as`). */
+function calculos(e: EstadoConsulta): Array<{ fn: string; field?: string; as?: string }> {
+  const ags = e.agregados.filter((a) => a.fn === 'count' || a.campo)
+  return (ags.length ? ags : [{ fn: 'count', campo: '' }]).map((a) => (a.campo ? { fn: a.fn, field: a.campo, as: `${a.fn}_${a.campo}` } : { fn: a.fn }))
+}
+
+/** Chaves por que a agregação pode ser ordenada: os campos de `group_by` e os nomes dos cálculos (`count`, `sum_acessos`). */
+export function chavesDeOrdemNaAgregacao(e: EstadoConsulta): string[] {
+  return [...e.agrupar, ...calculos(e).map((c) => c.as ?? c.fn)]
+}
+
 /** Estado → corpo da consulta. Condições incompletas (campo vazio) são ignoradas; valores inválidos lançam `Error`. */
 export function montarCorpo(e: EstadoConsulta, schema: SchemaConsulta): Record<string, unknown> {
   const col = schema.collections[e.colecao]
@@ -124,11 +141,15 @@ export function montarCorpo(e: EstadoConsulta, schema: SchemaConsulta): Record<s
   if (e.perto && e.perto.lugar.trim()) corpo.near = { place: e.perto.lugar.trim(), radius_km: e.perto.raio }
   if (e.modo === 'agregar') {
     if (e.agrupar.length) corpo.group_by = e.agrupar
-    const ags = e.agregados.filter((a) => a.fn === 'count' || a.campo)
-    corpo.aggregate = (ags.length ? ags : [{ fn: 'count', campo: '' }]).map((a) => (a.campo ? { fn: a.fn, field: a.campo, as: `${a.fn}_${a.campo}` } : { fn: a.fn }))
+    corpo.aggregate = calculos(e)
   } else if (e.colunas.length) corpo.select = e.colunas
-  if (e.ordem?.campo) corpo.sort = [{ field: e.ordem.campo, dir: e.ordem.dir }]
+  // na agregação o servidor ordena os grupos por campo de `group_by` ou por cálculo; um campo da coleção fora disso seria recusado
+  if (e.ordem?.campo && (e.modo !== 'agregar' || chavesDeOrdemNaAgregacao(e).includes(e.ordem.campo))) corpo.sort = [{ field: e.ordem.campo, dir: e.ordem.dir }]
   corpo.limit = e.limite
+  if (e.de && COLECOES_HISTORICO.includes(e.colecao)) {
+    if (!DATA_ISO.test(e.de)) throw new Error('"a partir de" deve ser uma data AAAA-MM-DD')
+    corpo.de = e.de
+  }
   if (e.pagina > 1) corpo.page = e.pagina
   return corpo
 }
@@ -181,6 +202,7 @@ export function deUrl(p: URLSearchParams, schema: SchemaConsulta): EstadoConsult
       pagina: Math.max(1, Number(o.pagina) || 1),
       perto: o.perto && typeof o.perto.lugar === 'string' ? { lugar: o.perto.lugar, raio: Number(o.perto.raio) || 20 } : null,
       agrupar: (o.agrupar ?? []).filter((n) => nomes.has(n)),
+      de: typeof o.de === 'string' && DATA_ISO.test(o.de) && COLECOES_HISTORICO.includes(c) ? o.de : undefined,
       agregados: (o.agregados ?? base.agregados).filter((a) => a && typeof a.fn === 'string' && schema.aggregate_functions.includes(a.fn)).map((a) => ({ fn: a.fn, campo: nomes.has(a.campo) ? a.campo : '' })),
     }
   } catch {

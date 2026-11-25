@@ -660,3 +660,37 @@ def test_collection_com_nome_antigo_responde_pela_nova_com_aviso(srv):
     d_novo, d_velho = call(srv, "describe_schema", {"collection": "sem_declaracao_sici"}), call(srv, "describe_schema", {"collection": "omissao_sici"})
     assert d_velho["collection"] == "sem_declaracao_sici" and "aviso_obsoleta" in d_velho and "aviso_obsoleta" not in d_novo
     assert "omissao_sici" not in call(srv, "describe_schema", {})["collections"]
+
+
+def test_pt19_agregacao_do_query_e_igual_na_rest_e_no_mcp(srv, api):
+    """PT-19 / TRANSV-E10: mesmo código na REST e no MCP; sort por alias, limit, page, `total_grupos` e `count` com campo."""
+    from tests.products.api_contract import ALLOWED
+    corpo = {"group_by": ["empresa"], "aggregate": [{"fn": "sum", "field": "acessos"}, {"fn": "count"}, {"fn": "count", "field": "asns", "as": "com_asns"}],
+             "sort": [{"field": "sum_acessos", "dir": "desc"}]}
+    todos = call(srv, "query", {"collection": "acessos_municipio", **corpo})
+    assert todos["total_grupos"] == len(todos["groups"]) > 2
+    soma = [g["sum_acessos"] for g in todos["groups"]]
+    assert soma == sorted(soma, reverse=True) and all(g["com_asns"] <= g["count"] for g in todos["groups"])
+    rest = api.post("/api/v1/query/acessos_municipio", json={**corpo, "limit": 2}, headers=ALLOWED).json()
+    mcp = call(srv, "query", {"collection": "acessos_municipio", **corpo, "limit": 2})
+    assert rest == mcp and len(rest["groups"]) == 2 and rest["total_grupos"] == todos["total_grupos"] and rest["groups"] == todos["groups"][:2]
+    p2 = api.post("/api/v1/query/acessos_municipio", json={**corpo, "limit": 2, "page": 2}, headers=ALLOWED).json()
+    assert p2["groups"] == todos["groups"][2:4] == call(srv, "query", {"collection": "acessos_municipio", **corpo, "limit": 2, "page": 2})["groups"]
+    ruim = api.post("/api/v1/query/acessos_municipio", json={**corpo, "sort": [{"field": "acessos"}]}, headers=ALLOWED)
+    assert ruim.status_code == 400 and "sum_acessos" in ruim.json()["detail"]
+
+
+def test_pt19_mes_referencia_do_sici_em_municipios_e_acessos_municipio(srv, api):
+    """PT-19 / TRANSV-E11: as duas collections trazem o mês do SICI, no schema e nas linhas, na REST e no MCP."""
+    from tests.products.api_contract import ALLOWED
+    d = srv._store.resolve_date(None)
+    mes = srv._store.sici_meta(d)["mes_referencia"]
+    assert re.fullmatch(r"\d{4}-\d{2}", mes)
+    for colecao in ("municipios", "acessos_municipio"):
+        assert any(c["name"] == "mes_referencia" for c in call(srv, "describe_schema", {"collection": colecao})["campos"]), colecao
+        linhas = call(srv, "query", {"collection": colecao, "limit": 5})["items"]
+        assert linhas and {r["mes_referencia"] for r in linhas} == {mes}, colecao
+        filtrado = call(srv, "query", {"collection": colecao, "filter": {"field": "mes_referencia", "op": "eq", "value": mes}, "limit": 1})
+        assert filtrado["total"] == call(srv, "query", {"collection": colecao, "limit": 1})["total"]
+        rest = api.post(f"/api/v1/query/{colecao}", json={"limit": 1}, headers=ALLOWED).json()
+        assert rest["items"][0]["mes_referencia"] == mes

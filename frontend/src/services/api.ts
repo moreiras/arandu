@@ -779,6 +779,10 @@ export function fetchCaminho<T = unknown>(caminho: string, params?: Record<strin
  * 5.120 caracteres de corpo (`_MAX_CORPO_GET`, api/routes/query.py). Codificado ≤ 5.000 garante decodificado ≤ 5.000. */
 export const MAX_CORPO_NA_URL = 5000
 
+/** `esquema` 2: a agregação respeita `sort`, `limit` e `page` e traz `total_grupos`; `mes_referencia` em `municipios` e `acessos_municipio`
+ * (PT-19). A URL com `date` sai `immutable` por um ano: sem o parâmetro novo, o navegador e o nginx serviriam a resposta antiga. */
+const ESQUEMA_QUERY = 2
+
 /**
  * Consulta genérica de uma collection (mesmo motor do MCP): filtro, agregação, ordenação e paginação — ver `GET /api/v1/schema`.
  * Vai por GET (`?corpo=<JSON>`), que o navegador, o nginx e a API guardam: as perguntas prontas da página inicial são as mesmas para todo
@@ -790,7 +794,7 @@ export function queryColecao<T = unknown>(collection: string, body: Record<strin
   if (encodeURIComponent(corpo).length > MAX_CORPO_NA_URL) {
     return post(`/api/v1/query/${collection}`, body, date ? { date } : undefined, signal)
   }
-  return get(`/api/v1/query/${collection}`, { corpo, date }, signal)
+  return get(`/api/v1/query/${collection}`, { corpo, date, esquema: ESQUEMA_QUERY }, signal)
 }
 
 export function fetchMapQuery(body: MapQueryBody, date?: string, signal?: AbortSignal): Promise<MapQueryResponse> {

@@ -753,6 +753,22 @@ def test_query_tem_as_colecoes_eventos_e_series_asn(api):
     assert "hash_pfx" not in rows[0] and "is_br" not in rows[0]
 
 
+def test_query_de_delimita_o_historico_e_o_anonimo_precisa_dele(api):
+    """PT-19 / EXP-E4: `de` é aplicado pelo motor em `eventos` e `series_asn`; vale só nelas; sem `de` o anônimo é barrado (PT-12)."""
+    from tests.synth.world import T0, T1
+
+    todas = api.post("/api/v1/query/series_asn", json={"limit": 500}, headers=ALLOWED).json()["items"]
+    datas = {r["data"] for r in todas}
+    assert {T0, T1} <= datas
+    desde = api.post("/api/v1/query/series_asn", json={"limit": 500, "de": T1}, headers=ALLOWED).json()
+    assert desde["items"] and {r["data"] for r in desde["items"]} == {T1} and desde["total"] < len(todas)
+    ev = api.post("/api/v1/query/eventos", json={"limit": 500, "de": T1}, headers=ALLOWED).json()["items"]
+    assert all(r["data"] >= T1 for r in ev)
+    assert api.post("/api/v1/query/asns", json={"limit": 1, "de": T1}, headers=ALLOWED).status_code == 400
+    assert api.post("/api/v1/query/eventos", json={"limit": 1, "de": "15/11/2026"}, headers=ALLOWED).status_code == 400
+    assert api.post("/api/v1/query/eventos", json={"limit": 5}, headers=ANON).status_code == 401
+
+
 def test_feed_atom_das_mudancas_so_confirmadas_sem_provedor_e_aberto(api):
     """O feed é Atom válido, aberto, só com eventos confirmados e sem eventos de provedor nem contato/nome de empresa."""
     import xml.etree.ElementTree as ET

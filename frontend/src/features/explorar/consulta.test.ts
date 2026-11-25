@@ -5,7 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { describe, expect, it } from 'vitest'
 import {
-  converterValor, deUrl, estadoDeReceita, estadoInicial, familia, formatarCelula, linkDoCampo, montarCorpo, operadoresDoCampo, paraUrl,
+  chavesDeOrdemNaAgregacao, converterValor, deUrl, estadoDeReceita, estadoInicial, familia, formatarCelula, linkDoCampo, montarCorpo, operadoresDoCampo, paraUrl,
   type SchemaConsulta,
 } from './consulta'
 
@@ -80,6 +80,32 @@ describe('montarCorpo', () => {
     expect(c.aggregate).toEqual([{ fn: 'count' }, { fn: 'sum', field: 'acessos', as: 'sum_acessos' }])
     expect(c).not.toHaveProperty('select')
     expect(c).not.toHaveProperty('page')
+  })
+  it('agregação: ordena por campo de group_by ou por cálculo (PT-19); campo da coleção fora disso não vai ao servidor', () => {
+    const e = estadoInicial('operadoras')
+    e.modo = 'agregar'; e.agrupar = ['meio']; e.agregados = [{ fn: 'sum', campo: 'acessos' }]; e.limite = 10
+    expect(chavesDeOrdemNaAgregacao(e)).toEqual(['meio', 'sum_acessos'])
+    e.ordem = { campo: 'sum_acessos', dir: 'desc' }
+    expect(montarCorpo(e, schema)).toMatchObject({ sort: [{ field: 'sum_acessos', dir: 'desc' }], limit: 10 })
+    e.ordem = { campo: 'acessos', dir: 'desc' }
+    expect(montarCorpo(e, schema)).not.toHaveProperty('sort')
+  })
+})
+
+describe('histórico (EXP-E4)', () => {
+  it('"a partir de" vai ao corpo só nas coleções de histórico e sobrevive à URL', () => {
+    const e = estadoInicial('eventos')
+    e.de = '2026-11-15'
+    expect(montarCorpo(e, schema)).toMatchObject({ de: '2026-11-15' })
+    expect(deUrl(paraUrl(e), { ...schema, collections: { ...schema.collections, eventos: { description: '', key: '', fields: [] } } })?.de).toBe('2026-11-15')
+    const o = estadoInicial('operadoras')
+    o.de = '2026-11-15'
+    expect(montarCorpo(o, schema)).not.toHaveProperty('de')
+  })
+  it('data malformada é recusada em vez de ir ao servidor', () => {
+    const e = estadoInicial('eventos')
+    e.de = '15/11/2026'
+    expect(() => montarCorpo(e, schema)).toThrow(/AAAA-MM-DD/)
   })
 })
 
