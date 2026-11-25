@@ -85,7 +85,7 @@
 - http: GET /hilbert/v6
   mcp: viz
 - http: GET /ixp-compare/members
-  sem_mcp: "a comparação sai de query(collection=asns) com ixps_direct contains X e ncontains Y (álgebra de conjuntos, ver as instruções) ou de ixp_participantes de cada PTT"
+  sem_mcp: "a comparação sai de query(collection=asns) com ixps_sessao_rs contains X e ncontains Y (álgebra de conjuntos, ver as instruções) ou de ixp_participantes de cada PTT"
 - http: GET /ixps
   mcp: ixp_lista
 - http: GET /ixps/estimated-users

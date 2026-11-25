@@ -109,17 +109,21 @@ export function sinteseAs(doc: ASNDocument, ref?: ReferenciasAsn | null): Frase[
   return f
 }
 
-export interface KpiAs { id: string; rotulo: string; valor: number | null; sufixo?: string; referencia?: string }
+export interface KpiAs { id: string; rotulo: string; valor: number | null; sufixo?: string; referencia?: string; selo: Selo; fonte: string }
 
-/** Indicadores da ficha, cada um com a referência de comparação quando o servidor a envia (`include=referencias`). */
+/**
+ * Indicadores da ficha, cada um com a referência de comparação quando o servidor a envia (`include=referencias`) e a proveniência (PT-14):
+ * prefixos e sessões são observação (fato); usuários, do APNIC, são estimativa. O rótulo de PTTs diz o universo: sessão em route server,
+ * não o cadastro de participantes (PT-15).
+ */
 export function kpisAs(doc: ASNDocument, ref?: ReferenciasAsn | null): KpiAs[] {
   const med = (v?: number | null, un = '') => (v == null ? undefined : `mediana dos ASes BR: ${v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}${un}`)
   return [
-    { id: 'v6', rotulo: 'Prefixos IPv6 anunciados', valor: doc.global_prefixes_v6_count ?? null },
-    { id: 'v4', rotulo: 'Prefixos IPv4 anunciados', valor: doc.global_prefixes_v4_count ?? null, referencia: med(ref?.prefixos_v4_mediana) },
-    { id: 'ptts', rotulo: 'PTTs com sessão direta', valor: doc.ixps_direct?.length ?? null, referencia: med(ref?.ixps_diretos_mediana) },
-    { id: 'usuarios', rotulo: 'Usuários estimados (APNIC)', valor: doc.apnic_users ?? null,
+    { id: 'v6', rotulo: 'Prefixos IPv6 anunciados', valor: doc.global_prefixes_v6_count ?? null, selo: 'fato', fonte: 'tabela global (RouteViews)' },
+    { id: 'v4', rotulo: 'Prefixos IPv4 anunciados', valor: doc.global_prefixes_v4_count ?? null, referencia: med(ref?.prefixos_v4_mediana), selo: 'fato', fonte: 'tabela global (RouteViews)' },
+    { id: 'ptts', rotulo: 'PTTs com sessão em route server', valor: doc.ixps_direct?.length ?? null, referencia: med(ref?.ixps_diretos_mediana), selo: 'fato', fonte: 'looking glass do IX.br' },
+    { id: 'usuarios', rotulo: 'Usuários estimados (APNIC)', valor: doc.apnic_users ?? null, selo: 'estimado', fonte: 'APNIC Labs',
       referencia: ref?.usuarios_posicao ? `${ref.usuarios_posicao.toLocaleString('pt-BR')}º de ${ref.usuarios_com_dado.toLocaleString('pt-BR')} ASes BR` : undefined },
-    { id: 'v6usuarios', rotulo: 'Usuários IPv6', valor: doc.apnic_v6_pct_as ?? null, sufixo: '%', referencia: med(ref?.pct_v6_mediana, '%') },
+    { id: 'v6usuarios', rotulo: 'Usuários IPv6', valor: doc.apnic_v6_pct_as ?? null, sufixo: '%', referencia: med(ref?.pct_v6_mediana, '%'), selo: 'estimado', fonte: 'APNIC Labs' },
   ]
 }

@@ -103,7 +103,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /ipv4/transferencias` | `query:transferencias_ipv4` | ✔ |  |
 | `GET /ipv4/transferencias/resumo` | `query:transferencias_ipv4` | ✔ |  |
 | `GET /ipv4/uso-por-terceiros` | `query:uso_por_terceiros_ipv4` | ✔ |  |
-| `GET /ixp-compare/members` | — | ✔ | MCP: a comparação sai de query(collection=asns) com ixps_direct contains X e ncontains Y (álgebra de conjuntos, ver as instruções) ou de ixp_participantes de cada PTT |
+| `GET /ixp-compare/members` | — | ✔ | MCP: a comparação sai de query(collection=asns) com ixps_sessao_rs contains X e ncontains Y (álgebra de conjuntos, ver as instruções) ou de ixp_participantes de cada PTT |
 | `GET /ixps` | `ixp_lista` | ✔ |  |
 | `GET /ixps/estimated-users` | `ixp_usuarios` | ✔ |  |
 | `GET /ixps/{code}` | `ixp_detalhe` | ✔ |  |

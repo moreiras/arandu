@@ -2,6 +2,7 @@ import { SITE } from '../lib/site'
 import { TetosDeUso } from '../components/TetosDeUso'
 import { CorrecoesNoChangelog } from '../components/ui/CorrecoesNoChangelog'
 import { DESCRICAO_SELO, ROTULO_SELO, type Selo } from '../components/entidade/proveniencia'
+import { LISTA_UNIVERSOS } from '../lib/universos'
 
 /** Ordem de exibição dos selos, do mais firme ao menos firme. Os textos vêm de `proveniencia.ts` (fonte única, a mesma dos KPIs e do relatório). */
 const SELOS: Selo[] = ['fato', 'estimado', 'inferido']
@@ -137,6 +138,22 @@ export function Sobre() {
         <dl className="space-y-2 text-sm text-gray-700">
           {SELOS.map((k) => (
             <div key={k}><dt className="inline font-semibold">{ROTULO_SELO[k]}:</dt> <dd className="inline" data-selo-def={k}>{DESCRICAO_SELO[k]}</dd></div>
+          ))}
+        </dl>
+      </section>
+
+      <section id="contagens" className="space-y-3 scroll-mt-28" data-testid="sobre-contagens">
+        <h2 className="text-base font-semibold text-gray-800">Por que há vários totais</h2>
+        <p className="text-sm text-gray-600 leading-relaxed">
+          O mesmo nome (&ldquo;ASNs brasileiros&rdquo;, &ldquo;participantes&rdquo;, &ldquo;declarantes&rdquo;, &ldquo;municípios&rdquo;, &ldquo;usuários&rdquo;) pode contar
+          conjuntos diferentes. Um total depende de três escolhas: a regra de &ldquo;brasileiro&rdquo; (a delegação da LACNIC ao Brasil ou a lista de alocações do
+          Registro.br, que tem alguns ASNs a mais); o que conta como presença (sessão com o route server, cadastro de participantes ou prefixo visto no PTT); e se o número
+          é uma união ou uma soma por PTT, com qual denominador. Por isso cada rótulo do site diz o universo, e dois números do mesmo nome com valores diferentes na mesma
+          página seriam um defeito. A soma dos usuários estimados por PTT, por exemplo, conta o mesmo usuário em cada PTT onde o seu ASN aparece e não é o total do país.
+        </p>
+        <dl className="space-y-2 text-sm text-gray-700">
+          {LISTA_UNIVERSOS.map((u) => (
+            <div key={u.chave} data-universo={u.chave}><dt className="inline font-semibold">{u.rotulo}:</dt> <dd className="inline">{u.definicao}</dd></div>
           ))}
         </dl>
       </section>

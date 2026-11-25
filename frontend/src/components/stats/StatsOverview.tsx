@@ -10,6 +10,9 @@ import { UF_REGION, REGION_ORDER, REGION_COLOR } from '../../utils/regioes'
 import { corLegivel } from '../../lib/contraste'
 import { VerDados } from '../ui/VerDados'
 import { AtribuicaoDbIp } from '../ui/AtribuicaoDbIp'
+import { LinhaProveniencia } from '../ui/Kpi'
+import { NotaVariosTotais } from '../ui/NotaVariosTotais'
+import type { Selo } from '../entidade/proveniencia'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -46,12 +49,16 @@ function useCountUp(target: number | null | undefined, duration = 900): number {
   return val
 }
 
-function Kpi({ target, label, sub, color, kind = 'large' }: {
+/** Número grande da faixa de abertura. Natureza, fonte e data de referência em texto sob o rótulo (PT-14), a mesma linha do `Kpi` comum. */
+function Kpi({ target, label, sub, color, kind = 'large', selo, fonte, dataRef }: {
   target: number | null | undefined
   label: string
   sub?: string
   color: string
   kind?: 'large' | 'pct' | 'plain'
+  selo: Selo
+  fonte: string
+  dataRef?: string | null
 }) {
   const v = useCountUp(target)
   const display = target == null ? '—'
@@ -63,6 +70,7 @@ function Kpi({ target, label, sub, color, kind = 'large' }: {
       <div className="text-2xl sm:text-3xl font-extrabold tabular-nums leading-none" style={{ color: corLegivel(color) }}>{display}</div>
       <div className="text-xs sm:text-xs text-gray-700 mt-1 leading-tight font-medium">{label}</div>
       {sub && <div className="text-xs text-gray-400 leading-tight">{sub}</div>}
+      <LinhaProveniencia selo={selo} fonte={fonte} dataRef={dataRef} className="mt-0.5 text-xs leading-tight text-gray-600" />
     </div>
   )
 }
@@ -269,6 +277,7 @@ export function StatsOverview({ summary, date }: { summary: SnapshotSummary | nu
 
   const s = summary
   const gt = s?.global_table
+  const ref = date ?? s?.snapshot_date
 
   // Agregações por UF / região
   const { ufRows, regionRows } = useMemo(() => {
@@ -320,22 +329,23 @@ export function StatsOverview({ summary, date }: { summary: SnapshotSummary | nu
 
   return (
     <div className="space-y-10">
+      <NotaVariosTotais />
       {/* Hero */}
       <div className="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white px-4 py-3">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-3 gap-y-2 divide-x divide-gray-200">
-          <Kpi target={s?.total_asns_br} label="ASNs brasileiros" sub="alocados Registro.br" color="#2563eb" kind="plain" />
-          <Kpi target={s?.br_apnic_users_total} label="usuários BR estimados" sub="por medições do APNIC" color="#0891b2" />
-          <Kpi target={s?.br_ipv6_pct} kind="pct" label="ASNs BR com IPv6" sub={`${fmtN(s?.br_asns_with_ipv6)} ASNs`} color="#8b5cf6" />
-          <Kpi target={s?.registro_br_prefixes_v6} kind="plain" label="prefixos IPv6 alocados" sub="Registro.br" color="#a78bfa" />
-          <Kpi target={s?.registro_br_prefixes_v4} kind="plain" label="prefixos IPv4 alocados" sub="Registro.br" color="#0ea5e9" />
+          <Kpi target={s?.total_asns_br} label="ASNs brasileiros" sub="delegados pela LACNIC ao Brasil" color="#2563eb" kind="plain" selo="fato" fonte="LACNIC (delegated)" dataRef={ref} />
+          <Kpi target={s?.br_apnic_users_total} label="usuários estimados em ASNs brasileiros" sub="soma APNIC por ASN" color="#0891b2" selo="estimado" fonte="APNIC Labs" dataRef={ref} />
+          <Kpi target={s?.br_ipv6_pct} kind="pct" label="ASNs BR com algum IPv6" sub={`${fmtN(s?.br_asns_with_ipv6)} ASNs: alocado, anunciado ou visto num PTT`} color="#8b5cf6" selo="fato" fonte="Registro.br, tabela global e PTTs" dataRef={ref} />
+          <Kpi target={s?.registro_br_prefixes_v6} kind="plain" label="prefixos IPv6 alocados" sub="Registro.br" color="#a78bfa" selo="fato" fonte="Registro.br" dataRef={ref} />
+          <Kpi target={s?.registro_br_prefixes_v4} kind="plain" label="prefixos IPv4 alocados" sub="Registro.br" color="#0ea5e9" selo="fato" fonte="Registro.br" dataRef={ref} />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-2 divide-x divide-gray-200 mt-2 pt-2 border-t border-gray-100">
-          <Kpi target={s?.provedores_fixos_ativos} kind="plain" label="provedores fixos ativos" sub="SCM com ASN ou no SICI" color="#0ea5e9" />
-          <Kpi target={s?.assinantes_b2b_fixos} label="assinantes B2B fixos" sub="pessoa jurídica" color="#0369a1" />
-          <Kpi target={s?.assinantes_b2c_fixos} label="assinantes B2C fixos" sub="pessoa física" color="#0891b2" />
-          <Kpi target={s?.provedores_moveis_ativos} kind="plain" label="provedores móveis ativos" sub="SMP com ASN ou no SICI" color="#a78bfa" />
-          <Kpi target={s?.assinantes_b2b_moveis} label="assinantes B2B móveis" sub="pessoa jurídica" color="#7c3aed" />
-          <Kpi target={s?.assinantes_b2c_moveis} label="assinantes B2C móveis" sub="pessoa física" color="#8b5cf6" />
+          <Kpi target={s?.provedores_fixos_ativos} kind="plain" label="provedores fixos ativos" sub="SCM com ASN ou no SICI" color="#0ea5e9" selo="inferido" fonte="Anatel (SICI) e Registro.br" dataRef={ref} />
+          <Kpi target={s?.assinantes_b2b_fixos} label="assinantes B2B fixos" sub="pessoa jurídica" color="#0369a1" selo="fato" fonte="Anatel (SICI)" dataRef={ref} />
+          <Kpi target={s?.assinantes_b2c_fixos} label="assinantes B2C fixos" sub="pessoa física" color="#0891b2" selo="fato" fonte="Anatel (SICI)" dataRef={ref} />
+          <Kpi target={s?.provedores_moveis_ativos} kind="plain" label="provedores móveis ativos" sub="SMP com ASN ou no SICI" color="#a78bfa" selo="inferido" fonte="Anatel (SICI) e Registro.br" dataRef={ref} />
+          <Kpi target={s?.assinantes_b2b_moveis} label="assinantes B2B móveis" sub="pessoa jurídica" color="#7c3aed" selo="fato" fonte="Anatel (SICI)" dataRef={ref} />
+          <Kpi target={s?.assinantes_b2c_moveis} label="assinantes B2C móveis" sub="pessoa física" color="#8b5cf6" selo="fato" fonte="Anatel (SICI)" dataRef={ref} />
         </div>
       </div>
 
@@ -343,9 +353,9 @@ export function StatsOverview({ summary, date }: { summary: SnapshotSummary | nu
       <Section title="Sistemas Autônomos (AS)" color="#2563eb">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatCard value={fmtN(s?.total_asns_br)} label="ASNs BR alocados" accent="#2563eb" />
+            <StatCard value={fmtN(s?.total_asns_br)} label="ASNs brasileiros (LACNIC)" accent="#2563eb" />
             <StatCard value={fmtN(gt?.br_asns_in_ft)} label="visíveis na tabela global"
-              sub={gt?.br_asns_in_ft && s?.total_asns_br ? `${fmtPct((gt.br_asns_in_ft / s.total_asns_br) * 100)} dos alocados` : undefined} />
+              sub={gt?.br_asns_in_ft && s?.total_asns_br ? `${fmtPct((gt.br_asns_in_ft / s.total_asns_br) * 100)} dos ASNs brasileiros (LACNIC)` : undefined} />
             <StatCard value={fmtN(s?.ixp_aggregate?.br_asns_origin_union_count)} label="originando no IX.br"
               sub={s?.ixp_aggregate?.br_asns_origin_union_count && gt?.br_asns_in_ft ? `${fmtPct((s.ixp_aggregate.br_asns_origin_union_count / gt.br_asns_in_ft) * 100)} dos visíveis` : undefined} />
             <StatCard value={fmtN(gt?.total_asns)} label="ASNs na tabela global" sub="todos os países" />
@@ -403,7 +413,7 @@ export function StatsOverview({ summary, date }: { summary: SnapshotSummary | nu
       {/* ── Registro.br ── */}
       <Section title="Alocação do Registro.br" color="#16a34a">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
-          <StatCard value={fmtN(s?.total_asns_br)} label="ASNs alocados" accent="#16a34a" />
+          <StatCard value={fmtN(s?.total_asns_br)} label="ASNs brasileiros (LACNIC)" accent="#16a34a" />
           <StatCard value={fmtN(gt?.br_asns_in_ft)} label="ASNs visíveis na FT"
             sub={gt?.br_asns_in_ft && s?.total_asns_br ? fmtPct((gt.br_asns_in_ft / s.total_asns_br) * 100) : undefined} />
           <StatCard value={fmtN(s?.registro_br_prefixes_v6)} label="prefixos IPv6" />
@@ -412,7 +422,7 @@ export function StatsOverview({ summary, date }: { summary: SnapshotSummary | nu
           <StatCard value={fmtLarge(s?.registro_br_declared_space_v4_24)} label="/24s IPv4 alocados" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white rounded-lg border border-gray-200 p-4">
-          <CoverageBar label="ASNs alocados visíveis na FT"
+          <CoverageBar label="ASNs brasileiros (LACNIC) visíveis na FT"
             pct={gt?.br_asns_in_ft && s?.total_asns_br ? (gt.br_asns_in_ft / s.total_asns_br) * 100 : null} color="#16a34a" />
           <CoverageBar label="Espaço IPv6 alocado visível na FT" pct={gt?.v6_br_coverage_pct} color="#8b5cf6" />
           <CoverageBar label="Espaço IPv4 alocado visível na FT" pct={gt?.v4_br_coverage_pct} color="#0ea5e9" />

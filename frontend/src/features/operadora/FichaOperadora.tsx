@@ -26,7 +26,7 @@ export function FichaOperadora({ nome, ctx }: { nome: string; ctx: OperadoraCtx 
       </ul>
       {kpis.length > 0 && (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
-          {kpis.map((k) => <Kpi key={k.id} rotulo={k.rotulo} valor={k.valor} referencia={k.referencia} />)}
+          {kpis.map((k) => <Kpi key={k.id} rotulo={k.rotulo} valor={k.valor} referencia={k.referencia} selo={k.selo} fonte={k.fonte} dataRef={k.dataRef} />)}
         </div>
       )}
       <details className="text-xs text-gray-500">

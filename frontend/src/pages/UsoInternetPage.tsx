@@ -66,6 +66,11 @@ function EstimativasUf() {
           {Object.entries(c.indicadores).map(([id, i]) => <option key={id} value={id}>{i.rotulo}</option>)}
         </select>
       </label>
+      {c.indicadores[indicador]?.definicao && (
+        <p className="text-xs text-gray-600" data-testid="definicao-indicador">
+          {c.indicadores[indicador].definicao}{indicador === 'banda_larga_fixa' && ' Não é o mesmo denominador da tabela A5 do Cetic.br (domicílios com Internet): a mesma ideia, com outra base, dá outro percentual.'}
+        </p>
+      )}
       <CartogramaIndicador
         indicadores={[{ id: indicador, rotulo: c.indicadores[indicador]?.rotulo ?? indicador, maximo: 100, texto: (v) => `${Math.round(v)}%`,
           valor: (uf) => { const e = grupos.find((g) => g.tipo === 'uf' && g.grupo === uf)?.indicadores[indicador]; return e && !e.suprimido ? e.proporcao ?? null : null } }]}

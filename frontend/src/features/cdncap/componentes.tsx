@@ -8,6 +8,8 @@ import { Link } from '../../components/layout/LinkDatado'
 import { useState } from 'react'
 import type { RoaEntry, AspaProviderEntry, AspaCustomerEntry } from '../../types/api'
 import { corLegivel } from '../../lib/contraste'
+import { LinhaProveniencia } from '../../components/ui/Kpi'
+import type { Selo } from '../../components/entidade/proveniencia'
 
 export function fmtN(n: number | null | undefined): string {
   return n == null ? '—' : n.toLocaleString('pt-BR')
@@ -172,12 +174,14 @@ export function AspaCustomersTable({ aspaCustomers }: { aspaCustomers: AspaCusto
 
 // ─── KPI ──────────────────────────────────────────────────────────────────────
 
-export function Kpi({ value, label, sub, color }: { value: string; label: string; sub?: string; color: string }) {
+/** Número grande da faixa de abertura da página da CDN, com natureza, fonte e data de referência em texto (PT-14), como o `Kpi` comum. */
+export function Kpi({ value, label, sub, color, selo, fonte, dataRef }: { value: string; label: string; sub?: string; color: string; selo: Selo; fonte: string; dataRef?: string | null }) {
   return (
     <div className="px-3 py-1">
       <div className="text-2xl sm:text-3xl font-extrabold tabular-nums leading-none" style={{ color: corLegivel(color) }}>{value}</div>
       <div className="text-xs sm:text-xs text-gray-700 mt-1 leading-tight font-medium">{label}</div>
       {sub && <div className="text-xs text-gray-400 leading-tight">{sub}</div>}
+      <LinhaProveniencia selo={selo} fonte={fonte} dataRef={dataRef} className="mt-0.5 text-xs leading-tight text-gray-600" />
     </div>
   )
 }

@@ -315,7 +315,7 @@ export function StatsPanel({
         <StatItem
           loading={loading}
           value={fmtN(ixp?.asn_direct_union_count)}
-          label="ASNs em peering direto"
+          label="ASNs com sessão em route server"
         />
         <StatItem
           loading={loading}

@@ -53,7 +53,7 @@ describe('painel de camadas', () => {
     expect(screen.getByText('Sem filtros — todos os ASes.')).toBeTruthy()
     fireEvent.click(screen.getByText('+ grupo de filtros'))
     expect(estado().grupos).toEqual([['is_br']])
-    fireEvent.change(screen.getByDisplayValue('Registro.br'), { target: { value: 'ixps_direct_in' } })
+    fireEvent.change(screen.getByDisplayValue('ASN brasileiro (LACNIC)'), { target: { value: 'ixps_direct_in' } })
     expect(estado().grupos).toEqual([['ixps_direct_in']])
     expect(screen.getByPlaceholderText('ex: sp')).toBeTruthy()
     fireEvent.click(screen.getByText('+ filtro'))

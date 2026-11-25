@@ -214,7 +214,7 @@ export function SegurancaRoteamentoPage() {
                 <CartogramaIndicador
           inicial="indice"
           indicadores={[
-            { id: 'indice', rotulo: 'Índice (média)', maximo: 100, texto: (v) => num(v, 0), nota: 'Média do índice de prontidão ponderada pelos usuários estimados do APNIC.', valor: (uf) => r.por_uf?.[uf]?.media_ponderada_usuarios ?? null },
+            { id: 'indice', rotulo: 'Índice (média ponderada por usuários)', maximo: 100, texto: (v) => num(v, 0), nota: 'Média do índice de prontidão ponderada pelos usuários estimados do APNIC.', valor: (uf) => r.por_uf?.[uf]?.media_ponderada_usuarios ?? null },
             ...MEDIDAS.filter(([id]) => ['rov', 'sem_bogon', 'roa', 'irr'].includes(id)).map(([id, nome, dica]): IndicadorUf => ({
               id, rotulo: nome, maximo: 100, texto: (v) => `${num(v, 0)}%`, nota: dica, valor: (uf) => { const a = r.por_uf?.[uf]; return a ? medida(a, id, pesoUsuarios).v : null },
             })),

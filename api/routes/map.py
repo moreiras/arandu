@@ -171,7 +171,7 @@ Mesma DSL de `POST /query/asns`. Exemplos:
 
 ```json
 {"field": "has_rpki", "op": "eq", "value": false}
-{"field": "ixps_direct", "op": "contains", "value": "sp"}
+{"field": "ixps_sessao_rs", "op": "contains", "value": "sp"}
 {"field": "pct_v6", "op": "gte", "value": 30}
 {"field": "porte", "op": "eq", "value": "MICRO EMPRESA"}
 {"and": [...], "or": [...], "not": {...}}

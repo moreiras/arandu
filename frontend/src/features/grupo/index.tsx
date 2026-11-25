@@ -58,10 +58,10 @@ function Mercado({ dados }: BlocoProps<GrupoCtx>) {
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Kpi rotulo="Acessos fixos declarados (SICI)" valor={n(g.assinantes)} />
-        <Kpi rotulo="Usuários estimados (APNIC)" valor={n(g.usuarios_apnic)} />
-        <Kpi rotulo="Municípios com acessos" valor={n(g.municipios.length)} />
-        <Kpi rotulo="Empresas no grupo" valor={n(g.empresas)} />
+        <Kpi rotulo="Acessos fixos declarados (SICI)" valor={n(g.assinantes)} selo="inferido" fonte="Anatel (SICI), soma das empresas do grupo" dataRef={dados.grupo.snapshot_date} />
+        <Kpi rotulo="Usuários estimados (APNIC)" valor={n(g.usuarios_apnic)} selo="estimado" fonte="APNIC Labs, soma dos ASNs do grupo" dataRef={dados.grupo.snapshot_date} />
+        <Kpi rotulo="Municípios com acessos" valor={n(g.municipios.length)} selo="inferido" fonte="Anatel (SICI), soma das empresas do grupo" dataRef={dados.grupo.snapshot_date} />
+        <Kpi rotulo="Empresas no grupo" valor={n(g.empresas)} selo="inferido" fonte="Receita Federal (quadro societário)" dataRef={dados.grupo.snapshot_date} />
       </div>
       {g.municipios.length > 0 && <AccessMunicipioMap municipios={g.municipios.map((m) => ({ ...m }))} height={380} />}
       <p className="text-xs text-gray-500">Soma dos acessos declarados por todas as empresas do grupo inferido (cada acesso é fato declarado; o agrupamento é inferência); não inclui móvel. Uma empresa pode declarar em mais de um CNPJ: os acessos são por CNPJ, sem dupla contagem entre empresas do grupo.</p>
@@ -92,10 +92,10 @@ function Credito({ dados }: BlocoProps<GrupoCtx>) {
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Kpi rotulo="Operações diretas do BNDES" valor={n(c.operacoes)} />
-        <Kpi rotulo="Valor contratado" valor={reais(c.contratado)} />
-        <Kpi rotulo="Valor desembolsado" valor={reais(c.desembolsado)} />
-        <Kpi rotulo="Empresas com registro" valor={`${n(c.empresas_com_registro)} de ${n(dados.grupo.empresas)}`} />
+        <Kpi rotulo="Operações diretas do BNDES" valor={n(c.operacoes)} selo="inferido" fonte="BNDES, empresas do grupo" dataRef={dados.grupo.snapshot_date} />
+        <Kpi rotulo="Valor contratado" valor={reais(c.contratado)} selo="inferido" fonte="BNDES, empresas do grupo" dataRef={dados.grupo.snapshot_date} />
+        <Kpi rotulo="Valor desembolsado" valor={reais(c.desembolsado)} selo="inferido" fonte="BNDES, empresas do grupo" dataRef={dados.grupo.snapshot_date} />
+        <Kpi rotulo="Empresas com registro" valor={`${n(c.empresas_com_registro)} de ${n(dados.grupo.empresas)}`} selo="inferido" fonte="BNDES, empresas do grupo" dataRef={dados.grupo.snapshot_date} />
       </div>
       <p className="text-xs text-gray-500">{c.natureza}.</p>
     </div>
@@ -107,8 +107,8 @@ function Sancoes({ dados }: BlocoProps<GrupoCtx>) {
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Kpi rotulo="Vigentes" valor={n(s.vigentes)} /><Kpi rotulo="Futuras" valor={n(s.futuras)} /><Kpi rotulo="Encerradas" valor={n(s.encerradas)} />
-        <Kpi rotulo="Empresas com registro" valor={`${n(s.empresas_com_registro)} de ${n(dados.grupo.empresas)}`} />
+        <Kpi rotulo="Vigentes" valor={n(s.vigentes)} selo="inferido" fonte="CEIS e CNEP (CGU), empresas do grupo" dataRef={dados.grupo.snapshot_date} /><Kpi rotulo="Futuras" valor={n(s.futuras)} selo="inferido" fonte="CEIS e CNEP (CGU), empresas do grupo" dataRef={dados.grupo.snapshot_date} /><Kpi rotulo="Encerradas" valor={n(s.encerradas)} selo="inferido" fonte="CEIS e CNEP (CGU), empresas do grupo" dataRef={dados.grupo.snapshot_date} />
+        <Kpi rotulo="Empresas com registro" valor={`${n(s.empresas_com_registro)} de ${n(dados.grupo.empresas)}`} selo="inferido" fonte="CEIS e CNEP (CGU), empresas do grupo" dataRef={dados.grupo.snapshot_date} />
       </div>
       <p className="text-xs text-gray-500">{s.natureza}. O detalhe de cada sanção está na página da empresa.</p>
     </div>
@@ -120,9 +120,9 @@ function Contratos({ dados }: BlocoProps<GrupoCtx>) {
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Kpi rotulo="Itens publicados" valor={n(c.itens)} /><Kpi rotulo="Contratações" valor={n(c.contratacoes)} />
-        <Kpi rotulo="Valor homologado" valor={reais(c.valor_homologado)} />
-        <Kpi rotulo="Empresas lidas no rodízio" valor={`${n(c.empresas_lidas)} de ${n(dados.grupo.empresas)}`} />
+        <Kpi rotulo="Itens publicados" valor={n(c.itens)} selo="inferido" fonte="PNCP, empresas do grupo" dataRef={dados.grupo.snapshot_date} /><Kpi rotulo="Contratações" valor={n(c.contratacoes)} selo="inferido" fonte="PNCP, empresas do grupo" dataRef={dados.grupo.snapshot_date} />
+        <Kpi rotulo="Valor homologado" valor={reais(c.valor_homologado)} selo="inferido" fonte="PNCP, empresas do grupo" dataRef={dados.grupo.snapshot_date} />
+        <Kpi rotulo="Empresas lidas no rodízio" valor={`${n(c.empresas_lidas)} de ${n(dados.grupo.empresas)}`} selo="inferido" fonte="PNCP, empresas do grupo" dataRef={dados.grupo.snapshot_date} />
       </div>
       <p className="text-xs text-gray-500">{c.natureza}. Empresa ainda não lida pelo rodízio não é empresa sem contratos.</p>
     </div>

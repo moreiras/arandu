@@ -25,9 +25,29 @@ describe('/snapshots', () => {
     )
     montar()
     fireEvent.click(await screen.findByText('2026-11-22'))
-    expect(await screen.findByText('ASNs brasileiros no índice do snapshot')).toBeTruthy()
-    expect(screen.getByText('ASNs BR com rotas vistas no IX.br (originadores)')).toBeTruthy()
+    expect(await screen.findByText('ASNs brasileiros (delegados pela LACNIC ao Brasil)')).toBeTruthy()
+    expect(screen.getByText('ASNs brasileiros cujos prefixos aparecem no IX.br')).toBeTruthy()
     expect(document.body.textContent).not.toMatch(/alocados pelo Registro\.br|ASN BR no IX\.br/)
+  })
+
+  it('PT-15 / TRANSV-E4: 9.129 (LACNIC) e 9.150 (lista do Registro.br) aparecem com rótulos distintos, e a nota explica os vários totais', async () => {
+    server.use(
+      http.get('*/api/v1/brasil/snapshots', () => HttpResponse.json({ count: 1, latest: '2026-11-22', snapshots: ['2026-11-22'] })),
+      http.get('*/api/v1/brasil/snapshots/:date', () => HttpResponse.json({ date: '2026-11-22', summary: { total_asns_br: 9129, registro_br_asns: 9150, br_asns_geolocalized: 8984 }, manifest: null })),
+      http.get('*/api/v1/rpki/summary', () => HttpResponse.json({})),
+      http.get('*/api/v1/outorgas/stats', () => HttpResponse.json({ total: 1 })),
+    )
+    montar()
+    fireEvent.click(await screen.findByText('2026-11-22'))
+    const lacnic = (await screen.findByText('ASNs brasileiros (delegados pela LACNIC ao Brasil)')).closest('div')!
+    const registro = screen.getByText('ASNs na lista do Registro.br').closest('div')!
+    expect(lacnic.textContent).toContain('9.129')
+    expect(registro.textContent).toContain('9.150')
+    expect(lacnic.textContent).not.toContain('9.150')
+    const rotulos = screen.getAllByRole('term').map((t) => t.textContent)
+    expect(new Set(rotulos).size).toBe(rotulos.length)                       // o mesmo nome nunca designa dois números
+    expect(screen.getByTestId('nota-varios-totais')).toHaveTextContent('Por que há vários totais')
+    expect(screen.getByRole('link', { name: 'Como cada total é contado' })).toHaveAttribute('href', '/sobre#contagens')
   })
 
   const resumo = { total_asns_br: 9129, global_table: { br_asns_in_ft: 8500 }, br_asns_ft_v6: 7573, br_asns_ft_v4: 8400, ixp_aggregate: { br_asns_origin_union_count: 8550 }, br_apnic_users_total: 150000000 }
@@ -51,9 +71,9 @@ describe('/snapshots', () => {
     fireEvent.click(await screen.findByText('2026-11-22'))
     await screen.findByTestId('indicadores-snapshot')
     const cartao = (rotulo: string) => screen.getByText(rotulo).closest('div')!
-    expect(cartao('ASNs BR com rotas vistas no IX.br (originadores)').textContent).toContain('lg_ixbr · ref. 17/11/2026')
+    expect(cartao('ASNs brasileiros cujos prefixos aparecem no IX.br').textContent).toContain('lg_ixbr · ref. 17/11/2026')
     expect(cartao('ASN com objetos RPKI').textContent).toContain('ref. 13/11/2026 (atrasada (limite 2 dias))')
-    expect(cartao('Usuários BR estimados (APNIC)').textContent).toContain('Estimado')
+    expect(cartao('Usuários estimados em ASNs brasileiros (soma APNIC por ASN)').textContent).toContain('Estimado')
     const rotulos = screen.getAllByRole('term').map((t) => t.textContent)
     expect(rotulos.indexOf('ASN BR com prefixos IPv6 na full table')).toBeLessThan(rotulos.indexOf('ASN BR com prefixos IPv4 na full table'))
     expect(cartao('ASN BR com prefixos IPv6 na full table').textContent).toContain('7.573')

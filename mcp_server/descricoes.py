@@ -208,8 +208,8 @@ DESCRICOES: dict[str, str] = {
     ),
     'query': (
         'Lista, filtra, ordena, conta, soma e agrupa linhas de uma collection; use para rankings, contagens e cruzamentos de '
-        'condições. Não use para o perfil de UMA entidade (use asn_detalhe, ixp_detalhe…). Collections e sintaxe nas '
-        'instruções; campos em describe_schema(collection). Ex.: {"collection":"asns","filter":{"and":[{"field":"ixps_direct"'
+        'condições. Não serve ao perfil de UMA entidade (asn_detalhe, ixp_detalhe…). Collections e sintaxe nas '
+        'instruções; campos em describe_schema(collection). Ex.: {"collection":"asns","filter":{"and":[{"field":"ixps_sessao_rs"'
         ',"op":"contains","value":"ce"},{"field":"uf","op":"eq","value":"CE"}]}, '
         '"sort":[{"field":"apnic_users","dir":"desc"}],"limit":10}. Contagem: use "total" da resposta. Agregação: group_by + '
         'aggregate [{"fn":"count"},{"fn":"sum","field":"apnic_users"}].'

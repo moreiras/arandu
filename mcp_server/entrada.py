@@ -46,7 +46,7 @@ _PARAM_PTT = {
 }
 _PARAM_PTT_EXTERNO = {"ixp_externo": "code", "ixp_portas": "code"}
 # campos do `query` cujos valores são códigos de PTT do IX.br
-_CAMPOS_PTT = {"ixps_direct", "ixps_origin", "ixp", "code", "ptt_proximo"}
+_CAMPOS_PTT = {"ixps_direct", "ixps_membro", "ixps_sessao_rs", "ixps_origin", "ixp", "code", "ptt_proximo"}
 
 
 class EntradaInvalida(ValueError):

@@ -6,6 +6,7 @@
 import { HeroStat, num, pct } from '../ui'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
+import { rotuloDe } from '../../../lib/universos'
 
 export function DestaqueBloco({ dados }: BlocoProps<PttCtx>) {
   const { v6, v6idx, v4, v4idx, par, brOriginUnion, cbrAsns, estUsers, usuariosBrTotal } = dados
@@ -14,19 +15,19 @@ export function DestaqueBloco({ dados }: BlocoProps<PttCtx>) {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-3 gap-y-2 sm:divide-x divide-gray-200">
         <HeroStat
           target={estUsers?.estimated_users}
-          label="usuários brasileiros visíveis via este IXP"
-          sub={`de ${num(usuariosBrTotal)} usuários totais estimados por medições do APNIC`}
+          label={rotuloDe('usuariosPtt')}
+          sub={`não some entre PTTs: o mesmo usuário conta em cada PTT onde o ASN aparece. País: ${num(usuariosBrTotal)} usuários estimados (APNIC)`}
           color="#0891b2"
         />
         <HeroStat
           target={par}
-          label="participantes"
-          sub="registrados no IX.br"
+          label="ASNs no cadastro do PTT"
+          sub="participantes registrados no IX.br, com ou sem sessão em route server"
           color="#d97706"
         />
         <HeroStat
           target={brOriginUnion}
-          label="originadores BR"
+          label="ASNs brasileiros originando"
           sub={cbrAsns != null ? `${pct(cbrAsns, 1)} dos AS BR` : 'AS BR com prefixo aqui'}
           color="#2563eb"
         />

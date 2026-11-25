@@ -398,7 +398,7 @@
       "type": "object"
      },
      "ixps_direct": {
-      "description": "Códigos dos IXPs onde este AS faz peering direto",
+      "description": "Códigos dos PTTs onde este AS tem sessão com o route server",
       "examples": [
        [
         "sp",
@@ -988,7 +988,7 @@
       "type": "boolean"
      },
      "ixps_direct_count": {
-      "description": "Número de IXPs onde este AS faz peering direto",
+      "description": "Número de PTTs do IX.br onde este AS tem sessão com o route server (não é o cadastro de participantes)",
       "examples": [
        12
       ],
@@ -1357,7 +1357,7 @@
    "IXPAggregateStats": {
     "properties": {
      "asn_direct_union_count": {
-      "description": "ASNs em peering direto em qualquer IXP (união v4∪v6, sem repetição)",
+      "description": "ASNs com sessão em route server em algum PTT do IX.br (união v4∪v6, sem repetição); não é o cadastro de participantes",
       "title": "Asn Direct Union Count",
       "type": "integer"
      },
@@ -1533,7 +1533,7 @@
         "type": "null"
        }
       ],
-      "description": "ASNs em peering direto (união v6 ∪ v4)",
+      "description": "ASNs com sessão em route server (união v6 ∪ v4)",
       "examples": [
        487
       ],
@@ -1992,7 +1992,7 @@
       "type": "integer"
      },
      "br_ipv6_pct": {
-      "description": "% dos ASNs BR alocados com algum IPv6 (alocado, na tabela global ou num PTT); não mede anúncio",
+      "description": "% dos ASNs brasileiros (LACNIC) com algum IPv6 (alocado, na tabela global ou num PTT); não mede anúncio",
       "examples": [
        20.02
       ],
@@ -2105,7 +2105,7 @@
       "type": "string"
      },
      "total_asns_br": {
-      "description": "ASNs brasileiros segundo o Registro.br",
+      "description": "ASNs brasileiros: os que a LACNIC delegou ao Brasil (is_br). A lista do Registro.br, com alguns ASNs a mais, é registro_br_asns",
       "examples": [
        9104
       ],
@@ -10576,7 +10576,7 @@
   },
   "/api/v1/ixps/{code}": {
    "get": {
-    "description": "Retorna o documento completo de um IXP, com métricas detalhadas separadas por AFI.\n\n**Métricas por AFI (v4 / v6):**\n- `asn_direct` — lista completa de ASNs em peering direto\n- `br_asns_direct` / `br_asns_origin` — subconjuntos brasileiros\n- `br_prefix_coverage_pct` — % do espaço de endereços BR (Registro.br) visível aqui\n- `ixp_vs_fulltable_space_pct` — % do espaço global coberto pelos prefixos deste IXP\n\nQuando não há dados coletados para um AFI, o campo retorna `{\"status\": \"missing\"}`. Cada AFI traz `coleta`: `ok` (o looking glass\ndevolveu rotas), `vazia` (a coleta funcionou e o looking glass respondeu com a tabela vazia; as porcentagens sobre rotas saem `null`, porque\nzero rotas não é zero de cobertura) ou `missing`.\n\n**Códigos de IXP:** `sp`, `rj`, `bsb`, `curitiba`, `poa`, `bel`, `manaus`, `fortaleza`, etc.\nConsulte `/api/v1/ixps` para a lista completa.",
+    "description": "Retorna o documento completo de um IXP, com métricas detalhadas separadas por AFI.\n\n**Métricas por AFI (v4 / v6):**\n- `asn_direct` — lista completa de ASNs com sessão em route server\n- `br_asns_direct` / `br_asns_origin` — subconjuntos brasileiros\n- `br_prefix_coverage_pct` — % do espaço de endereços BR (Registro.br) visível aqui\n- `ixp_vs_fulltable_space_pct` — % do espaço global coberto pelos prefixos deste IXP\n\nQuando não há dados coletados para um AFI, o campo retorna `{\"status\": \"missing\"}`. Cada AFI traz `coleta`: `ok` (o looking glass\ndevolveu rotas), `vazia` (a coleta funcionou e o looking glass respondeu com a tabela vazia; as porcentagens sobre rotas saem `null`, porque\nzero rotas não é zero de cobertura) ou `missing`.\n\n**Códigos de IXP:** `sp`, `rj`, `bsb`, `curitiba`, `poa`, `bel`, `manaus`, `fortaleza`, etc.\nConsulte `/api/v1/ixps` para a lista completa.",
     "operationId": "get_ixp_api_v1_ixps__code__get",
     "parameters": [
      {
@@ -10658,7 +10658,7 @@
   },
   "/api/v1/ixps/{code}/assinantes": {
    "get": {
-    "description": "Para cada ASN em peering direto no IXP:\n\n- `asns[asn]` — `cnpj`, `empresa`, badges de outorga (`has_scm`, `has_smp`,\n  `has_stfc`, `has_seac`), `usuarios_apnic` e `assinantes_diretos` (acessos SICI\n  pf + pj do CNPJ do peer).\n- `peers[afi][asn]` — assinantes totais: acessos SICI dos CNPJs de todos os ASNs\n  nos AS-paths anunciados pelo peer (ele próprio e seus clientes), deduplicados\n  por CNPJ.\n\nNo nível do IXP: `assinantes_diretos`/`assinantes_total` e a distribuição\nmunicipal `municipios_diretos`/`municipios_totais`. `mes_referencia` é o mês do\nSICI, que difere da data do snapshot.",
+    "description": "Para cada ASN com sessão em route server no PTT:\n\n- `asns[asn]` — `cnpj`, `empresa`, badges de outorga (`has_scm`, `has_smp`,\n  `has_stfc`, `has_seac`), `usuarios_apnic` e `assinantes_diretos` (acessos SICI\n  pf + pj do CNPJ do peer).\n- `peers[afi][asn]` — assinantes totais: acessos SICI dos CNPJs de todos os ASNs\n  nos AS-paths anunciados pelo peer (ele próprio e seus clientes), deduplicados\n  por CNPJ.\n\nNo nível do IXP: `assinantes_diretos`/`assinantes_total` e a distribuição\nmunicipal `municipios_diretos`/`municipios_totais`. `mes_referencia` é o mês do\nSICI, que difere da data do snapshot.",
     "operationId": "ixp_assinantes_api_v1_ixps__code__assinantes_get",
     "parameters": [
      {
@@ -11339,7 +11339,7 @@
   },
   "/api/v1/ixps/{code}/peers": {
    "get": {
-    "description": "Retorna estatísticas de prefixos por ASN em peering direto no IXP.\n\nPara cada peer, inclui:\n- `total_prefixes` — total de prefixos únicos anunciados\n- `own_prefixes` — prefixos originados pelo próprio peer\n- `third_prefixes` — prefixos de terceiros repassados pelo peer\n- `origin_asns` — número de ASNs distintos originando prefixos via este peer\n- `own_space_24` / `third_space_24` — espaço em equivalentes /24\n\nUse `?afi=v6` para dados IPv6. `?peeringdb=1` acrescenta `peeringdb`: as portas que cada participante **declarou** no PeeringDB para este PTT (Mbps) e as\ninstalações **inferidas** (as instalações da rede no PeeringDB que também abrigam este PTT; o PeeringDB não diz em qual instalação fica cada porta).",
+    "description": "Retorna estatísticas de prefixos por ASN com sessão em route server no PTT.\n\nPara cada peer, inclui:\n- `total_prefixes` — total de prefixos únicos anunciados\n- `own_prefixes` — prefixos originados pelo próprio peer\n- `third_prefixes` — prefixos de terceiros repassados pelo peer\n- `origin_asns` — número de ASNs distintos originando prefixos via este peer\n- `own_space_24` / `third_space_24` — espaço em equivalentes /24\n\nUse `?afi=v6` para dados IPv6. `?peeringdb=1` acrescenta `peeringdb`: as portas que cada participante **declarou** no PeeringDB para este PTT (Mbps) e as\ninstalações **inferidas** (as instalações da rede no PeeringDB que também abrigam este PTT; o PeeringDB não diz em qual instalação fica cada porta).",
     "operationId": "ixp_peers_api_v1_ixps__code__peers_get",
     "parameters": [
      {
@@ -12189,7 +12189,7 @@
   },
   "/api/v1/map/query": {
    "post": {
-    "description": "Retorna um GeoJSON FeatureCollection filtrando ASes e prefixos por uma combinação\nde filtros booleanos, proximidade geográfica e seleção de camadas.\n\n## Parâmetros do body\n\n| Campo | Tipo | Descrição |\n|---|---|---|\n| `filter` | objeto | Filtro booleano sobre a collection `asns` (DSL: `and/or/not` + predicados) |\n| `near` | objeto | Raio em km a partir da **sede** de AS: `{\"ixp\":\"mao\",\"radius_km\":80}` |\n| `near_prefixes` | objeto | Raio em km a partir dos **prefixos geolocalizados** do AS (em vez da sede) |\n| `layers` | lista | Camadas a retornar: `asns_geo`, `prefixes_v4`, `prefixes_v6`, `pix`, `scms`, `outorgas_scm`, `prefixos_ix_v4`, `prefixos_ix_v6` |\n| `color_by` | string | Atributo de cor para `asns_geo`: `visibility`, `rpki`, `aspa`, `porte`, `pct_v6`, `outorga` |\n| `scm_mode` | string | Para `outorgas_scm`: `todas` (default), `com_asn`, `sem_asn` |\n| `ix_apply_filter` | bool | Prefixos do PTT só com origem no recorte de ASes (default `false`) |\n\nA camada `scms` retorna as outorgas SCM **sem ASN** (nenhum ASN no Registro.br com o mesmo CNPJ);\na interseção AS∩SCM aparece via `asns_geo` com `color_by=\"outorga\"`. A camada\n`outorgas_scm` traz todas as outorgas (com `has_asn`); as com ASN respeitam o\nrecorte, as sem ASN só aparecem sem filtro por atributos (a proximidade é aplicada\nà localização da própria outorga). O campo virtual\n`has_scm` (eq true/false) também pode ser usado no `filter` para isolar ASes com/sem outorga.\n\n## Sintaxe de filtro\n\nMesma DSL de `POST /query/asns`. Exemplos:\n\n```json\n{\"field\": \"has_rpki\", \"op\": \"eq\", \"value\": false}\n{\"field\": \"ixps_direct\", \"op\": \"contains\", \"value\": \"sp\"}\n{\"field\": \"pct_v6\", \"op\": \"gte\", \"value\": 30}\n{\"field\": \"porte\", \"op\": \"eq\", \"value\": \"MICRO EMPRESA\"}\n{\"and\": [...], \"or\": [...], \"not\": {...}}\n```\n\n## Operadores de grupo\n\n`and`, `or`, `not` com filhos aninhados arbitrariamente. XOR deve ser expandido\npelo cliente em `(A AND NOT B) OR (NOT A AND B)`.\n\n## Propriedades das features\n\n- `asns_geo`: herda todas as propriedades de `maps/asns.geojson` + `layer` + `color_value`\n- `prefixes_v4/v6`: herda de `maps/prefixes.geojson` **agregado por ASN e município** (`prefix_count`, sem o prefixo) + `layer`\n- `pix`: propriedades padrão dos PIX do IX.br (`role`, `ixp_code`, `name`, `ixp_name`)\n\n## Casos de uso\n\n```json\n// ASes a 80 km do PTT de Manaus sem RPKI\n{\n  \"filter\": {\"field\": \"has_rpki\", \"op\": \"eq\", \"value\": false},\n  \"near\": {\"ixp\": \"mao\", \"radius_km\": 80},\n  \"layers\": [\"asns_geo\", \"pix\"]\n}\n\n// ASes com prefixos cobrindo região próxima a Palmas\n{\n  \"near_prefixes\": {\"ixp\": \"to\", \"radius_km\": 300},\n  \"layers\": [\"asns_geo\", \"prefixes_v4\", \"pix\"]\n}\n\n// Prefixos do PTT de SP exceto o AS 6939\n{\n  \"filter\": {\"not\": {\"field\": \"asn\", \"op\": \"eq\", \"value\": 6939}},\n  \"near\": {\"ixp\": \"sp\", \"radius_km\": 1},\n  \"layers\": [\"prefixes_v4\"]\n}\n```",
+    "description": "Retorna um GeoJSON FeatureCollection filtrando ASes e prefixos por uma combinação\nde filtros booleanos, proximidade geográfica e seleção de camadas.\n\n## Parâmetros do body\n\n| Campo | Tipo | Descrição |\n|---|---|---|\n| `filter` | objeto | Filtro booleano sobre a collection `asns` (DSL: `and/or/not` + predicados) |\n| `near` | objeto | Raio em km a partir da **sede** de AS: `{\"ixp\":\"mao\",\"radius_km\":80}` |\n| `near_prefixes` | objeto | Raio em km a partir dos **prefixos geolocalizados** do AS (em vez da sede) |\n| `layers` | lista | Camadas a retornar: `asns_geo`, `prefixes_v4`, `prefixes_v6`, `pix`, `scms`, `outorgas_scm`, `prefixos_ix_v4`, `prefixos_ix_v6` |\n| `color_by` | string | Atributo de cor para `asns_geo`: `visibility`, `rpki`, `aspa`, `porte`, `pct_v6`, `outorga` |\n| `scm_mode` | string | Para `outorgas_scm`: `todas` (default), `com_asn`, `sem_asn` |\n| `ix_apply_filter` | bool | Prefixos do PTT só com origem no recorte de ASes (default `false`) |\n\nA camada `scms` retorna as outorgas SCM **sem ASN** (nenhum ASN no Registro.br com o mesmo CNPJ);\na interseção AS∩SCM aparece via `asns_geo` com `color_by=\"outorga\"`. A camada\n`outorgas_scm` traz todas as outorgas (com `has_asn`); as com ASN respeitam o\nrecorte, as sem ASN só aparecem sem filtro por atributos (a proximidade é aplicada\nà localização da própria outorga). O campo virtual\n`has_scm` (eq true/false) também pode ser usado no `filter` para isolar ASes com/sem outorga.\n\n## Sintaxe de filtro\n\nMesma DSL de `POST /query/asns`. Exemplos:\n\n```json\n{\"field\": \"has_rpki\", \"op\": \"eq\", \"value\": false}\n{\"field\": \"ixps_sessao_rs\", \"op\": \"contains\", \"value\": \"sp\"}\n{\"field\": \"pct_v6\", \"op\": \"gte\", \"value\": 30}\n{\"field\": \"porte\", \"op\": \"eq\", \"value\": \"MICRO EMPRESA\"}\n{\"and\": [...], \"or\": [...], \"not\": {...}}\n```\n\n## Operadores de grupo\n\n`and`, `or`, `not` com filhos aninhados arbitrariamente. XOR deve ser expandido\npelo cliente em `(A AND NOT B) OR (NOT A AND B)`.\n\n## Propriedades das features\n\n- `asns_geo`: herda todas as propriedades de `maps/asns.geojson` + `layer` + `color_value`\n- `prefixes_v4/v6`: herda de `maps/prefixes.geojson` **agregado por ASN e município** (`prefix_count`, sem o prefixo) + `layer`\n- `pix`: propriedades padrão dos PIX do IX.br (`role`, `ixp_code`, `name`, `ixp_name`)\n\n## Casos de uso\n\n```json\n// ASes a 80 km do PTT de Manaus sem RPKI\n{\n  \"filter\": {\"field\": \"has_rpki\", \"op\": \"eq\", \"value\": false},\n  \"near\": {\"ixp\": \"mao\", \"radius_km\": 80},\n  \"layers\": [\"asns_geo\", \"pix\"]\n}\n\n// ASes com prefixos cobrindo região próxima a Palmas\n{\n  \"near_prefixes\": {\"ixp\": \"to\", \"radius_km\": 300},\n  \"layers\": [\"asns_geo\", \"prefixes_v4\", \"pix\"]\n}\n\n// Prefixos do PTT de SP exceto o AS 6939\n{\n  \"filter\": {\"not\": {\"field\": \"asn\", \"op\": \"eq\", \"value\": 6939}},\n  \"near\": {\"ixp\": \"sp\", \"radius_km\": 1},\n  \"layers\": [\"prefixes_v4\"]\n}\n```",
     "operationId": "map_query_api_v1_map_query_post",
     "parameters": [
      {
@@ -15195,7 +15195,7 @@
     ]
    },
    "post": {
-    "description": "Primitiva de consulta sobre as tabelas em memória do snapshot. Componível:\nfiltros and/or/not, seleção, ordenação, paginação **e** agregação (group_by + aggregate).\n\n**Operadores:** `eq ne gt gte lt lte in nin contains ncontains exists`\n(`contains` = substring em strings ou pertinência em arrays; dot-path suportado, ex.:\n`v4.br_prefix_coverage_pct`).\n\n**Modo lista** → `items`. **Modo agregação** (com `group_by`/`aggregate`) → `groups`.\n\nVeja os campos por collection em `GET /schema`. Collections: `asns`, `ixps`,\n`external_ixps`, `cdns`, `prefixes`.\n\nÁlgebra de conjuntos na mesma collection sai de graça via filtro composto — ex.:\nASes diretos no SP mas não no RJ: `ixps_direct contains \"sp\" AND ncontains \"rj\"`.",
+    "description": "Primitiva de consulta sobre as tabelas em memória do snapshot. Componível:\nfiltros and/or/not, seleção, ordenação, paginação **e** agregação (group_by + aggregate).\n\n**Operadores:** `eq ne gt gte lt lte in nin contains ncontains exists`\n(`contains` = substring em strings ou pertinência em arrays; dot-path suportado, ex.:\n`v4.br_prefix_coverage_pct`).\n\n**Modo lista** → `items`. **Modo agregação** (com `group_by`/`aggregate`) → `groups`.\n\nVeja os campos por collection em `GET /schema`. Collections: `asns`, `ixps`,\n`external_ixps`, `cdns`, `prefixes`.\n\nÁlgebra de conjuntos na mesma collection sai de graça via filtro composto — ex.:\nASes com sessão em route server no SP mas não no RJ: `ixps_sessao_rs contains \"sp\" AND ncontains \"rj\"` (`ixps_membro` é o cadastro de participantes; `ixps_direct` é o nome antigo dele).",
     "operationId": "post_query_api_v1_query__collection__post",
     "parameters": [
      {

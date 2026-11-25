@@ -4,13 +4,13 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useQuery } from '@tanstack/react-query'
-import { Kpi } from '../../components/ui'
+import { Kpi, NotaVariosTotais } from '../../components/ui'
 import { chaves, IMUTAVEL } from '../../hooks/entidades/chaves'
 import { useActiveDate } from '../../hooks/useSnapshot'
 import { useAppStore } from '../../store/app'
 import { fetchAcessosStats, fetchSnapshot } from '../../services/api'
 import { montarKpis, type KpiHome } from './kpisBrasilEmNumeros'
-import { KpisSegurancaPais } from '../panorama/IndicadoresBrasil'
+import { ComoLerNumerosPais, KpisSegurancaPais } from '../panorama/IndicadoresBrasil'
 
 function Faixa({ titulo, itens, cor }: { titulo: string; itens: KpiHome[]; cor: string }) {
   return (
@@ -44,6 +44,8 @@ export function BrasilEmNumeros() {
         <h3 className="text-xs font-semibold uppercase tracking-wide mb-1.5 text-tecnico-700">IPv6 e segurança</h3>
         <KpisSegurancaPais />
       </div>
+      <ComoLerNumerosPais />
+      <NotaVariosTotais />
     </section>
   )
 }

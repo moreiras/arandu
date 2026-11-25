@@ -37,6 +37,22 @@ function refVisivel(v: string): string {
   return m ? m[1] : v
 }
 
+/** Texto da linha de proveniência ("Estimado · APNIC Labs · ref. 2026-11-15"); vazio sem selo, fonte e data. */
+export function textoProveniencia(selo?: Selo, fonte?: string, dataRef?: string | null): string {
+  return [selo ? ROTULO_SELO[selo] : null, fonte || null, dataRef ? `ref. ${refVisivel(dataRef)}` : null].filter((p): p is string => !!p).join(' · ')
+}
+
+/** A linha de proveniência do `Kpi`, para os indicadores de outro desenho (faixas de números grandes) que não usam o `Kpi` comum. */
+export function LinhaProveniencia({ selo, fonte, dataRef, className = 'mt-0.5 text-xs text-gray-600' }: { selo?: Selo; fonte?: string; dataRef?: string | null; className?: string }) {
+  const texto = textoProveniencia(selo, fonte, dataRef)
+  if (!texto) return null
+  return (
+    <p className={className} data-kpi-proveniencia data-kpi-selo={selo}>
+      <span className="sr-only">Natureza, fonte e data de referência: </span>{texto}
+    </p>
+  )
+}
+
 export function Kpi({ rotulo, valor, referencia, variacao, selo, fonte, dataRef, tom, explicacao }: {
   /** Acento de cor (opcional): identifica o tipo do indicador sem depender só da cor, pois o rótulo e o valor continuam sendo o conteúdo. */
   tom?: TomKpi
@@ -54,18 +70,13 @@ export function Kpi({ rotulo, valor, referencia, variacao, selo, fonte, dataRef,
   /** Data ou mês a que o número se refere (AAAA-MM-DD ou AAAA-MM). */
   dataRef?: string | null
 }) {
-  const partes = [selo ? ROTULO_SELO[selo] : null, fonte || null, dataRef ? `ref. ${refVisivel(dataRef)}` : null].filter((p): p is string => !!p)
   const dica = fonte ? `Fonte: ${fonte}${dataRef ? ` · ref. ${formatarReferencia(dataRef)}` : ''}` : undefined
   const vazio = valor === null || valor === undefined || valor === ''
   return (
     <div className={`rounded-lg border border-gray-200 p-3 min-w-0 ${tom ? TONS[tom].caixa : 'bg-white'}`} data-testid="kpi" data-kpi-rotulo={rotulo}>
       <div className="text-xs text-gray-500">{rotulo}{explicacao && <Dica texto={explicacao} rotulo={rotulo} />}</div>
       <div className={`mt-0.5 text-titulo-2 tabular-nums ${tom ? TONS[tom].valor : 'text-gray-900'}`} title={dica} data-kpi-valor>{vazio ? '—' : valor}</div>
-      {partes.length > 0 && (
-        <p className="mt-0.5 text-xs text-gray-600" data-kpi-proveniencia data-kpi-selo={selo}>
-          <span className="sr-only">Natureza, fonte e data de referência: </span>{partes.join(' · ')}
-        </p>
-      )}
+      <LinhaProveniencia selo={selo} fonte={fonte} dataRef={dataRef} />
       {(variacao || referencia) && (
         <div className="mt-0.5 flex flex-wrap gap-x-2 text-xs text-gray-500">
           {variacao && <span className={variacao.bom === undefined ? '' : variacao.bom ? 'text-ok-700' : 'text-perigo-700'}>{variacao.texto}</span>}

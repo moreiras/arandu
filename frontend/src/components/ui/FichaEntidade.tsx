@@ -5,9 +5,10 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { ReactNode } from 'react'
 import { EntityHeader, type SeloServico } from '../entidade/EntityHeader'
+import type { Selo } from '../entidade/proveniencia'
 import { Kpi } from './Kpi'
 
-export interface KpiFicha { rotulo: string; valor: ReactNode; referencia?: string; variacao?: { texto: string; bom?: boolean }; fonte?: string; dataRef?: string | null }
+export interface KpiFicha { rotulo: string; valor: ReactNode; referencia?: string; variacao?: { texto: string; bom?: boolean }; selo?: Selo; fonte?: string; dataRef?: string | null }
 
 /**
  * Ficha de uma entidade: cabeçalho (`EntityHeader`), frase-síntese opcional (com o selo de como foi obtida), grade de KPIs

@@ -126,7 +126,7 @@ describe('destaques e faixa (lógica)', () => {
     await waitFor(() => expect(screen.getAllByTestId('kpi')[4]).toHaveTextContent('622 mil'))
     const kpis = screen.getAllByTestId('kpi')
     for (const k of kpis) expect(k.querySelector('[data-kpi-proveniencia]'), k.textContent ?? '').not.toBeNull()
-    expect(within(kpis[0]).getByText(/^Fato · Registro\.br .* · ref\. 2026-09-20$/)).toBeInTheDocument()
+    expect(within(kpis[0]).getByText(/^Fato · LACNIC .* · ref\. 2026-09-20$/)).toBeInTheDocument()
     expect(within(kpis[3]).getByText(/^Estimado · APNIC .* · ref\. 2026-09-20$/)).toBeInTheDocument()
     expect(within(kpis[4]).getByText(/^Fato · SICI, Anatel .* · ref\. 2026-08$/)).toBeInTheDocument()
   })

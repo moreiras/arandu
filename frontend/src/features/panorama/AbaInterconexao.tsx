@@ -37,7 +37,7 @@ export function AbaInterconexao() {
         <h2 className="text-titulo-3 text-gray-800">PTTs e participantes</h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Kpi selo="fato" rotulo="PTTs do IX.br" valor={num(ixps.data?.ixps.length)} tom="primario" referencia={s?.ixps_missing ? `${num(s.ixps_missing)} sem dados neste snapshot` : undefined} fonte="looking glasses do IX.br" dataRef={ref} />
-          <Kpi selo="fato" rotulo="Participantes diretos" valor={num(ix?.asn_direct_union_count)} explicacao="ASNs com sessão BGP no route server de algum PTT do IX.br (brasileiros ou não), sem repetição entre PTTs." fonte="looking glasses do IX.br" dataRef={ref} />
+          <Kpi selo="fato" rotulo="ASNs com sessão em route server do IX.br" valor={num(ix?.asn_direct_union_count)} explicacao="ASNs com sessão BGP no route server de algum PTT do IX.br (brasileiros ou não), sem repetição entre PTTs." fonte="looking glasses do IX.br" dataRef={ref} />
           <Kpi selo="fato" rotulo="ASNs com rotas vistas no IX.br" valor={num(ix?.asn_origin_union_count)} explicacao="ASNs (de qualquer país) que originam prefixos vistos em algum PTT do IX.br, diretamente ou por trânsito." fonte="looking glasses do IX.br" dataRef={ref} />
           <Kpi selo="fato" rotulo="ASNs BR com rotas vistas no IX.br" valor={num(ix?.br_asns_origin_union_count)} referencia={pct(fracao(ix?.br_asns_origin_union_count, gt?.br_asns_in_ft)) ? `${pct(fracao(ix?.br_asns_origin_union_count, gt?.br_asns_in_ft))} dos visíveis na tabela global` : undefined}
             explicacao="ASNs do Registro.br que originam prefixos vistos em algum PTT do IX.br, inclusive por trânsito: não é participação direta." fonte="looking glasses do IX.br" dataRef={ref} />

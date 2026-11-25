@@ -63,16 +63,23 @@ export function sinteseOperadora(nome: string, c: OperadoraCtx): Frase[] {
   return f
 }
 
-export interface KpiOp { id: string; rotulo: string; valor: string | null; referencia?: string }
+export interface KpiOp { id: string; rotulo: string; valor: string | null; referencia?: string; selo: Selo; fonte: string; dataRef: string | null }
 
+/**
+ * Indicadores da ficha com a proveniência (PT-14). Acessos, parcela, posição, variação e municípios são o declarado pela empresa ao SICI (fato; parcela e
+ * variação são aritmética sobre o declarado, no mês de referência); os ASNs são os do mesmo CNPJ no Registro.br, sem vínculo inferido.
+ */
 export function kpisOperadora(c: OperadoraCtx): KpiOp[] {
   const i = c.indicadores
   const asns = c.data?.asns?.length ? c.data.asns : (c.dataMovel?.asns ?? [])
+  const mes = i?.mes_referencia ?? null
+  const snap = c.data?.snapshot_date ?? c.dataMovel?.snapshot_date ?? null
+  const sici = { selo: 'fato' as const, fonte: 'Anatel (SICI)', dataRef: mes }
   return [
-    { id: 'acessos', rotulo: `Acessos fixos${i ? ` (${i.mes_referencia})` : ''}`, valor: i?.acessos != null ? n(i.acessos) : null },
-    { id: 'share', rotulo: 'Parcela no país', valor: i?.share_br != null ? `${i.share_br.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%` : null, referencia: i?.posicao_br ? `${n(i.posicao_br)}º por acessos` : undefined },
-    { id: 'variacao', rotulo: 'Variação em 12 meses', valor: i?.var_aa?.pct != null ? `${i.var_aa.pct > 0 ? '+' : ''}${p1(i.var_aa.pct)}%` : null },
-    { id: 'municipios', rotulo: 'Municípios com acessos', valor: c.data?.municipios != null ? n(c.data.municipios) : null },
-    { id: 'asns', rotulo: 'ASNs', valor: n(asns.length) },
+    { id: 'acessos', rotulo: `Acessos fixos${i ? ` (${i.mes_referencia})` : ''}`, valor: i?.acessos != null ? n(i.acessos) : null, ...sici },
+    { id: 'share', rotulo: 'Parcela no país', valor: i?.share_br != null ? `${i.share_br.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%` : null, referencia: i?.posicao_br ? `${n(i.posicao_br)}º por acessos` : undefined, ...sici },
+    { id: 'variacao', rotulo: 'Variação em 12 meses', valor: i?.var_aa?.pct != null ? `${i.var_aa.pct > 0 ? '+' : ''}${p1(i.var_aa.pct)}%` : null, ...sici },
+    { id: 'municipios', rotulo: 'Municípios com acessos', valor: c.data?.municipios != null ? n(c.data.municipios) : null, selo: 'fato', fonte: 'Anatel (SICI)', dataRef: mes ?? snap },
+    { id: 'asns', rotulo: 'ASNs', valor: n(asns.length), selo: 'fato', fonte: 'Registro.br (mesmo CNPJ)', dataRef: snap },
   ]
 }

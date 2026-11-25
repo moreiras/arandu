@@ -96,7 +96,7 @@ export const SERVICOS: Record<ServicoId, Servico> = {
   scm: {
     id: 'scm', rotulo: 'SCM', titulo: 'Outorgas SCM', chaveLista: 'scms', temSici: true, soAtivosPadrao: false,
     descricao: <>Serviço de Comunicação Multimídia — dados abertos da {Anatel}, cruzados com ASNs do Registro.br por CNPJ.</>,
-    dicaOperacao: 'Ter outorga não significa estar operando: cerca de metade dos CNPJs licenciados não declara nenhum acesso ao SICI',
+    dicaOperacao: 'Ter outorga não significa estar operando: cerca de metade dos CNPJs com outorga não declara acesso ao SICI. Este filtro conta quem declarou acesso fixo ou móvel; os CNPJs com outorga SCM que declararam acesso fixo (cobertura de declaração, na home) são um pouco menos.',
     ordenacaoPadrao: { campo: 'acessos_fixo', desc: true }, primeiroCliqueDesc: false, unidade: 'outorgas',
     indisponivel: 'Dados de SCM não disponíveis para este snapshot. Rode as etapas anatel_scm e scm_geo para coletar os dados da Anatel.',
     stats: (d) => fetchOutorgasStats('SCM', d), mapa: (o) => fetchOutorgasMapa('SCM', o),

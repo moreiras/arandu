@@ -222,7 +222,7 @@ export function CoberturaIxbr({ grupos }: { grupos: GrupoCobertura[] }) {
           {/* ── ASNs ── */}
           <section>
             <h2 className="text-base font-semibold text-gray-800 mb-1">
-              ASNs em peering direto por IXP
+              ASNs com sessão em route server por PTT
             </h2>
             <p className="text-xs text-gray-500 mb-4">
               ASNs com sessão BGP direta no Route Server do IXP (não contabiliza originadores via upstream).

@@ -10,11 +10,11 @@ import type { Predicate, PredicateKind } from './tipos'
 
 export const KIND_OPTIONS: Array<{ group: string; options: Array<{ value: PredicateKind; label: string }> }> = [
   { group: 'Base', options: [
-    { value: 'is_br', label: 'Registro.br' },
+    { value: 'is_br', label: 'ASN brasileiro (LACNIC)' },
   ]},
   { group: 'IXPs', options: [
-    { value: 'ixps_direct_in',  label: 'Direto em PTT' },
-    { value: 'ixps_direct_nin', label: 'Não direto em PTT' },
+    { value: 'ixps_direct_in',  label: 'Membro do cadastro do PTT' },
+    { value: 'ixps_direct_nin', label: 'Fora do cadastro do PTT' },
     { value: 'ixps_origin_in',  label: 'Origina em PTT' },
     { value: 'ixps_origin_nin', label: 'Não origina em PTT' },
   ]},

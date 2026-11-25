@@ -19,7 +19,7 @@ export function IndicadoresAsBloco({ dados }: BlocoProps<PttCtx>) {
       <MetCell
         label="Peers diretos"
         value={num(dir)}
-        tooltip="ASNs em peering direto com o Route Server deste IXP — união de v6 e v4"
+        tooltip="ASNs com sessão com o Route Server deste PTT — união de v6 e v4"
       />
       <MetCell
         label="Originadores"

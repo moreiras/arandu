@@ -55,7 +55,7 @@ export function EstadosPage() {
                     </span>
                     {u && (
                       <span className="block mt-1.5 text-xs text-gray-500 tabular-nums">
-                        {u.acessos == null ? 'sem SICI neste snapshot' : `${fmt(u.acessos)} acessos fixos`} · {fmt(u.usuarios)} usuários est.
+                        {u.acessos == null ? 'sem SICI neste snapshot' : `${fmt(u.acessos)} acessos fixos`} · {fmt(u.usuarios)} usuários est. (sede da rede)
                         {u.fibra_pct != null && (
                           <span className="mt-1 flex items-center gap-1.5">
                             <span className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden" aria-hidden><span className="block h-full bg-mercado-500" style={{ width: `${u.fibra_pct}%` }} /></span>

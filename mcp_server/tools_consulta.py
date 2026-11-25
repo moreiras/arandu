@@ -81,7 +81,7 @@ def query(
       do município, ou de um ponto.
 
     Álgebra de conjuntos na mesma collection sai via filtro composto — ex.: diretos no
-    SP mas não no RJ: ixps_direct contains "sp" AND ncontains "rj".
+    SP mas não no RJ: ixps_sessao_rs contains "sp" AND ncontains "rj".
 
     Args:
         collection: asns | ixps | external_ixps | cdns | prefixes | global_prefixes | scms | smps | stfcs | seacs |

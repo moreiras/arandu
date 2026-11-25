@@ -61,10 +61,10 @@ export function SeriePosicaoBloco({ dados }: BlocoProps<GrupoCtx>) {
     return (
       <div className="space-y-3" data-testid="grupo-serie">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Kpi rotulo={`Posição em ${m.mes_referencia ?? '—'}`} valor={m.posicao.atual != null ? `${n(m.posicao.atual)}º de ${n(m.posicao.unidades)}` : '—'} />
-          <Kpi rotulo={`Posição há 12 meses${m.posicao.mes_ha_12_meses ? ` (${m.posicao.mes_ha_12_meses})` : ''}`} valor={m.posicao.ha_12_meses != null ? `${n(m.posicao.ha_12_meses)}º` : '—'} />
-          <Kpi rotulo="Parcela dos acessos fixos" valor={pct(m.serie[m.serie.length - 1]?.parcela)} />
-          <Kpi rotulo="CNPJs com acessos" valor={`${n(m.cnpjs_com_acessos)} de ${n(m.cnpjs_total)}`} />
+          <Kpi rotulo={`Posição em ${m.mes_referencia ?? '—'}`} valor={m.posicao.atual != null ? `${n(m.posicao.atual)}º de ${n(m.posicao.unidades)}` : '—'} fonte="Anatel (SICI), grupo inferido" selo="inferido" dataRef={m.mes_referencia} />
+          <Kpi rotulo={`Posição há 12 meses${m.posicao.mes_ha_12_meses ? ` (${m.posicao.mes_ha_12_meses})` : ''}`} valor={m.posicao.ha_12_meses != null ? `${n(m.posicao.ha_12_meses)}º` : '—'} fonte="Anatel (SICI), grupo inferido" selo="inferido" dataRef={m.posicao.mes_ha_12_meses} />
+          <Kpi rotulo="Parcela dos acessos fixos" valor={pct(m.serie[m.serie.length - 1]?.parcela)} fonte="Anatel (SICI), grupo inferido" selo="inferido" dataRef={m.mes_referencia} />
+          <Kpi rotulo="CNPJs com acessos" valor={`${n(m.cnpjs_com_acessos)} de ${n(m.cnpjs_total)}`} fonte="Anatel (SICI), grupo inferido" selo="inferido" dataRef={m.mes_referencia} />
         </div>
         {dif != null && dif !== 0 && <p className="text-sm text-gray-600">Em 12 meses o grupo {dif > 0 ? `subiu ${dif}` : `desceu ${-dif}`} {Math.abs(dif) === 1 ? 'posição' : 'posições'} na lista por acessos declarados.</p>}
         {com < 2 ? <p className="text-sm text-gray-500">Só há {com} mês com declaração do grupo na janela; a série precisa de ao menos dois.</p> : (

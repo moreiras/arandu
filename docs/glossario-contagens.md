@@ -5,6 +5,8 @@ Este texto lista os universos que hoje aparecem no site, na API e no MCP com o m
 tela, a definição, onde o número nasce (arquivo publicado e código que o calcula), o valor medido no snapshot 2026-11-22 e onde ele
 aparece hoje. É a referência para unificar rótulos (PT-15) e para a regra única de "brasileiro" da decisão D4.
 
+Rótulos de tela e texto "Por que há vários totais": `frontend/src/lib/universos.ts` (fonte única, também a de `/sobre#contagens`).
+
 Valores medidos em 2026-11-24 sobre o snapshot publicado de 2026-11-22 (arquivos de `data/published/2026-11-22/` e
 `data/normalized/2026-11-22/summary/`, e a API servindo essa data); código no commit `037b1e7`. "Não medido" quer dizer que o
 número não foi conferido nesta verificação, não que é zero. Caminhos de dado são relativos a `data/`; de código, à raiz do
@@ -150,8 +152,9 @@ mesma página são defeito.
 - **Valor:** união 3.792 (3.509 `is_br`); soma por PTT 7.395. Os 3.134 com sessão estão todos entre os membros; 658 membros sem
   sessão.
 - **Onde aparece:** `IXPTable` (coluna de membros), `/ixp/:code`, mapa da home, bloco de PTTs de `/uf/:uf`, `/asns/ix-presence`
-  (localizador). **Defeito de nome:** na collection `asns` do `/query`, o campo `ixps_direct` vem de `m`, isto é, do cadastro
-  (`api/services/consultas.py:147`), e não da sessão com route server.
+  (localizador). **Nome na collection `asns` do `/query` (PT-15):** o cadastro é `ixps_membro`; o antigo `ixps_direct`
+  (que vinha de `m`, isto é, do cadastro, e não da sessão com route server) segue como alias com o mesmo valor e a consulta que o
+  cita recebe `aviso_obsoleta`. A sessão com route server é o campo `ixps_sessao_rs` (`api/services/consultas.py`, `_ixps_sessao_rs`).
 
 ### Originador
 - **Nome na tela:** "ASNs cujos prefixos aparecem no IX.br" (com ou sem presença no PTT).

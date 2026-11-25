@@ -28,8 +28,8 @@ export function predicateToDsl(p: Predicate): Record<string, unknown> {
     case 'no_aspa':        return { field: 'has_aspa',                   op: 'eq',       value: false }
     case 'v4_ft':          return { field: 'global_prefixes_v4_count',   op: 'gte',      value: 1 }
     case 'v6_ft':          return { field: 'global_prefixes_v6_count',   op: 'gte',      value: 1 }
-    case 'ixps_direct_in':  return { field: 'ixps_direct',  op: 'contains',  value: p.value.trim().toLowerCase() }
-    case 'ixps_direct_nin': return { field: 'ixps_direct',  op: 'ncontains', value: p.value.trim().toLowerCase() }
+    case 'ixps_direct_in':  return { field: 'ixps_membro',  op: 'contains',  value: p.value.trim().toLowerCase() }
+    case 'ixps_direct_nin': return { field: 'ixps_membro',  op: 'ncontains', value: p.value.trim().toLowerCase() }
     case 'ixps_origin_in':  return { field: 'ixps_origin',  op: 'contains',  value: p.value.trim().toLowerCase() }
     case 'ixps_origin_nin': return { field: 'ixps_origin',  op: 'ncontains', value: p.value.trim().toLowerCase() }
     case 'pct_v6_gte':     return { field: 'pct_v6',        op: 'gte',       value: parseFloat(p.value) }

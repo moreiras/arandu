@@ -69,7 +69,7 @@ DETALHE_DA_COLLECTION = {
 # Grupos das collections do `query` nas instruções. O T5 confere que toda collection do catálogo está em um grupo: a descrição do `query`
 # citava 15 das 49 e o modelo respondia "não disponível" para o que existia.
 GRUPOS_COLLECTIONS: list[tuple[str, list[tuple[str, str]]]] = [
-    ("Redes", [("asns", "AS: nome, uf, usuários APNIC, ixps_direct, ixps_origin, RPKI, IPv6, cnpj"), ("prefixes", "prefixos BR do Registro.br"),
+    ("Redes", [("asns", "AS: nome, uf, usuários APNIC, ixps_sessao_rs, ixps_membro, ixps_origin, RPKI, IPv6, cnpj"), ("prefixes", "prefixos BR do Registro.br"),
                ("global_prefixes", "tabela global"), ("ixps", "PTTs do IX.br"), ("external_ixps", ""), ("cdns", ""),
                ("organizacoes_asn", "organização e ASNs irmãos"), ("transito_asn", "cone de clientes"),
                ("transito_uf", "mercado de trânsito por UF"), ("seguranca_asn", "ROV, DNSSEC, bogons"),
@@ -123,8 +123,8 @@ COLLECTIONS DE query:
 
 SINTAXE DE query:
   filter: {{"field":"uf","op":"eq","value":"SC"}} ou {{"and":[…]}} / {{"or":[…]}} / {{"not":…}}. ops: eq ne gt gte lt lte in nin contains ncontains exists.
-  Campo lista (ixps_direct, ixps_origin, asns) usa contains/ncontains. Ex.: diretos em Fortaleza e não em Salvador =
-  {{"and":[{{"field":"ixps_direct","op":"contains","value":"ce"}},{{"field":"ixps_direct","op":"ncontains","value":"ba"}}]}}
+  Campo lista (ixps_sessao_rs, ixps_membro, ixps_origin, asns) usa contains/ncontains. Ex.: RS em Fortaleza, não em Salvador =
+  {{"and":[{{"field":"ixps_sessao_rs","op":"contains","value":"ce"}},{{"field":"ixps_sessao_rs","op":"ncontains","value":"ba"}}]}}
   sort: [{{"field":"apnic_users","dir":"desc"}}] · select: ["asn","name"] · limit: N (a resposta traz "total": use-o para contar)
   group_by: ["uf"] + aggregate: [{{"fn":"count"}}, {{"fn":"sum","field":"apnic_users"}}]
   near: {{"ixp":"vix","radius_km":50}} | {{"place":"Mossoró","radius_km":100}} | {{"point":[lat,lon],"radius_km":N}}
@@ -132,11 +132,11 @@ SINTAXE DE query:
 REGRAS:
 - Omita `date` para usar o snapshot mais recente; não invente datas.
 - O SICI (Anatel) tem duas datas: a do snapshot e o mes_referencia; cite as duas. Com acessos_compartilhados=true não some ASes do mesmo CNPJ.
-- "Direto" = membro do PTT; "originador" = prefixo visto no PTT via outro AS. Usuários APNIC são estimativa.
+- Sessão com RS (ixps_sessao_rs) não é membro do cadastro (ixps_membro); originador = prefixo visto no PTT. Usuários APNIC: estimativa.
 - Resultado vazio costuma ser valor errado (código de PTT, sigla, enum): confira antes de concluir que não existe.
 - A resposta pode trazer `ajustes`: o que o servidor interpretou nos seus argumentos (ex.: "Fortaleza" → "ce"). Se mudar o sentido, diga.
 - Sem chave de MCP: prévia (listas até 100, 1ª página, 2 snapshots recentes); o erro diz como obter a chave.
-- Terminologia (direto × originador, RIR × global, usuários estimados): arandurape://glossario; receitas: arandurape://recipes.
+- Terminologia: arandurape://glossario; receitas: arandurape://recipes.
 """
 
 

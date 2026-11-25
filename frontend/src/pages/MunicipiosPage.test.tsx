@@ -37,7 +37,7 @@ describe('/municipios', () => {
     }))
     montar('/municipios?lente=penetracao')
     await waitFor(() => expect(screen.getByText('São Paulo').getAttribute('href')).toBe('/municipio/3550308'))
-    expect(screen.getByText('Não visto (estim.)')).toBeTruthy()
+    expect(screen.getByText('Sem acesso fixo PF (est.)')).toBeTruthy()
     expect(screen.getByText('1,06')).toBeTruthy()
     expect(screen.getByText(/inclui quem usa só o celular/)).toBeTruthy()
     expect(pedido).toContain('min_domicilios=1000')

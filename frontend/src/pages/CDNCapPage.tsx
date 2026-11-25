@@ -250,12 +250,12 @@ export function CDNCapPage() {
       {/* Hero de métricas agregadas */}
       <div className="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white px-4 py-3">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-2 divide-x divide-gray-200">
-          <Kpi value={fmtN(asns.length)} label="ASNs no grupo" color="#2563eb" />
-          <Kpi value={fmtN(agg.gV6.length)} label="prefixos IPv6" sub="na tabela global" color="#8b5cf6" />
-          <Kpi value={fmtN(agg.gV4.length)} label="prefixos IPv4" sub="na tabela global" color="#0891b2" />
-          <Kpi value={fmtN(presenca.membro)} label="PTTs do IX.br: membro" sub="cadastro de participantes do IX.br" color="#d97706" />
-          <Kpi value={fmtN(presenca.sessao)} label="PTTs do IX.br: sessão" sub="com sessão no route server (coleta)" color="#b45309" />
-          <Kpi value={fmtN(presenca.terceiros)} label="PTTs do IX.br: só por terceiros" sub={`prefixos vistos sem sessão própria · + ${fmtN(agg.external.length)} IXPs externos (PeeringDB)`} color="#92400e" />
+          <Kpi value={fmtN(asns.length)} label="ASNs no grupo" color="#2563eb" selo="inferido" fonte="lista de ASNs da CDN (curadoria do projeto)" dataRef={date} />
+          <Kpi value={fmtN(agg.gV6.length)} label="prefixos IPv6" sub="na tabela global" color="#8b5cf6" selo="fato" fonte="tabela global (RouteViews)" dataRef={date} />
+          <Kpi value={fmtN(agg.gV4.length)} label="prefixos IPv4" sub="na tabela global" color="#0891b2" selo="fato" fonte="tabela global (RouteViews)" dataRef={date} />
+          <Kpi value={fmtN(presenca.membro)} label="PTTs do IX.br: membro" sub="cadastro de participantes do IX.br" color="#d97706" selo="fato" fonte="cadastro de participantes do IX.br" dataRef={date} />
+          <Kpi value={fmtN(presenca.sessao)} label="PTTs do IX.br: sessão" sub="com sessão no route server (coleta)" color="#b45309" selo="fato" fonte="looking glass do IX.br" dataRef={date} />
+          <Kpi value={fmtN(presenca.terceiros)} label="PTTs do IX.br: só por terceiros" sub={`prefixos vistos sem sessão própria · + ${fmtN(agg.external.length)} IXPs externos (PeeringDB)`} color="#92400e" selo="inferido" fonte="looking glass do IX.br" dataRef={date} />
         </div>
       </div>
 
