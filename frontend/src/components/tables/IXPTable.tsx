@@ -249,7 +249,7 @@ export function IXPTable({ ixps, totalBrASNs, totalGlobalASNs, estUsers }: IXPTa
             <Th label="Originadores" tooltip="ASNs de todos os países que originam (são o último AS do AS_PATH) algum prefixo visível neste PTT, união IPv6 ∪ IPv4 (snapshots anteriores a 2026-11: o maior entre IPv6 e IPv4)" sortKey="asn_origin" {...thProps} />
             <Th label="Cobertura Registro.br" tooltip="% dos ASNs brasileiros cadastrados no Registro.br que aparecem como originadores neste PTT (união IPv6 ∪ IPv4)" sortKey="asn_br_coverage" {...thProps} />
             <Th label="Cobertura tabela global" tooltip="% dos ASNs presentes na tabela global (RouteViews) que aparecem como originadores neste PTT" sortKey="asn_ft_coverage" {...thProps} />
-            <Th label="Usuários (estimados)" tooltip="Usuários finais brasileiros estimados visíveis por este PTT (IPv4): soma dos usuários do APNIC × fração do espaço IPv4 do AS visível no PTT, sobre os ASes BR originadores" sortKey="asn_est_users" {...thProps} />
+            <Th label="Usuários alcançáveis (est., não somam)" tooltip="Usuários estimados alcançáveis por este PTT (IPv4): usuários do APNIC de cada ASN que origina prefixos no PTT × fração do espaço IPv4 visível ali, inclusive o que chega por trânsito. O mesmo usuário conta em cada PTT onde o seu ASN aparece: a soma das linhas não é o total do país nem o do IX.br" sortKey="asn_est_users" {...thProps} />
             </>}
             {grupo === 'ipv6' && <>
             <Th label="Prefixos" tooltip="Prefixos IPv6 únicos visíveis neste PTT" sortKey="v6_prefixes" {...thProps} className="border-l border-gray-200" />
