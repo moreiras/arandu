@@ -100,7 +100,7 @@ function ClassificacaoBadge({ c }: { c: GrupoClassificacao }) {
 function topEmpresas(grupo: GrupoSocietarioRow, n = 3): string {
   const nomes = grupo.cnpjs.slice(0, n).map(c => c.empresa || fmtCnpj(c.cnpj))
   const resto = grupo.cnpjs.length - nomes.length
-  return resto > 0 ? `${nomes.join(', ')} e mais ${resto}` : nomes.join(', ')
+  return resto > 0 ? `${nomes.join(', ')} e mais ${resto} ${resto === 1 ? 'CNPJ' : 'CNPJs'}` : nomes.join(', ')
 }
 
 interface ScatterPoint {
@@ -525,7 +525,8 @@ export function GruposPage() {
                       <Link to={`/grupo/${encodeURIComponent(g.grupo_id)}`} onClick={e => e.stopPropagation()} className="font-medium text-primario-700 hover:underline">
                         {nomeGrupo(g)}
                       </Link>
-                      {g.cnpjs.length > 1 && <span className="ml-1 text-xs text-gray-500">e mais {g.cnpjs.length - 1}</span>}
+                      {/* GRUPO-E7: `tamanho` conta empresas (raízes de CNPJ); `cnpjs` traz matriz e filiais */}
+                      {g.tamanho > 1 && <span className="ml-1 text-xs text-gray-500">e mais {g.tamanho - 1} {g.tamanho - 1 === 1 ? 'empresa' : 'empresas'}</span>}
                       {/* O clique na linha não chega ao teclado: este botão faz a mesma seleção (WCAG 2.1.1). */}
                       <button type="button" aria-pressed={isSelected} onClick={e => { e.stopPropagation(); setSelectedId(g.grupo_id) }}
                         className="ml-2 inline-flex min-h-6 items-center text-xs text-primario-700 underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primario-500">

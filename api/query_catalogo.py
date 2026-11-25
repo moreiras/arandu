@@ -449,7 +449,7 @@ SCHEMA: dict[str, dict] = {
                "transitivamente). Mesmo grupo_id = conectados por alguma "
                "cadeia de relações, não necessariamente quadro idêntico entre "
                "todos os membros — para isso, ver `mesmo_grupo`."),
-            _f("tamanho_grupo", "int", "Quantos CNPJs (empresas) fazem parte do grupo_id"),
+            _f("tamanho_grupo", "int", "Quantas empresas (raízes de CNPJ de 8 dígitos) fazem parte do grupo_id; matriz e filiais contam uma vez"),
             _f("socios", "array[object]",
                "Sócios do CNPJ conforme a Receita: {tipo (fisica|juridica|"
                "estrangeiro), qualificacao; nome e documento (CNPJ básico) só para "
