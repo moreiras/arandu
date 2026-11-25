@@ -1979,6 +1979,7 @@ export interface paths {
          *     **Só estrutura entre empresas (PJ):** a resposta não traz sócio pessoa física, nome de sócio nem CPF. Cada soma vem com a contagem de empresas que têm o dado: ausência não é zero
          *     (o crédito cobre só operações diretas do BNDES; as sanções, a data do arquivo da CGU; os contratos, o rodízio de leitura do PNCP). `grupo_id` é o de `GET /grupos`
          *     (`ind_<cnpj básico>` para empresa individual). Só sócio com participação societária liga empresas (administrador, diretor e presidente sem participação não ligam).
+         *     Sociedade anônima (natureza 2046 e 2054 da Receita): o quadro traz diretoria e conselho, não acionistas, e não liga empresas; a resposta traz `grupo_inferivel: false`, `grupo_inferivel_rotulo` e `como_ler` no grupo individual da S.A. (`sociedades_anonimas` conta as S.A. do grupo). A ligação que vem do quadro de outra empresa em que a S.A. é sócia com participação continua.
          *     Um `grupo_id` antigo (o id de snapshots anteriores era a raiz da union-find) devolve o grupo atual que contém aquele CNPJ básico, com `redirecionado_de` e o `grupo_id` estável.
          */
         get: operations["get_grupo_api_v1_grupos__grupo_id__get"];
