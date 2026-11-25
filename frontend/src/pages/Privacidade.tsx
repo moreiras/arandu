@@ -1,4 +1,32 @@
 import { SITE } from '../lib/site'
+import { TabelaRetencao } from '../components/privacidade/TabelaRetencao'
+
+// TODO(mantenedor) (PT-13 / D10): a tabela de retenção abaixo é gerada das constantes do código (`scripts/gen_retencao.py` →
+// `lib/retencao.gen.json`) e continua DESLIGADA: inserir conteúdo na política é decisão e redação do mantenedor. Para ligar, mude a
+// constante para `true` (a tabela aparece depois da seção 2.4) e, se quiser outro texto nas células, ajuste `gen_retencao.py` e rode
+// `python3 scripts/gen_retencao.py`.
+const EXIBIR_TABELA_RETENCAO = false
+
+// TODO(mantenedor) (PT-13 / D10): o texto vigente diverge do código nos pontos abaixo. Nada foi alterado no que o público vê; as redações
+// são PROPOSTAS, nesta ordem de seção.
+// (a) Seção 2, parágrafo "Também registramos logs de acesso...": proposta de substituição:
+//     "O servidor web registra, a cada acesso, o endereço IP, a URL acessada e o horário, para operação e segurança do serviço. Esse
+//     registro tem rotação por tamanho e não tem prazo fixo de retenção. Os registros da própria aplicação, descritos nas seções 2.2
+//     e 2.3, não guardam o endereço IP."
+// (b) Seção 2.3, "ficam apenas contagens por dia e por classe de rota, por até 12 meses": proposta:
+//     "ficam apenas contagens por dia, conta, origem da chamada (site, API ou MCP) e classe de rota, por até 12 meses. O identificador
+//     interno da conta só é retirado dessas contagens quando a conta é excluída."
+// (c) Seção 2.3, "o limite diário de chamadas do MCP": proposta: "os tetos de chamadas do MCP por minuto, por hora e por dia".
+// (d) Nova seção 2.5 (não existe; localStorage não é citado): proposta:
+//     "2.5 Armazenamento no navegador: o site guarda no armazenamento local do seu navegador (localStorage) a sua preferência de leitura
+//     confortável, as buscas recentes da barra de busca e a orientação do mapa. Esses dados ficam só no seu navegador, não são enviados
+//     ao servidor e deixam de existir quando você limpa os dados do site."
+// (e) CONFLITO a decidir: `POST /auth/log` (api/auth/storage.py, `log_access`) grava, para quem tem login, linha com data, IP, `conta_id` e
+//     caminho da página em `data/auth/access_AAAA-MM.log`, retido por 3 meses (RETENCAO_LOG_MESES). Isso contradiz "registros da aplicação
+//     não guardam IP" (D10) e a frase "Não guardamos o endereço IP nesse registro" da 2.3 (que trata de outro registro, `uso_conta`).
+//     Prática não muda (D10); o mantenedor decide se a política descreve esse registro. Proposta: acrescentar à seção 2.3:
+//     "Para quem tem conta, as páginas visitadas no site também são registradas com data e hora, identificador interno da conta,
+//     endereço IP e caminho da página, por 3 meses."
 export function Privacidade() {
   return (
     <div className="max-w-3xl space-y-8">
@@ -107,6 +135,12 @@ export function Privacidade() {
           nunca aparece em registros do serviço.
         </p>
       </section>
+
+      {EXIBIR_TABELA_RETENCAO && (
+        <section className="space-y-3">
+          <TabelaRetencao />
+        </section>
+      )}
 
       <section className="space-y-3">
         <h2 className="text-base font-semibold text-gray-800">3. Finalidade e base legal</h2>

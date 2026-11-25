@@ -53,11 +53,14 @@ def enabled() -> bool:
     return os.environ.get("USAGE_LOG", "on").strip().lower() not in ("off", "0", "false", "no")
 
 
+RETENCAO_PADRAO_DIAS = 90
+
+
 def retention_days() -> int:
     try:
-        return max(1, int(os.environ.get("USAGE_LOG_RETENTION_DAYS", "90")))
+        return max(1, int(os.environ.get("USAGE_LOG_RETENTION_DAYS", str(RETENCAO_PADRAO_DIAS))))
     except ValueError:
-        return 90
+        return RETENCAO_PADRAO_DIAS
 
 
 def _template_from_scope(scope: dict, path: str) -> Optional[str]:

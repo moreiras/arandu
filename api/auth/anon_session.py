@@ -84,12 +84,15 @@ class AnonSessionConfig:
         return self.limit_minutes * 60
 
 
+TTL_PADRAO_HORAS = 24
+
+
 def load_anon_config() -> AnonSessionConfig:
     return AnonSessionConfig(
         limit_minutes=int(os.environ.get("ANON_SESSION_LIMIT_MINUTES", "10")),
         heartbeat_interval_seconds=int(os.environ.get("ANON_HEARTBEAT_INTERVAL_SECONDS", "15")),
         heartbeat_ceiling_multiplier=int(os.environ.get("ANON_HEARTBEAT_CEILING_MULTIPLIER", "3")),
-        ttl_hours=int(os.environ.get("ANON_SESSION_TTL_HOURS", "24")),
+        ttl_hours=int(os.environ.get("ANON_SESSION_TTL_HOURS", str(TTL_PADRAO_HORAS))),
         inactivity_timeout_seconds=int(os.environ.get("ANON_INACTIVITY_TIMEOUT_SECONDS", "45")),
         api_client_cost_seconds=int(os.environ.get("ANON_API_CLIENT_COST_SECONDS", "3")),
     )
