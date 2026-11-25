@@ -12,6 +12,12 @@ parênteses remetem à análise.
   só para o 404 real. O front aceita o orçamento anônimo esgotado como 403 ou como 429 com `Retry-After`. Componente
   `components/ui/EstadoDados.tsx`; `AccessError` guarda `retryAfter` e o motivo do 401 (TRANSV-E1, ASN-E9, OPERADORA-E1,
   IPV4-E1, MUN-E11, UF-E1, EST-E5, MUNS-E7, LOC-E5, USO-E4, MAPA-E6).
+- **Data do snapshot preservada (PT-02).** Com `?date=` na URL, todas as páginas pedem os dados daquela data (municípios, uso da
+  Internet, qualidade, regulatório, mercado IPv4, communities, "Quem entrou e quem saiu" do PTT, blocos de IPv4 e FUST), e a data
+  acompanha a navegação: links de entidade, abas, lentes, comparador, relatório, menu e busca. Só se sai dela pelo seletor (opção
+  atual) ou pelo Voltar. Link copiado do explorar ou de uma entidade reabre o mesmo snapshot. O aviso de data antiga traz "Ir para o
+  snapshot atual" e diz que navegar em datas antigas é possível com o login gratuito (TRANSV-E2, MUNS-E1, MUNS-E2, QUALIDADE-E1,
+  REL-E6, IXP-E9, IPV4-E2, IXE-E10, USO-E14).
 - **Glossário de contagens (V3).** `docs/glossario-contagens.md` descreve cada universo que aparece com o mesmo nome (ASNs
   brasileiros pela LACNIC ou pelo Registro.br, PTTs, participantes por sessão, cadastro ou originação, declarantes do SICI,
   municípios, usuários APNIC por AS, por UF, união ou soma por PTT), com origem no código e valor medido. É a base dos rótulos únicos
