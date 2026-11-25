@@ -1,6 +1,10 @@
 import { SITE } from '../lib/site'
 import { TetosDeUso } from '../components/TetosDeUso'
 import { CorrecoesNoChangelog } from '../components/ui/CorrecoesNoChangelog'
+import { DESCRICAO_SELO, ROTULO_SELO, type Selo } from '../components/entidade/proveniencia'
+
+/** Ordem de exibição dos selos, do mais firme ao menos firme. Os textos vêm de `proveniencia.ts` (fonte única, a mesma dos KPIs e do relatório). */
+const SELOS: Selo[] = ['fato', 'estimado', 'inferido']
 
 export function Sobre() {
   return (
@@ -122,6 +126,19 @@ export function Sobre() {
           AS_PATH completo dos eventos — para identificar se o ruído tem origem no próprio AS,
           em um prefixo específico, ou em um upstream instável.
         </p>
+      </section>
+
+      <section id="selos" className="space-y-3 scroll-mt-28" data-testid="sobre-selos">
+        <h2 className="text-base font-semibold text-gray-800">Como ler os selos: fato, estimado e inferido</h2>
+        <p className="text-sm text-gray-600 leading-relaxed">
+          Os indicadores trazem, por extenso, a natureza do dado, a fonte e a data de referência (por exemplo, &ldquo;Estimado · APNIC Labs · ref. 2026-11-15&rdquo;).
+          O selo diz o quanto o número pode ser tomado como observação direta.
+        </p>
+        <dl className="space-y-2 text-sm text-gray-700">
+          {SELOS.map((k) => (
+            <div key={k}><dt className="inline font-semibold">{ROTULO_SELO[k]}:</dt> <dd className="inline" data-selo-def={k}>{DESCRICAO_SELO[k]}</dd></div>
+          ))}
+        </dl>
       </section>
 
       <section id="acesso" className="space-y-3 scroll-mt-28">

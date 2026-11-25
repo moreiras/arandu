@@ -50,9 +50,9 @@ function Usuarios({ f }: { f: Familia }) {
   const semV6 = v ? v.usuarios - v.usuarios_ipv6 : null
   return (
     <Grade>
-      <Kpi rotulo="Usuários sem IPv6 (só IPv4, estimativa)" valor={grande(semV6)} tom="v4" referencia={v?.pct_usuarios_ipv6 != null ? `${pct(100 - v.pct_usuarios_ipv6)} dos usuários estimados` : undefined}
+      <Kpi selo="estimado" rotulo="Usuários sem IPv6 (só IPv4, estimativa)" valor={grande(semV6)} tom="v4" referencia={v?.pct_usuarios_ipv6 != null ? `${pct(100 - v.pct_usuarios_ipv6)} dos usuários estimados` : undefined}
         explicacao={`Usuários estimados pelo APNIC nos ASNs do Brasil menos os que usam IPv6. ${EXPLICA.ipv6}`} fonte="APNIC Labs" dataRef={data?.snapshot_date} />
-      <Kpi rotulo="Usuários alcançáveis em IPv4 via IX.br (estimativa)" valor={grande(s?.ixp_estimated_users_v4)} tom="v4"
+      <Kpi selo="estimado" rotulo="Usuários alcançáveis em IPv4 via IX.br (estimativa)" valor={grande(s?.ixp_estimated_users_v4)} tom="estimado"
         explicacao="Usuários estimados do APNIC atrás do espaço IPv4 visto na união dos PTTs do IX.br (fração do espaço de cada AS vista nos PTTs × usuários do AS)." fonte="APNIC Labs e looking glasses do IX.br" dataRef={s?.snapshot_date} />
     </Grade>
   )
@@ -64,8 +64,8 @@ function Alocacao({ f }: { f: Familia }) {
   const espaco = f === 'v6' ? s?.registro_br_declared_space_v6_48 : s?.registro_br_declared_space_v4_24
   return (
     <Grade>
-      <Kpi rotulo={`Prefixos ${NOME[f]} alocados`} valor={num(prefixos)} tom={f} explicacao={`Blocos ${NOME[f]} alocados ou designados pelo Registro.br a ASNs brasileiros.`} fonte="Registro.br" dataRef={s?.snapshot_date} />
-      <Kpi rotulo={`Espaço alocado (${UNIDADE[f]})`} valor={grande(espaco)} tom={f} explicacao={`Soma dos blocos alocados, em equivalentes ${UNIDADE[f]}.`} fonte="Registro.br" dataRef={s?.snapshot_date} />
+      <Kpi selo="fato" rotulo={`Prefixos ${NOME[f]} alocados`} valor={num(prefixos)} tom={f} explicacao={`Blocos ${NOME[f]} alocados ou designados pelo Registro.br a ASNs brasileiros.`} fonte="Registro.br" dataRef={s?.snapshot_date} />
+      <Kpi selo="fato" rotulo={`Espaço alocado (${UNIDADE[f]})`} valor={grande(espaco)} tom={f} explicacao={`Soma dos blocos alocados, em equivalentes ${UNIDADE[f]}.`} fonte="Registro.br" dataRef={s?.snapshot_date} />
     </Grade>
   )
 }
@@ -78,15 +78,15 @@ export function VisibilidadeGlobal({ f }: { f: Familia }) {
   const rotas = data?.rpki?.rotas?.rotas_br?.[f]
   return (
     <Grade>
-      <Kpi rotulo={`ASNs que anunciam ${NOME[f]}`} valor={num(asns)} tom={f} referencia={pct(fracao(asns, gt?.br_asns_in_ft)) ? `${pct(fracao(asns, gt?.br_asns_in_ft))} dos ${num(gt?.br_asns_in_ft)} visíveis` : undefined}
+      <Kpi selo="fato" rotulo={`ASNs que anunciam ${NOME[f]}`} valor={num(asns)} tom={f} referencia={pct(fracao(asns, gt?.br_asns_in_ft)) ? `${pct(fracao(asns, gt?.br_asns_in_ft))} dos ${num(gt?.br_asns_in_ft)} visíveis` : undefined}
         explicacao={`ASNs do Registro.br com ao menos um prefixo ${NOME[f]} na tabela global (RouteViews).`} fonte="RouteViews e Registro.br" dataRef={s?.snapshot_date} />
-      <Kpi rotulo="Espaço alocado visível" valor={pct(f === 'v6' ? gt?.v6_br_coverage_pct : gt?.v4_br_coverage_pct)} tom={f}
+      <Kpi selo="fato" rotulo="Espaço alocado visível" valor={pct(f === 'v6' ? gt?.v6_br_coverage_pct : gt?.v4_br_coverage_pct)} tom={f}
         explicacao={`Parte do espaço ${NOME[f]} alocado pelo Registro.br que aparece anunciado na tabela global.`} fonte="RouteViews e Registro.br" dataRef={s?.snapshot_date} />
-      <Kpi rotulo="Rotas brasileiras na tabela global" valor={num(rotas?.pbr_routes)} tom={f} referencia={rotas?.pbr_pct != null ? `${pct(rotas.pbr_pct)} das rotas ${NOME[f]} da tabela` : undefined}
+      <Kpi selo="fato" rotulo="Rotas brasileiras na tabela global" valor={num(rotas?.pbr_routes)} tom={f} referencia={rotas?.pbr_pct != null ? `${pct(rotas.pbr_pct)} das rotas ${NOME[f]} da tabela` : undefined}
         explicacao={rotas?.asn_br_fora_de_bloco != null
           ? `Rotas com prefixo contido em bloco alocado pelo Registro.br; a origem não define (a definição da página Tabela BGP). Fora do total: ${num(rotas.asn_br_fora_de_bloco)} rotas de ASN da lista do Registro.br em espaço de outro RIR.`
           : 'Rotas com prefixo alocado pelo Registro.br ou com origem num ASN da lista do Registro.br (regra anterior à atual, como este snapshot foi gerado).'} fonte="RouteViews e Registro.br" dataRef={data?.rpki?.rotas?.snapshot_date} />
-      <Kpi rotulo="Parte do Brasil no espaço da tabela" valor={pct(f === 'v6' ? gt?.v6_br_pct_of_ft : gt?.v4_br_pct_of_ft, 2)} tom={f}
+      <Kpi selo="fato" rotulo="Parte do Brasil no espaço da tabela" valor={pct(f === 'v6' ? gt?.v6_br_pct_of_ft : gt?.v4_br_pct_of_ft, 2)} tom={f}
         explicacao={`Parte de todo o espaço ${NOME[f]} anunciado no mundo que é alocado ao Brasil.`} fonte="RouteViews e Registro.br" dataRef={s?.snapshot_date} />
     </Grade>
   )
@@ -99,11 +99,11 @@ function VisibilidadeIxbr({ f }: { f: Familia }) {
   return (
     <div className="space-y-6">
       <Grade>
-        <Kpi rotulo={`ASNs BR com rotas ${NOME[f]} vistas no IX.br`} valor={num(asns)} tom={f}
+        <Kpi selo="fato" rotulo={`ASNs BR com rotas ${NOME[f]} vistas no IX.br`} valor={num(asns)} tom={f}
           explicacao="Originam prefixos vistos em algum PTT do IX.br, diretamente ou por um provedor de trânsito." fonte="looking glasses do IX.br" dataRef={s?.snapshot_date} />
-        <Kpi rotulo="Espaço alocado visto no IX.br" valor={pct(f === 'v6' ? ix?.v6_br_coverage_pct : ix?.v4_br_coverage_pct)} tom={f}
+        <Kpi selo="fato" rotulo="Espaço alocado visto no IX.br" valor={pct(f === 'v6' ? ix?.v6_br_coverage_pct : ix?.v4_br_coverage_pct)} tom={f}
           explicacao={`Parte do espaço ${NOME[f]} alocado pelo Registro.br que aparece na união dos PTTs do IX.br.`} fonte="looking glasses do IX.br e Registro.br" dataRef={s?.snapshot_date} />
-        <Kpi rotulo="Espaço da tabela global visto no IX.br" valor={pct(f === 'v6' ? ix?.v6_coverage_pct : ix?.v4_coverage_pct)} tom={f}
+        <Kpi selo="fato" rotulo="Espaço da tabela global visto no IX.br" valor={pct(f === 'v6' ? ix?.v6_coverage_pct : ix?.v4_coverage_pct)} tom={f}
           explicacao={`Parte de todo o espaço ${NOME[f]} da tabela global que aparece na união dos PTTs do IX.br.`} fonte="looking glasses do IX.br e RouteViews" dataRef={s?.snapshot_date} />
       </Grade>
       <CoberturaIxbr grupos={[f === 'v6' ? 'ipv6' : 'ipv4']} />
@@ -120,11 +120,11 @@ function Rpki({ f }: { f: Familia }) {
   const ref = data?.rpki?.rotas?.snapshot_date
   return (
     <Grade>
-      <Kpi rotulo="Rotas RPKI-válidas" valor={pct(r?.pct.valid)} tom="tecnico" referencia={r ? `${num(r.valid)} de ${num(r.rotas)} rotas` : undefined} explicacao="Origem confirmada por uma ROA (RFC 6811)." fonte="RouteViews e RPKI" dataRef={ref} />
-      <Kpi rotulo="Rotas RPKI-inválidas" valor={pct(r?.pct.invalid, 2)} tom="tecnico" referencia={r ? `${num(r.invalid)} rotas, ${num(r.asns_origem_com_invalida)} ASNs de origem` : undefined}
+      <Kpi selo="fato" rotulo="Rotas RPKI-válidas" valor={pct(r?.pct.valid)} tom="tecnico" referencia={r ? `${num(r.valid)} de ${num(r.rotas)} rotas` : undefined} explicacao="Origem confirmada por uma ROA (RFC 6811)." fonte="RouteViews e RPKI" dataRef={ref} />
+      <Kpi selo="fato" rotulo="Rotas RPKI-inválidas" valor={pct(r?.pct.invalid, 2)} tom="tecnico" referencia={r ? `${num(r.invalid)} rotas, ${num(r.asns_origem_com_invalida)} ASNs de origem` : undefined}
         explicacao="Há ROA para o prefixo, mas a origem ou o tamanho não batem: redes que validam (ROV) descartam a rota." fonte="RouteViews e RPKI" dataRef={ref} />
-      <Kpi rotulo="Rotas sem ROA" valor={pct(r?.pct.not_found)} tom="tecnico" referencia={r ? `${num(r.not_found)} rotas` : undefined} explicacao="Nenhuma ROA cobre o prefixo: não é inválido, só não está protegido." fonte="RouteViews e RPKI" dataRef={ref} />
-      <Kpi rotulo="Espaço anunciado por ASes com ROA" valor={pct(fracao(anunciado[0], anunciado[1]))} tom="tecnico"
+      <Kpi selo="fato" rotulo="Rotas sem ROA" valor={pct(r?.pct.not_found)} tom="tecnico" referencia={r ? `${num(r.not_found)} rotas` : undefined} explicacao="Nenhuma ROA cobre o prefixo: não é inválido, só não está protegido." fonte="RouteViews e RPKI" dataRef={ref} />
+      <Kpi selo="fato" rotulo="Espaço anunciado por ASes com ROA" valor={pct(fracao(anunciado[0], anunciado[1]))} tom="tecnico"
         explicacao="Espaço anunciado pelos ASNs BR que publicaram ao menos uma ROA. Não é o espaço coberto por ROA: um AS com uma ROA pode anunciar outros prefixos sem ela." fonte="RPKI e RouteViews" dataRef={data?.snapshot_date} />
     </Grade>
   )
@@ -167,9 +167,9 @@ export function MercadoIpv4() {
   if (mercado.isError && espaco.isError) return <p className="text-sm text-gray-500">O mercado de IPv4 não está publicado neste snapshot.</p>
   return (
     <Grade>
-      <Kpi rotulo="Transferências com o Brasil" valor={num(m?.operacoes)} tom="v4" referencia={m?.periodo?.[0] ? `de ${m.periodo[0]} a ${m.periodo[1] ?? 'hoje'}` : undefined} fonte={m?.fonte} dataRef={m?.snapshot_date} />
-      <Kpi rotulo="Endereços transferidos" valor={grande(m?.enderecos)} tom="v4" fonte={m?.fonte} dataRef={m?.snapshot_date} />
-      <Kpi rotulo="Endereços alocados não anunciados" valor={grande(naoAnunciado?.enderecos)} tom="v4" referencia={naoAnunciado ? `${num(naoAnunciado.blocos)} blocos` : undefined}
+      <Kpi selo="fato" rotulo="Transferências com o Brasil" valor={num(m?.operacoes)} tom="v4" referencia={m?.periodo?.[0] ? `de ${m.periodo[0]} a ${m.periodo[1] ?? 'hoje'}` : undefined} fonte={m?.fonte} dataRef={m?.snapshot_date} />
+      <Kpi selo="fato" rotulo="Endereços transferidos" valor={grande(m?.enderecos)} tom="v4" fonte={m?.fonte} dataRef={m?.snapshot_date} />
+      <Kpi selo="inferido" rotulo="Endereços alocados não anunciados" valor={grande(naoAnunciado?.enderecos)} tom="v4" referencia={naoAnunciado ? `${num(naoAnunciado.blocos)} blocos` : undefined}
         explicacao="Blocos do Brasil que não aparecem na tabela global. Inferido: não anunciado não quer dizer sem uso (pode ser rede interna)." fonte={espaco.data?.fonte} dataRef={espaco.data?.snapshot_date} />
     </Grade>
   )

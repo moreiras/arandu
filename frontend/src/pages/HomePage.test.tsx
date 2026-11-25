@@ -120,6 +120,21 @@ describe('destaques e faixa (lógica)', () => {
     }
     expect(DESTAQUES.length).toBeLessThanOrEqual(5)
   })
+  it('cada número da home mostra selo, fonte e data de referência em texto visível (PT-14)', async () => {
+    montar()
+    await waitFor(() => expect(screen.getAllByTestId('kpi')[0]).toHaveTextContent('1.136'))
+    await waitFor(() => expect(screen.getAllByTestId('kpi')[4]).toHaveTextContent('622 mil'))
+    const kpis = screen.getAllByTestId('kpi')
+    for (const k of kpis) expect(k.querySelector('[data-kpi-proveniencia]'), k.textContent ?? '').not.toBeNull()
+    expect(within(kpis[0]).getByText(/^Fato · Registro\.br .* · ref\. 2026-09-20$/)).toBeInTheDocument()
+    expect(within(kpis[3]).getByText(/^Estimado · APNIC .* · ref\. 2026-09-20$/)).toBeInTheDocument()
+    expect(within(kpis[4]).getByText(/^Fato · SICI, Anatel .* · ref\. 2026-08$/)).toBeInTheDocument()
+  })
+  it('montarKpis: todo indicador tem selo e o de usuários APNIC é estimado', () => {
+    const { rede, mercado } = montarKpis(resumo(1136, 67.2, 2) as never, null, sici as never, '2026-09-20')
+    for (const k of [...rede, ...mercado]) expect(['fato', 'estimado', 'inferido'], k.id).toContain(k.selo)
+    expect(rede.find((k) => k.id === 'usuarios')?.selo).toBe('estimado')
+  })
   it('montarKpis: sem snapshot anterior não inventa variação e dado ausente vira nulo', () => {
     const k = montarKpis(resumo(1136, 67.2, 2) as never, null, null, '2026-09-20')
     expect(k.rede[0].valor).toBe('1.136')

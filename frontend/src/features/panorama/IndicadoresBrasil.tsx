@@ -31,10 +31,10 @@ export function KpisSegurancaPais() {
   const d = data?.snapshot_date
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" data-testid="kpis-pais">
-      <Kpi rotulo="Usuários com IPv6 (estimativa)" valor={pct(data?.ipv6.pct_usuarios_ipv6)} tom="v6" explicacao={EXPLICA.ipv6} fonte="APNIC Labs" dataRef={d} />
-      <Kpi rotulo="Validação de DNSSEC" valor={pct(data?.dnssec?.media_ponderada_pct)} tom="tecnico" explicacao={EXPLICA.dnssec} fonte="APNIC Labs" dataRef={data?.dnssec?.fonte?.as_of ?? d} />
-      <Kpi rotulo="Filtragem de rotas inválidas (ROV)" valor={pct(data?.rov?.media_ponderada_pct)} tom="tecnico" explicacao={EXPLICA.rov} fonte="APNIC Labs" dataRef={data?.rov?.fonte?.as_of ?? d} />
-      <Kpi rotulo="Prontidão em segurança de roteamento" valor={data?.prontidao?.agregado.media_ponderada_usuarios != null ? `${data.prontidao.agregado.media_ponderada_usuarios.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} de 100` : null}
+      <Kpi selo="estimado" rotulo="Usuários com IPv6 (estimativa)" valor={pct(data?.ipv6.pct_usuarios_ipv6)} tom="v6" explicacao={EXPLICA.ipv6} fonte="APNIC Labs" dataRef={d} />
+      <Kpi selo="estimado" rotulo="Validação de DNSSEC" valor={pct(data?.dnssec?.media_ponderada_pct)} tom="tecnico" explicacao={EXPLICA.dnssec} fonte="APNIC Labs" dataRef={data?.dnssec?.fonte?.as_of ?? d} />
+      <Kpi selo="estimado" rotulo="Filtragem de rotas inválidas (ROV)" valor={pct(data?.rov?.media_ponderada_pct)} tom="tecnico" explicacao={EXPLICA.rov} fonte="APNIC Labs" dataRef={data?.rov?.fonte?.as_of ?? d} />
+      <Kpi selo="inferido" rotulo="Prontidão em segurança de roteamento" valor={data?.prontidao?.agregado.media_ponderada_usuarios != null ? `${data.prontidao.agregado.media_ponderada_usuarios.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} de 100` : null}
         tom="tecnico" explicacao={EXPLICA.prontidao} fonte="índice do site sobre medições de terceiros" dataRef={d} />
     </div>
   )
@@ -46,9 +46,9 @@ export function Ipv6Apnic() {
   const v = data?.ipv6
   return (
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" data-testid="ipv6-apnic">
-      <Kpi rotulo="Usuários com IPv6 (estimativa)" valor={pct(v?.pct_usuarios_ipv6)} tom="v6" explicacao={EXPLICA.ipv6} fonte="APNIC Labs" dataRef={data?.snapshot_date} />
-      <Kpi rotulo="Usuários estimados com IPv6" valor={num(v?.usuarios_ipv6)} tom="v6" explicacao="Soma das estimativas do APNIC de usuários com IPv6 nos ASNs do Brasil." fonte="APNIC Labs" dataRef={data?.snapshot_date} />
-      <Kpi rotulo="ASes BR com usuários em IPv6" valor={v ? `${num(v.asns_com_ipv6)} de ${num(v.asns_com_estimativa)}` : null} tom="v6" explicacao="ASNs do Brasil com estimativa de usuários do APNIC e, deles, quantos têm usuários em IPv6." fonte="APNIC Labs" dataRef={data?.snapshot_date} />
+      <Kpi selo="estimado" rotulo="Usuários com IPv6 (estimativa)" valor={pct(v?.pct_usuarios_ipv6)} tom="v6" explicacao={EXPLICA.ipv6} fonte="APNIC Labs" dataRef={data?.snapshot_date} />
+      <Kpi selo="estimado" rotulo="Usuários estimados com IPv6" valor={num(v?.usuarios_ipv6)} tom="v6" explicacao="Soma das estimativas do APNIC de usuários com IPv6 nos ASNs do Brasil." fonte="APNIC Labs" dataRef={data?.snapshot_date} />
+      <Kpi selo="estimado" rotulo="ASes BR com usuários em IPv6" valor={v ? `${num(v.asns_com_ipv6)} de ${num(v.asns_com_estimativa)}` : null} tom="v6" explicacao="ASNs do Brasil com estimativa de usuários do APNIC e, deles, quantos têm usuários em IPv6." fonte="APNIC Labs" dataRef={data?.snapshot_date} />
     </div>
   )
 }
@@ -72,9 +72,9 @@ export function AbaDnssec() {
   return (
     <div className="space-y-4" data-testid="aba-dnssec">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi rotulo="Validação de DNSSEC (média ponderada)" valor={pct(d.media_ponderada_pct)} tom="tecnico" explicacao={EXPLICA.dnssec} fonte={d.fonte?.fonte ?? 'APNIC Labs'} dataRef={d.fonte?.as_of} />
-        <Kpi rotulo="Mediana dos ASes" valor={pct(d.mediana_pct)} tom="tecnico" explicacao="Metade dos ASNs medidos valida em menos que isso, metade em mais. Cada ASN conta igual, seja grande ou pequeno." fonte={d.fonte?.fonte ?? 'APNIC Labs'} dataRef={d.fonte?.as_of} />
-        <Kpi rotulo="ASes medidos" valor={num(d.asns)} tom="tecnico" explicacao="ASNs do Brasil com amostra suficiente (pelo menos 100 medições) na janela do APNIC." fonte={d.fonte?.fonte ?? 'APNIC Labs'} dataRef={d.fonte?.as_of} />
+        <Kpi selo="estimado" rotulo="Validação de DNSSEC (média ponderada)" valor={pct(d.media_ponderada_pct)} tom="tecnico" explicacao={EXPLICA.dnssec} fonte={d.fonte?.fonte ?? 'APNIC Labs'} dataRef={d.fonte?.as_of} />
+        <Kpi selo="estimado" rotulo="Mediana dos ASes" valor={pct(d.mediana_pct)} tom="tecnico" explicacao="Metade dos ASNs medidos valida em menos que isso, metade em mais. Cada ASN conta igual, seja grande ou pequeno." fonte={d.fonte?.fonte ?? 'APNIC Labs'} dataRef={d.fonte?.as_of} />
+        <Kpi selo="fato" rotulo="ASes medidos" valor={num(d.asns)} tom="tecnico" explicacao="ASNs do Brasil com amostra suficiente (pelo menos 100 medições) na janela do APNIC." fonte={d.fonte?.fonte ?? 'APNIC Labs'} dataRef={d.fonte?.as_of} />
       </div>
       <div>
         <h3 className="text-titulo-4 text-gray-800 mb-1">ASes por faixa de validação</h3>
@@ -105,9 +105,9 @@ export function AbaProntidao() {
   return (
     <div className="space-y-5" data-testid="aba-prontidao">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi rotulo="Índice do país (ponderado por usuários)" valor={a.media_ponderada_usuarios != null ? `${a.media_ponderada_usuarios.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} de 100` : null} tom="tecnico" explicacao={EXPLICA.prontidao} dataRef={data?.snapshot_date} />
-        <Kpi rotulo="Mediana dos ASes" valor={a.mediana != null ? `${a.mediana.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} de 100` : null} tom="tecnico" explicacao="Cada ASN conta igual, seja grande ou pequeno." dataRef={data?.snapshot_date} />
-        {CLASSES.slice(0, 2).map(([k, r]) => <Kpi key={k} rotulo={`ASes "${r.toLowerCase()}"`} valor={num(a.classes[k])} tom="tecnico" dataRef={data?.snapshot_date} />)}
+        <Kpi selo="inferido" rotulo="Índice do país (ponderado por usuários)" valor={a.media_ponderada_usuarios != null ? `${a.media_ponderada_usuarios.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} de 100` : null} tom="tecnico" explicacao={EXPLICA.prontidao} fonte="índice do site sobre medições de terceiros" dataRef={data?.snapshot_date} />
+        <Kpi selo="inferido" rotulo="Mediana dos ASes" valor={a.mediana != null ? `${a.mediana.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} de 100` : null} tom="tecnico" explicacao="Cada ASN conta igual, seja grande ou pequeno." fonte="índice do site sobre medições de terceiros" dataRef={data?.snapshot_date} />
+        {CLASSES.slice(0, 2).map(([k, r]) => <Kpi key={k} selo="inferido" rotulo={`ASes "${r.toLowerCase()}"`} valor={num(a.classes[k])} tom="tecnico" fonte="índice do site sobre medições de terceiros" dataRef={data?.snapshot_date} />)}
       </div>
       <section className="rounded-lg border border-gray-200 bg-white p-4 space-y-3">
         <h3 className="text-titulo-4 text-gray-800">ASes por classe</h3>
