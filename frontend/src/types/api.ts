@@ -4,6 +4,27 @@ export interface HealthResponse {
   snapshots_available: number
 }
 
+/** `GET /api/v1/limites`: os tetos de uso em vigor, lidos do código e da configuração do servidor (nenhum número é escrito no frontend). */
+export interface LimiteJanela { janela: string; segundos: number; limite: number }
+export interface Limites {
+  sem_conta: {
+    identificacao: string
+    orcamento_diario_segundos: number
+    custo_por_chamada_segundos: number
+    chamadas_medidas_por_dia: number | null
+    renovacao: string
+    previa_linhas: number
+    snapshots_atuais: number
+  }
+  api: { sem_conta: LimiteJanela[]; com_conta: LimiteJanela[]; custo_por_rota: Record<string, number>; chave_na_rest: boolean }
+  mcp: {
+    sem_chave: LimiteJanela[]
+    com_chave: LimiteJanela[]
+    chave: { ativa: boolean; cota_diaria: number | null; sem_teto_diario: boolean; contagem: string }
+  }
+  contatos: { por_10_minutos: number; por_hora: number; por_dia: number; por_30_dias: number; por_dia_conta_nova: number; dias_de_conta_nova: number }
+}
+
 export interface SnapshotListResponse {
   count: number
   latest: string | null

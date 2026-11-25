@@ -7,8 +7,9 @@ import ixps from './fixtures/ixps.json'
 import asnsPage1 from './fixtures/asns_page1.json'
 import asnDetail from './fixtures/asn_detail.json'
 import health from './fixtures/health.json'
+import limites from './fixtures/limites.json'
 
-export const fixtures = { snapshots, ixps, asnsPage1, asnDetail, health }
+export const fixtures = { snapshots, ixps, asnsPage1, asnDetail, health, limites }
 
 /** Cabeçalhos da última requisição a cada caminho (os testes conferem X-Arandu-Area etc.). */
 export const seenHeaders: Record<string, Record<string, string>> = {}
@@ -20,6 +21,7 @@ function seen(path: string, request: Request) {
 export const handlers = [
   http.get('*/health', ({ request }) => { seen('/health', request); return HttpResponse.json(health) }),
   http.get('*/api/v1/brasil/snapshots', ({ request }) => { seen('/api/v1/brasil/snapshots', request); return HttpResponse.json(snapshots) }),
+  http.get('*/api/v1/limites', () => HttpResponse.json(limites)),
   http.get('*/api/v1/ixps', () => HttpResponse.json(ixps)),
   http.get('*/api/v1/asns', ({ request }) => {
     const u = new URL(request.url)
