@@ -136,7 +136,7 @@ para produzir métricas de cobertura e presença em IXPs.
 Todos os endpoints aceitam `?date=YYYY-MM-DD`; sem esse parâmetro, usam o snapshot mais recente.
 
 **ASN direto vs. originador** — um AS é *direto* quando aparece no primeiro hop do AS_PATH
-(faz peering físico no IXP); é *originador* quando seus prefixos são visíveis no IXP,
+(tem sessão com o route server do PTT, vista no looking glass); é *originador* quando seus prefixos são visíveis no IXP,
 possivelmente via um upstream.
 
 **Prefixos RIR vs. global** — `rir_prefixes` vêm do Registro.br (fonte autoritativa de alocação);

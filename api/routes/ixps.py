@@ -31,7 +31,7 @@ _INCLUDES_PTT = frozenset({"membros", "usuarios_estimados", "potencial", "assina
 
 def _membros(store: Store, date_str: str, code: str, doc: dict, nomes: bool, extras: Optional[set] = None) -> dict:
     """Corpo de `GET /ixps/{code}/members`; também é o bloco `membros` do perfil (`include=`), onde `extras` são os membros cadastrados
-    (sem par direto, não estão nas listas) que também precisam de nome."""
+    (sem sessão com o route server, não estão nas listas) que também precisam de nome."""
     result: dict = {"snapshot_date": date_str, "ixp": code}
     for afi in ("v4", "v6"):
         v = doc.get(afi)
@@ -154,7 +154,7 @@ def get_ixp(
         description="Data do snapshot (YYYY-MM-DD). Omita para usar o mais recente.",
         examples=["2026-06-06"],
     ),
-    include: Optional[str] = Query(None, description="Perfil consolidado: blocos extras, separados por vírgula — `membros` (o corpo de `/ixps/{code}/members?nomes=true`, com nome também dos membros cadastrados sem par direto), `usuarios_estimados` (`/estimated-users`), `potencial` (`/potential`) e `assinantes` (`/assinantes`), `indice` (a linha deste PTT em `/ixps`, com as uniões de ASNs) `historico` (série e eventos recentes do PTT dos 2 snapshots atuais; `historico_completo` traz a série inteira e exige login) e `route_servers` (as sessões dos membros nos route servers do IX.br, `/ixps/{code}/route-servers`), `rejeicoes` (rotas rejeitadas e política nos route servers, `/ixps/{code}/rejeicoes`, 25 ASNs), `facilities` (instalações do PeeringDB onde o PTT tem presença), `portas` (portas de PTT externo; sempre `null` no IX.br) e `totais` (`total_asns_br`, `total_asns_global` e `br_apnic_users_total` do `summary` do snapshot). Cada um vem como chave de mesmo nome (`null` se o PTT não tem o dado). Os pares v6 e v4 ficam em `/ixps/{code}/peers`."),
+    include: Optional[str] = Query(None, description="Perfil consolidado: blocos extras, separados por vírgula — `membros` (o corpo de `/ixps/{code}/members?nomes=true`, com nome também dos membros cadastrados sem sessão com o route server), `usuarios_estimados` (`/estimated-users`), `potencial` (`/potential`) e `assinantes` (`/assinantes`), `indice` (a linha deste PTT em `/ixps`, com as uniões de ASNs) `historico` (série e eventos recentes do PTT dos 2 snapshots atuais; `historico_completo` traz a série inteira e exige login) e `route_servers` (as sessões dos membros nos route servers do IX.br, `/ixps/{code}/route-servers`), `rejeicoes` (rotas rejeitadas e política nos route servers, `/ixps/{code}/rejeicoes`, 25 ASNs), `facilities` (instalações do PeeringDB onde o PTT tem presença), `portas` (portas de PTT externo; sempre `null` no IX.br) e `totais` (`total_asns_br`, `total_asns_global` e `br_apnic_users_total` do `summary` do snapshot). Cada um vem como chave de mesmo nome (`null` se o PTT não tem o dado). Os pares v6 e v4 ficam em `/ixps/{code}/peers`."),
 ) -> dict:
     store: Store = request.app.state.store
     date_str = store.resolve_date(date)

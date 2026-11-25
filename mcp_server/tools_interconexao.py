@@ -20,7 +20,7 @@ from mcp_server.contexto import _resolve, _store, mcp
 
 @mcp.tool()
 def asn_interconexao(asn: int, date: Optional[str] = None) -> dict:
-    """Interconexão mensurável de um AS: PTTs do IX.br onde ele origina prefixos SEM ser par direto (do mais perto da sede ao mais longe, com quem entrega os caminhos), sessões ausentes ou só de uma família nos route servers e rotas rejeitadas.
+    """Interconexão mensurável de um AS: PTTs do IX.br onde ele origina prefixos SEM sessão com o route server (do mais perto da sede ao mais longe, com quem entrega os caminhos), sessões ausentes ou só de uma família nos route servers e rotas rejeitadas.
 
     Só o que os dados públicos mostram na data da coleta. NUNCA diga que o AS "não troca tráfego" com alguém: peering bilateral não é visível nesses dados, e cada item é um fato, não uma recomendação.
 

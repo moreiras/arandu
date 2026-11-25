@@ -27,7 +27,7 @@ DESCRICOES: dict[str, str] = {
         'Só contagens; não prova vulnerabilidade. Args: asn OU uf.'
     ),
     'asn_interconexao': (
-        'Onde UM AS origina prefixos sem ser membro direto, sessões ausentes ou de uma só família nos route servers e rotas '
+        'Onde UM AS origina prefixos sem sessão no route server, sessões ausentes ou de uma só família e rotas '
         'rejeitadas. Fatos observados; peering bilateral não é visível. Args: asn.'
     ),
     'asn_lista': (
@@ -52,7 +52,7 @@ DESCRICOES: dict[str, str] = {
     ),
     'asn_rede': (
         'Como um AS aparece nos PTTs: visao="caminhos" = cadeias AS_PATH onde ele só origina; visao="ixp_peers" = '
-        'estatísticas onde é membro direto. Args: asn, visao.'
+        'estatísticas onde tem sessão no RS. Args: asn, visao.'
     ),
     'cdn_presenca': (
         'Em quais PTTs (IX.br e externos) cada CDN/CAP (Google, Cloudflare, Netflix…) está presente, com seus ASNs. Sem '

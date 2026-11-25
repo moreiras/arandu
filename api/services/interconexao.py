@@ -5,7 +5,7 @@
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 """Interconexão mensurável e alcance de CDN.
 
-Só o que os dados públicos mostram: PTTs onde o AS origina prefixos sem ser par direto (e quem os carrega nos caminhos observados), sessões ausentes ou só de uma família de IP nos route servers
+Só o que os dados públicos mostram: PTTs onde o AS origina prefixos sem sessão com o route server (e quem os carrega nos caminhos observados), sessões ausentes ou só de uma família de IP nos route servers
 do IX.br, rotas rejeitadas e ações de communities declaradas. **Nunca** diz "o AS não troca tráfego com B": peering bilateral não é visível nesses dados. O alcance de CDN usa os membros
 registrados nos PTTs onde a CDN tem presença e os usuários estimados pela APNIC; não mede tráfego.
 """
