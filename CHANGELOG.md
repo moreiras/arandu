@@ -220,6 +220,11 @@ parênteses remetem à análise.
   (lista de IPv6 e IPv4 separados por espaço ou vírgula; vazio = ninguém); as faixas privadas do Docker deixam de ser confiadas.
   **Quem implanta atrás de borda precisa declarar o IP dela**, senão todos os clientes aparecem com o IP da borda e dividem o
   orçamento; valor mal formado impede a subida do frontend. A imagem do frontend precisa ser reconstruída (BuildKit).
+- **Textos.** O total de PTTs na tabela-resumo de `/ixps` e do painel vem do snapshot (ok + parcial + ausente); o número fixo sai do
+  Sobre, das descrições de `ixp_lista`, dos recursos do MCP e da descrição da fonte `peeringdb_ixps`. Continuação do PT-15:
+  `ixp_proximos` e a rota `nearby` descrevem `direct` como membro do cadastro, e as descrições de presença, `ixp-peers` e peers por PTT
+  passam a dizer "sessão com o route server" (só texto; nenhum campo ou valor mudou).
+- **Pós-implantação.** `scripts/post_deploy_check.py` confere `/ases`, rota real do SPA, em vez de `/asns`.
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
