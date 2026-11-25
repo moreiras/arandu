@@ -9,6 +9,7 @@
  */
 import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
+import { RELACAO_PTT } from '../../lib/universos'
 import type { IXPPresence, PathNodeMeta } from '../../types/api'
 
 interface GNode extends d3.SimulationNodeDatum {
@@ -475,9 +476,9 @@ export function CDNIXPPresenceGraph({
     <div ref={containerRef} style={{ position: 'relative', display: 'inline-block' }}>
       <svg ref={svgRef} width={width} height={height} className="rounded border border-gray-100 w-full" />
       <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-500 justify-center">
-        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: AC.ixp_direct }} />Peering direto</span>
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: AC.ixp_direct }} />{RELACAO_PTT.sessaoRs}</span>
         <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: AC.ixp_origin }} />Só origem</span>
-        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: C.ixp_member }} />Membro registrado</span>
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: C.ixp_member }} />{RELACAO_PTT.membroCadastro}</span>
         <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: C.path_br }} />AS intermediário (BR)</span>
         <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: C.path_nonbr }} />AS intermediário (não-BR)</span>
       </div>

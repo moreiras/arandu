@@ -72,7 +72,7 @@ export function PeerSection({
         Clique no botão da linha para destacar no mapa de Hilbert.
         Assinantes: acessos SCM (B2C + B2B) informados ao SICI
         {assinantes?.mes_referencia && <> (ref. {assinantes.mes_referencia})</>} pelo CNPJ do AS
-        (diretos) e também pelos CNPJs dos ASes nos AS-paths que ele anuncia aqui (total, deduplicado por CNPJ).
+        (ASNs com sessão no route server) e também pelos CNPJs dos ASes nos AS-paths que ele anuncia aqui (total, deduplicado por CNPJ).
       </p>
     </div>
   )

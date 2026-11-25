@@ -531,7 +531,7 @@ export interface ASNDocument {
   single_upstream_v6?: number | null
   /** Relações inferidas (ARC v1); ausente em snapshots anteriores */
   relacoes?: AsnRelacoes
-  /** IXPs onde este AS é membro registrado no IX.br */
+  /** IXPs onde este AS consta no cadastro de participantes do IX.br */
   ixp_member_codes?: string[]
   /** ROAs que autorizam este AS: [{prefix, maxLength, ta}] */
   roa_list?: RoaEntry[]

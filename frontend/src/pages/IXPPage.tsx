@@ -75,7 +75,7 @@ export function IXPPage() {
     return { ...v6, ...(membersData?.v6 ?? {}) }
   }, [v6, membersData])
 
-  // Nomes vêm no perfil (membros.nomes, inclusive dos membros cadastrados sem par direto)
+  // Nomes vêm no perfil (membros.nomes, inclusive dos membros cadastrados sem sessão no route server)
   const nameMap = useMemo<Record<string, string>>(
     () => Object.fromEntries(Object.entries(membersData?.nomes ?? {}).map(([asn, n]) => [asn, n.name])),
     [membersData],

@@ -56,7 +56,7 @@ export function RedeSection({ rede }: { rede: OperadoraRede }) {
         <KPI label="Usuários IPv6" value={fmt(rede.total_apnic_v6_users)} />
         <KPI label="Blocos IPv6 (RIR)" value={fmt(rede.total_rir_prefixes_v6)} />
         <KPI label="Blocos IPv4 (RIR)" value={fmt(rede.total_rir_prefixes_v4)} />
-        <KPI label="IXPs (diretos)" value={fmt(rede.ixps_direct.length)}
+        <KPI label="PTTs com sessão no RS" value={fmt(rede.ixps_direct.length)}
              hint={rede.ixps_direct.slice(0, 6).join(', ') || undefined} />
         <KPI label="Alertas" value={fmt(rede.alertas.total)} />
       </div>

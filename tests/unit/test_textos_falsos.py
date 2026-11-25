@@ -56,6 +56,8 @@ PROIBIDOS: list[tuple[str, tuple[str, ...], str]] = [
      ("frontend/src", "api", "mcp_server"), "TRANSV-E4/PT-15: 9.129 é a delegação da LACNIC ao Brasil (is_br); a lista do Registro.br tem 9.150"),
     (r"ASNs em peering direto|Participantes diretos|Direto em PTT|usuários brasileiros visíveis via este IXP",
      ("frontend/src",), "PT-15: sessão em route server não é peering direto, e usuários por PTT são alcançáveis e não aditivos"),
+    (r"[Pp]eering direto|[Pp]eers? diretos?|[Pp]ar direto",
+     ("frontend/src",), "PT-15: sessão com o route server (`asn_direct`) não é peering direto, e o cadastro de participantes é outro universo; os rótulos vêm de `RELACAO_PTT` em `lib/universos.ts`"),
     (r"nunca transitiva|controla quem",
      ("frontend/src", "api", "mcp_server"), "GRUPO-E4: o grupo é componente conexo (cadeia de ligações) e não mede controle"),
 ]

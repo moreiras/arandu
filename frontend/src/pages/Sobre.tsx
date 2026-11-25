@@ -194,7 +194,7 @@ export function Sobre() {
               abre uma sessão Telnet em cada um dos PTTs ativos, executa o comando
               da tabela BGP IPv6 conforme o firmware (FRR ou Quagga) e o{' '}
               <code className="font-mono bg-gray-100 px-0.5 rounded">show ip bgp</code> (IPv4), e extrai a tabela BGP completa
-              dos Route Servers — prefixos anunciados, peers diretos, ASNs de origem e estatísticas de
+              dos Route Servers — prefixos anunciados, ASNs com sessão no route server, ASNs de origem e estatísticas de
               cobertura por PTT.
             </p>
           </div>

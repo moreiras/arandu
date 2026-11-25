@@ -178,7 +178,7 @@ export function IXPPeerTable({
       accessorFn: (r) => r.empresa?.assinantes_diretos ?? 0,
       header: () => (
         <span title="Acessos SCM (B2C + B2B) informados ao SICI pelo CNPJ deste AS">
-          Assinantes (diretos)
+          Assinantes (ASNs com sessão no RS)
         </span>
       ),
       cell: ({ row }) => (

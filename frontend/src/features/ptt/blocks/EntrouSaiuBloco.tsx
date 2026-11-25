@@ -9,15 +9,16 @@ import { fetchMudancas } from '../../../services/api'
 import { useActiveDate } from '../../../hooks/useSnapshot'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
+import { RELACAO_PTT } from '../../../lib/universos'
 
 const TIPOS = 'ixp_entrada,ixp_saida,ixp_entrada_observada,ixp_saida_observada'
 const ROTULO: Record<string, string> = {
-  ixp_entrada: 'entrou (cadastro)', ixp_saida: 'saiu (cadastro)', ixp_entrada_observada: 'entrou (peering direto observado)', ixp_saida_observada: 'saiu (peering direto observado)',
+  ixp_entrada: 'entrou (cadastro)', ixp_saida: 'saiu (cadastro)', ixp_entrada_observada: `entrou (${RELACAO_PTT.sessaoRs.toLowerCase()} observada)`, ixp_saida_observada: `saiu (${RELACAO_PTT.sessaoRs.toLowerCase()} observada)`,
 }
 
 /**
- * Quem entrou e quem saiu do PTT entre snapshots. São diferenças observadas: "cadastro" é a lista de membros do PTT, "peering direto observado" é o par
- * visto nas rotas coletadas; saída observada pode ser falha de coleta e só vale depois da janela de confirmação.
+ * Quem entrou e quem saiu do PTT entre snapshots. São diferenças observadas: "cadastro" é a lista de membros do PTT, "sessão com o route server observada" é a sessão
+ * vista no looking glass; saída observada pode ser falha de coleta e só vale depois da janela de confirmação.
  */
 export function EntrouSaiuBloco({ dados }: BlocoProps<PttCtx>) {
   const { code, nameMap } = dados

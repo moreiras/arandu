@@ -12,10 +12,11 @@ import { fetchAlcanceCdns, fetchAsnCdnBrasil, type AsnCdnBrasil } from '../../se
 import { CartogramaIndicador } from '../estados/CartogramaIndicador'
 import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 import { useOrdenacao } from '../../lib/ordenacao'
+import { RELACAO_PTT } from '../../lib/universos'
 
 const n = (v: number) => v.toLocaleString('pt-BR')
 
-/** Soma, por PTT do IX.br e família de IP, os prefixos que os ASNs da CDN anunciam ali (peering direto observado) e a série de PTTs com peering direto. */
+/** Soma, por PTT do IX.br e família de IP, os prefixos que os ASNs da CDN anunciam ali (sessão com o route server, vista no looking glass) e a série de PTTs com sessão no route server. */
 export function agregarCdnBrasil(docs: AsnCdnBrasil[], ixbr: string[]) {
   const por: Record<string, { v4: number; v6: number }> = {}
   for (const d of docs) for (const [code, p] of Object.entries(d.ixp_peers ?? {})) {
@@ -34,7 +35,7 @@ export function agregarCdnBrasil(docs: AsnCdnBrasil[], ixbr: string[]) {
 }
 
 /**
- * A CDN sob a ótica brasileira: em quais PTTs do IX.br ela tem peering direto, quantos prefixos anuncia ali em IPv6 e IPv4 (só contagens, nunca a lista) e como o
+ * A CDN sob a ótica brasileira: em quais PTTs do IX.br ela tem sessão no route server, quantos prefixos anuncia ali em IPv6 e IPv4 (só contagens, nunca a lista) e como o
  * número de PTTs variou entre snapshots. O anônimo só vê as datas atuais. Quais ASes BR recebem as rotas da CDN nos route servers
  * não está nos dados coletados (precisaria das rotas do Alice por origem) e por isso não aparece.
  */
@@ -92,7 +93,7 @@ function VisaoBrasilAberta({ asns, ixbr, ixpNames, date, nome }: Props) {
       {nome && <Alcance nome={nome} date={date} />}
       <p className="text-xs text-gray-500">
         {serie.length > 1
-          ? <>PTTs com peering direto: {serie.map(([d, v]) => `${d}: ${v}`).join(' · ')}.</>
+          ? <>{RELACAO_PTT.pttsSessaoRs}: {serie.map(([d, v]) => `${d}: ${v}`).join(' · ')}.</>
           : 'Evolução: o histórico tem um só snapshot visível (sem login só aparecem as datas atuais).'}
         {' '}Contagens de prefixos vistos nas rotas coletadas por PTT; não medem tráfego. Os ASes BR que recebem as rotas da CDN nos route servers não são coletados.
       </p>

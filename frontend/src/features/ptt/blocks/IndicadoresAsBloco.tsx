@@ -3,6 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
+import { RELACAO_PTT } from '../../../lib/universos'
 import { MetGroup, MetCell, PctCell, num } from '../ui'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
@@ -17,7 +18,7 @@ export function IndicadoresAsBloco({ dados }: BlocoProps<PttCtx>) {
         tooltip="Membros registrados neste IXP no dashboard IX.br — inclui participantes que não usam Route Servers"
       />
       <MetCell
-        label="Peers diretos"
+        label={RELACAO_PTT.asnsSessaoRs}
         value={num(dir)}
         tooltip="ASNs com sessão com o Route Server deste PTT — união de v6 e v4"
       />
