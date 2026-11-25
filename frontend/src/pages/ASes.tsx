@@ -268,7 +268,7 @@ function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stabi
       </td>
       <td className="px-2 py-1.5 text-gray-800 truncate overflow-hidden" title={entry.name}>
         {/* block + truncate: o link tem a largura da célula; inline, ele passava por baixo da coluna CNPJ (alvo coberto, NBR 5.8.7) */}
-        <Link to={`/asn/${entry.asn}`} className="block truncate hover:underline">
+        <Link to={`/asn/${entry.asn}`} className="block truncate min-h-6 leading-6 hover:underline">
           {entry.name || '—'}
         </Link>
       </td>
