@@ -126,6 +126,7 @@ if __name__ == "__main__":
     ):
         fonte = _trocar(yaml.safe_load((cat / "sources" / f"{modelo_id}.yaml").read_text(encoding="utf-8")), MODELO, sigla)
         fonte.update({"id": novo_id, "nome": novo_nome, "modulo": modulo, "publicavel": False, "exposicao": "nenhuma"})
+        fonte.pop("decisao_exposicao", None)          # a decisão de abrir não vale para a fonte nova (exposição nenhuma)
         for c in fonte.get("campos") or []:
             c.pop("publicado_em", None)          # o produto `outorgas` só declara os campos dos quatro serviços atuais
         fonte["pendencias"] = list(fonte.get("pendencias") or []) + [f"Serviço novo ({sigla}): revisar nome, descrição e publicação no catálogo."]
