@@ -503,7 +503,7 @@ def test_guia_so_cita_tools_visiveis_e_cobre_todas(srv):
     citadas = {n for _, tools, _ in guia.TAREFAS for n in tools}
     assert citadas <= visiveis, sorted(citadas - visiveis)
     assert visiveis - citadas <= guia.FORA_DO_GUIA, sorted(visiveis - citadas - guia.FORA_DO_GUIA)
-    assert set(guia.DETALHE_DA_COLLECTION.values()) <= visiveis
+    assert set(guia.DETALHE_DA_COLLECTION.values()) - {None} <= visiveis
     assert srv.mcp.instructions == guia.instrucoes()
 
 
@@ -694,3 +694,14 @@ def test_pt19_mes_referencia_do_sici_em_municipios_e_acessos_municipio(srv, api)
         assert filtrado["total"] == call(srv, "query", {"collection": colecao, "limit": 1})["total"]
         rest = api.post(f"/api/v1/query/{colecao}", json={"limit": 1}, headers=ALLOWED).json()
         assert rest["items"][0]["mes_referencia"] == mes
+
+
+def test_describe_schema_traz_fonte_selo_e_licenca_e_indice_sem_truncar_o_aviso_do_sici(srv):
+    """PT-20 / TRANSV-E12 e E17: fonte, selo e licença por collection; "ixps" sem número fixo; aviso do SICI inteiro no índice."""
+    um = call(srv, "describe_schema", {"collection": "bloqueios_asn"})
+    assert um["selo"] == "fato" and um["uso_comercial_efetivo"] == "restrito" and [f["id"] for f in um["fontes"]] == ["ooni_bloqueios"]
+    todo = call(srv, "describe_schema", {})
+    assert set(todo["fonte_e_selo"]) == set(todo["collections"]) and todo["fonte_e_selo"]["bloqueios_asn"]["uso_comercial"] == "restrito"
+    assert "mês de referência do SICI" in todo["collections"]["operadoras"] and not todo["collections"]["operadoras"].endswith("…")
+    assert not any(c.isdigit() for c in todo["collections"]["ixps"]), todo["collections"]["ixps"]
+    assert todo["ferramenta_detalhe"]["faixas_espectro"] is None

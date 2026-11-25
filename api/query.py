@@ -19,6 +19,7 @@ from __future__ import annotations
 from typing import Any, Optional
 
 from api.geo import haversine_km
+from api.query_meta import meta_da_collection
 from api.query_catalogo import (  # noqa: F401  (reexportados: `api.query.REGION_BY_UF`, `.COLLECTIONS`, `.SCHEMA`… seguem valendo)
     COLECOES_ALIAS, COLLECTIONS, aviso_colecao_obsoleta, OPS_GUIDE, RECIPES, REGION_BY_UF, SCHEMA, _AGG_FNS, _OPS,
 )
@@ -216,6 +217,7 @@ def _universo(rows: list[dict], campo: str) -> set:
 def schema(collection: Optional[str] = None) -> dict:
     """Catálogo de schema — todas as collections, ou apenas uma.
 
+    Cada collection traz `fontes` (com licença), `selo` e `uso_comercial_efetivo` (api/query_meta.py).
     Inclui guia de operadores e receitas (pergunta→ferramentas) para que a LLM
     monte filtros válidos e encadeie as ferramentas sem adivinhar.
     """
@@ -230,8 +232,8 @@ def schema(collection: Optional[str] = None) -> dict:
     if collection is not None:
         if collection not in SCHEMA:
             raise QueryError(f"collection inválida: '{collection}'. Use: {', '.join(COLLECTIONS)}")
-        return {**base, "collection": collection, **SCHEMA[collection]}
-    return {**base, "collections": SCHEMA}
+        return {**base, "collection": collection, **SCHEMA[collection], **meta_da_collection(collection)}
+    return {**base, "collections": {k: {**v, **meta_da_collection(k)} for k, v in SCHEMA.items()}}
 
 
 # ---------------------------------------------------------------------------

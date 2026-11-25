@@ -24,7 +24,8 @@ def describe_schema(collection: Optional[str] = None) -> dict:
     Args:
         collection: A collection (ex.: "asns", "municipios", "operadoras"). Omita para o índice (nome e descrição de cada uma).
     """
-    from api.query_catalogo import COLECOES_ALIAS, OPS_GUIDE, RECIPES, SCHEMA
+    from api.query_catalogo import COLECOES_ALIAS, OPS_GUIDE, RECIPES, RESUMO_INDICE, SCHEMA
+    from api.query_meta import meta_da_collection, resumo_do_indice
     from mcp_server import guia
     sintaxe = {
         "filter": '{"field": "uf", "op": "eq", "value": "SC"} ou {"and": [...]} / {"or": [...]} / {"not": ...}',
@@ -36,15 +37,17 @@ def describe_schema(collection: Optional[str] = None) -> dict:
     }
     if collection is None:
         # o catálogo inteiro tinha 126 KB: não cabe no contexto de um modelo pequeno
-        return {"collections": {k: _primeira_frase(v.get("description", "")) for k, v in SCHEMA.items()}, "sintaxe": sintaxe,
+        return {"collections": {k: RESUMO_INDICE.get(k) or _primeira_frase(v.get("description", "")) for k, v in SCHEMA.items()}, "sintaxe": sintaxe,
+                "fonte_e_selo": {k: resumo_do_indice(k) for k in SCHEMA},
                 "ferramenta_detalhe": guia.DETALHE_DA_COLLECTION,
-                "_nota": "Chame describe_schema(collection=...) para os campos de uma collection."}
+                "_nota": "Chame describe_schema(collection=...) para os campos, as fontes com licença e o selo de uma collection."}
     r = _store.query_schema(collection)                       # valida o nome e traz o bloco da collection
     # campos primeiro e só as receitas desta collection: com as 26 receitas de todas na frente (~20 KB), um cliente que corta a
     # resposta nunca veria os campos
     atual = COLECOES_ALIAS.get(collection, collection)          # nome antigo (D12): descreve a collection nova e avisa
     receitas = [x for x in RECIPES if (x.get("args") or {}).get("collection") == atual]
     return {"collection": atual, **({"aviso_obsoleta": r["aviso_obsoleta"]} if r.get("aviso_obsoleta") else {}), "descricao": r.get("description"), "chave": r.get("key"), "campos": r.get("fields"),
+            **meta_da_collection(atual),
             **({"geo": r["geo"]} if r.get("geo") else {}), "sintaxe": sintaxe, "receitas": receitas,
             "ferramenta_detalhe": guia.DETALHE_DA_COLLECTION.get(atual)}
 
