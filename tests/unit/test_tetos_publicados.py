@@ -37,10 +37,7 @@ def test_limitadores_por_rede_da_api_e_do_mcp_sao_os_padroes():
 def test_cota_diaria_do_mcp_com_chave(monkeypatch):
     monkeypatch.delenv("MCP_COTA_DIARIA", raising=False)
     from mcp_server import chave
-    padrao = [v for k, v in vars(chave).items() if k.lower().endswith("cota_diaria") and isinstance(v, int)]
-    texto = (ROOT / "mcp_server" / "chave.py").read_text(encoding="utf-8")
-    m = re.search(r'environ\.get\("MCP_COTA_DIARIA",\s*"(\d+)"\)', texto)
-    assert m and int(m.group(1)) == _teto("mcpCotaDiariaComChave") == 1000 and padrao in ([], [1000])
+    assert chave.COTA_DIARIA_PADRAO == chave.cota_diaria() == _teto("mcpCotaDiariaComChave") == 1000
 
 
 def test_identificacao_por_rede_ipv4_inteiro_e_ipv6_64():
