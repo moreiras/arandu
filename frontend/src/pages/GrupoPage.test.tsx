@@ -155,3 +155,62 @@ describe('/grupo/:id', () => {
     expect(screen.getByRole('link', { name: /Voltar para os grupos/ })).toHaveAttribute('href', '/grupos')
   })
 })
+
+describe('/grupo/:id: D5 (PT-10)', () => {
+  const comNome = { ...grupo, nome: 'PROVEDOR 01', nome_regra: 'maior_acesso_sici', nome_regra_texto: 'nome do CNPJ do grupo com mais acessos fixos declarados ao SICI', nome_base: '90000001000129' }
+
+  it('mostra o nome do grupo com a regra que o escolheu, sem afirmar controle', async () => {
+    server.use(http.get('*/api/v1/grupos/g1', () => HttpResponse.json(comNome)))
+    montar('g1')
+    expect(await screen.findByRole('heading', { level: 1, name: /Grupo de PROVEDOR 01/ })).toBeInTheDocument()
+    const regra = await screen.findByTestId('grupo-nome-regra')
+    expect(regra).toHaveTextContent('Nome do grupo: nome do CNPJ do grupo com mais acessos fixos declarados ao SICI')
+    expect(regra).toHaveTextContent('Identificador estável: g1')
+    expect(regra).toHaveTextContent(/não afirma controle de uma empresa sobre outra/)
+    expect(document.body.textContent).not.toMatch(/grupo econômico verdadeiro/i)
+  })
+
+  it('"Mercado consolidado" soma por agrupamento inferido: selo inferido', async () => {
+    server.use(http.get('*/api/v1/grupos/g1', () => HttpResponse.json(comNome)))
+    montar('g1')
+    await screen.findByRole('heading', { level: 1, name: /Grupo de PROVEDOR 01/ })
+    const secao = document.getElementById('bloco-mercado') as HTMLElement
+    expect(within(secao).getByTestId('proveniencia')).toHaveTextContent(/inferido/i)
+    expect(within(secao).getByTestId('proveniencia')).not.toHaveTextContent(/^fato/i)
+    expect(secao.textContent).toContain('o agrupamento é inferência')
+  })
+
+  it('link com id antigo é redirecionado para o id estável', async () => {
+    let pedidos = 0
+    server.use(
+      http.get('*/api/v1/grupos/grp_antigo', () => HttpResponse.json({ ...comNome, grupo_id: 'g1', redirecionado_de: 'grp_antigo' })),
+      http.get('*/api/v1/grupos/g1', () => { pedidos += 1; return HttpResponse.json(comNome) }),
+    )
+    render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <MemoryRouter initialEntries={['/grupo/grp_antigo']}><Routes><Route path="/grupo/:id" element={<GrupoPage />} /></Routes></MemoryRouter>
+      </QueryClientProvider>,
+    )
+    expect(await screen.findByRole('heading', { level: 1, name: /Grupo de PROVEDOR 01/ })).toBeInTheDocument()
+    await vi.waitFor(() => expect(pedidos).toBeGreaterThan(0))                  // a página foi para /grupo/g1 e pediu o grupo pelo id estável
+    expect(screen.getByTestId('grupo-nome-regra')).toHaveTextContent('Identificador estável: g1')
+  })
+
+  it('aba Relações: força da evidência e classe de qualificação por ligação, e a regra de ligação', async () => {
+    const rel = {
+      ...relacoes, classes: { socio: 'sócio', socio_administrador: 'sócio-administrador' }, forcas: { forte: 'quadro idêntico, participação de uma empresa na outra ou 2 ou mais sócios em comum', fraca: 'um único sócio em comum' },
+      regra_ligacao: 'Só sócio com participação societária liga empresas. Administrador, diretor e presidente sem participação não ligam.', resumo: { ligacoes: 2, fortes: 1, fracas: 1 },
+      ligacoes: [{ ...relacoes.ligacoes[0], forca: 'forte', classes_qualificacao: ['socio_administrador'] }, { ...relacoes.ligacoes[1], tipo: 'socios_em_comum', tipo_rotulo: 'Sócios em comum', socios: 1, forca: 'fraca', classes_qualificacao: ['socio'] }],
+    }
+    server.use(http.get('*/api/v1/grupos/g1', ({ request }) => HttpResponse.json(new URL(request.url).searchParams.get('include') === 'relacoes' ? { ...comNome, relacoes: rel } : comNome)))
+    montar('g1', '?aba=relacoes')
+    const t = await screen.findByRole('table', { name: 'Ligações entre as empresas do grupo' })
+    expect(within(t).getByText('forte')).toBeInTheDocument()
+    expect(within(t).getByText('fraca (1 sócio)')).toBeInTheDocument()
+    expect(within(t).getByText('sócio-administrador')).toBeInTheDocument()
+    expect(within(t).getByText('sócio')).toBeInTheDocument()
+    expect(screen.getByTestId('grupo-regra-ligacao')).toHaveTextContent('Administrador, diretor e presidente sem participação não ligam')
+    expect(screen.getByTestId('grupo-forca-resumo')).toHaveTextContent('1 de 2 ligações são fortes')
+    expect(screen.getByTestId('grupo-forca-resumo')).toHaveTextContent('pode ser homonímia')
+  })
+})

@@ -176,8 +176,8 @@ function CnpjChips({ grupo, onSelect }: { grupo: GrupoSocietarioRow; onSelect: (
 type SortField = 'nome' | 'classificacao' | 'tamanho' | 'assinantes' | 'usuarios_apnic' | 'visibilidade_bgp'
 
 const colacao = new Intl.Collator('pt-BR', { numeric: true, sensitivity: 'base' })
-/** O nome mostrado na coluna Grupo (a primeira empresa); é também o que a coluna ordena. */
-const nomeGrupo = (g: GrupoSocietarioRow) => g.cnpjs[0]?.empresa ?? g.grupo_id
+/** O nome mostrado na coluna Grupo, escolhido pela regra visível (`nome_regra_texto`: marca curada, senão o CNPJ com mais acessos no SICI); é também o que a coluna ordena. */
+const nomeGrupo = (g: GrupoSocietarioRow) => g.nome || g.cnpjs[0]?.empresa || g.grupo_id
 
 function SortHeader({
   field, label, align = 'right', sortField, sortDir, onSort,
@@ -352,8 +352,14 @@ export function GruposPage() {
           Cruzamento de quadro societário entre operadoras (SCM/SMP/STFC/SeAC), a partir
           dos dados abertos de CNPJ da Receita Federal. {fmt(data.total_grupos ?? data.total)} grupos
           identificados neste snapshot ({date}), além de {fmt(data.total_individuais ?? 0)} empresas
-          individuais (sem sócio em comum com nenhuma outra operadora), listadas como grupos de
+          individuais (sem ligação societária com nenhuma outra operadora), listadas como grupos de
           uma empresa só — sem percentual de participação (a Receita não divulga isso publicamente).
+        </p>
+        <p className="text-xs text-gray-500 mt-1" data-testid="grupos-regras">
+          Só sócio com participação societária liga empresas: administrador, diretor e presidente sem participação não ligam (em sociedade anônima o quadro traz a diretoria, não os
+          acionistas). O grupo é inferido e reúne as empresas ligadas em cadeia; a força de cada ligação está na página do grupo. O nome do grupo vem da marca curada, se houver, e
+          senão do nome do CNPJ com mais acessos fixos declarados ao SICI: é um rótulo de navegação, não afirma controle de uma empresa sobre outra. O identificador do grupo é o menor CNPJ básico do
+          conjunto; links com identificadores antigos são redirecionados.
         </p>
       </div>
 
@@ -522,7 +528,7 @@ export function GruposPage() {
                     }`}
                   >
                     <td className="px-4 py-2.5 min-w-[12rem]">
-                      <Link to={`/grupo/${encodeURIComponent(g.grupo_id)}`} onClick={e => e.stopPropagation()} className="font-medium text-primario-700 hover:underline">
+                      <Link to={`/grupo/${encodeURIComponent(g.grupo_id)}`} onClick={e => e.stopPropagation()} title={g.nome_regra_texto ? `Nome do grupo: ${g.nome_regra_texto}` : undefined} className="font-medium text-primario-700 hover:underline">
                         {nomeGrupo(g)}
                       </Link>
                       {/* GRUPO-E7: `tamanho` conta empresas (raízes de CNPJ); `cnpjs` traz matriz e filiais */}

@@ -33,7 +33,8 @@ def _clean_cnpj(raw: str) -> str:
     "/grupos",
     summary="Grupos societários (cruzamento de quadro societário via Receita Federal)",
     description="""
-Uma linha por grupo societário (`grupo_id`): CNPJs membros, classificação
+Uma linha por grupo societário (`grupo_id`, estável: `grp_` + o menor CNPJ básico do conjunto): `nome` do grupo com a regra que o escolheu
+(`nome_regra`: marca curada, senão o CNPJ com mais acessos fixos declarados ao SICI), CNPJs membros, classificação
 (`total` — toda relação interna é quadro idêntico/controle exclusivo;
 `parcial` — toda relação é sócio em comum/controle não exclusivo; `misto` —
 tem as duas; `individual` — empresa sem relação societária com nenhuma outra
@@ -99,7 +100,8 @@ municípios), rede (ASNs) e as somas de crédito público (BNDES), sanções (CE
 
 **Só estrutura entre empresas (PJ):** a resposta não traz sócio pessoa física, nome de sócio nem CPF. Cada soma vem com a contagem de empresas que têm o dado: ausência não é zero
 (o crédito cobre só operações diretas do BNDES; as sanções, a data do arquivo da CGU; os contratos, o rodízio de leitura do PNCP). `grupo_id` é o de `GET /grupos`
-(`ind_<cnpj básico>` para empresa individual).
+(`ind_<cnpj básico>` para empresa individual). Só sócio com participação societária liga empresas (administrador, diretor e presidente sem participação não ligam).
+Um `grupo_id` antigo (o id de snapshots anteriores era a raiz da union-find) devolve o grupo atual que contém aquele CNPJ básico, com `redirecionado_de` e o `grupo_id` estável.
 """,
 )
 def get_grupo(
@@ -113,8 +115,13 @@ def get_grupo(
     if date_str is None:
         raise HTTPException(404, "Nenhum snapshot disponível")
     g = next((x for x in store.grupos_societarios_overview(date_str) if x["grupo_id"] == grupo_id), None)
+    redirecionado_de = None
     if g is None:
-        raise HTTPException(404, f"Grupo '{grupo_id}' não encontrado no snapshot '{date_str}'")
+        atual = store.grupo_equivalente(date_str, grupo_id)          # link antigo: o id era a raiz da union-find (GRUPO-E14)
+        g = next((x for x in store.grupos_societarios_overview(date_str) if x["grupo_id"] == atual), None) if atual else None
+        if g is None:
+            raise HTTPException(404, f"Grupo '{grupo_id}' não encontrado no snapshot '{date_str}'")
+        redirecionado_de, grupo_id = grupo_id, g["grupo_id"]
 
     raizes = sorted({c["cnpj"][:8] for c in g["cnpjs"]})
     fin_doc = store.financiamento_doc(date_str) or {}
@@ -129,6 +136,8 @@ def get_grupo(
     resposta = {
         "snapshot_date": date_str,
         "grupo_id": grupo_id,
+        "redirecionado_de": redirecionado_de,
+        "nome": g["nome"], "nome_regra": g["nome_regra"], "nome_regra_texto": g["nome_regra_texto"], "nome_base": g["nome_base"],
         "classificacao": g["classificacao"],
         "tamanho": g["tamanho"],
         "assinantes": g["assinantes"],
@@ -235,6 +244,7 @@ def grupo_prefixos_geo(
     if date_str is None:
         raise HTTPException(404, "Nenhum snapshot disponível")
 
+    grupo_id = store.grupo_equivalente(date_str, grupo_id) or grupo_id
     geojson = store.grupo_prefixos_geo(date_str, grupo_id)
     if geojson is None:
         raise HTTPException(404, f"Grupo '{grupo_id}' não encontrado no snapshot '{date_str}'")

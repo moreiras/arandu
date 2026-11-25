@@ -26,6 +26,7 @@ export function RelacoesGrupoBloco({ dados }: BlocoProps<GrupoCtx>) {
     de: (l) => l.de_nome,
     para: (l) => l.para_nome,
     socios: (l) => l.socios,
+    forca: (l) => l.forca ?? '',
   })
   if (q.isLoading) return <div className="h-32 bg-gray-50 rounded animate-pulse" role="status" aria-label="Carregando" />
   const r = q.data
@@ -37,20 +38,30 @@ export function RelacoesGrupoBloco({ dados }: BlocoProps<GrupoCtx>) {
           ? <>As {n(r.empresas)} {r.empresas === 1 ? 'empresa' : 'empresas'} deste grupo não têm ligação societária registrada entre si{r.empresas === 1 ? ' (grupo de uma empresa só)' : ''}.</>
           : <>{n(r.ligacoes.length)} {r.ligacoes.length === 1 ? 'ligação' : 'ligações'} entre as {n(r.empresas)} empresas do grupo, na base da Receita Federal de {r.referencia_receita ?? 'data não informada'}.</>}
       </p>
+      {r.regra_ligacao && <p className="text-xs text-gray-600" data-testid="grupo-regra-ligacao">{r.regra_ligacao}</p>}
+      {r.resumo && r.resumo.ligacoes > 0 && (
+        <p className="text-sm text-gray-700" data-testid="grupo-forca-resumo">
+          {n(r.resumo.fortes)} de {n(r.resumo.ligacoes)} {r.resumo.ligacoes === 1 ? 'ligação é forte' : 'ligações são fortes'} ({r.forcas?.forte ?? 'quadro idêntico, participação de uma empresa na outra ou 2 ou mais sócios em comum'}); {n(r.resumo.fracas)} {r.resumo.fracas === 1 ? 'tem' : 'têm'} um único sócio em comum, que pode ser homonímia. O grupo reúne as empresas ligadas em cadeia: duas podem estar nele sem ligação direta entre si.
+        </p>
+      )}
       {r.ligacoes.length > 0 && (
         <div className="overflow-x-auto"><table className="text-sm min-w-full" aria-label="Ligações entre as empresas do grupo" data-tabela="grade">
           <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200">
             <ThOrdenavel {...props('tipo')} className="py-1 pr-3">Tipo de ligação</ThOrdenavel>
             <ThOrdenavel {...props('de')} className="pr-3">Empresa</ThOrdenavel>
             <ThOrdenavel {...props('para')} className="pr-3">Empresa</ThOrdenavel>
-            <ThOrdenavel {...props('socios')} alinhar="right" className="text-right">Sócios na evidência</ThOrdenavel>
+            <ThOrdenavel {...props('socios')} alinhar="right" className="pr-3 text-right">Sócios na evidência</ThOrdenavel>
+            <ThOrdenavel {...props('forca')} className="pr-3">Força</ThOrdenavel>
+            <th scope="col" className="text-left">Qualificação do sócio</th>
           </tr></thead>
           <tbody>{ligacoes.map((l) => (
             <tr key={`${l.tipo}-${l.de}-${l.para}`} className="border-b border-gray-100 align-top">
               <td className="py-1 pr-3">{l.tipo_rotulo}</td>
               <td className="pr-3"><Empresa cnpj={l.de} nome={l.de_nome} />{l.tipo === 'controle_parcial' && <span className="block text-xs text-gray-500">controla parte de</span>}</td>
               <td className="pr-3"><Empresa cnpj={l.para} nome={l.para_nome} /></td>
-              <td className="text-right tabular-nums">{n(l.socios)}</td>
+              <td className="pr-3 text-right tabular-nums">{n(l.socios)}</td>
+              <td className="pr-3">{l.forca === 'forte' ? 'forte' : l.forca === 'fraca' ? 'fraca (1 sócio)' : '—'}</td>
+              <td>{l.classes_qualificacao?.length ? l.classes_qualificacao.map((c) => r.classes?.[c] ?? c).join(', ') : '—'}</td>
             </tr>))}</tbody></table></div>
       )}
       {r.controladoras_externas.length > 0 && (

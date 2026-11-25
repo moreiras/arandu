@@ -33,7 +33,7 @@ function Composicao({ dados }: BlocoProps<GrupoCtx>) {
   })
   return (
     <div className="space-y-3">
-      <p className="text-sm text-gray-600">{CLASSES[g.classificacao]} A composição é inferida do quadro societário da Receita Federal: cada ligação entre duas empresas tem evidência direta (sócios em comum ou participação de uma na outra), e o grupo reúne as empresas ligadas em cadeia, então duas empresas podem estar no mesmo grupo sem ligação direta entre si; <strong>só a estrutura entre empresas é mostrada</strong>.</p>
+      <p className="text-sm text-gray-600">{CLASSES[g.classificacao]} A composição é inferida do quadro societário da Receita Federal: cada ligação entre duas empresas tem evidência direta (sócio com participação em comum ou participação de uma na outra; administrador, diretor e presidente sem participação não ligam), e o grupo reúne as empresas ligadas em cadeia, então duas empresas podem estar no mesmo grupo sem ligação direta entre si; <strong>só a estrutura entre empresas é mostrada</strong>.</p>
       <table className="w-full text-sm" aria-label="Empresas do grupo">
         <thead><tr className="text-left text-xs text-gray-500 border-b border-gray-200"><ThOrdenavel {...props('empresa')} className="py-1 pr-3">Empresa</ThOrdenavel><ThOrdenavel {...props('cnpj')} className="pr-3">CNPJ</ThOrdenavel><th scope="col" className="pr-3">Serviços</th><ThOrdenavel {...props('assinantes')} alinhar="right" className="pr-3 text-right">Acessos fixos</ThOrdenavel><ThOrdenavel {...props('asns')}>ASNs</ThOrdenavel></tr></thead>
         <tbody>
@@ -63,7 +63,7 @@ function Mercado({ dados }: BlocoProps<GrupoCtx>) {
         <Kpi rotulo="Empresas no grupo" valor={n(g.empresas)} />
       </div>
       {g.municipios.length > 0 && <AccessMunicipioMap municipios={g.municipios.map((m) => ({ ...m }))} height={380} />}
-      <p className="text-xs text-gray-500">Soma dos acessos declarados por todas as empresas do grupo; não inclui móvel. Uma empresa pode declarar em mais de um CNPJ: os acessos são por CNPJ, sem dupla contagem entre empresas do grupo.</p>
+      <p className="text-xs text-gray-500">Soma dos acessos declarados por todas as empresas do grupo inferido (cada acesso é fato declarado; o agrupamento é inferência); não inclui móvel. Uma empresa pode declarar em mais de um CNPJ: os acessos são por CNPJ, sem dupla contagem entre empresas do grupo.</p>
     </div>
   )
 }
@@ -140,8 +140,8 @@ registrarAbas('grupo', [
 const def = (b: Omit<BlocoDef<GrupoCtx>, 'entidade'>) => registrarBloco<GrupoCtx>({ entidade: 'grupo', ...b })
 def({ id: 'composicao', aba: 'geral', titulo: 'Composição do grupo', ordem: 10, depende: ['useGrupoDetalhe'], fontes: ['receita_socios', 'socios_grupos', 'registro_br', 'anatel_outorgas'], selo: 'inferido',
   nota: 'a composição é inferida do quadro societário (evidência direta); sócios pessoas físicas não são mostrados', Componente: Composicao })
-def({ id: 'mercado', aba: 'geral', titulo: 'Mercado consolidado', ordem: 20, depende: ['useGrupoDetalhe'], fontes: ['anatel_sici', 'apnic_pop'], selo: 'fato',
-  nota: 'acessos declarados à Anatel pelas empresas do grupo; usuários APNIC são estimativa', Componente: Mercado })
+def({ id: 'mercado', aba: 'geral', titulo: 'Mercado consolidado', ordem: 20, depende: ['useGrupoDetalhe'], fontes: ['anatel_sici', 'apnic_pop'], selo: 'inferido',
+  nota: 'acessos declarados à Anatel (fato) somados por um agrupamento inferido do quadro societário; usuários APNIC são estimativa', Componente: Mercado })
 def({ id: 'rede', aba: 'tecnico', titulo: 'Rede consolidada', ordem: 30, depende: ['useGrupoDetalhe'], fontes: ['registro_br', 'fulltable_routeviews'], selo: 'fato', Componente: Rede })
 def({ id: 'credito-publico', aba: 'regulatorio', titulo: 'Crédito público (BNDES) somado', ordem: 40, depende: ['useGrupoDetalhe'], fontes: ['bndes_operacoes'], selo: 'fato',
   nota: 'soma das empresas do grupo que têm registro; ausência não é prova de que nunca houve crédito', Componente: Credito })

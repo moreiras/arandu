@@ -16,7 +16,9 @@ import threading
 from typing import Optional
 
 from api.store import _log, _strip_scm_contacts
+from core import marcas
 from core.cpf import sem_socios_pessoa_fisica
+from core.nome_grupo import nome_do_grupo
 from core.outorgas import eh_outorga
 
 
@@ -29,6 +31,9 @@ SELO_VINCULO = {"cnpj": "fato", "raiz": "inferido", "marca": "inferido", "estran
 REGRA_VINCULO = ("Vínculo ASN ↔ CNPJ: `cnpj` = ASN registrado no Registro.br com o mesmo CNPJ (fato); `raiz` = com outro CNPJ da mesma raiz de 8 dígitos, matriz "
                  "ou filial (inferido); `marca` = com a raiz de outra empresa da mesma marca na tabela curada do projeto (inferido); `estrangeiro` = AS de fora do "
                  "Brasil ligado pela marca (inferido); `nenhum` = nenhum desses. Somas de rede usam só `cnpj` e `raiz` (a mesma pessoa jurídica).")
+
+
+LIMITE_INTEGRANTES_CABECALHO = 12     # integrantes do grupo societário listados no cabeçalho da operadora; o resto vai no link para o grupo
 
 
 class OperadorasService:
@@ -313,6 +318,35 @@ class OperadorasService:
         )
         return grupos
 
+    def _grupos_indice(self, date_str: str) -> tuple[dict[str, dict], dict[str, str]]:
+        """({grupo_id: grupo}, {cnpj básico: grupo_id}) de `_grupos_e_individuais`, cacheado por data."""
+        chave = f"{date_str}/grupos_indice"
+        atual = self._query_tables.get(chave)
+        if atual is None:
+            por_id: dict[str, dict] = {}
+            por_basico: dict[str, str] = {}
+            for g in self._grupos_e_individuais(date_str):
+                por_id[g["grupo_id"]] = g
+                for c in g["cnpjs"]:
+                    por_basico[c[:8]] = g["grupo_id"]
+            atual = self._query_tables[chave] = (por_id, por_basico)
+        return atual
+
+    def grupo_equivalente(self, date_str: str, grupo_id: str) -> Optional[str]:
+        """Id atual do grupo para um `grupo_id` antigo (GRUPO-E14): o id de snapshots anteriores era a raiz da union-find (`grp_` + um CNPJ básico
+        do conjunto, qualquer um) e hoje é o menor CNPJ básico. Ordem: o próprio id, a tabela `equivalencia_grupo_id` do snapshot, e o grupo (ou a
+        empresa individual) que hoje contém o CNPJ básico do id (`grp_X`, `ind_X`). `None` se o CNPJ básico saiu da base."""
+        por_id, por_basico = self._grupos_indice(date_str)
+        if grupo_id in por_id:
+            return grupo_id
+        eq = ((self._load_socios_grupos(date_str) or {}).get("equivalencia_grupo_id") or {}).get(grupo_id)
+        if eq in por_id:
+            return eq
+        prefixo, _, basico = grupo_id.partition("_")
+        if prefixo in ("grp", "ind") and len(basico) == 8 and basico.isdigit():
+            return por_basico.get(basico)
+        return None
+
     def grupos_societarios_overview(self, date_str: str) -> list[dict]:
         """Uma linha por grupo societário (`grupo_id`), para a página "Grupos de
         Empresas": classificação (total/misto/parcial/individual), CNPJs membros,
@@ -332,6 +366,11 @@ class OperadorasService:
 
         cnpj_asns = self.cnpj_asns_index(date_str)
         asn_map = self.asn_map(date_str)
+        try:
+            curada_marcas = marcas.carregar_curada()
+        except Exception:
+            _log.warning("curada_marcas_operadoras ilegível: nome do grupo sem marca curada", exc_info=True)
+            curada_marcas = None
 
         rows: list[dict] = []
         for g in self._grupos_e_individuais(date_str):
@@ -384,6 +423,7 @@ class OperadorasService:
 
             rows.append({
                 "grupo_id": g["grupo_id"],
+                **nome_do_grupo(cnpjs, assinantes_por_cnpj, lambda c: self._display_name_for_cnpj(date_str, c), curada_marcas),
                 "classificacao": g["classificacao"],
                 "tamanho": g["tamanho"],
                 "assinantes": assinantes,
@@ -470,9 +510,27 @@ class OperadorasService:
                 for item in items
             ]
 
+        grupo_id = row.get("grupo_id") or (f"ind_{cnpj[:8]}" if row else None)
+        por_id, _ = self._grupos_indice(date_str)
+        g = por_id.get(grupo_id) if grupo_id else None
+        resumo = None
+        if g:
+            acessos = {c: (self.sici_for_cnpj(date_str, c) or {}).get("acessos", 0) for c in g["cnpjs"]}
+            try:
+                curada = marcas.carregar_curada()
+            except Exception:
+                curada = None
+            resumo = {
+                "grupo_id": g["grupo_id"], "classificacao": g["classificacao"], "tamanho": g["tamanho"],
+                **nome_do_grupo(g["cnpjs"], acessos, lambda c: self._display_name_for_cnpj(date_str, c), curada),
+                "integrantes": [{"cnpj": c, "empresa": self._display_name_for_cnpj(date_str, c), **self.outorgas_flags_for_cnpj(date_str, c)}
+                                for c in g["cnpjs"] if c != cnpj][:LIMITE_INTEGRANTES_CABECALHO],
+                "integrantes_total": len([c for c in g["cnpjs"] if c != cnpj]),
+            }
         return {
             "cnpj": cnpj,
-            "grupo_id": row.get("grupo_id") or (f"ind_{cnpj[:8]}" if row else None),     # leva à página do grupo (`GET /grupos/{grupo_id}`)
+            "grupo_id": grupo_id,     # leva à página do grupo (`GET /grupos/{grupo_id}`)
+            "grupo_societario": resumo,
             "mesmo_grupo": _enrich(row.get("mesmo_grupo", [])),
             "relacionadas_parcial": _enrich(row.get("relacionadas_parcial", [])),
         }

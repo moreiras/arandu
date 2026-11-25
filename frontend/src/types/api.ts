@@ -1232,8 +1232,17 @@ export interface GrupoSocietarioCnpj {
   has_seac?: boolean
 }
 
+/** Regra pela qual o nome do grupo foi escolhido (D5): marca curada, o CNPJ com mais acessos no SICI, ou o menor CNPJ (nenhum declara acessos). */
+export type NomeGrupoRegra = 'marca_curada' | 'maior_acesso_sici' | 'menor_cnpj'
+
 export interface GrupoSocietarioRow {
   grupo_id: string
+  /** Nome de exibição do grupo e a regra visível que o escolheu; é rótulo de navegação do conjunto inferido, não "o grupo econômico" da marca. */
+  nome: string
+  nome_regra: NomeGrupoRegra
+  nome_regra_texto: string
+  /** Marca curada (justificativa) ou o CNPJ de onde veio o nome. */
+  nome_base: string
   classificacao: GrupoClassificacao
   tamanho: number
   assinantes: number
@@ -1259,6 +1268,12 @@ export interface GrupoSocietarioListResponse {
 export interface GrupoDetalhe {
   snapshot_date: string
   grupo_id: string
+  /** Preenchido quando a rota recebeu um `grupo_id` antigo (raiz da union-find de snapshots anteriores): o id pedido; `grupo_id` é o estável (GRUPO-E14). */
+  redirecionado_de?: string | null
+  nome: string
+  nome_regra: NomeGrupoRegra
+  nome_regra_texto: string
+  nome_base: string
   classificacao: GrupoClassificacao
   tamanho: number
   empresas: number
@@ -1286,15 +1301,32 @@ export interface EmpresaRelacionada {
   socios_em_comum?: number
   nomes_em_comum?: string[]
   total_socios_da_controlada?: number
+  /** Classes de qualificação dos sócios que sustentam a ligação (`socio`, `socio_administrador`, `acionista`, `titular`); sem nomes. */
+  classes_qualificacao?: string[]
   has_scm?: boolean
   has_smp?: boolean
   has_stfc?: boolean
   has_seac?: boolean
 }
 
+/** O grupo societário do CNPJ para o cabeçalho da operadora: nome por regra visível e os outros integrantes (inferido do quadro da Receita). */
+export interface GrupoSocietarioResumo {
+  grupo_id: string
+  classificacao: GrupoClassificacao
+  tamanho: number
+  nome: string
+  nome_regra: NomeGrupoRegra
+  nome_regra_texto: string
+  nome_base: string
+  integrantes: GrupoCnpjEntry[]
+  integrantes_total: number
+}
+
 export interface EmpresasRelacionadasResponse {
   snapshot_date: string
   cnpj: string
+  /** `null` se o CNPJ não está no cruzamento. */
+  grupo_societario?: GrupoSocietarioResumo | null
   /** Grupo societário do CNPJ: `GET /grupos/{grupo_id}` e a página `/grupo/:id`; `null` se o CNPJ não está no cruzamento. */
   grupo_id?: string | null
   mesmo_grupo: EmpresaRelacionada[]
@@ -2766,7 +2798,10 @@ export interface GrupoTecnico {
 export interface GrupoRelacoes {
   grupo_id: string; classificacao: string | null; empresas: number; referencia_receita: string | null
   tipos: Record<string, string>
-  ligacoes: { tipo: string; tipo_rotulo: string; de: string; para: string; de_nome: string; para_nome: string; socios: number | null }[]
+  ligacoes: { tipo: string; tipo_rotulo: string; de: string; para: string; de_nome: string; para_nome: string; socios: number | null; forca?: 'forte' | 'fraca'; classes_qualificacao?: string[] }[]
+  /** Rótulos das classes de qualificação e da força da evidência, a regra de ligação e o resumo (só em snapshots novos). */
+  classes?: Record<string, string>; forcas?: Record<string, string>; regra_ligacao?: string
+  resumo?: { ligacoes: number; fortes: number; fracas: number }
   fora_do_grupo: { total: number; itens: { cnpj: string; empresa: string; tipo: string; tipo_rotulo: string; socios_em_comum: number | null; liga_a: string[] }[] }
   controladoras_externas: { cnpj_basico: string; razao_social: string | null; situacao_cadastral: string | null; natureza_juridica: string | null; controla: string[] }[]
   natureza: string; limites: string

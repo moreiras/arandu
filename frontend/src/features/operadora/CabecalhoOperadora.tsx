@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom'
 import { EntityHeader } from '../../components/entidade'
 import { ContactsReveal, type ContactsAvailable } from '../../components/ContactsReveal'
 import { OutorgaBadge, OutorgaBadges } from '../../components/OutorgaBadge'
-import type { AsnVinculado, GrupoCnpjEntry } from '../../types/api'
+import type { AsnVinculado, GrupoCnpjEntry, GrupoSocietarioResumo } from '../../types/api'
 import { fmtCnpj } from './ui'
 import type { ServicoOperadora } from './servicos'
 
@@ -18,7 +18,7 @@ import type { ServicoOperadora } from './servicos'
 const ROTULO_VINCULO: Record<string, string> = { cnpj: 'mesmo CNPJ', raiz: 'mesma raiz do CNPJ', marca: 'mesma marca', estrangeiro: 'AS estrangeiro' }
 
 /** Cabeçalho da página de operadora: nome com selos de outorga, grupo, porte, razão social/CNPJ/sede, outros CNPJs do grupo, contatos e ASNs. */
-export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc, hasSeac, credenciadaSmp, razaoSocial, cnpjFinal, municipio, uf, grupoCnpjs, grupoId, contactsAvailable, fetchContacts, asns, vinculados = [], snapshot }: {
+export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc, hasSeac, credenciadaSmp, razaoSocial, cnpjFinal, municipio, uf, grupoCnpjs, grupoSocietario, grupoSocietarioCarregando, contactsAvailable, fetchContacts, asns, vinculados = [], snapshot }: {
   nome: string
   grupo?: string
   porte?: string
@@ -33,8 +33,9 @@ export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc
   municipio?: string
   uf?: string
   grupoCnpjs: GrupoCnpjEntry[]
-  /** Identificador do grupo (`GET /grupos`): leva à página do grupo. */
-  grupoId?: string
+  /** Grupo societário do CNPJ (`GET /grupos/empresa/{cnpj}`, chamado sempre): nome por regra visível, tamanho e integrantes; inferido do quadro da Receita. */
+  grupoSocietario?: GrupoSocietarioResumo | null
+  grupoSocietarioCarregando?: boolean
   contactsAvailable?: ContactsAvailable
   fetchContacts: () => Promise<any>
   asns: number[]
@@ -75,20 +76,49 @@ export function CabecalhoOperadora({ nome, grupo, porte, hasScm, hasSmp, hasStfc
           <span className="font-mono">{fmtCnpj(cnpjFinal)}</span>
           {municipio && <span> · sede em {municipio}/{uf}</span>}
         </div>
-        {grupoCnpjs.length > 0 && (
-          <div className="text-sm text-gray-500 mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1">
-            <span className="text-gray-400">outros CNPJs do grupo {grupo}:</span>
-            {grupoId && <Link to={`/grupo/${encodeURIComponent(grupoId)}`} className="text-primario-600 hover:underline font-medium">ver o grupo</Link>}
-            {grupoCnpjs.map(e => (
-              <span key={e.cnpj} className="inline-flex items-center gap-1">
-                <Link to={`/operadora/${e.cnpj}`} className="text-primario-600 hover:underline">
-                  {e.empresa || fmtCnpj(e.cnpj)}
-                </Link>
-                <OutorgaBadges flags={e} />
-              </span>
-            ))}
+        {/* OPERADORA-E10: duas definições de grupo, cada uma com a sua origem; o SICI é declarado, o societário é inferido */}
+        <dl className="text-sm text-gray-500 mt-1 space-y-1" aria-label="Grupos da operadora">
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1" data-testid="grupo-sici">
+            <dt className="text-gray-400">Grupo no SICI (declarado à Anatel):</dt>
+            <dd className="contents">
+              {grupo && grupo !== 'OUTROS' ? (
+                <>
+                  <span className="font-medium text-gray-700">{grupo}</span>
+                  {grupoCnpjs.length > 0 ? grupoCnpjs.map(e => (
+                    <span key={e.cnpj} className="inline-flex items-center gap-1">
+                      <Link to={`/operadora/${e.cnpj}`} className="text-primario-600 hover:underline">{e.empresa || fmtCnpj(e.cnpj)}</Link>
+                      <OutorgaBadges flags={e} />
+                    </span>
+                  )) : <span>(nenhum outro CNPJ declarado com este grupo)</span>}
+                </>
+              ) : <span>nenhum grupo declarado{grupo === 'OUTROS' ? ' (a Anatel registra "OUTROS")' : ''}</span>}
+            </dd>
           </div>
-        )}
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1" data-testid="grupo-societario">
+            <dt className="text-gray-400">Grupo societário (inferido do quadro societário da Receita):</dt>
+            <dd className="contents">
+              {grupoSocietarioCarregando && !grupoSocietario ? <span>carregando…</span>
+                : !grupoSocietario ? <span>sem informação do quadro societário neste snapshot</span>
+                : grupoSocietario.tamanho <= 1 ? (
+                  <>
+                    <span>só este CNPJ, sem ligação societária com outra operadora</span>
+                    <Link to={`/grupo/${encodeURIComponent(grupoSocietario.grupo_id)}`} className="text-primario-600 hover:underline font-medium">ver o grupo</Link>
+                  </>
+                ) : (
+                  <>
+                    <Link to={`/grupo/${encodeURIComponent(grupoSocietario.grupo_id)}`} className="text-primario-600 hover:underline font-medium">{grupoSocietario.nome} ({grupoSocietario.tamanho} empresas)</Link>
+                    {grupoSocietario.integrantes.map(e => (
+                      <span key={e.cnpj} className="inline-flex items-center gap-1">
+                        <Link to={`/operadora/${e.cnpj}`} className="text-primario-600 hover:underline">{e.empresa || fmtCnpj(e.cnpj)}</Link>
+                        <OutorgaBadges flags={e} />
+                      </span>
+                    ))}
+                    {grupoSocietario.integrantes_total > grupoSocietario.integrantes.length && <span>e mais {grupoSocietario.integrantes_total - grupoSocietario.integrantes.length}</span>}
+                  </>
+                )}
+            </dd>
+          </div>
+        </dl>
         <ContactsReveal
           available={contactsAvailable}
           fetchContacts={fetchContacts}

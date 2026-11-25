@@ -42,3 +42,23 @@ def test_nenhum_nome_de_socio_pessoa_fisica_na_resposta():
 
 def test_sem_socios_publicados_nao_ha_bloco():
     assert relacoes_do_grupo(G, None, lambda c: c) is None
+
+
+def test_forca_da_ligacao_e_classe_de_qualificacao_sem_nome():
+    socios = {"by_cnpj": {
+        "A": {"mesmo_grupo": [], "relacionadas_parcial": [
+            {"cnpj": "B", "tipo_relacao": "socios_em_comum", "socios_em_comum": 1, "classes_qualificacao": ["socio"], "qualificacoes_em_comum": ["22"]},
+            {"cnpj": "C", "tipo_relacao": "socios_em_comum", "socios_em_comum": 2, "classes_qualificacao": ["socio", "socio_administrador"], "qualificacoes_em_comum": ["22", "49"]}]},
+        "B": {"mesmo_grupo": [], "relacionadas_parcial": [{"cnpj": "A", "tipo_relacao": "socios_em_comum", "socios_em_comum": 1, "classes_qualificacao": ["socio"]}]},
+        "C": {"mesmo_grupo": [], "relacionadas_parcial": [{"cnpj": "A", "tipo_relacao": "socios_em_comum", "socios_em_comum": 2}]}}}
+    r = relacoes_do_grupo(G, socios, lambda c: c)
+    por_par = {(x["de"], x["para"]): x for x in r["ligacoes"]}
+    assert por_par[("A", "B")]["forca"] == "fraca" and por_par[("A", "B")]["classes_qualificacao"] == ["socio"]
+    assert por_par[("A", "C")]["forca"] == "forte" and por_par[("A", "C")]["classes_qualificacao"] == ["socio", "socio_administrador"]
+    assert r["resumo"] == {"ligacoes": 2, "fortes": 1, "fracas": 1} and "Administrador" in r["regra_ligacao"]
+    assert "qualificacoes_em_comum" not in json.dumps(r)
+
+
+def test_quadro_identico_e_participacao_de_pj_sao_ligacoes_fortes():
+    lig = _r()["ligacoes"]
+    assert {x["tipo"]: x["forca"] for x in lig if x["tipo"] != "socios_em_comum"} == {"quadro_identico": "forte", "controle_parcial": "forte"}

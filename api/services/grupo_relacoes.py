@@ -18,7 +18,22 @@ TIPOS = {
     "socios_em_comum": "Sócios em comum",
 }
 ORDEM = list(TIPOS)
+CLASSES = {
+    "socio": "sócio", "socio_administrador": "sócio-administrador", "acionista": "acionista", "titular": "titular de empresa individual",
+}
+FORCAS = {
+    "forte": "quadro de sócios idêntico, participação de uma empresa na outra, ou 2 ou mais sócios em comum",
+    "fraca": "um único sócio em comum: pode ser homonímia, porque a Receita mascara parte do CPF",
+}
 LIMITE_FORA = 25
+
+
+def _forca(p: dict) -> str:
+    """Força da evidência de uma ligação (GRUPO 5.1): forte se o quadro é idêntico, há participação de uma empresa na outra (sócio PJ, identificado pelo
+    CNPJ básico) ou 2+ sócios em comum; fraca com um sócio só."""
+    if p["tipo"] in ("quadro_identico", "controle_parcial"):
+        return "forte"
+    return "forte" if (p["socios"] or 0) >= 2 else "fraca"
 
 
 def relacoes_do_grupo(g: dict, socios: Optional[dict], nome: Callable[[str], str]) -> Optional[dict]:
@@ -61,21 +76,25 @@ def relacoes_do_grupo(g: dict, socios: Optional[dict], nome: Callable[[str], str
                 else:
                     de, para = sorted((a, b))                              # ligação simétrica: uma linha por par
                 chave = (tipo, de, para)
-                p = pares.setdefault(chave, {"tipo": tipo, "de": de, "para": para, "socios": None})
+                p = pares.setdefault(chave, {"tipo": tipo, "de": de, "para": para, "socios": None, "classes": set()})
+                p["classes"].update(e.get("classes_qualificacao") or [])
                 n = e.get("socios_em_comum") if tipo == "socios_em_comum" else e.get("total_socios_da_controlada") if tipo == "controle_parcial" else None
                 if n is not None:
                     p["socios"] = n if p["socios"] is None else max(p["socios"], n)
-    ligacoes = [{**p, "tipo_rotulo": TIPOS[p["tipo"]], "de_nome": nome(p["de"]), "para_nome": nome(p["para"])} for p in pares.values()]
+    ligacoes = [{**{k: v for k, v in p.items() if k != "classes"}, "forca": _forca(p), "classes_qualificacao": sorted(p["classes"]),
+                 "tipo_rotulo": TIPOS[p["tipo"]], "de_nome": nome(p["de"]), "para_nome": nome(p["para"])} for p in pares.values()]
     ligacoes.sort(key=lambda x: (ORDEM.index(x["tipo"]), x["de_nome"].lower(), x["para_nome"].lower()))
     fora_lista = sorted(({**f, "empresa": nome(f["cnpj"]), "tipo_rotulo": TIPOS[f["tipo"]], "liga_a": sorted(set(f["liga_a"]))} for f in fora.values()), key=lambda f: f["empresa"].lower())
     return {
         "grupo_id": g["grupo_id"], "classificacao": g.get("classificacao"), "empresas": len(rep_raiz), "cnpjs": len(membros),
         "unidade": "empresa = raiz de 8 dígitos do CNPJ; as filiais estão recolhidas na matriz (ou no menor CNPJ da raiz)",
         "referencia_receita": socios.get("receita_dump_reference"),
-        "ligacoes": ligacoes, "tipos": TIPOS,
+        "ligacoes": ligacoes, "tipos": TIPOS, "classes": CLASSES, "forcas": FORCAS,
+        "resumo": {"ligacoes": len(ligacoes), "fortes": sum(1 for x in ligacoes if x["forca"] == "forte"), "fracas": sum(1 for x in ligacoes if x["forca"] == "fraca")},
+        "regra_ligacao": "Só sócio com participação societária liga empresas. Administrador, diretor e presidente sem participação (qualificações 05, 10, 16 e equivalentes da tabela da Receita) não ligam.",
         "fora_do_grupo": {"total": len(fora_lista), "itens": fora_lista[:LIMITE_FORA]},
         "controladoras_externas": sorted(({**h, "controla": sorted(set(h["controla"]))} for h in holdings.values()), key=lambda h: (h["razao_social"] or "").lower()),
         "natureza": "inferido do quadro societário da Receita Federal: relações diretas entre pares; o grupo reúne as empresas ligadas por cadeia de relações",
-        "limites": "Só a estrutura entre empresas (PJ) e a contagem de sócios que sustenta cada ligação; nome e CPF de sócio pessoa física não são mostrados. A ligação é um indício societário: "
-                   "não prova que as empresas operam juntas nem que o controle é exercido. Ordem alfabética, sem ranking.",
+        "limites": "Só a estrutura entre empresas (PJ) e a contagem de sócios que sustenta cada ligação, com a classe de qualificação; nome e CPF de sócio pessoa física não são mostrados. "
+                   "A ligação é um indício societário: não prova que as empresas operam juntas nem que o controle é exercido. Em sociedade anônima o quadro traz a diretoria, não os acionistas. Ordem alfabética, sem ranking.",
     }

@@ -25,6 +25,7 @@ from typing import Optional
 
 from core.common import now_iso, published_path
 from core.jsonio import carregar_json_gz, gravar_json_gz
+from core.nome_grupo import nome_do_grupo
 
 FAIXAS_HHI = ((1500, "competitivo"), (2500, "moderado"))      # abaixo de 1.500 competitivo, até 2.500 moderado, acima concentrado (a mesma leitura que a interface já usa)
 TOP_SOBREPOSICAO = 10        # concorrentes listados por operadora
@@ -274,7 +275,7 @@ def _hhi(acessos: dict[str, int]) -> Optional[int]:
     return round(sum((100 * a / tot) ** 2 for a in acessos.values())) if tot else None
 
 
-def calcular_mercado_grupos(municipios: dict[str, dict], grupos: list[dict]) -> dict:
+def calcular_mercado_grupos(municipios: dict[str, dict], grupos: list[dict], curada: Optional[dict] = None) -> dict:
     """Cruzamentos de mercado sobre `sici_municipios` (acessos por município e CNPJ) e os grupos societários.
 
     * HHI por **grupo** ao lado do HHI por CNPJ, por município e UF: CNPJs do mesmo grupo (quadro societário em comum, inferência) contam como um só.
@@ -296,9 +297,19 @@ def calcular_mercado_grupos(municipios: dict[str, dict], grupos: list[dict]) -> 
             info[ibge] = (m.get("uf", ""), m.get("nome", ""))
     entidade = lambda c: grupo_de.get(c, c)  # noqa: E731
 
-    def nome_grupo(e: str) -> str:
-        membros = [c for c in nomes if grupo_de.get(c) == e] or [e]
-        return nomes.get(max(membros, key=lambda c: len(nomes.get(c, ""))), "") or e
+    cnpjs_do_grupo = {g["grupo_id"]: g.get("cnpjs", []) for g in grupos if g.get("classificacao") != "individual"}
+    acessos_cnpj: dict[str, int] = defaultdict(int)
+    for ops in por_mun.values():
+        for c, a in ops.items():
+            acessos_cnpj[c] += a
+
+    def nome_grupo(e: str) -> dict:
+        """Nome do grupo pela regra única (`core.nome_grupo`): marca curada, senão o CNPJ com mais acessos. Entidade que não é grupo é o próprio CNPJ."""
+        membros = cnpjs_do_grupo.get(e)
+        if not membros:
+            return {"nome": nomes.get(e, "") or e, "nome_regra": None}
+        r = nome_do_grupo(membros, acessos_cnpj, lambda c: nomes.get(c, ""), curada)
+        return {"nome": r["nome"], "nome_regra": r["nome_regra"]}
 
     muns: dict[str, dict] = {}
     uf_cnpj: dict[str, dict[str, int]] = defaultdict(dict)
@@ -315,7 +326,7 @@ def calcular_mercado_grupos(municipios: dict[str, dict], grupos: list[dict]) -> 
         h_c, h_g = _hhi(ops), _hhi(gr)
         lider = max(gr, key=lambda e: (gr[e], e))
         muns[ibge] = {"uf": info[ibge][0], "hhi_cnpj": h_c, "hhi_grupo": h_g, "n_cnpjs": len(ops), "n_grupos": len(gr), "faixa_cnpj": faixa_hhi(h_c), "faixa_grupo": faixa_hhi(h_g),
-                      "lider_grupo": {"id": lider, "empresa": nome_grupo(lider), "share": round(100 * gr[lider] / tot, 2), "e_grupo": lider in set(grupo_de.values())}}
+                      "lider_grupo": {"id": lider, **{("empresa" if k == "nome" else k): v for k, v in nome_grupo(lider).items()}, "share": round(100 * gr[lider] / tot, 2), "e_grupo": lider in set(grupo_de.values())}}
         if muns[ibge]["faixa_cnpj"] != muns[ibge]["faixa_grupo"]:
             transicoes[f"{muns[ibge]['faixa_cnpj']} → {muns[ibge]['faixa_grupo']}"] += 1
     ufs = {u: {"hhi_cnpj": _hhi(uf_cnpj[u]), "hhi_grupo": _hhi(uf_grupo[u]), "faixa_cnpj": faixa_hhi(_hhi(uf_cnpj[u])), "faixa_grupo": faixa_hhi(_hhi(uf_grupo[u]))} for u in sorted(uf_cnpj)}
@@ -387,7 +398,12 @@ def publicar_sici_indicadores(base: Path, date_str: str, log) -> dict:
     munis = (carregar_json_gz(pub / "sici_municipios.json.gz") or {}).get("municipios")
     grupos_doc = carregar_json_gz(pub / "grupos_societarios.json.gz")
     if munis and grupos_doc:
-        mg = calcular_mercado_grupos(munis, grupos_doc.get("grupos", []))
+        try:
+            from core.marcas import carregar_curada
+            curada = carregar_curada()
+        except Exception:
+            curada = None            # sem a tabela curada o nome cai no CNPJ com mais acessos
+        mg = calcular_mercado_grupos(munis, grupos_doc.get("grupos", []), curada)
         gravar_json_gz(pub / "mercado_grupos.json.gz", {
             "snapshot_date": date_str, "generated_at": meta["generated_at"], "mes_referencia": mes_ref, "natureza": "inferido",
             "fonte": "Anatel/SICI (acessos declarados) × grupos societários (quadro societário da Receita, inferência); HHI sobre acessos, não sobre receita",
