@@ -5,6 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 /** PT-15: rótulo por universo e nota "Por que há vários totais" (TRANSV-E4, TRANSV-E5). */
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { montarKpis } from '../features/home/kpisBrasilEmNumeros'
@@ -26,7 +27,7 @@ describe('nota "Por que há vários totais" (PT-15)', () => {
   })
 
   it('a explicação em /sobre#contagens lista todos os universos, com o rótulo e a definição da mesma tabela das telas', () => {
-    render(<MemoryRouter><Sobre /></MemoryRouter>)
+    render(<QueryClientProvider client={new QueryClient()}><MemoryRouter><Sobre /></MemoryRouter></QueryClientProvider>)
     const secao = screen.getByTestId('sobre-contagens')
     expect(secao).toHaveTextContent('Por que há vários totais')
     expect(secao.querySelectorAll('[data-universo]')).toHaveLength(LISTA_UNIVERSOS.length)
