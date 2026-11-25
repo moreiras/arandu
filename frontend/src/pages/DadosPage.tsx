@@ -37,8 +37,8 @@ export function DadosPage() {
       <section aria-labelledby="com-conta" className="space-y-3 rounded-lg border border-primario-200 bg-primario-50/50 p-4">
         <h2 id="com-conta" className="text-titulo-3 text-gray-800">Comece com uma conta (gratuita)</h2>
         <ol className="list-decimal space-y-1 pl-5 text-sm text-gray-700">
-          <li><Link to="/login" className="text-primario-700 hover:underline">Entre</Link> com Google, LinkedIn ou PeeringDB. A conta é gratuita e libera as listas completas, o histórico e os contatos na interface.</li>
-          {comChave && <li>No seu <Link to="/perfil" className="text-primario-700 hover:underline">perfil</Link>, gere uma <strong>chave de MCP</strong>. Ela é pessoal; guarde-a como uma senha.</li>}
+          <li><Link to="/login" className="text-primario-700 underline">Entre</Link> com Google, LinkedIn ou PeeringDB. A conta é gratuita e libera as listas completas, o histórico e os contatos na interface.</li>
+          {comChave && <li>No seu <Link to="/perfil" className="text-primario-700 underline">perfil</Link>, gere uma <strong>chave de MCP</strong>. Ela é pessoal; guarde-a como uma senha.</li>}
           {comChave && <li>Configure o seu cliente MCP com a chave no cabeçalho <code>Authorization: Bearer</code> (exemplos abaixo).</li>}
         </ol>
         <p className="text-xs text-gray-600">

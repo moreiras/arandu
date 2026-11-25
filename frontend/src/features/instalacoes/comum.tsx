@@ -76,7 +76,7 @@ export function PttsDaInstalacao({ f, nomes }: { f: Pick<FacilityResumo, 'ptts_d
   return (
     <span className="inline-flex flex-wrap gap-x-1.5 items-baseline">
       {visiveis.map((p) => (
-        <Link key={p.ix_id} to={p.tipo === 'ixbr' ? `/ixp/${p.code}` : `/ixp-externo/${p.code}`} className="text-primario-600 hover:underline">
+        <Link key={p.ix_id} to={p.tipo === 'ixbr' ? `/ixp/${p.code}` : `/ixp-externo/${p.code}`} className="inline-block min-h-6 leading-6 text-primario-600 hover:underline">
           {p.tipo === 'ixbr' && nomes?.[p.code!] ? `${nomes[p.code!]} (${p.code!.toUpperCase()})` : p.code!.toUpperCase()}
         </Link>
       ))}

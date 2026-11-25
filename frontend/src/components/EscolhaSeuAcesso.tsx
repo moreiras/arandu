@@ -40,7 +40,7 @@ export function EscolhaSeuAcesso() {
     },
     {
       acesso: 'Navegador, com conta gratuita',
-      como: <><Link to="/login" className="text-primario-700 hover:underline">Entrar</Link> com Google, LinkedIn ou PeeringDB</>,
+      como: <><Link to="/login" className="text-primario-700 underline">Entrar</Link> com Google, LinkedIn ou PeeringDB</>,
       libera: 'Listas completas, histórico de snapshots, CSV e contatos na interface.',
       limites: <>{descreverJanelas(L.api.com_conta)} (a API usa a sessão do navegador); contatos: {n(L.contatos.por_dia)} por dia e {n(L.contatos.por_30_dias)} em 30 dias por conta.</>,
     },
@@ -54,7 +54,7 @@ export function EscolhaSeuAcesso() {
   if (ch.ativa) {
     linhas.push({
       acesso: 'MCP, com chave',
-      como: <>Chave pessoal gerada no <Link to="/perfil" className="text-primario-700 hover:underline">perfil</Link></>,
+      como: <>Chave pessoal gerada no <Link to="/perfil" className="text-primario-700 underline">perfil</Link></>,
       libera: 'Sem os cortes da prévia; contatos de ASN e de operadora, um por chamada, dentro da cota da conta.',
       limites: <>{descreverJanelas(L.mcp.com_chave)}; {ch.sem_teto_diario ? 'sem teto diário' : <>cota de {n(ch.cota_diaria ?? 0)} requisições por dia UTC</>}.</>,
     })
