@@ -103,6 +103,7 @@ QUERY = {
     "/api/v1/qualidade/mapa": {"servico": "Banda Larga Fixa", "indicador": "IND4"},
     "/api/v1/busca": {"q": "Arandurápolis"},
     "/api/v1/snapshots/diff": {"a": "{d0}", "b": "{date}"},
+    "/api/v1/cdns/mudancas": {"a": "{d0}", "b": "{date}"},
     "/api/v1/ixps/{code}/hilbert/v4/detail": {"slash8": 200},
     "/api/v1/hilbert/v4/detail": {"slash8": 200},
     "/api/v1/ixp-compare/members": {"ixps": "{codes}"},

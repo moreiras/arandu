@@ -15,6 +15,7 @@ from typing import Callable, Optional
 from urllib.parse import urlparse
 
 from api.repos.historico import HistoricoRepo
+from core import comparabilidade as comp
 from core.site import SITE
 
 
@@ -153,9 +154,22 @@ def mudancas_resumo(repo: HistoricoRepo, de=None, ate=None, tipo: Optional[str] 
         por_data[e["data"]] = por_data.get(e["data"], 0) + 1
     out = {"total": len(itens), "por_tipo": dict(sorted(por_tipo.items())), "por_data": dict(sorted(por_data.items())),
            "snapshots_com_historico": len(_recorte(repo.datas(), de, ate))}
+    atipicas = _datas_atipicas_eventos(por_data, itens)
+    if atipicas:
+        out["datas_atipicas"] = atipicas
     filtros = {k: v for k, v in (("tipo", ",".join(sorted(tipos)) if tipos else None), ("uf", sigla), ("asn", asn)) if v is not None}
     if filtros:
         out["filtros"] = filtros
+    return out
+
+
+def _datas_atipicas_eventos(por_data: dict[str, int], itens: list[dict]) -> dict[str, dict]:
+    """Datas atípicas (D7) presentes na contagem, com os tipos de evento afetados que realmente têm eventos nelas: a data fica na série, marcada."""
+    out: dict[str, dict] = {}
+    for d in por_data:
+        tipos = sorted({e["tipo"] for e in itens if e["data"] == d and comp.atipica_evento(d, e["tipo"])})
+        if tipos:
+            out[d] = {"motivo": comp.DATAS_ATIPICAS[d]["motivo"], "tipos": tipos}
     return out
 
 
@@ -181,8 +195,29 @@ def diferenca(repo: HistoricoRepo, a: str, b: str) -> dict:
     resumo: dict[str, dict[str, int]] = {}
     for e in ev:
         resumo.setdefault(e["tipo"], {"confirmado": 0, "pendente": 0, "revertido": 0})[e["estado"]] += 1
-    return {"a": a, "b": b, "totais": {k: {"a": ta[k], "b": tb[k], "variacao": tb[k] - ta[k]} for k in ta},
-            "eventos": {"entre": [de, ate], "total": len(ev), "por_tipo": dict(sorted(resumo.items()))},
+    # Só o total que soma PTTs depende da cobertura da coleta (PTTs com status ok); os demais vêm das linhas de ASN
+    tot: dict[str, dict] = {}
+    for k in ta:
+        meta = (lambda t: {"cobertura": {"ptts_coletados": t["ptts_coletados"]}}) if k == "ptts_membros" else (lambda t: {})
+        v = comp.variacao({"date": a, "valor": ta[k], "meta": meta(ta)}, {"date": b, "valor": tb[k], "meta": meta(tb)}, k)
+        tot[k] = {"a": ta[k], "b": tb[k], "variacao": v.get("absoluta"), "comparavel": v["calculada"],
+                  **({"motivos": v["motivos"]} if v["motivos"] else {})}
+    # Razão dentro da mesma base: a variação do percentual de usuários com IPv6 usa as duas pontas do `diff`, nunca um valor do `diff` contra
+    # outro de uma base diferente (a base dos KPIs não é a das linhas de UF)
+    razoes: dict[str, dict] = {}
+    if ta["users"] and tb["users"]:
+        pa, pb = {"date": a, "valor": round(100 * ta["v6users"] / ta["users"], 2)}, {"date": b, "valor": round(100 * tb["v6users"] / tb["users"], 2)}
+        v = comp.variacao(pa, pb, "v6users", unidade="pp")
+        razoes["ipv6_pct_usuarios"] = {"a": pa["valor"], "b": pb["valor"], "variacao_pp": v.get("absoluta"), "comparavel": v["calculada"],
+                                       "base": "linhas de histórico por UF (usuários e usuários IPv6 estimados pela APNIC)"}
+    atipicos = {t: [d for d in sorted({e["data"] for e in ev if e["tipo"] == t}) if comp.atipica_evento(d, t)] for t in resumo}
+    atipicos = {t: ds for t, ds in atipicos.items() if ds}
+    eventos = {"entre": [de, ate], "total": len(ev), "por_tipo": dict(sorted(resumo.items()))}
+    if atipicos:
+        eventos["datas_atipicas"] = {t: {"datas": ds, "motivo": comp.DATAS_ATIPICAS[ds[0]]["motivo"]} for t, ds in atipicos.items()}
+    avisos = comp.avaliar({"date": de, "valor": 0}, {"date": ate, "valor": 0})["avisos"]
+    return {"a": a, "b": b, "totais": tot, "razoes": razoes, "eventos": eventos,
+            "comparabilidade": {"versao": comp.VERSAO_REGRA, "texto": list(comp.REGRA_COMO_LER), "avisos": avisos},
             "nota": "Totais por UF somam ASNs com sede na UF; usuários são estimativas da APNIC."}
 
 
@@ -199,13 +234,22 @@ def tendencia(repo: HistoricoRepo, escopo: str, metrica: str, de: Optional[str] 
         if leitor is None:
             raise HistoricoErro(400, "escopo deve ser brasil, uf:XX, ixp:código, operadora:cnpj ou asn:número")
         corpo = leitor()
-    serie = [{"date": p["date"], "valor": p[metrica]} for p in corpo["snapshots"] if metrica in p]
-    if not serie:
+    estrangeiro = tipo == "asn" and any(p.get("is_br") is False for p in corpo["snapshots"])
+    pontos = [{"date": p["date"], "valor": p[metrica],
+               "meta": {"coleta_ok": p.get("status") == "ok"} if tipo == "ixp" and "status" in p else {}} for p in corpo["snapshots"] if metrica in p]
+    if not pontos:
         raise HistoricoErro(404, f"Sem a métrica '{metrica}' no escopo '{escopo}' (use uma coluna das séries, ex.: users, p4, n_roa).")
-    primeiro, ultimo = serie[0]["valor"], serie[-1]["valor"]
-    return {"escopo": escopo, "metrica": metrica, "total": len(serie), "serie": serie,
-            "variacao": {"de": serie[0]["date"], "para": serie[-1]["date"], "absoluta": ultimo - primeiro,
-                         "pct": round(100 * (ultimo - primeiro) / primeiro, 2) if primeiro else None}}
+    a = comp.anotar_serie(pontos, metrica, estrangeiro)
+    serie = [{"date": p["date"], "valor": p["valor"], "comparavel_com_anterior": p["comparavel_com_anterior"], "motivos": p["motivos"]} for p in a["pontos"]]
+    v = a.get("variacao") or {"de": serie[0]["date"], "para": serie[-1]["date"], "calculada": False, "motivos": []}
+    # `absoluta` e `pct` seguem a forma antiga, mas só existem quando os dois pontos são comparáveis (nunca atravessam um corte)
+    variacao = {"de": v["de"], "para": v["para"], "absoluta": v.get("absoluta"), "pct": v.get("pct"), "calculada": v["calculada"],
+                "motivos": [m["codigo"] for m in v["motivos"]]}
+    out = {"escopo": escopo, "metrica": metrica, "total": len(serie), "serie": serie, "variacao": variacao,
+           "segmentos": a["segmentos"], "desenhar_linha": a["desenhar_linha"], "comparabilidade": comp.regra()["texto"]}
+    if "nota" in a:
+        out["nota"] = a["nota"]
+    return out
 
 
 # ── bloco `historico` dos perfis consolidados (ASN, PTT, operadora, UF) ────────────────────────────────────────────────────────────

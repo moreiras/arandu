@@ -114,14 +114,15 @@ def avaliar(a: dict, b: dict, metrica: Optional[str] = None, estrangeiro: bool =
     ma, mb = a.get("meta") or {}, b.get("meta") or {}
     motivos: list[dict] = []
     if a.get("valor") is None or b.get("valor") is None:
-        motivos.append(_motivo("ausente"))
-    if ma.get("base") != mb.get("base"):
-        motivos.append(_motivo("base_diferente", f"{ma.get('base')} e {mb.get('base')}"))
-    if ma.get("metodo") != mb.get("metodo"):
-        motivos.append(_motivo("metodo_mudou", f"{ma.get('metodo')} e {mb.get('metodo')}"))
-    det = _cobertura_mudou(ma, mb)
-    if det:
-        motivos.append(_motivo("cobertura_mudou", det))
+        motivos.append(_motivo("ausente"))           # sem medida não há o que comparar: base, método e cobertura do ponto vazio não entram
+    else:
+        if ma.get("base") != mb.get("base"):
+            motivos.append(_motivo("base_diferente", f"{ma.get('base')} e {mb.get('base')}"))
+        if ma.get("metodo") != mb.get("metodo"):
+            motivos.append(_motivo("metodo_mudou", f"{ma.get('metodo')} e {mb.get('metodo')}"))
+        det = _cobertura_mudou(ma, mb)
+        if det:
+            motivos.append(_motivo("cobertura_mudou", det))
     for p in (a, b):
         t = atipica(p["date"], metrica, estrangeiro)
         if t:
@@ -149,7 +150,7 @@ def variacao(a: dict, b: dict, metrica: Optional[str] = None, unidade: str = "ab
     return out
 
 
-def anotar_serie(pontos: list[dict], metrica: Optional[str] = None, estrangeiro: bool = False) -> dict:
+def anotar_serie(pontos: list[dict], metrica: Optional[str] = None, estrangeiro: bool = False, unidade: str = "absoluta") -> dict:
     """Marca cada ponto com `comparavel_com_anterior` (None no primeiro) e `motivos`, divide a série em segmentos de pontos comparáveis seguidos e
     calcula a variação do último segmento. `desenhar_linha` só é verdadeiro com `MIN_PONTOS_LINHA` ou mais pontos no último segmento."""
     marcados: list[dict] = []
@@ -170,9 +171,9 @@ def anotar_serie(pontos: list[dict], metrica: Optional[str] = None, estrangeiro:
     ultimo = segmentos[-1] if segmentos else []
     out: dict = {"pontos": marcados, "segmentos": segmentos, "desenhar_linha": len(ultimo) >= MIN_PONTOS_LINHA}
     if len(ultimo) >= 2:
-        out["variacao"] = variacao(pontos[ultimo[0]], pontos[ultimo[-1]], metrica, estrangeiro=estrangeiro)
+        out["variacao"] = variacao(pontos[ultimo[0]], pontos[ultimo[-1]], metrica, unidade, estrangeiro)
     elif len(pontos) >= 2:
-        out["variacao"] = variacao(pontos[-2], pontos[-1], metrica, estrangeiro=estrangeiro)
+        out["variacao"] = variacao(pontos[-2], pontos[-1], metrica, unidade, estrangeiro)
     cortes = [p for p in marcados[1:] if p["comparavel_com_anterior"] is False]
     if cortes:
         out["nota"] = "Série cortada onde os pontos não são comparáveis: " + "; ".join(

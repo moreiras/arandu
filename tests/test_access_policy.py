@@ -160,6 +160,9 @@ def test_series_e_eventos_do_historico_so_nos_dois_snapshots_atuais(
     assert c("/api/v1/snapshots/diff", {"a": "2026-09-27", "b": "2026-10-04"}) == METERED
     assert c("/api/v1/snapshots/diff", {"a": "2026-08-01", "b": "2026-10-04"}) == LOGIN
     assert c("/api/v1/snapshots/diff") == LOGIN
+    assert c("/api/v1/cdns/mudancas", {"a": "2026-09-27", "b": "2026-10-04"}) == METERED
+    assert c("/api/v1/cdns/mudancas", {"a": "2026-08-01", "b": "2026-10-04"}) == LOGIN
+    assert c("/api/v1/cdns/mudancas") == LOGIN
 
 
 def test_historico_nao_se_aplica_sem_lista_de_datas():

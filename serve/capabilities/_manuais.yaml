@@ -200,8 +200,12 @@
 - http: GET /history/uf/{uf}
   mcp: historico_serie
   sem_ui: "a linha do tempo da página lê o bloco historico do perfil (include=historico), não esta rota"
+- http: GET /history/brasil/series
+  sem_mcp: "séries nacionais de roteamento e segurança com a regra de comparabilidade, para o gráfico das páginas; o MCP já tem rota_analise e query:prontidao_agregado por data, e historico_serie para a entidade"
 - http: GET /snapshots/diff
   mcp: historico_mudancas
+- http: GET /cdns/mudancas
+  sem_mcp: "diferença de cadastro de membros entre duas datas para a aba Mudanças de CDNs; o MCP tem cdn_presenca por data e historico_mudancas para os eventos de PTT"
 - http: GET /feed/mudancas.atom
   sem_mcp: "feed de assinatura (Atom) para leitores; o MCP tem historico_mudancas"
 - http: GET /ranking/operadoras
