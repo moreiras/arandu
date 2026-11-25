@@ -51,19 +51,26 @@ TAREFAS: list[tuple[str, tuple[str, ...], str]] = [
 # tools visíveis que não são o destino de uma tarefa (ferramentas do próprio guia)
 FORA_DO_GUIA = {"describe_schema", "asn_contatos", "operadora_contatos"}   # contatos: na regra 9 das instruções
 
-# collection do `query` → tool que traz o detalhe de uma linha
-DETALHE_DA_COLLECTION = {
-    "eventos": "historico_mudancas", "series_asn": "historico_serie",
-    "indicadores_operadora": "operadora_detalhe", "sem_declaracao_sici": "operadora_detalhe", "municipios": "municipio_detalhe", "seguranca_asn": "asn_detalhe", "rs_sessoes": "ixp_detalhe", "rs_communities": "asn_politica", "rs_filtradas": "ixp_rejeicoes", "cetic_indicadores": "uf_detalhe", "cetic_estimativas_uf": "uf_detalhe", "demanda_oferta": "uf_detalhe", "erbs_municipio": "municipio_detalhe", "fust_municipio": "municipio_detalhe", "prontidao_agregado": "asn_detalhe", "prontidao_asn": "asn_detalhe", "multas_empresa": "operadora_detalhe", "faixas_espectro": "historico_snapshots", "satelites_direitos": "historico_snapshots", "transferencias_ipv4": "rota_prefixo", "recuperacao_ipv4": "rota_prefixo", "eventos_bloco": "rota_prefixo", "espaco_ipv4": "rota_prefixo", "subasignacoes_ipv4": "rota_prefixo", "uso_por_terceiros_ipv4": "rota_prefixo",
-    "indicadores_operadora": "operadora_detalhe", "sem_declaracao_sici": "operadora_detalhe", "municipios": "municipio_detalhe", "seguranca_asn": "asn_detalhe", "rs_sessoes": "ixp_detalhe", "organizacoes_asn": "asn_detalhe", "transito_uf": "uf_detalhe", "transito_asn": "asn_detalhe", "cetic_indicadores": "uf_detalhe", "cetic_estimativas_uf": "uf_detalhe", "demanda_oferta": "uf_detalhe", "erbs_municipio": "municipio_detalhe", "fust_municipio": "municipio_detalhe", "prontidao_agregado": "asn_detalhe", "prontidao_asn": "asn_detalhe", "multas_empresa": "operadora_detalhe", "faixas_espectro": "historico_snapshots", "satelites_direitos": "historico_snapshots", "transferencias_ipv4": "rota_prefixo", "recuperacao_ipv4": "rota_prefixo", "eventos_bloco": "rota_prefixo", "espaco_ipv4": "rota_prefixo", "subasignacoes_ipv4": "rota_prefixo", "uso_por_terceiros_ipv4": "rota_prefixo",
-    "bloqueios_asn": "asn_bloqueios",
-    "indicadores_operadora": "operadora_detalhe", "sem_declaracao_sici": "operadora_detalhe", "municipios": "municipio_detalhe", "seguranca_asn": "asn_detalhe", "rs_sessoes": "ixp_detalhe", "cetic_indicadores": "uf_detalhe", "cetic_estimativas_uf": "uf_detalhe", "demanda_oferta": "uf_detalhe", "erbs_municipio": "municipio_detalhe", "fust_municipio": "municipio_detalhe", "prontidao_agregado": "asn_detalhe", "prontidao_asn": "asn_detalhe", "multas_empresa": "operadora_detalhe", "qualidade_uf": "uf_detalhe", "reclamacoes_marca": "operadora_detalhe", "consumidor_marca": "operadora_detalhe", "faixas_espectro": "historico_snapshots", "satelites_direitos": "historico_snapshots", "transferencias_ipv4": "rota_prefixo", "recuperacao_ipv4": "rota_prefixo", "eventos_bloco": "rota_prefixo", "espaco_ipv4": "rota_prefixo", "subasignacoes_ipv4": "rota_prefixo", "uso_por_terceiros_ipv4": "rota_prefixo",
-    "facilities": "facility_detalhe", "facilidades_rede": "facility_detalhe", "redes_peering": "asn_peering",
+# collection do `query` → tool que traz o detalhe de uma linha; None = nenhuma tool de detalhe (a linha da própria `query` é o dado)
+DETALHE_DA_COLLECTION: dict[str, str | None] = {
     "asns": "asn_detalhe", "ixps": "ixp_detalhe", "external_ixps": "ixp_externo", "cdns": "cdn_presenca",
     "prefixes": "rota_prefixo", "global_prefixes": "rota_prefixo",
     "scms": "outorga_detalhe", "smps": "outorga_detalhe", "stfcs": "outorga_detalhe", "seacs": "outorga_detalhe",
     "operadoras": "operadora_detalhe", "operadoras_movel": "operadora_detalhe", "socios": "operadora_grupo",
     "acessos_municipio": "municipio_detalhe", "acessos_movel_municipio": "municipio_detalhe",
+    "eventos": "historico_mudancas", "series_asn": "historico_serie",
+    "indicadores_operadora": "operadora_detalhe", "sem_declaracao_sici": "operadora_detalhe", "multas_empresa": "operadora_detalhe",
+    "reclamacoes_marca": "operadora_detalhe", "consumidor_marca": "operadora_detalhe",
+    "municipios": "municipio_detalhe", "erbs_municipio": "municipio_detalhe", "fust_municipio": "municipio_detalhe",
+    "cetic_indicadores": "uf_detalhe", "cetic_estimativas_uf": "uf_detalhe", "demanda_oferta": "uf_detalhe",
+    "transito_uf": "uf_detalhe", "qualidade_uf": "uf_detalhe",
+    "seguranca_asn": "asn_detalhe", "prontidao_agregado": "asn_detalhe", "prontidao_asn": "asn_detalhe",
+    "organizacoes_asn": "asn_detalhe", "transito_asn": "asn_detalhe", "bloqueios_asn": "asn_bloqueios",
+    "rs_sessoes": "ixp_detalhe", "rs_communities": "asn_politica", "rs_filtradas": "ixp_rejeicoes",
+    "facilities": "facility_detalhe", "facilidades_rede": "facility_detalhe", "redes_peering": "asn_peering",
+    "transferencias_ipv4": "rota_prefixo", "recuperacao_ipv4": "rota_prefixo", "eventos_bloco": "rota_prefixo",
+    "espaco_ipv4": "rota_prefixo", "subasignacoes_ipv4": "rota_prefixo", "uso_por_terceiros_ipv4": "rota_prefixo",
+    "faixas_espectro": None, "satelites_direitos": None,        # quadros de norma/direitos: sem tool própria (historico_snapshots só lista datas)
 }
 
 # Grupos das collections do `query` nas instruções. O T5 confere que toda collection do catálogo está em um grupo: a descrição do `query`

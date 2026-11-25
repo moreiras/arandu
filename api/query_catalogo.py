@@ -67,6 +67,15 @@ def aviso_colecao_obsoleta(antigo: str) -> str:
             f"removido depois de duas versões. Use `{COLECOES_ALIAS[antigo]}`.")
 
 
+# Frase do índice do `describe_schema` quando a primeira frase da descrição, cortada em 140 caracteres, perderia o aviso do mês de
+# referência do SICI (TRANSV-E17). Cada uma cabe em 140 e repete o aviso que a descrição completa traz.
+RESUMO_INDICE = {
+    "operadoras": "Operadoras de banda larga por CNPJ (outorga SCM, acessos SICI, ASNs). Acessos do mês de referência do SICI, NÃO da data do snapshot",
+    "operadoras_movel": "Operadoras móveis por CNPJ (outorga SMP, acessos SICI, ASNs). Acessos do mês de referência do SICI, NÃO da data do snapshot",
+    "indicadores_operadora": "Indicadores do SICI fixo por CNPJ: share, posição, variação, meses de queda. Mês de referência do SICI, NÃO a data do snapshot",
+    "municipios": "Uma linha por município do IBGE: população, domicílios, acessos SICI, penetração, PTT próximo. Acessos do mês de referência do SICI",
+}
+
 # Sentinela para distinguir "sem exemplo" de "exemplo é None/false".
 _MISSING_SENTINEL = object()
 
@@ -131,7 +140,7 @@ SCHEMA: dict[str, dict] = {
     },
     "ixps": {
         "key": "code",
-        "description": "PTTs do IX.br (os de config/ixps.yaml; 40 em 2026-11). Métricas por AFI acessíveis por dot-path: v4.*, v6.*",
+        "description": "PTTs do IX.br (os de config/ixps.yaml). Métricas por AFI acessíveis por dot-path: v4.*, v6.*",
         "fields": [
             _f("code", "string", "Código do IXP (minúsculo). Manaus=mao, Palmas=to, Vitória=vix, SP=sp, RJ=rj", example="sp"),
             _f("name", "string", "Nome/cidade do IXP"),

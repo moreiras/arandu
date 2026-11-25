@@ -85,7 +85,7 @@ def get_ixp(code: str, date: Optional[str] = None) -> dict:
     só as métricas escalares + a lista de membros oficiais do IX.br.
 
     Args:
-        code: Código do IXP (ex.: "sp", "rj", "ce"). Ver list_ixps para os 39 códigos.
+        code: Código do IXP (ex.: "sp", "rj", "ce"). Ver ixp_lista.
         date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.
     """
     d = _resolve(date)
