@@ -16,7 +16,7 @@ import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import { TEXTO_ZERO_REGISTRADO, estadoMargem } from '../features/cetic/margem'
-import { SinteseCetic } from '../features/cetic/SinteseCetic'
+import { SinteseCetic } from '../features/cetic/BlocoSinteseCetic'
 import { useActiveDate } from '../hooks/useSnapshot'
 
 const PESQUISAS = [

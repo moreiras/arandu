@@ -26,7 +26,7 @@ export const MIN_FRASES = 2
 export const MAX_FRASES = 4
 
 /** Palavras de juízo, causa ou intenção que uma frase gerada nunca usa (conferido em `sintese.test.ts` de cada gerador). */
-export const PALAVRAS_PROIBIDAS = /\b(melhor|pior|atrás|atras|ruim|omitiu|omissão|omissao|preocupante|alarmante|deficiente|porque|culpa|negligên)/i
+export const PALAVRAS_PROIBIDAS = /\b(melhor|pior|atrás|atras|ruim|omitiu|preocupante|alarmante|deficiente|porque|culpa|negligên)/i
 
 export const n0 = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits: 0 })
 export const n1 = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })

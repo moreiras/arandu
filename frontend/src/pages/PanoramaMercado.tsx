@@ -10,7 +10,7 @@ import { TvPorAssinaturaSection } from '../components/stats/TvPorAssinaturaSecti
 import { PaginaPanorama, type AbaPanorama } from '../features/panorama/PaginaPanorama'
 import { MaioresMercado } from '../features/mercado/MaioresMercado'
 import { ConcentracaoPanorama } from '../features/mercado/ConcentracaoPanorama'
-import { SinteseMercado } from '../features/mercado/SinteseMercado'
+import { SinteseMercado } from '../features/mercado/BlocoSinteseMercado'
 import { useResumo } from '../features/panorama/useResumo'
 import { Navigate, useSearchParams } from 'react-router-dom'
 

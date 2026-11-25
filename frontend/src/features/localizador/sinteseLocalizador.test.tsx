@@ -7,7 +7,7 @@
 import { act, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { PALAVRAS_PROIBIDAS } from '../../lib/sintese'
-import { ESPERA_SINTESE_MS, SinteseLocalizador } from './SinteseLocalizador'
+import { ESPERA_SINTESE_MS, SinteseLocalizador } from './BlocoSinteseLocalizador'
 import { sinteseLocalizador, type EntradaSinteseLocalizador } from './sinteseLocalizador'
 
 const entrada = (over: Partial<EntradaSinteseLocalizador> = {}): EntradaSinteseLocalizador => ({
