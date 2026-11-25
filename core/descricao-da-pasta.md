@@ -31,6 +31,7 @@ regras de camada estão em `.importlinter` e a ligação por referência entre c
 | `geo.py` | Funções geográficas (distância haversine e afins), usadas pelo `Store`, pela consulta e pelos alertas. |
 | `geoip.py` | Leitura da base de geolocalização por IP (DB-IP City Lite). |
 | `cpf.py` | Máscara do CPF embutido em nomes empresariais e remoção de sócios pessoa física. |
+| `pessoa_natural.py` | Pessoa natural (EI e MEI, D1): critério pela natureza jurídica, nome fantasia ou rótulo no lugar do nome civil, ponto no centróide do município; índice do snapshot e percurso aplicado na publicação, na leitura e na saída. |
 | `universo_telecom.py` | Universo de CNPJs (raiz de 8 dígitos) de telecom: outorgas, SICI e recorte da Receita. |
 | `outorgas.py` | Registro dos serviços de outorga da Anatel (SCM, SMP, STFC, SeAC): a única lista, da qual coleta, publicação, API e manifesto derivam. |
 | `marcas.py` | Ligação marca → raiz do CNPJ (`config/curada_marcas_operadoras.yaml`). |

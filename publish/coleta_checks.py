@@ -181,9 +181,17 @@ def refresh_manifest(base: Path, date_str: str, log=None, checksums: bool = Fals
 
         # CPF embutido na razão social de empresário individual e MEI: mascarado no que é publicado, antes dos checksums (a API serve
         # o arquivo como está, sem mascarar na leitura)
-        mascarados = mascarar_snapshot(path.parent)
+        from core import pessoa_natural
+
+        # nome fantasia ou rótulo no lugar do nome civil de EI/MEI e ponto no centróide do município (D1, PT-11): o índice vem do cadastro da Receita,
+        # do cadastro por ASN e das outorgas do próprio snapshot (`normalized/`)
+        indice = pessoa_natural.indice_do_snapshot(base, date_str)
+        mascarados = mascarar_snapshot(path.parent, indice=indice)
+        if indice:                              # sem cadastro (fontes ausentes) a regra não foi aplicada: o manifesto não diz que foi
+            manifest["privacidade"] = {"pessoa_natural": pessoa_natural.VERSAO, "criterio": "natureza jurídica 213-5 (empresário individual) ou MEI",
+                                       "titulares": len(indice.raizes), "posicao": pessoa_natural.POSICAO_REDUZIDA_A}
         if log and mascarados:
-            log.info("cpf mascarado", arquivos=len(mascarados))
+            log.info("cpf e pessoa natural mascarados", arquivos=len(mascarados), titulares=len(indice.raizes))
         manifest["checksums"] = calcular_checksums(path.parent)
     tmp = path.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
