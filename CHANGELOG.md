@@ -88,6 +88,36 @@ parênteses remetem à análise.
     snapshot repassa `manifest.comparado_com`.
   `esquema` de `/ufs`, `/ixps`, `/routing-analysis` e `/brasil/indicadores` sobe (BGP-E3, IXP-E1, IXP-E2, IXPS-E4, TRANSV-E8,
   MAPA-E1, EST-E1, EST-E2, USO-E1, USO-E2, TRANSV-E18, HOME-E1).
+- **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
+  qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
+  nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
+  resposta; selecionar ou filtrar por esses campos dá erro. `geo_localizar` e `/resolve/place` passam ao centroide IBGE do município
+  (campo `posicao`). A receita de `asns` deixa de sugerir telefone, e-mail e endereço. A máscara de CPF passa a valer também na lista de
+  blocos IPv4 por organização (ASN-E5, ASES-E15, IPV4-E14).
+- **Vínculo ASN ↔ CNPJ (PT-09, D5).** Índice único `asn_vinculo` (`cnpj`, `raiz`, `marca`, `estrangeiro`, `nenhum`; só `cnpj` é
+  fato, os demais inferidos) usado por operadora, grupo, grupos, /ases, Home e MCP. ASN em filial (mesma raiz) passa a contar para a
+  operadora e o grupo, sem duplicar ASN nas somas; marca curada e AS estrangeiro são listados, não somados. O destaque "sem ASN
+  próprio" da Home deixa de listar Oi e Hughes; Starlink aparece como AS estrangeiro (GRUPO-E2, GRUPO-E7, HOME-E2).
+- **Página de prefixo (PT-07).** Detentor no Registro.br e origem observada (tabela global ou route servers) vêm separados, cada um
+  com fonte; o estado RPKI é o do anúncio observado (`nao_avaliado` sem anúncio), com os ROAs que cobrem o prefixo; o CIDR é
+  normalizado e qualquer rota observada abre, mesmo fora das alocações do Registro.br; a ausência é explicada. `origin_asn` fica como
+  alias deprecado de `registro_asn`; grafia inválida responde 422 (PFX-E1, PFX-E2, PFX-E4, PFX-E5).
+- **MOAS medido (PT-04b).** A coleta da tabela global passa a guardar todas as origens observadas por prefixo e por coletor
+  (`origins-multi-{afi}`), e o MOAS volta a ser publicado como fato observado, sem rotular causa: contagem por família, global e de
+  prefixos brasileiros, lista com as origens e os coletores que viram cada uma; "nenhum MOAS observado" quando a contagem é zero.
+  Snapshots anteriores continuam sem número, com o motivo. Cartão, aba e tabela de /bgp e o bloco do prefixo voltam. A primeira
+  execução depois disto coleta a tabela global de novo (BGP-E2, PFX-E3).
+- **Registro do aceite (PT-13, D10).** A conta passa a guardar a versão da política aceita e a data do aceite, gravadas no login
+  (contas antigas ficam "não registrada" até o próximo login). A tabela de retenção é gerada das constantes do código, com teste;
+  a exibição na página de privacidade aguarda a redação do mantenedor.
+- **Acesso, lista nominal e citação (PT-12; D2, D3, D9).** Lista nominal de prontidão pública com salvaguardas (pilar sem dado é "não
+  medido", ordem neutra, aviso de método). "Citar" passa a trazer os valores, a data do snapshot e as fontes, e avisa que o link abre
+  sem login enquanto a data estiver entre as recentes; quem abre data antiga sem login vê o aviso de snapshot histórico. `/snapshots`
+  e o detalhe de PTT externo passam a exigir login (as páginas abertas usam `/brasil/snapshots`); as chamadas das páginas de entrada
+  ficam abertas (`/brasil/destaques`, `/cdns/presence`, `/rpki/summary`, `/prontidao/resumo`, `/changes/summary` recente). Orçamento
+  anônimo esgotado responde 429 com `Retry-After` até a meia-noite UTC e corpo explicando o limite. Listas mostram ao anônimo uma
+  prévia de 100 linhas. As 11 fontes de exposição aberta declaram a decisão e a atribuição no catálogo e em /fontes (SEG-E2, INST-E1,
+  REL-E7, TRANSV-E19, IXE-E4, TRANSV-E20, DADOS-E1, EXP-E4, OPERADORAS-E1).
 
 ## v2.1.3
 
