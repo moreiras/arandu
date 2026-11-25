@@ -298,7 +298,7 @@ class Store:
         # Acessos Anatel/SICI, fixo e móvel: repositórios em api/repos
         self._sici = SiciRepo(self._pub, "sici")
         self._sici_movel = SiciRepo(self._pub, "sici_movel")
-        self._sici_ind = SiciIndicadoresRepo(self._pub)         # indicadores e omissão
+        self._sici_ind = SiciIndicadoresRepo(self._pub)         # indicadores e sem declaração
         self._territorio = TerritorioRepo(self._pub)            # penetração e mercado não visto
         self._prontidao = ProntidaoRepo(self._pub)              # prontidão em segurança de roteamento
         self._seguranca = SegurancaRepo(self._pub)              # segurança de roteamento por ASN
@@ -692,8 +692,8 @@ class Store:
     def sici_serie_municipio(self, date_str: str) -> Optional[dict]:
         return self._sici_ind.serie_municipio(date_str)
 
-    def omissao_sici(self, date_str: str) -> Optional[dict]:
-        return self._sici_ind.omissao(date_str)
+    def sem_declaracao_sici(self, date_str: str) -> Optional[dict]:
+        return self._sici_ind.sem_declaracao(date_str)
 
     def territorio_doc(self, date_str: str) -> Optional[dict]:
         return self._territorio.municipios_doc(date_str)

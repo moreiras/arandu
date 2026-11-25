@@ -44,6 +44,22 @@ describe('Prontidão em segurança de roteamento', () => {
     expect(screen.queryByText('Validação global')).toBeNull()
   })
 
+  it('o bloco de UF separa as classes com e sem ROV medido, e as duas linhas somam o total (SEG-E5)', () => {
+    const comRov = { pronto: 5, em_progresso: 10, atrasado: 5, sem_dados: 0 }
+    const semRov = { pronto: 15, em_progresso: 30, atrasado: 15, sem_dados: 20 }
+    montar(<ProntidaoUfBloco dados={{ uf: 'SP', prontidao: { ...meta, uf: 'SP', agregado: { ...agg, classes_com_rov: comRov, classes_sem_rov: semRov }, brasil: agg } } as never} snapshot={null} />)
+    const bloco = screen.getByTestId('classes-por-rov').textContent ?? ''
+    expect(bloco).toContain('com ROV medido (20 ASNs)')
+    expect(bloco).toContain('sem ROV medido (80 ASNs)')
+    expect(bloco).toMatch(/com ROV medido.*Pronto 5/)
+    expect(bloco).toMatch(/sem ROV medido.*Pronto 15/)
+  })
+
+  it('sem os campos novos (snapshot anterior) o bloco não quebra nem inventa as duas linhas', () => {
+    montar(<ProntidaoUfBloco dados={{ uf: 'SP', prontidao: { ...meta, uf: 'SP', agregado: agg, brasil: agg } } as never} snapshot={null} />)
+    expect(screen.queryByTestId('classes-por-rov')).toBeNull()
+  })
+
   it('ASN sem índice avisa que faltam pilares', () => {
     const p: ProntidaoAsn = { ...meta, total: null, classe: 'sem_dados', usuarios: 0, pilares_sem_dado: ['filtragem', 'anti_spoofing', 'validacao_global'], comparacao_uf: null, brasil: agg,
       pilares: { coordenacao: { score: 100, peso: 20, componentes: { peeringdb: { valor: 100, peso: 1, detalhe: null } } } } }
@@ -97,20 +113,24 @@ describe('Prontidão em segurança de roteamento', () => {
     expect(screen.getByTestId('texto-lista-nominal').textContent).toBe(TEXTO_SEM_LISTA_NOMINAL)
   })
 
-  it('página: cartão do MANRS só com agregados, supressão e atribuição', async () => {
+  it('página: cartão do MANRS só com agregados, sem supressão (avisos) e com atribuição', async () => {
     const celula = { asns: 100, usuarios: 1000, asns_participantes: 20, pct_asns: 20, usuarios_participantes: 600, pct_usuarios: 60 }
     const manrs = { snapshot_date: '2026-11-02', natureza: 'agregado', atribuicao: 'Provided by the MANRS with support from the Global Cyber Alliance', limites: 'Não é lista de organizações.',
       fonte: { descricao: 'Tabela pública do MANRS', url: 'https://manrs.org/netops/participants/', medido_em: '2026-10-01', coletado_em: '2026-11-02', termos: 'https://manrs.org/terms-of-service/' },
       regras: { minimo_asns_por_recorte: 5, comparacao: 'total e por porte' },
       brasil: { ...celula, organizacoes_com_asn_br: 12, comparacao_prontidao: { participantes: { asns_com_indice: 20, media_ponderada_usuarios: 71.2, mediana: 66, classes: agg.classes }, nao_participantes: { asns_com_indice: 80, media_ponderada_usuarios: 55.1, mediana: 48, classes: agg.classes } } },
-      por_faixa_porte: { ate_1000: celula }, por_uf: { SP: celula, AC: { asns: 15, usuarios: 10, suprimido: true, motivo: 'menos de 5 ASNs participantes' } } }
+      por_faixa_porte: { ate_1000: celula }, por_uf: { SP: celula, AC: { asns: 15, usuarios: 10, asns_participantes: 2, pct_asns: 13.3, usuarios_participantes: 6, pct_usuarios: 60, n_asns_com_dado: 2, peso_top1: 0.7, avisos: ['poucos_casos', 'maior_integrante'] }, RR: { asns: 9, usuarios: 5, suprimido: true, motivo: 'menos de 5 ASNs participantes' } } }
     server.use(http.get('*/api/v1/prontidao/resumo', () => HttpResponse.json({ ...meta, escopo: { pais: 'BR' }, agregado: agg, por_uf: { SP: agg }, por_faixa_porte: { ate_1000: agg }, manrs })))
     montar(<SegurancaRoteamentoPage />)
     await waitFor(() => expect(screen.getByTestId('manrs')).toBeTruthy())
     const cartao = screen.getByTestId('manrs')
     expect(cartao.textContent).toMatch(/20,0%.*dos 100 ASNs do Brasil/)
     expect(cartao.textContent).toMatch(/71,2.*55,1/)                       // prontidão de participantes × demais
-    expect(cartao.textContent).toMatch(/AC.*oculto/)                        // recorte pequeno suprimido
+    expect(cartao.textContent).toMatch(/AC13%\s*\(2\)/)                       // D6: o recorte pequeno aparece, com o n
+    expect(screen.getAllByTestId('aviso-poucos_casos').length).toBeGreaterThan(0)
+    expect(screen.getAllByTestId('aviso-maior_integrante').length).toBeGreaterThan(0)
+    expect(cartao.textContent).not.toMatch(/oculto/)
+    expect(cartao.textContent).toMatch(/RR.*não divulgado neste snapshot/)       // snapshot publicado antes da regra (imutável) ainda traz célula suprimida
     expect(cartao.textContent).toMatch(/Provided by the MANRS with support from the Global Cyber Alliance/)
     expect(cartao.textContent).not.toMatch(/organizações participantes:/i)
   })

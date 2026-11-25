@@ -16,6 +16,7 @@ import { BarraDeAbas } from '../features/entidade/EntityPage'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import { useOrdenacao } from '../lib/ordenacao'
+import { AvisosRecorte, textoPeso } from '../components/ui/AvisoRecorte'
 
 import { EstadoRpkiRotas, RpkiPublicacao } from '../features/panorama/AbaSeguranca'
 const num = (v: number | null | undefined, c = 1) => (v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c }))
@@ -41,8 +42,10 @@ function Tabela({ titulo, itens, rotulo }: { titulo: string; itens: Array<[strin
     recorte: ([k]) => rotulo(k),
     asns: ([, a]) => a.asns,
     com_indice: ([, a]) => a.asns_com_indice,
+    com_filtragem: ([, a]) => a.cobertura_pilares?.filtragem ?? null,
     media: ([, a]) => a.media_ponderada_usuarios,
     mediana: ([, a]) => a.mediana,
+    maior: ([, a]) => a.peso_top1 ?? null,
   })
   return (
     <section className={CARTAO_TABELA}>
@@ -53,15 +56,19 @@ function Tabela({ titulo, itens, rotulo }: { titulo: string; itens: Array<[strin
             <ThOrdenavel {...props('recorte')} className="text-left px-2 py-1">Recorte</ThOrdenavel>
             <ThOrdenavel {...props('asns')} alinhar="right" className="text-right px-2 py-1">ASNs</ThOrdenavel>
             <ThOrdenavel {...props('com_indice')} alinhar="right" className="text-right px-2 py-1">Com índice</ThOrdenavel>
+            <ThOrdenavel {...props('com_filtragem')} alinhar="right" className="text-right px-2 py-1">ASNs com Filtragem (ROV)</ThOrdenavel>
             <ThOrdenavel {...props('media')} alinhar="right" className="text-right px-2 py-1">Média ponderada</ThOrdenavel>
             <ThOrdenavel {...props('mediana')} alinhar="right" className="text-right px-2 py-1">Mediana</ThOrdenavel>
+            <ThOrdenavel {...props('maior')} alinhar="right" className="text-right px-2 py-1" extra={<Dica texto="Parcela do ASN com mais usuários estimados entre os ASNs com índice do recorte. Aviso quando há menos de 5 ASNs com índice ou um deles pesa 30% ou mais; o valor da linha continua à vista." rotulo="Maior ASN" />}>Maior ASN</ThOrdenavel>
             <th scope="col" className="px-2 py-1 w-56">Distribuição por classe</th>
           </tr></thead>
           <tbody>
             {ordenados.map(([k, a]) => (
               <tr key={k} className="border-t border-gray-100 align-middle">
                 <td className="px-2 py-1 font-medium">{rotulo(k)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(a.asns)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(a.asns_com_indice)}</td>
+                <td className="px-2 py-1 text-right tabular-nums">{inteiro(a.cobertura_pilares?.filtragem)}</td>
                 <td className="px-2 py-1 text-right tabular-nums">{num(a.media_ponderada_usuarios)}</td><td className="px-2 py-1 text-right tabular-nums">{num(a.mediana)}</td>
+                <td className="px-2 py-1 text-right tabular-nums">{a.peso_top1 == null ? '—' : `${num(100 * a.peso_top1, 0)}%`} <AvisosRecorte avisos={a.avisos} /></td>
                 <td className="px-2 py-1"><BarraClasses a={a} /></td>
               </tr>
             ))}
@@ -85,11 +92,12 @@ const MEDIDAS: Array<[string, string, string]> = [
 ]
 
 /** Valor do componente no agregado: média simples ou ponderada (% de ASNs ou de usuários); a ASPA é a fração de ASNs do recorte que publicam. */
-function medida(a: ProntidaoAgregado, c: string, pesoUsuarios: boolean): { v: number | null; n: number } {
+function medida(a: ProntidaoAgregado, c: string, pesoUsuarios: boolean): { v: number | null; n: number; peso: number | null; avisos: string[] } {
   const m = a.medicoes?.[c]
-  if (!m) return { v: null, n: 0 }
-  if (c === 'aspa') return { v: a.asns ? (100 * m.asns) / a.asns : null, n: m.asns }
-  return { v: pesoUsuarios ? m.media_ponderada_usuarios : m.media, n: m.asns }
+  if (!m) return { v: null, n: 0, peso: null, avisos: [] }
+  const extra = { peso: m.peso_top1 ?? null, avisos: m.avisos ?? [] }
+  if (c === 'aspa') return { v: a.asns ? (100 * m.asns) / a.asns : null, n: m.asns, ...extra }
+  return { v: pesoUsuarios ? m.media_ponderada_usuarios : m.media, n: m.asns, ...extra }
 }
 
 function TabelaMedicoes({ titulo, itens, rotulo, pesoUsuarios }: { titulo: string; itens: Array<[string, ProntidaoAgregado]>; rotulo: (k: string) => string; pesoUsuarios: boolean }) {
@@ -109,8 +117,8 @@ function TabelaMedicoes({ titulo, itens, rotulo, pesoUsuarios }: { titulo: strin
               <tr key={k} className="border-t border-gray-100">
                 <td className="px-2 py-1 font-medium">{rotulo(k)}</td>
                 {MEDIDAS.map(([id]) => {
-                  const { v, n } = medida(a, id, pesoUsuarios)
-                  return <td key={id} className="px-2 py-1 text-right tabular-nums" title={`${inteiro(n)} ASNs com dado`}>{v == null ? '—' : `${num(v, 0)}%`}<span className="block text-xs text-gray-400">{inteiro(n)}</span></td>
+                  const { v, n, peso, avisos } = medida(a, id, pesoUsuarios)
+                  return <td key={id} className="px-2 py-1 text-right tabular-nums" title={`${inteiro(n)} ASNs com dado`}>{v == null ? '—' : `${num(v, 0)}%`}<span className="block text-xs text-gray-500">{inteiro(n)}{peso != null && id !== 'aspa' ? ` · ${textoPeso(peso)}` : ''}</span><AvisosRecorte avisos={avisos} /></td>
                 })}
               </tr>
             ))}
@@ -121,17 +129,18 @@ function TabelaMedicoes({ titulo, itens, rotulo, pesoUsuarios }: { titulo: strin
   )
 }
 
-/** Participação em organizações do programa de operadores do MANRS: só agregados (termos do MANRS), com a atribuição exigida; recorte com poucos participantes vem suprimido. */
+/** Participação em organizações do programa de operadores do MANRS: só agregados (termos do MANRS), com a atribuição exigida; recorte com poucos participantes, ou dominado por um ASN, sai com aviso (nada é suprimido). */
 function CartaoManrs({ m }: { m: ManrsResumo }) {
   const b = m.brasil
   const comp = b.comparacao_prontidao
   const portes = Object.entries(m.por_faixa_porte).sort((a, c) => ORDEM_PORTE.indexOf(a[0]) - ORDEM_PORTE.indexOf(c[0]))
   const ufs = Object.entries(m.por_uf).sort((a, c) => (c[1].pct_asns ?? -1) - (a[1].pct_asns ?? -1))
-  const celula = (c: ManrsResumo['brasil']) => (c.suprimido ? <span className="text-gray-400" title={c.motivo}>oculto</span> : <>{num(c.pct_asns, 0)}% <span className="text-gray-400">({inteiro(c.asns_participantes)})</span></>)
+  // `suprimido` só existe em snapshots anteriores à regra sem supressão (D6); os publicados são imutáveis
+  const celula = (c: ManrsResumo['brasil']) => (c.suprimido ? <span className="text-gray-500" title={c.motivo}>não divulgado neste snapshot</span> : <>{num(c.pct_asns, 0)}% <span className="text-gray-500">({inteiro(c.asns_participantes)})</span> <AvisosRecorte avisos={c.avisos} /></>)
   return (
     <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3" data-testid="manrs">
       <h2 className="text-sm font-semibold text-gray-700">Participação no MANRS</h2>
-      {b.suprimido ? <p className="text-sm text-gray-600">Menos de {m.regras.minimo_asns_por_recorte} ASNs participantes: o total não é divulgado.</p> : (
+      {b.suprimido ? <p className="text-sm text-gray-600">Menos de {m.regras.minimo_asns_por_recorte} ASNs participantes: o total não é divulgado neste snapshot.</p> : (
         <div className="flex flex-wrap items-baseline gap-x-8 gap-y-1 text-sm">
           <div><span className="text-3xl font-semibold tabular-nums">{num(b.pct_asns, 1)}%</span> <span className="text-gray-500">dos {inteiro(b.asns)} ASNs do Brasil ({inteiro(b.asns_participantes)}) estão em organizações participantes</span></div>
           <div className="text-gray-600"><span className="tabular-nums">{num(b.pct_usuarios, 1)}%</span> dos usuários estimados do APNIC nesses ASNs · {inteiro(b.organizacoes_com_asn_br)} organizações com ASN no Brasil</div>
@@ -147,7 +156,7 @@ function CartaoManrs({ m }: { m: ManrsResumo }) {
           <table className="min-w-full"><tbody>{portes.map(([k, c]) => <tr key={k} className="border-t border-gray-100"><td className="py-0.5">{PORTES[k] ?? k}</td><td className="py-0.5 text-right tabular-nums">{celula(c)}</td></tr>)}</tbody></table>
         </div>
         <div>
-          <h3 className="font-medium text-gray-700 mb-1">Por UF (% dos ASNs; “oculto” = menos de {m.regras.minimo_asns_por_recorte} participantes)</h3>
+          <h3 className="font-medium text-gray-700 mb-1">Por UF (% dos ASNs e, entre parênteses, os ASNs participantes; aviso com menos de {m.regras.minimo_asns_por_recorte} participantes ou um ASN com {Math.round((m.regras.peso_aviso ?? 0.3) * 100)}% ou mais dos usuários dos participantes)</h3>
           <div className="grid grid-cols-3 gap-x-4">{ufs.map(([k, c]) => <div key={k} className="flex justify-between border-t border-gray-100 py-0.5"><span>{k}</span><span className="tabular-nums">{celula(c)}</span></div>)}</div>
         </div>
       </div>
@@ -184,7 +193,8 @@ export function SegurancaRoteamentoPage() {
           <div><span className="text-3xl font-semibold tabular-nums">{num(br.media_ponderada_usuarios)}</span> <span className="text-gray-500">média do índice ponderada pelos usuários estimados do APNIC</span></div>
           <div className="text-gray-600">mediana {num(br.mediana)} · {inteiro(br.asns_com_indice)} de {inteiro(br.asns)} ASNs com índice</div>
         </div>
-        <BarraClasses a={br} />
+        <BarraClasses a={br} detalhe />
+        <ComoLer><p>A classe vem do índice, que soma os pilares <strong>medidos</strong> do ASN com os pesos das regras: pilar sem dado fica fora e os pesos dos demais são renormalizados. Por isso um ASN pode estar em "pronto" sem ter ROV medido (as duas linhas acima separam os casos) e a quantidade em cada classe depende de quantos ASNs têm ROV medido, que muda de um snapshot para outro: o ROV de um ASN só entra com pelo menos 100 amostras do APNIC na janela de 7 dias, e o volume de amostras da fonte muda de semana em semana. Compare classes entre snapshots só com a mesma cobertura do pilar Filtragem ({inteiro(br.cobertura_pilares.filtragem)} ASNs neste).</p></ComoLer>
         <p className="text-xs text-gray-500">ASNs com dado em cada pilar: {PILARES.map((id) => `${r.regras.pilares[id].nome} ${inteiro(br.cobertura_pilares[id])}`).join(' · ')}. O anti-spoofing só existe para os ASNs com testes do CAIDA Spoofer.</p>
       </section>
       {/* A publicação no RPKI e o estado das rotas no total do país (os mesmos números do Panorama técnico). */}
@@ -219,7 +229,7 @@ export function SegurancaRoteamentoPage() {
       </section>
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-2">
         <h2 className="text-titulo-3 text-gray-800">O que foi medido, por grupo</h2>
-        <ComoLer><p>Cada coluna é um componente do índice, entre os ASNs do recorte que têm o dado (o número pequeno abaixo do percentual é quantos são). Nos componentes sim/não é o % de ASNs com “sim”; nos demais, o valor médio da medição.
+        <ComoLer><p>Cada coluna é um componente do índice, entre os ASNs do recorte que têm o dado (o número pequeno abaixo do percentual é quantos são e, ao lado, a parcela do maior deles nos usuários estimados; o selo avisa quando são menos de 5 ou um deles pesa 30% ou mais. Nenhuma UF é ocultada). Nos componentes sim/não é o % de ASNs com “sim”; nos demais, o valor médio da medição.
           O anti-spoofing só existe para os ASNs com testes do CAIDA Spoofer; “sem bogon” só para os que têm ROV medido.</p></ComoLer>
         <div className="flex items-center gap-3 text-sm text-gray-600">
           <span>Contar:</span>

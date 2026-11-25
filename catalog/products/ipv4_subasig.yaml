@@ -28,7 +28,7 @@ campos:
   - ipv4_subasig → ipv4/subasignacoes.json.gz#vigia
 - nome: subasignacoes[] / eventos[] / ignoradas
   tipo: lista
-  significado: 'Registros (bloco, receptor, início, fim, validações com True, False ou null, em conformidade e pendentes) e eventos subasignacao_inicio e subasignacao_fim vistos entre snapshots.'
+  significado: 'Registros (bloco, receptor, início, fim, verificações feitas pelo OBINT com True, False ou null (não são decisão do Registro.br nem do LACNIC), `em_conformidade` (todas as verificações com True) e pendentes) e eventos subasignacao_inicio e subasignacao_fim vistos entre snapshots.'
   tratamento: Vazio até a fonte oficial existir. Esquema hipotético.
   publicado_em:
   - ipv4_subasig → ipv4/subasignacoes.json.gz#subasignacoes

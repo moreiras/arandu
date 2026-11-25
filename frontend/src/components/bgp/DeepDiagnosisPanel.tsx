@@ -1,21 +1,22 @@
 import type { AsDiagnosis, DeepVerdict } from '../../types/bgpStability'
 import { Link } from '../layout/LinkDatado'
 
+/** Padrões observados nos eventos de flap, em paleta neutra. A causa não é observável neste dado e não é afirmada (política editorial, BGP-E9). */
 const VERDICT_CFG: Record<DeepVerdict, { label: string; color: string; desc: string }> = {
   upstream_instability: {
-    label: 'Instabilidade de upstream',
-    color: 'bg-perigo-50 border-perigo-300 text-perigo-700',
-    desc:  'Prefixos flapam em sincronia e o mesmo AS upstream aparece na maioria dos eventos — o problema provavelmente está no provedor de trânsito, não neste AS.',
+    label: 'Um upstream aparece na maioria dos eventos',
+    color: 'bg-gray-100 border-gray-300 text-gray-800',
+    desc:  'Prefixos oscilam em sincronia e o mesmo AS upstream aparece na maioria dos eventos de anúncio. É o padrão observado; a causa não é observável neste dado.',
   },
   prefix_specific: {
-    label: 'Problema em prefixo específico',
-    color: 'bg-alerta-50 border-alerta-300 text-alerta-700',
-    desc:  'Apenas um ou poucos prefixos concentram o ruído — o restante do AS está estável. Possível rota estática, link dedicado ou configuração isolada.',
+    label: 'Atividade concentrada em poucos prefixos',
+    color: 'bg-gray-100 border-gray-300 text-gray-800',
+    desc:  'Um ou poucos prefixos concentram a atividade e o restante do AS tem pouca. É o padrão observado; a causa não é observável neste dado.',
   },
   origin_instability: {
-    label: 'Instabilidade de origem',
-    color: 'bg-aviso-50 border-aviso-300 text-aviso-700',
-    desc:  'Prefixos flapam de forma independente sem upstream dominante — ruído gerado internamente, possivelmente por timers, sessões BGP instáveis ou scripts de anúncio.',
+    label: 'Prefixos oscilam de forma independente',
+    color: 'bg-gray-100 border-gray-300 text-gray-800',
+    desc:  'Prefixos oscilam de forma independente, sem upstream dominante. É o padrão observado; a causa não é observável neste dado.',
   },
 }
 
@@ -39,11 +40,11 @@ export function DeepDiagnosisPanel({ diagnosis: d }: Props) {
     <div className="space-y-3">
       <div>
         <h2 className="text-base font-semibold text-gray-800">Diagnóstico aprofundado</h2>
-        <p className="text-xs text-gray-400 mt-0.5">Análise de causa raiz com AS_PATH completo dos eventos de flap</p>
+        <p className="text-xs text-gray-400 mt-0.5">Padrões observados nos eventos de flap, com o AS_PATH completo (a causa não é observável neste dado)</p>
       </div>
 
       {/* Veredito */}
-      <div className={`rounded-lg border px-4 py-3 ${verdictCfg.color.replace('text-', 'border-').replace('bg-', 'border-')} ${verdictCfg.color}`}>
+      <div className={`rounded-lg border px-4 py-3 ${verdictCfg.color}`}>
         <div className="flex items-start gap-2">
           <VerdictBadge verdict={d.verdict} />
         </div>
@@ -74,10 +75,10 @@ export function DeepDiagnosisPanel({ diagnosis: d }: Props) {
         </div>
       </div>
 
-      {/* Upstream suspeito */}
+      {/* Upstream dominante */}
       {d.suspected_upstream_asn && (
         <div className="text-xs text-gray-600 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100">
-          <span className="font-medium">Upstream suspeito: </span>
+          <span className="font-medium">Upstream dominante: </span>
           <Link
             to={`/asn/${d.suspected_upstream_asn}`}
             className="text-primario-600 hover:underline font-mono"

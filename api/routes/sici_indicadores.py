@@ -4,11 +4,12 @@
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 """
-Rankings e omissão de declaração do SICI.
+Rankings do SICI e outorgas sem declaração.
 
   * `GET /ranking/operadoras` — operadoras por acessos declarados, parcela, variação ou declínio, no país ou numa UF.
   * `GET /ranking/municipios` — municípios por acessos, concentração (HHI) ou variação.
-  * `GET /omissao-sici` — outorgas SCM sem acessos declarados no mês (com os usuários estimados pela APNIC) ou CNPJs que pararam de declarar.
+  * `GET /sem-declaracao-sici` — outorgas SCM sem acessos declarados no mês (com os usuários estimados pela APNIC) ou CNPJs que pararam de declarar.
+    O nome anterior, `GET /omissao-sici`, segue como alias (`Deprecation` + `Link`, `aviso_depreciacao` no corpo; D12).
 
 Rankings de dado declarado ou medido, sem juízo (política editorial). Cada resposta traz o critério, o mês de referência da declaração
 e a data do snapshot. A prévia (limit ≤ 100, página 1) é aberta na área avançada; ampliar exige login (api/auth/access_policy.py).
@@ -24,14 +25,14 @@ from api.services import sici_indicadores as s
 router = APIRouter()
 
 
-def _docs(request: Request, date: Optional[str], omissao: bool = False) -> tuple[dict, Optional[dict]]:
+def _docs(request: Request, date: Optional[str], sem_declaracao: bool = False) -> tuple[dict, Optional[dict]]:
     store = request.app.state.store
     d = store.resolve_date(date)
     if d is None:
         raise HTTPException(404, "Nenhum snapshot disponível")
     ind = store.sici_indicadores(d)
-    om = store.omissao_sici(d)
-    if not ind or (omissao and not om):
+    om = store.sem_declaracao_sici(d)
+    if not ind or (sem_declaracao and not om):
         raise HTTPException(404, f"Indicadores do SICI não publicados no snapshot {d}.")
     return ind, om
 
@@ -51,6 +52,8 @@ Operadoras (CNPJ) ordenadas por um critério de dado **declarado**: `acessos`, `
 `var_aa_pct`/`var_aa_abs` (12 meses), `var_mm_pct` (mês) ou `declinio` (meses seguidos de queda). Com `uf`, só os acessos naquela UF
 (a variação é da operadora no país e fica de fora). `asc=true` inverte. Mês de referência e snapshot em toda resposta.
 Ordens aceitas: {', '.join(s.ORDENS_OPERADORA)}. HHI e parcelas são sobre acessos declarados, não sobre receita.
+
+Não há piso: nenhuma operadora sai da lista. Cada linha traz a variação em 12 meses em acessos (`var_aa_abs`, `var_aa_pct`), a base dela (`base_aa`, acessos no mesmo mês do ano anterior) e `base_pequena` (base abaixo de `base_pequena_abaixo_de`, 1.000 acessos: só rótulo). Quem não tem percentual (base 0) fica no fim, em qualquer sentido.
 """,
 )
 def ranking_operadoras(
@@ -77,7 +80,7 @@ def ranking_municipios(
 
 
 @router.get(
-    "/omissao-sici",
+    "/sem-declaracao-sici",
     summary="Outorgas SCM sem acessos declarados ao SICI no mês",
     description="""
 `tipo=outorga_sem_declaracao` (padrão): CNPJs com outorga SCM sem acessos declarados no mês de referência, em ordem de usuários estimados (APNIC) dos
@@ -86,7 +89,7 @@ declarou; ausente = CNPJ sem grupo societário). `tipo=parou_de_declarar`: CNPJs
 declaração, sem causa nem intenção. Metodologia na página Rankings.
 """,
 )
-def omissao_sici(
+def sem_declaracao_sici(
     request: Request, date: Optional[str] = Query(None), tipo: str = Query("outorga_sem_declaracao"),
     uf: Optional[str] = Query(None, description="UF da sede (cadastro SCM). Em `parou_de_declarar`, 400 se o snapshot não tem a UF."),
     classe: Optional[str] = Query(None),
@@ -94,8 +97,21 @@ def omissao_sici(
                                          "declarou) ou `desconhecido` (CNPJ sem grupo societário). Omitido = todos."),
     limit: int = Query(25, ge=1, le=500), page: int = Query(1, ge=1),
 ) -> dict:
-    ind, om = _docs(request, date, omissao=True)
-    return _ok(s.omissao, om, ind, tipo, uf, classe, grupo_declara, limit, (page - 1) * limit)
+    ind, om = _docs(request, date, sem_declaracao=True)
+    return _ok(s.sem_declaracao, om, ind, tipo, uf, classe, grupo_declara, limit, (page - 1) * limit)
+
+
+def sem_declaracao_sici_alias(
+    request: Request, date: Optional[str] = Query(None), tipo: str = Query("outorga_sem_declaracao"), uf: Optional[str] = Query(None),
+    classe: Optional[str] = Query(None), grupo_declara: Optional[str] = Query(None),
+    limit: int = Query(25, ge=1, le=500), page: int = Query(1, ge=1),
+) -> dict:
+    resposta = sem_declaracao_sici(request, date, tipo, uf, classe, grupo_declara, limit, page)
+    return {**resposta, "aviso_depreciacao": "Rota renomeada: use GET /api/v1/sem-declaracao-sici (mesmos parâmetros e resposta). Este nome antigo segue respondendo por um período e será removido depois de duas versões."}
+
+
+router.add_api_route("/omissao-sici", sem_declaracao_sici_alias, methods=["GET"], summary="Alias de /sem-declaracao-sici (nome antigo)",
+                     description="Nome anterior de `GET /sem-declaracao-sici`, mantido como alias (D12); a resposta traz `aviso_depreciacao`. Use a rota nova.")
 
 
 @router.get(

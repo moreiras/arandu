@@ -30,7 +30,7 @@ campos:
 - nome: brasil / por_uf / por_faixa_porte / por_operadora
   tipo: dict
   significado: Por grupo (país, UF, porte por usuários estimados do APNIC, operadora), ASNs por classe, média ponderada pelos usuários estimados, mediana e cobertura de cada pilar.
-  tratamento: Agregados. A lista por ASN é outra visão, pública e com ordem padrão por ASN (`prontidao_asn`). Operadora = raiz do CNPJ do ASN.
+  tratamento: Agregados, nenhum recorte suprimido (D6). Cada um traz `n_asns_com_dado`, `peso_top1` (parcela do ASN com mais usuários entre os que têm índice) e `avisos` (`poucos_casos` com menos de 5; `maior_integrante` com 30% ou mais); `medicoes[componente]` traz os mesmos três campos. `classes_com_rov` e `classes_sem_rov` separam as classes por haver ROV medido (a soma é `classes`). A lista por ASN é outra visão, pública e com ordem padrão por ASN (`prontidao_asn`). Operadora = raiz do CNPJ do ASN.
   publicado_em:
   - prontidao → prontidao/asns.json.gz#por_uf
   - prontidao → prontidao/asns.json.gz#por_faixa_porte

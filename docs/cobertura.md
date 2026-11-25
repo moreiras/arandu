@@ -138,7 +138,6 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /multas/empresas` | `query:multas_empresa` | ✔ |  |
 | `GET /multas/resumo` | `query:multas_empresa` | ✔ |  |
 | `GET /municipios/{ibge}` | `municipio_detalhe` | ✔ |  |
-| `GET /omissao-sici` | `query:omissao_sici` | ✔ |  |
 | `GET /operadoras/{cnpj}` | `operadora_detalhe` | ✔ |  |
 | `GET /outorgas` | `outorga_lista` | ✔ |  |
 | `GET /outorgas/map` | — | ✔ | MCP: blob de visualização (GeoJSON); fora do MCP |
@@ -171,6 +170,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /satelites/resumo` | `query:satelites_direitos` | ✔ |  |
 | `GET /schema` | `describe_schema` | ✔ |  |
 | `GET /seguranca/resumo` | `query:seguranca_asn` | ✔ |  |
+| `GET /sem-declaracao-sici` | `query:sem_declaracao_sici` | ✔ |  |
 | `GET /snapshots` | `historico_snapshots` | ✔ |  |
 | `GET /snapshots/diff` | `historico_mudancas` | ✔ |  |
 | `GET /snapshots/{date_str}` | `historico_snapshots` | ✔ |  |

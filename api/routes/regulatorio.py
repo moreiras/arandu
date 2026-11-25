@@ -100,11 +100,11 @@ def multas_resumo(request: Request, date: Optional[str] = Query(None)) -> dict:
     summary="Multas constituídas por empresa (raiz do CNPJ) e serviço",
     description="""
 Uma linha por empresa (raiz do CNPJ: matriz e filiais) e grupo de serviço, com multas, valor original, pago, saldo devedor atualizado, situações (Quitado, Devedor, Parcial) e primeiro e último
-ano de aplicação. `grupo` filtra por SCM, SMP, STFC ou SeAC; `q` busca no nome ou na raiz do CNPJ; `ordem` = `saldo`, `multas`, `original` ou `pago`. Só pessoa jurídica.
+ano de aplicação. `grupo` filtra por SCM, SMP, STFC ou SeAC; `q` busca no nome ou na raiz do CNPJ; `ordem` = `empresa` (padrão: ordem alfabética pelo nome, neutra), `saldo`, `multas`, `original` ou `pago` (estas, do maior para o menor, por escolha de quem consulta); a resposta traz a regra em `regra_ordem`. **Multa constituída não é condenação definitiva.** Só pessoa jurídica.
 """,
 )
 def multas_empresas(
-    request: Request, grupo: Optional[str] = Query(None, description="SCM, SMP, STFC ou SeAC."), q: Optional[str] = Query(None, max_length=80), ordem: str = Query("saldo"),
+    request: Request, grupo: Optional[str] = Query(None, description="SCM, SMP, STFC ou SeAC."), q: Optional[str] = Query(None, max_length=80), ordem: str = Query("empresa"),
     date: Optional[str] = Query(None), limit: int = Query(25, ge=1, le=500), page: int = Query(1, ge=1),
 ) -> dict:
     try:

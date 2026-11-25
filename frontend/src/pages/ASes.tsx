@@ -76,7 +76,7 @@ const COLS: ColDef[] = [
   {
     key: 'pct_v6',
     label: '%IPv6',
-    tooltip: 'Percentual de usuários com IPv6 = Usu. v6 ÷ Usuários totais × 100 (fonte: APNIC, janela 60 dias). Verde ≥70% · Amarelo 50–70% · Vermelho 20–50% · Cinza 10–20%',
+    tooltip: 'Percentual de usuários com IPv6 = Usu. v6 ÷ Usuários totais × 100 (fonte: APNIC, janela 60 dias). Abaixo de 1.000 usuários estimados a linha leva o selo "amostra pequena": é só um rótulo, a lista não é filtrada nem reordenada por ele',
     align: 'right',
     w: 'w-[54px]',
   },
@@ -151,14 +151,14 @@ const COL_PRONTIDAO: ColDef = {
   label: 'Prontidão',
   tooltip: 'Índice de prontidão em segurança de roteamento (0 a 100): soma ponderada de medições de terceiros (ROV, anti-spoofing, IRR/PeeringDB, ROA). Não é veredito sobre a empresa. Pilar sem dado é “não medido” e fica fora do índice e da classe; “n/4” diz quantos pilares foram medidos. A ordem padrão da lista é por ASN. Abra o AS para ver os pilares.',
   align: 'right',
-  w: 'w-[68px]',
+  w: 'w-[140px]',
 }
 
-const CLASSE_PRONTIDAO: Record<string, string> = {
-  pronto: 'bg-ok-100 text-ok-700',
-  em_progresso: 'bg-aviso-100 text-aviso-700',
-  atrasado: 'bg-perigo-100 text-perigo-700',
-}
+/** Classe em texto, sem cor de avaliação: o fundo é o mesmo para todas (ASES-E9). */
+const ROTULO_CLASSE_PRONTIDAO: Record<string, string> = { pronto: 'pronto', em_progresso: 'em progresso', atrasado: 'atrasado' }
+
+/** Abaixo disto os usuários APNIC estimados são poucos para a porcentagem de IPv6 (D6): só um selo, a ordem não muda. */
+const AMOSTRA_PEQUENA_USUARIOS = 1000
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -171,14 +171,6 @@ function fmtCnpj(c: string | null | undefined): string {
   const d = (c ?? '').replace(/\D/g, '')
   if (d.length !== 14) return c || '—'
   return `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12)}`
-}
-
-function v6PctClass(pct: number): string {
-  if (pct >= 70) return 'text-ok-700 font-semibold'
-  if (pct >= 50) return 'text-aviso-600 font-semibold'
-  if (pct >= 20) return 'text-perigo-600'
-  if (pct >= 10) return 'text-gray-500'
-  return 'text-gray-400'
 }
 
 function SortArrow({ active, desc }: { active: boolean; desc: boolean }) {
@@ -263,13 +255,6 @@ function ASNSearch({ date, onNavigate }: { date: string | null; onNavigate: () =
 
 // ─── Table row ───────────────────────────────────────────────────────────────
 
-function eppdColor(v: number): string {
-  if (v > 20) return 'text-perigo-600 font-semibold'
-  if (v > 5)  return 'text-alerta-500 font-medium'
-  if (v > 1)  return 'text-aviso-600'
-  return 'text-gray-500'
-}
-
 function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stability?: StabilitySummary; comProntidao?: boolean }) {
   const pct = entry.pct_v6 ?? null
   const epppd = stability?.epppd ?? null
@@ -304,9 +289,15 @@ function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stabi
         {pct == null ? (
           <span className="text-gray-400">—</span>
         ) : (
-          <span className={v6PctClass(pct)}>
-            {pct.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
-          </span>
+          <>
+            <span className="text-gray-800">{pct.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%</span>
+            {entry.apnic_users != null && entry.apnic_users < AMOSTRA_PEQUENA_USUARIOS && (
+              <span className="block text-xs leading-tight text-gray-600" data-testid="amostra-pequena"
+                title={`${fmtN(entry.apnic_users)} usuários APNIC estimados, menos de ${fmtN(AMOSTRA_PEQUENA_USUARIOS)}: a porcentagem tem base pequena. É só um rótulo; a linha fica onde está.`}>
+                amostra pequena
+              </span>
+            )}
+          </>
         )}
       </td>
       <td className="px-2 py-1.5 text-right tabular-nums">
@@ -325,7 +316,7 @@ function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stabi
       </td>
       <td className="px-2 py-1.5 text-right tabular-nums">
         {(entry.ixps_origin_v4_count ?? 0) > 0 ? (
-          <span className="text-ok-700 font-medium">{entry.ixps_origin_v4_count}</span>
+          <span className="text-gray-700 font-medium">{entry.ixps_origin_v4_count}</span>
         ) : (
           <span className="text-gray-400">—</span>
         )}
@@ -334,7 +325,7 @@ function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stabi
         {entry.has_rpki == null ? (
           <span className="text-gray-400 text-xs">—</span>
         ) : entry.has_rpki ? (
-          <span className="inline-block px-1.5 py-0.5 rounded text-xs font-semibold bg-ok-100 text-ok-700">sim</span>
+          <span className="inline-block px-1.5 py-0.5 rounded text-xs font-semibold bg-primario-100 text-primario-700">sim</span>
         ) : (
           <span className="inline-block px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-400">não</span>
         )}
@@ -374,7 +365,7 @@ function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stabi
       </td>
       <td className="px-2 py-1.5 text-right tabular-nums">
         {(entry.external_ixps_count ?? 0) > 0 ? (
-          <span className="text-aviso-700 font-medium">{entry.external_ixps_count}</span>
+          <span className="text-gray-700 font-medium">{entry.external_ixps_count}</span>
         ) : (
           <span className="text-gray-400">—</span>
         )}
@@ -384,7 +375,7 @@ function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stabi
           <span className="text-gray-300">—</span>
         ) : (
           <span
-            className={eppdColor(epppd)}
+            className="text-gray-700"
             title={stability ? `v6: ${stability.epppd_v6} · v4: ${stability.epppd_v4}` : undefined}
           >
             {epppd < 1 ? epppd.toFixed(2) : epppd < 10 ? epppd.toFixed(1) : epppd.toFixed(0)}
@@ -396,9 +387,10 @@ function ASRow({ entry, stability, comProntidao }: { entry: ASNIndexEntry; stabi
           {entry.prontidao_indice == null ? (
             <span className="text-gray-500 text-xs" title="Sem dados suficientes: nenhum pilar medido ou menos que o mínimo para o índice">não medido</span>
           ) : (
-            <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-semibold ${CLASSE_PRONTIDAO[entry.prontidao_classe ?? ''] ?? 'bg-gray-100 text-gray-500'}`} title={`${entry.prontidao_classe?.replace('_', ' ')}${entry.prontidao_pilares_medidos != null ? `, ${entry.prontidao_pilares_medidos} de 4 pilares medidos` : ''}`}>
-              {entry.prontidao_indice.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
-              {entry.prontidao_pilares_medidos != null && <span className="ml-1 font-normal opacity-80">{entry.prontidao_pilares_medidos}/4</span>}
+            <span className="inline-block whitespace-nowrap px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-800" title={entry.prontidao_pilares_medidos != null ? `${entry.prontidao_pilares_medidos} de 4 pilares medidos; pilar sem dado fica fora do índice e da classe` : undefined}>
+              <span className="font-semibold">{entry.prontidao_indice.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
+              {entry.prontidao_classe && <> · {ROTULO_CLASSE_PRONTIDAO[entry.prontidao_classe] ?? entry.prontidao_classe}</>}
+              {entry.prontidao_pilares_medidos != null && <span className="ml-1 text-gray-600">{entry.prontidao_pilares_medidos}/4</span>}
             </span>
           )}
         </td>

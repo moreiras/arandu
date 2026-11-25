@@ -1027,8 +1027,8 @@ def test_rotas_substituidas_avisam_com_deprecation_e_apontam_o_sucessor(api, ctx
     assert novo == api.get(f"/api/v1/analytics/ixps/{ctx['code']}/nearby", headers=h).json()
 
 
-def test_ranking_e_omissao_do_sici_trazem_criterio_mes_e_fato(api):
-    """Rankings de dado declarado, com critério e mês; a omissão descreve fato, com classe e usuários APNIC (cenário 2 plantado)."""
+def test_ranking_e_sem_declaracao_do_sici_trazem_criterio_mes_e_fato(api):
+    """Rankings de dado declarado, com critério e mês; a ausência de declaração é descrita como fato, com classe e usuários APNIC (cenário 2 plantado)."""
     r = api.get("/api/v1/ranking/operadoras", params={"limit": 5}, headers=ALLOWED).json()
     assert r["mes_referencia"] and r["criterio"].startswith("Acessos declarados") and r["metodologia"]
     ac = [x["acessos"] for x in r["items"]]
@@ -1043,7 +1043,7 @@ def test_ranking_e_omissao_do_sici_trazem_criterio_mes_e_fato(api):
     m = api.get("/api/v1/ranking/municipios", params={"ordem": "hhi", "limit": 5}, headers=ALLOWED).json()
     assert m["items"] and all(0 < x["hhi"] <= 10000 and x["lider"]["share"] > 0 for x in m["items"])
 
-    o = api.get("/api/v1/omissao-sici", params={"limit": 200}, headers=ALLOWED).json()
+    o = api.get("/api/v1/sem-declaracao-sici", params={"limit": 200}, headers=ALLOWED).json()
     assert o["tipo"] == "outorga_sem_declaracao" and o["mes_referencia"] and o["parametros"]["usuarios_min"] == 100
     classes = {x["classe"] for x in o["items"]}
     assert classes <= {"com_usuarios_apnic", "sem_usuarios", "nao_comparavel"}
@@ -1051,9 +1051,9 @@ def test_ranking_e_omissao_do_sici_trazem_criterio_mes_e_fato(api):
     assert com and all(x["usuarios_apnic"] >= 100 and x["asns"] for x in com)
     assert o["total"] == len(o["items"]) and sum(v["cnpjs_sem_declaracao"] for v in o["por_uf"].values()) == o["total"]
     classe = sorted(classes)[0]
-    filtrado = api.get("/api/v1/omissao-sici", params={"classe": classe, "limit": 200}, headers=ALLOWED).json()
+    filtrado = api.get("/api/v1/sem-declaracao-sici", params={"classe": classe, "limit": 200}, headers=ALLOWED).json()
     assert filtrado["items"] and all(x["classe"] == classe for x in filtrado["items"]) and filtrado["total"] <= o["total"]
-    assert api.get("/api/v1/omissao-sici", params={"tipo": "x"}, headers=ALLOWED).status_code == 400
+    assert api.get("/api/v1/sem-declaracao-sici", params={"tipo": "x"}, headers=ALLOWED).status_code == 400
     texto = str(o).lower()
     assert "sonegou" not in texto and "omitiu" not in texto and "@" not in texto
 
@@ -1069,7 +1069,7 @@ def test_perfis_com_include_indicadores_e_query_das_novas_colecoes(api, ctx):
     uf = api.get("/api/v1/ranking/operadoras", params={"limit": 1}, headers=ALLOWED).json()["items"][0]["uf_sede"]
     pu = api.get(f"/api/v1/ufs/{uf}", params={"include": "indicadores"}, headers=ALLOWED).json()
     assert pu["indicadores"]["acessos"] > 0 and "sem_declaracao" in pu["indicadores"]
-    for c, campo in (("indicadores_operadora", "share_br"), ("omissao_sici", "classe")):
+    for c, campo in (("indicadores_operadora", "share_br"), ("sem_declaracao_sici", "classe")):
         q = api.post(f"/api/v1/query/{c}", json={"limit": 3}, headers=ALLOWED)
         assert q.status_code == 200 and q.json()["items"] and campo in q.json()["items"][0], c
 
@@ -1162,7 +1162,7 @@ def test_route_servers_ptt_asn_ranking_e_colecao(api):
     ptt = api.get("/api/v1/ixps/za", params={"include": "route_servers"}, headers=ALLOWED).json()
     assert ptt["route_servers"]["resumo"] == za["resumo"]
 
-    rk = api.get("/api/v1/ranking/route-servers", params={"ixp": "za"}, headers=ALLOWED).json()
+    rk = api.get("/api/v1/ranking/route-servers", params={"ixp": "za", "criterio": "sessoes_down"}, headers=ALLOWED).json()
     assert rk["items"][0]["asn"] == membro["asn"] and rk["items"][0]["posicao"] == 1 and rk["items"][0]["down"] == 1 and rk["items"][0]["down_certo"] == 1 and rk["items"][0]["sessoes"] == 1
     assert "melhor" not in rk["criterio"] and "pior" not in rk["criterio"].lower()
     uso = api.get("/api/v1/ranking/route-servers", params={"ixp": "za", "criterio": "uso_limite"}, headers=ALLOWED).json()["items"]
@@ -1397,8 +1397,11 @@ def test_multas_espectro_e_satelites(api):
     r = api.get("/api/v1/multas/resumo", headers=ALLOWED).json()
     assert r["natureza"] == "cadastro_regulatorio" and "não é condenação definitiva" in r["limites"] and r["brasil"]["empresas"] == 5 and r["brasil"]["multas"] == 13
     assert set(r["por_grupo"]) == {"SCM", "SMP"} and r["por_grupo"]["SMP"]["multas"] == 10 and [a["ano"] for a in r["por_ano"]] == [2012, 2015, 2018, 2019, 2020, 2021]
-    todas = api.get("/api/v1/multas/empresas", params={"limit": 100}, headers=ALLOWED).json()
+    todas = api.get("/api/v1/multas/empresas", params={"limit": 100, "ordem": "saldo"}, headers=ALLOWED).json()
     assert todas["total"] == 5 and todas["items"][0]["saldo"] == 9000.0 and all(len(x["raiz"]) == 8 for x in todas["items"])
+    padrao = api.get("/api/v1/multas/empresas", params={"limit": 100}, headers=ALLOWED).json()          # D6: sem `ordem`, a ordem é alfabética, não por valor devido
+    assert padrao["ordem"] == "empresa" and [x["entidade"].casefold() for x in padrao["items"]] == sorted(x["entidade"].casefold() for x in padrao["items"])
+    assert "alfabética" in padrao["regra_ordem"] and padrao["aviso"] == "Multa constituída não é condenação definitiva." and "saldo" in todas["regra_ordem"]
     scm = api.get("/api/v1/multas/empresas", params={"grupo": "SCM"}, headers=ALLOWED).json()
     assert scm["total"] == 2 and api.get("/api/v1/multas/empresas", params={"grupo": "XX"}, headers=ALLOWED).status_code == 400
     assert api.get("/api/v1/multas/empresas", params={"ordem": "x"}, headers=ALLOWED).status_code == 400
@@ -1528,7 +1531,8 @@ def test_manrs_so_agregado_e_nao_vaza_organizacao_nem_asn(api, pipeline):
             return set(o) | set().union(*[chaves(v) for v in o.values()])
         return set().union(*[chaves(v) for v in o]) if isinstance(o, list) else set()
     assert not ({"org", "asns_lista", "cnpj", "nome"} & chaves(r)) and "participantes" not in r         # "participantes" só aparece dentro da comparação agregada
-    assert any(c.get("suprimido") for c in r["por_uf"].values()) or all(c["asns_participantes"] >= 5 for c in r["por_uf"].values())
+    assert not any(c.get("suprimido") for c in r["por_uf"].values())                          # D6: nada suprimido; o recorte pequeno traz o aviso
+    assert all(("poucos_casos" in c["avisos"]) == (c["asns_participantes"] < 5) for c in r["por_uf"].values())
     assert api.get("/api/v1/prontidao/resumo", headers=ALLOWED).json()["manrs"] == r
     # nenhuma rota por ASN, operadora ou UF ganha marca de participação
     for url in ("/api/v1/asns/64500?include=prontidao", "/api/v1/asns/64500", "/api/v1/ufs/SP?include=prontidao", "/api/v1/asns?br_only=true&include=prontidao&limit=50"):

@@ -66,13 +66,13 @@ def asn_route_servers(asn: int, request: Request, date: Optional[str] = Query(No
     "/ranking/route-servers",
     summary="Membros dos route servers ordenados por um número medido",
     description=f"""
-Membros (ASN × PTT) ordenados por `criterio` ({', '.join(r.CRITERIOS)}), do maior para o menor. `ixp` restringe a um PTT; `apenas_down=true` mantém só os que têm
+Membros (ASN × PTT) em ordem neutra por padrão (`criterio=ptt_asn`: PTT e ASN crescentes, todos os membros com sessão). Os outros critérios ({', '.join(c for c in r.CRITERIOS if c != r.CRITERIO_PADRAO)}) ordenam do maior para o menor número medido e só trazem quem tem o número. `ixp` restringe a um PTT; `apenas_down=true` mantém só os que têm
 todas as sessões down há 7 dias ou mais. Cada linha traz o nome cadastrado, as sessões up e down e o maior tempo de queda: dado medido no route server, sem causa
 nem juízo, com a data da coleta. O ASN também está em `/asns/{{asn}}/route-servers`.
 """,
 )
 def ranking_route_servers(
-    request: Request, date: Optional[str] = Query(None), criterio: str = Query("sessoes_down"), ixp: Optional[str] = Query(None),
+    request: Request, date: Optional[str] = Query(None), criterio: str = Query(r.CRITERIO_PADRAO), ixp: Optional[str] = Query(None),
     apenas_down: bool = Query(False), apenas_derrubados: bool = Query(False, include_in_schema=False, description="Alias antigo de `apenas_down`."), limit: int = Query(25, ge=1, le=500), page: int = Query(1, ge=1),
 ) -> dict:
     d = _data(request, date)

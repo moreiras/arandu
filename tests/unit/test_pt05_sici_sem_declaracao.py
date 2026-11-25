@@ -3,7 +3,7 @@
 # Este arquivo faz parte do Arandurape.
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-"""Omissão do SICI: `grupo_declara` exato e UF de quem parou de declarar (RANKINGS-E2, RANKINGS-E4)."""
+"""Sem declaração ao SICI: `grupo_declara` exato e UF de quem parou de declarar (RANKINGS-E2, RANKINGS-E4)."""
 
 import pytest
 
@@ -22,25 +22,25 @@ OM = {"snapshot_date": "d", "mes_referencia": "2026-09", "fonte": "f", "parametr
 @pytest.mark.parametrize("valor,esperado", [(None, {"t", "f", "n1", "n2"}), ("true", {"t"}), ("false", {"f"}), (False, {"f"}),
                                             ("desconhecido", {"n1", "n2"})])
 def test_grupo_declara_tem_semantica_exata(valor, esperado):
-    r = s.omissao(OM, {}, "outorga_sem_declaracao", None, None, valor, 50, 0)
+    r = s.sem_declaracao(OM, {}, "outorga_sem_declaracao", None, None, valor, 50, 0)
     assert {i["cnpj"] for i in r["items"]} == esperado
 
 
 def test_grupo_declara_tres_estados_somam_o_total_da_classe():
-    tot = lambda v: s.omissao(OM, {}, "outorga_sem_declaracao", None, "com_usuarios_apnic", v, 50, 0)["total"]   # noqa: E731
+    tot = lambda v: s.sem_declaracao(OM, {}, "outorga_sem_declaracao", None, "com_usuarios_apnic", v, 50, 0)["total"]   # noqa: E731
     assert tot("true") + tot("false") + tot("desconhecido") == tot(None) == 3
     with pytest.raises(s.IndicadoresErro):
-        s.omissao(OM, {}, "outorga_sem_declaracao", None, None, "talvez", 50, 0)
+        s.sem_declaracao(OM, {}, "outorga_sem_declaracao", None, None, "talvez", 50, 0)
 
 
 def test_parou_de_declarar_filtra_uf_ou_recusa():
     ind = {"parou_de_declarar": {"x": {"empresa": "X", "acessos_no_ultimo_mes": 10, "uf": "AC"}, "y": {"empresa": "Y", "acessos_no_ultimo_mes": 5, "uf": "SP"}}}
-    r = s.omissao(OM, ind, "parou_de_declarar", "ac", None, None, 50, 0)
+    r = s.sem_declaracao(OM, ind, "parou_de_declarar", "ac", None, None, 50, 0)
     assert r["total"] == 1 and r["items"][0]["cnpj"] == "x" and r["escopo"] == {"uf": "AC"}
-    assert s.omissao(OM, ind, "parou_de_declarar", None, None, None, 50, 0)["total"] == 2
+    assert s.sem_declaracao(OM, ind, "parou_de_declarar", None, None, None, 50, 0)["total"] == 2
     antigo = {"parou_de_declarar": {"x": {"empresa": "X", "acessos_no_ultimo_mes": 10}}}      # snapshot sem a UF: não devolve o nacional
     with pytest.raises(s.IndicadoresErro) as e:
-        s.omissao(OM, antigo, "parou_de_declarar", "AC", None, None, 50, 0)
+        s.sem_declaracao(OM, antigo, "parou_de_declarar", "AC", None, None, 50, 0)
     assert e.value.status == 400
 
 

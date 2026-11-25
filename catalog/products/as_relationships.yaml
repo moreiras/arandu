@@ -44,7 +44,7 @@ campos:
 - nome: relacoes[].estrato / p_calibrada
   tipo: str / float ou null
   significado: 'Só em p2c. `estrato` é a evidência independente do elo vista do provedor inferido: `ambos` (CAIDA concorda e a tripla está confirmada), `so_caida`, `so_tripla`, `conflito` (um confirma e o outro contradiz) ou `sem_evidencia`. `p_calibrada` é a taxa de acerto observada contra o ASPA (régua sem o ASPA como entrada) nesse estrato e família de endereço, só para `ambos` e `so_caida` com `n_vps` > 0; nos demais é null.'
-  tratamento: 'Medido: ECE da `p_calibrada` por validação cruzada por ASN de 0,0005 (v6) e 0,010 (v4); `so_tripla` tem 38 eventos e não é calibrável. CAIDA e tripla vêm dos mesmos coletores do ARC: são independentes do prior de distância ao clique, não dos dados de caminho. O ASPA tende a subestimar por omissão. Tabela e data em `estratos` do documento.'
+  tratamento: 'Medido: ECE da `p_calibrada` por validação cruzada por ASN de 0,0005 (v6) e 0,010 (v4); `so_tripla` tem 38 eventos e não é calibrável. CAIDA e tripla vêm dos mesmos coletores do ARC: são independentes do prior de distância ao clique, não dos dados de caminho. O ASPA tende a subestimar por ausência de registros. Tabela e data em `estratos` do documento.'
   publicado_em:
   - as_relationships → as_relationships.json.gz#relacoes
 - nome: relacoes[].afi

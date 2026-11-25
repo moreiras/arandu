@@ -203,7 +203,7 @@ def recurso_tendencias() -> str:
 
 @mcp.resource(SITE.uri("seguranca/manrs"), mime_type="application/json")
 def recurso_manrs() -> str:
-    """Participação agregada de ASNs e usuários do Brasil no programa de operadores do MANRS (total, por porte e por UF; recortes com menos de 5 participantes suprimidos) e a comparação agregada de prontidão. Atribuição: "Provided by the MANRS with support from the Global Cyber Alliance"."""
+    """Participação agregada de ASNs e usuários do Brasil no programa de operadores do MANRS (total, por porte e por UF; nenhum recorte suprimido: os pequenos ou dominados por um ASN trazem `avisos`, `n_asns_com_dado` e `peso_top1`) e a comparação agregada de prontidão. Atribuição: "Provided by the MANRS with support from the Global Cyber Alliance"."""
     d = _resolve(None)
     return _json(_store.manrs_doc(d) or {"snapshot_date": d, "disponivel": False})
 

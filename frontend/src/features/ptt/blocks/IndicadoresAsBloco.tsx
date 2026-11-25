@@ -3,12 +3,12 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { MetGroup, MetCell, PctCell, num, pct } from '../ui'
+import { MetGroup, MetCell, PctCell, num } from '../ui'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
 
 export function IndicadoresAsBloco({ dados }: BlocoProps<PttCtx>) {
-  const { v4, v6, par, dir, dif, org, cbrAsns, cftAsns, totalBrASNs, totalGlobalASNs } = dados
+  const { v4, v6, par, dir, org, cbrAsns, cftAsns, totalBrASNs, totalGlobalASNs } = dados
   return (
     <MetGroup title="AS" borderClass="border-gray-200" titleClass="text-gray-500">
       <MetCell
@@ -20,12 +20,6 @@ export function IndicadoresAsBloco({ dados }: BlocoProps<PttCtx>) {
         label="Peers diretos"
         value={num(dir)}
         tooltip="ASNs em peering direto com o Route Server deste IXP — união de v6 e v4"
-      />
-      <MetCell
-        label="Participantes vs diretos"
-        value={dif != null ? pct(dif, 1) : '—'}
-        tooltip="(Participantes − Peers diretos) / Peers diretos — quantos participantes a mais em relação aos peers diretos"
-        color={dif != null ? (dif > 50 ? 'text-aviso-600' : 'text-gray-700') : undefined}
       />
       <MetCell
         label="Originadores"

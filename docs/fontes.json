@@ -1143,7 +1143,7 @@
           "sensivel": false
         }
       ],
-      "limites": "Autodeclarado; ausência pode ser omissão, não inexistência. Um CNPJ pode ter vários ASNs (acessos_compartilhados).",
+      "limites": "Autodeclarado; a ausência de declaração de um CNPJ num mês diz só que não há linha dele naquele mês, não que não tenha acessos. Um CNPJ pode ter vários ASNs (acessos_compartilhados).",
       "retencao": {
         "bruto": "cache incremental (1 arquivo por mês, imutável)",
         "normalizado": "52 semanas"
@@ -8120,7 +8120,7 @@
           "nome": "relacoes[].estrato / p_calibrada",
           "tipo": "str / float ou null",
           "significado": "Só em p2c. `estrato` é a evidência independente do elo vista do provedor inferido: `ambos` (CAIDA concorda e a tripla está confirmada), `so_caida`, `so_tripla`, `conflito` (um confirma e o outro contradiz) ou `sem_evidencia`. `p_calibrada` é a taxa de acerto observada contra o ASPA (régua sem o ASPA como entrada) nesse estrato e família de endereço, só para `ambos` e `so_caida` com `n_vps` > 0; nos demais é null.",
-          "tratamento": "Medido: ECE da `p_calibrada` por validação cruzada por ASN de 0,0005 (v6) e 0,010 (v4); `so_tripla` tem 38 eventos e não é calibrável. CAIDA e tripla vêm dos mesmos coletores do ARC: são independentes do prior de distância ao clique, não dos dados de caminho. O ASPA tende a subestimar por omissão. Tabela e data em `estratos` do documento.",
+          "tratamento": "Medido: ECE da `p_calibrada` por validação cruzada por ASN de 0,0005 (v6) e 0,010 (v4); `so_tripla` tem 38 eventos e não é calibrável. CAIDA e tripla vêm dos mesmos coletores do ARC: são independentes do prior de distância ao clique, não dos dados de caminho. O ASPA tende a subestimar por ausência de registros. Tabela e data em `estratos` do documento.",
           "publicado_em": [
             "as_relationships → as_relationships.json.gz#relacoes"
           ],
@@ -10144,7 +10144,7 @@
         }
       ],
       "cenarios_de_teste": [],
-      "limites": "Cruza declaração (SICI, sem erro amostral) com estimativa amostral (TIC Domicílios): a classe sai do intervalo de 95% da razão e fica `indeterminado` com CV acima de 30%. Diferença entre demanda e oferta é divergência entre fontes com definições e períodos diferentes, não erro nem omissão das prestadoras.",
+      "limites": "Cruza declaração (SICI, sem erro amostral) com estimativa amostral (TIC Domicílios): a classe sai do intervalo de 95% da razão e fica `indeterminado` com CV acima de 30%. Diferença entre demanda e oferta é divergência entre fontes com definições e períodos diferentes, não erro nem ausência de declaração das prestadoras.",
       "pendencias": []
     },
     {
@@ -10933,7 +10933,7 @@
         {
           "nome": "subasignacoes[] / eventos[] / ignoradas",
           "tipo": "lista",
-          "significado": "Registros (bloco, receptor, início, fim, validações com True, False ou null, em conformidade e pendentes) e eventos subasignacao_inicio e subasignacao_fim vistos entre snapshots.",
+          "significado": "Registros (bloco, receptor, início, fim, verificações feitas pelo OBINT com True, False ou null (não são decisão do Registro.br nem do LACNIC), `em_conformidade` (todas as verificações com True) e pendentes) e eventos subasignacao_inicio e subasignacao_fim vistos entre snapshots.",
           "tratamento": "Vazio até a fonte oficial existir. Esquema hipotético.",
           "publicado_em": [
             "ipv4_subasig → ipv4/subasignacoes.json.gz#subasignacoes",
@@ -11517,8 +11517,8 @@
         {
           "nome": "brasil / por_faixa_porte / por_uf",
           "tipo": "dict",
-          "significado": "ASNs e usuários do recorte, ASNs participantes, % dos ASNs e % dos usuários estimados do APNIC; recorte com menos de 5 participantes vem `suprimido`.",
-          "tratamento": "Comparação de prontidão (participantes × não participantes) só no total e por porte, com pelo menos 5 ASNs com índice em cada lado.",
+          "significado": "ASNs e usuários do recorte, ASNs participantes, % dos ASNs e % dos usuários estimados do APNIC; `n_asns_com_dado` (ASNs participantes), `peso_top1` (parcela do maior ASN participante nos usuários dos participantes) e `avisos` (`poucos_casos` com menos de 5; `maior_integrante` com 30% ou mais). Nenhum recorte é suprimido (D6); só snapshots anteriores trazem células `suprimido`.",
+          "tratamento": "Comparação de prontidão (participantes × não participantes) só no total e por porte, com o n e os avisos de cada lado.",
           "publicado_em": [
             "manrs_agregado → manrs/resumo.json.gz#brasil",
             "manrs_agregado → manrs/resumo.json.gz#por_faixa_porte",
@@ -11529,7 +11529,7 @@
         {
           "nome": "atribuicao / fonte / regras / limites / natureza",
           "tipo": "dict",
-          "significado": "A frase de atribuição exigida pelos termos, a fonte com data da medição, a regra de supressão e as limitações.",
+          "significado": "A frase de atribuição exigida pelos termos, a fonte com data da medição, as regras dos avisos e as limitações.",
           "publicado_em": [
             "manrs_agregado → manrs/resumo.json.gz#atribuicao",
             "manrs_agregado → manrs/resumo.json.gz#fonte",
@@ -12680,7 +12680,7 @@
           "nome": "brasil / por_uf / por_faixa_porte / por_operadora",
           "tipo": "dict",
           "significado": "Por grupo (país, UF, porte por usuários estimados do APNIC, operadora), ASNs por classe, média ponderada pelos usuários estimados, mediana e cobertura de cada pilar.",
-          "tratamento": "Agregados. A lista por ASN é outra visão, pública e com ordem padrão por ASN (`prontidao_asn`). Operadora = raiz do CNPJ do ASN.",
+          "tratamento": "Agregados, nenhum recorte suprimido (D6). Cada um traz `n_asns_com_dado`, `peso_top1` (parcela do ASN com mais usuários entre os que têm índice) e `avisos` (`poucos_casos` com menos de 5; `maior_integrante` com 30% ou mais); `medicoes[componente]` traz os mesmos três campos. `classes_com_rov` e `classes_sem_rov` separam as classes por haver ROV medido (a soma é `classes`). A lista por ASN é outra visão, pública e com ordem padrão por ASN (`prontidao_asn`). Operadora = raiz do CNPJ do ASN.",
           "publicado_em": [
             "prontidao → prontidao/asns.json.gz#por_uf",
             "prontidao → prontidao/asns.json.gz#por_faixa_porte",
@@ -13056,7 +13056,7 @@
           "nome": "rov.ufs[uf] / brasil",
           "tipo": "dict",
           "significado": "Usuários estimados, os com medida de ROV e os atrás de ASNs que validam ROV, por UF da sede do ASN.",
-          "tratamento": "ESTIMATIVA. Fração de testes da APNIC em que o AS valida ROV (mínimo de 100 amostras) × usuários estimados; a UF é a da sede do ASN.",
+          "tratamento": "ESTIMATIVA. Fração de testes da APNIC em que o AS valida ROV (mínimo de 100 amostras) × usuários estimados; a UF é a da sede do ASN. Nenhuma UF é suprimida (D6) e cada uma traz `n_asns_com_dado` (ASNs com medida), `peso_top1` (parcela do maior ASN nos usuários com medida) e `avisos` (`poucos_casos` com menos de 5; `maior_integrante` com 30% ou mais).",
           "publicado_em": [
             "rede_territorio → territorio/rede_territorio.json.gz#rov"
           ],
@@ -14052,7 +14052,7 @@
           "nome": "por_uf / por_faixa_porte / brasil",
           "tipo": "dict",
           "significado": "Contagem de ASNs, mediana e média ponderada de ROV e DNSSEC e distribuição em faixas neutras (até 10, 10 a 90, acima de 90), por UF e por porte (usuários estimados do APNIC; a faixa de acessos declarados ao SICI do CNPJ fica em `faixa_acessos_sici` de cada ASN).",
-          "tratamento": "Só ASNs com pelo menos 100 amostras; não é ranking de empresas.",
+          "tratamento": "Só ASNs com pelo menos 100 amostras; não é ranking de empresas. Nenhum recorte é suprimido (D6) com `rov` e `dnssec` trazem `n_asns_com_dado`, `peso_top1` (parcela do ASN com mais amostras) e `avisos` (`poucos_casos` com menos de 5; `maior_integrante` com 30% ou mais).",
           "publicado_em": [
             "seguranca_asn → seguranca/asns.json.gz#por_uf"
           ],
@@ -14504,7 +14504,7 @@
           "sici_indicadores.json.gz",
           "sici_serie_municipio.json.gz",
           "mercado_grupos.json.gz",
-          "omissao_sici.json.gz"
+          "sem_declaracao_sici.json.gz"
         ],
         "fragmentos": []
       },
@@ -14581,7 +14581,7 @@
           "nome": "ufs[uf] / municipios[ibge] / brasil",
           "tipo": "dict",
           "significado": "Acessos, HHI, número de operadoras, líder, variações, ganho e perda do ano.",
-          "tratamento": "HHI sobre acessos declarados.",
+          "tratamento": "HHI sobre acessos declarados. Nada é suprimido (D6) e `avisos` traz `poucos_casos` com menos de 5 operadoras; a parcela do líder (`lider.share`) fica à vista e não gera aviso próprio, por ser parte da medida. Nos mercados por grupo, `acessos`, `n_cnpjs`, `n_grupos`, `avisos_cnpj` e `avisos_grupo` (e `lider_grupo_share` na UF) dão a base de cada HHI.",
           "publicado_em": [
             "sici_indicadores → sici_indicadores.json.gz#municipios"
           ],
@@ -14602,7 +14602,7 @@
           "significado": "Outorga SCM sem acessos declarados no mês e a classe pelos usuários estimados dos ASNs do CNPJ.",
           "tratamento": "Usuários APNIC são estimativa (medição estatística); a classe nao_comparavel é CNPJ sem ASN.",
           "publicado_em": [
-            "sici_indicadores → omissao_sici.json.gz#itens"
+            "sici_indicadores → sem_declaracao_sici.json.gz#itens"
           ],
           "sensivel": false
         },
@@ -14612,7 +14612,7 @@
           "significado": "Outro CNPJ do mesmo grupo societário declarou acessos no mês.",
           "tratamento": "Evidência para quem lê a linha; grupo parcial não prova controle.",
           "publicado_em": [
-            "sici_indicadores → omissao_sici.json.gz#itens"
+            "sici_indicadores → sem_declaracao_sici.json.gz#itens"
           ],
           "sensivel": false
         },
@@ -14621,7 +14621,7 @@
           "tipo": "dict",
           "significado": "Contagem por UF das outorgas sem declaração, por classe, e soma dos usuários estimados.",
           "publicado_em": [
-            "sici_indicadores → omissao_sici.json.gz#por_uf"
+            "sici_indicadores → sem_declaracao_sici.json.gz#por_uf"
           ],
           "sensivel": false
         },
@@ -14631,7 +14631,7 @@
           "significado": "Data do snapshot e mês de referência da declaração.",
           "publicado_em": [
             "sici_indicadores → sici_indicadores.json.gz#mes_referencia",
-            "sici_indicadores → omissao_sici.json.gz#mes_referencia"
+            "sici_indicadores → sem_declaracao_sici.json.gz#mes_referencia"
           ],
           "sensivel": false
         },
@@ -14668,6 +14668,7 @@
         }
       ],
       "cenarios_de_teste": [],
+      "limites": "\"Sem declaração ao SICI em AAAA-MM\" quer dizer só que o CNPJ tem outorga SCM e não há acessos dele declarados naquele mês de referência; não indica causa nem intenção. A causa só aparece onde há dado e com selo (\"outro CNPJ do grupo declarou\", inferido do quadro societário). Nome anterior (D12), mantido como alias por um período e a remover depois de duas versões: arquivo `omissao_sici.json.gz` (os snapshots publicados antes de 2026-11 só têm este), collection `omissao_sici`, rota `GET /omissao-sici` e visão `?visao=omissao`. A API avisa com `Deprecation` e `aviso_depreciacao`; o MCP, com `aviso_obsoleta`.",
       "pendencias": []
     },
     {
@@ -16976,7 +16977,7 @@
       "replay": true,
       "continua": false,
       "destinos": [],
-      "descricao": "Passo do build do snapshot: participação de ASNs e usuários do Brasil em organizações do programa de operadores do MANRS, por UF e porte, e comparação agregada da prontidão. Só agregados, com atribuição e supressão de recortes com menos de 5 ASNs participantes (termos do MANRS)."
+      "descricao": "Passo do build do snapshot: participação de ASNs e usuários do Brasil em organizações do programa de operadores do MANRS, por UF e porte, e comparação agregada da prontidão. Só agregados, com atribuição (termos do MANRS); nenhum recorte é suprimido: o recorte com menos de 5 ASNs participantes, ou com um ASN de peso grande, sai com aviso."
     },
     {
       "id": "prontidao",

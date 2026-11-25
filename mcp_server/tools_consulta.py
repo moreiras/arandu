@@ -24,7 +24,7 @@ def describe_schema(collection: Optional[str] = None) -> dict:
     Args:
         collection: A collection (ex.: "asns", "municipios", "operadoras"). Omita para o índice (nome e descrição de cada uma).
     """
-    from api.query_catalogo import OPS_GUIDE, RECIPES, SCHEMA
+    from api.query_catalogo import COLECOES_ALIAS, OPS_GUIDE, RECIPES, SCHEMA
     from mcp_server import guia
     sintaxe = {
         "filter": '{"field": "uf", "op": "eq", "value": "SC"} ou {"and": [...]} / {"or": [...]} / {"not": ...}',
@@ -41,10 +41,11 @@ def describe_schema(collection: Optional[str] = None) -> dict:
     r = _store.query_schema(collection)                       # valida o nome e traz o bloco da collection
     # campos primeiro e só as receitas desta collection: com as 26 receitas de todas na frente (~20 KB), um cliente que corta a
     # resposta nunca veria os campos
-    receitas = [x for x in RECIPES if (x.get("args") or {}).get("collection") == collection]
-    return {"collection": collection, "descricao": r.get("description"), "chave": r.get("key"), "campos": r.get("fields"),
+    atual = COLECOES_ALIAS.get(collection, collection)          # nome antigo (D12): descreve a collection nova e avisa
+    receitas = [x for x in RECIPES if (x.get("args") or {}).get("collection") == atual]
+    return {"collection": atual, **({"aviso_obsoleta": r["aviso_obsoleta"]} if r.get("aviso_obsoleta") else {}), "descricao": r.get("description"), "chave": r.get("key"), "campos": r.get("fields"),
             **({"geo": r["geo"]} if r.get("geo") else {}), "sintaxe": sintaxe, "receitas": receitas,
-            "ferramenta_detalhe": guia.DETALHE_DA_COLLECTION.get(collection)}
+            "ferramenta_detalhe": guia.DETALHE_DA_COLLECTION.get(atual)}
 
 
 def _primeira_frase(texto: str, teto: int = 140) -> str:

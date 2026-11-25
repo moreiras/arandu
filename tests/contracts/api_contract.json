@@ -1975,6 +1975,7 @@
   },
   "GET /api/v1/multas/empresas": {
    "chaves": [
+    "aviso",
     "data_arquivo",
     "fonte",
     "grupo",
@@ -1984,6 +1985,7 @@
     "natureza",
     "offset",
     "ordem",
+    "regra_ordem",
     "snapshot_date",
     "total"
    ],
@@ -2021,6 +2023,7 @@
   },
   "GET /api/v1/omissao-sici": {
    "chaves": [
+    "aviso_depreciacao",
     "criterio",
     "escopo",
     "fonte",
@@ -2317,6 +2320,7 @@
   },
   "GET /api/v1/ranking/operadoras": {
    "chaves": [
+    "base_pequena_abaixo_de",
     "criterio",
     "escopo",
     "fonte",
@@ -2603,6 +2607,23 @@
     "por_faixa_porte",
     "por_uf",
     "snapshot_date"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/sem-declaracao-sici": {
+   "chaves": [
+    "criterio",
+    "escopo",
+    "fonte",
+    "items",
+    "mes_referencia",
+    "metodologia",
+    "parametros",
+    "por_uf",
+    "snapshot_date",
+    "tipo",
+    "total"
    ],
    "status": 200,
    "tipo": "objeto"

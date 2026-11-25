@@ -45,10 +45,19 @@ _AGG_FNS = {"count", "sum", "avg", "min", "max", "distinct"}
 
 COLLECTIONS = ("asns", "ixps", "external_ixps", "cdns", "prefixes",
                "global_prefixes", "scms", "operadoras", "acessos_municipio",
-               "smps", "operadoras_movel", "acessos_movel_municipio", "socios", "stfcs", "seacs", "eventos", "series_asn", "indicadores_operadora", "omissao_sici", "municipios", "seguranca_asn", "rs_sessoes", "rs_communities", "rs_filtradas", "cetic_indicadores", "cetic_estimativas_uf", "demanda_oferta", "erbs_municipio", "fust_municipio", "prontidao_agregado", "prontidao_asn", "multas_empresa", "faixas_espectro", "satelites_direitos", "transferencias_ipv4", "recuperacao_ipv4", "eventos_bloco", "espaco_ipv4", "uso_por_terceiros_ipv4", "subasignacoes_ipv4", "organizacoes_asn", "qualidade_uf", "reclamacoes_marca", "consumidor_marca", "bloqueios_asn")
+               "smps", "operadoras_movel", "acessos_movel_municipio", "socios", "stfcs", "seacs", "eventos", "series_asn", "indicadores_operadora", "sem_declaracao_sici", "municipios", "seguranca_asn", "rs_sessoes", "rs_communities", "rs_filtradas", "cetic_indicadores", "cetic_estimativas_uf", "demanda_oferta", "erbs_municipio", "fust_municipio", "prontidao_agregado", "prontidao_asn", "multas_empresa", "faixas_espectro", "satelites_direitos", "transferencias_ipv4", "recuperacao_ipv4", "eventos_bloco", "espaco_ipv4", "uso_por_terceiros_ipv4", "subasignacoes_ipv4", "organizacoes_asn", "qualidade_uf", "reclamacoes_marca", "consumidor_marca", "bloqueios_asn")
 
 COLLECTIONS += ("transito_uf", "transito_asn")      # trânsito por UF e cone de clientes
 COLLECTIONS += ("facilities", "facilidades_rede", "redes_peering")      # instalações do PeeringDB e atributos de peering
+
+#: nomes antigos de collection (D12) → nome atual. A consulta por um nome antigo roda na collection nova e a resposta traz `aviso_obsoleta`.
+COLECOES_ALIAS = {"omissao_sici": "sem_declaracao_sici"}
+
+
+def aviso_colecao_obsoleta(antigo: str) -> str:
+    return (f"A collection `{antigo}` foi renomeada para `{COLECOES_ALIAS[antigo]}` (D12); o nome antigo segue como alias por um período e será "
+            f"removido depois de duas versões. Use `{COLECOES_ALIAS[antigo]}`.")
+
 
 # Sentinela para distinguir "sem exemplo" de "exemplo é None/false".
 _MISSING_SENTINEL = object()
@@ -573,17 +582,19 @@ SCHEMA["indicadores_operadora"] = {
         _f("var_mm_abs", "int", "Variação absoluta contra o mês anterior"),
         _f("var_mm_pct", "float", "Variação percentual contra o mês anterior"),
         _f("var_aa_abs", "int", "Variação absoluta contra o mesmo mês do ano anterior"),
-        _f("var_aa_pct", "float", "Variação percentual contra o mesmo mês do ano anterior"),
+        _f("var_aa_pct", "float", "Variação percentual contra o mesmo mês do ano anterior; nula sem base de comparação (base 0)"),
+        _f("base_aa", "int", "Base da variação em 12 meses: acessos declarados no mesmo mês do ano anterior (0 = não declarou). Abaixo de 1.000 acessos a base é rotulada "
+                             "\"base pequena\" (só rótulo, nenhuma linha sai): poucos acessos mudam muito o percentual, então leia junto com `var_aa_abs`"),
         _f("meses_declinio", "int", "Meses seguidos de queda até o mês de referência"),
         _f("em_declinio", "bool", "meses_declinio >= 6"),
         _f("mes_referencia", "string", "Mês de referência da declaração (AAAA-MM)", example="2026-08"),
     ],
 }
 
-SCHEMA["omissao_sici"] = {
+SCHEMA["sem_declaracao_sici"] = {
     "key": "cnpj",
     "description": (
-        "Outorgas SCM sem acessos declarados ao SICI no mês de referência: uma linha por CNPJ. É um FATO sobre a declaração (sem causa nem intenção). "
+        "Outorgas SCM sem declaração ao SICI no mês de referência (`mes_referencia`): uma linha por CNPJ. É um FATO sobre a declaração (sem causa nem intenção). "
         "`usuarios_apnic` soma a estimativa da APNIC dos ASNs do CNPJ (medição estatística, não contagem). `classe`: com_usuarios_apnic (>= 100), "
         "sem_usuarios, nao_comparavel (CNPJ sem ASN). `grupo_declara`: outro CNPJ do mesmo grupo societário declarou no mês."
     ),
@@ -1559,7 +1570,7 @@ RECIPES: list[dict] = [
         "nota": "Fato sobre a declaração, sem causa: diga 'sem declaração no mês X; usuários estimados (APNIC): Y'. `grupo_declara=true` = outro CNPJ do "
                 "mesmo grupo declarou no mês. Cite mes_referencia e a data do snapshot.",
         "args": {
-            "collection": "omissao_sici",
+            "collection": "sem_declaracao_sici",
             "filter": {"and": [
                 {"field": "classe", "op": "eq", "value": "com_usuarios_apnic"},
                 {"field": "uf", "op": "eq", "value": "MG"},

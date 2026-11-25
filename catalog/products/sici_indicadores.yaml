@@ -20,7 +20,13 @@ saidas:
   - sici_indicadores.json.gz
   - sici_serie_municipio.json.gz
   - mercado_grupos.json.gz
-  - omissao_sici.json.gz
+  - sem_declaracao_sici.json.gz
+limites: >-
+  "Sem declaração ao SICI em AAAA-MM" quer dizer só que o CNPJ tem outorga SCM e não há acessos dele declarados naquele mês de referência; não
+  indica causa nem intenção. A causa só aparece onde há dado e com selo ("outro CNPJ do grupo declarou", inferido do quadro societário).
+  Nome anterior (D12), mantido como alias por um período e a remover depois de duas versões: arquivo `omissao_sici.json.gz` (os snapshots
+  publicados antes de 2026-11 só têm este), collection `omissao_sici`, rota `GET /omissao-sici` e visão `?visao=omissao`. A API avisa com
+  `Deprecation` e `aviso_depreciacao`; o MCP, com `aviso_obsoleta`.
 campos:
 - nome: municipios[ibge].hhi_cnpj / hhi_grupo / faixa_cnpj / faixa_grupo; ufs[uf]; resumo.mudam_de_faixa
   tipo: int / str
@@ -65,7 +71,7 @@ campos:
 - nome: ufs[uf] / municipios[ibge] / brasil
   tipo: dict
   significado: Acessos, HHI, número de operadoras, líder, variações, ganho e perda do ano.
-  tratamento: HHI sobre acessos declarados.
+  tratamento: HHI sobre acessos declarados. Nada é suprimido (D6) e `avisos` traz `poucos_casos` com menos de 5 operadoras; a parcela do líder (`lider.share`) fica à vista e não gera aviso próprio, por ser parte da medida. Nos mercados por grupo, `acessos`, `n_cnpjs`, `n_grupos`, `avisos_cnpj` e `avisos_grupo` (e `lider_grupo_share` na UF) dão a base de cada HHI.
   publicado_em:
   - sici_indicadores → sici_indicadores.json.gz#municipios
 - nome: parametros
@@ -78,24 +84,24 @@ campos:
   significado: Outorga SCM sem acessos declarados no mês e a classe pelos usuários estimados dos ASNs do CNPJ.
   tratamento: Usuários APNIC são estimativa (medição estatística); a classe nao_comparavel é CNPJ sem ASN.
   publicado_em:
-  - sici_indicadores → omissao_sici.json.gz#itens
+  - sici_indicadores → sem_declaracao_sici.json.gz#itens
 - nome: itens[cnpj].grupo_declara
   tipo: bool
   significado: Outro CNPJ do mesmo grupo societário declarou acessos no mês.
   tratamento: Evidência para quem lê a linha; grupo parcial não prova controle.
   publicado_em:
-  - sici_indicadores → omissao_sici.json.gz#itens
+  - sici_indicadores → sem_declaracao_sici.json.gz#itens
 - nome: por_uf
   tipo: dict
   significado: Contagem por UF das outorgas sem declaração, por classe, e soma dos usuários estimados.
   publicado_em:
-  - sici_indicadores → omissao_sici.json.gz#por_uf
+  - sici_indicadores → sem_declaracao_sici.json.gz#por_uf
 - nome: snapshot_date / mes_referencia
   tipo: str
   significado: Data do snapshot e mês de referência da declaração.
   publicado_em:
   - sici_indicadores → sici_indicadores.json.gz#mes_referencia
-  - sici_indicadores → omissao_sici.json.gz#mes_referencia
+  - sici_indicadores → sem_declaracao_sici.json.gz#mes_referencia
 - nome: snapshot_date / generated_at / mes_referencia / natureza / fonte / limites / faixas / resumo / ufs
   tipo: str / dict
   significado: "Cabeçalho do cruzamento de mercado: data do snapshot, mês de referência, natureza (inferido), fonte, limites, as faixas de HHI, o resumo de municípios que mudam de faixa e o HHI por UF."

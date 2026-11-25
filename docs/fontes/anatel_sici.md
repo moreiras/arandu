@@ -48,7 +48,7 @@ Acessos em serviço declarados mensalmente por prestadora (CNPJ), município, ve
 
 ## Limites
 
-Autodeclarado; ausência pode ser omissão, não inexistência. Um CNPJ pode ter vários ASNs (acessos_compartilhados).
+Autodeclarado; a ausência de declaração de um CNPJ num mês diz só que não há linha dele naquele mês, não que não tenha acessos. Um CNPJ pode ter vários ASNs (acessos_compartilhados).
 
 ## Retenção
 

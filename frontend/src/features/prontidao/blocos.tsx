@@ -19,7 +19,7 @@ const num = (v: number | null | undefined, c = 1) => (v == null ? '—' : v.toLo
 const inteiro = (v?: number | null) => (v == null ? '—' : Math.round(v).toLocaleString('pt-BR'))
 
 /** Barra com a distribuição dos ASNs por classe, em tons de azul e cinza (sem semáforo: o índice não é veredito). */
-export function BarraClasses({ a }: { a: ProntidaoAgregado }) {
+export function BarraClasses({ a, detalhe = false }: { a: ProntidaoAgregado; detalhe?: boolean }) {
   const total = a.asns || 1
   return (
     <div>
@@ -29,6 +29,30 @@ export function BarraClasses({ a }: { a: ProntidaoAgregado }) {
       <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-gray-600">
         {ORDEM_CLASSES.map((c) => <li key={c}><span className={`inline-block w-2 h-2 rounded-sm mr-1 ${COR_CLASSE[c]}`} />{CLASSES[c]} <span className="tabular-nums">{inteiro(a.classes[c])}</span></li>)}
       </ul>
+      {detalhe && <ClassesPorRov a={a} />}
+    </div>
+  )
+}
+
+const soma = (c: Record<string, number>) => Object.values(c).reduce((x, y) => x + y, 0)
+
+/** As mesmas classes em duas linhas, com e sem ROV medido (SEG-E5): "pronto" sem o pilar Filtragem usa o índice renormalizado sobre os pilares medidos. */
+function ClassesPorRov({ a }: { a: ProntidaoAgregado }) {
+  if (!a.classes_com_rov || !a.classes_sem_rov) return null
+  const linhas: Array<[string, Record<ClassePronto, number>]> = [['com ROV medido', a.classes_com_rov], ['sem ROV medido', a.classes_sem_rov]]
+  return (
+    <div className="mt-2 space-y-1" data-testid="classes-por-rov">
+      {linhas.map(([rotulo, c]) => {
+        const n = soma(c)
+        return (
+          <div key={rotulo}>
+            <div className="text-xs text-gray-600">{rotulo} <span className="tabular-nums">({inteiro(n)} ASNs)</span>: {ORDEM_CLASSES.map((k) => `${CLASSES[k]} ${inteiro(c[k])}`).join(' · ')}</div>
+            <div className="flex h-2 rounded overflow-hidden bg-gray-100" role="img" aria-label={`${rotulo}: ${ORDEM_CLASSES.map((k) => `${CLASSES[k]} ${c[k]}`).join(', ')}`}>
+              {ORDEM_CLASSES.map((k) => c[k] > 0 && <div key={k} className={COR_CLASSE[k]} style={{ width: `${(100 * c[k]) / (n || 1)}%` }} title={`${CLASSES[k]}: ${c[k]}`} />)}
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -91,7 +115,7 @@ function Agregado({ a, rotulo }: { a: ProntidaoAgregado; rotulo: string }) {
         <div><span className="text-2xl font-semibold tabular-nums">{num(a.media_ponderada_usuarios)}</span> <span className="text-gray-500">média do índice ponderada pelos usuários estimados · {rotulo}</span></div>
         <div className="text-gray-600">mediana <span className="tabular-nums">{num(a.mediana)}</span> · {inteiro(a.asns_com_indice)} de {inteiro(a.asns)} ASNs com índice</div>
       </div>
-      <BarraClasses a={a} />
+      <BarraClasses a={a} detalhe />
       <p className="text-xs text-gray-500">ASNs com dado em cada pilar: {PILARES.map((id) => `${id.replace(/_/g, ' ')} ${inteiro(a.cobertura_pilares[id])}`).join(' · ')}.</p>
     </div>
   )

@@ -10,7 +10,7 @@ Saídas em `published/{date}/`:
     "em declínio contínuo" e "parou de declarar";
   * `sici_serie_municipio.json.gz` — série mensal (13 meses) de acessos, HHI e participação das 4 maiores operadoras por município;
   * `mercado_grupos.json.gz` — HHI por grupo ao lado do HHI por CNPJ (município e UF) e sobreposição de concorrentes por operadora;
-  * `omissao_sici.json.gz` — outorgas SCM ativas sem acessos declarados no mês de referência, com a classe pelos usuários estimados
+  * `sem_declaracao_sici.json.gz` — outorgas SCM ativas sem acessos declarados no mês de referência, com a classe pelos usuários estimados
     (APNIC) dos ASNs do CNPJ, e o agregado por UF.
 
 Tudo é descrição de dado declarado ou medido: "sem declaração no mês X; usuários APNIC estimados: Y". Nenhuma causa nem intenção.
@@ -23,6 +23,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Optional
 
+from core.avisos_agregado import avisos
 from core.common import now_iso, published_path
 from core.jsonio import carregar_json_gz, gravar_json_gz
 from core.nome_grupo import nome_do_grupo
@@ -55,10 +56,10 @@ def _pct(novo: float, antigo: float) -> Optional[float]:
 def _hhi_e_lider(acessos_por_cnpj: dict[str, int], nomes: dict[str, str]) -> dict:
     total = sum(acessos_por_cnpj.values())
     if not total:
-        return {"acessos": 0, "n_operadoras": 0, "hhi": 0}
+        return {"acessos": 0, "n_operadoras": 0, "hhi": 0, "avisos": avisos(0, com_peso=False)}
     lider = max(acessos_por_cnpj, key=lambda c: (acessos_por_cnpj[c], c))
     return {
-        "acessos": total, "n_operadoras": len(acessos_por_cnpj),
+        "acessos": total, "n_operadoras": len(acessos_por_cnpj), "avisos": avisos(len(acessos_por_cnpj), com_peso=False),   # a parcela do líder (`lider.share`) fica à vista; não gera aviso por si: é parte do HHI
         "hhi": round(sum((100 * a / total) ** 2 for a in acessos_por_cnpj.values())),
         "lider": {"cnpj": lider, "empresa": nomes.get(lider, ""), "share": round(100 * acessos_por_cnpj[lider] / total, 2)},
     }
@@ -183,13 +184,13 @@ def calcular_indicadores(mes_ref: str, meses: dict[str, dict], series: dict[str,
     return {"operadoras": operadoras, "parou_de_declarar": parou, "ufs": ufs, "municipios": municipios, "brasil": brasil}
 
 
-def classificar_omissao(usuarios: Optional[int], tem_asn: bool) -> str:
+def classificar_sem_declaracao(usuarios: Optional[int], tem_asn: bool) -> str:
     if not tem_asn:
         return "nao_comparavel"
     return "com_usuarios_apnic" if (usuarios or 0) >= USUARIOS_MIN else "sem_usuarios"
 
 
-def calcular_omissao(mes_ref: str, scms: list[dict], cnpjs_declarantes: set[str], usuarios_asn: dict[int, int],
+def calcular_sem_declaracao(mes_ref: str, scms: list[dict], cnpjs_declarantes: set[str], usuarios_asn: dict[int, int],
                      grupos: Optional[list[dict]] = None) -> dict:
     """Outorgas SCM sem acessos declarados no mês de referência. Uma linha por CNPJ (um CNPJ pode ter várias outorgas).
     `grupos` (grupos_societarios): `grupo_declara` diz se OUTRO CNPJ do mesmo grupo declarou no mês, evidência para quem lê a linha."""
@@ -208,7 +209,7 @@ def calcular_omissao(mes_ref: str, scms: list[dict], cnpjs_declarantes: set[str]
     itens: dict[str, dict] = {}
     for cnpj, r in por_cnpj.items():
         usuarios = sum(usuarios_asn.get(a, 0) for a in r["asns"]) if r["asns"] else None
-        itens[cnpj] = {**r, "usuarios_apnic": usuarios, "classe": classificar_omissao(usuarios, bool(r["asns"]))}
+        itens[cnpj] = {**r, "usuarios_apnic": usuarios, "classe": classificar_sem_declaracao(usuarios, bool(r["asns"]))}
         g = grupo_de.get(cnpj)
         if g:
             itens[cnpj]["grupo_id"] = g.get("grupo_id")
@@ -325,11 +326,15 @@ def calcular_mercado_grupos(municipios: dict[str, dict], grupos: list[dict], cur
         tot = sum(gr.values())
         h_c, h_g = _hhi(ops), _hhi(gr)
         lider = max(gr, key=lambda e: (gr[e], e))
-        muns[ibge] = {"uf": info[ibge][0], "hhi_cnpj": h_c, "hhi_grupo": h_g, "n_cnpjs": len(ops), "n_grupos": len(gr), "faixa_cnpj": faixa_hhi(h_c), "faixa_grupo": faixa_hhi(h_g),
+        muns[ibge] = {"uf": info[ibge][0], "acessos": tot, "hhi_cnpj": h_c, "hhi_grupo": h_g, "n_cnpjs": len(ops), "n_grupos": len(gr),
+                      "avisos_cnpj": avisos(len(ops), com_peso=False), "avisos_grupo": avisos(len(gr), com_peso=False), "faixa_cnpj": faixa_hhi(h_c), "faixa_grupo": faixa_hhi(h_g),
                       "lider_grupo": {"id": lider, **{("empresa" if k == "nome" else k): v for k, v in nome_grupo(lider).items()}, "share": round(100 * gr[lider] / tot, 2), "e_grupo": lider in set(grupo_de.values())}}
         if muns[ibge]["faixa_cnpj"] != muns[ibge]["faixa_grupo"]:
             transicoes[f"{muns[ibge]['faixa_cnpj']} → {muns[ibge]['faixa_grupo']}"] += 1
-    ufs = {u: {"hhi_cnpj": _hhi(uf_cnpj[u]), "hhi_grupo": _hhi(uf_grupo[u]), "faixa_cnpj": faixa_hhi(_hhi(uf_cnpj[u])), "faixa_grupo": faixa_hhi(_hhi(uf_grupo[u]))} for u in sorted(uf_cnpj)}
+    ufs = {u: {"acessos": sum(uf_cnpj[u].values()), "n_cnpjs": len(uf_cnpj[u]), "n_grupos": len(uf_grupo[u]),
+               "lider_grupo_share": round(100 * max(uf_grupo[u].values()) / sum(uf_grupo[u].values()), 2) if sum(uf_grupo[u].values()) else None,
+               "avisos_cnpj": avisos(len(uf_cnpj[u]), com_peso=False), "avisos_grupo": avisos(len(uf_grupo[u]), com_peso=False),
+               "hhi_cnpj": _hhi(uf_cnpj[u]), "hhi_grupo": _hhi(uf_grupo[u]), "faixa_cnpj": faixa_hhi(_hhi(uf_cnpj[u])), "faixa_grupo": faixa_hhi(_hhi(uf_grupo[u]))} for u in sorted(uf_cnpj)}
 
     # sobreposição: um concorrente por vez, sem guardar todos os pares (memória O(operadoras))
     muns_de: dict[str, set[str]] = defaultdict(set)
@@ -415,8 +420,8 @@ def publicar_sici_indicadores(base: Path, date_str: str, log) -> dict:
     if ip.exists():
         usuarios = {a["asn"]: a["apnic_users"] for a in json.loads(ip.read_text(encoding="utf-8")) if a.get("is_br") and a.get("apnic_users")}
     grupos = (carregar_json_gz(pub / "grupos_societarios.json.gz") or {}).get("grupos", [])
-    om = calcular_omissao(mes_ref, scm.get("scms", []), set(ind["operadoras"]), usuarios, grupos)
-    gravar_json_gz(pub / "omissao_sici.json.gz", {
+    om = calcular_sem_declaracao(mes_ref, scm.get("scms", []), set(ind["operadoras"]), usuarios, grupos)
+    gravar_json_gz(pub / "sem_declaracao_sici.json.gz", {
         "snapshot_date": date_str, "generated_at": meta["generated_at"], "fonte": "Anatel (outorgas SCM) × SICI × APNIC (usuários estimados)",
         "parametros": {"usuarios_min": USUARIOS_MIN}, **om})
-    return {"operadoras": len(ind["operadoras"]), "municipios": len(ind["municipios"]), "omissao": len(om["itens"])}
+    return {"operadoras": len(ind["operadoras"]), "municipios": len(ind["municipios"]), "sem_declaracao": len(om["itens"])}

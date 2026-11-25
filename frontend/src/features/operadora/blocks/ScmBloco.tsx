@@ -45,8 +45,7 @@ export function ScmBloco({ dados }: BlocoProps<OperadoraCtx>) {
 
           {data && !hasSici && (
             <div className="text-xs text-gray-500 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
-              Este CNPJ não declarou acessos de banda larga fixa ao SICI (Anatel) neste snapshot —
-              pode não ser um provedor de varejo, ou a outorga ainda não está em operação.
+              Outorga SCM sem declaração ao SICI em {dados.indicadores?.mes_referencia ?? data.mes_referencia ?? 'o mês de referência'}.
             </div>
           )}
 

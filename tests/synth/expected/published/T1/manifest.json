@@ -95,7 +95,7 @@
   "prefixo_inalcancavel": 1,
   "prefixos_filtraveis": 1,
   "prepend_excessivo": 1,
-  "ptt_proximo_sem_participar": 1,
+  "ptt_proximo_sem_participar": 2,
   "roa_maxlength_folgado": 1,
   "rpki_cobertura_parcial": 1,
   "rpki_invalido": 1,
@@ -107,7 +107,7 @@
   "sessao_rs_down": 1,
   "single_homed": 2
  },
- "rules_version": "raf3c4934",
+ "rules_version": "r424e89a5",
  "snapshot_date": "2026-09-20",
  "sources": [
   {

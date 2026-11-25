@@ -48,7 +48,7 @@ describe('StabilitySection com a visão geral (1.4.2.5)', () => {
     const { rerender } = montar(<StabilitySection data={base(todos.slice(0, 2))} totalMedioOuMaior={12} carregandoTodos onPedirTodos={() => {}} />)
     fireEvent.click(screen.getByText(/Ver todos os 12 ASes/))
     expect(screen.getByRole('status')).toHaveTextContent('Carregando a lista completa')
-    expect(screen.getByText('Top 10 ASes mais ruidosos')).toBeInTheDocument()
+    expect(screen.getByText('Top 10 ASes com mais updates por prefixo por dia')).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'AS31' })).toBeNull()
     rerender(<MemoryRouter><StabilitySection data={base(todos)} totalMedioOuMaior={12} onPedirTodos={() => {}} /></MemoryRouter>)
     expect(screen.getByText('12 ASes com severidade média ou maior')).toBeInTheDocument()
@@ -67,6 +67,26 @@ describe('StabilitySection com a visão geral (1.4.2.5)', () => {
 
   it('sem a visão geral (documento completo) continua contando as categorias no próprio documento', () => {
     montar(<StabilitySection data={base([as(1, 1, 'high', 'critico'), as(2, 2, 'low', 'estavel')])} />)
-    expect(screen.getAllByText('Crítico').length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Acima de 100× a mediana/).length).toBeGreaterThan(0)
+  })
+})
+
+describe('StabilitySection sem juízo (BGP-E9)', () => {
+  it('toda categoria traz a faixa em números, derivada da mediana e da média do conjunto', () => {
+    montar(<StabilitySection data={base([as(1, 1, 'high', 'critico'), as(2, 2, 'low', 'estavel')])} />)
+    const tabela = screen.getByText('Faixa (upd/pref/dia)').closest('table')!
+    expect(tabela.textContent).toContain('< 1,0')          // mediana 1
+    expect(tabela.textContent).toContain('1,0 a 2,0')       // da mediana (1) à média (2)
+    expect(tabela.textContent).toContain('2,0 a 100')       // da média a 100× a mediana
+    expect(tabela.textContent).toContain('> 100')
+  })
+
+  it('sem verde, amarelo, laranja nem vermelho; sem "Flapper crônico" nem causas presumidas', () => {
+    const { container } = montar(<StabilitySection data={base([as(1, 1, 'critical', 'critico'), as(2, 2, 'high', 'barulhento'), as(3, 3, 'low', 'estavel')])} />)
+    expect(container.innerHTML).not.toMatch(/(?:text|bg|border)-(?:ok|perigo|alerta|aviso)-\d{2,3}/)
+    const texto = document.body.textContent ?? ''
+    expect(texto).not.toMatch(/Flapper crônico|Estável|Inquieto|Barulhento|link instável|mal calibrado|mal configurado/)
+    expect(texto).toMatch(/Anúncio e retirada repetidos \(padrão observado\)/)
+    expect(screen.getAllByTitle(/A causa não é observável/).length).toBeGreaterThan(0)
   })
 })

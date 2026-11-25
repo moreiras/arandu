@@ -14,15 +14,15 @@ saidas:
 campos:
 - nome: brasil / por_faixa_porte / por_uf
   tipo: dict
-  significado: ASNs e usuários do recorte, ASNs participantes, % dos ASNs e % dos usuários estimados do APNIC; recorte com menos de 5 participantes vem `suprimido`.
-  tratamento: Comparação de prontidão (participantes × não participantes) só no total e por porte, com pelo menos 5 ASNs com índice em cada lado.
+  significado: ASNs e usuários do recorte, ASNs participantes, % dos ASNs e % dos usuários estimados do APNIC; `n_asns_com_dado` (ASNs participantes), `peso_top1` (parcela do maior ASN participante nos usuários dos participantes) e `avisos` (`poucos_casos` com menos de 5; `maior_integrante` com 30% ou mais). Nenhum recorte é suprimido (D6); só snapshots anteriores trazem células `suprimido`.
+  tratamento: Comparação de prontidão (participantes × não participantes) só no total e por porte, com o n e os avisos de cada lado.
   publicado_em:
   - manrs_agregado → manrs/resumo.json.gz#brasil
   - manrs_agregado → manrs/resumo.json.gz#por_faixa_porte
   - manrs_agregado → manrs/resumo.json.gz#por_uf
 - nome: atribuicao / fonte / regras / limites / natureza
   tipo: dict
-  significado: A frase de atribuição exigida pelos termos, a fonte com data da medição, a regra de supressão e as limitações.
+  significado: A frase de atribuição exigida pelos termos, a fonte com data da medição, as regras dos avisos e as limitações.
   publicado_em:
   - manrs_agregado → manrs/resumo.json.gz#atribuicao
   - manrs_agregado → manrs/resumo.json.gz#fonte

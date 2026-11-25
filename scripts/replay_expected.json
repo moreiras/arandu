@@ -49,9 +49,9 @@
    "motivo": "`fibra` e `fibra_pct` por município (derivam de sici.json.gz/por_municipio/fibra). Mesma origem da entrada acima."
   },
   {
-   "arquivo": "omissao_sici.json.gz",
+   "arquivo": "sem_declaracao_sici.json.gz",
    "tipo": "so_replay",
-   "motivo": "Produto de omissão de declaração no SICI, criado depois de o snapshot de referência (2026-10-11): o replay o gera e o publicado não o tem. Registrada por inferência (ausência no publicado); conteúdo não conferido."
+   "motivo": "Produto de outorgas sem declaração ao SICI, criado depois de o snapshot de referência (2026-10-11): o replay o gera e o publicado não o tem. Registrada por inferência (ausência no publicado); conteúdo não conferido."
   },
   {
    "arquivo": "sici_indicadores.json.gz",

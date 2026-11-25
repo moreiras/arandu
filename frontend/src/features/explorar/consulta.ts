@@ -85,7 +85,7 @@ function tipoInterno(c: CampoSchema): string | undefined {
 function escalar(texto: string, c: CampoSchema | undefined, tipoLista?: string): string | number | boolean {
   const lista = !!c && familia(c.type) === 'lista'
   const t = texto.trim()
-  // item de lista sem tipo declarado: inteiro vira número (ASNs em `omissao_sici.asns`, EXP-E2), o resto fica texto
+  // item de lista sem tipo declarado: inteiro vira número (ASNs em `sem_declaracao_sici.asns`, EXP-E2), o resto fica texto
   if (lista && !tipoLista) return /^-?\d+$/.test(t) ? Number(t) : t
   const fam = tipoLista ? familia(tipoLista) : c ? familia(c.type) : 'texto'
   if (fam === 'numero') {

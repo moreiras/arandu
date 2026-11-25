@@ -3,11 +3,11 @@
 # Este arquivo faz parte do Arandurape.
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-"""Indicadores do SICI e omissão: séries plantadas com resultado conhecido."""
+"""Indicadores do SICI e outorgas sem declaração: séries plantadas com resultado conhecido."""
 import gzip
 import json
 
-from products.sici_indicadores.build import (calcular_mercado_grupos, faixa_hhi, serie_municipios, calcular_indicadores, calcular_omissao, classificar_omissao, publicar_sici_indicadores,
+from products.sici_indicadores.build import (calcular_mercado_grupos, faixa_hhi, serie_municipios, calcular_indicadores, calcular_sem_declaracao, classificar_sem_declaracao, publicar_sici_indicadores,
                                              somar_meses)
 
 
@@ -72,14 +72,14 @@ def test_declinio_continuo_e_parou_de_declarar():
     assert r["parou_de_declarar"]["C"]["ultimo_mes_declarado"] == "2026-01" and r["parou_de_declarar"]["C"]["meses_sem_declarar"] == 7
 
 
-def test_classes_da_omissao():
-    assert classificar_omissao(5000, True) == "com_usuarios_apnic"
-    assert classificar_omissao(99, True) == "sem_usuarios"
-    assert classificar_omissao(None, True) == "sem_usuarios"
-    assert classificar_omissao(None, False) == "nao_comparavel"
+def test_classes_sem_declaracao():
+    assert classificar_sem_declaracao(5000, True) == "com_usuarios_apnic"
+    assert classificar_sem_declaracao(99, True) == "sem_usuarios"
+    assert classificar_sem_declaracao(None, True) == "sem_usuarios"
+    assert classificar_sem_declaracao(None, False) == "nao_comparavel"
 
 
-def test_omissao_usuarios_asns_do_cnpj_e_grupo():
+def test_sem_declaracao_usuarios_asns_do_cnpj_e_grupo():
     scms = [
         {"cnpj": "1", "razao_social": "Um", "uf": "MG", "asns": [10, 11], "data_outorga": "05/01/2021"},
         {"cnpj": "1", "razao_social": "Um", "uf": "MG", "asns": [10, 11], "data_outorga": "03/04/2019"},   # duas outorgas, uma linha
@@ -88,7 +88,7 @@ def test_omissao_usuarios_asns_do_cnpj_e_grupo():
         {"cnpj": "4", "razao_social": "Filial", "uf": "SP", "asns": [40]},
     ]
     grupos = [{"grupo_id": "g1", "cnpjs": ["3", "4"]}]
-    r = calcular_omissao("2026-08", scms, {"3"}, {10: 150, 11: 50, 40: 7}, grupos)
+    r = calcular_sem_declaracao("2026-08", scms, {"3"}, {10: 150, 11: 50, 40: 7}, grupos)
     assert set(r["itens"]) == {"1", "2", "4"}
     um = r["itens"]["1"]
     assert um["n_outorgas"] == 2 and um["usuarios_apnic"] == 200 and um["classe"] == "com_usuarios_apnic" and um["desde"] == "2019-04"
@@ -113,11 +113,11 @@ def test_publicar_grava_os_dois_artefatos(tmp_path):
     _gz(pub / "scm.json.gz", {"scms": [{"cnpj": "Z", "razao_social": "Z", "uf": "MG", "asns": [9]}]})
     (pub / "asns").mkdir()
     (pub / "asns" / "index.json").write_text(json.dumps([{"asn": 9, "is_br": True, "apnic_users": 321}]))
-    assert publicar_sici_indicadores(tmp_path, d, _Log()) == {"operadoras": 1, "municipios": 1, "omissao": 1}
+    assert publicar_sici_indicadores(tmp_path, d, _Log()) == {"operadoras": 1, "municipios": 1, "sem_declaracao": 1}
     serie = json.loads(gzip.open(pub / "sici_serie_municipio.json.gz").read())
     assert serie["meses"][-1] == "2026-08" and len(serie["meses"]) == 13 and serie["municipios"]["3550308"]["acessos"][-2:] == [90, 100]
     ind = json.loads(gzip.open(pub / "sici_indicadores.json.gz").read())
-    om = json.loads(gzip.open(pub / "omissao_sici.json.gz").read())
+    om = json.loads(gzip.open(pub / "sem_declaracao_sici.json.gz").read())
     assert ind["mes_anterior"] == "2026-07" and ind["mes_ano_anterior"] is None and ind["operadoras"]["A"]["var_mm"]["abs"] == 10
     assert om["itens"]["Z"]["usuarios_apnic"] == 321 and om["itens"]["Z"]["classe"] == "com_usuarios_apnic"
 

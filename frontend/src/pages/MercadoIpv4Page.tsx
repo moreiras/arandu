@@ -317,44 +317,64 @@ function UsoPorTerceiros() {
 
 const VALIDACOES_ROTULO: Record<string, string> = { receptor_origina: 'origina', tem_roa: 'ROA', tamanho: '/24 a /22', receptor_ipv6: 'IPv6', prazo_3_anos: '3 anos', nao_infra_critica: 'não crítica' }
 
-/** Sub-asignações (aluguel regulado, LAC-2025-5): enquanto não houver bitácora oficial, explica o que falta e mostra o vigia dos diretórios; com a fonte, lista os registros com as validações. */
-function Subasignacoes() {
+/** Consulta das sub-asignações (aluguel regulado, LAC-2025-5); a aba só existe quando há fonte oficial. */
+function useSubasignacoes() {
   const date = useActiveDate() ?? undefined
-  const q = useQuery({ queryKey: ['ipv4-subasignacoes', date], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4Subasignacoes({ date, limit: 100 }) })
+  return useQuery({ queryKey: ['ipv4-subasignacoes', date], retry: false, staleTime: 10 * 60 * 1000, queryFn: () => fetchIpv4Subasignacoes({ date, limit: 100 }) })
+}
+
+/** Sem fonte oficial não há aba (IPV4-E15): um quadro curto ao fim de Transferências diz o que a política prevê, onde está a fonte oficial e quando a varredura procurou. */
+function QuadroSubasignacoes() {
+  const d = useSubasignacoes().data
+  if (!d || !d.aguardando) return null
+  return (
+    <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-1 text-sm text-gray-700" data-testid="quadro-subasignacoes">
+      <h2 className="text-base font-semibold text-gray-900">Sub-asignações (aluguel regulado)</h2>
+      <p>{d.politica.nome}: {d.politica.estado}. Fonte oficial: {d.politica.fonte_oficial}. Nenhum arquivo oficial encontrado até a varredura de {data(d.vigia.ultima_varredura)}.</p>
+      {d.aviso && <p className="text-xs text-gray-500">{d.aviso}</p>}
+      {d.vigia.alertas_30_dias.length > 0 && <ul className="text-xs text-gray-600 list-disc ml-5">{d.vigia.alertas_30_dias.map((a, i) => <li key={i}>{data(a.data)}: {a.tipo.replace('_', ' ')} {a.nome ?? a.padrao ?? ''} <span className="text-gray-400">{a.url}</span></li>)}</ul>}
+    </section>
+  )
+}
+
+/** Com fonte oficial: os registros e, por verificação, só o agregado (quantos sim, não e sem dado). Nada por receptor, nenhuma "conformidade" total. */
+function Subasignacoes() {
+  const q = useSubasignacoes()
   const d = q.data
   if (!d) return <EstadoAba q={q} oQue="as sub-asignações" />
+  const chaves = Object.keys(d.validacoes)
+  const conta = (k: string, v: boolean | null) => d.items.filter((s) => (s.validacoes[k] ?? null) === v).length
   return (
     <div className="space-y-4">
-      {d.aguardando && (
-        <section className="bg-aviso-50 border border-aviso-200 rounded-lg p-4 space-y-2 text-sm text-aviso-900">
-          <h2 className="text-base font-semibold">Aguardando a publicação oficial</h2>
-          <p>{d.aviso}</p>
-        </section>
-      )}
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-2">
         <h2 className="text-base font-semibold text-gray-900">Vigia dos diretórios</h2>
-        <p className="text-sm text-gray-600">Última varredura: {data(d.vigia.ultima_varredura)}. {d.vigia.alertas_30_dias.length === 0 ? 'Nenhum arquivo novo nem mudança de formato nos últimos 30 dias.' : `${d.vigia.alertas_30_dias.length} alertas nos últimos 30 dias:`}</p>
-        {d.vigia.alertas_30_dias.length > 0 && <ul className="text-xs text-gray-600 list-disc ml-5">{d.vigia.alertas_30_dias.map((a, i) => <li key={i}>{data(a.data)}: {a.tipo.replace('_', ' ')} {a.nome ?? a.padrao ?? ''} <span className="text-gray-400">{a.url}</span></li>)}</ul>}
+        <p className="text-sm text-gray-600">Última varredura: {data(d.vigia.ultima_varredura)}. {d.vigia.alertas_30_dias.length === 0 ? 'Nenhum arquivo novo nem mudança de formato nos últimos 30 dias.' : `${d.vigia.alertas_30_dias.length} alertas nos últimos 30 dias.`}</p>
         <p className="text-xs text-gray-500">{d.politica.nome}: {d.politica.estado}. Fonte oficial: {d.politica.fonte_oficial}.</p>
       </section>
-      {!d.aguardando && (
-        <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
-          <p className="text-sm text-gray-700">{d.total} sub-asignações. Anúncios de terceiros: {d.indicador_terceiros.com_registro ?? '—'} com registro oficial e {d.indicador_terceiros.sem_registro ?? '—'} sem. {d.indicador_terceiros.nota}</p>
-          <table className="text-xs min-w-full">
-            <thead className="text-gray-500"><tr><th className="text-left px-2 py-1">Bloco</th><th className="text-left px-2 py-1">Receptor</th><th className="text-left px-2 py-1">Período</th>{Object.keys(d.validacoes).map((k) => <th key={k} className="text-center px-2 py-1" title={d.validacoes[k]}>{VALIDACOES_ROTULO[k] ?? k}</th>)}</tr></thead>
-            <tbody>
-              {d.items.map((s) => (
-                <tr key={s.id} className="border-t border-gray-100">
-                  <td className="px-2 py-1">{s.bloco}</td><td className="px-2 py-1"><Link to={`/asn/${s.receptor_asn}`} className="text-primario-600 hover:underline">AS{s.receptor_asn}</Link></td>
-                  <td className="px-2 py-1 whitespace-nowrap">{data(s.inicio)} a {s.fim ? data(s.fim) : 'em aberto'}</td>
-                  {Object.keys(d.validacoes).map((k) => <td key={k} className="px-2 py-1 text-center">{s.validacoes[k] === true ? 'sim' : s.validacoes[k] === false ? 'não' : <span className="text-gray-400">sem dado</span>}</td>)}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )}
-      {d.esquema_hipotetico && <p className="text-xs text-gray-500">O esquema dos registros é hipotético até o formato oficial ser conhecido; as validações aceitam "sem dado" e nunca inventam resultado.</p>}
+      <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+        <p className="text-sm text-gray-700">{d.total} sub-asignações. Anúncios de terceiros: {d.indicador_terceiros.com_registro ?? '—'} com registro oficial e {d.indicador_terceiros.sem_registro ?? '—'} sem. {d.indicador_terceiros.nota}</p>
+        <h3 className="text-sm font-semibold text-gray-900">Verificações feitas pelo OBINT (não são decisão do Registro.br nem do LACNIC)</h3>
+        <table className="text-xs min-w-full" aria-label="Verificações feitas pelo OBINT, agregadas">
+          <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Verificação</th><th scope="col" className="text-right px-2 py-1">Sim</th><th scope="col" className="text-right px-2 py-1">Não</th><th scope="col" className="text-right px-2 py-1">Sem dado</th></tr></thead>
+          <tbody>{chaves.map((k) => (
+            <tr key={k} className="border-t border-gray-100"><td className="px-2 py-1" title={d.validacoes[k]}>{VALIDACOES_ROTULO[k] ?? k}</td>
+              <td className="px-2 py-1 text-right tabular-nums">{conta(k, true)}</td><td className="px-2 py-1 text-right tabular-nums">{conta(k, false)}</td><td className="px-2 py-1 text-right tabular-nums">{conta(k, null)}</td></tr>
+          ))}</tbody>
+        </table>
+        <table className="text-xs min-w-full">
+          <caption className="sr-only">Sub-asignações registradas</caption>
+          <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Bloco</th><th scope="col" className="text-left px-2 py-1">Receptor</th><th scope="col" className="text-left px-2 py-1">Período</th></tr></thead>
+          <tbody>
+            {d.items.map((s) => (
+              <tr key={s.id} className="border-t border-gray-100">
+                <td className="px-2 py-1">{s.bloco}</td><td className="px-2 py-1"><Link to={`/asn/${s.receptor_asn}`} className="text-primario-600 hover:underline">AS{s.receptor_asn}</Link></td>
+                <td className="px-2 py-1 whitespace-nowrap">{data(s.inicio)} a {s.fim ? data(s.fim) : 'em aberto'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+      {d.esquema_hipotetico && <p className="text-xs text-gray-500">O esquema dos registros é hipotético até o formato oficial ser conhecido; as verificações aceitam "sem dado" e nunca inventam resultado.</p>}
     </div>
   )
 }
@@ -365,7 +385,9 @@ function Subasignacoes() {
  */
 export function MercadoIpv4Page() {
   const [params, setParams] = useSearchParams()
-  const aba = ABAS.some((a) => a.id === params.get('aba')) ? params.get('aba')! : 'transferencias'
+  const sub = useSubasignacoes()
+  const abas = sub.data && !sub.data.aguardando ? ABAS : ABAS.filter((a) => a.id !== 'subasignacoes')        // sem fonte oficial, sem aba (IPV4-E15)
+  const aba = abas.some((a) => a.id === params.get('aba')) ? params.get('aba')! : 'transferencias'
   const date = useActiveDate() ?? undefined
   const meta = useQuery({ queryKey: ['ipv4-mercado', date], queryFn: () => fetchIpv4Mercado(date), staleTime: 10 * 60 * 1000, retry: false })
   return (
@@ -374,9 +396,9 @@ export function MercadoIpv4Page() {
         <h1 className="text-titulo-1 text-gray-900">Mercado secundário de IPv4</h1>
         <p className="text-sm text-gray-500">Transferências de blocos IPv4 com o Brasil, recursos em recuperação e o ciclo de vida de cada bloco. Fontes: Registro.br e LACNIC.</p>
       </div>
-      <BarraDeAbas abas={ABAS} ativa={aba} aoEscolher={(id) => setParams(manterData(params, { aba: id }))} rotulo="Seções do Mercado IPv4" />
+      <BarraDeAbas abas={abas} ativa={aba} aoEscolher={(id) => setParams(manterData(params, { aba: id }))} rotulo="Seções do Mercado IPv4" />
       <div role="tabpanel" id={`painel-${aba}`} aria-labelledby={`aba-${aba}`} className="space-y-5">
-      {aba === 'transferencias' && <Transferencias />}
+      {aba === 'transferencias' && <><Transferencias /><QuadroSubasignacoes /></>}
       {aba === 'recuperacao' && <Recuperacao />}
       {aba === 'espaco' && <EspacoSemUso />}
       {aba === 'terceiros' && <UsoPorTerceiros />}

@@ -10,7 +10,7 @@ import type { PttCtx } from '../contexto'
 export function PotencialBloco({ dados }: BlocoProps<PttCtx>) {
   const { potential } = dados
   return (
-    <MetGroup title="Potencial" borderClass="border-aviso-100" titleClass="text-aviso-600">
+    <MetGroup title="Potencial" borderClass="border-gray-200" titleClass="text-gray-500">
       <MetCell
         label="+ ASes op. perto (80km)"
         value={num(potential?.nearby_asn_count)}
@@ -30,7 +30,6 @@ export function PotencialBloco({ dados }: BlocoProps<PttCtx>) {
         label="Potencial de usuários finais"
         value={num(potential?.estimated_users_total)}
         tooltip="Para cada AS BR com prefixos IPv4 na união, estima usuários proporcionalmente à fração do espaço anunciado do AS coberta pela união (mesma metodologia do indicador 'Usuários visíveis')"
-        color="text-aviso-700"
       />
     </MetGroup>
   )

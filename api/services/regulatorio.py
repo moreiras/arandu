@@ -11,7 +11,13 @@ from typing import Optional
 from core.satelites import sistemas_ngeo
 
 _META = ("natureza", "fonte", "data_arquivo", "limites", "snapshot_date")
-ORDENS_MULTAS = ("saldo", "multas", "original", "pago")
+ORDENS_MULTAS = ("empresa", "saldo", "multas", "original", "pago")
+#: ordem padrão da lista (D6): alfabética pelo nome da empresa, nunca pelo valor devido
+ORDEM_MULTAS_PADRAO = "empresa"
+AVISO_MULTAS = "Multa constituída não é condenação definitiva."
+REGRA_ORDEM_MULTAS = {"empresa": "Ordem alfabética pelo nome da empresa e, em empate, pela raiz do CNPJ e pelo serviço (neutra).",
+                      **{k: f"Ordenada por {t} (maior primeiro), escolha de quem consulta." for k, t in (("saldo", "saldo devedor atualizado"), ("multas", "número de multas"),
+                                                                                                    ("original", "valor original"), ("pago", "valor pago"))}}
 CARATERES = ("Primário", "Secundário")
 
 
@@ -52,8 +58,11 @@ def multas_empresas(doc: dict, grupo: Optional[str], q: Optional[str], ordem: st
     if q:
         n = q.strip().lower()
         linhas = [x for x in linhas if n in x["entidade"].lower() or n in x["raiz"]]
-    linhas.sort(key=lambda x: (-x[ordem], x["raiz"], x["grupo"]))
-    return {**_meta(doc), "grupo": grupo, "ordem": ordem, "total": len(linhas), "limit": limit, "offset": offset, "items": linhas[offset:offset + limit]}
+    if ordem == "empresa":
+        linhas.sort(key=lambda x: ((x["entidade"] or "").casefold(), x["raiz"], x["grupo"]))
+    else:
+        linhas.sort(key=lambda x: (-x[ordem], (x["entidade"] or "").casefold(), x["raiz"], x["grupo"]))
+    return {**_meta(doc), "grupo": grupo, "ordem": ordem, "regra_ordem": REGRA_ORDEM_MULTAS[ordem], "aviso": AVISO_MULTAS, "total": len(linhas), "limit": limit, "offset": offset, "items": linhas[offset:offset + limit]}
 
 
 def bloco_operadora(doc: Optional[dict], cnpj: str) -> Optional[dict]:

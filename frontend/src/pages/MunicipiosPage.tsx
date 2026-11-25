@@ -13,6 +13,7 @@ import { UFS, nomeUf } from '../lib/ufs'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
 import { Dica } from '../components/ui/Dica'
 import { EstadoDados } from '../components/ui/EstadoDados'
+import { AvisosRecorte } from '../components/ui/AvisoRecorte'
 import { useActiveDate } from '../hooks/useSnapshot'
 
 const POR_PAGINA = 25
@@ -155,7 +156,7 @@ export function MunicipiosPage() {
                 <tr key={r.ibge}>
                   <td className="px-2 py-1 text-gray-400 tabular-nums">{r.posicao}</td>
                   <td className="px-2 py-1"><Link to={`/municipio/${r.ibge}`} className="text-primario-600 hover:underline">{r.nome}</Link> <span className="text-xs text-gray-400">{r.uf}</span></td>
-                  <td className="px-2 py-1 text-right tabular-nums">{n(r.acessos)}</td><td className="px-2 py-1 text-right tabular-nums">{n(r.hhi)}</td><td className="px-2 py-1 text-right tabular-nums">{n(r.n_operadoras)}</td>
+                  <td className="px-2 py-1 text-right tabular-nums">{n(r.acessos)}</td><td className="px-2 py-1 text-right tabular-nums">{n(r.hhi)}</td><td className="px-2 py-1 text-right tabular-nums">{n(r.n_operadoras)} <AvisosRecorte avisos={r.avisos} /></td>
                   <td className="px-2 py-1 text-right tabular-nums">{pct(r.var_aa_pct)}</td>
                   <td className="px-2 py-1 text-xs text-right">{r.lider ? `${r.lider.empresa} (${r.lider.share.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%)` : '—'}</td>
                 </tr>

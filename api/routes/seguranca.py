@@ -29,7 +29,7 @@ router = APIRouter()
 Para os ASNs do Brasil: quantos têm medição de ROV (validação RPKI) e de DNSSEC com amostra suficiente (≥ 100), a mediana e a média ponderada do percentual medido pelo
 APNIC e a distribuição em faixas neutras (até 10, de 10 a 90, acima de 90), mais quantos originam prefixos em espaço bogon. Sem `uf`, traz o país, todas as UFs e as faixas
 de porte (acessos declarados ao SICI); com `uf`, só aquela UF e o país. Não é ranking de empresas; fontes, datas e limites vêm na resposta. O campo `manrs` traz, só de forma agregada, a participação em organizações do programa de operadores do MANRS
-(ASNs e usuários, no total, por porte e por UF; recortes com menos de 5 participantes vêm suprimidos), com a atribuição exigida: "Provided by the MANRS with support from the Global Cyber Alliance".
+(ASNs e usuários, no total, por porte e por UF; nenhum recorte é suprimido: o de menos de 5 participantes, ou dominado por um ASN, vem com `avisos`, `n_asns_com_dado` e `peso_top1`), com a atribuição exigida: "Provided by the MANRS with support from the Global Cyber Alliance".
 """,
 )
 def seguranca_resumo(request: Request, date: Optional[str] = Query(None), uf: Optional[str] = Query(None)) -> dict:

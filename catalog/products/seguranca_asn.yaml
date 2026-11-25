@@ -37,7 +37,7 @@ campos:
 - nome: por_uf / por_faixa_porte / brasil
   tipo: dict
   significado: Contagem de ASNs, mediana e média ponderada de ROV e DNSSEC e distribuição em faixas neutras (até 10, 10 a 90, acima de 90), por UF e por porte (usuários estimados do APNIC; a faixa de acessos declarados ao SICI do CNPJ fica em `faixa_acessos_sici` de cada ASN).
-  tratamento: Só ASNs com pelo menos 100 amostras; não é ranking de empresas.
+  tratamento: Só ASNs com pelo menos 100 amostras; não é ranking de empresas. Nenhum recorte é suprimido (D6) com `rov` e `dnssec` trazem `n_asns_com_dado`, `peso_top1` (parcela do ASN com mais amostras) e `avisos` (`poucos_casos` com menos de 5; `maior_integrante` com 30% ou mais).
   publicado_em:
   - seguranca_asn → seguranca/asns.json.gz#por_uf
 - nome: fontes / parametros / limites

@@ -41,7 +41,7 @@ def sem_acento(s: str) -> str:
 
 
 # Marcadores de entidade jurídica estrangeira (forma societária e termos de empresa em inglês e espanhol): só valem fora do Brasil. Sem nenhum deles, e com ao menos duas palavras,
-# o nome estrangeiro é tratado como pessoa provável (IPV4-E14): errar para o lado da omissão é o custo aceito; a nota da página diz que a identificação é automática.
+# o nome estrangeiro é tratado como pessoa provável (IPV4-E14): errar para o lado de deixar de fora é o custo aceito; a nota da página diz que a identificação é automática.
 _MARCADORES_PJ_ESTRANGEIRO = re.compile(
     r"\b(LTD|LIMITED|INC|INCORPORATED|LLC|LLP|LP|PLC|CORP|CORPORATION|CO|COMPANY|GMBH|AG|KG|UG|BV|B\.V\.?|NV|N\.V\.?|SRL|S\.R\.L\.?|SAS|SARL|SPA|S\.P\.A\.?|SL|S\.L\.?|"
     r"SA DE CV|S DE RL|PTY|PTE|BHD|SDN|OY|OYJ|AB|ASA|APS|A/S|AS|ZAO|OOO|PJSC|JSC|OJSC|KK|GK|KFT|SPOLKA|"

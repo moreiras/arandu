@@ -26,6 +26,7 @@ import ipaddress
 from bisect import bisect_left
 from typing import Optional
 
+from core.alerta_ptt_proximo import deve_avaliar as _ptt_deve_avaliar, detalhe as _ptt_detalhe
 from core.geo import haversine_km
 
 # Raio (km) para considerar um AS "próximo" de um PTT onde não participa.
@@ -351,7 +352,7 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
 
     # ----- geo: PTT próximo sem participação ------------------------------
     try:
-        coords = store.asn_coords(date_str, asn)
+        coords = store.asn_coords(date_str, asn) if _ptt_deve_avaliar(store, date_str, asn, doc) else None
         if coords:
             lat, lon = coords
             member_codes = set(doc.get("ixp_member_codes") or [])
@@ -370,9 +371,7 @@ def compute_asn_alerts(store, date_str: str, asn: int, doc: dict) -> list[dict]:
             if near:
                 add("ptt_proximo_sem_participar", "geo", "aviso",
                     "PTT próximo sem participação",
-                    f"O AS está a menos de {int(GEO_PROXIMITY_KM)} km de "
-                    f"{len(near)} PTT(s) do IX.br onde não participa. Participar "
-                    "pode reduzir custo de trânsito e latência.",
+                    _ptt_detalhe(near, int(GEO_PROXIMITY_KM)),
                     {"ixps": near[:10]})
     except Exception:
         pass

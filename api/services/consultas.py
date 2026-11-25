@@ -339,10 +339,11 @@ class ConsultasService:
             ind = self.sici_indicadores(date_str) or {}
             rows = [{"cnpj": c, "empresa": o["empresa"], "uf": o["uf"], "acessos": o["acessos"], "share_br": o["share_br"], "posicao_br": o["posicao_br"],
                      **{f"{k}_{x}": o[k][x] for k in ("var_mm", "var_aa") if k in o for x in ("abs", "pct")},
+                     **({"base_aa": o["acessos"] - o["var_aa"]["abs"]} if "var_aa" in o else {}),
                      "meses_declinio": o["meses_declinio"], "em_declinio": o["em_declinio"], "mes_referencia": ind["mes_referencia"]}
                     for c, o in (ind.get("operadoras") or {}).items()]
-        elif collection == "omissao_sici":
-            om = self.omissao_sici(date_str) or {}
+        elif collection == "sem_declaracao_sici":
+            om = self.sem_declaracao_sici(date_str) or {}
             rows = [{"cnpj": c, **v, "mes_referencia": om["mes_referencia"]} for c, v in (om.get("itens") or {}).items()]
         else:  # pragma: no cover — guard acima já cobre
             rows = []
@@ -411,7 +412,11 @@ class ConsultasService:
             return tab
 
     def query(self, date_str: str, collection: str, body: dict) -> dict:
-        """`_executar` com cache de resultado. O dict devolvido é compartilhado: quem chama não o altera (a rota serializa, o MCP devolve)."""
+        """`_executar` com cache de resultado. O dict devolvido é compartilhado: quem chama não o altera (a rota serializa, o MCP devolve).
+        Nome antigo de collection (`COLECOES_ALIAS`) roda na nova e devolve uma cópia com `aviso_obsoleta`."""
+        from api import query as _q
+        if collection in _q.COLECOES_ALIAS:
+            return {**self.query(date_str, _q.COLECOES_ALIAS[collection], body), "aviso_obsoleta": _q.aviso_colecao_obsoleta(collection)}
         try:
             chave = (date_str, collection, json.dumps(body or {}, sort_keys=True, default=str))
         except (TypeError, ValueError):

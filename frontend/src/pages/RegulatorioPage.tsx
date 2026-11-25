@@ -34,9 +34,9 @@ const mhz = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits: 4 
 const data = (d?: string | null) => (d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : '—')
 const staleTime = 10 * 60 * 1000
 
-/** Cabeçalho ligado à `ordem` de uma rota paginada: a API só ordena do maior para o menor, então o clique escolhe a coluna e não inverte. */
+/** Cabeçalho ligado à `ordem` de uma rota paginada: a API ordena do maior para o menor (e `empresa` em ordem alfabética), então o clique escolhe a coluna e não inverte. */
 const thServidor = (ordem: string, setOrdem: (c: string) => void) => (campo: string) =>
-  ({ campo, ordem: { campo: ordem, dir: 'desc' } as Ordem, onOrdenar: setOrdem })
+  ({ campo, ordem: { campo: ordem, dir: ordem === 'empresa' ? 'asc' : 'desc' } as Ordem, onOrdenar: setOrdem })
 
 function Rodape({ m }: { m: RegMeta }) {
   return <p className="text-xs text-gray-500">Anatel, dados abertos (arquivo de {m.data_arquivo ? new Date(m.data_arquivo).toLocaleDateString('pt-BR') : 'data não informada'}; snapshot {m.snapshot_date}). {m.limites}</p>
@@ -118,15 +118,18 @@ function Fust() {
   )
 }
 
+/** Situação das multas da linha em texto (quitada, devedor, parcial), sem cor. */
+const situacaoTexto = (s: Record<string, number>) => [['Quitado', 'quitada(s)'], ['Devedor', 'devedor'], ['Parcial', 'parcial']].filter(([k]) => (s[k] ?? 0) > 0).map(([k, r]) => `${inteiro(s[k])} ${r}`).join(' · ') || '—'
+
 function Multas() {
   const [grupo, setGrupo] = useState('')
   const [q, setQ] = useState('')
   const [page, setPage] = useState(1)
   // Lista paginada pela API: a ordem vai ao servidor e volta à primeira página.
-  const [ordem, setOrdem] = useState('saldo')
+  const [ordem, setOrdem] = useState('empresa')
   const date = useActiveDate() ?? undefined
   const resumo = useQuery({ queryKey: ['multas-resumo', date], queryFn: () => fetchMultasResumo(date), staleTime, retry: false })
-  const lista = useQuery({ queryKey: ['multas-empresas', date, grupo, q, page, ordem], queryFn: () => fetchMultasEmpresas({ date, grupo: grupo || undefined, q: q || undefined, limit: 20, page, ...(ordem === 'saldo' ? {} : { ordem }) }), staleTime, retry: false })
+  const lista = useQuery({ queryKey: ['multas-empresas', date, grupo, q, page, ordem], queryFn: () => fetchMultasEmpresas({ date, grupo: grupo || undefined, q: q || undefined, limit: 20, page, ...(ordem === 'empresa' ? {} : { ordem }) }), staleTime, retry: false })
   const th = thServidor(ordem, (c) => { setOrdem(c); setPage(1) })
   const r = resumo.data
   if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="as multas" mensagem="Multas não publicadas neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
@@ -158,14 +161,15 @@ function Multas() {
         {lista.isError && <EstadoDados erro={lista.error} oQue="a lista" mensagem="A lista não está publicada neste snapshot." aoTentarDeNovo={() => void lista.refetch()} />}
         {lista.data && (
           <>
+            <p className="text-xs text-gray-600" data-testid="regra-multas">{lista.data.regra_ordem ?? 'Ordem alfabética pelo nome da empresa.'} Reordene pelos cabeçalhos. <strong>Multa constituída não é condenação definitiva.</strong></p>
             <div className="overflow-x-auto">
               <table className="text-xs min-w-full"><caption className="sr-only">Multas por empresa e serviço</caption>
-                <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Empresa</th><th scope="col" className="text-left px-2 py-1">Serviço</th><ThOrdenavel {...th('multas')} alinhar="right" className="text-right px-2 py-1">Multas</ThOrdenavel><th scope="col" className="text-right px-2 py-1">Devedor</th><ThOrdenavel {...th('saldo')} alinhar="right" className="text-right px-2 py-1">Saldo atualizado</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Anos</th></tr></thead>
+                <thead className="text-gray-500"><tr><ThOrdenavel {...th('empresa')} className="text-left px-2 py-1">Empresa</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Serviço</th><ThOrdenavel {...th('multas')} alinhar="right" className="text-right px-2 py-1">Multas</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Situação das multas</th><ThOrdenavel {...th('saldo')} alinhar="right" className="text-right px-2 py-1">Saldo atualizado</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Anos</th></tr></thead>
                 <tbody>{lista.data.items.map((e) => (
                   <tr key={`${e.raiz}-${e.grupo}`} className="border-t border-gray-100">
                     <td className="px-2 py-1">{e.cnpj_matriz ? <Link to={`/operadora/${e.cnpj_matriz}`} className="text-primario-600 hover:underline">{e.entidade}</Link> : e.entidade}</td>
                     <td className="px-2 py-1">{e.grupo}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(e.multas)}</td>
-                    <td className="px-2 py-1 text-right tabular-nums">{inteiro((e.situacoes.Devedor ?? 0) + (e.situacoes.Parcial ?? 0))}</td><td className="px-2 py-1 text-right tabular-nums">{reais(e.saldo)}</td>
+                    <td className="px-2 py-1">{situacaoTexto(e.situacoes)}</td><td className="px-2 py-1 text-right tabular-nums">{reais(e.saldo)}</td>
                     <td className="px-2 py-1">{e.primeiro_ano === e.ultimo_ano ? e.primeiro_ano : `${e.primeiro_ano}–${e.ultimo_ano}`}</td></tr>))}</tbody>
               </table>
             </div>

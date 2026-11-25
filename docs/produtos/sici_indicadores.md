@@ -23,7 +23,7 @@ Share, HHI, variações, declínio contínuo e parada de declaração por operad
 
 ## Saídas
 
-- **Publicado:** `sici_indicadores.json.gz`, `sici_serie_municipio.json.gz`, `mercado_grupos.json.gz`, `omissao_sici.json.gz`
+- **Publicado:** `sici_indicadores.json.gz`, `sici_serie_municipio.json.gz`, `mercado_grupos.json.gz`, `sem_declaracao_sici.json.gz`
 
 ## Dicionário de campos
 
@@ -36,11 +36,15 @@ Share, HHI, variações, declínio contínuo e parada de declaração por operad
 | `operadoras[cnpj].var_mm / var_aa` | dict | Variação absoluta e percentual de acessos contra o mês anterior e contra o mesmo mês do ano anterior. | — | sici_indicadores → sici_indicadores.json.gz#operadoras |
 | `operadoras[cnpj].meses_declinio / em_declinio` | int / bool | Meses seguidos de queda até o mês de referência; verdadeiro quando chega ao limite dos parâmetros. | — | sici_indicadores → sici_indicadores.json.gz#operadoras |
 | `parou_de_declarar[cnpj]` | dict | CNPJ que declarou antes e está sem declaração há pelo menos a janela dos parâmetros. | Fato sobre a declaração (último mês declarado), sem causa. | sici_indicadores → sici_indicadores.json.gz#parou_de_declarar |
-| `ufs[uf] / municipios[ibge] / brasil` | dict | Acessos, HHI, número de operadoras, líder, variações, ganho e perda do ano. | HHI sobre acessos declarados. | sici_indicadores → sici_indicadores.json.gz#municipios |
+| `ufs[uf] / municipios[ibge] / brasil` | dict | Acessos, HHI, número de operadoras, líder, variações, ganho e perda do ano. | HHI sobre acessos declarados. Nada é suprimido (D6) e `avisos` traz `poucos_casos` com menos de 5 operadoras; a parcela do líder (`lider.share`) fica à vista e não gera aviso próprio, por ser parte da medida. Nos mercados por grupo, `acessos`, `n_cnpjs`, `n_grupos`, `avisos_cnpj` e `avisos_grupo` (e `lider_grupo_share` na UF) dão a base de cada HHI. | sici_indicadores → sici_indicadores.json.gz#municipios |
 | `parametros` | dict | Janelas e limiares usados no cálculo. | — | sici_indicadores → sici_indicadores.json.gz#parametros |
-| `itens[cnpj].classe / usuarios_apnic` | str / int | Outorga SCM sem acessos declarados no mês e a classe pelos usuários estimados dos ASNs do CNPJ. | Usuários APNIC são estimativa (medição estatística); a classe nao_comparavel é CNPJ sem ASN. | sici_indicadores → omissao_sici.json.gz#itens |
-| `itens[cnpj].grupo_declara` | bool | Outro CNPJ do mesmo grupo societário declarou acessos no mês. | Evidência para quem lê a linha; grupo parcial não prova controle. | sici_indicadores → omissao_sici.json.gz#itens |
-| `por_uf` | dict | Contagem por UF das outorgas sem declaração, por classe, e soma dos usuários estimados. | — | sici_indicadores → omissao_sici.json.gz#por_uf |
-| `snapshot_date / mes_referencia` | str | Data do snapshot e mês de referência da declaração. | — | sici_indicadores → sici_indicadores.json.gz#mes_referencia; sici_indicadores → omissao_sici.json.gz#mes_referencia |
+| `itens[cnpj].classe / usuarios_apnic` | str / int | Outorga SCM sem acessos declarados no mês e a classe pelos usuários estimados dos ASNs do CNPJ. | Usuários APNIC são estimativa (medição estatística); a classe nao_comparavel é CNPJ sem ASN. | sici_indicadores → sem_declaracao_sici.json.gz#itens |
+| `itens[cnpj].grupo_declara` | bool | Outro CNPJ do mesmo grupo societário declarou acessos no mês. | Evidência para quem lê a linha; grupo parcial não prova controle. | sici_indicadores → sem_declaracao_sici.json.gz#itens |
+| `por_uf` | dict | Contagem por UF das outorgas sem declaração, por classe, e soma dos usuários estimados. | — | sici_indicadores → sem_declaracao_sici.json.gz#por_uf |
+| `snapshot_date / mes_referencia` | str | Data do snapshot e mês de referência da declaração. | — | sici_indicadores → sici_indicadores.json.gz#mes_referencia; sici_indicadores → sem_declaracao_sici.json.gz#mes_referencia |
 | `snapshot_date / generated_at / mes_referencia / natureza / fonte / limites / faixas / resumo / ufs` | str / dict | Cabeçalho do cruzamento de mercado: data do snapshot, mês de referência, natureza (inferido), fonte, limites, as faixas de HHI, o resumo de municípios que mudam de faixa e o HHI por UF. | — | sici_indicadores → mercado_grupos.json.gz#snapshot_date; sici_indicadores → mercado_grupos.json.gz#generated_at; sici_indicadores → mercado_grupos.json.gz#mes_referencia; sici_indicadores → mercado_grupos.json.gz#natureza; sici_indicadores → mercado_grupos.json.gz#fonte; sici_indicadores → mercado_grupos.json.gz#limites; sici_indicadores → mercado_grupos.json.gz#faixas; sici_indicadores → mercado_grupos.json.gz#resumo; sici_indicadores → mercado_grupos.json.gz#ufs |
 | `snapshot_date / generated_at / mes_referencia / meses / fonte / parametros` | str / dict | Cabeçalho da série de participação por município: snapshot, mês de referência, os 13 meses da janela, fonte e parâmetros (meses e líderes). | — | sici_indicadores → sici_serie_municipio.json.gz#snapshot_date; sici_indicadores → sici_serie_municipio.json.gz#generated_at; sici_indicadores → sici_serie_municipio.json.gz#mes_referencia; sici_indicadores → sici_serie_municipio.json.gz#meses; sici_indicadores → sici_serie_municipio.json.gz#fonte; sici_indicadores → sici_serie_municipio.json.gz#parametros |
+
+## Limites
+
+"Sem declaração ao SICI em AAAA-MM" quer dizer só que o CNPJ tem outorga SCM e não há acessos dele declarados naquele mês de referência; não indica causa nem intenção. A causa só aparece onde há dado e com selo ("outro CNPJ do grupo declarou", inferido do quadro societário). Nome anterior (D12), mantido como alias por um período e a remover depois de duas versões: arquivo `omissao_sici.json.gz` (os snapshots publicados antes de 2026-11 só têm este), collection `omissao_sici`, rota `GET /omissao-sici` e visão `?visao=omissao`. A API avisa com `Deprecation` e `aviso_depreciacao`; o MCP, com `aviso_obsoleta`.

@@ -11,4 +11,4 @@ depois_de:
 politica_falha: opcional
 replay: true
 descricao: 'Passo do build do snapshot: participação de ASNs e usuários do Brasil em organizações do programa de operadores do MANRS, por UF e porte, e comparação agregada da prontidão. Só agregados,
-  com atribuição e supressão de recortes com menos de 5 ASNs participantes (termos do MANRS).'
+  com atribuição (termos do MANRS); nenhum recorte é suprimido: o recorte com menos de 5 ASNs participantes, ou com um ASN de peso grande, sai com aviso.'

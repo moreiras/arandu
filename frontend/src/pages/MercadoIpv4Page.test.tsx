@@ -6,7 +6,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { server } from '../test/server'
 import { MercadoIpv4Page } from './MercadoIpv4Page'
@@ -121,19 +121,41 @@ describe('Mercado de IPv4: espaço sem uso e uso por terceiros', () => {
   })
 })
 
-describe('Mercado de IPv4: sub-asignações', () => {
-  it('sem bitácora oficial explica que aguarda e mostra o vigia com o alerta, sem inventar registro', async () => {
+describe('Mercado de IPv4: sub-asignações (IPV4-E15)', () => {
+  const aguardando = { ...meta, natureza: 'indisponivel', ativa: false, aguardando: true, esquema_hipotetico: true,
+    aviso: 'Aguardando a publicação oficial. A política LAC-2025-5 foi ratificada.', politica: { nome: 'LAC-2025-5', estado: 'ratificada em 2026-03-24', fonte_oficial: 'ainda não publicada' },
+    validacoes: { receptor_origina: 'x' }, vigia: { ultima_varredura: '2026-11-02', alertas_30_dias: [{ data: '2026-11-02', tipo: 'padrao_novo', nome: 'bitacora.json', url: 'https://ftp.lacnic.net/' }] },
+    indicador_terceiros: { com_registro: null, sem_registro: null, nota: 'x' }, eventos: [], total: 0, limit: 100, offset: 0, items: [] }
+
+  it('sem bitácora oficial não há aba: um quadro ao fim de Transferências diz o que falta, sem registro inventado', async () => {
     server.use(
       http.get('*/api/v1/ipv4/transferencias/resumo', () => HttpResponse.json(mercado)),
-      http.get('*/api/v1/ipv4/subasignacoes', () => HttpResponse.json({ ...meta, natureza: 'indisponivel', ativa: false, aguardando: true, esquema_hipotetico: true,
-        aviso: 'Aguardando a publicação oficial. A política LAC-2025-5 foi ratificada.', politica: { nome: 'LAC-2025-5', estado: 'ratificada em 2026-03-24', fonte_oficial: 'ainda não publicada' },
-        validacoes: { receptor_origina: 'x' }, vigia: { ultima_varredura: '2026-11-02', alertas_30_dias: [{ data: '2026-11-02', tipo: 'padrao_novo', nome: 'bitacora.json', url: 'https://ftp.lacnic.net/' }] },
-        indicador_terceiros: { com_registro: null, sem_registro: null, nota: 'x' }, eventos: [], total: 0, limit: 100, offset: 0, items: [] })),
+      http.get('*/api/v1/ipv4/subasignacoes', () => HttpResponse.json(aguardando)),
+    )
+    montar(<MercadoIpv4Page />, '/mercado-ipv4?aba=subasignacoes')                  // o link antigo cai em Transferências
+    await waitFor(() => expect(screen.getByTestId('quadro-subasignacoes')).toBeTruthy())
+    const quadro = screen.getByTestId('quadro-subasignacoes').textContent ?? ''
+    expect(quadro).toMatch(/LAC-2025-5: ratificada em 2026-03-24\. Fonte oficial: ainda não publicada\. Nenhum arquivo oficial encontrado até a varredura de/)
+    expect(quadro).toMatch(/padrao novo bitacora.json/)
+    expect(screen.queryByRole('tab', { name: 'Sub-asignações' })).toBeNull()
+    expect(screen.queryByText(/sub-asignações\. Anúncios/)).toBeNull()
+  })
+
+  it('com fonte oficial a aba existe e mostra só agregados das verificações do OBINT, sem coluna por receptor nem conformidade total', async () => {
+    const ativa = { ...aguardando, ativa: true, aguardando: false, aviso: null, validacoes: { receptor_origina: 'o receptor origina o bloco', tem_roa: 'tem ROA' }, total: 2,
+      indicador_terceiros: { com_registro: 1, sem_registro: 0, nota: 'n' },
+      items: [{ id: 'a', bloco: '203.0.113.0/24', receptor_asn: 64500, cedente_asn: null, inicio: '2026-01-01', fim: null, rir: 'lacnic', validacoes: { receptor_origina: true, tem_roa: null }, em_conformidade: false, pendentes: ['tem_roa'] },
+        { id: 'b', bloco: '198.51.100.0/24', receptor_asn: 64501, cedente_asn: null, inicio: '2026-02-01', fim: null, rir: 'lacnic', validacoes: { receptor_origina: false, tem_roa: true }, em_conformidade: false, pendentes: [] }] }
+    server.use(
+      http.get('*/api/v1/ipv4/transferencias/resumo', () => HttpResponse.json(mercado)),
+      http.get('*/api/v1/ipv4/subasignacoes', () => HttpResponse.json(ativa)),
     )
     montar(<MercadoIpv4Page />, '/mercado-ipv4?aba=subasignacoes')
-    await waitFor(() => expect(screen.getAllByText(/Aguardando a publicação oficial/).length).toBeGreaterThan(0))
-    expect(screen.getByText(/padrao novo bitacora.json/)).toBeTruthy()
-    expect(screen.getByText(/hipotético até o formato oficial/)).toBeTruthy()
-    expect(screen.queryByText(/sub-asignações\. Anúncios/)).toBeNull()
+    await waitFor(() => expect(screen.getByText(/Verificações feitas pelo OBINT \(não são decisão do Registro\.br nem do LACNIC\)/)).toBeTruthy())
+    const agregado = screen.getByRole('table', { name: /agregadas/ })
+    expect(within(agregado).getByText('origina').closest('tr')!.textContent).toBe('origina110')       // 1 sim, 1 não, 0 sem dado
+    expect(within(agregado).getByText('ROA').closest('tr')!.textContent).toBe('ROA101')
+    expect(document.body.textContent).not.toMatch(/conformidade|em conformidade/i)
+    expect(screen.queryByRole('columnheader', { name: 'ROA' })).toBeNull()                     // nada por receptor na tabela de registros
   })
 })

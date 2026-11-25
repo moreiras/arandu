@@ -91,9 +91,12 @@ describe('páginas com ?date= pedem a API na data e a mantêm na navegação int
   it('Mercado IPv4: todas as abas com a data; aba e filtros na URL junto com a data (IPV4-E2)', async () => {
     montar(<MercadoIpv4Page />, `/mercado-ipv4?aba=espaco&uf=RJ&date=${ANTIGA}`)
     await waitFor(() => expect(pedidos.some((u) => u.pathname === '/api/v1/ipv4/espaco' && u.searchParams.get('uf') === 'RJ' && u.searchParams.get('date') === ANTIGA)).toBe(true))
-    for (const aba of ['Transferências', 'Recuperação', 'Uso por terceiros', 'Sub-asignações']) fireEvent.click(screen.getByRole('tab', { name: aba }))
-    await waitFor(() => expect(['/api/v1/ipv4/transferencias', '/api/v1/ipv4/transferencias/resumo', '/api/v1/ipv4/recuperacao', '/api/v1/ipv4/uso-por-terceiros', '/api/v1/ipv4/subasignacoes'].every(pediu)).toBe(true))
-    expect(local().get('aba')).toBe('subasignacoes')
+    // sem fonte oficial a aba Sub-asignações não existe (IPV4-E15); a consulta dela segue pedida, com a data
+    for (const aba of ['Transferências', 'Recuperação', 'Uso por terceiros']) fireEvent.click(screen.getByRole('tab', { name: aba }))
+    for (const c of ['/api/v1/ipv4/transferencias', '/api/v1/ipv4/transferencias/resumo', '/api/v1/ipv4/recuperacao', '/api/v1/ipv4/uso-por-terceiros', '/api/v1/ipv4/subasignacoes']) {
+      await waitFor(() => expect(pediu(c), `${c} com a data; pedidos: ${pedidos.map((u) => u.pathname + u.search).join(' ')}`).toBe(true))
+    }
+    expect(local().get('aba')).toBe('terceiros')
     expect(local().get('date')).toBe(ANTIGA)
     expect(local().get('uf')).toBeNull()
     expect(semData()).toEqual([])

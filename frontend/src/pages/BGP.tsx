@@ -258,7 +258,7 @@ export function BGP() {
       {/* Estabilidade BGP */}
       <Section
         title="Estabilidade de anúncios BGP"
-        desc="Identifica ASes brasileiros ruidosos: aqueles que realizam volume desproporcional de updates BGP em relação ao número de prefixos que anunciam. Um AS com muitos updates por prefixo por dia pode estar com link instável, sessão BGP oscilante, timer de rota mal configurado ou mecanismo de mitigação DDoS mal calibrado. A análise cobre os 7 dias anteriores ao snapshot com granularidade diária."
+        desc="Mostra o volume de updates BGP de cada AS brasileiro em relação ao número de prefixos que ele anuncia (updates por prefixo por dia). Causas possíveis não são observáveis neste dado: ele conta updates, não diz por que ocorreram. A análise cobre os 7 dias anteriores ao snapshot com granularidade diária."
       >
         <div ref={secaoEstabilidade}>
         {stability ? (
