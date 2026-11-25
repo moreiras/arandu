@@ -5,6 +5,8 @@ interface SummaryTableProps {
   globalTable: GlobalTableStats
   ixpAggregate: IXPAggregateStats
   totalBrASNs?: number
+  /** Total de PTTs do snapshot (ok + parcial + ausente); sem ele o rótulo não traz número. */
+  totalIxps?: number
 }
 
 function num(v: number | undefined | null, decimals = 0): string {
@@ -25,7 +27,7 @@ function Th({ label, tooltip, className = '' }: { label: string; tooltip: string
   )
 }
 
-export function SummaryTable({ globalTable, ixpAggregate, totalBrASNs }: SummaryTableProps) {
+export function SummaryTable({ globalTable, ixpAggregate, totalBrASNs, totalIxps }: SummaryTableProps) {
   const brAsnCovPct =
     totalBrASNs && ixpAggregate.br_asns_origin_union_count
       ? (ixpAggregate.br_asns_origin_union_count / totalBrASNs) * 100
@@ -138,7 +140,7 @@ export function SummaryTable({ globalTable, ixpAggregate, totalBrASNs }: Summary
           <tbody className="text-sm">
             <tr className="bg-primario-50/20">
               <td className="px-2 py-2 text-gray-500 text-xs sticky left-0 bg-primario-50/20 whitespace-nowrap">
-                40 IXPs
+                {totalIxps ? `${totalIxps} IXPs` : 'IXPs do IX.br'}
               </td>
               {/* AS */}
               <td className="px-2 py-2 text-right tabular-nums text-gray-700 border-l border-gray-100">{num(ixpAggregate.asn_direct_union_count)}</td>

@@ -4,7 +4,7 @@
 
 `peeringdb_ixps` · tipo **bruta** · ativa
 
-Para os IXPs externos configurados e para os 40 IXPs do IX.br, consulta /api/netixlan do PeeringDB e lista os ASNs presentes em cada um; cruza o cadastro do PeeringDB com o do IX.br.
+Para os IXPs externos configurados e para os IXPs do IX.br, consulta /api/netixlan do PeeringDB e lista os ASNs presentes em cada um; cruza o cadastro do PeeringDB com o do IX.br.
 
 ## Resumo
 

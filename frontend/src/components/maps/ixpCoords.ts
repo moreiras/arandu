@@ -1,4 +1,4 @@
-/** Coordenadas aproximadas dos 40 IXPs do IX.br, por código de cidade. */
+/** Coordenadas aproximadas dos IXPs do IX.br, por código de cidade. */
 export const IXP_COORDS: Record<string, [number, number]> = {
   ac: [-9.97, -67.81],
   ap: [0.03, -51.07],

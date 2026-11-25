@@ -8,7 +8,7 @@ publicavel: true
 exposicao: aberta
 decisao_exposicao: 'Aberta por decisão do projeto (D9, 2026-11-24; PTT externo revisto em 2026-11-25): o que a fonte alimenta é servido sem login na interface, na API e no MCP, e a abertura é intencional, não um padrão esquecido. Dado do PeeringDB. A lista de IXPs externos com contagens de membros, o detalhe de cada PTT externo (`/external-ixps/{code}`) e o comparador com `ext:` são servidos sem login (consulta medida), como as demais superfícies do PeeringDB. Os membros dos PTTs do IX.br seguem abertos (origem: IX.br).'
 atribuicao: 'Fonte: PeeringDB'
-descricao: Para os IXPs externos configurados e para os 40 IXPs do IX.br, consulta /api/netixlan do PeeringDB
+descricao: Para os IXPs externos configurados e para os IXPs do IX.br, consulta /api/netixlan do PeeringDB
   e lista os ASNs presentes em cada um; cruza o cadastro do PeeringDB com o do IX.br.
 origem:
   url: https://www.peeringdb.com/api/netixlan?ixlan_id={id}

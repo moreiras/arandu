@@ -116,7 +116,7 @@ DESCRICOES: dict[str, str] = {
         'os membros com nome e velocidade, com br_only. Args: code, country, br_only.'
     ),
     'ixp_lista': (
-        'Os 40 PTTs do IX.br com métricas-resumo; filtra por uf ou status de coleta (ok, partial, missing). Args: uf, status.'
+        'Os PTTs do IX.br com métricas-resumo; filtra por uf ou status de coleta (ok, partial, missing). Args: uf, status.'
     ),
     'ixp_participantes': (
         'Quem participa de UM PTT: visao="membros" = listas de ASNs diretos e originadores; visao="peers" = estatística por '

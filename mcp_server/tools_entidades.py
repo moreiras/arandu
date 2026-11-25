@@ -311,7 +311,7 @@ def list_ixps(
     uf: Optional[str] = None,
     date: Optional[str] = None,
 ) -> dict:
-    """Lista os 40 IXPs do IX.br com métricas-resumo por família (v6/v4).
+    """Lista os IXPs do IX.br com métricas-resumo por família (v6/v4).
 
     Cada família traz `coleta`: `ok` (o looking glass devolveu rotas), `vazia` (a coleta funcionou e o looking glass respondeu com a
     tabela vazia: zero rotas coletadas, não zero de cobertura; as porcentagens saem null) ou `missing`. Não atribua causa à tabela vazia.
