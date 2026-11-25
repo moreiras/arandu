@@ -49,20 +49,23 @@ describe('catálogo público', () => {
 })
 
 describe('/fontes', () => {
+  // Medido (vitest, 3 CPUs, sozinho): ~1,0 s, quase todo em render. Cada cartão traz a tabela de campos da fonte já no DOM (dentro do <details>
+  // fechado), e "Mostrar todas" monta todos de uma vez (~270 ms); as consultas por papel (`getByRole`) percorrem essa árvore inteira para
+  // checar acessibilidade, por isso passam `hidden: true`. Com a máquina disputada o tempo triplica e passava dos 5 s do padrão: teto só deste teste.
   it('mostra as primeiras fontes em cartões, com a licença e a última coleta vinda do manifesto, e as demais sob demanda', async () => {
     montar(<FontesPage />)
-    expect(await screen.findByRole('heading', { level: 2, name: new RegExp(`Fontes \\(${catalogo.fontes.length} de ${catalogo.fontes.length}\\)`) })).toBeInTheDocument()
-    expect(screen.queryByRole('table', { name: 'Fontes de dados' })).toBeNull()
-    const lista = screen.getByRole('list', { name: 'Fontes de dados' })
-    expect(within(lista).getAllByRole('listitem').length).toBe(Math.min(catalogo.fontes.length, 18))
+    expect(await screen.findByRole('heading', { level: 2, hidden: true, name: new RegExp(`Fontes \\(${catalogo.fontes.length} de ${catalogo.fontes.length}\\)`) })).toBeInTheDocument()
+    expect(screen.queryByRole('table', { name: 'Fontes de dados', hidden: true })).toBeNull()
+    const lista = screen.getByRole('list', { name: 'Fontes de dados', hidden: true })
+    expect(within(lista).getAllByRole('listitem', { hidden: true }).length).toBe(Math.min(catalogo.fontes.length, 18))
     if (catalogo.fontes.length > 18) {
-      fireEvent.click(screen.getByRole('button', { name: /Mostrar todas as fontes/ }))
-      expect(within(lista).getAllByRole('listitem').length).toBe(catalogo.fontes.length)
+      fireEvent.click(screen.getByRole('button', { name: /Mostrar todas as fontes/, hidden: true }))
+      expect(within(lista).getAllByRole('listitem', { hidden: true }).length).toBe(catalogo.fontes.length)
     }
     const cartao = within(lista).getByText('anatel_sici').closest('li')!
     expect(within(cartao).getByText(/ref\. 08\/2026/)).toBeInTheDocument()
     expect(within(cartao).getByText(/uso comercial/)).toBeInTheDocument()
-  })
+  }, 20_000)
 
   it('busca filtra e o detalhe abre com os campos e a origem', async () => {
     montar(<FontesPage />)
