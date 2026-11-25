@@ -20,7 +20,7 @@ export function DadosPage() {
       <div>
         <h1 className="text-titulo-1 text-gray-900">Dados abertos: API e MCP</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Tudo o que a interface mostra vem de uma API REST somente leitura, de snapshots datados e imutáveis. O mesmo motor de consulta responde ao servidor MCP, que
+          Tudo o que a interface mostra vem de uma API REST somente leitura, de snapshots datados. O mesmo motor de consulta responde ao servidor MCP, que
           permite perguntar em linguagem natural a um assistente de IA. Cada número tem fonte e data (veja as <Link to="/fontes" className="text-primario-600 hover:underline">fontes</Link>).
         </p>
       </div>
