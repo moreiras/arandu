@@ -18,6 +18,7 @@ import { tituloDaRota } from './tituloRota'
 import { useTabelasResponsivas } from './useTabelasResponsivas'
 import { SITE } from '../../lib/site'
 import { LeituraConfortavel } from './LeituraConfortavel'
+import { LegendaSelos } from '../ui/LegendaSelos'
 import { comData } from '../../lib/dataAtiva'
 
 /** Páginas de entidade da SPA (os links para elas em HTML cru são interceptados para manter a data do snapshot). */
@@ -44,8 +45,8 @@ export function AppLayout() {
   })
 
   // Data resolvida: ?date na URL ou o latest da store (preenchido via /health).
-  // Amarramos o gating ao `latestSnapshot` da store — que é exatamente o que
-  // useActiveDate lê — para que o conteúdo só renderize quando as páginas puderem
+  // Amarramos o gating ao `latestSnapshot` da store, que é exatamente o que
+  // useActiveDate lê, para que o conteúdo só renderize quando as páginas puderem
   // disparar requisições JÁ DATADAS (nunca resolvendo "latest" no servidor); assim
   // o snapshot mais recente é cacheável por 7 dias e evitamos um fetch sem data.
   const resolvedDate = params.get('date') ?? latestSnapshot
@@ -199,7 +200,7 @@ export function AppLayout() {
         </div>
       )}
 
-      {/* Conteúdo da página — só renderiza com data resolvida (chamadas sempre datadas) */}
+      {/* Conteúdo da página: só renderiza com data resolvida (chamadas sempre datadas) */}
       <main ref={conteudo} id="conteudo" tabIndex={-1} className={`outline-none ${isMapPage ? 'flex-1 overflow-hidden relative' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 py-6'}`}>
         {historicoSemLogin ? (
           <SnapshotHistoricoAviso data={dataPedida!} atuais={[...snapshotsDaLista!].sort().slice(-2)} />
@@ -217,8 +218,10 @@ export function AppLayout() {
       </main>
 
       {!isMapPage && (
-        <footer className="border-t border-gray-200 mt-12 py-4 text-center text-xs text-gray-400 print:hidden">
-          {SITE.nome} — {SITE.nomeExtenso}.{' '}
+        <footer className="border-t border-gray-200 mt-12 space-y-3 py-4 text-center text-xs text-gray-400 print:hidden">
+          <LegendaSelos />
+          <p>
+          {SITE.nome}: {SITE.nomeExtenso}.{' '}
           <a href="/sobre" className="underline hover:text-gray-600">
             Metodologia e fontes
           </a>
@@ -236,6 +239,7 @@ export function AppLayout() {
           </a>
           {' · '}
           <span title="Versão do sistema">v{__APP_VERSION__}</span>
+          </p>
         </footer>
       )}
     </div>

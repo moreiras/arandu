@@ -6,6 +6,8 @@
 import type { ReactNode } from 'react'
 import { formatarReferencia, ROTULO_SELO, type Selo } from '../entidade/proveniencia'
 import { Dica } from './Dica'
+import { useEmGrupoFontes, useRegistrarFontes } from './FontesEDatas'
+import { SeloMarca } from './SeloMarca'
 
 /**
  * Indicador (KPI): valor, rótulo, referência de comparação, variação e proveniência. Valor ausente aparece como "—" e nunca como zero.
@@ -18,6 +20,9 @@ import { Dica } from './Dica'
  * Com qualquer um dos três, o KPI mostra a linha visível "Estimado · APNIC Labs · ref. 2026-11-15" sob o valor, em texto (nunca só
  * cor) e lida por leitor de tela; o `title` do valor repete fonte e data apenas como redundância. Número exibido sem selo, fonte
  * e data é exceção a justificar (ex.: contagem de um conjunto cuja fonte está no bloco). Sem estado do React no hover.
+ *
+ * PT-30: dentro de um `GrupoFontes` (`FontesEDatas.tsx`) o cartão mostra só o selo pequeno (`SeloMarca`, com nome acessível) e entrega
+ * fonte e data ao bloco recolhido "Fontes e datas destes números" da seção, que agrega e deduplica. Fora de um grupo, nada muda.
  */
 /** Acentos sóbrios por tipo de indicador: faixa lateral e fundo suaves, valor em tom escuro (contraste AA conferido em `tokens.test.ts`). */
 const TONS = {
@@ -70,13 +75,17 @@ export function Kpi({ rotulo, valor, referencia, variacao, selo, fonte, dataRef,
   /** Data ou mês a que o número se refere (AAAA-MM-DD ou AAAA-MM). */
   dataRef?: string | null
 }) {
-  const dica = fonte ? `Fonte: ${fonte}${dataRef ? ` · ref. ${formatarReferencia(dataRef)}` : ''}` : undefined
+  const emGrupo = useEmGrupoFontes()
   const vazio = valor === null || valor === undefined || valor === ''
+  useRegistrarFontes(emGrupo && !vazio && (selo || fonte || dataRef) ? [{ selo, fonte, dataRef }] : [])
+  const dica = !emGrupo && fonte ? `Fonte: ${fonte}${dataRef ? ` · ref. ${formatarReferencia(dataRef)}` : ''}` : undefined
   return (
     <div className={`rounded-lg border border-gray-200 p-3 min-w-0 ${tom ? TONS[tom].caixa : 'bg-white'}`} data-testid="kpi" data-kpi-rotulo={rotulo}>
       <div className="text-xs text-gray-500">{rotulo}{explicacao && <Dica texto={explicacao} rotulo={rotulo} />}</div>
       <div className={`mt-0.5 text-titulo-2 tabular-nums ${tom ? TONS[tom].valor : 'text-gray-900'}`} title={dica} data-kpi-valor>{vazio ? '—' : valor}</div>
-      <LinhaProveniencia selo={selo} fonte={fonte} dataRef={dataRef} />
+      {emGrupo
+        ? selo && !vazio && <p className="mt-1" data-kpi-proveniencia data-kpi-selo={selo}><SeloMarca selo={selo} /></p>
+        : <LinhaProveniencia selo={selo} fonte={fonte} dataRef={dataRef} />}
       {(variacao || referencia) && (
         <div className="mt-0.5 flex flex-wrap gap-x-2 text-xs text-gray-500">
           {variacao && <span className={variacao.bom === undefined ? '' : variacao.bom ? 'text-ok-700' : 'text-perigo-700'}>{variacao.texto}</span>}

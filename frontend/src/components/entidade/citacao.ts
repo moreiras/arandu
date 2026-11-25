@@ -65,7 +65,7 @@ export function montarCitacao(c: DadosCitacao): string {
   })
   const valores = (c.valores ?? []).filter((v) => v.valor && v.valor !== '—').slice(0, MAX_VALORES_CITADOS)
   return [
-    `${SITE.nome}. ${c.entidade}: ${c.bloco}${c.valor ? ` — ${c.valor}` : ''}.`,
+    `${SITE.nome}. ${c.entidade}: ${c.bloco}${c.valor ? ` (${c.valor})` : ''}.`,
     valores.length ? `Valores: ${valores.map((v) => `${v.rotulo}: ${v.valor}`).join('; ')}.` : null,
     refs.length ? `Fonte${refs.length > 1 ? 's' : ''}: ${refs.join('; ')}.` : null,
     c.snapshot ? `Snapshot de ${formatarReferencia(c.snapshot)}.` : null,
