@@ -208,6 +208,10 @@ parênteses remetem à análise.
   sessão direta). Municípios: a distância ao PTT mostra o PIX mais próximo e a coluna "Redes com sede" (inferido); `/territorio/ranking`
   ganha `ptt_proximo_nome`, `pix_proximo` e `redes_sede` (`esquema` 2). A tool `infra_proximos` do MCP devolve também `por_status`.
   Parcial: municipio 5.2, estados 5.4 e o filtro de redes sem sessão na lente "Sem PTT a 100 km" ficam para depois.
+- **Instalações do AS (P17).** A coluna passa a "PTTs no prédio" e a nota diz que não é o ponto em que a rede se conecta ao PTT (o
+  IX.br não divulga em que PIX cada participante se conecta; o cruzamento é rede→prédio e prédio→PTT, ambos do PeeringDB).
+- **Replay de paridade.** `scripts/replay.py` recompõe o fragmento `relacoes` dos documentos de ASN (cópia do build ou, se limpo, a
+  partir do publicado); replay de 2026-11-22: 0 diferenças novas.
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
