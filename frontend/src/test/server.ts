@@ -19,7 +19,7 @@ function seen(path: string, request: Request) {
 
 export const handlers = [
   http.get('*/health', ({ request }) => { seen('/health', request); return HttpResponse.json(health) }),
-  http.get('*/api/v1/snapshots', ({ request }) => { seen('/api/v1/snapshots', request); return HttpResponse.json(snapshots) }),
+  http.get('*/api/v1/brasil/snapshots', ({ request }) => { seen('/api/v1/brasil/snapshots', request); return HttpResponse.json(snapshots) }),
   http.get('*/api/v1/ixps', () => HttpResponse.json(ixps)),
   http.get('*/api/v1/asns', ({ request }) => {
     const u = new URL(request.url)

@@ -90,3 +90,56 @@ def brasil_indicadores(request: Request, date: Optional[str] = Query(None)) -> d
     if d is None:
         raise HTTPException(404, "Nenhum snapshot disponível")
     return indicadores(store, d)
+
+
+# ── Destaques da home: números fixos, no lugar de `/query/*` genérico (D9, TRANSV-E20) ──────────────────────────────────────────────
+# As mesmas consultas dos cartões de `frontend/src/features/home/cartoes.json` (`tests/unit/test_destaques_home.py` confere que não divergem),
+# executadas aqui com `limit` 1 só para o `total`. A rota é fixa e aberta; `/query` continua medido, porque aceita qualquer corpo.
+_DESTAQUES_QUERY: dict[str, tuple[str, dict]] = {
+    "grandes-sem-asn": ("operadoras", {"filter": {"and": [{"field": "acessos", "op": "gte", "value": 5000}, {"field": "com_asn", "op": "eq", "value": False}]}}),
+    "sem-rpki": ("asns", {"filter": {"and": [{"field": "is_br", "op": "eq", "value": True}, {"field": "global_prefixes_v6_count", "op": "gte", "value": 1},
+                                             {"field": "has_rpki", "op": "eq", "value": False}, {"field": "ixps_direct_count", "op": "gte", "value": 3}]}}),
+    "monopolio-local": ("acessos_municipio", {"filter": {"and": [{"field": "share", "op": "gte", "value": 80}, {"field": "municipio_acessos", "op": "gte", "value": 1000}]}}),
+}
+_DIVERGENCIAS = {"k_pf": 5, "k_pj": 30, "min_razao": 10}          # os parâmetros padrão de `/acessos/divergencias/scm`, que é a lista de destino
+_O_QUE_MUDOU = {"filter": {"and": [{"field": "tipo", "op": "eq", "value": "asn_novo"}, {"field": "estado", "op": "eq", "value": "confirmado"}]},
+                "select": ["asn", "uf", "data"], "sort": [{"field": "data", "dir": "desc"}], "limit": 1}
+_CACHE_DESTAQUES: dict[tuple, dict] = {}
+
+
+def destaques_home(store: Store, date_str: str) -> dict:
+    chave = (id(store), date_str)
+    if chave in _CACHE_DESTAQUES:
+        return _CACHE_DESTAQUES[chave]
+    from api.auth.access_policy import N_DATAS_ATUAIS
+    out: dict = {"snapshot_date": date_str, "destaques": {}}
+    for id_, (colecao, corpo) in _DESTAQUES_QUERY.items():
+        out["destaques"][id_] = {"total": store.query(date_str, colecao, {**corpo, "limit": 1}).get("total", 0)}
+    out["destaques"]["divergencias"] = {"total": len(store.sici_divergencias_scm(date_str, **_DIVERGENCIAS))}
+    # "O que mudou" só na janela dos snapshots atuais: a rota é aberta e a mesma URL serve a todos, então não alcança o histórico (EXP-E4)
+    janela_de = store.list_snapshots()[-N_DATAS_ATUAIS:][0]
+    r = store.query(date_str, "eventos", {**_O_QUE_MUDOU, "de": janela_de})
+    ultimo = (r.get("items") or [None])[0]
+    out["o_que_mudou"] = {"total": r.get("total", 0), "de": janela_de, "mais_recente": (ultimo or {}).get("data")}
+    if len(_CACHE_DESTAQUES) > 16:
+        _CACHE_DESTAQUES.clear()
+    _CACHE_DESTAQUES[chave] = out
+    return out
+
+
+@router.get(
+    "/brasil/destaques",
+    summary="Destaques da home: o total de cada pergunta pronta e os ASes novos da janela atual",
+    description="""
+Os números fixos dos destaques da página inicial, numa chamada aberta: `destaques` traz o `total` de cada pergunta pronta (operadoras com mais de 5 mil acessos sem ASN
+próprio, ASes brasileiros em 3 ou mais PTTs com IPv6 e sem ROA, municípios com uma operadora de 80% ou mais da banda larga fixa e ASNs com usuários APNIC 10 vezes ou mais acima do esperado
+pelos acessos SCM) e `o_que_mudou` os ASes brasileiros novos e confirmados desde `de`, a data do snapshot atual mais antigo (a rota é aberta, então não alcança o histórico). Cada total é
+o da lista de destino do destaque. As consultas são fixas; a consulta genérica (`/query`) segue medida.
+""",
+)
+def brasil_destaques(request: Request, date: Optional[str] = Query(None)) -> dict:
+    store: Store = request.app.state.store
+    d = store.resolve_date(date)
+    if d is None:
+        raise HTTPException(404, "Nenhum snapshot disponível")
+    return destaques_home(store, d)

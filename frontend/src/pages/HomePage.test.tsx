@@ -32,7 +32,7 @@ beforeEach(() => {
   localStorage.clear()
   useAppStore.setState({ activeDate: null, latestSnapshot: '2026-09-20' })
   server.use(
-    http.get('*/api/v1/snapshots/:date', ({ params }) => HttpResponse.json({
+    http.get('*/api/v1/brasil/snapshots/:date', ({ params }) => HttpResponse.json({
       date: params.date, summary: params.date === '2026-09-20' ? resumo(1136, 67.2, 2) : resumo(1130, 66.9, 2),
       manifest: { comparado_com: params.date === '2026-09-20' ? '2026-09-13' : null, sources: [{ id: 'anatel_sici', as_of: '2026-08', frescor: 'ok' }] },
     })),
@@ -45,6 +45,9 @@ beforeEach(() => {
       { uf: 'SP', ptts: 3, municipios: 600, acessos: 9e6, fibra_pct: 70, asns: 900, usuarios: 3e7, municipios_sem_ptt: 30, domicilios: 1.6e7, penetracao: 0.8 },
       { uf: 'AM', ptts: 0, municipios: 60, acessos: 4e5, fibra_pct: 30, asns: 20, usuarios: 1e6, municipios_sem_ptt: 40, domicilios: 1e6, penetracao: 0.4 },
     ] })),
+    http.get('*/api/v1/brasil/destaques', () => HttpResponse.json({ snapshot_date: '2026-09-20',
+      destaques: { 'grandes-sem-asn': { total: 12 }, 'sem-rpki': { total: 5 }, 'monopolio-local': { total: 8 }, divergencias: { total: 3 } },
+      o_que_mudou: { total: 37, de: '2026-09-13', mais_recente: '2026-10-31' } })),
     http.get('*/api/v1/query/:colecao', () => HttpResponse.json({ items: [{ asn: 64500, uf: 'PR', data: '2026-10-31' }], total: 37 })),
     http.get('*/api/v1/acessos/divergencias', () => HttpResponse.json({ items: [{ asn: 1 }], total: 3 })),
   )
@@ -62,8 +65,11 @@ describe('home nova', () => {
     expect(await screen.findAllByTestId('kpi')).toHaveLength(12)
     expect(await screen.findByText('41,2%')).toBeInTheDocument()
     expect(await screen.findByTestId('cartograma')).toBeInTheDocument()
-    expect((await screen.findAllByTestId('destaque'))).toHaveLength(DESTAQUES.length)
-    await waitFor(() => expect(screen.getByTestId('o-que-mudou')).toHaveTextContent('37 ASes brasileiros novos'))
+    const destaques = await screen.findAllByTestId('destaque')
+    expect(destaques).toHaveLength(DESTAQUES.length)
+    // os totais vêm de `/brasil/destaques` (rota fixa e aberta, TRANSV-E20), um por destaque
+    await waitFor(() => expect(destaques.map((d) => d.querySelector('[aria-live]')?.textContent)).toEqual(['12', '5', '8', '3']))
+    await waitFor(() => expect(screen.getByTestId('o-que-mudou')).toHaveTextContent('37 ASes brasileiros novos confirmados na tabela de roteamento desde 13/09/2026, o mais recente em 31/10/2026'))
   })
 
   it('indicadores têm acento de cor por tipo (rede em azul, IPv6 em violeta, mercado em verde-água)', async () => {

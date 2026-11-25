@@ -64,6 +64,7 @@ def query(
     page: int = 1,
     limit: int = 100,
     date: Optional[str] = None,
+    de: Optional[str] = None,
 ) -> dict:
     """Consulta genérica sobre os dados — filtre, ordene, agregue e cruze.
 
@@ -84,9 +85,13 @@ def query(
         collection: asns | ixps | external_ixps | cdns | prefixes | global_prefixes | scms | smps | stfcs | seacs |
             operadoras | acessos_municipio | operadoras_movel | acessos_movel_municipio | socios.
         date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.
+        de: Só para `eventos` e `series_asn` (histórico, que não depende de `date`): data inicial (AAAA-MM-DD). Sem chave de MCP é obrigatório e
+            não pode ser anterior ao snapshot atual mais antigo.
     """
     d = _resolve(date)
     body: dict = {"page": page, "limit": limit}
+    if de is not None:
+        body["de"] = de
     if filter is not None:
         body["filter"] = filter
     if select is not None:

@@ -4,15 +4,18 @@
 # Licença: GNU Affero General Public License v3 ou posterior.
 # Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 """
-Endpoints de snapshots — GET /snapshots e GET /snapshots/{date}.
+Endpoints de snapshots — GET /snapshots, GET /snapshots/{date} e as versões de entrada GET /brasil/snapshots e GET /brasil/snapshots/{date}.
 
-Lista os snapshots disponíveis e retorna os metadados (summary.json e
-manifest.json) de um snapshot específico.
+Lista os snapshots disponíveis e retorna os metadados (summary.json e manifest.json) de um snapshot específico. `/snapshots` e
+`/snapshots/{date}` são da classe `login` (D9); as páginas de entrada (seletor de data, "dados de", home, fontes) usam `/brasil/snapshots`,
+aberta, que lista só as datas atuais, e `/brasil/snapshots/{date}`, aberta para as datas atuais (as demais caem em `login` pela regra de
+histórico de `api/auth/access_policy.py`).
 """
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Request
 
+from api.auth.access_policy import N_DATAS_ATUAIS
 from api.schemas import SnapshotListResponse, SnapshotDetailResponse
 from api.store import Store
 
@@ -39,6 +42,22 @@ def list_snapshots(request: Request) -> dict:
         "latest": dates[-1] if dates else None,
         "snapshots": dates,
     }
+
+
+@router.get(
+    "/brasil/snapshots",
+    response_model=SnapshotListResponse,
+    summary="Datas dos snapshots atuais (entrada, aberta)",
+    description=f"""
+As datas atuais: os {N_DATAS_ATUAIS} snapshots mais recentes, em ordem cronológica, com `latest`; `count` é o número de datas devolvidas aqui. É a lista de que
+as páginas de entrada precisam (seletor de data, rodapé "dados de", home) e abre sem login. Datas anteriores existem e são imutáveis, mas a lista
+inteira (`GET /snapshots`) e o resumo de uma data anterior exigem login.
+""",
+)
+def list_snapshots_atuais(request: Request) -> dict:
+    store: Store = request.app.state.store
+    dates = store.list_snapshots()[-N_DATAS_ATUAIS:]
+    return {"count": len(dates), "latest": dates[-1] if dates else None, "snapshots": dates}
 
 
 # Detalhe enriquecido por snapshot (imutável) — ver get_snapshot.
@@ -83,3 +102,16 @@ def get_snapshot(date_str: str, request: Request) -> dict:
         _DETAIL_CACHE.pop(next(iter(_DETAIL_CACHE)))
     _DETAIL_CACHE[date_str] = detail
     return detail
+
+
+@router.get(
+    "/brasil/snapshots/{date_str}",
+    response_model=SnapshotDetailResponse,
+    summary="Resumo e manifesto de um snapshot (entrada: aberta para as datas atuais)",
+    description="""
+O mesmo conteúdo de `GET /snapshots/{date}` (`summary` e `manifest`). Abre sem login para as datas atuais (`GET /brasil/snapshots`); uma data anterior
+exige login, como o `date` das demais rotas. `GET /snapshots/{date}` é sempre `login`.
+""",
+)
+def get_snapshot_atual(date_str: str, request: Request) -> dict:
+    return get_snapshot(date_str, request)

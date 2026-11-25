@@ -59,8 +59,8 @@ def test_gate_nao_e_limitado_por_taxa(app_client):
 def test_middleware_e_gate_concordam(app_client):
     c, app, tmp = app_client
     sid = _exhaust(app, tmp)
-    r = c.get("/api/v1/snapshots", headers={"X-Real-IP": "8.8.8.8"}, cookies={"anon_sid": sid})
-    assert r.status_code == 403
+    r = c.get("/api/v1/map/asns", headers={"X-Real-IP": "8.8.8.8"}, cookies={"anon_sid": sid})
+    assert r.status_code == 429                                  # D9: orçamento esgotado é 429 com Retry-After, o gate (nginx) segue em 403
     assert r.json()["anon_limit_reached"] is True
     assert r.headers["X-Anon-Limit-Reached"] == "true"
 
@@ -237,3 +237,69 @@ def test_purga_de_sessoes_roda_mesmo_com_monotonic_pequeno(app_client, monkeypat
     monkeypatch.setattr(an, "_last_purge", 0.0)
     an.peek_state(tmp, app.state.anon_config, None)
     assert db.execute("SELECT count(*) FROM anon_sessions").fetchone()[0] == 0
+
+
+# ── PT-12 / D9 (DADOS-E1): 429 com Retry-After e corpo explicativo ─────────────────────────────────────────
+
+def test_orcamento_esgotado_e_429_com_retry_after_ate_a_meia_noite_utc(app_client, monkeypatch):
+    from datetime import datetime, timezone
+
+    monkeypatch.setenv("ACCESS_POLICY_MODE", "enforce")
+    c, app, tmp = app_client
+    sid = _exhaust(app, tmp)
+    antes = datetime.now(timezone.utc)
+    r = c.get("/api/v1/map/asns", headers={"X-Real-IP": "8.8.8.8"}, cookies={"anon_sid": sid})
+    assert r.status_code == 429
+    espera = int(r.headers["Retry-After"])
+    seg_do_dia = antes.hour * 3600 + antes.minute * 60 + antes.second
+    assert abs(espera - (86400 - seg_do_dia)) <= 5                # até a próxima 00:00 UTC (folga para o relógio entre as duas leituras)
+    assert r.headers["Cache-Control"] == "private, no-store" and r.headers["X-Anon-Limit-Reached"] == "true"
+    corpo = r.json()
+    assert corpo["anon_limit_reached"] is True and corpo["janela"] == "dia" and corpo["retry_after"] == espera
+    assert "meia-noite UTC" in corpo["detail"] and "IPv6 /64" in corpo["detail"]
+    assert any("conta" in a for a in corpo["alternativas"]) and any("MCP" in a for a in corpo["alternativas"])
+
+
+def test_retry_after_no_fim_do_dia_e_de_pelo_menos_um_segundo():
+    from datetime import datetime, timezone
+
+    from api.auth.access import segundos_ate_meia_noite_utc
+    assert segundos_ate_meia_noite_utc(datetime(2026, 11, 25, 0, 0, 0, tzinfo=timezone.utc)) == 86400
+    assert segundos_ate_meia_noite_utc(datetime(2026, 11, 25, 23, 59, 59, tzinfo=timezone.utc)) == 1
+    assert segundos_ate_meia_noite_utc(datetime(2026, 12, 31, 12, 0, 0, tzinfo=timezone.utc)) == 43200     # vira o ano
+
+
+def test_entrada_nao_debita_nem_vira_429_com_o_orcamento_esgotado(app_client, monkeypatch):
+    monkeypatch.setenv("ACCESS_POLICY_MODE", "enforce")
+    c, app, tmp = app_client
+    sid = _exhaust(app, tmp)
+    for rota in ("/api/v1/ixps", "/api/v1/brasil/snapshots", "/api/v1/rpki/summary", "/api/v1/prontidao/resumo"):
+        assert _gate(c, "8.8.8.8", rota, cookies={"anon_sid": sid}).status_code == 204, rota        # o gate libera: nada a debitar nem a recusar
+
+
+def test_gate_app_serve_o_429_que_o_nginx_repassa(tmp_path, monkeypatch):
+    """O `auth_request` do nginx só distingue 401 e 403; o `@anon_limit` pede a resposta pronta ao gate (`/auth/limite`)."""
+    monkeypatch.setenv("JWT_SECRET", "x" * 32)
+    monkeypatch.setenv("GOOGLE_CLIENT_ID", "a")
+    monkeypatch.setenv("GOOGLE_CLIENT_SECRET", "b")
+    monkeypatch.setenv("ALLOWED_IPS", "")
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    from starlette.testclient import TestClient
+
+    from api.gate_app import app
+
+    with TestClient(app) as c:
+        r = c.get("/auth/limite")
+        assert r.status_code == 429 and 1 <= int(r.headers["Retry-After"]) <= 86400
+        assert r.json()["anon_limit_reached"] is True and r.headers["X-Anon-Limit-Reached"] == "true"
+
+
+def test_nginx_troca_o_403_do_gate_por_429_com_retry_after():
+    """O gate responde 403; `docker/nginx-frontend.conf` deve devolver 429 ao cliente (o teste com nginx de verdade é `tests/nginx/test_gate.sh`)."""
+    from pathlib import Path
+    conf = (Path(__file__).resolve().parents[1] / "docker" / "nginx-frontend.conf").read_text(encoding="utf-8")
+    assert "error_page 403 = @anon_limit;" in conf
+    bloco = conf[conf.index("location @anon_limit {"):conf.index("location @anon_limit_estatico {")]
+    assert "rewrite ^ /auth/limite break;" in bloco and "proxy_pass              http://api:8001;" in bloco
+    estatico = conf[conf.index("location @anon_limit_estatico {"):]
+    assert "return 429" in estatico.split("}")[0] and 'add_header Retry-After' in estatico.split("}")[0] and "return 403" not in estatico.split("}")[0]

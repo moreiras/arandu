@@ -25,7 +25,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
 
-from api.auth.access import gate_response
+from api.auth.access import gate_response, limite_anonimo
 from api.auth.anon_session import load_anon_config
 from api.auth.config import init_auth_config
 
@@ -58,11 +58,16 @@ async def gate(request: Request) -> Response:
     return gate_response(request)
 
 
+async def limite(request: Request) -> Response:
+    """A resposta 429 do orçamento esgotado, para o `@anon_limit` do nginx (que no `auth_request` só vê 403) repassar com o `Retry-After` certo."""
+    return limite_anonimo()
+
+
 async def health(request: Request) -> Response:
     return JSONResponse({"status": "ok", "service": "gate"})
 
 
 app = Starlette(
-    routes=[Route("/auth/gate", gate, methods=["GET"]), Route("/health", health, methods=["GET"])],
+    routes=[Route("/auth/gate", gate, methods=["GET"]), Route("/auth/limite", limite, methods=["GET"]), Route("/health", health, methods=["GET"])],
     lifespan=_lifespan,
 )

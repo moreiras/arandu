@@ -304,12 +304,25 @@ export function fetchHealth(): Promise<HealthResponse> {
   return get('/health')
 }
 
-export function fetchSnapshots(): Promise<SnapshotListResponse> {
-  return get('/api/v1/snapshots')
+/** Datas dos snapshots. Sem login (`completo` falso) vêm só as atuais, de `/brasil/snapshots` (entrada, aberta); com login, a lista inteira de
+ *  `/snapshots`, que é da classe `login` (D9). Outra URL por quem pede, nunca a mesma resposta para níveis diferentes (cache por URL). */
+export function fetchSnapshots(completo = false): Promise<SnapshotListResponse> {
+  return get(completo ? '/api/v1/snapshots' : '/api/v1/brasil/snapshots')
 }
 
+/** Resumo e manifesto de um snapshot: aberto para as datas atuais, `login` para as anteriores (como `?date=` nas demais rotas). */
 export function fetchSnapshot(date: string): Promise<SnapshotDetails> {
-  return get(`/api/v1/snapshots/${date}`)
+  return get(`/api/v1/brasil/snapshots/${date}`)
+}
+
+/** Totais dos destaques da home e "O que mudou" na janela dos snapshots atuais: rota fixa e aberta (não gasta o orçamento anônimo). */
+export interface DestaquesHome {
+  snapshot_date: string
+  destaques: Record<string, { total: number }>
+  o_que_mudou: { total: number; de: string; mais_recente: string | null }
+}
+export function fetchDestaquesHome(date?: string): Promise<DestaquesHome> {
+  return get('/api/v1/brasil/destaques', { date })
 }
 
 // `coleta` por família (ok, vazia, missing) e `status: partial` com a tabela vazia: a resposta de snapshot publicado mudou e o `?date=` é

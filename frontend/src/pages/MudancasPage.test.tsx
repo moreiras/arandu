@@ -44,7 +44,7 @@ describe('página O que mudou', () => {
 
   it('tira a data inicial da lista de snapshots e explica a confirmação por tipo', async () => {
     server.use(
-      http.get('*/api/v1/snapshots', () => HttpResponse.json({ count: 3, latest: '2026-11-22', snapshots: ['2026-06-28', '2026-11-15', '2026-11-22'] })),
+      http.get('*/api/v1/brasil/snapshots', () => HttpResponse.json({ count: 3, latest: '2026-11-22', snapshots: ['2026-06-28', '2026-11-15', '2026-11-22'] })),
       http.get('*/api/v1/changes/summary', () => HttpResponse.json({ total: 0, por_tipo: {}, por_data: {}, snapshots_com_historico: 3 })),
       http.get('*/api/v1/changes', () => HttpResponse.json({ total: 0, limit: 100, offset: 0, items: [] })),
     )

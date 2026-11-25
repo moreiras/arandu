@@ -4,7 +4,7 @@ Gerado por `python3 scripts/gen_cobertura.py` a partir do OpenAPI, do MCP, do fr
 Não edite à mão. Rota nova precisa de uma entrada em `serve/capabilities/_manuais.yaml` (ou de uma capacidade declarada); lacuna
 sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rotas que os substituem.
 
-- Rotas de dados (GET, não deprecated): **169**; com tool no MCP: **139**; consumidas pela interface: **137**.
+- Rotas de dados (GET, não deprecated): **172**; com tool no MCP: **141**; consumidas pela interface: **140**.
 - Pendências marcadas (`pendente:`): **0**; lacunas sem justificativa: **0**.
 - Tools do MCP geradas de capacidade declarada: **2** de 58.
 
@@ -49,7 +49,10 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /bgp-stability/history` | `rota_estabilidade` | ✔ |  |
 | `GET /bgp-stability/overview` | `rota_estabilidade` | ✔ |  |
 | `GET /bgp-stability/summary` | `rota_estabilidade` | — | UI: a interface usa /bgp-stability/overview e /bgp-stability/history; o resumo atende clientes externos |
+| `GET /brasil/destaques` | — | ✔ | MCP: números fixos de apresentação dos destaques e do "O que mudou" da home, cada um o total de uma pergunta pronta; o MCP tem query com as mesmas coleções (operadoras, asns, acessos_municipio, eventos) e acessos_divergencias |
 | `GET /brasil/indicadores` | — | ✔ | MCP: resumo de apresentação da home e do Panorama técnico (agregados do país); o MCP tem query(collection=asns) com os usuários do APNIC por ASN, query(collection=seguranca_asn) e prontidao_agregado com os mesmos agregados, rota_rpki com a publicação de ROA/ASPA e rota_analise com a análise da tabela |
+| `GET /brasil/snapshots` | `historico_snapshots` | ✔ |  |
+| `GET /brasil/snapshots/{date_str}` | `historico_snapshots` | ✔ |  |
 | `GET /busca` | — | ✔ | MCP: busca da barra do site, agrupada por tipo. O MCP já resolve por nome com asn_lista(q), operadora_resolver e municipio_resolver, e está em 54 de 56 tools; uma tool de busca geral entra na revisão do MCP (nome de domínio a definir) |
 | `GET /cdns/alcance` | — | ✔ | MCP: estimativa de apresentação por CDN e UF; o MCP já tem cdn_presence e operator_reach, e o alcance por UF é uma conta sobre usuários estimados da APNIC que a interface rotula |
 | `GET /cdns/presence` | `cdn_presenca` | ✔ |  |
@@ -144,7 +147,7 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /prefixes` | `rota_prefixos` | ✔ |  |
 | `GET /prefixes/lookup` | `rota_prefixo` | ✔ |  |
 | `GET /prefixes/{prefix}` | `rota_prefixo` | ✔ |  |
-| `GET /prontidao/asns` | `query:prontidao_asn` | — | UI: a lista de ASes usa a coluna de /asns?include=prontidao; a rota fica desligada até a aprovação da metodologia |
+| `GET /prontidao/asns` | `query:prontidao_asn` | — | UI: a lista de ASes usa a coluna de /asns?include=prontidao; a rota é a mesma lista nominal pública (PRONTIDAO_LISTA_NOMINAL), com ordem padrão por ASN |
 | `GET /prontidao/resumo` | `query:prontidao_agregado` | ✔ |  |
 | `GET /qualidade/mapa` | — | ✔ | MCP: blob de visualização ({ibge: valor} de todos os municípios para o mapa); o MCP já tem query(collection=qualidade_uf) e o resumo do RQUAL, e a média entre prestadoras não é uma medida da Anatel |
 | `GET /qualidade/municipios/{ibge}` | — | — | MCP: o RQUAL por município (322 mil itens) não cabe numa coleção do /query; o MCP cobre o RQUAL por UF e prestadora em query(collection=qualidade_uf), e o detalhe municipal fica na API e na interface; UI: a página do município usa o mesmo dado pelo ?include=qualidade do perfil |

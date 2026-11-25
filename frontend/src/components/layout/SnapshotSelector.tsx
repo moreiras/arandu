@@ -1,6 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
-import { fetchSnapshots } from '../../services/api'
+import { useSnapshots } from '../../hooks/useSnapshot'
 import { useAppStore } from '../../store/app'
 import { useAuth } from '../../auth/AuthContext'
 import { isHistoricalDate } from '../../auth/accessPolicy'
@@ -10,11 +9,7 @@ export function SnapshotSelector() {
   const [params, setParams] = useSearchParams()
   const activeDate = useAppStore((s) => s.activeDate)
   const { requireLogin } = useAuth()
-  const { data } = useQuery({
-    queryKey: ['snapshots'],
-    queryFn: fetchSnapshots,
-    staleTime: Infinity, gcTime: Infinity,
-  })
+  const { data } = useSnapshots()
 
   if (!data || data.count === 0) return null
 

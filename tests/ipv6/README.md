@@ -48,7 +48,7 @@ Em cada cenário de cada cliente ([checks/run](checks/run)), depois conferido po
    comportamento.
 2. **Cabeçalho forjado é ignorado:** com `X-Forwarded-For` e `X-Real-IP` falsos vindos do cliente, o IP
    visto não muda.
-3. **Plano do ScanAPI** ([scanapi.yaml](scanapi.yaml)): `/health`, `/api/v1/snapshots` e `/api/v1/ixps`
+3. **Plano do ScanAPI** ([scanapi.yaml](scanapi.yaml)): `/health`, `/api/v1/brasil/snapshots` e `/api/v1/ixps`
    respondem 200. É poucas rotas `open` de propósito: o plano gerado do OpenAPI inteiro mediria sobretudo
    limite de taxa, cota anônima e parâmetros, não IPv6.
 4. **Log de uso sem IP:** o `data/ops/usage/*.jsonl` do alvo existe, não está vazio e não contém nenhum

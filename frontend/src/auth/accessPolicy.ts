@@ -15,18 +15,28 @@ const OPEN_EXACT = new Set([
 
 const LOGIN_EXACT = new Set(['/snapshots', '/perfil'])
 
+/** Páginas `login` por prefixo: o PTT externo (`/ixp-externo/:code`) lista membros do PeeringDB, só para quem entrou (AUP do PeeringDB). Espelha
+ *  `/external-ixps/{code}` em `api/auth/access_policy.py`; a lista `/ixps` (que cita os PTTs externos sem membros) segue aberta. */
+const LOGIN_PREFIX = ['/ixp-externo/']
+
 /** Classe de acesso da rota do SPA (pathname sem query). */
 export function routeAccess(pathname: string): RouteAccess {
   const p = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
   if (OPEN_EXACT.has(p)) return 'open'
-  if (LOGIN_EXACT.has(p)) return 'login'
+  if (LOGIN_EXACT.has(p) || LOGIN_PREFIX.some((x) => p.startsWith(x))) return 'login'
   return 'metered'
+}
+
+/** Motivo do painel de login de uma página `login` (`LOGIN_REASONS`). */
+export function motivoLoginDaRota(pathname: string): string {
+  return pathname.startsWith('/ixp-externo/') ? 'externo' : 'historico'
 }
 
 /** Motivos de login (mensagens do modal/painel). */
 export const LOGIN_REASONS: Record<string, string> = {
   'lista-expandida': 'Para ver a lista completa e navegar entre as páginas, entre com sua conta.',
   historico: 'Para consultar snapshots anteriores e a evolução no tempo, entre com sua conta.',
+  externo: 'A lista de membros dos PTTs fora do IX.br vem do PeeringDB, que restringe a redistribuição a usuários autenticados. Entre com sua conta.',
   contatos: 'Os contatos só são exibidos para usuários logados.',
   exportar: 'Para exportar os dados em CSV, entre com sua conta.',
   esgotado: 'O tempo de uso das páginas avançadas sem login acabou. Entre para continuar.',

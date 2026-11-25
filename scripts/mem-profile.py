@@ -91,7 +91,7 @@ def env_for(data_dir: Path) -> dict:
     return e
 
 
-ROUTES = ["/api/v1/snapshots", "/api/v1/ixps", "/api/v1/asns?limit=50", "/api/v1/asns/names", "/api/v1/asns/ix-presence",
+ROUTES = ["/api/v1/brasil/snapshots", "/api/v1/ixps", "/api/v1/asns?limit=50", "/api/v1/asns/names", "/api/v1/asns/ix-presence",
           "/api/v1/cdns/presence", "/api/v1/hilbert/v4", "/api/v1/hilbert/v6", "/api/v1/map/asns", "/api/v1/map/prefixes",
           "/api/v1/map/scms", "/api/v1/map/rodovias", "/api/v1/scms?limit=20", "/api/v1/acessos/stats",
           "/api/v1/acessos/operadoras?limit=20", "/api/v1/acessos/municipios", "/api/v1/rpki/summary",

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { fetchSnapshots, fetchSnapshot, fetchRpkiSummary, fetchOutorgasStats } from '../services/api'
-import { useActiveDate } from '../hooks/useSnapshot'
+import { fetchSnapshot, fetchRpkiSummary, fetchOutorgasStats } from '../services/api'
+import { useActiveDate, useSnapshots } from '../hooks/useSnapshot'
 import { useState } from 'react'
 
 function fmtN(n: number | null | undefined): string {
@@ -18,11 +18,7 @@ export function Snapshots() {
   const date = useActiveDate()
   const [selected, setSelected] = useState<string | null>(null)
 
-  const { data: list, isLoading, isError } = useQuery({
-    queryKey: ['snapshots'],
-    queryFn: fetchSnapshots,
-    staleTime: Infinity, gcTime: Infinity,
-  })
+  const { data: list, isLoading, isError } = useSnapshots()
 
   const { data: detail } = useQuery({
     queryKey: ['snapshot-detail', selected],

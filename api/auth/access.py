@@ -26,6 +26,7 @@ import logging
 import os
 import time
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Sequence
 
 from fastapi import Request
@@ -47,7 +48,7 @@ EXEMPT_PREFIXES = (
     "/api/v1/openapi.json",
 )
 
-BLOCK_LIMIT = "limit"   # orçamento de uso esgotado → 403
+BLOCK_LIMIT = "limit"   # orçamento de uso esgotado → 429 com Retry-After na API; 403 só entre o gate e o nginx (que o troca por 429, ver `limite_anonimo`)
 BLOCK_LOGIN = "login"   # ação que exige login → 401
 
 _log = logging.getLogger("arandurape.access")
@@ -103,7 +104,7 @@ def recent_dates(request: Request) -> Optional[Sequence[str]]:
         snaps = store.list_snapshots()
     except Exception:  # noqa: BLE001 — falha de leitura não pode derrubar o guard
         return dates or None
-    dates = list(snaps[-2:])
+    dates = list(snaps[-policy.N_DATAS_ATUAIS:])
     _recent_cache = (now, dates)
     return dates or None
 
@@ -191,10 +192,45 @@ def evaluate_access(
     )
 
 
+def segundos_ate_meia_noite_utc(agora: Optional[datetime] = None) -> int:
+    """Segundos até a próxima 00:00 UTC, quando o orçamento de quem é identificado pela rede é renovado (`anon_session.hash_rede` usa a data UTC)."""
+    agora = agora or datetime.now(timezone.utc)
+    proxima = (agora + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    return max(1, int((proxima - agora).total_seconds()))
+
+
+ALTERNATIVAS_LIMITE = ["Entre no site com uma conta gratuita: o login libera listas completas, histórico e contatos.",
+                       "Use o servidor MCP com chave de MCP (gerada em /perfil), que tem cota própria."]
+
+
+def corpo_limite_anonimo(retry_after: int) -> dict:
+    """Corpo do 429 do orçamento anônimo esgotado: o limite, quando renova e a saída. `anon_limit_reached` é o campo que o site lê."""
+    return {
+        "detail": "O orçamento diário de uso sem login desta rede acabou (a rede é o IPv4 inteiro ou o prefixo IPv6 /64). "
+                  "Ele é renovado à meia-noite UTC; entre com uma conta para continuar agora.",
+        "anon_limit_reached": True,
+        "janela": "dia",
+        "retry_after": retry_after,
+        "alternativas": ALTERNATIVAS_LIMITE,
+    }
+
+
+def limite_anonimo(cors: Optional[dict] = None):
+    """Resposta do orçamento anônimo esgotado: 429 com `Retry-After` (segundos até a meia-noite UTC) e o corpo de `corpo_limite_anonimo`.
+    Nunca cacheável. O nginx a obtém do processo do gate (`GET /auth/limite`), porque o `auth_request` só distingue 401 e 403."""
+    from starlette.responses import JSONResponse
+
+    segundos = segundos_ate_meia_noite_utc()
+    return JSONResponse(
+        corpo_limite_anonimo(segundos), status_code=429,
+        headers={"Retry-After": str(segundos), "X-Anon-Limit-Reached": "true", "Cache-Control": "private, no-store", **(cors or {})},
+    )
+
+
 def gate_response(request: Request):
     """Resposta do `GET /auth/gate` (usada pela API e pelo processo `gate_app`).
 
-    204 = liberar; 403 = orçamento esgotado; 401 = ação que exige login. A rota
+    204 = liberar; 403 = orçamento esgotado (o nginx o converte em 429 com `Retry-After`, `limite_anonimo`); 401 = ação que exige login. A rota
     original vem de `X-Original-URI`/`X-Original-Method` (preenchidos pelo nginx).
     """
     from urllib.parse import parse_qsl, urlsplit

@@ -476,7 +476,7 @@ SCHEMA: dict[str, dict] = {
 SCHEMA["eventos"] = {
     "key": "id",
     "description": (
-        "O que mudou entre snapshots (camada de histórico): uma linha por evento, de TODAS as datas com histórico (não depende de `date`). Cada evento é uma "
+        "O que mudou entre snapshots (camada de histórico): uma linha por evento, de TODAS as datas com histórico (não depende de `date`; `de` no corpo da consulta, AAAA-MM-DD, limita o início). Sem login ou chave de MCP `de` é obrigatório e não pode ser anterior ao snapshot atual mais antigo. Cada evento é uma "
         "diferença OBSERVADA entre dois snapshots, sem causa nem intenção; leve só a chave (ASN, PTT, CNPJ, prefixo), sem nome de empresa. `estado` é a janela de "
         "confirmação: confirmado, pendente ou revertido (para 'o que mudou' use estado=confirmado). `natureza=inferido` (provedor_novo, provedor_perdido) vem do "
         "ARC v1: trate como provável e variável entre snapshots."
@@ -508,7 +508,7 @@ SCHEMA["eventos"] = {
 SCHEMA["series_asn"] = {
     "key": "asn",
     "description": (
-        "Série por ASN brasileiro: uma linha por (ASN, snapshot com histórico), só das 8 datas mais recentes. Para a série longa de um ASN use "
+        "Série por ASN brasileiro: uma linha por (ASN, snapshot com histórico), só das 8 datas mais recentes (`de` no corpo, AAAA-MM-DD, limita o início; sem login ou chave de MCP é obrigatório). Para a série longa de um ASN use "
         "historico_serie(escopo=\"asn:N\"). Coluna ausente = sem dado naquele snapshot (n_provedores antes do bloco de relações), nunca zero. "
         "`users` é estimativa da APNIC e oscila entre medições."
     ),

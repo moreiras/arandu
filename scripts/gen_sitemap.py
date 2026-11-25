@@ -27,11 +27,18 @@ ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / "frontend" / "public"
 MENU = ROOT / "frontend" / "src" / "components" / "layout" / "menu.ts"
 SAIDA = ROOT / "config" / "paginas_publicas.json"
+ACESSO = ROOT / "frontend" / "src" / "auth" / "accessPolicy.ts"
 
 # Páginas fora do menu que valem para buscadores (o menu já traz as de tema).
 EXTRAS = ["/", "/sobre", "/privacidade", "/uso-aceitavel", "/acessibilidade",
           "/operadoras?servico=smp", "/operadoras?servico=stfc", "/operadoras?servico=seac"]
 UFS = ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"]
+
+
+def paginas_so_com_login() -> set[str]:
+    """Rotas do SPA da classe `login` (`LOGIN_EXACT` em `accessPolicy.ts`, o espelho da política): um buscador não as abre, então não vão ao sitemap nem ao `llms.txt` (D9)."""
+    m = re.search(r"const LOGIN_EXACT = new Set\(\[(.*?)\]\)", ACESSO.read_text(encoding="utf-8"), re.S)
+    return set(re.findall(r"'([^']+)'", m.group(1))) if m else set()
 
 
 def paginas_do_menu() -> list[dict]:
@@ -45,7 +52,8 @@ def paginas_do_menu() -> list[dict]:
 
 
 def dados() -> dict:
-    menu = paginas_do_menu()
+    restritas = paginas_so_com_login()
+    menu = [i for i in paginas_do_menu() if i["caminho"] not in restritas]
     vistos, paginas = set(), []
     for c in [*EXTRAS[:1], *(i["caminho"] for i in menu), *EXTRAS[1:]]:
         if c not in vistos:

@@ -16,7 +16,8 @@ def c(path, q=None, method="GET", recent=RECENT):
 
 
 @pytest.mark.parametrize("path", [
-    "/api/v1/snapshots", "/api/v1/ixps", "/api/v1/ixps/estimated-users",
+    "/api/v1/brasil/snapshots", "/api/v1/brasil/snapshots/2026-10-04", "/api/v1/brasil/destaques", "/api/v1/cdns/presence", "/api/v1/prontidao/resumo",
+    "/api/v1/rpki/summary", "/api/v1/ixps", "/api/v1/ixps/estimated-users",
     "/api/v1/hilbert/v4", "/api/v1/hilbert/v6", "/api/v1/hilbert/v4/detail",
     "/api/v1/ixps/sp/hilbert/v4/detail", "/api/v1/scms/stats", "/api/v1/map/scms",
     "/api/v1/grupos", "/api/v1/grupos/123/prefixos-geo", "/api/v1/bgp-stability/summary",
@@ -30,8 +31,8 @@ def test_entrada_aberta(path):
 @pytest.mark.parametrize("path", [
     "/api/v1/map/asns", "/api/v1/map/prefixes", "/api/v1/map/pix", "/api/v1/ixps/sp",
     "/api/v1/ixps/sp/members", "/api/v1/ixps/sp/peers", "/api/v1/asns/3356",
-    "/api/v1/asns/3356/paths", "/api/v1/prefixes/200.160.0.0/20", "/api/v1/cdns/presence",
-    "/api/v1/external-ixps/amsix", "/api/v1/ixp-compare/members", "/api/v1/bgp-stability-deep",
+    "/api/v1/asns/3356/paths", "/api/v1/prefixes/200.160.0.0/20",
+    "/api/v1/ixp-compare/members", "/api/v1/bgp-stability-deep",
     "/api/v1/bgp-stability",
     "/api/v1/resolve/place", "/api/v1/analytics/ixps/sp/nearby", "/api/v1/scms/12345678000190",
 ])
@@ -55,8 +56,10 @@ def test_get_de_consulta_classifica_pelo_corpo():
     assert c({"limit": PREVIEW_LIMIT + 1}) == LOGIN
     assert c({"page": 2}) == LOGIN and c({"offset": 10}) == LOGIN
     assert c({"limit": True}) == METERED                                       # booleano não é número
-    assert c({"limit": 1}, "eventos", "2026-11-15") == METERED                  # histórico a partir de um snapshot atual
+    assert c({"limit": 1, "de": "2026-11-15"}, "eventos") == METERED            # histórico a partir de um snapshot atual
     assert c({"limit": 1}, "eventos") == LOGIN                                   # sem início: a série inteira
+    assert c({"limit": 1}, "eventos", "2026-11-15") == LOGIN                     # EXP-E4: `date` não restringe as linhas, então não conta como início
+    assert c({"limit": 1}, "series_asn", "2026-11-15") == LOGIN
     assert c({"limit": 1, "de": "2026-10-01"}, "eventos", "2026-11-15") == LOGIN
     assert classify("GET", "/api/v1/query/operadoras", {"corpo": "não é json"}, None).cls == METERED   # a rota responde 400
     assert c({"limit": 5}, date="2026-10-04") == LOGIN                          # snapshot antigo, como nas outras rotas
@@ -128,19 +131,24 @@ def test_historico_exige_login_mas_os_dois_ultimos_nao():
     assert c("/api/v1/ixps", {"date": "2026-09-27"}) == OPEN
     assert c("/api/v1/ixps", {"date": "2026-08-01"}) == LOGIN
     assert c("/api/v1/map/asns", {"date": "2026-08-01"}) == LOGIN
-    assert c("/api/v1/snapshots/2026-10-04") == OPEN
+    assert c("/api/v1/brasil/snapshots/2026-10-04") == OPEN
+    assert c("/api/v1/brasil/snapshots/2026-08-01") == LOGIN
+    assert c("/api/v1/snapshots/2026-10-04") == LOGIN            # D9: o resumo pela rota antiga é `login` mesmo para a data atual
     assert c("/api/v1/snapshots/2026-08-01") == LOGIN
 
 
 def test_series_e_eventos_do_historico_so_nos_dois_snapshots_atuais(
 ):
-    for rota in ("/api/v1/history/asns/28571", "/api/v1/history/ixps/sp", "/api/v1/history/operadoras/1", "/api/v1/history/uf/SP", "/api/v1/changes",
-                 "/api/v1/changes/summary"):
+    for rota in ("/api/v1/history/asns/28571", "/api/v1/history/ixps/sp", "/api/v1/history/operadoras/1", "/api/v1/history/uf/SP", "/api/v1/changes"):
         assert c(rota) == LOGIN, rota                                           # sem `from`: série inteira
         assert c(rota, {"from": "2026-08-01"}) == LOGIN, rota                    # começa antes dos atuais
         assert c(rota, {"from": "2026-09-27"}) == METERED, rota                  # começa num snapshot atual: avançada, medida
         assert c(rota, {"from": "2026-10-04"}) == METERED, rota
         assert c(rota, recent=None) == METERED, rota                             # sem lista de datas, conservador
+    # o resumo das mudanças (contagens da janela atual, sem linhas) é entrada; fora da janela, a série inteira, `login`
+    assert c("/api/v1/changes/summary") == LOGIN and c("/api/v1/changes/summary", {"from": "2026-08-01"}) == LOGIN
+    assert c("/api/v1/changes/summary", {"from": "2026-09-27"}) == OPEN and c("/api/v1/changes/summary", {"from": "2026-10-04"}) == OPEN
+    assert c("/api/v1/changes/summary", recent=None) == METERED
     assert c("/api/v1/snapshots/diff", {"a": "2026-09-27", "b": "2026-10-04"}) == METERED
     assert c("/api/v1/snapshots/diff", {"a": "2026-08-01", "b": "2026-10-04"}) == LOGIN
     assert c("/api/v1/snapshots/diff") == LOGIN
@@ -151,7 +159,7 @@ def test_historico_nao_se_aplica_sem_lista_de_datas():
 
 
 def test_lista_de_snapshots_nunca_e_historico():
-    assert c("/api/v1/snapshots", {"date": "2020-01-01"}) == OPEN
+    assert c("/api/v1/brasil/snapshots", {"date": "2020-01-01"}) == OPEN
 
 
 def test_rota_desconhecida_e_medida_nunca_aberta():
@@ -213,3 +221,64 @@ def test_chamadas_degradaveis_das_paginas_de_entrada_sao_medidas():
         for u in urls:
             path = re.sub(r"\$\{[^}]+\}", "X", u)
             assert classify("GET", path, {"date": RECENT[0]}, RECENT).cls == METERED, (page, u)
+
+
+# ── PT-12 / D9 ────────────────────────────────────────────────────────────────
+
+@pytest.mark.parametrize("path", ["/api/v1/snapshots", "/api/v1/snapshots/2026-10-04", "/api/v1/snapshots/2026-08-01"])
+def test_snapshots_da_api_sao_login_e_a_entrada_usa_brasil_snapshots(path):
+    """TRANSV-E19: `/snapshots` era `open` na API e `login` no SPA. Agora a lista inteira e o resumo de qualquer data exigem login; a entrada usa
+    `/brasil/snapshots`, aberta, que só lista as datas atuais."""
+    assert c(path) == LOGIN
+    assert c(path, recent=None) == LOGIN
+
+
+def test_brasil_snapshots_lista_aberta_e_data_antiga_exige_login():
+    assert c("/api/v1/brasil/snapshots") == OPEN
+    assert c("/api/v1/brasil/snapshots/" + RECENT[0]) == OPEN and c("/api/v1/brasil/snapshots/" + RECENT[1]) == OPEN
+    assert c("/api/v1/brasil/snapshots/2026-08-01") == LOGIN
+    assert c("/api/v1/brasil/snapshots/2026-08-01", recent=None) == OPEN        # sem lista de datas a regra de histórico não se aplica
+
+
+def test_snapshots_diff_segue_a_regra_de_historico_e_nao_a_de_snapshots_login():
+    assert c("/api/v1/snapshots/diff", {"a": RECENT[1], "b": RECENT[0]}) == METERED
+
+
+@pytest.mark.parametrize("path", ["/api/v1/external-ixps/decix-rj", "/api/v1/external-ixps/amsix"])
+def test_ptt_externo_exige_login_e_a_lista_continua_aberta(path):
+    """IXE-E4: o detalhe (membros do PeeringDB, AUP) era `metered` e respondia 200 ao anônimo com a docstring dizendo "Requer autenticação"."""
+    assert c(path, {"date": RECENT[0]}) == LOGIN
+    assert c("/api/v1/external-ixps", {"date": RECENT[0]}) == OPEN
+
+
+def test_comparador_com_ptt_externo_segue_a_classe_do_ptt_externo():
+    assert c("/api/v1/ixp-compare/members", {"ixps": "ixbr:sp,ext:decix-rj"}) == LOGIN
+    assert c("/api/v1/ixp-compare/members", {"ixps": "ext:amsix, ext:decix-rj"}) == LOGIN
+    assert c("/api/v1/ixp-compare/members", {"ixps": "ixbr:sp,ixbr:rj"}) == METERED
+
+
+@pytest.mark.parametrize("path", ["/api/v1/cdns/presence", "/api/v1/prontidao/resumo", "/api/v1/rpki/summary", "/api/v1/brasil/destaques"])
+def test_rotas_de_entrada_do_panorama_e_da_home_sao_abertas(path):
+    """TRANSV-E20: abrir a Home, o panorama e /snapshots consumia orçamento `metered`."""
+    assert c(path, {"date": RECENT[0]}) == OPEN
+
+
+def test_query_generico_segue_medido_e_nao_virou_entrada():
+    assert c("/api/v1/query/operadoras", {"corpo": json.dumps({"limit": 1})}) == METERED
+    assert c("/api/v1/acessos/divergencias", {"limit": "1"}) == METERED
+
+
+def test_eventos_sem_de_nao_alcancam_o_historico_para_anonimo():
+    """EXP-E4: o portão aceitava `date` como início, mas o motor ignorava e devolvia todas as datas. Só `de` vale, e o motor o aplica."""
+    def q(corpo, colecao="eventos", date=RECENT[0]):
+        return classify("GET", f"/api/v1/query/{colecao}", {"corpo": json.dumps(corpo), "date": date}, RECENT).cls
+    for colecao in ("eventos", "series_asn"):
+        assert q({"limit": 5}, colecao) == LOGIN
+        assert q({"limit": 5, "de": "2026-01-01"}, colecao) == LOGIN
+        assert q({"limit": 5, "de": RECENT[1]}, colecao) == METERED
+        assert q({"limit": 5, "de": RECENT[0]}, colecao) == METERED
+
+
+def test_datas_atuais_sao_as_mesmas_da_rota_e_da_regra():
+    from api.auth import access_policy as ap
+    assert ap.N_DATAS_ATUAIS == 2

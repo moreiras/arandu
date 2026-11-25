@@ -40,6 +40,25 @@ def test_historico_e_login_no_frontend_e_no_servidor():
     assert "historico" in src.lower()          # o servidor também trata datas fora das 2 mais recentes como login
 
 
+def test_ptt_externo_e_login_no_servidor_e_no_frontend():
+    """D9 / IXE-E4: `/external-ixps/{code}` (API) e `/ixp-externo/:code` (SPA) são `login`; a lista de PTTs externos continua aberta."""
+    assert "/ixp-externo/" in re.search(r"const LOGIN_PREFIX = \[(.*?)\]", TS, re.S).group(1)
+    from api.auth.access_policy import LOGIN, OPEN, classify
+    assert classify("GET", "/api/v1/external-ixps/decix-rj", {}, ["2026-11-15"]).cls == LOGIN
+    assert classify("GET", "/api/v1/external-ixps", {}, ["2026-11-15"]).cls == OPEN
+    main = (ROOT / "frontend" / "src" / "main.tsx").read_text(encoding="utf-8")
+    assert re.search(r'path="ixp-externo/:code" element=\{<P>', main)             # a rota existe e passa pela porta de acesso
+
+
+def test_snapshots_da_entrada_nao_chamam_a_rota_login():
+    """D9: as páginas abertas usam `/brasil/snapshots`; `/snapshots` (lista inteira) só com login. O frontend não chama `/api/v1/snapshots` sem ser pela lista completa."""
+    api = (ROOT / "frontend" / "src" / "services" / "api.ts").read_text(encoding="utf-8")
+    assert "get(completo ? '/api/v1/snapshots' : '/api/v1/brasil/snapshots')" in api and "get(`/api/v1/brasil/snapshots/${date}`)" in api
+    calls = json.loads((ROOT / "tests" / "access_entry_calls.json").read_text(encoding="utf-8"))
+    for pagina, urls in calls["paginas"].items():
+        assert not any(u.startswith("/api/v1/snapshots") for u in urls), (pagina, "chama a rota login /snapshots")
+
+
 def test_preview_limit_do_front_e_o_do_servidor():
     m = re.search(r"PREVIEW_LIMIT\s*=\s*(\d+)", TS)
     assert m

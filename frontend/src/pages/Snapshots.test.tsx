@@ -18,8 +18,8 @@ const montar = () => render(
 describe('/snapshots', () => {
   it('rótulos de contagem dizem o que o campo mede', async () => {
     server.use(
-      http.get('*/api/v1/snapshots', () => HttpResponse.json({ count: 1, latest: '2026-11-22', snapshots: ['2026-11-22'] })),
-      http.get('*/api/v1/snapshots/:date', () => HttpResponse.json({ date: '2026-11-22', summary: { total_asns_br: 9129, ixp_aggregate: { br_asns_origin_union_count: 8550 } }, manifest: null })),
+      http.get('*/api/v1/brasil/snapshots', () => HttpResponse.json({ count: 1, latest: '2026-11-22', snapshots: ['2026-11-22'] })),
+      http.get('*/api/v1/brasil/snapshots/:date', () => HttpResponse.json({ date: '2026-11-22', summary: { total_asns_br: 9129, ixp_aggregate: { br_asns_origin_union_count: 8550 } }, manifest: null })),
       http.get('*/api/v1/rpki/summary', () => HttpResponse.json({})),
       http.get('*/api/v1/outorgas/stats', () => HttpResponse.json({ total: 1 })),
     )
@@ -31,7 +31,7 @@ describe('/snapshots', () => {
   })
 
   it('sem snapshot, nenhuma instrução de operador', async () => {
-    server.use(http.get('*/api/v1/snapshots', () => HttpResponse.json({ count: 0, latest: null, snapshots: [] })))
+    server.use(http.get('*/api/v1/brasil/snapshots', () => HttpResponse.json({ count: 0, latest: null, snapshots: [] })))
     montar()
     expect(await screen.findByText('Nenhum snapshot publicado até agora.')).toBeTruthy()
     expect(document.body.textContent).not.toMatch(/pipeline|summary\.json/i)

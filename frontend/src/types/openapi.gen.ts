@@ -1131,6 +1131,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/brasil/destaques": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Destaques da home: o total de cada pergunta pronta e os ASes novos da janela atual
+         * @description Os números fixos dos destaques da página inicial, numa chamada aberta: `destaques` traz o `total` de cada pergunta pronta (operadoras com mais de 5 mil acessos sem ASN
+         *     próprio, ASes brasileiros em 3 ou mais PTTs com IPv6 e sem ROA, municípios com uma operadora de 80% ou mais da banda larga fixa e ASNs com usuários APNIC 10 vezes ou mais acima do esperado
+         *     pelos acessos SCM) e `o_que_mudou` os ASes brasileiros novos e confirmados desde `de`, a data do snapshot atual mais antigo (a rota é aberta, então não alcança o histórico). Cada total é
+         *     o da lista de destino do destaque. As consultas são fixas; a consulta genérica (`/query`) segue medida.
+         */
+        get: operations["brasil_destaques_api_v1_brasil_destaques_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/brasil/indicadores": {
         parameters: {
             query?: never;
@@ -1146,6 +1169,49 @@ export interface paths {
          *     inválidas e sem ROA, com o espaço de cada estado, e totais de saúde da tabela; `rotas` é null em snapshot anterior ao resumo). Só números do país: o detalhe por UF e porte está em `/seguranca/resumo` e `/prontidao/resumo`. Fontes e limites na resposta.
          */
         get: operations["brasil_indicadores_api_v1_brasil_indicadores_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/brasil/snapshots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Datas dos snapshots atuais (entrada, aberta)
+         * @description As datas atuais: os 2 snapshots mais recentes, em ordem cronológica, com `latest`; `count` é o número de datas devolvidas aqui. É a lista de que
+         *     as páginas de entrada precisam (seletor de data, rodapé "dados de", home) e abre sem login. Datas anteriores existem e são imutáveis, mas a lista
+         *     inteira (`GET /snapshots`) e o resumo de uma data anterior exigem login.
+         */
+        get: operations["list_snapshots_atuais_api_v1_brasil_snapshots_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/brasil/snapshots/{date_str}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Resumo e manifesto de um snapshot (entrada: aberta para as datas atuais)
+         * @description O mesmo conteúdo de `GET /snapshots/{date}` (`summary` e `manifest`). Abre sem login para as datas atuais (`GET /brasil/snapshots`); uma data anterior
+         *     exige login, como o `date` das demais rotas. `GET /snapshots/{date}` é sempre `login`.
+         */
+        get: operations["get_snapshot_atual_api_v1_brasil_snapshots__date_str__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3560,11 +3626,11 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Lista de ASNs por índice de prontidão (desligada até a metodologia ser aprovada)
-         * @description Lista paginada dos ASNs do Brasil com índice, classe, nota de cada pilar, usuários estimados (APNIC), porte, UF e quais pilares não têm dado. Filtros: `uf`, `classe`
-         *     (pronto, em_progresso, atrasado, sem_dados), `porte` e `min`/`max` do índice. Ordem: `indice` (padrão, do menor ao maior), `usuarios` ou `asn`; ASN sem índice vai ao fim.
-         *     O índice é soma ponderada de medições de terceiros com regras públicas (`regras`); **não é veredito sobre a empresa** e o anti-spoofing só existe para ~2% dos ASNs.
-         *     Responde 404 enquanto a chave `PRONTIDAO_LISTA_NOMINAL` estiver desligada.
+         * Lista de ASNs com o índice de prontidão (pública, ordem padrão por ASN)
+         * @description Lista paginada dos ASNs do Brasil com índice, classe, nota de cada pilar (nulo = não medido), quantos pilares foram medidos (`pilares_medidos`), usuários estimados (APNIC), porte, UF e quais pilares não têm dado.
+         *     Filtros: `uf`, `classe` (pronto, em_progresso, atrasado, sem_dados), `porte` e `min`/`max` do índice. Ordem: `asn` (padrão, crescente), `usuarios` ou `indice`, à escolha de quem consulta; ASN sem valor na chave vai ao fim.
+         *     O índice é soma ponderada de medições de terceiros com regras públicas (`regras`); **não é veredito sobre a empresa** e o anti-spoofing só existe para ~2% dos ASNs. A resposta traz `aviso_metodo`.
+         *     Responde 404 se a chave `PRONTIDAO_LISTA_NOMINAL` for desligada (`0`).
          */
         get: operations["prontidao_asns_api_v1_prontidao_asns_get"];
         put?: never;
@@ -5074,6 +5140,11 @@ export interface components {
              * @description Só com `include=prontidao` e a lista nominal liberada: índice de prontidão em segurança de roteamento (0 a 100; soma ponderada de medições de terceiros, não veredito)
              */
             prontidao_indice?: number | null;
+            /**
+             * Prontidao Pilares Medidos
+             * @description Só com `include=prontidao` e a lista nominal liberada: quantos dos quatro pilares têm dado e entraram no índice e na classe
+             */
+            prontidao_pilares_medidos?: number | null;
             /**
              * Rir Prefixes V4 Count
              * @description Prefixos IPv4 atribuídos ao AS pelo RIR/Registro.br
@@ -7312,6 +7383,39 @@ export interface operations {
             };
         };
     };
+    brasil_destaques_api_v1_brasil_destaques_get: {
+        parameters: {
+            query?: {
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     brasil_indicadores_api_v1_brasil_indicadores_get: {
         parameters: {
             query?: {
@@ -7332,6 +7436,57 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_snapshots_atuais_api_v1_brasil_snapshots_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SnapshotListResponse"];
+                };
+            };
+        };
+    };
+    get_snapshot_atual_api_v1_brasil_snapshots__date_str__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                date_str: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SnapshotDetailResponse"];
                 };
             };
             /** @description Validation Error */
@@ -11017,7 +11172,7 @@ export interface operations {
                 min?: number | null;
                 /** @description Índice máximo */
                 max?: number | null;
-                /** @description indice | usuarios | asn */
+                /** @description asn (padrão) | usuarios | indice */
                 ordem?: string;
                 /** @description Ordem decrescente */
                 desc?: boolean;

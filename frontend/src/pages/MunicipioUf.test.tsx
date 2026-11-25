@@ -73,7 +73,7 @@ beforeEach(() => {
     http.get('*/api/v1/map/pix', () => HttpResponse.json(pix)),
     http.get('*/api/v1/regiao', ({ request }) => HttpResponse.json(regiao(new URL(request.url).searchParams.get('ibges')!.split(',')))),
     http.get('*/municipios-centroides.json', () => HttpResponse.json(centroides)),
-    http.get('*/api/v1/snapshots/:date', () => HttpResponse.json({ date: '2026-09-20', summary: null, manifest: { sources: [{ id: 'anatel_sici', as_of: '2026-08', frescor: 'ok' }] } })),
+    http.get('*/api/v1/brasil/snapshots/:date', () => HttpResponse.json({ date: '2026-09-20', summary: null, manifest: { sources: [{ id: 'anatel_sici', as_of: '2026-08', frescor: 'ok' }] } })),
   )
 })
 

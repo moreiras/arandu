@@ -81,8 +81,8 @@ async function jiggle(page, n = 1) {
   await step('esgotado: detalhe de ASN mostra o painel', async () => {
     await page.goto(BASE + '/asn/3356'); await painel(page).waitFor({ state: 'visible', timeout: 15000 })
   })
-  await step('esgotado: API avançada = 403, entrada = 200', async () => {
-    const a = await ctx.request.get(BASE + '/api/v1/map/asns'); if (a.status() !== 403) throw new Error('map/asns ' + a.status())
+  await step('esgotado: API avançada = 429 com Retry-After, entrada = 200', async () => {
+    const a = await ctx.request.get(BASE + '/api/v1/map/asns'); if (a.status() !== 429 || !a.headers()['retry-after']) throw new Error('map/asns ' + a.status())
     const b = await ctx.request.get(BASE + '/api/v1/ixps'); if (b.status() !== 200) throw new Error('ixps ' + b.status())
   })
   await step('histórico: /snapshots mostra o painel de login', async () => {

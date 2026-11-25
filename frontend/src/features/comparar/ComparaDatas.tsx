@@ -5,7 +5,8 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { fetchDiffSnapshots, fetchSnapshots } from '../../services/api'
+import { fetchDiffSnapshots } from '../../services/api'
+import { useSnapshots } from '../../hooks/useSnapshot'
 import { useAuth } from '../../auth/AuthContext'
 import { isHistoricalDate } from '../../auth/accessPolicy'
 import { inicioDosSnapshots, ROTULO_METRICA, TIPOS_DA_PAGINA } from '../historico/rotulos'
@@ -22,7 +23,7 @@ const ROTULO: Record<string, string> = { ...ROTULO_METRICA, n_asns: 'ASNs brasil
  */
 export function ComparaDatas() {
   const { requireLogin } = useAuth()
-  const { data } = useQuery({ queryKey: ['snapshots'], queryFn: fetchSnapshots, staleTime: Infinity, gcTime: Infinity })
+  const { data } = useSnapshots()
   const datas = data?.snapshots ?? []
   const inicio = inicioDosSnapshots(datas)
   const [a, setA] = useState('')

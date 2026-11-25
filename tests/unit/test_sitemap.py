@@ -32,6 +32,16 @@ def test_lista_de_paginas_esta_em_dia():
     assert gen.SAIDA.read_text(encoding="utf-8") == gen.texto(), "config/paginas_publicas.json desatualizado: rode `python3 scripts/gen_sitemap.py`"
 
 
+def test_pagina_que_exige_login_nao_vai_ao_sitemap_nem_ao_llms_txt():
+    """D9: `/snapshots` é `login` no SPA e na API; buscador e assistente não a abrem. O espelho `LOGIN_EXACT` é a fonte."""
+    d = gen.dados()
+    restritas = gen.paginas_so_com_login()
+    assert "/snapshots" in restritas
+    assert not restritas & set(d["paginas"]) and not restritas & {i["caminho"] for i in d["menu"]}
+    corpo = _cliente()[0].get("/llms.txt").text
+    assert "/snapshots)" not in corpo and "/snapshots\n" not in corpo
+
+
 def test_toda_pagina_do_menu_esta_no_sitemap_e_e_rota_do_front():
     d = gen.dados()
     menu = {i["caminho"] for i in d["menu"]}
