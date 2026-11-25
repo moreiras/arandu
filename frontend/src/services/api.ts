@@ -408,7 +408,7 @@ export function fetchASNsLote(asns: Array<number | string>, opts: { date?: strin
   return get('/api/v1/asns', { ...opts, asns: asns.join(',') })
 }
 
-/** Presença da CDN no Brasil: por PTT e família de IP (`ixp_peers`) e a série de PTTs com peering direto (`historico`), por ASN. */
+/** Presença da CDN no Brasil: por PTT e família de IP (`ixp_peers`) e a série de PTTs com sessão no route server (`historico`), por ASN. */
 export interface AsnCdnBrasil {
   asn: number
   ixp_peers?: Record<string, { v4?: { total_prefixes: number; own_prefixes: number }; v6?: { total_prefixes: number; own_prefixes: number } }>

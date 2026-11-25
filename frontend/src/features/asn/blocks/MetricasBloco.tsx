@@ -29,7 +29,7 @@ export function MetricasBloco({ dados }: BlocoProps<AsnCtx>) {
           : undefined}
         accent="blue"
       />
-      <MetricCard label="IXPs direto" value={doc.ixps_direct.length} />
+      <MetricCard label="PTTs com sessão no RS" value={doc.ixps_direct.length} />
       <MetricCard label="IXPs originador" value={doc.ixps_origin.length} />
     </div>
   )

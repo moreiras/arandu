@@ -5,7 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 /** Os universos de contagem (PT-15): cada rótulo designa um só universo, e o texto de `/sobre#contagens` sai da mesma tabela. */
 import { describe, expect, it } from 'vitest'
-import { LISTA_UNIVERSOS, rotuloDe, UNIVERSOS, type ChaveUniverso } from './universos'
+import { LISTA_UNIVERSOS, RELACAO_PTT, rotuloDe, UNIVERSOS, type ChaveUniverso } from './universos'
 
 describe('universos de contagem', () => {
   it('o mesmo rótulo nunca designa dois universos, e nenhuma definição fica vazia', () => {
@@ -26,6 +26,11 @@ describe('universos de contagem', () => {
     expect(rotuloDe('sessaoRs')).toBe('ASNs com sessão em route server do IX.br')
     expect(rotuloDe('sessaoRsBr')).toContain('brasileiros')
     for (const k of Object.keys(UNIVERSOS) as ChaveUniverso[]) expect(rotuloDe(k)).not.toMatch(/peering direto/i)
+  })
+
+  it('rótulos curtos da relação com o PTT: sessão no route server e cadastro são distintos e nenhum se chama peering direto', () => {
+    expect(RELACAO_PTT.sessaoRs).not.toBe(RELACAO_PTT.membroCadastro)
+    for (const v of Object.values(RELACAO_PTT)) expect(v).not.toMatch(/peering direto|peers? diretos?|par direto/i)
   })
 
   it('os três universos de declarantes do SICI e os dois de municípios têm rótulo próprio', () => {

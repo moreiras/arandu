@@ -13,7 +13,7 @@ import { nomesFamilias } from '../../../lib/familias'
 const fam = (f: string[]) => nomesFamilias(f)
 
 /**
- * O que é mensurável na interconexão do AS: onde ele origina prefixos sem ser par direto (e quem os entrega), onde cadastro e route server não batem e o que os route servers rejeitam.
+ * O que é mensurável na interconexão do AS: onde ele origina prefixos sem ter sessão no route server (e quem os entrega), onde cadastro e route server não batem e o que os route servers rejeitam.
  * São fatos observados na data da coleta: não dizem com quem o AS troca tráfego (peering bilateral não é visível) nem recomendam nada.
  */
 export function InterconexaoMensuravelBloco({ dados }: BlocoProps<AsnCtx>) {
@@ -24,9 +24,9 @@ export function InterconexaoMensuravelBloco({ dados }: BlocoProps<AsnCtx>) {
   const nada = !r.origem_sem_direto.length && !r.sessoes.length && !r.rejeicoes.length
   return (
     <div className="space-y-4 text-sm" data-testid="interconexao-mensuravel">
-      {nada && <p className="text-gray-600">Nenhum item mensurável neste snapshot: o AS não origina prefixos em PTT sem ser par direto, cadastro e route servers coincidem e não há rejeição coletada.</p>}
+      {nada && <p className="text-gray-600">Nenhum item mensurável neste snapshot: o AS não origina prefixos em PTT sem ter sessão no route server, cadastro e route servers coincidem e não há rejeição coletada.</p>}
       {r.origem_sem_direto.length > 0 && (
-        <div><h3 className="mb-1 font-medium text-gray-700">Origina prefixos sem ser par direto ({r.origem_sem_direto.length} PTTs)</h3>
+        <div><h3 className="mb-1 font-medium text-gray-700">Origina prefixos sem ter sessão no route server ({r.origem_sem_direto.length} PTTs)</h3>
           <ul className="divide-y divide-gray-100 rounded border border-gray-100">
             {r.origem_sem_direto.map((o) => (
               <li key={o.ixp} className="flex flex-wrap items-center gap-x-3 gap-y-0.5 px-3 py-1.5">

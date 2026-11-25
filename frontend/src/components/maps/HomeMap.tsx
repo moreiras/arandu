@@ -200,7 +200,7 @@ export function HomeMap({ date, height, className, title, ixpIndex, brAsnsInFt }
           `<hr style="border:none;border-top:1px solid #eee;margin:3px 0"/>` +
           `<span style="font-size:0.85em;color:#444">` +
           `👥 ${escapar(fmtBR(doc.apnic_users))} usuários estimados${escapar(usersV6)}<br/>` +
-          `🔗 IXPs: ${escapar(fmtBR(doc.ixps_direct?.length))} direto · ${escapar(fmtBR(doc.ixps_origin?.length))} originando<br/>` +
+          `🔗 IXPs: ${escapar(fmtBR(doc.ixps_direct?.length))} com sessão no RS · ${escapar(fmtBR(doc.ixps_origin?.length))} originando<br/>` +
           `↕ BGP: ${fmtBR(doc.upstreams?.length)} upstreams · ${fmtBR(doc.downstreams?.length)} downstreams` +
           `</span>`
         )

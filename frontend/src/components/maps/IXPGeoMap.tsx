@@ -28,12 +28,12 @@ const isSiciLayer = (l: MapLayer): l is SiciLayer => l.startsWith('sici_')
 
 const LAYERS: { id: MapLayer; label: string; short: string }[] = [
   { id: 'asns_members', label: 'AS Participantes — localização dos membros do IXP',          short: 'AS Membros'  },
-  { id: 'asns_direct',  label: 'AS Direto — ASNs com prefixos anunciados no IXP (LG)',       short: 'AS Direto'   },
+  { id: 'asns_direct',  label: 'AS com sessão no RS — ASNs com sessão no route server do IXP (LG)', short: 'AS c/ sessão RS' },
   { id: 'asns_origin',  label: 'AS Origem — ASNs BR de origem dos prefixos no IXP (LG)',     short: 'AS Origem'   },
   { id: 'prefixes_v6',  label: 'Prefixos IPv6 — prefixos anunciados no IXP (por cidade)',    short: 'Pref IPv6'   },
   { id: 'prefixes_v4',  label: 'Prefixos IPv4 — blocos /20 anunciados no IXP (por cidade)',  short: 'Pref IPv4'   },
-  { id: 'sici_direct',  label: 'Assinantes SCM (SICI) diretos — acessos dos CNPJs dos peers diretos (por município)', short: 'Assin. SCM diretos' },
-  { id: 'sici_total',   label: 'Assinantes SCM (SICI) totais — peers diretos e seus clientes nos AS-paths (por município)', short: 'Assin. SCM totais' },
+  { id: 'sici_direct',  label: 'Assinantes SCM (SICI) dos ASNs com sessão no RS — acessos dos CNPJs dos ASNs com sessão no route server (por município)', short: 'Assin. SCM sessão RS' },
+  { id: 'sici_total',   label: 'Assinantes SCM (SICI) totais — ASNs com sessão no RS e seus clientes nos AS-paths (por município)', short: 'Assin. SCM totais' },
 ]
 
 const CENTROIDS_URL = '/municipios-centroides.json'
@@ -428,8 +428,8 @@ export function IXPGeoMap({ code, date }: Props) {
           </span>
           <span className="text-gray-400">
             · Área ∝ assinantes · {activeLayer === 'sici_direct'
-              ? 'CNPJs dos peers diretos'
-              : 'CNPJs dos peers diretos e dos ASes nos AS-paths anunciados (deduplicado por CNPJ)'}
+              ? 'CNPJs dos ASNs com sessão no route server'
+              : 'CNPJs dos ASNs com sessão no route server e dos ASes nos AS-paths anunciados (deduplicado por CNPJ)'}
           </span>
         </div>
       ) : isPrefix ? (
@@ -456,13 +456,13 @@ export function IXPGeoMap({ code, date }: Props) {
           {activeLayer === 'asns_direct' && (
             <span className="flex items-center gap-1">
               <span className="inline-block w-3 h-3 rounded-full opacity-85" style={{ background: COLOR_DIRECT }} />
-              AS Direto
+              AS com sessão no RS
             </span>
           )}
           {activeLayer === 'asns_origin' && (<>
             <span className="flex items-center gap-1">
               <span className="inline-block w-3 h-3 rounded-full opacity-85" style={{ background: COLOR_DIRECT }} />
-              AS Direto (também anunciado)
+              AS com sessão no RS (também anunciado)
             </span>
             <span className="flex items-center gap-1">
               <span className="inline-block w-3 h-3 rounded-full opacity-85" style={{ background: COLOR_ORIGIN }} />

@@ -5,6 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { HistoricoEvento } from '../../types/api'
 import { formatarData } from '../../lib/datas'
+import { RELACAO_PTT } from '../../lib/universos'
 
 /**
  * Rótulos do histórico. Linguagem de evidência: o evento é uma DIFERENÇA OBSERVADA entre snapshots, sem causa, intenção nem
@@ -12,10 +13,10 @@ import { formatarData } from '../../lib/datas'
  */
 export const ROTULO_METRICA: Record<string, string> = {
   users: 'Usuários estimados (APNIC)', users_ma4: 'Usuários, média de 28 dias', v6users: 'Usuários IPv6 estimados',
-  p6: 'Prefixos IPv6 na tabela', p4: 'Prefixos IPv4 na tabela', n_ixd: 'PTTs com par direto', n_ixm: 'PTTs como membro',
+  p6: 'Prefixos IPv6 na tabela', p4: 'Prefixos IPv4 na tabela', n_ixd: RELACAO_PTT.pttsSessaoRs, n_ixm: 'PTTs como membro',
   n_roa: 'ROAs', n_aspa: 'Objetos ASPA', rpki_valid: 'Prefixos RPKI válidos', rpki_invalid: 'Prefixos RPKI inválidos',
   rpki_not_found: 'Prefixos sem ROA', n_alertas: 'Pontos de atenção', n_asns: 'ASNs', n_cnpjs: 'CNPJs',
-  n_direct: 'ASNs em par direto', n_br_direct: 'ASNs BR em par direto', n_origin: 'ASNs originadores', n_br_origin: 'ASNs BR originadores',
+  n_direct: RELACAO_PTT.asnsSessaoRs, n_br_direct: 'ASNs BR com sessão no route server', n_origin: 'ASNs originadores', n_br_origin: 'ASNs BR originadores',
   n_membros: 'Membros cadastrados', v6_rotas: 'Rotas IPv6', v6_prefixos: 'Prefixos IPv6', v4_rotas: 'Rotas IPv4', v4_prefixos: 'Prefixos IPv4',
 }
 
@@ -32,8 +33,8 @@ const FRASE: Record<string, (e: HistoricoEvento) => string> = {
   asn_sumido: () => 'Deixou de aparecer na tabela de roteamento',
   ixp_entrada: (e) => `Passou a constar como membro do PTT ${e.chave}`,
   ixp_saida: (e) => `Deixou de constar como membro do PTT ${e.chave}`,
-  ixp_entrada_observada: (e) => `Passou a ser visto em par direto no PTT ${e.chave}`,
-  ixp_saida_observada: (e) => `Deixou de ser visto em par direto no PTT ${e.chave}`,
+  ixp_entrada_observada: (e) => `Passou a ser visto com sessão no route server do PTT ${e.chave}`,
+  ixp_saida_observada: (e) => `Deixou de ser visto com sessão no route server do PTT ${e.chave}`,
   mudanca_origem: (e) => `Prefixo ${e.entidade.replace('prefixo:', '')}: origem mudou de AS${e.de} para AS${e.para}`,
   roa_ganho: () => 'Passou a ter ROA',
   roa_perdido: () => 'Deixou de ter ROA',

@@ -41,6 +41,19 @@ export const UNIVERSOS = {
   usuariosIx: { rotulo: 'usuários estimados alcançáveis pelo IX.br (IPv4, sem dupla contagem)', definicao: 'A mesma conta com os prefixos de todos os PTTs unidos antes do cálculo, de modo que cada usuário conta uma vez.' },
 } as const satisfies Record<string, Universo>
 
+/**
+ * Rótulos curtos da relação de um ASN com um PTT do IX.br, para legendas, colunas e tooltips (não são universos de contagem e não entram em
+ * `/sobre#contagens`). `sessaoRs` é o que o looking glass mostra (`asn_direct`, `ixps_direct`); `membroCadastro` é a lista oficial de
+ * participantes (`m`, `ixps_membro`), com ou sem sessão. O termo antigo para a sessão é vetado em `tests/unit/test_textos_falsos.py`.
+ */
+export const RELACAO_PTT = {
+  sessaoRs: 'Sessão com o route server',
+  asnsSessaoRs: 'ASNs com sessão no route server',
+  membroCadastro: 'Membro do cadastro',
+  papelSessaoRs: 'com sessão no route server',
+  pttsSessaoRs: 'PTTs com sessão no route server',
+} as const
+
 export type ChaveUniverso = keyof typeof UNIVERSOS
 
 /** Rótulo de tela de um universo, com a inicial maiúscula para título de indicador. */

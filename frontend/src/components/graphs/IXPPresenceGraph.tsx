@@ -3,7 +3,7 @@
  *
  * Nós:
  *   main        — ASN principal (azul)
- *   ixp_direct  — IXP com peering direto E prefixos próprios (laranja=v6 / azul claro=v4)
+ *   ixp_direct  — IXP com sessão no route server E prefixos próprios (laranja=v6 / azul claro=v4)
  *   ixp_origin  — IXP só origem com prefixos (cinza alaranjado=v6 / cinza azulado=v4)
  *   path        — AS intermediário no AS_PATH (verde=BR, violeta=não-BR)
  *   ixp_member  — IXP onde o AS é membro mas sem prefixos anunciados (vermelho)
@@ -13,6 +13,7 @@
  */
 import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
+import { RELACAO_PTT } from '../../lib/universos'
 import type { IXPPresence, IXPPeerStats, PathNodeMeta } from '../../types/api'
 
 interface GNode extends d3.SimulationNodeDatum {
@@ -184,7 +185,7 @@ function buildIxpTooltipHtml(
   const unit  = afi === 'v4' ? '/24' : '/48'
 
   let html = `<div style="font-weight:600;margin-bottom:4px">${code.toUpperCase()}`
-  if (isMember) html += ` <span style="font-size:10px;font-weight:400;background:#fee2e2;color:#dc2626;border-radius:3px;padding:1px 4px">membro registrado</span>`
+  if (isMember) html += ` <span style="font-size:10px;font-weight:400;background:#fee2e2;color:#dc2626;border-radius:3px;padding:1px 4px">membro do cadastro</span>`
   html += `</div>`
 
   if (peerStat) {
@@ -609,7 +610,7 @@ export function IXPPresenceGraph({
       <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-500 justify-center">
         <span className="flex items-center gap-1">
           <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: AC.ixp_direct }} />
-          Peering direto
+          {RELACAO_PTT.sessaoRs}
         </span>
         <span className="flex items-center gap-1">
           <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: AC.ixp_origin }} />
@@ -617,7 +618,7 @@ export function IXPPresenceGraph({
         </span>
         <span className="flex items-center gap-1">
           <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: C.ixp_member }} />
-          Membro registrado
+          {RELACAO_PTT.membroCadastro}
         </span>
         <span className="flex items-center gap-1">
           <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: C.path_br }} />

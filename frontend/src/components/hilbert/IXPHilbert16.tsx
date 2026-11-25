@@ -94,7 +94,7 @@ interface ZoomedBlock  { sx: number; sy: number; slashEight: number }
 interface IXPHilbert16Props {
   code: string
   date?: string
-  /** Lista de peers diretos para o dropdown */
+  /** Lista de ASNs com sessão no route server para o dropdown */
   peerList: number[]
   /** Peer selecionado externamente (sincroniza com a tabela) */
   selectedPeer: number | null
