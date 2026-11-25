@@ -77,8 +77,8 @@ def estado_rpki(pbr: list[dict], rpki_index: dict, afi: str) -> dict:
 
 
 def montar(date_str: str, pbr_v4: list[dict], pbr_v6: list[dict], rpki_index: dict, *, summary: dict | None = None,
-           more_specifics: dict | None = None, too_specific: dict | None = None, moas: list | None = None,
-           moas_limite: int = 500, vrps: int | None = None, fora_de_bloco: dict | None = None) -> dict:
+           more_specifics: dict | None = None, too_specific: dict | None = None, moas_resumo: dict | None = None,
+           vrps: int | None = None, fora_de_bloco: dict | None = None) -> dict:
     saude: dict = {}
     for afi in ("v6", "v4"):
         ms = (more_specifics or {}).get(afi) or {}
@@ -100,14 +100,21 @@ def montar(date_str: str, pbr_v4: list[dict], pbr_v6: list[dict], rpki_index: di
         "rpki": {"v6": estado_rpki(pbr_v6, rpki_index, "v6"), "v4": estado_rpki(pbr_v4, rpki_index, "v4")},
         "saude": {
             **saude,
-            # Nulo, com o motivo: origin-prefixes-{afi} traz uma origem por prefixo e a contagem sairia 0 por limite da coleta, não por ausência de MOAS (core/moas.py).
-            # `moas` e `moas_limite` ficam na assinatura para quem chama com a análise antiga; não entram no resultado.
-            "moas": None,
-            "moas_indisponivel": MOAS_MOTIVO,
+            # Copiado de `moas_resumo` da análise; nulo, com o motivo, quando a coleta do snapshot não guardou todas as origens (core/moas.py)
+            **_saude_moas(moas_resumo),
         },
         "limites": "Um bloco pode ter rotas em mais de um estado, então os espaços por estado não somam o total. "
                    "Sem ROA (not_found) não é inválido: só não há ROA que cubra o prefixo.",
     }
+
+
+def _saude_moas(moas_resumo: dict | None) -> dict:
+    if not moas_resumo:
+        return {"moas": None, "moas_indisponivel": MOAS_MOTIVO}
+    prefixos, coletores = moas_resumo.get("prefixos") or {}, moas_resumo.get("coletores") or {}
+    return {"moas": {afi: (None if prefixos.get(afi) is None else
+                           {"prefixos": prefixos[afi]["global"], "prefixos_br": prefixos[afi]["br"], "coletores": len(coletores.get(afi) or [])})
+                     for afi in ("v6", "v4")}}
 
 
 def gravar(pub: Path, payload: dict) -> Path:
@@ -140,7 +147,7 @@ def run(date_str: str, base: Path, log) -> bool:
     analise = json.loads((pub / "routing_analysis.json").read_text(encoding="utf-8")) if (pub / "routing_analysis.json").exists() else {}
     payload = montar(date_str, pbr_v4, pbr_v6, _build_rpki_index(vrp_list), summary=analise.get("summary"),
                      more_specifics=analise.get("more_specifics"), too_specific=analise.get("too_specific"),
-                     moas=analise.get("moas"), vrps=len(vrp_list), fora_de_bloco={"v4": len(fora_v4), "v6": len(fora_v6)})
+                     moas_resumo=analise.get("moas_resumo"), vrps=len(vrp_list), fora_de_bloco={"v4": len(fora_v4), "v6": len(fora_v6)})
     destino = gravar(pub, payload)
     log.info("routing_analysis_resumo written", path=str(destino))
     return True

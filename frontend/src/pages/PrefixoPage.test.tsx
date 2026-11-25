@@ -14,6 +14,7 @@ import { blocosDe } from '../features/entidade/registry'
 import '../features/prefixo'
 import { PrefixoPage } from './PrefixoPage'
 import { SearchBar } from '../components/layout/SearchBar'
+import { MOAS_INDISPONIVEL } from '../features/prefixo/blocks/MoasBloco'
 
 const roa = (asn: number, autoriza: boolean | null) => ({ prefix: '198.18.0.0/24', asn, maxLength: 24, ta: 'lacnic', autoriza_origem: autoriza })
 // formato do cenário 1 do sintético: o Registro.br associa 198.18.0.0/24 a 64497, a tabela global vê 64496, que tem o ROA
@@ -30,6 +31,16 @@ const fora = { ...info, prefix: '100.64.0.0/24', escopo: 'fora_do_registro_br', 
   registro_asn_nome: null, observed_origin_asn: 4200000100, observed_origin_nome: 'Foreign Net 1 Inc', uf: null, country: null, geo_org: null,
   rpki_observado: { estado: 'not_found', motivo: 'sem_roa', asn: 4200000100, roas_que_cobrem: [] } }
 const respostas: Record<string, object> = { '198.18.0.0/24': info, '2001:db8:3e80::/48': invalido, '100.64.0.0/24': fora }
+
+const analiseComMoas = {
+  snapshot_date: '2026-09-20',
+  moas: [{ prefix: '198.18.0.0/24', afi: 'v4', origins: [64496, 64497], br_origins: [64496, 64497], is_prefix_br: true, origens: [
+    { asn: 64496, name: 'Provedor 01 Telecom Ltda', coletores: 2, coletores_nomes: ['rvT', 'rvU'], asn_br: true },
+    { asn: 64497, name: 'Provedor 02 Telecom Ltda', coletores: 1, coletores_nomes: ['rvU'], asn_br: true }] }],
+  moas_resumo: { prefixos: { v6: { global: 1, br: 1 }, v4: { global: 2, br: 1 } }, coletores: { v6: ['rvT', 'rvU'], v4: ['rvT', 'rvU'] },
+    lista: 'prefixos brasileiros', lista_truncada: false, lista_limite: 2000, definicao: 'Prefixo com mais de um AS de origem.',
+    como_ler: 'É fato observado; a causa não é medida. Hipóteses, a conferir caso a caso.', limites: 'Visão de poucos coletores.' },
+}
 
 function montar(caminho: string) {
   return render(
@@ -121,15 +132,45 @@ describe('página de prefixo', () => {
     expect(screen.getAllByText('Prefixo não encontrado')).toHaveLength(1)
   })
 
-  it('MOAS: indisponível, sem afirmar ausência e sem baixar a análise de roteamento (PFX-E3)', async () => {
+  it('MOAS: só baixa a análise (14 MB) quando o usuário pede e lista as origens com os coletores (PFX-E3)', async () => {
     let chamadas = 0
-    server.use(http.get('*/api/v1/routing-analysis', () => { chamadas += 1; return HttpResponse.json({ moas: null }) }))
+    server.use(http.get('*/api/v1/routing-analysis', () => { chamadas += 1; return HttpResponse.json(analiseComMoas) }))
     montar('/prefixo/198.18.0.0/24')
+    const botao = await screen.findByRole('button', { name: /Verificar na análise de roteamento/ })
+    expect(chamadas).toBe(0)
+    fireEvent.click(botao)
+    const bloco = await screen.findByTestId('moas-observado')
+    expect(bloco.textContent).toMatch(/2 ASes de origem/)
+    expect(bloco.textContent).toMatch(/vista em 2 coletores \(rvT, rvU\)/)
+    expect(screen.getByRole('link', { name: 'AS64497' })).toHaveAttribute('href', '/asn/64497?date=2026-09-20')
+    expect(bloco.textContent).not.toMatch(/sequestro|hijack/i)
+    expect(chamadas).toBe(1)
+  })
+
+  it('MOAS medido sem o prefixo: "nenhuma observada", com o número de coletores', async () => {
+    server.use(http.get('*/api/v1/routing-analysis', () => HttpResponse.json({ ...analiseComMoas, moas: [] })))
+    montar('/prefixo/198.18.0.0/24')
+    fireEvent.click(await screen.findByRole('button', { name: /Verificar na análise de roteamento/ }))
+    expect((await screen.findByTestId('moas-nenhum')).textContent).toMatch(/Nenhuma origem múltipla \(MOAS\) observada para este prefixo exato neste snapshot, entre 2 coletores/)
+  })
+
+  it('MOAS não medido no snapshot: aviso de limite da coleta, sem afirmar ausência', async () => {
+    server.use(http.get('*/api/v1/routing-analysis', () => HttpResponse.json({ moas: null, moas_resumo: null, moas_indisponivel: MOAS_INDISPONIVEL })))
+    montar('/prefixo/198.18.0.0/24')
+    fireEvent.click(await screen.findByRole('button', { name: /Verificar na análise de roteamento/ }))
     const aviso = await screen.findByTestId('moas-indisponivel')
     expect(aviso.textContent).toMatch(/não medida neste snapshot/)
     expect(aviso.textContent).toMatch(/limite da coleta, não ausência de eventos/)
     expect(document.body.textContent).not.toMatch(/Nenhuma origem múltipla/)
-    expect(chamadas).toBe(0)
+  })
+
+  it('MOAS com falha da API: EstadoDados, nunca "nenhuma"', async () => {
+    server.use(http.get('*/api/v1/routing-analysis', () => new HttpResponse('erro', { status: 500 })))
+    montar('/prefixo/198.18.0.0/24')
+    fireEvent.click(await screen.findByRole('button', { name: /Verificar na análise de roteamento/ }))
+    const falha = await screen.findByText(/Não foi possível carregar a análise de roteamento/)
+    expect(falha.closest('[data-estado]')).toHaveAttribute('data-estado', 'falha')
+    expect(document.body.textContent).not.toMatch(/Nenhuma origem múltipla/)
   })
 })
 

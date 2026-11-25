@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections import defaultdict
 from ipaddress import ip_network
 
+from core import moas as moas_textos
 from products.routing_analysis.rpki import _rpki_status
 from products.routing_analysis.util import _PrefixTrie, _safe_prefixlen, _union_span
 
@@ -142,45 +143,64 @@ def _registro_br_coverage(
 
 
 def _moas_analysis(
-    origin_prefixes_v4: dict,
-    origin_prefixes_v6: dict,
-    br_asns: set[int],
+    origens_multi: dict[str, dict | None],
     registry_trie_v4: _PrefixTrie,
     registry_trie_v6: _PrefixTrie,
-    max_entries: int = 500,
-) -> list[dict]:
-    """Detecta MOAS (Multiple-Origin AS) — prefixos anunciados por múltiplos ASes."""
-    # Inverte o índice: {prefix → set(origin_as)}
-    inv_v4: dict[str, set[int]] = defaultdict(set)
-    for asn_str, prefixes in origin_prefixes_v4.items():
-        for p in prefixes:
-            inv_v4[p].add(int(asn_str))
+    br_asns: set[int],
+    asn_names: dict[int, str] | None = None,
+    max_entries: int = 2000,
+) -> tuple[list[dict] | None, dict | None]:
+    """MOAS a partir de `origins-multi-{afi}` (todas as origens por prefixo e por coletor).
 
-    inv_v6: dict[str, set[int]] = defaultdict(set)
-    for asn_str, prefixes in origin_prefixes_v6.items():
-        for p in prefixes:
-            inv_v6[p].add(int(asn_str))
-
-    results = []
-    for afi, inv, trie in [("v4", inv_v4, registry_trie_v4), ("v6", inv_v6, registry_trie_v6)]:
-        for prefix, origins in inv.items():
-            if len(origins) < 2:
+    `origens_multi` = {"v6": documento ou None, "v4": ...}; None quer dizer família sem o artefato (coleta antiga), e sem nenhuma
+    das duas devolve (None, None). A contagem global inclui todo prefixo com 2+ origens; a lista, só os brasileiros (rota
+    brasileira = prefixo contido em bloco do Registro.br, D4), com cada origem e o número de coletores que a viram. Nada de causa:
+    só o que foi observado.
+    """
+    if all(origens_multi.get(afi) is None for afi in ("v6", "v4")):
+        return None, None
+    asn_names = asn_names or {}
+    lista: list[dict] = []
+    prefixos: dict[str, dict | None] = {}
+    coletores: dict[str, list[str] | None] = {}
+    for afi, trie in (("v6", registry_trie_v6), ("v4", registry_trie_v4)):
+        doc = origens_multi.get(afi)
+        if doc is None:
+            prefixos[afi] = coletores[afi] = None
+            continue
+        por_prefixo = doc.get("prefixos") or {}
+        n_br = 0
+        for prefix, origens in por_prefixo.items():
+            if len(origens) < 2 or trie.find_covering(prefix) is None:
                 continue
-            br_origins    = sorted(o for o in origins if o in br_asns)
-            is_prefix_br  = trie.find_covering(prefix) is not None
-            # Filtra apenas MOAS com pelo menos um ASN BR ou prefixo BR
-            if not br_origins and not is_prefix_br:
-                continue
-            results.append({
+            n_br += 1
+            detalhe = sorted(({"asn": int(a), "name": asn_names.get(int(a), ""), "coletores": len(cs), "coletores_nomes": list(cs),
+                               "asn_br": int(a) in br_asns} for a, cs in origens.items()),
+                             key=lambda o: (-o["coletores"], o["asn"]))
+            asns = sorted(o["asn"] for o in detalhe)
+            lista.append({
                 "prefix":       prefix,
                 "afi":          afi,
-                "origins":      sorted(origins),
-                "br_origins":   br_origins,
-                "is_prefix_br": is_prefix_br,
+                "origins":      asns,
+                "br_origins":   [a for a in asns if a in br_asns],
+                "is_prefix_br": True,
+                "origens":      detalhe,
             })
+        prefixos[afi] = {"global": sum(1 for o in por_prefixo.values() if len(o) >= 2), "br": n_br}
+        coletores[afi] = list(doc.get("coletores") or [])
 
-    results.sort(key=lambda x: (x["afi"], -len(x["origins"]), x["prefix"]))
-    return results[:max_entries]
+    lista.sort(key=lambda x: (x["afi"] != "v6", -len(x["origins"]), x["prefix"]))      # IPv6 antes de IPv4
+    resumo = {
+        "prefixos": prefixos,
+        "coletores": coletores,
+        "lista": "prefixos brasileiros (contidos em bloco alocado pelo Registro.br)",
+        "lista_truncada": len(lista) > max_entries,
+        "lista_limite": max_entries,
+        "definicao": moas_textos.DEFINICAO,
+        "como_ler": moas_textos.COMO_LER,
+        "limites": moas_textos.LIMITES,
+    }
+    return lista[:max_entries], resumo
 
 
 def _too_specific(

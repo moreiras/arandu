@@ -56,7 +56,7 @@ Formato de arquivo e recorte de cada fonte, compartilhados pelo coletor (`source
 | `irr.py` | Dumps de IRR (RPSL): `route`/`route6` e `aut-num` dos ASNs brasileiros, em fluxo. |
 | `ixbr_communities.py` | Communities do IX.br pelo dicionário do Alice-LG. |
 | `manrs.py` | Participantes do MANRS. |
-| `moas.py` | MOAS indisponível: motivo e retirada do número da análise de roteamento e do resumo (a coleta guarda uma origem por prefixo). |
+| `moas.py` | MOAS: definição, "como ler", limites e o motivo quando não medido; o que a API e o MCP servem da análise de roteamento e do resumo em cada snapshot. |
 | `ooni.py` | Medições do OONI: classificação e agregação por ASN. |
 | `radar.py` | Cloudflare Radar (formatos da API v4). |
 | `shodan.py` | Shodan: constantes e classes de risco. |

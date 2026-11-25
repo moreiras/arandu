@@ -13,7 +13,11 @@ RouteViews e grava os arquivos normalizados prontos para uso pelo `metricas_ixp_
     normalized/{date}/summary/origin-prefixes-{afi}.json.gz — {str(asn): [prefixos]}
     normalized/{date}/summary/prefix-set-{afi}.json.gz      — [prefixo, ...]
     normalized/{date}/summary/aspath-adj-{afi}.json.gz      — {str(asn): {up: [...], down: [...]}}
+    normalized/{date}/summary/origins-multi-{afi}.json.gz   — prefixos com 2+ origens: {prefixo: {str(asn): [coletores]}}
     normalized/{date}/summary/fulltable_manifest.json       — resultado e fontes usadas
+
+`origin-prefixes-{afi}` guarda uma origem por prefixo (a do primeiro coletor que o viu); `origins-multi-{afi}` guarda todas as
+origens observadas, por coletor, só dos prefixos com mais de uma (MOAS), para não carregar a tabela inteira duas vezes.
 
 Não gera arquivos raw — os dumps MRT são processados em memória e descartados.
 
@@ -340,6 +344,7 @@ def _parse_mrt(
     log,
     br_asns: set[int] | None = None,
     caminhos=None,
+    origens: dict | None = None,
 ) -> tuple[list[dict], dict[str, dict]]:
     """Parseia um dump MRT TABLE_DUMP_V2 e extrai rotas e grafo de adjacências.
 
@@ -359,6 +364,8 @@ def _parse_mrt(
         log:     Logger estruturado
         br_asns: Conjunto de ASNs BR para extração de communities (opcional)
         caminhos: `AgregadorCaminhos` opcional: recebe cada caminho único com o VP que o viu
+        origens: dict opcional preenchido com {prefixo: set(origens)} dos prefixos que, neste dump, têm mais de uma origem
+                 (último AS do AS_PATH) entre os pontos de observação; os de origem única não entram (estão em `routes`)
 
     Returns:
         routes:    Lista de dicts {"prefix", "status", "aspath", "origin", "nexthop"}
@@ -398,11 +405,21 @@ def _parse_mrt(
             prefix = f"{d['prefix']}/{pl}"
 
             got_route = prefix in seen
+            # MOAS: a primeira origem vista e, só se aparecer outra, o conjunto (evita um set por prefixo)
+            orig1: Optional[int] = None
+            outras: Optional[set[int]] = None
             for rib in d.get("rib_entries", []):
                 path_attrs = rib.get("path_attributes", [])
                 asp = _extract_aspath(path_attrs)
                 if asp is None:
                     continue
+                if origens is not None and asp:
+                    if orig1 is None:
+                        orig1 = asp[-1]
+                    elif asp[-1] != orig1:
+                        if outras is None:
+                            outras = set()
+                        outras.add(asp[-1])
 
                 # Primeiro rib_entry com AS_PATH válido = "best path" para este prefixo
                 if not got_route:
@@ -438,6 +455,9 @@ def _parse_mrt(
                         comp.append(asn)
                 if comp:
                     caminhos.adicionar(comp, rib.get("peer_index", -1))
+
+            if outras:
+                origens.setdefault(prefix, set()).update(outras, (orig1,))
 
             total_entries += 1
             if total_entries % 200_000 == 0:
@@ -617,6 +637,87 @@ def _merge_into(
         merged_dn[asn_str].update(nb.get("down", []))
 
 
+class OrigensPorColetor:
+    """Origens observadas por prefixo e por coletor, para achar os prefixos com mais de uma (MOAS).
+
+    `_merge_into` guarda a rota do primeiro coletor que viu o prefixo, e com ela uma origem só. Aqui cada coletor entra com a origem
+    da sua rota e, quando no próprio dump o prefixo já tem várias (`_parse_mrt(origens=...)`), com todas. Enquanto um prefixo tem
+    uma origem só, ela fica num int (origem << 16 | máscara dos coletores que a viram), sem dict nem set por prefixo: a tabela
+    inteira passa por aqui e quase todo prefixo tem origem única. Divergiu, o prefixo passa para `multiplas` ({origem: máscara}).
+    """
+
+    _BITS = 16
+
+    def __init__(self, coletores: list[str]):
+        if len(coletores) > self._BITS:
+            raise ValueError(f"no máximo {self._BITS} coletores por família")
+        self.coletores = list(coletores)
+        self._bit = {n: 1 << i for i, n in enumerate(self.coletores)}
+        self._unica: dict[str, int] = {}
+        self.multiplas: dict[str, dict[int, int]] = {}
+
+    def fundir(self, coletor: str, routes: list[dict], origens_coletor: dict) -> None:
+        """Junta as origens de um coletor: `routes` (uma rota por prefixo) e `origens_coletor` ({prefixo: origens}, só os múltiplos)."""
+        bit = self._bit[coletor]
+        mask = (1 << self._BITS) - 1
+        for r in routes:
+            p = r["prefix"]
+            varias = origens_coletor.get(p)
+            if varias is None:
+                asp = r.get("aspath")
+                if not asp:
+                    continue
+                o = asp[-1]
+                m = self.multiplas.get(p)
+                if m is not None:
+                    m[o] = m.get(o, 0) | bit
+                    continue
+                u = self._unica.get(p)
+                if u is None:
+                    self._unica[p] = (o << self._BITS) | bit
+                elif u >> self._BITS == o:
+                    self._unica[p] = u | bit
+                else:
+                    del self._unica[p]
+                    self.multiplas[p] = {u >> self._BITS: u & mask, o: bit}
+                continue
+            m = self.multiplas.get(p)
+            if m is None:
+                m = {}
+                u = self._unica.pop(p, None)
+                if u is not None:
+                    m[u >> self._BITS] = u & mask
+                self.multiplas[p] = m
+            for o in varias:
+                o = int(o)
+                m[o] = m.get(o, 0) | bit
+
+    def documento(self) -> dict[str, dict[str, list[str]]]:
+        """{prefixo: {str(origem): [coletores]}}, só prefixos com 2+ origens, em ordem estável."""
+        def nomes(m: int) -> list[str]:
+            return [n for n in self.coletores if m & self._bit[n]]
+        return {p: {str(o): nomes(m) for o, m in sorted(self.multiplas[p].items())} for p in sorted(self.multiplas)}
+
+
+def _gravar_origens_multiplas(norm_dir: Path, afi: str, date_str: str, coletores: list[str], estado: OrigensPorColetor) -> int:
+    """`origins-multi-{afi}.json.gz` (escrita atômica). A presença do arquivo diz que a coleta guardou todas as origens: sem prefixo
+    nenhum, é "nenhum MOAS observado entre estes coletores", diferente de não ter medido."""
+    prefixos = estado.documento()
+    destino = norm_dir / f"origins-multi-{afi}.json.gz"
+    tmp = destino.with_name(destino.name + ".tmp")
+    write_json_gz(tmp, {
+        "afi": afi,
+        "snapshot_date": date_str,
+        "generated_at": now_iso(),
+        "coletores": coletores,
+        "definicao": "Prefixos com duas ou mais origens (último AS do AS_PATH) entre todas as rotas dos coletores; para cada origem, "
+                     "os coletores em que algum ponto de observação a viu.",
+        "prefixos": prefixos,
+    })
+    tmp.replace(destino)
+    return len(prefixos)
+
+
 def run(
     date_str: str,
     base: Path,
@@ -633,10 +734,11 @@ def run(
       4. Fase C/D — pipeline: todos os downloads rodam em paralelo; à medida que
          cada arquivo fica disponível (as_completed), é parseado e fundido
          sequencialmente pelo processo principal, depois descartado do disco
-      5. Escreve arquivos normalizados a partir do estado acumulado
+      5. Escreve arquivos normalizados a partir do estado acumulado e `origins-multi-{afi}` (MOAS por coletor)
       6. Apaga checkpoints e grava fulltable_manifest.json
 
-    Pico de memória: estado_merged + 1 coletor em processamento.
+    Pico de memória: estado_merged + 1 coletor em processamento + `OrigensPorColetor` (um int por prefixo da família e
+    um dict por prefixo com mais de uma origem).
     Pico de disco:   todos os dumps ainda não parseados simultaneamente (~800 MB v4).
 
     Args:
@@ -658,8 +760,9 @@ def run(
         manifest = norm_dir / "fulltable_manifest.json"
 
         # v4 e v6 são independentes: o manifesto guarda uma entrada por família, e só uma família concluída é pulada
-        # (senão o v4 pronto se perderia quando o v6 falha).
-        if not force and _manifesto_lido(manifest).get(afi, {}).get("status") == "ok":
+        # (senão o v4 pronto se perderia quando o v6 falha). Família concluída antes de existir `origins-multi` é refeita.
+        if (not force and _manifesto_lido(manifest).get(afi, {}).get("status") == "ok"
+                and (norm_dir / f"origins-multi-{afi}.json.gz").exists()):
             log.info("already exists, skipping", afi=afi, date=date_str)
             result[afi] = {"status": "skipped"}
             continue
@@ -674,6 +777,8 @@ def run(
         merged_up: dict[str, set]   = defaultdict(set)
         merged_dn: dict[str, set]   = defaultdict(set)
         sources_used: list[str]     = []
+        coletores_ok: list[str]     = []
+        origens = OrigensPorColetor([n for n, _ in COLLECTORS[afi]])
         n_ok = 0
 
         n_collectors = len(COLLECTORS[afi])
@@ -692,8 +797,10 @@ def run(
                 ckpt_routes_f = ckpt_dir / f"{col_name}.routes.json.gz"
                 ckpt_adj_f    = ckpt_dir / f"{col_name}.adj.json.gz"
                 ckpt_src_f    = ckpt_dir / f"{col_name}.src.txt"
+                ckpt_orig_f   = ckpt_dir / f"{col_name}.origens.json.gz"
 
-                if ckpt_routes_f.exists() and ckpt_adj_f.exists():
+                # sem o arquivo de origens (checkpoint de antes dele) o coletor é baixado de novo: faltariam os MOAS do dump
+                if ckpt_routes_f.exists() and ckpt_adj_f.exists() and ckpt_orig_f.exists():
                     try:
                         compact = read_json_gz(ckpt_routes_f)
                         routes  = []
@@ -708,9 +815,12 @@ def run(
                         adj = read_json_gz(ckpt_adj_f)
                         src = ckpt_src_f.read_text(encoding="utf-8").strip() \
                               if ckpt_src_f.exists() else col_name
+                        origens_col = read_json_gz(ckpt_orig_f)
+                        origens.fundir(col_name, routes, origens_col)
                         _merge_into(seen, merged_up, merged_dn, routes, adj)
-                        del routes, adj, compact
+                        del routes, adj, compact, origens_col
                         sources_used.append(src)
+                        coletores_ok.append(col_name)
                         n_ok += 1
                         clog.info("collector resumed from checkpoint",
                                   afi=afi, seen_prefixes=len(seen))
@@ -761,7 +871,8 @@ def run(
 
                         t_col = time.monotonic()
                         agreg = AgregadorCaminhos() if CAMINHOS_VP else None
-                        routes, adj = _parse_mrt(dest, afi, clog, br_asns=br_asns or None, caminhos=agreg)
+                        origens_col: dict = {}
+                        routes, adj = _parse_mrt(dest, afi, clog, br_asns=br_asns or None, caminhos=agreg, origens=origens_col)
                         try:
                             dest.unlink()
                         except OSError:
@@ -774,6 +885,7 @@ def run(
                         ckpt_routes_f = ckpt_dir / f"{col_name}.routes.json.gz"
                         ckpt_adj_f    = ckpt_dir / f"{col_name}.adj.json.gz"
                         ckpt_src_f    = ckpt_dir / f"{col_name}.src.txt"
+                        ckpt_orig_f   = ckpt_dir / f"{col_name}.origens.json.gz"
                         try:
                             compact = []
                             for r in routes:
@@ -786,6 +898,8 @@ def run(
                             write_json_gz(ckpt_routes_f, compact)
                             write_json_gz(ckpt_adj_f,    adj)
                             ckpt_src_f.write_text(url, encoding="utf-8")
+                            # por último: é a presença dele que valida o checkpoint na retomada
+                            write_json_gz(ckpt_orig_f, {p: sorted(o) for p, o in origens_col.items()})
                             del compact
                             clog.info("checkpoint saved", afi=afi)
                         except Exception as exc:
@@ -800,10 +914,12 @@ def run(
                                 clog.warning("aspaths write failed (non-fatal)", afi=afi, error=str(exc))
                             del agreg
 
+                        origens.fundir(col_name, routes, origens_col)
                         _merge_into(seen, merged_up, merged_dn, routes, adj)
-                        del routes, adj
+                        del routes, adj, origens_col
 
                         sources_used.append(url)
+                        coletores_ok.append(col_name)
                         n_ok += 1
                         clog.info(
                             "collector done",
@@ -834,10 +950,14 @@ def run(
 
         _write_normalized(merged, merged_adj, afi, date_str, sources_used, base, log,
                          br_asns=br_asns or None)
+        n_multi = _gravar_origens_multiplas(norm_dir, afi, date_str, sorted(coletores_ok, key=origens.coletores.index), origens)
+        log.info("origins-multi written", afi=afi, prefixes=n_multi, collectors=n_ok)
+        del origens
         result[afi] = {
             "status":          "ok",
             "sources":         sources_used,
             "unique_prefixes": len(merged),
+            "origens_multiplas": n_multi,
         }
 
         # Remove checkpoints ao concluir o AFI com sucesso

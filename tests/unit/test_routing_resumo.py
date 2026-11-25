@@ -43,11 +43,15 @@ def test_montar_e_gravar(tmp_path):
     idx = _build_rpki_index(VRPS)
     doc = resumo.montar("2026-11-13", [_rota("192.0.2.0/24", 64500)], [], idx,
                         more_specifics={"v4": {"pbr_root": 3, "pbr_more_specific": 1}},
-                        too_specific={"v4": [{}], "v6": []}, moas=[{}] * 500, vrps=2)
+                        too_specific={"v4": [{}], "v6": []}, vrps=2)
     assert doc["rpki"]["v4"]["valid"] == 1 and doc["rpki"]["v6"]["rotas"] == 0
     assert doc["rpki"]["v6"]["pct"]["valid"] is None
     assert doc["saude"]["v4"] == {"mais_especificos": 1, "mais_especificos_pct": 25.0, "filtraveis": 1}
-    assert doc["saude"]["moas"] is None and "limite da coleta" in doc["saude"]["moas_indisponivel"]      # BGP-E2: a coleta não detecta MOAS
+    assert doc["saude"]["moas"] is None and "limite da coleta" in doc["saude"]["moas_indisponivel"]      # sem `moas_resumo`: não medido
+    medido = resumo.montar("2026-11-13", [], [], idx, moas_resumo={"prefixos": {"v6": {"global": 0, "br": 0}, "v4": None},
+                                                                   "coletores": {"v6": ["a", "b"], "v4": None}})
+    assert medido["saude"]["moas"] == {"v6": {"prefixos": 0, "prefixos_br": 0, "coletores": 2}, "v4": None}
+    assert "moas_indisponivel" not in medido["saude"]
     destino = resumo.gravar(tmp_path, doc)
     assert destino.name == resumo.ARQUIVO and json.loads(destino.read_text())["vrps"] == 2
     assert not list(tmp_path.glob("*.tmp"))

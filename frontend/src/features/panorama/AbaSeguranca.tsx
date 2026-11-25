@@ -108,7 +108,7 @@ function Rov() {
 function SaudeTabela() {
   const { data } = useBrasilIndicadores()
   const { summary } = useResumo()
-  // MOAS fica de fora: a entrada da análise (origin-prefixes) traz uma origem por prefixo, então a contagem sairia sempre 0.
+  // MOAS fica na aba MOAS de /bgp (`saude.moas` existe no resumo, mas a leitura pede a lista e o "como ler" ao lado).
   const sa = data?.rpki?.rotas?.saude
   const bogon = data?.prontidao?.agregado.medicoes?.sem_bogon
   const ref = data?.rpki?.rotas?.snapshot_date ?? summary?.snapshot_date

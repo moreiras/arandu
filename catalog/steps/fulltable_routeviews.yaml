@@ -11,6 +11,9 @@ pesada: true
 destinos:   # além do archive.routeviews.org do origem.url: o RIPE RIS (sources/fulltable_routeviews)
 - archive.routeviews.org
 - data.ris.ripe.net
-memoria_mb: 3328   # pico do contêiner do worker nas execuções de 2026-11-21 e 22 (amostras de 30 s) com 25% de folga; refine com `arandu memoria`
+# pico do contêiner do worker nas execuções de 2026-11-21 e 22 (amostras de 30 s) com 25% de folga (3328), mais 83: os 66 MiB
+# do estado de MOAS (OrigensPorColetor) medidos com tracemalloc no sintético de 1 milhão de prefixos e 8 coletores (PT-04b), com a
+# mesma folga; refine com `arandu memoria`
+memoria_mb: 3411
 politica_falha: critica
 descricao: 'Cada família (v6, v4) grava seu próprio manifesto: numa retentativa só a que falhou é refeita.'

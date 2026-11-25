@@ -516,33 +516,8 @@ reais de `updates.20260913.0000.bz2` (de ~223) cujo AS de origem é brasileiro, 
 """)
 
     # ── RIB TABLE_DUMP_V2 sintético (o RIB real tem >1 GB e não é retido) ──
-    def mrt(subtype: int, payload: bytes, ts: int = 1789000000) -> bytes:
-        return struct.pack(">IHHI", ts, 13, subtype, len(payload)) + payload
-
-    def attr(flags: int, typ: int, val: bytes) -> bytes:
-        return struct.pack(">BBB", flags, typ, len(val)) + val
-
-    def attrs(path: list[int], comms: list[tuple[int, int]] | None = None, nexthop: bytes | None = None) -> bytes:
-        a = attr(0x40, 1, b"\x00") + attr(0x40, 2, struct.pack(">BB", 2, len(path)) + b"".join(struct.pack(">I", x) for x in path))
-        if nexthop:
-            a += attr(0x40, 3, nexthop)
-        if comms:
-            a += attr(0xC0, 8, b"".join(struct.pack(">HH", x, y) for x, y in comms))
-        return a
-
-    def rib(subtype: int, seq: int, prefix: str, entries: list[bytes]) -> bytes:
-        import ipaddress
-        net = ipaddress.ip_network(prefix)
-        nbytes = (net.prefixlen + 7) // 8
-        body = struct.pack(">IB", seq, net.prefixlen) + net.network_address.packed[:nbytes] + struct.pack(">H", len(entries))
-        for peer, a in entries:
-            body += struct.pack(">HIH", peer, 1789000000, len(a)) + a
-        return mrt(subtype, body)
-
-    peers = struct.pack(">4sH", bytes([10, 0, 0, 1]), 3) + b"rv2" + struct.pack(">H", 2)
-    for i, asn in enumerate((64496, 64497)):
-        peers += struct.pack(">B4s4sI", 2, bytes([10, 0, 0, 10 + i]), bytes([192, 0, 2, 10 + i]), asn)
-    pit = mrt(1, peers)
+    mrt, attrs, rib = _mrt, _attrs, _rib
+    pit = _pit((64496, 64497))
     v4 = pit + b"".join([
         rib(2, 0, "0.0.0.0/0", [(0, attrs([64496, 64500]))]),
         rib(2, 1, "198.51.100.0/24", [(0, attrs([64496, 64510], [(64510, 100)])), (1, attrs([64497, 64496, 64510]))]),
@@ -562,6 +537,11 @@ Os dumps reais (`rib.AAAAMMDD.HHMM.bz2`, > 1 GB) não são retidos. Estas amostr
 válidos gerados por `cut_fixtures.py` (PEER_INDEX_TABLE + RIB_IPV4/IPV6_UNICAST) com prefixos de documentação
 (RFC 5737/3849) e ASNs reservados (64496–64540): rota default (ignorada), prefixo com 2 caminhos, prepend, communities
 padrão e um /8. É exatamente o formato que o `mrtparse` lê da fonte real.
+
+`rib-{v4,v6}-moas-{a,b}.sample.mrt.bz2` (grupo `m`, sem dado real): dois coletores fictícios para a origem múltipla (MOAS).
+No v4, `198.51.100.0/24` tem duas origens no mesmo dump (A: 64510 e 64512), `203.0.113.0/24` tem uma origem em cada coletor
+(A: 64511, B: 64513) e `192.0.2.0/25` tem a mesma nos dois (64520, sem MOAS). No v6, `2001:db8::/32` diverge entre coletores
+(A: 64510, B: 64515) e `2001:db8:1::/48` diverge dentro de A (64511 e 64514).
 """)
 
 
@@ -633,11 +613,82 @@ def group_g() -> None:
     w("peeringdb", "org.sample.json", json.dumps(orgs, ensure_ascii=False, indent=1))
 
 
+# ── MRT TABLE_DUMP_V2 sintético (RFC 6396): usado pelos grupos e e m ──
+
+def _mrt(subtype: int, payload: bytes, ts: int = 1789000000) -> bytes:
+    import struct
+    return struct.pack(">IHHI", ts, 13, subtype, len(payload)) + payload
+
+
+def _attr(flags: int, typ: int, val: bytes) -> bytes:
+    import struct
+    return struct.pack(">BBB", flags, typ, len(val)) + val
+
+
+def _attrs(path: list[int], comms: list[tuple[int, int]] | None = None, nexthop: bytes | None = None) -> bytes:
+    import struct
+    a = _attr(0x40, 1, b"\x00") + _attr(0x40, 2, struct.pack(">BB", 2, len(path)) + b"".join(struct.pack(">I", x) for x in path))
+    if nexthop:
+        a += _attr(0x40, 3, nexthop)
+    if comms:
+        a += _attr(0xC0, 8, b"".join(struct.pack(">HH", x, y) for x, y in comms))
+    return a
+
+
+def _rib(subtype: int, seq: int, prefix: str, entries: list[tuple[int, bytes]]) -> bytes:
+    import ipaddress
+    import struct
+    net = ipaddress.ip_network(prefix)
+    nbytes = (net.prefixlen + 7) // 8
+    body = struct.pack(">IB", seq, net.prefixlen) + net.network_address.packed[:nbytes] + struct.pack(">H", len(entries))
+    for peer, a in entries:
+        body += struct.pack(">HIH", peer, 1789000000, len(a)) + a
+    return _mrt(subtype, body)
+
+
+def _pit(asns: tuple[int, ...]) -> bytes:
+    """PEER_INDEX_TABLE com um VP por ASN (peer_type 2: IPv4 + AS de 4 bytes)."""
+    import struct
+    peers = struct.pack(">4sH", bytes([10, 0, 0, 1]), 3) + b"rv2" + struct.pack(">H", len(asns))
+    for i, asn in enumerate(asns):
+        peers += struct.pack(">B4s4sI", 2, bytes([10, 0, 0, 10 + i]), bytes([192, 0, 2, 10 + i]), asn)
+    return _mrt(1, peers)
+
+
+def group_m() -> None:
+    """MOAS: RIBs TABLE_DUMP_V2 sintéticos de dois coletores (A e B), sem dado real; não depende de `data/`."""
+    import bz2
+
+    pit = _pit((64496, 64497))
+    # coletor A: 198.51.100.0/24 com duas origens no mesmo dump (VP 0 vê 64510, VP 1 vê 64512); os demais com origem única
+    a_v4 = pit + b"".join([
+        _rib(2, 0, "198.51.100.0/24", [(0, _attrs([64496, 64510])), (1, _attrs([64497, 64512]))]),
+        _rib(2, 1, "203.0.113.0/24", [(0, _attrs([64496, 64511])), (1, _attrs([64497, 64496, 64511]))]),
+        _rib(2, 2, "192.0.2.0/25", [(0, _attrs([64496, 64520]))]),
+    ])
+    # coletor B: 203.0.113.0/24 com outra origem (MOAS só entre coletores); 192.0.2.0/25 com a mesma; 198.51.100.0/24 com 64510
+    b_v4 = pit + b"".join([
+        _rib(2, 0, "198.51.100.0/24", [(0, _attrs([64496, 64510]))]),
+        _rib(2, 1, "203.0.113.0/24", [(1, _attrs([64497, 64513]))]),
+        _rib(2, 2, "192.0.2.0/25", [(1, _attrs([64497, 64520]))]),
+    ])
+    a_v6 = pit + b"".join([
+        _rib(4, 0, "2001:db8::/32", [(0, _attrs([64496, 64510]))]),
+        _rib(4, 1, "2001:db8:1::/48", [(0, _attrs([64496, 64511])), (1, _attrs([64497, 64514]))]),
+    ])
+    b_v6 = pit + b"".join([
+        _rib(4, 0, "2001:db8::/32", [(1, _attrs([64497, 64515]))]),
+        _rib(4, 1, "2001:db8:1::/48", [(0, _attrs([64496, 64511]))]),
+    ])
+    for nome, dados in (("rib-v4-moas-a", a_v4), ("rib-v4-moas-b", b_v4), ("rib-v6-moas-a", a_v6), ("rib-v6-moas-b", b_v6)):
+        w("fulltable", f"{nome}.sample.mrt.bz2", bz2.compress(dados))
+
+
 def load_gz(path: Path):
     return json.load(gzip.open(path, "rt", encoding="utf-8"))
 
 
-GROUPS = {"a": group_a, "b": group_b, "c": group_c, "d": group_d, "e": group_e, "f": group_f, "g": group_g}
+GROUPS = {"a": group_a, "b": group_b, "c": group_c, "d": group_d, "e": group_e, "f": group_f, "g": group_g, "m": group_m}
 
 
 def main() -> None:

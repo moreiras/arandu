@@ -149,6 +149,122 @@ def test_run_fulltable_todos_os_coletores_falham(base, log, date_str, monkeypatc
     assert not (base / "normalized" / date_str / "summary" / "prefix-set-v4.json.gz").exists()
 
 
+
+# ── MOAS: todas as origens por prefixo e por coletor (PT-04b) ──────────────
+
+def test_parse_mrt_guarda_origens_multiplas_do_mesmo_dump(fx, log):
+    origens: dict = {}
+    routes, adj = ft._parse_mrt(fx("fulltable", "rib-v4-moas-a.sample.mrt.bz2"), "v4", log, origens=origens)
+    assert origens == {"198.51.100.0/24": {64510, 64512}}             # 203.0.113.0/24: dois VPs, uma origem → não entra
+    sem = ft._parse_mrt(fx("fulltable", "rib-v4-moas-a.sample.mrt.bz2"), "v4", log)
+    assert (routes, adj) == sem                                        # o parâmetro não muda rotas nem grafo
+
+
+def test_parse_mrt_prepend_e_caminhos_iguais_nao_sao_moas(fx, log):
+    origens: dict = {}
+    ft._parse_mrt(fx("fulltable", "rib-v4.sample.mrt.bz2"), "v4", log, origens=origens)
+    assert origens == {}                                               # 198.51.100.0/24 tem 2 caminhos com a mesma origem
+
+
+def test_origens_por_coletor_junta_divergencia_entre_coletores_e_no_mesmo_dump():
+    est = ft.OrigensPorColetor(["rvA", "rvB", "rvC"])
+    est.fundir("rvA", [{"prefix": "p", "aspath": [1, 10]}, {"prefix": "q", "aspath": [1, 20]},
+                       {"prefix": "r", "aspath": [1, 30]}, {"prefix": "s", "aspath": []}], {"r": {30, 31}})
+    est.fundir("rvB", [{"prefix": "p", "aspath": [2, 11]}, {"prefix": "q", "aspath": [2, 20]},
+                       {"prefix": "r", "aspath": [2, 31]}], {})
+    est.fundir("rvC", [{"prefix": "p", "aspath": [3, 10]}, {"prefix": "q", "aspath": [3, 20]}], {"q": [20, 21]})
+    assert est.documento() == {
+        "p": {"10": ["rvA", "rvC"], "11": ["rvB"]},                    # uma origem em cada coletor
+        "q": {"20": ["rvA", "rvB", "rvC"], "21": ["rvC"]},             # o terceiro coletor vê duas (lista vinda do checkpoint)
+        "r": {"30": ["rvA"], "31": ["rvA", "rvB"]},                    # já múltiplo no primeiro coletor
+    }
+
+
+def _coletores_moas(monkeypatch, fx):
+    monkeypatch.setattr(ft, "COLLECTORS", {"v4": [("rvA", "rv"), ("rvB", "rv")], "v6": [("rvA", "rv"), ("rvB", "rv")]})
+    chamadas: list[str] = []
+
+    def url(name, target, clog):
+        chamadas.append(name)
+        return f"http://x/{name}.bz2"
+
+    def download(url, dest, clog):
+        afi = "v6" if "_v6_" in dest.name else "v4"
+        col = "a" if "rvA" in dest.name else "b"
+        shutil.copy(fx("fulltable", f"rib-{afi}-moas-{col}.sample.mrt.bz2"), dest)
+        return True
+
+    monkeypatch.setattr(ft, "_find_rib_url_rv", url)
+    monkeypatch.setattr(ft, "_download", download)
+    return chamadas
+
+
+def test_run_grava_origins_multi_sem_mudar_origin_prefixes(base, log, fx, date_str, monkeypatch):
+    _coletores_moas(monkeypatch, fx)
+    r = ft.run(date_str, base, ["v4", "v6"], False, log)
+    assert r["v4"]["status"] == "ok" and r["v4"]["origens_multiplas"] == 2 and r["v6"]["origens_multiplas"] == 2
+    s = base / "normalized" / date_str / "summary"
+    v4 = read_gz(s / "origins-multi-v4.json.gz")
+    assert v4["afi"] == "v4" and v4["snapshot_date"] == date_str and v4["coletores"] == ["rvA", "rvB"]
+    assert v4["prefixos"] == {
+        "198.51.100.0/24": {"64510": ["rvA", "rvB"], "64512": ["rvA"]},
+        "203.0.113.0/24": {"64511": ["rvA"], "64513": ["rvB"]},
+    }                                                                   # 192.0.2.0/25: mesma origem nos dois, fora
+    assert read_gz(s / "origins-multi-v6.json.gz")["prefixos"] == {
+        "2001:db8::/32": {"64510": ["rvA"], "64515": ["rvB"]},
+        "2001:db8:1::/48": {"64511": ["rvA", "rvB"], "64514": ["rvA"]},
+    }
+    # contrato de origin-prefixes intacto: uma origem por prefixo, nenhum prefixo repetido entre ASNs
+    op = read_gz(s / "origin-prefixes-v4.json.gz")
+    todos = [p for ps in op.values() for p in ps]
+    assert sorted(todos) == sorted(set(todos)) == read_gz(s / "prefix-set-v4.json.gz")
+    assert not list(s.glob("*.tmp"))
+
+
+def test_run_sem_moas_grava_artefato_vazio(base, log, fx, date_str, monkeypatch):
+    """Coleta capaz sem prefixo de origem múltipla: o arquivo existe e vem vazio (é "nenhum observado", não "não medido")."""
+    _fake_collectors(monkeypatch, fx, log)
+    ft.run(date_str, base, ["v4"], False, log)
+    doc = read_gz(base / "normalized" / date_str / "summary" / "origins-multi-v4.json.gz")
+    assert doc["prefixos"] == {} and doc["coletores"] == ["rvA"]
+
+
+def test_run_retoma_checkpoint_com_as_origens_do_dump(base, log, fx, date_str, monkeypatch):
+    chamadas = _coletores_moas(monkeypatch, fx)
+    ckpt = base / "normalized" / date_str / "summary" / "_ckpt_v4"
+    origens: dict = {}
+    routes, adj = ft._parse_mrt(fx("fulltable", "rib-v4-moas-a.sample.mrt.bz2"), "v4", log, origens=origens)
+    write_gz(ckpt / "rvA.routes.json.gz", [{"p": r["prefix"], "a": r["aspath"]} for r in routes])
+    write_gz(ckpt / "rvA.adj.json.gz", adj)
+    write_gz(ckpt / "rvA.origens.json.gz", {p: sorted(o) for p, o in origens.items()})
+    ft.run(date_str, base, ["v4"], False, log)
+    assert chamadas == ["rvB"]                                          # rvA veio do checkpoint
+    doc = read_gz(base / "normalized" / date_str / "summary" / "origins-multi-v4.json.gz")
+    assert doc["prefixos"]["198.51.100.0/24"] == {"64510": ["rvA", "rvB"], "64512": ["rvA"]}
+
+
+def test_run_checkpoint_sem_origens_baixa_de_novo(base, log, fx, date_str, monkeypatch):
+    chamadas = _coletores_moas(monkeypatch, fx)
+    ckpt = base / "normalized" / date_str / "summary" / "_ckpt_v4"
+    routes, adj = ft._parse_mrt(fx("fulltable", "rib-v4-moas-a.sample.mrt.bz2"), "v4", log)
+    write_gz(ckpt / "rvA.routes.json.gz", [{"p": r["prefix"], "a": r["aspath"]} for r in routes])
+    write_gz(ckpt / "rvA.adj.json.gz", adj)
+    ft.run(date_str, base, ["v4"], False, log)
+    assert sorted(chamadas) == ["rvA", "rvB"]
+    doc = read_gz(base / "normalized" / date_str / "summary" / "origins-multi-v4.json.gz")
+    assert "64512" in doc["prefixos"]["198.51.100.0/24"]
+
+
+def test_run_familia_pronta_sem_origins_multi_e_refeita(base, log, fx, date_str, monkeypatch):
+    """Família concluída antes do PT-04b (manifesto ok, sem `origins-multi`) não é pulada: faltaria o MOAS."""
+    _fake_collectors(monkeypatch, fx, log)
+    ft.run(date_str, base, ["v4"], False, log)
+    arq = base / "normalized" / date_str / "summary" / "origins-multi-v4.json.gz"
+    arq.unlink()
+    r = ft.run(date_str, base, ["v4"], False, log)
+    assert r["v4"]["status"] == "ok" and arq.exists()
+
+
 # ── updates BGP4MP ─────────────────────────────────────────────────────────
 
 SAMPLE = "updates.20260913.0000.sample.bz2"

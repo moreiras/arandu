@@ -94,6 +94,25 @@ def _aspaths(world: World, summary: Path) -> None:
         ag.escrever(summary / f"aspaths-{afi}" / "rvT.tsv.gz", "rvT")
 
 
+def _origens_multiplas(world: World, summary: Path) -> None:
+    """`summary/origins-multi-{afi}.json.gz` de dois coletores (rvT, rvU). Cenário 1 (198.18.0.0/24: 64496 nos dois, 64497 só no
+    rvU, MOAS brasileiro entre coletores); um prefixo estrangeiro com duas origens (entra só na contagem global); no v6, o prefixo
+    de 64496 visto com origem estrangeira no rvU (MOAS brasileiro, um coletor por origem)."""
+    foreign = sorted((a for a in world.ases.values() if a.role == "foreign"), key=lambda a: a.asn)
+    fv4 = next(a for a in foreign if a.v4)
+    fv6 = next(a for a in foreign if a.v6 and a.asn != fv4.asn)
+    br_v6 = world.ases[64496].v6[0]
+    docs = {
+        "v4": {"198.18.0.0/24": {"64496": ["rvT", "rvU"], "64497": ["rvU"]},
+               fv4.v4[0]: {str(fv4.asn): ["rvT", "rvU"], str(fv6.asn): ["rvU"]}},
+        "v6": {br_v6: {"64496": ["rvT"], str(fv6.asn): ["rvU"]}},
+    }
+    for afi, prefixos in docs.items():
+        write_gz(summary / f"origins-multi-{afi}.json.gz", {
+            "afi": afi, "snapshot_date": world.instant, "generated_at": f"{world.instant}T03:00:00+00:00", "coletores": ["rvT", "rvU"],
+            "definicao": "Prefixos com duas ou mais origens (sintético).", "prefixos": dict(sorted(prefixos.items()))})
+
+
 def generate_instant(world: World, out: Path) -> None:
     d = world.instant
     raw = out / "raw" / d
@@ -156,6 +175,9 @@ def generate_instant(world: World, out: Path) -> None:
 
     # ── caminhos dos coletores com VP: clique de 3 ASNs externos, 2 VPs, trânsitos abaixo do clique ──
     _aspaths(world, summary)
+
+    # ── origens múltiplas por coletor (MOAS, `origins-multi-{afi}`): 2 coletores fictícios ──
+    _origens_multiplas(world, summary)
 
     # ── APNIC, PeeringDB, geolocalização ──
     write_gz(summary / "apnic_pop.json.gz", {"date": d, "window_days": 60, "asns": {

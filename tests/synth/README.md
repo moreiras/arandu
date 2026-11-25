@@ -15,7 +15,7 @@ O repositório guarda o **gerador** (`world.py`, `market.py`, `infra.py`, `gener
 
 | # | Cenário | Onde |
 |---|---|---|
-| 1 | AS multihomed com MOAS e ROA inválido (64496/64497, 198.18.0.0/24) → `rpki_invalido` | alerts do ASN 64497 |
+| 1 | AS multihomed com MOAS e ROA inválido (64496/64497, 198.18.0.0/24) → `rpki_invalido`; MOAS por coletor em `origins-multi-{afi}` (rvT, rvU; mais um prefixo estrangeiro e um IPv6 de 64496) | alerts do ASN 64497; `routing_analysis.json#moas` em `tests/products/test_t2_moas.py` |
 | 2 | Operadora com outorga SCM sem SICI e com usuários APNIC (64510) | `scm.json.gz` × `sici.json.gz` |
 | 3 | Um CNPJ com dois ASNs (64500/64501): `acessos_compartilhados`, soma não duplica | `sici` nos docs de ASN |
 | 4 | Grupos: `quadro_identico`, holding externa em comum, controle exclusivo | `grupos_societarios.json.gz` |
@@ -34,7 +34,8 @@ Também há divergência APNIC × Anatel plantada (64504 `apnic_alto`, 64505 `ap
 (`snapshot_completo`, inclui outorgas, SICI, grupos e mapas) → pré-cálculo de alertas/RPKI (`saude_asn`) → `sources.socios_grupos.enrich` (`socios_grupos`).
 As fontes **coletadas** entram já normalizadas (`normalized/…/summary/*.json.gz`), no formato dos coletores
 (verificado pelos T1). **Fora do T2:** `products.routing_analysis.build`, `bgp_stability*` e `fulltable`
-real (MRT), conferidos pelo replay sobre dados reais (`scripts/replay.py`).
+real (MRT), conferidos pelo replay sobre dados reais (`scripts/replay.py`). A exceção é o MOAS: `tests/products/test_t2_moas.py`
+roda `routing_analysis` numa cópia do publicado sintético e confere a API e o MCP.
 
 ## Determinismo
 

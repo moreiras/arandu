@@ -2803,6 +2803,6 @@ export interface ResumoRoteamento {
   /** `asn_br_fora_de_bloco`: rotas de ASN da lista do Registro.br em espaço de outro RIR, fora do total (ausente antes da regra de D4). */
   rotas_br: Record<'v6' | 'v4', { pbr_routes: number | null; pbr_pct: number | null; br_origin_asns: number | null; total_routes_global: number | null; asn_br_fora_de_bloco?: number | null }>
   rpki: Record<'v6' | 'v4', EstadoRpkiFamilia>
-  saude: Record<'v6' | 'v4', { mais_especificos: number | null; mais_especificos_pct: number | null; filtraveis: number | null }> & { /** Sempre nulo: a coleta não detecta MOAS (motivo em `moas_indisponivel`). */ moas: { prefixos: number; lista_truncada: boolean } | null; moas_indisponivel?: string }
+  saude: Record<'v6' | 'v4', { mais_especificos: number | null; mais_especificos_pct: number | null; filtraveis: number | null }> & { /** Por família quando medido; nulo (com `moas_indisponivel`) quando a coleta do snapshot guardou uma origem por prefixo. */ moas: Record<'v6' | 'v4', { prefixos: number; prefixos_br: number; coletores: number } | null> | null; moas_indisponivel?: string }
   limites: string
 }

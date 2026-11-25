@@ -90,12 +90,36 @@ export interface RegistroBrCoverage {
   category: 'not_announced' | 'partial' | 'full_with_agg' | 'full_without_agg' | 'multi_origin'
 }
 
+/** Uma origem de um prefixo MOAS: o ASN e em quantos (e quais) coletores algum ponto de observação a viu. */
+export interface MoasOrigem {
+  asn: number
+  name: string
+  coletores: number
+  coletores_nomes: string[]
+  /** ASN da lista do Registro.br. */
+  asn_br: boolean
+}
+
+/** Prefixo brasileiro (em bloco do Registro.br) com mais de um AS de origem observado. Fato, sem causa. */
 export interface MoasEntry {
   prefix: string
-  afi: string
+  afi: 'v6' | 'v4'
   origins: number[]
   br_origins: number[]
   is_prefix_br: boolean
+  origens: MoasOrigem[]
+}
+
+/** Resumo do MOAS medido: família nula = sem `origins-multi` nesse snapshot (não medida). */
+export interface MoasResumo {
+  prefixos: Record<'v6' | 'v4', { global: number; br: number } | null>
+  coletores: Record<'v6' | 'v4', string[] | null>
+  lista: string
+  lista_truncada: boolean
+  lista_limite: number
+  definicao: string
+  como_ler: string
+  limites: string
 }
 
 export interface TooSpecificEntry {
@@ -208,8 +232,9 @@ export interface RoutingAnalysis {
   top_asns_more_specifics: TopAsnMoreSpecifics[]
   aggregation_by_asn: AggregationEntry[]
   registro_br_coverage: RegistroBrCoverage[]
-  /** Sempre nulo: a coleta guarda uma origem por prefixo e não detecta MOAS (motivo em `moas_indisponivel`). */
+  /** Prefixos brasileiros com mais de uma origem; nulo (com `moas_indisponivel`) quando a coleta do snapshot guardou uma origem por prefixo. */
   moas: MoasEntry[] | null
+  moas_resumo?: MoasResumo | null
   moas_indisponivel?: string
   too_specific: { v4: TooSpecificEntry[]; v6: TooSpecificEntry[] }
   global_comparison: { v4: GlobalComparison; v6: GlobalComparison }

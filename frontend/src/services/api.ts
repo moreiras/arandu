@@ -1246,8 +1246,9 @@ export async function postHeartbeat(): Promise<AnonInfo | null> {
  * coluna ordenável (2.0.28), inclusive no snapshot de 2026-11-15, corrigido no lugar; a URL antiga fica `immutable` no navegador e na borda.
  * 3: `moas` passou a vir nulo, com `moas_indisponivel`, em todas as datas (a coleta guarda uma origem por prefixo).
  * 4: rota brasileira só por prefixo em bloco do Registro.br; `pbr_composition` com `total` e `asn_br_fora_de_bloco` (D4).
+ * 5: `moas` volta como lista (prefixos brasileiros com origens e coletores) e `moas_resumo`, nos snapshots com `origins-multi`.
  */
-const ESQUEMA_ROUTING_ANALYSIS = 4
+const ESQUEMA_ROUTING_ANALYSIS = 5
 
 export function fetchRoutingAnalysis(date?: string): Promise<RoutingAnalysis> {
   return get('/api/v1/routing-analysis', { date, esquema: ESQUEMA_ROUTING_ANALYSIS })
@@ -1370,8 +1371,9 @@ export function fetchCeticIndicadores(opts: { pesquisa: string; tabela: string; 
  * por um ano (api/main.py), no navegador e no cache do nginx: quando a rota ganha campo (ex.: bloco `rpki`), a URL tem de mudar,
  * senão quem já abriu a página continua com a resposta antiga. A API ignora o parâmetro. 3: `rpki.rotas.saude.moas` nulo em todas as datas.
  * 4: `rpki.rotas.rotas_br.{afi}.asn_br_fora_de_bloco` e rota brasileira só por prefixo (D4).
+ * 5: `rpki.rotas.saude.moas` por família ({prefixos, prefixos_br, coletores}) nos snapshots com MOAS medido.
  */
-const ESQUEMA_BRASIL_INDICADORES = 4
+const ESQUEMA_BRASIL_INDICADORES = 5
 
 /** Agregados do país para a home e o Panorama técnico: IPv6 do APNIC, DNSSEC, ROV, prontidão e RPKI. Rota aberta. */
 export function fetchBrasilIndicadores(date?: string): Promise<BrasilIndicadores> {

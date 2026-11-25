@@ -9,7 +9,8 @@ import { PrefixLengthHistogram }    from '../components/bgp/PrefixLengthHistogra
 import { MoreSpecificsSection }     from '../components/bgp/MoreSpecificsSection'
 import { AggregationTable }         from '../components/bgp/AggregationTable'
 import { RegistroBrCoverageTable }  from '../components/bgp/RegistroBrCoverageTable'
-import { MOAS_INDISPONIVEL }        from '../features/prefixo/blocks/MoasBloco'
+import { AvisoMoasNaoMedido, moasMedido } from '../features/prefixo/blocks/MoasBloco'
+import { MoasTable }                from '../components/bgp/MoasTable'
 import { TooSpecificTable }         from '../components/bgp/TooSpecificTable'
 import { AsPathSection }            from '../components/bgp/AsPathSection'
 import { StabilitySection }         from '../components/bgp/StabilitySection'
@@ -40,9 +41,9 @@ const ABAS_BGP = [
   { id: 'visao-geral', rotulo: 'Visão geral', descricao: 'Números centrais, composição dos prefixos brasileiros e distribuição por tamanho' },
   { id: 'prefixos', rotulo: 'Prefixos', descricao: 'Mais específicos e prefixos potencialmente filtráveis' },
   { id: 'agregacao', rotulo: 'Agregação e cobertura', descricao: 'Potencial de agregação por ASN e cobertura dos blocos do Registro.br' },
+  { id: 'moas', rotulo: 'MOAS', descricao: 'Prefixos brasileiros com mais de um ASN de origem observado' },
   { id: 'caminhos', rotulo: 'Caminhos', descricao: 'AS_PATH, prepending e communities' },
   { id: 'estabilidade', rotulo: 'Estabilidade', descricao: 'ASes com volume desproporcional de updates BGP' },
-  { id: 'moas', rotulo: 'MOAS (não medido)', descricao: 'Origem múltipla: a coleta atual não permite detectar' },
 ]
 
 export function BGP() {
@@ -212,9 +213,13 @@ export function BGP() {
       {/* MOAS */}
       <Section
         title="MOAS: prefixos com mais de um ASN de origem"
-        desc="Multiple Origin AS: o mesmo prefixo anunciado por mais de um ASN de origem."
+        desc={moasMedido(data)
+          ? `${data.moas_resumo!.definicao} ${data.moas_resumo!.como_ler} Limites: ${data.moas_resumo!.limites}`
+          : 'Multiple Origin AS: o mesmo prefixo anunciado por mais de um ASN de origem.'}
       >
-        <p className="text-sm text-gray-600" data-testid="moas-indisponivel">{MOAS_INDISPONIVEL}</p>
+        {moasMedido(data)
+          ? <MoasTable data={data.moas!} resumo={data.moas_resumo!} date={date ?? undefined} />
+          : <AvisoMoasNaoMedido texto={data.moas_indisponivel} />}
       </Section>
 
       </>}
