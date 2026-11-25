@@ -324,7 +324,7 @@ _DESCRICAO = {
 # Tipos em que um AS gera um evento por PTT: o título conta eventos (pares AS-PTT) e, à parte, os ASes distintos.
 _DESCRICAO_POR_PAR = {
     "ixp_entrada": "entradas de AS como membro de PTT", "ixp_saida": "saídas de AS do cadastro de membros de PTT",
-    "ixp_entrada_observada": "entradas de AS em par direto em PTT", "ixp_saida_observada": "saídas de AS de par direto em PTT",
+    "ixp_entrada_observada": "entradas de AS com sessão no route server em PTT", "ixp_saida_observada": "saídas de AS com sessão no route server em PTT",
 }
 _TIPOS_FEED = set(_DESCRICAO) | set(_DESCRICAO_POR_PAR)
 # Maior janela de confirmação entre os tipos do feed (2 snapshots): um evento confirmado numa data atual nasceu no máximo um snapshot antes.

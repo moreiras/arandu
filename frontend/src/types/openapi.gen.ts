@@ -767,7 +767,7 @@ export interface paths {
         };
         /**
          * Interconexão mensurável do AS: originação sem sessão direta, sessões nos route servers e rejeições
-         * @description O que os dados públicos mostram sobre a interconexão do AS: os PTTs do IX.br onde ele origina prefixos **sem ser par direto** (com quem entrega os caminhos observados), os PTTs onde o
+         * @description O que os dados públicos mostram sobre a interconexão do AS: os PTTs do IX.br onde ele origina prefixos **sem sessão com o route server** (com quem entrega os caminhos observados), os PTTs onde o
          *     cadastro e as sessões do route server não batem (sem sessão, ou só IPv6/IPv4), e as rotas rejeitadas e as ações de communities declaradas. **Nunca** diz com quem o AS troca tráfego: peering
          *     bilateral não é visível nesses dados. Cada item é um fato na data da coleta, não uma recomendação.
          */
@@ -2212,7 +2212,7 @@ export interface paths {
         };
         /**
          * Série histórica de um PTT
-         * @description Uma linha por snapshot: status da coleta, ASNs pares diretos e originadores (total e BR), membros cadastrados, rotas e prefixos por família.
+         * @description Uma linha por snapshot: status da coleta, ASNs com sessão no route server e originadores (total e BR), membros cadastrados, rotas e prefixos por família.
          */
         get: operations["historico_ixp_api_v1_history_ixps__code__get"];
         put?: never;
@@ -9892,7 +9892,7 @@ export interface operations {
             query?: {
                 /** @description Data do snapshot (YYYY-MM-DD). Omita para usar o mais recente. */
                 date?: string | null;
-                /** @description Perfil consolidado: blocos extras, separados por vírgula — `membros` (o corpo de `/ixps/{code}/members?nomes=true`, com nome também dos membros cadastrados sem par direto), `usuarios_estimados` (`/estimated-users`), `potencial` (`/potential`) e `assinantes` (`/assinantes`), `indice` (a linha deste PTT em `/ixps`, com as uniões de ASNs) `historico` (série e eventos recentes do PTT dos 2 snapshots atuais; `historico_completo` traz a série inteira e exige login) e `route_servers` (as sessões dos membros nos route servers do IX.br, `/ixps/{code}/route-servers`), `rejeicoes` (rotas rejeitadas e política nos route servers, `/ixps/{code}/rejeicoes`, 25 ASNs), `facilities` (instalações do PeeringDB onde o PTT tem presença), `portas` (portas de PTT externo; sempre `null` no IX.br) e `totais` (`total_asns_br`, `total_asns_global` e `br_apnic_users_total` do `summary` do snapshot). Cada um vem como chave de mesmo nome (`null` se o PTT não tem o dado). Os pares v6 e v4 ficam em `/ixps/{code}/peers`. */
+                /** @description Perfil consolidado: blocos extras, separados por vírgula — `membros` (o corpo de `/ixps/{code}/members?nomes=true`, com nome também dos membros cadastrados sem sessão com o route server), `usuarios_estimados` (`/estimated-users`), `potencial` (`/potential`) e `assinantes` (`/assinantes`), `indice` (a linha deste PTT em `/ixps`, com as uniões de ASNs) `historico` (série e eventos recentes do PTT dos 2 snapshots atuais; `historico_completo` traz a série inteira e exige login) e `route_servers` (as sessões dos membros nos route servers do IX.br, `/ixps/{code}/route-servers`), `rejeicoes` (rotas rejeitadas e política nos route servers, `/ixps/{code}/rejeicoes`, 25 ASNs), `facilities` (instalações do PeeringDB onde o PTT tem presença), `portas` (portas de PTT externo; sempre `null` no IX.br) e `totais` (`total_asns_br`, `total_asns_global` e `br_apnic_users_total` do `summary` do snapshot). Cada um vem como chave de mesmo nome (`null` se o PTT não tem o dado). Os pares v6 e v4 ficam em `/ixps/{code}/peers`. */
                 include?: string | null;
             };
             header?: never;
