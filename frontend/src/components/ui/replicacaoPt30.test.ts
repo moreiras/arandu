@@ -13,7 +13,7 @@ const semComentarios = (v: string) => v.replace(/\/\*[\s\S]*?\*\//g, '').replace
 describe('replicação do PT-30', () => {
   it('nenhum arquivo, além do próprio componente e do índice, usa o SinteseTopo (o arquivo fica até a remoção ser decidida)', () => {
     const usuarios = Object.entries(fontes)
-      .filter(([k]) => !k.endsWith('/components/ui/SinteseTopo.tsx') && !k.endsWith('/components/ui/index.ts'))
+      .filter(([k]) => k !== './SinteseTopo.tsx' && k !== './index.ts')
       .filter(([, v]) => /\bSinteseTopo\b/.test(semComentarios(v)))
       .map(([k]) => k)
     expect(usuarios).toEqual([])
