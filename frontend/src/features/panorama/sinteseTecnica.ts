@@ -4,11 +4,11 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { BrasilIndicadores, SnapshotSummary } from '../../types/api'
-import { limitar, n0, type FraseSintese } from '../../lib/sintese'
+import { limitar, n0, palavra, type FraseSintese } from '../../lib/sintese'
 import { UNIVERSOS } from '../../lib/universos'
 import { fracao, pct } from './formato'
 
-export const REGRAS_SINTESE_TECNICA = 'sintese-tecnica-1'
+export const REGRAS_SINTESE_TECNICA = 'sintese-tecnica-2'
 
 /**
  * Síntese do Resumo do Panorama técnico (PT-22, panorama-técnico 5.2): frases montadas dos objetos que os KPIs da aba usam (`summary` do snapshot e
@@ -24,12 +24,12 @@ export function sinteseTecnica(s: SnapshotSummary | null | undefined, br: Brasil
   const rov = br?.rov?.media_ponderada_pct
   return limitar([
     v6 != null && { id: 'ipv6', selo: 'estimado', fonte: 'APNIC Labs', dataRef: br?.snapshot_date ?? ref,
-      texto: `${pct(v6)} dos usuários estimados no Brasil usam IPv6 (soma das estimativas do APNIC por ASN brasileiro).` },
+      texto: `${pct(v6)} dos usuários estimados no Brasil usam IPv6. A conta soma as estimativas do APNIC por ASN brasileiro.` },
     pub && roa != null && { id: 'roa', selo: 'fato', fonte: 'RPKI (Routinator)', dataRef: br?.snapshot_date ?? ref,
       texto: `${n0(pub.br_asns_with_roa)} dos ${n0(pub.br_asns_total)} ${UNIVERSOS.asnsRegistroBr.rotulo} publicaram ao menos uma ROA (${pct(roa)}).` },
     ix?.asn_direct_union_count != null && pttsIxbr != null && pttsIxbr > 0 && { id: 'ixbr', selo: 'fato', fonte: 'looking glasses do IX.br', dataRef: ref,
-      texto: `O IX.br tem ${n0(pttsIxbr)} PTTs; ${n0(ix.asn_direct_union_count)} ASNs têm sessão em route server de algum deles (união, sem peering bilateral).` },
+      texto: `O IX.br tem ${n0(pttsIxbr)} ${palavra(pttsIxbr, 'PTT', 'PTTs')}, e ${n0(ix.asn_direct_union_count)} ${palavra(ix.asn_direct_union_count, 'ASN tem', 'ASNs têm')} sessão em route server de algum deles. A conta é a união dos PTTs, sem peering bilateral.` },
     rov != null && { id: 'rov', selo: 'estimado', fonte: 'APNIC Labs', dataRef: br?.rov?.fonte?.as_of ?? br?.snapshot_date ?? ref,
-      texto: `${pct(rov, 2)} das medições do APNIC indicam filtragem de rotas inválidas (média ponderada por amostras, não por usuários).` },
+      texto: `${pct(rov, 2)} das medições do APNIC indicam filtragem de rotas inválidas. A média é ponderada pelas amostras, não pelos usuários.` },
   ])
 }

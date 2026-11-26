@@ -6,8 +6,7 @@
 import type { ReactNode } from 'react'
 import { Link } from '../../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
-import { Kpi, NotaVariosTotais } from '../../components/ui'
-import { SinteseTopo } from '../../components/ui/SinteseTopo'
+import { GrupoFontes, Kpi, NotaVariosTotais, ResumoEmTexto } from '../../components/ui'
 import { REGRAS_SINTESE_TECNICA, sinteseTecnica } from './sinteseTecnica'
 import { rotuloDe } from '../../lib/universos'
 import { HomeMap } from '../../components/maps/HomeMap'
@@ -34,7 +33,7 @@ function Tema({ titulo, links, children }: { titulo: string; links: Array<[strin
 }
 
 /**
- * Aba Resumo do Panorama técnico: um número por conceito, agrupado por tema, cada tema levando à aba ou página que o detalha.
+ * Aba Resumo do Panorama técnico (PT-30: cartões primeiro, resumo em texto depois, fontes e datas recolhidas): um número por conceito, agrupado por tema, cada tema levando à aba ou página que o detalha.
  * Substitui os quatro blocos herdados da Visão geral e de Estatísticas, que repetiam os mesmos totais e traziam dados de mercado. O mapa fica no fim, ilustrativo.
  */
 export function ResumoTecnico() {
@@ -59,7 +58,7 @@ export function ResumoTecnico() {
   const pttsIxbr = s ? (s.ixps_ok ?? 0) + (s.ixps_partial ?? 0) + (s.ixps_missing ?? 0) : null
   return (
     <div className="space-y-8" data-testid="resumo-tecnico">
-      <SinteseTopo frases={sinteseTecnica(s, br, ref)} snapshot={ref} regras={REGRAS_SINTESE_TECNICA} />
+      <GrupoFontes snapshot={ref}>
       <SnapshotHealth summary={s} loading={carregando} />
       <NotaVariosTotais />
 
@@ -94,6 +93,9 @@ export function ResumoTecnico() {
         <Kpi selo="estimado" rotulo="Filtragem de rotas inválidas (ROV, média ponderada por amostras)" valor={pct(br?.rov?.media_ponderada_pct, 2)} tom="tecnico" referencia={referenciaMedicao(br?.rov)} explicacao={EXPLICA.rov} fonte="APNIC Labs" dataRef={br?.rov?.fonte?.as_of ?? br?.snapshot_date} />
         <Kpi selo="estimado" rotulo="Validação de DNSSEC (média ponderada por amostras)" valor={pct(br?.dnssec?.media_ponderada_pct, 2)} tom="tecnico" referencia={referenciaMedicao(br?.dnssec)} explicacao={EXPLICA.dnssec} fonte="APNIC Labs" dataRef={br?.dnssec?.fonte?.as_of ?? br?.snapshot_date} />
       </Tema>
+
+      <ResumoEmTexto frases={sinteseTecnica(s, br, ref)} snapshot={ref} regras={REGRAS_SINTESE_TECNICA} notaComoLer="Os números são os mesmos dos cartões acima." />
+      </GrupoFontes>
 
       <ComoLerNumerosPais />
 
