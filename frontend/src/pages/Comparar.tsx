@@ -212,7 +212,7 @@ function CompararPtts({ inicial = [] }: { inicial?: string[] }) {
 
       {allFilled && hasExternal && (
         <div className="text-xs text-aviso-700 bg-aviso-50 border border-aviso-200 rounded px-3 py-2">
-          Comparação envolve IXP(s) externo(s) (PeeringDB): dados de membros são autodeclarados e
+          A comparação envolve ao menos um IXP externo (PeeringDB): os dados de membros são autodeclarados e
           exigem autenticação. Se você não estiver logado, a comparação abaixo não vai carregar.
         </div>
       )}
@@ -249,7 +249,7 @@ function CompararPtts({ inicial = [] }: { inicial?: string[] }) {
           {/* UpSet (2–4, interativo) */}
           <div>
             <h3 className="text-sm font-medium text-gray-700 mb-2">
-              Combinações (UpSet) — clique numa coluna para filtrar a lista abaixo
+              Combinações (UpSet): clique numa coluna para filtrar a lista abaixo
             </h3>
             <UpSetPlot
               labels={labels}

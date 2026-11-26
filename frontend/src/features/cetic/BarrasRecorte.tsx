@@ -13,7 +13,7 @@ export function recortesDaColuna(linhas: CeticLinha[], coluna: string, medida: '
   const vistos = new Set<string>()
   const out: Recorte[] = []
   for (const l of linhas) {
-    const col = l.item ? `${l.item} — ${l.resposta}` : l.resposta
+    const col = l.item ? `${l.item}: ${l.resposta}` : l.resposta
     const chave = `${l.dimensao}|${l.recorte}`
     if (col !== coluna || vistos.has(chave)) continue
     vistos.add(chave)
@@ -52,7 +52,7 @@ export function BarrasRecorte({ recortes, medida, coluna }: { recortes: Recorte[
                     {r.valor != null && m != null && <span className="absolute top-1/2 h-0.5 -translate-y-1/2 bg-gray-900" style={{ left: largura(Math.max(0, r.valor - m)), width: `calc(${largura(Math.min(maximo, r.valor + m))} - ${largura(Math.max(0, r.valor - m))})` }} aria-hidden="true" />}
                   </span>
                   <span className="order-2 text-right tabular-nums text-gray-700 sm:order-3">{r.valor == null ? '—' : fmt(r.valor, medida)}{r.valor != null && m != null && <span className="text-gray-500"> ±{fmt(m, medida)}</span>}
-                    {estado === 'zero_registrado' && <span className="text-gray-500" title={TEXTO_ZERO_REGISTRADO}> ±—<span className="sr-only"> ({TEXTO_ZERO_REGISTRADO})</span></span>}
+                    {estado === 'zero_registrado' && <span className="text-gray-500" title={TEXTO_ZERO_REGISTRADO}> ±{'—'}<span className="sr-only"> ({TEXTO_ZERO_REGISTRADO})</span></span>}
                     {estado === 'precisao_baixa' && <span className="text-aviso-900"> · precisão baixa</span>}</span>
                 </li>
               )
@@ -60,7 +60,7 @@ export function BarrasRecorte({ recortes, medida, coluna }: { recortes: Recorte[
           </ul>
         </div>
       ))}
-      <figcaption className="text-xs text-gray-500">Barra = valor estimado; traço preto = margem de erro. Pesquisa amostral: se as margens de duas barras se sobrepõem, a diferença pode ser acaso. "±—": {TEXTO_ZERO_REGISTRADO}; "precisão baixa": margem de pelo menos metade do valor. Ordem da planilha, sem ranking.</figcaption>
+      <figcaption className="text-xs text-gray-500">Barra = valor estimado; traço preto = margem de erro. Pesquisa amostral: se as margens de duas barras se sobrepõem, a diferença pode ser acaso. "±{'—'}": {TEXTO_ZERO_REGISTRADO}; "precisão baixa": margem de pelo menos metade do valor. Ordem da planilha, sem ranking.</figcaption>
     </figure>
   )
 }

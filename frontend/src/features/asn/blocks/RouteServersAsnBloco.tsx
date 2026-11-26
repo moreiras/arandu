@@ -10,6 +10,7 @@ import { DICA_PREFIXOS_LIMITE } from '../../../lib/textos'
 import { Dica } from '../../../components/ui/Dica'
 import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 import { useOrdenacao } from '../../../lib/ordenacao'
+import { palavra } from '../../../lib/sintese'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 const data = (iso: string | null | undefined) => (iso ? iso.slice(0, 16).replace('T', ' ') + ' UTC' : '—')
@@ -41,7 +42,7 @@ export function RouteServersAsnBloco({ dados }: BlocoProps<AsnCtx>) {
   return (
     <div className="space-y-3 text-sm" data-testid="route-servers-asn">
       <p className="text-xs text-gray-600">
-        {n(rs.total.sessoes)} sessões em {n(rs.total.ixps)} PTT(s): {n(rs.total.up)} up e {n(rs.total.down)} down.
+        {n(rs.total.sessoes)} {palavra(rs.total.sessoes, 'sessão', 'sessões')} em {n(rs.total.ixps)} {palavra(rs.total.ixps, 'PTT', 'PTTs')}: {n(rs.total.up)} up e {n(rs.total.down)} down.
       </p>
       <table className="min-w-full text-xs">
         <thead className="text-gray-500"><tr>

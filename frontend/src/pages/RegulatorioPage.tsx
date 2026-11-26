@@ -21,6 +21,7 @@ import { useOrdenacao, type Ordem } from '../lib/ordenacao'
 import { useActiveDate } from '../hooks/useSnapshot'
 import { manterData } from '../lib/dataAtiva'
 import { NOTA_ATUALIZACAO_MULTAS, NOTA_MULTA_CONSTITUIDA } from '../lib/referencias'
+import { palavra } from '../lib/sintese'
 
 const ABAS = [
   { id: 'fust', rotulo: 'FUST' },
@@ -120,7 +121,7 @@ function Fust() {
 }
 
 /** Situação das multas da linha em texto (quitada, devedor, parcial), sem cor. */
-const situacaoTexto = (s: Record<string, number>) => [['Quitado', 'quitada(s)'], ['Devedor', 'devedor'], ['Parcial', 'parcial']].filter(([k]) => (s[k] ?? 0) > 0).map(([k, r]) => `${inteiro(s[k])} ${r}`).join(' · ') || '—'
+const situacaoTexto = (s: Record<string, number>) => [['Quitado', 'quitada', 'quitadas'], ['Devedor', 'devedor', 'devedores'], ['Parcial', 'parcial', 'parciais']].filter(([k]) => (s[k] ?? 0) > 0).map(([k, um, varios]) => `${inteiro(s[k])} ${palavra(s[k], um, varios)}`).join(' · ') || '—'
 
 function Multas() {
   const [grupo, setGrupo] = useState('')
@@ -181,7 +182,7 @@ function Multas() {
                     <td className="px-2 py-1">{e.cnpj_matriz ? <Link to={`/operadora/${e.cnpj_matriz}`} className="text-primario-600 hover:underline">{e.entidade}</Link> : e.entidade}</td>
                     <td className="px-2 py-1">{e.grupo}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(e.multas)}</td>
                     <td className="px-2 py-1">{situacaoTexto(e.situacoes)}</td><td className="px-2 py-1 text-right tabular-nums">{reais(e.saldo)}</td>
-                    <td className="px-2 py-1">{e.primeiro_ano === e.ultimo_ano ? e.primeiro_ano : `${e.primeiro_ano}–${e.ultimo_ano}`}</td></tr>))}</tbody>
+                    <td className="px-2 py-1">{e.primeiro_ano === e.ultimo_ano ? e.primeiro_ano : `${e.primeiro_ano} a ${e.ultimo_ano}`}</td></tr>))}</tbody>
               </table>
             </div>
             <Paginacao page={page} total={lista.data.total} limit={20} onPage={setPage} />
@@ -217,7 +218,7 @@ function Espectro() {
           <table className="text-xs min-w-full"><caption className="sr-only">Faixas de interesse para a Internet</caption>
             <thead className="text-gray-500"><tr><ThOrdenavel {...refs.props('faixa')} className="text-left px-2 py-1">Faixa</ThOrdenavel><ThOrdenavel {...refs.props('mhz')} alinhar="right" className="text-right px-2 py-1">MHz</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Destinação (primária primeiro)</th></tr></thead>
             <tbody>{refs.ordenados.map((f) => (
-              <tr key={f.nome} className="border-t border-gray-100 align-top"><td className="px-2 py-1 font-medium whitespace-nowrap">{f.nome}</td><td className="px-2 py-1 text-right tabular-nums whitespace-nowrap">{mhz(f.ini_mhz)}–{mhz(f.fim_mhz)}</td>
+              <tr key={f.nome} className="border-t border-gray-100 align-top"><td className="px-2 py-1 font-medium whitespace-nowrap">{f.nome}</td><td className="px-2 py-1 text-right tabular-nums whitespace-nowrap">{mhz(f.ini_mhz)} a {mhz(f.fim_mhz)}</td>
                 <td className="px-2 py-1">{f.destinacao.length ? f.destinacao.map((s) => <span key={s.servico} className={`inline-block mr-2 ${s.carater === 'Primário' ? '' : 'text-gray-400'}`}>{s.servico}</span>) : '—'}</td></tr>))}</tbody>
           </table>
         </div>
@@ -236,7 +237,7 @@ function Espectro() {
             <table className="text-xs min-w-full"><caption className="sr-only">Quadro de atribuição e destinação</caption>
               <thead className="text-gray-500"><tr><th scope="col" className="text-right px-2 py-1">Faixa (MHz)</th><th scope="col" className="text-left px-2 py-1">Destinação</th><th scope="col" className="text-left px-2 py-1">Atribuição</th></tr></thead>
               <tbody>{lista.data.items.map((f) => (
-                <tr key={`${f.ini_mhz}-${f.fim_mhz}`} className="border-t border-gray-100 align-top"><td className="px-2 py-1 text-right tabular-nums whitespace-nowrap">{mhz(f.ini_mhz)}–{mhz(f.fim_mhz)}</td>
+                <tr key={`${f.ini_mhz}-${f.fim_mhz}`} className="border-t border-gray-100 align-top"><td className="px-2 py-1 text-right tabular-nums whitespace-nowrap">{mhz(f.ini_mhz)} a {mhz(f.fim_mhz)}</td>
                   <td className="px-2 py-1">{f.destinacao.map((s) => <span key={s.servico} className={`inline-block mr-2 ${s.carater === 'Primário' ? '' : 'text-gray-400'}`}>{s.servico}</span>)}</td>
                   <td className="px-2 py-1">{f.atribuicao.map((s) => <span key={s.servico} className={`inline-block mr-2 ${s.carater === 'Primário' ? '' : 'text-gray-400'}`}>{s.servico}</span>)}</td></tr>))}</tbody>
             </table>

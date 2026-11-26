@@ -68,8 +68,8 @@ export function ContactsReveal({
   if (!user) {
     return (
       <div className="text-xs text-gray-400 pt-0.5">
-        🔒 {total} contato{total > 1 ? 's' : ''} disponíve{total > 1 ? 'is' : 'l'} —{' '}
-        <a href="/login" className="text-primario-600 hover:underline">entre para ver</a>
+        🔒 {total} {total > 1 ? 'contatos disponíveis' : 'contato disponível'}.{' '}
+        <a href="/login" className="text-primario-600 hover:underline">Entre para ver</a>
       </div>
     )
   }
@@ -102,7 +102,7 @@ export function ContactsReveal({
           {c.role && <span className="text-gray-400">{contactRole(c.role)}</span>}
           {c.email && <a href={`mailto:${c.email}`} className="text-primario-600 hover:underline">{c.email}</a>}
           {c.phone && <span className="text-gray-500">{fmtPhone(c.phone) ?? c.phone}</span>}
-          {c.name && <span className="text-gray-400 truncate max-w-[200px]">— {c.name}</span>}
+          {c.name && <span className="text-gray-400 truncate max-w-[200px]">{c.name}</span>}
         </div>
       ))}
       {notaRdap(rdap) && <div className="text-xs text-gray-400 pt-0.5">{notaRdap(rdap)}</div>}

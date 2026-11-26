@@ -155,7 +155,7 @@ function buildIxpTip(code: string, ixpPfx: string[], rirPfx: string[], afi: 'v4'
 function buildPathTip(asnId: number, meta: PathNodeMeta | undefined, bridged: string[]): string {
   const name = meta?.name ?? ''
   const brLabel = meta?.is_br ? 'BR' : 'não-BR'
-  let html = `<div style="font-weight:600;margin-bottom:4px">AS${asnId}${name ? ` — ${name}` : ''} <span style="opacity:.7;font-weight:400">(${brLabel})</span></div>`
+  let html = `<div style="font-weight:600;margin-bottom:4px">AS${asnId}${name ? `: ${name}` : ''} <span style="opacity:.7;font-weight:400">(${brLabel})</span></div>`
   const sorted = [...bridged].sort()
   for (const code of sorted) {
     html += `<div style="margin-top:5px;border-top:1px solid #e5e7eb;padding-top:4px"><strong>${code.toUpperCase()}</strong></div>`

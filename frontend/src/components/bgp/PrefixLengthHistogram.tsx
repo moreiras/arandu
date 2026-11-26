@@ -19,7 +19,7 @@ export function PrefixLengthHistogram({ data, afi }: Props) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4">
       <h3 className="text-sm font-medium text-gray-700 mb-3">
-        Distribuição por prefix length — IP{afi.toUpperCase()}
+        Distribuição por tamanho do prefixo (prefix length), IP{afi}
       </h3>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 4 }}>

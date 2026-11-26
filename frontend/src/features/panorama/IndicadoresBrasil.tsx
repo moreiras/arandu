@@ -34,15 +34,15 @@ export function referenciaMedicao(m?: MedicaoApnicPais | null): string | undefin
 export function ComoLerNumerosPais() {
   return (
     <ComoLer titulo="Como ler: IPv6, médias ponderadas e medianas">
-      <p>Três medidas de IPv6 contam coisas diferentes: &ldquo;ASNs brasileiros que anunciam IPv6&rdquo; conta redes com prefixo IPv6 na tabela global; &ldquo;Usuários com IPv6&rdquo; conta usuários estimados pelo APNIC Labs; e ter bloco IPv6 alocado, anunciado ou visto num PTT é outra medida, que não indica anúncio nem uso.</p>
-      <p>ROV e DNSSEC aparecem como média ponderada pelas amostras do APNIC Labs, que dá mais peso às redes com mais medições. A mediana trata cada rede igual e as faixas mostram quantas redes ficam em cada parte da escala; por isso a mediana pode ficar longe da média. A prontidão em segurança de roteamento usa outra ponderação, pelos usuários estimados de cada rede.</p>
-      <p>A variação do IPv6 em pontos percentuais vem da série semanal do histórico, que usa outra base de ASNs e de usuários que este indicador; por isso é a variação do percentual na própria série, nunca a diferença entre dois totais de bases distintas. Onde os pontos não são comparáveis a variação não aparece. As séries de segurança e de roteamento, com a regra completa, estão em Estado da segurança de roteamento e na Tabela BGP.</p>
+      <p>As medidas de IPv6 contam coisas diferentes. &ldquo;ASNs brasileiros que anunciam IPv6&rdquo; conta as redes com prefixo IPv6 na tabela global. &ldquo;Usuários com IPv6&rdquo; conta os usuários estimados pelo APNIC Labs. Ter um bloco IPv6 alocado, anunciado ou visto num PTT é outra medida, que não indica anúncio nem uso.</p>
+      <p>ROV e DNSSEC aparecem como média ponderada pelas amostras do APNIC Labs, que dá mais peso às redes com mais medições. A mediana trata todas as redes do mesmo modo, e as faixas mostram quantas redes ficam em cada parte da escala. Por isso a mediana pode ficar longe da média. A prontidão em segurança de roteamento usa outra ponderação: os usuários estimados de cada rede.</p>
+      <p>A variação do IPv6, em pontos percentuais, vem da série semanal do histórico. Essa série usa uma base de ASNs e de usuários diferente da deste indicador, então a variação mostrada é a do percentual dentro da própria série, nunca a diferença entre totais de bases distintas. Onde os pontos não são comparáveis, a variação não aparece. As séries de segurança e de roteamento, com a regra completa, estão em Estado da segurança de roteamento e na Tabela BGP.</p>
     </ComoLer>
   )
 }
 
 export const EXPLICA = {
-  ipv6: 'Proporção dos usuários de Internet no Brasil que usam IPv6: soma das estimativas do APNIC Labs por ASN do Brasil (usuários com IPv6 ÷ usuários). Não é o número por país que o APNIC publica, que usa a amostra do país.',
+  ipv6: 'Proporção dos usuários de Internet no Brasil que usam IPv6: soma das estimativas do APNIC Labs por ASN do Brasil (usuários com IPv6 ÷ usuários). Difere do número por país que o APNIC publica, que usa a amostra do país.',
   dnssec: 'Proporção das medições do APNIC Labs em que o resolvedor de DNS do usuário valida DNSSEC (média ponderada pelas amostras dos ASNs do Brasil com amostra suficiente).',
   prontidao: 'Índice de 0 a 100 de prontidão em segurança de roteamento (filtragem, anti-spoofing, coordenação e validação global), média dos ASNs do Brasil ponderada pelos usuários estimados. Não é veredito sobre empresas.',
   rov: 'Proporção das medições do APNIC Labs em que o usuário não alcança uma rota RPKI-inválida (a rede descarta rotas inválidas), média ponderada.',

@@ -5,6 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { Link } from '../../components/layout/LinkDatado'
 import type { CadastroInferido, FacilityMeta, FacilityResumo } from '../../types/api'
+import { palavra } from '../../lib/sintese'
 
 export const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 export const dataCurta = (iso: string | null | undefined) => (iso ? iso.slice(0, 10) : '—')
@@ -80,7 +81,7 @@ export function PttsDaInstalacao({ f, nomes }: { f: Pick<FacilityResumo, 'ptts_d
           {p.tipo === 'ixbr' && nomes?.[p.code!] ? `${nomes[p.code!]} (${p.code!.toUpperCase()})` : p.code!.toUpperCase()}
         </Link>
       ))}
-      {sobra > 0 && <span className="text-gray-600" title={`${sobra} PTT(s) a mais${naoAcompanhados ? `, ${naoAcompanhados} do PeeringDB que o site não acompanha` : ''}`}>+{sobra} outro{sobra > 1 ? 's' : ''}<span className="sr-only">{`: ${sobra} PTT${sobra > 1 ? 's' : ''} a mais${naoAcompanhados ? `, ${naoAcompanhados} do PeeringDB que o site não acompanha` : ''}`}</span></span>}
+      {sobra > 0 && <span className="text-gray-600" title={`${sobra} ${palavra(sobra, 'PTT a mais', 'PTTs a mais')}${naoAcompanhados ? `, ${naoAcompanhados} do PeeringDB que o site não acompanha` : ''}`}>+{sobra} outro{sobra > 1 ? 's' : ''}<span className="sr-only">{`: ${sobra} PTT${sobra > 1 ? 's' : ''} a mais${naoAcompanhados ? `, ${naoAcompanhados} do PeeringDB que o site não acompanha` : ''}`}</span></span>}
     </span>
   )
 }

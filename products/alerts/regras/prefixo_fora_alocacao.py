@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado, net, nets
+from core import alerta_textos
 
 REGRA = Regra(id="prefixo_fora_alocacao", categoria="roteamento", severidade="info", versao=1,
               descricao="prefixo global fora dos blocos RIR do AS")
@@ -28,7 +29,5 @@ def avaliar(ctx: Contexto) -> list[dict]:
         return []
     return [achado(
         "Prefixo anunciado fora da alocação",
-        f"{len(outside)} prefixo(s) anunciado(s) não estão contidos em "
-        "nenhum bloco atribuído a este AS no Registro.br — pode ser espaço "
-        "sub-alocado por um provedor ou de terceiro.",
+        alerta_textos.fora_da_alocacao(len(outside)),
         {"prefixes": outside[:30]})]

@@ -83,7 +83,7 @@ const COLS: ColDef[] = [
   {
     key: 'ixps_membro_count',
     label: 'IX.br: membro',
-    tooltip: 'Número de PTTs do IX.br em cujo cadastro de participantes o AS consta, com ou sem sessão com o route server. Ser membro e ter sessão com o route server são coisas diferentes: grandes redes costumam usar acordos bilaterais, que não aparecem aqui. 0 quer dizer que o AS não consta em nenhum cadastro; — é snapshot sem a lista de participantes.',
+    tooltip: 'Número de PTTs do IX.br em cujo cadastro de participantes o AS consta, com ou sem sessão com o route server. Ser membro e ter sessão com o route server são coisas diferentes: grandes redes costumam usar acordos bilaterais, que não aparecem aqui. O valor 0 indica que o AS não consta em nenhum cadastro, e o traço indica um snapshot sem a lista de participantes.',
     align: 'right',
     w: 'w-[62px]',
   },
@@ -146,7 +146,7 @@ const COLS: ColDef[] = [
   {
     key: 'bgp_stability',
     label: 'Upd/Pref/Dia',
-    tooltip: 'Updates BGP por prefixo por dia (média dos últimos 7 dias, v6+v4). Indica "ruído" BGP — valores altos podem indicar link instável, sessão oscilante ou configuração incorreta. Vermelho >20 · Laranja 5–20 · Amarelo 1–5.',
+    tooltip: 'Updates BGP por prefixo por dia (média dos últimos 7 dias, IPv6 e IPv4 somados). Mede o "ruído" BGP, isto é, a quantidade de mudanças de anúncio; a causa não é observável aqui. Faixas de cor: vermelho acima de 20, laranja de 5 a 20 e amarelo de 1 a 5.',
     align: 'right',
     w: 'w-[70px]',
   },

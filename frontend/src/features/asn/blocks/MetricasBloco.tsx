@@ -4,6 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { MetricCard } from '../ui'
+import { RELACAO_PTT } from '../../../lib/universos'
 import { prefixosDe } from '../contexto'
 import type { BlocoProps } from '../../entidade/registry'
 import type { AsnCtx } from '../contexto'
@@ -29,8 +30,8 @@ export function MetricasBloco({ dados }: BlocoProps<AsnCtx>) {
           : undefined}
         accent="blue"
       />
-      <MetricCard label="PTTs com sessão no RS" value={doc.ixps_direct.length} />
-      <MetricCard label="IXPs originador" value={doc.ixps_origin.length} />
+      <MetricCard label={RELACAO_PTT.pttsSessaoRs} value={doc.ixps_direct.length} />
+      <MetricCard label="PTTs onde aparece como originador" value={doc.ixps_origin.length} />
     </div>
   )
 }

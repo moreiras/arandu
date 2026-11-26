@@ -27,13 +27,13 @@ type MapLayer = IXPGeoLayer | SiciLayer
 const isSiciLayer = (l: MapLayer): l is SiciLayer => l.startsWith('sici_')
 
 const LAYERS: { id: MapLayer; label: string; short: string }[] = [
-  { id: 'asns_members', label: 'AS Participantes — localização dos membros do IXP',          short: 'AS Membros'  },
-  { id: 'asns_direct',  label: 'AS com sessão no RS — ASNs com sessão no route server do IXP (LG)', short: 'AS c/ sessão RS' },
-  { id: 'asns_origin',  label: 'AS Origem — ASNs BR de origem dos prefixos no IXP (LG)',     short: 'AS Origem'   },
-  { id: 'prefixes_v6',  label: 'Prefixos IPv6 — prefixos anunciados no IXP (por cidade)',    short: 'Pref IPv6'   },
-  { id: 'prefixes_v4',  label: 'Prefixos IPv4 — blocos /20 anunciados no IXP (por cidade)',  short: 'Pref IPv4'   },
-  { id: 'sici_direct',  label: 'Assinantes SCM (SICI) dos ASNs com sessão no RS — acessos dos CNPJs dos ASNs com sessão no route server (por município)', short: 'Assin. SCM sessão RS' },
-  { id: 'sici_total',   label: 'Assinantes SCM (SICI) totais — ASNs com sessão no RS e seus clientes nos AS-paths (por município)', short: 'Assin. SCM totais' },
+  { id: 'asns_members', label: 'AS participantes: localização dos membros do IXP',              short: 'AS Membros'  },
+  { id: 'asns_direct',  label: 'AS com sessão no RS: ASNs com sessão no route server do IXP (LG)', short: 'AS c/ sessão RS' },
+  { id: 'asns_origin',  label: 'AS de origem: ASNs BR que originam prefixos no IXP (LG)',     short: 'AS Origem'   },
+  { id: 'prefixes_v6',  label: 'Prefixos IPv6: prefixos anunciados no IXP (por cidade)',    short: 'Pref IPv6'   },
+  { id: 'prefixes_v4',  label: 'Prefixos IPv4: blocos /20 anunciados no IXP (por cidade)',  short: 'Pref IPv4'   },
+  { id: 'sici_direct',  label: 'Assinantes SCM (SICI) dos ASNs com sessão no RS: acessos dos CNPJs desses ASNs (por município)', short: 'Assin. SCM sessão RS' },
+  { id: 'sici_total',   label: 'Assinantes SCM (SICI) totais: ASNs com sessão no RS e seus clientes nos AS-paths (por município)', short: 'Assin. SCM totais' },
 ]
 
 const CENTROIDS_URL = '/municipios-centroides.json'
@@ -204,7 +204,7 @@ function useMapLibre(
         const f = e.features?.[0]; if (!f) return
         map.getCanvas().style.cursor = 'pointer'
         const p = f.properties as Record<string, unknown>
-        const label = p.name ? `AS${p.asn} — ${p.name}` : `AS${p.asn}`
+        const label = p.name ? `AS${p.asn}: ${p.name}` : `AS${p.asn}`
         const loc   = p.city ? `${p.uf ?? ''}/${p.city}` : (p.uf as string ?? '')
         popup.setLngLat(e.lngLat).setHTML(html`<strong>${label}</strong>${loc ? htmlSeguro`<br/>${loc}` : ''}`).addTo(map)
       }

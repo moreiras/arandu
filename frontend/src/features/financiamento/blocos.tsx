@@ -8,6 +8,7 @@ import type { OperadoraCtx } from '../operadora/contexto'
 import type { FinanciamentoOperadora, SancaoRegistro } from '../../types/api'
 import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
 import { useOrdenacao } from '../../lib/ordenacao'
+import { palavra } from '../../lib/sintese'
 
 const reais = (v?: number | null) => (v == null ? '—' : `R$ ${v.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`)
 const dataBr = (d?: string | null) => (d ? d.split('-').reverse().join('/') : '—')
@@ -32,7 +33,7 @@ export function CreditoPublicoBloco({ dados }: BlocoProps<OperadoraCtx>) {
   return (
     <div className="space-y-3 text-sm" data-testid="credito-publico">
       <p data-testid="credito-resumo">
-        <span className="tabular-nums">{b.operacoes_total}</span> operação(ões) direta(s) com o BNDES entre {dataBr(b.primeira)} e {dataBr(b.ultima)}: <span className="tabular-nums">{reais(b.contratado_total)}</span> contratados e{' '}
+        <span className="tabular-nums">{b.operacoes_total}</span> {palavra(b.operacoes_total, 'operação direta', 'operações diretas')} com o BNDES entre {dataBr(b.primeira)} e {dataBr(b.ultima)}: <span className="tabular-nums">{reais(b.contratado_total)}</span> contratados e{' '}
         <span className="tabular-nums">{reais(b.desembolsado_total)}</span> desembolsados (valores nominais, sem correção).
       </p>
       <div className="overflow-x-auto">
@@ -83,7 +84,7 @@ export function SancoesBloco({ dados }: BlocoProps<OperadoraCtx>) {
   const grupos: Array<[string, SancaoRegistro[]]> = [['Constam no cadastro (sem fim informado ou fim futuro)', s.vigentes], ['Com início futuro', s.futuras], ['Encerradas', s.encerradas]]
   return (
     <div className="space-y-3 text-sm" data-testid="sancoes">
-      <p data-testid="sancoes-resumo">Há <span className="tabular-nums">{s.total}</span> registro(s) no CEIS/CNEP para esta empresa: <span className="tabular-nums">{s.vigentes.length}</span> constando sem fim ou com fim futuro, <span className="tabular-nums">{s.encerradas.length}</span> encerrada(s){s.futuras.length ? `, ${s.futuras.length} com início futuro` : ''}.</p>
+      <p data-testid="sancoes-resumo">Há <span className="tabular-nums">{s.total}</span> {palavra(s.total, 'registro', 'registros')} no CEIS/CNEP para esta empresa: <span className="tabular-nums">{s.vigentes.length}</span> constando sem fim ou com fim futuro, <span className="tabular-nums">{s.encerradas.length}</span> {palavra(s.encerradas.length, 'encerrada', 'encerradas')}{s.futuras.length ? `, ${s.futuras.length} com início futuro` : ''}.</p>
       {grupos.filter(([, l]) => l.length > 0).map(([titulo, lista]) => (
         <div key={titulo}>
           <h4 className="text-xs font-semibold text-gray-600">{titulo}</h4>

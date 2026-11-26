@@ -48,7 +48,7 @@ export function ExposicaoAsnBloco({ dados }: BlocoProps<{ exposicao?: ExposicaoA
           {classes.length > 0 ? (
             <ul className="space-y-1 text-xs text-gray-700" data-testid="exposicao-classes">
               {classes.map(([k, c]) => (
-                <li key={k}><span className="font-medium">{e.classes_de_risco?.[k]?.rotulo ?? k}</span>: {n(c.total)} — {c.servicos.map((s) => `${s.servico} (${s.porta}): ${n(s.n)}`).join('; ')}</li>
+                <li key={k}><span className="font-medium">{e.classes_de_risco?.[k]?.rotulo ?? k}</span>: {n(c.total)}. Por serviço: {c.servicos.map((s) => `${s.servico} (${s.porta}): ${n(s.n)}`).join('; ')}</li>
               ))}
             </ul>
           ) : (

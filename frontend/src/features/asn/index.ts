@@ -60,13 +60,13 @@ const ABA: Record<string, string> = {
 }
 /** "Como ler" dos blocos em que a leitura errada é mais provável: o que o número mostra e o que ele não prova. */
 const COMO_LER: Record<string, string> = {
-  usuarios: 'Estimativa do APNIC a partir de amostras de anúncios, em janela de 60 dias; não é censo nem número de clientes da empresa.',
-  seguranca: 'ROV e DNSSEC são medições por amostragem do APNIC: ausência de medição não prova ausência de proteção. O AS Rank é inferência do CAIDA.',
-  prontidao: 'Índice de 0 a 100 que soma medições de terceiros com regras públicas; é um retrato do que se observa, não um veredito sobre a empresa.',
-  relacoes: 'Relações entre ASes são inferidas do AS_PATH nas tabelas observadas; peering bilateral não aparece nos dados públicos, então ausência de relação não é ausência de peering.',
-  presenca: '"Direto" é sessão do AS nos route servers do PTT; "originador" é prefixo do AS visto no PTT por outro participante.',
-  acessos: 'Assinantes são os declarados pela empresa à Anatel (SICI), em mês de referência próprio; ASes do mesmo CNPJ dividem o mesmo total.',
-  'recursos-ipv4': 'Blocos delegados e sua aparição na tabela; bloco não anunciado não é bloco sem uso, e sinal de terceiros é hipótese.',
+  usuarios: 'O APNIC estima os usuários a partir de amostras de anúncios, numa janela de 60 dias. O número não é um censo e não equivale à quantidade de clientes da empresa.',
+  seguranca: 'ROV e DNSSEC são medições por amostragem do APNIC. A falta de medição não prova que não há proteção. O AS Rank é uma inferência do CAIDA.',
+  prontidao: 'O índice vai de 0 a 100 e reúne medições de terceiros com regras públicas. Ele retrata o que se observa e não é um veredito sobre a empresa.',
+  relacoes: 'As relações entre ASes são inferidas do AS_PATH nas tabelas observadas. O peering bilateral não aparece nos dados públicos, então a falta de uma relação não indica ausência de peering.',
+  presenca: '"Direto" é a sessão do AS nos route servers do PTT. "Originador" é o prefixo do AS visto no PTT por outro participante.',
+  acessos: 'Os assinantes são os declarados pela empresa à Anatel (SICI), num mês de referência próprio. ASes do mesmo CNPJ dividem o mesmo total.',
+  'recursos-ipv4': 'São blocos delegados e sua aparição na tabela. Um bloco não anunciado pode estar em uso, e o sinal de terceiros é uma hipótese.',
 }
 const RECOLHIDO = new Set(['prefixos-rir', 'diagnostico', 'politica-rs', 'instalacoes'])
 const def = (b: Omit<BlocoDef<AsnCtx>, 'entidade'>) => registrarBloco<AsnCtx>({ ...base, aba: ABA[b.id], comoLer: COMO_LER[b.id], recolhido: RECOLHIDO.has(b.id) && !b.semTitulo, ...b })

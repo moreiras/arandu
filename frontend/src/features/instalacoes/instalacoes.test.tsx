@@ -69,12 +69,12 @@ describe('bloco Instalações e peering do ASN', () => {
 
   it('mostra instalações com vínculo e selo inferido, atributos autodeclarados, URLs só como link se http(s) e as portas com a ressalva de capacidade', () => {
     render(<MemoryRouter><InstalacoesAsnBloco {...({ dados: { facilities: fac, peering } } as any)} /></MemoryRouter>)
-    expect(screen.getByText(/2 instalação\(ões\) do Brasil/)).toBeTruthy()
+    expect(screen.getByText(/2 instalações do Brasil/)).toBeTruthy()
     expect(screen.getByText('Datacenter Exemplo SP-1').getAttribute('href')).toBe('/instalacao/9101')
     expect(screen.getAllByTestId('selo-cadastro')).toHaveLength(3)                                            // 2 instalações + o registro da rede
     expect(screen.getByText('https://lg.example.org/').getAttribute('href')).toBe('https://lg.example.org/')
     expect(screen.getByText('telnet://rs.example.org').tagName).toBe('SPAN')                                  // telnet não vira link
-    expect(screen.getByText(/2 porta\(s\), 10 Gbps \+ 100 Gbps \(soma 110 Gbps\)/)).toBeTruthy()
+    expect(screen.getByText(/2 portas, 10 Gbps \+ 100 Gbps \(soma 110 Gbps\)/)).toBeTruthy()
     expect(screen.getByText('Capacidade declarada, não tráfego.')).toBeTruthy()
     expect(screen.getAllByTestId('atribuicao-peeringdb').length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Dado autodeclarado no/).length).toBeGreaterThan(0)
@@ -87,8 +87,8 @@ describe('bloco Instalações do PTT', () => {
 
   it('lista as instalações com o selo e, em PTT externo, as portas por velocidade', () => {
     render(<MemoryRouter><InstalacoesPtt facilities={lista} portas={portas} /></MemoryRouter>)
-    expect(screen.getByText(/2 instalação\(ões\)/)).toBeTruthy()
-    expect(screen.getByTestId('portas-ptt').textContent).toMatch(/5 porta\(s\) de 5 membro\(s\): mediana 10 Gbps, maior 10 Gbps, soma declarada 50 Gbps/)
+    expect(screen.getByText(/2 instalações/)).toBeTruthy()
+    expect(screen.getByTestId('portas-ptt').textContent).toMatch(/5 portas de 5 membros: mediana 10 Gbps, maior 10 Gbps, soma declarada 50 Gbps/)
     expect(screen.getByTestId('portas-ptt').textContent).toMatch(/10 Gbps: 5/)
   })
 })
@@ -104,7 +104,7 @@ describe('página de instalações', () => {
     server.use(http.get('*/api/v1/facilities', ({ request }) => { chamadas.push(new URL(request.url).searchParams); return HttpResponse.json(corpo) }))
     const { container } = montar(<FacilitiesPage />, '/instalacoes')
     await screen.findByText('Datacenter Exemplo SP-1')
-    expect(screen.getByTestId('total-instalacoes').textContent).toMatch(/2 instalação\(ões\)/)
+    expect(screen.getByTestId('total-instalacoes').textContent).toMatch(/2 instalações/)
     expect(screen.getByTestId('cobertura-ptts').textContent).toMatch(/38 de 40 aparecem em alguma instalação do PeeringDB/)
     expect(screen.getByTestId('cobertura-ptts').textContent).toContain('Sem instalação cadastrada no PeeringDB nesta coleta: AC, THE.')                    // INST-E2: quem falta, nomeado
     expect(container.querySelector('b')?.textContent ?? '').not.toBe('Exemplo')                              // "<b>" do nome é texto, não elemento

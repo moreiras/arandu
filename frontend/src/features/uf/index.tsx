@@ -87,7 +87,7 @@ def({ id: 'reclamacoes', titulo: 'Reclamações na Anatel', ordem: 19.7, depende
   nota: 'declarado por consumidores; depende do tamanho da base de clientes; sem ranking', aplicavel: (c) => !!c.reclamacoes, Componente: ReclamacoesUfBloco })
 def({ id: 'consumidor', titulo: 'Reclamações no Consumidor.gov.br', ordem: 19.8, depende: ['useUfPerfil'], fontes: ['consumidor_gov'], selo: 'fato',
   nota: 'reclamações finalizadas, declaradas por consumidores; só empresas com 5 ou mais reclamações na UF; depende do tamanho da base de clientes; sem ranking', aplicavel: (c) => !!c.consumidor, Componente: ConsumidorUfBloco })
-def({ id: 'fust', titulo: 'FUST — compromissos na UF', ordem: 19.5, depende: ['useUfPerfil'], fontes: ['anatel_fust'], selo: 'fato',
+def({ id: 'fust', titulo: 'FUST: compromissos na UF', ordem: 19.5, depende: ['useUfPerfil'], fontes: ['anatel_fust'], selo: 'fato',
   nota: 'cadastro da Anatel: não identifica a empresa executora; o valor é o previsto, não o desembolsado', aplicavel: (c) => !!c.fust, Componente: FustUfBloco })
 def({ id: 'prontidao', titulo: 'Prontidão em segurança de roteamento', ordem: 19.8, depende: ['useUfPerfil'], fontes: ['apnic_irov', 'bogons', 'caida_spoofer', 'irr_route_objects', 'peeringdb_networks', 'rpki_collector'], selo: 'estimado',
   nota: 'agregado dos ASNs da UF; soma ponderada de medições de terceiros, não veredito sobre empresas', aplicavel: (c) => !!c.prontidao, Componente: ProntidaoUfBloco })

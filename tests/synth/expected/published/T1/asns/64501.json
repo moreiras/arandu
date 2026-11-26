@@ -3,7 +3,7 @@
   {
    "category": "presenca",
    "desde_versao": 1,
-   "detail": "O AS é membro de PTT(s) do IX.br mas não tem registro no PeeringDB, o que dificulta o estabelecimento de peering.",
+   "detail": "O AS é membro de um PTT do IX.br, mas não tem registro no PeeringDB, o que dificulta o estabelecimento de peering.",
    "id": "sem_peeringdb",
    "refs": {},
    "severity": "aviso",
@@ -12,19 +12,19 @@
   {
    "category": "presenca",
    "desde_versao": 2,
-   "detail": "O AS aparenta depender de um único upstream (IPv6 e IPv4) na tabela global — risco de resiliência.",
+   "detail": "O AS parece depender de um único provedor de trânsito (IPv6 e IPv4) na tabela global, o que representa risco de resiliência.",
    "id": "single_homed",
    "refs": {
     "upstream_v4": 4200000001,
     "upstream_v6": 4200000001
    },
    "severity": "aviso",
-   "title": "Conectividade single-homed"
+   "title": "Um único provedor de trânsito visível"
   },
   {
    "category": "rpki",
    "desde_versao": 1,
-   "detail": "O AS possui ROAs no RPKI mas não publicou nenhum objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os upstreams autorizados e permite validação de AS_PATH — sua ausência não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
+   "detail": "O AS tem ROAs no RPKI, mas não publicou objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os provedores de trânsito autorizados e permite validar o AS_PATH. A falta dele não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
    "id": "sem_aspa",
    "refs": {},
    "severity": "aviso",

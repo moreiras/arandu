@@ -51,11 +51,11 @@ def({ id: 'painel', titulo: 'Indicadores do município', ordem: 10, depende: ['u
 def({ id: 'penetracao', titulo: 'Penetração e mercado não visto', ordem: 15, depende: ['useMunicipioPerfil'], fontes: ['ibge_censo_pnad', 'anatel_sici'], selo: 'estimado',
   nota: 'domicílios do Censo 2022; o não visto é estimativa (a taxa da PNAD inclui quem usa só o celular)', aplicavel: (c) => !!c.territorio,
   Componente: PenetracaoMunicipio })
-def({ id: 'mercado-fixo', titulo: 'Mercado — banda larga fixa', ordem: 20, depende: ['useMunicipioPerfil'], fontes: ['anatel_sici', 'registro_br'], selo: 'fato',
+def({ id: 'mercado-fixo', titulo: 'Mercado: banda larga fixa', ordem: 20, depende: ['useMunicipioPerfil'], fontes: ['anatel_sici', 'registro_br'], selo: 'fato',
   nota: 'duas datas: o snapshot e o mês de referência da declaração ao SICI', aplicavel: (c) => !!c.fixo, Componente: MercadoFixoBloco })
 def({ id: 'indicadores', titulo: 'Variação do mercado fixo', ordem: 25, depende: ['useMunicipioPerfil'], fontes: ['anatel_sici'], selo: 'fato',
   nota: 'dado declarado; a variação compara o mês de referência com o mês anterior e com o de 12 meses antes', aplicavel: (c) => !!c.indicadores, Componente: IndicadoresBloco })
-def({ id: 'mercado-movel', titulo: 'Mercado — telefonia móvel', ordem: 30, depende: ['useMunicipioPerfil'], fontes: ['anatel_sici_movel', 'registro_br'], selo: 'fato',
+def({ id: 'mercado-movel', titulo: 'Mercado: telefonia móvel', ordem: 30, depende: ['useMunicipioPerfil'], fontes: ['anatel_sici_movel', 'registro_br'], selo: 'fato',
   nota: 'duas datas: o snapshot e o mês de referência da declaração ao SICI móvel', aplicavel: (c) => !!c.movel, Componente: MercadoMovelBloco })
 def({ id: 'estacoes-smp', titulo: 'Estações do SMP licenciadas', ordem: 35, depende: ['useMunicipioPerfil'], fontes: ['anatel_erbs'], selo: 'fato',
   nota: 'cadastro de licenciamento da Anatel: não é cobertura nem estação em operação', aplicavel: (c) => !!c.erbs, Componente: ErbsMunicipioBloco })
@@ -67,18 +67,18 @@ def({ id: 'consumidor', titulo: 'Reclamações no Consumidor.gov.br', ordem: 37.
   nota: 'reclamações finalizadas, declaradas por consumidores; a cidade é casada ao IBGE pelo nome; só empresas com 5 ou mais reclamações; depende do tamanho da base de clientes', aplicavel: (c) => !!c.consumidor, Componente: ConsumidorMunicipioBloco })
 def({ id: 'contratos', titulo: 'Contratos públicos de operadoras (PNCP)', ordem: 37.9, depende: ['useContratosMunicipio'], fontes: ['siasg_contratos'], selo: 'fato',
   nota: 'o município é o do órgão comprador, não o local de entrega; resultados de itens publicados no PNCP em rodízio de coleta; não é ranking nem prova de atendimento; licença do portal não verificada', aplicavel: (c) => !!c.contratos, Componente: ContratosMunicipioBloco })
-def({ id: 'fust', titulo: 'FUST — compromissos no município', ordem: 37, depende: ['useMunicipioPerfil'], fontes: ['anatel_fust'], selo: 'fato',
+def({ id: 'fust', titulo: 'FUST: compromissos no município', ordem: 37, depende: ['useMunicipioPerfil'], fontes: ['anatel_fust'], selo: 'fato',
   nota: 'cadastro da Anatel: não identifica a empresa executora; o valor é o previsto, não o desembolsado', aplicavel: (c) => !!c.fust, Componente: FustMunicipioBloco })
-def({ id: 'rede', titulo: 'Rede — ASNs das operadoras', ordem: 40, depende: ['useMunicipioPerfil'], fontes: ['registro_br'], selo: 'inferido',
+def({ id: 'rede', titulo: 'Rede: ASNs das operadoras', ordem: 40, depende: ['useMunicipioPerfil'], fontes: ['registro_br'], selo: 'inferido',
   nota: 'ASNs ligados à operadora pelo CNPJ (Registro.br)', aplicavel: (c) => [...(c.fixo?.operadores ?? []), ...(c.movel?.operadores ?? [])].some((o) => o.asns.length > 0), Componente: RedeBloco })
-def({ id: 'infraestrutura', titulo: 'Infraestrutura — PTTs e transporte', ordem: 50, depende: ['map-pix', 'municipios-centroides', 'useRegiao'], fontes: ['curada_pix', 'lg_ixbr', 'peeringdb_ixps'], selo: 'estimado',
+def({ id: 'infraestrutura', titulo: 'Infraestrutura: PTTs e transporte', ordem: 50, depende: ['map-pix', 'municipios-centroides', 'useRegiao'], fontes: ['curada_pix', 'lg_ixbr', 'peeringdb_ixps'], selo: 'estimado',
   nota: 'distância em linha reta até o centróide do município; sessão direta pelo cadastro de participantes; vínculo CNPJ e ASN inferido; infraestrutura próxima não quer dizer que as operadoras locais a usam', aplicavel: (c) => c.proximos.length > 0, Componente: InfraBloco })
 def({ id: 'regiao-provedores', titulo: 'Provedores da região (ASNs)', ordem: 41, depende: ['useRegiao'], fontes: ['anatel_sici', 'registro_br', 'cnpj_geo', 'prefix_geo'], selo: 'inferido',
   nota: 'o ASN entra pelo SICI, pela sede do CNPJ ou por prefixos geolocalizados no município (DB-IP, precisão de cidade)', aplicavel: (c) => !!c.regiao && c.regiao.asns.total > 0, Componente: ProvedoresRegiaoBloco })
 def({ id: 'regiao-ptts', titulo: 'Participação nos PTTs', ordem: 42, depende: ['useRegiao'], fontes: ['lg_ixbr', 'peeringdb_ixps'], selo: 'fato',
   nota: 'direto = sessão no PTT; indireto = rotas do ASN vistas no PTT por meio de outro ASN', aplicavel: (c) => !!c.regiao && c.regiao.asns.total > 0, Componente: PttsRegiaoBloco })
 def({ id: 'regiao-transito', titulo: 'Provedores de trânsito da região', ordem: 43, depende: ['useRegiao'], fontes: ['caida_asrel', 'fulltable_routeviews', 'lg_ixbr'], selo: 'inferido',
-  nota: 'relações provedor–cliente inferidas (ARC v1) com a probabilidade; não é contrato', aplicavel: (c) => !!c.regiao && c.regiao.transito.length > 0, Componente: TransitoRegiaoBloco })
+  nota: 'relações provedor-cliente inferidas (ARC v1), com a respectiva probabilidade; não indicam contrato', aplicavel: (c) => !!c.regiao && c.regiao.transito.length > 0, Componente: TransitoRegiaoBloco })
 def({ id: 'regiao-carregadores', titulo: 'Quem leva a região até os PTTs', ordem: 44, depende: ['useRegiao'], fontes: ['lg_ixbr'], selo: 'inferido',
   nota: 'vizinho observado nos caminhos dos looking glasses que tem sessão num PTT', aplicavel: (c) => !!c.regiao && c.regiao.carregadores.length > 0, Componente: CarregadoresRegiaoBloco })
 def({ id: 'regiao-prontidao', titulo: 'Segurança de roteamento da região', ordem: 45, depende: ['useRegiao'], fontes: ['apnic_irov', 'bogons', 'caida_spoofer', 'irr_route_objects', 'peeringdb_networks', 'rpki_collector'], selo: 'inferido',

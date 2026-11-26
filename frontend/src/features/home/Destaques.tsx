@@ -43,7 +43,7 @@ export function Destaques({ fontes }: { fontes?: FonteEntrada[] | null }) {
   return (
     <section aria-labelledby="destaques-titulo">
       <h2 id="destaques-titulo" className="text-titulo-3 text-gray-900">Destaques do snapshot</h2>
-      <p className="text-sm text-gray-500 mt-0.5 mb-3">Perguntas que o {SITE.nome} responde a cada snapshot; cada uma abre a lista completa.</p>
+      <p className="text-sm text-gray-500 mt-0.5 mb-3">Perguntas que o {SITE.nome} responde a cada snapshot. Cada destaque leva à lista completa.</p>
       <ul className="grid gap-3 sm:grid-cols-2">
         {DESTAQUES.map((d) => <UmDestaque key={d.id} d={d} fontes={fontes} q={q} />)}
       </ul>

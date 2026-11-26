@@ -16,7 +16,7 @@ describe('citar este dado', () => {
   it('o texto traz entidade, bloco, fonte com referência, snapshot, link e data de acesso, sem inventar o que não há', () => {
     const t = montarCitacao({ entidade: 'AS64496 · Rede Exemplo', bloco: 'Prefixos anunciados', valor: '1.204 prefixos IPv4', fontes: ['fulltable_routeviews', 'registro_br'],
       fontesEntradas: [{ id: 'fulltable_routeviews', as_of: '2026-11-04' }], snapshot: '2026-11-05', url: 'https://x/asn/64496?date=2026-11-05', acessoEm: new Date(2026, 10, 12) })
-    expect(t).toContain('AS64496 · Rede Exemplo: Prefixos anunciados — 1.204 prefixos IPv4.')
+    expect(t).toContain('AS64496 · Rede Exemplo: Prefixos anunciados (1.204 prefixos IPv4).')
     expect(t).toContain('Fontes: fulltable_routeviews (referência 04/11/2026); registro_br (data de referência não informada).')
     expect(t).toContain('Snapshot de 05/11/2026.')
     expect(t).toContain('Disponível em: https://x/asn/64496?date=2026-11-05.')

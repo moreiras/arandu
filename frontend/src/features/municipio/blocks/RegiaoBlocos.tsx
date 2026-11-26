@@ -137,7 +137,7 @@ export function TransitoRegiaoBloco({ dados }: BlocoProps<MunicipioCtx>) {
           ))}
         </tbody>
       </table>
-      <p className="text-xs text-gray-500">Relação provedor–cliente inferida dos caminhos BGP (ARC v1); nível: confirmado, provável ou possível. Os {fmt(r.transito_total)} provedores distintos estão ordenados por quantos ASNs da região os usam com confiança confirmada ou provável.</p>
+      <p className="text-xs text-gray-500">Relação provedor-cliente inferida dos caminhos BGP (ARC v1); nível: confirmado, provável ou possível. Os {fmt(r.transito_total)} provedores distintos estão ordenados por quantos ASNs da região os usam com confiança confirmada ou provável.</p>
     </div>
   )
 }

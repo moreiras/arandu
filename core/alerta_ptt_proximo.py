@@ -32,5 +32,10 @@ def deve_avaliar(store, date_str: str, asn: int, doc: dict) -> bool:
 
 def detalhe(near: list[dict], km: int) -> str:
     """Texto do alerta: o fato, com cada PTT e a distância, sem benefício nem recomendação."""
-    lista = ", ".join(f"{x['code']} ({str(x['dist_km']).replace('.', ',')} km)" for x in near[:10])
-    return f"A sede do AS fica a menos de {km} km de {len(near)} PTT(s) do IX.br onde o AS não consta como participante: {lista}."
+    def um(x: dict) -> str:
+        km_txt = str(x['dist_km']).replace('.', ',')
+        nome = x.get('name')
+        return f"{nome} ({x['code'].upper()}, {km_txt} km)" if nome and nome.upper() != x['code'].upper() else f"{x['code'].upper()} ({km_txt} km)"
+    lista = ", ".join(um(x) for x in near[:10])
+    n = len(near)
+    return f"A sede do AS fica a menos de {km} km de {n} {'PTT do IX.br' if n == 1 else 'PTTs do IX.br'} onde o AS não consta como participante: {lista}."

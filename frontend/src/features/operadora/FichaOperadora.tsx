@@ -3,36 +3,28 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { Kpi } from '../../components/ui'
-import { DESCRICAO_SELO, ROTULO_SELO } from '../../components/entidade'
+import { GrupoFontes, Kpi, ResumoEmTexto } from '../../components/ui'
 import type { OperadoraCtx } from './contexto'
 import { kpisOperadora, REGRAS_VERSAO, sinteseOperadora } from './sintese'
 
-const COR_SELO = { fato: 'bg-fato-600', inferido: 'bg-inferido-600', estimado: 'bg-estimado-600' } as const
-
-/** Ficha-resumo da operadora: síntese por regras (sem IA) e os indicadores principais; fica acima das abas e some em `?versao=1`. */
+/**
+ * Ficha-resumo da operadora (PT-30): primeiro os indicadores principais e depois o resumo em texto, por regras fixas e sem IA. Selos, fontes e
+ * datas ficam num único bloco recolhido. Fica acima das abas e some em `?versao=1`.
+ */
 export function FichaOperadora({ nome, ctx }: { nome: string; ctx: OperadoraCtx }) {
   const frases = sinteseOperadora(nome, ctx)
   const kpis = kpisOperadora(ctx).filter((k) => k.valor != null)
+  const snapshot = ctx.data?.snapshot_date ?? ctx.dataMovel?.snapshot_date ?? null
   return (
     <section aria-label="Resumo da operadora" className="rounded-lg border border-gray-200 bg-white p-4 space-y-3" data-testid="ficha-operadora">
-      <ul className="space-y-1 text-sm text-gray-800">
-        {frases.map((f) => (
-          <li key={f.id} className="flex gap-2" data-testid={`frase-${f.id}`}>
-            <span className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${COR_SELO[f.selo]}`} aria-hidden="true" />
-            <span><span className="sr-only">{ROTULO_SELO[f.selo]}: </span>{f.texto}<span className="ml-1 text-xs text-gray-500" title={DESCRICAO_SELO[f.selo]}>({ROTULO_SELO[f.selo].toLowerCase()})</span></span>
-          </li>
-        ))}
-      </ul>
-      {kpis.length > 0 && (
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
-          {kpis.map((k) => <Kpi key={k.id} rotulo={k.rotulo} valor={k.valor} referencia={k.referencia} selo={k.selo} fonte={k.fonte} dataRef={k.dataRef} />)}
-        </div>
-      )}
-      <details className="text-xs text-gray-500">
-        <summary className="cursor-pointer select-none">Como esta síntese é gerada</summary>
-        <p className="mt-1 max-w-3xl">Frases montadas por regras fixas (versão <code>{REGRAS_VERSAO}</code>) a partir dos campos do snapshot, sem modelo de linguagem; o selo diz se é fato, inferência ou estimativa. Os acessos são declarados pela empresa à Anatel (SICI): a parcela é sobre acessos declarados, não sobre receita.</p>
-      </details>
+      <GrupoFontes snapshot={snapshot}>
+        {kpis.length > 0 && (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+            {kpis.map((k) => <Kpi key={k.id} rotulo={k.rotulo} valor={k.valor} referencia={k.referencia} selo={k.selo} fonte={k.fonte} dataRef={k.dataRef} />)}
+          </div>
+        )}
+        <ResumoEmTexto frases={frases} regras={REGRAS_VERSAO} notaComoLer="Os acessos são os que a empresa declara à Anatel pelo SICI, e a parcela é calculada sobre os acessos declarados, não sobre a receita." />
+      </GrupoFontes>
     </section>
   )
 }

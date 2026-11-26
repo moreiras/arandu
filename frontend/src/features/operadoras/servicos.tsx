@@ -7,6 +7,7 @@ import type { ReactNode } from 'react'
 import { Link } from '../../components/layout/LinkDatado'
 import { fetchOperadorasMovel, fetchOutorgas, fetchOutorgasMapa, fetchOutorgasStats, type ServicoOutorga } from '../../services/api'
 import { fmtCnpj, fmtNum } from './formato'
+import { palavra } from '../../lib/sintese'
 
 export type ServicoId = 'scm' | 'smp' | 'stfc' | 'seac' | 'todas'
 
@@ -89,13 +90,13 @@ const colunasPrestadora = (sigla: ServicoOutorga): Coluna[] => [
   { key: 'uf', label: 'UF', w: 'w-16', ordenavel: true, render: (r) => <span className="text-gray-600">{r.uf ?? '—'}</span> },
   { key: 'municipio', label: 'Município', w: 'w-40', ordenavel: true, render: (r) => <span className="text-gray-600 truncate">{r.municipio ?? '—'}</span> },
   { key: 'data_outorga', label: 'Data no cadastro', w: 'w-24', ordenavel: true, render: (r) => <span className="text-gray-500">{r.data_outorga_por_servico?.[sigla] ?? '—'}</span> },
-  { key: 'asns', label: 'ASN(s)', w: 'w-32', ordenavel: true, render: asnsCell },
+  { key: 'asns', label: 'ASNs', w: 'w-32', ordenavel: true, render: asnsCell },
 ]
 
 export const SERVICOS: Record<ServicoId, Servico> = {
   scm: {
     id: 'scm', rotulo: 'SCM', titulo: 'Outorgas SCM', chaveLista: 'scms', temSici: true, soAtivosPadrao: false,
-    descricao: <>Serviço de Comunicação Multimídia — dados abertos da {Anatel}, cruzados com ASNs do Registro.br por CNPJ.</>,
+    descricao: <>Serviço de Comunicação Multimídia: dados abertos da {Anatel}, cruzados com os ASNs do Registro.br por CNPJ.</>,
     dicaOperacao: 'Ter outorga não significa estar operando: cerca de metade dos CNPJs com outorga não declara acesso ao SICI. Este filtro conta quem declarou acesso fixo ou móvel; os CNPJs com outorga SCM que declararam acesso fixo (cobertura de declaração, na home) são um pouco menos.',
     ordenacaoPadrao: { campo: 'acessos_fixo', desc: true }, primeiroCliqueDesc: false, unidade: 'outorgas',
     indisponivel: 'Dados de SCM não disponíveis para este snapshot. Rode as etapas anatel_scm e scm_geo para coletar os dados da Anatel.',
@@ -125,13 +126,13 @@ export const SERVICOS: Record<ServicoId, Servico> = {
         render: (r) => r.acessos_fixo > 0 ? <span className="block text-right tabular-nums text-gray-500">{fmtNum(r.pj_fixo)}</span> : <span className="block text-right text-gray-300">—</span> },
       { key: 'municipios_fixo', label: 'Munic.', w: 'w-20', ordenavel: true,
         render: (r) => r.acessos_fixo > 0 ? <span className="block text-right tabular-nums text-gray-500">{fmtNum(r.municipios_fixo)}</span> : <span className="block text-right text-gray-300">—</span> },
-      { key: 'asns', label: 'ASN(s)', w: 'w-36', ordenavel: true, render: asnsCell },
+      { key: 'asns', label: 'ASNs', w: 'w-36', ordenavel: true, render: asnsCell },
     ],
   },
   smp: {
     // padrão: o universo (outorgadas e credenciadas, com e sem declaração); o filtro visível restringe (OPERADORAS-E2)
     id: 'smp', rotulo: 'SMP', titulo: 'Operadoras SMP', chaveLista: 'operadoras-movel', temSici: true, soAtivosPadrao: false,
-    descricao: <>Serviço Móvel Pessoal — dados abertos da {Anatel}, cruzados com ASNs do Registro.br por CNPJ. Universo pequeno: as grandes operadoras móveis e MVNOs/M2M.</>,
+    descricao: <>Serviço Móvel Pessoal: dados abertos da {Anatel}, cruzados com os ASNs do Registro.br por CNPJ. Universo pequeno: as grandes operadoras móveis e MVNOs/M2M.</>,
     dicaOperacao: 'Ter outorga não significa estar operando',
     ordenacaoPadrao: { campo: 'acessos', desc: true }, primeiroCliqueDesc: true, unidade: 'operadoras',
     indisponivel: 'Dados de SMP não disponíveis para este snapshot. Rode as etapas anatel_smp, smp_geo e anatel_sici_movel para coletar os dados da Anatel.',
@@ -159,12 +160,12 @@ export const SERVICOS: Record<ServicoId, Servico> = {
       { key: 'municipios', label: 'Munic.', w: 'w-20', ordenavel: true,
         render: (r) => r.ativo ? <span className="block text-right tabular-nums text-gray-500">{fmtNum(r.municipios)}</span> : <span className="block text-right text-gray-300">—</span> },
       { key: 'geracao', label: 'Geração', w: 'w-20', ordenavel: false, render: (r) => <span className="text-gray-500">{r.geracao_predominante ?? traco}</span> },
-      { key: 'asns', label: 'ASN(s)', w: 'w-32', ordenavel: false, render: asnsCell },
+      { key: 'asns', label: 'ASNs', w: 'w-32', ordenavel: false, render: asnsCell },
       { key: 'rede_virtual', label: 'Rede virtual', w: 'w-28', ordenavel: false,
         render: (r) => (
           <>
             {r.rede_virtual?.papel === 'host' && (
-              <span className="px-1.5 py-0.5 rounded bg-primario-100 text-primario-800 font-medium whitespace-nowrap" title={`Credencia ${r.rede_virtual.credenciadas_count} operadora(s) MVNO`}>
+              <span className="px-1.5 py-0.5 rounded bg-primario-100 text-primario-800 font-medium whitespace-nowrap" title={`Credencia ${r.rede_virtual.credenciadas_count} ${palavra(r.rede_virtual.credenciadas_count, 'operadora MVNO', 'operadoras MVNO')}`}>
                 Host ({r.rede_virtual.credenciadas_count})
               </span>
             )}
@@ -184,7 +185,7 @@ export const SERVICOS: Record<ServicoId, Servico> = {
   },
   stfc: {
     id: 'stfc', rotulo: 'STFC', titulo: 'Outorgas STFC', chaveLista: 'stfcs', temSici: false, soAtivosPadrao: false,
-    descricao: <>Serviço Telefônico Fixo Comutado — dados abertos da {Anatel}, cruzados com ASNs do Registro.br por CNPJ. Universo maior que SMP: inclui pequenos provedores de VoIP/telefonia fixa.</>,
+    descricao: <>Serviço Telefônico Fixo Comutado: dados abertos da {Anatel}, cruzados com os ASNs do Registro.br por CNPJ. Universo maior que SMP: inclui pequenos provedores de VoIP/telefonia fixa.</>,
     ordenacaoPadrao: { campo: 'razao_social', desc: false }, primeiroCliqueDesc: false, unidade: 'outorgas',
     indisponivel: 'Dados de STFC não disponíveis para este snapshot.',
     stats: (d) => fetchOutorgasStats('STFC', d), mapa: (o) => fetchOutorgasMapa('STFC', o),
@@ -193,7 +194,7 @@ export const SERVICOS: Record<ServicoId, Servico> = {
   },
   seac: {
     id: 'seac', rotulo: 'SeAC', titulo: 'Outorgas SeAC', chaveLista: 'seacs', temSici: false, soAtivosPadrao: false,
-    descricao: <>Serviço de Acesso Condicionado — dados abertos da {Anatel}, cruzados com ASNs do Registro.br por CNPJ. TV por assinatura — outorgas SeAC (Lei 12.485/2011).</>,
+    descricao: <>Serviço de Acesso Condicionado: dados abertos da {Anatel}, cruzados com os ASNs do Registro.br por CNPJ. É a TV por assinatura, com as outorgas de SeAC (Lei 12.485/2011).</>,
     ordenacaoPadrao: { campo: 'razao_social', desc: false }, primeiroCliqueDesc: false, unidade: 'outorgas',
     indisponivel: 'Dados de SEAC não disponíveis para este snapshot.',
     stats: (d) => fetchOutorgasStats('SeAC', d), mapa: (o) => fetchOutorgasMapa('SeAC', o),
@@ -218,7 +219,7 @@ export const SERVICOS: Record<ServicoId, Servico> = {
       { key: 'acessos_movel', label: 'Acessos móveis', w: 'w-24', ordenavel: true,
         render: (r) => r.acessos_movel > 0 ? <span className="block text-right tabular-nums text-gray-700">{fmtNum(r.acessos_movel)}</span> : <span className="block text-right text-gray-300">—</span> },
       { key: 'porte', label: 'Porte', w: 'w-28', ordenavel: false, render: (r) => <span className="text-gray-500">{r.porte || traco}</span> },
-      { key: 'asns', label: 'ASN(s)', w: 'w-32', ordenavel: true, render: asnsCell },
+      { key: 'asns', label: 'ASNs', w: 'w-32', ordenavel: true, render: asnsCell },
     ],
   },
 }

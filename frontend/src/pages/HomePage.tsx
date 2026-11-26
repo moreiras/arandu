@@ -12,19 +12,20 @@ import { OQueMudou } from '../features/home/OQueMudou'
 import { PortasPorPublico } from '../features/home/PortasPorPublico'
 import { SinteseHome } from '../features/home/BlocoSinteseHome'
 import { CartogramaUfs, METRICAS_NORMALIZADAS } from '../features/estados/CartogramaUfs'
-import { ProvenienciaCompacta } from '../components/ui'
+import { ApresentacaoRecolhida, ProvenienciaCompacta } from '../components/ui'
 import { useFontes, useUfs } from '../hooks/entidades'
 
 const EXEMPLOS = ['Vivo', 'São Paulo', 'AS28573', 'RPKI', '2804::/32']
 
 /**
- * Home: o que é, para quem é e por onde começar, em um olhar. Busca grande, síntese em texto (PT-22), cinco portas por lente de leitura (PT-27, experimento),
- * "o Brasil em números", cartograma por UF com indicador normalizado, destaques do snapshot e o que mudou. A rota `/inicio-classico` redireciona para cá.
+ * Home: o que é, para quem é e por onde começar, em um olhar. Busca grande, "o Brasil em números" (cartões), resumo em texto (PT-22, depois dos cartões por PT-30), cinco portas por lente de leitura (PT-27, experimento),
+ * cartograma por UF com indicador normalizado, destaques do snapshot e o que mudou. A rota `/inicio-classico` redireciona para cá.
  */
 export function HomePage() {
   const { fontes } = useFontes()
   const ufs = useUfs()
   return (
+    <ApresentacaoRecolhida>
     <div className="space-y-8">
       <section aria-labelledby="home-titulo" className="pt-2">
         <h1 id="home-titulo" className="text-titulo-1 text-gray-900">{SITE.nomeExtenso}</h1>
@@ -34,9 +35,9 @@ export function HomePage() {
         <div className="mt-4 max-w-2xl"><SearchBar grande exemplos={EXEMPLOS} /></div>
       </section>
 
+      <BrasilEmNumeros />
       <SinteseHome />
       <PortasPorPublico />
-      <BrasilEmNumeros />
 
       <div className="grid gap-6 lg:grid-cols-2 items-start">
         {ufs.data?.items?.length ? (
@@ -53,5 +54,6 @@ export function HomePage() {
         <ProvenienciaCompacta bloco={{ fontes: ['anatel_sici', 'registro_br', 'fulltable_routeviews'] }} fontes={fontes} />
       </div>
     </div>
+    </ApresentacaoRecolhida>
   )
 }

@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core import alerta_textos
 
 REGRA = Regra(id="politica_v4v6_divergente", categoria="v4v6", severidade="info", versao=1,
               descricao="IXPs com peering só v4 ou só v6 em AS com IPv6")
@@ -26,13 +27,7 @@ def avaliar(ctx: Contexto) -> list[dict]:
     has_v6 = bool(ctx.rir_v6 or ctx.glob_v6)
     if not (has_v6 and (v4_only or v6_only)):
         return []
-    parts = []
-    if v6_only:   # IPv6 antes de IPv4 no texto
-        parts.append(f"{len(v6_only)} IXP(s) com peering só IPv6")
-    if v4_only:
-        parts.append(f"{len(v4_only)} IXP(s) com peering só IPv4")
     return [achado(
         "Políticas IPv6 e IPv4 divergentes",
-        "Peering assimétrico entre as famílias: " + "; ".join(parts) +
-        ". Tendo IPv6, o ideal é fazer peering nas duas famílias nos mesmos IXPs.",
+        alerta_textos.politica_v4v6(len(v6_only), len(v4_only)),
         {"v4_only": sorted(v4_only), "v6_only": sorted(v6_only)})]

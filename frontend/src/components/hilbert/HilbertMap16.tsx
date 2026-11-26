@@ -32,31 +32,31 @@ export const LAYER_META: Record<LayerKey, { label: string; color: string; descri
     label: 'Alocado Registro.br',
     color: '#3b82f6',
     description: 'Espaço IPv4 alocado ao Brasil pelo Registro.br/LACNIC',
-    legend: 'Prefixos IPv4 atribuídos a entidades brasileiras pelo Registro.br. Representa o espaço de endereçamento formalmente alocado ao Brasil — independente de estar sendo anunciado na Internet. Intensidade proporcional ao número de blocos /24 alocados no /16.',
+    legend: 'Prefixos IPv4 atribuídos a entidades brasileiras pelo Registro.br. Representam o espaço de endereçamento formalmente alocado ao Brasil, esteja ou não anunciado na Internet. A intensidade é proporcional ao número de blocos /24 alocados no /16.',
   },
   global_br: {
-    label: 'ASNs BR — full table',
+    label: 'ASNs BR na tabela global',
     color: '#10b981',
     description: 'Prefixos de ASNs brasileiros visíveis na tabela global',
-    legend: 'Prefixos anunciados por ASNs brasileiros e observados na tabela de roteamento global. Mostra o espaço que organizações BR estão efetivamente anunciando ao mundo, seja ele alocado ao Brasil ou não.',
+    legend: 'Prefixos anunciados por ASNs brasileiros e observados na tabela de roteamento global. Mostra o espaço que as organizações brasileiras anunciam ao mundo, seja ele alocado ao Brasil ou não.',
   },
   global_all: {
-    label: 'Full table — todos',
+    label: 'Tabela global, todos',
     color: '#f59e0b',
     description: 'Todos os prefixos na tabela de roteamento global',
-    legend: 'Todos os prefixos IPv4 presentes na tabela de roteamento global, coletados de múltiplos peers em diferentes regiões. Representa o mapa completo da Internet IPv4 — o que é efetivamente roteável globalmente.',
+    legend: 'Todos os prefixos IPv4 presentes na tabela de roteamento global, coletados de vários peers em diferentes regiões. Representam o conjunto dos prefixos IPv4 visíveis globalmente nesses peers.',
   },
   ixp_all: {
     label: 'IXPs do IX.br',
     color: '#8b5cf6',
     description: 'Prefixos observados em qualquer IXP do IX.br',
-    legend: 'Prefixos observados em qualquer ponto de troca de tráfego (IXP) do IX.br. Representa o espaço de endereçamento presente no ecossistema de peering brasileiro — o que está sendo trocado dentro do Brasil.',
+    legend: 'Prefixos observados em qualquer ponto de troca de tráfego (IXP) do IX.br, isto é, o espaço de endereçamento que aparece anunciado nas interligações do IX.br.',
   },
   rir_br_visible: {
     label: 'Alocado BR + visível',
     color: '#ef4444',
-    description: 'Espaço alocado ao Brasil que está presente na full table global',
-    legend: 'Interseção entre espaço alocado ao Brasil (Registro.br) e a tabela de roteamento global — calculado com precisão de bloco /24. Mostra o espaço efetivamente em uso: formalmente alocado ao Brasil E sendo anunciado na Internet.',
+    description: 'Espaço alocado ao Brasil que está presente na tabela de roteamento global',
+    legend: 'Interseção entre o espaço alocado ao Brasil (Registro.br) e a tabela de roteamento global, calculada com precisão de bloco /24. Mostra o espaço em uso: alocado ao Brasil e anunciado na Internet.',
   },
 }
 
@@ -266,7 +266,7 @@ export function HilbertMap16({ data, activeLayer, width = CANVAS_PX, date }: Hil
               {count > 0 ? (
                 <div className="mt-0.5 space-y-0.5">
                   <div style={{ color: dotColor }}>
-                    {count} /24{count !== 1 ? 's' : ''} — {LAYER_META[activeLayer].label}
+                    {count} /24{count !== 1 ? 's' : ''}: {LAYER_META[activeLayer].label}
                   </div>
                   {isBR && (
                     <div className="text-xs" style={{ color: '#ef4444' }}>
