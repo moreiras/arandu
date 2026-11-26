@@ -39,6 +39,13 @@ Resumo do que mais quebra (o completo está nas diretrizes do guia):
   documentos que não estão no repositório. Logs com `structlog`; sem `print` em serviço/pipeline.
 - **Configuração** em `config/`; segredos só no `.env`, nunca no repositório.
 - **Honestidade semântica:** inferido, estimado e hipótese são rotulados; todo número exibido tem fonte e data.
+- **Apresentação:** "o site tem que ser preciso, acurado, transparente. Contudo também precisa ser bonito, atrativo, de fácil leitura"
+  (mantenedor, 2026-11-25). Cartões primeiro e resumo em texto depois deles, sem truncar; em tela sem cartões, o resumo abre a página.
+  "Como ler", fonte, data e selo continuam disponíveis, mas recolhidos e agregados (`FontesEDatas`, `ApresentacaoRecolhida`); legenda
+  dos selos no rodapé. Selo só com símbolo e cor, sempre com nome acessível (forma e cor sozinhas não bastam). Cor não expressa juízo:
+  nada de vermelho de alerta ou verde de melhora em número ou faixa; escala de um só tom quando a cor ordena. Texto visível em
+  linguagem simples, precisa, fluida e didática, com artigos, plural pelo número (`palavra()`, nunca "(s)"), sem travessão como
+  pontuação (`src/test/semTravessao.test.ts`) e sem vícios de linguagem de IA; "—" sozinho como valor ausente pode.
 - **Política editorial:** só dados e comparações, sem juízo de valor, causa ou intenção ("sem declaração", não "omitiu"); ranking
   nominal só com dado medido ou declarado e regra visível; a revisão humana é da metodologia, não de cada resultado.
 - **Privacidade:** contatos (PeeringDB, RDAP) e dados de pessoa física **não** vão para rota pública. Pessoa natural é o
