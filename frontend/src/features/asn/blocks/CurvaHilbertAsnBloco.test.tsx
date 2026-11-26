@@ -29,7 +29,7 @@ describe('aba Numeração do AS', () => {
     expect(abasDe('asn').map((a) => a.id).slice(0, 3)).toEqual(['resumo', 'numeracao', 'roteamento'])
     expect(abasDe('asn')[1].rotulo).toBe('Numeração')
     const ids = blocosDe('asn').filter((b) => b.aba === 'numeracao').map((b) => b.id)
-    expect(ids).toEqual(['prefixos-rir', 'hilbert-ipv6', 'hilbert-ipv4'])
+    expect(ids).toEqual(['prefixos-rir', 'hilbert-ipv6', 'hilbert-ipv4', 'recursos-ipv4'])
     const rir = blocosDe('asn').find((b) => b.id === 'prefixos-rir')!
     expect(rir.recolhido).toBeFalsy()
     for (const id of ['hilbert-ipv6', 'hilbert-ipv4']) {

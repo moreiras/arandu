@@ -42,7 +42,7 @@ describe('blocos de ASN', () => {
 
   it('fixa os 33 blocos e a ordem de exibição (a ordem da página de antes)', () => {
     expect(blocosDe('asn').map((b) => b.id)).toEqual([
-      'metricas', 'usuarios', 'linha-do-tempo', 'alertas', 'seguranca', 'prontidao', 'recursos-ipv4', 'route-servers', 'organizacao', 'bloqueios', 'radar', 'exposicao', 'politica-rs', 'instalacoes', 'estabilidade', 'diagnostico', 'prefixos-rir', 'hilbert-ipv6', 'hilbert-ipv4', 'roa', 'aspa', 'tabela-global', 'presenca',
+      'metricas', 'usuarios', 'linha-do-tempo', 'alertas', 'seguranca', 'prontidao', 'route-servers', 'organizacao', 'bloqueios', 'radar', 'exposicao', 'politica-rs', 'instalacoes', 'estabilidade', 'diagnostico', 'prefixos-rir', 'hilbert-ipv6', 'hilbert-ipv4', 'recursos-ipv4', 'roa', 'aspa', 'tabela-global', 'presenca',
       'interconexao-mensuravel', 'acessos', 'mapa', 'ixps-externos', 'peeringdb', 'outorga-scm', 'outorga-smp', 'outorga-stfc', 'outorga-seac', 'relacoes',
     ])
   })
@@ -243,8 +243,8 @@ describe('EntityPage com abas', () => {
 describe('correspondência do AS: nenhum bloco ficou fora das abas', () => {
   const ESPERADO: Record<string, string[]> = {
     resumo: ['metricas', 'usuarios', 'alertas'],
-    numeracao: ['prefixos-rir', 'hilbert-ipv6', 'hilbert-ipv4'],
-    roteamento: ['recursos-ipv4', 'radar', 'estabilidade', 'diagnostico', 'tabela-global', 'mapa', 'relacoes'],
+    numeracao: ['prefixos-rir', 'hilbert-ipv6', 'hilbert-ipv4', 'recursos-ipv4'],
+    roteamento: ['radar', 'estabilidade', 'diagnostico', 'tabela-global', 'mapa', 'relacoes'],
     seguranca: ['seguranca', 'prontidao', 'bloqueios', 'exposicao', 'roa', 'aspa'],
     interconexao: ['route-servers', 'politica-rs', 'instalacoes', 'presenca', 'interconexao-mensuravel', 'ixps-externos', 'peeringdb'],
     mercado: ['organizacao', 'acessos', 'outorga-scm', 'outorga-smp', 'outorga-stfc', 'outorga-seac'],

@@ -45,7 +45,7 @@ const base = { entidade: 'asn' as const }
 /** Lentes da página: cada bloco pertence a uma, e a ordem de exibição dentro da aba segue `ordem`. A primeira é a padrão. */
 registrarAbas('asn', [
   { id: 'resumo', rotulo: 'Resumo', descricao: 'O que este AS é e onde chamar atenção, em poucos números.' },
-  { id: 'numeracao', rotulo: 'Numeração', descricao: 'Blocos de endereço delegados ao AS e onde aparecem no espaço IPv6 e IPv4.' },
+  { id: 'numeracao', rotulo: 'Numeração', descricao: 'Blocos de endereço delegados ao AS, onde aparecem no espaço IPv6 e IPv4 e se estão anunciados.' },
   { id: 'roteamento', rotulo: 'Roteamento', descricao: 'Que prefixos anuncia, por onde as rotas passam e se são estáveis.' },
   { id: 'seguranca', rotulo: 'Segurança', descricao: 'RPKI, ROV, ASPA, bogons e outras medições de terceiros sobre este AS.' },
   { id: 'interconexao', rotulo: 'Interconexão', descricao: 'Em que PTTs e instalações está e como se conecta aos route servers.' },
@@ -54,7 +54,7 @@ registrarAbas('asn', [
 ])
 const ABA: Record<string, string> = {
   metricas: 'resumo', usuarios: 'resumo', alertas: 'resumo',
-  'prefixos-rir': 'numeracao', 'hilbert-ipv6': 'numeracao', 'hilbert-ipv4': 'numeracao', 'tabela-global': 'roteamento', mapa: 'roteamento', estabilidade: 'roteamento', diagnostico: 'roteamento', relacoes: 'roteamento', radar: 'roteamento', 'recursos-ipv4': 'roteamento',
+  'prefixos-rir': 'numeracao', 'hilbert-ipv6': 'numeracao', 'hilbert-ipv4': 'numeracao', 'tabela-global': 'roteamento', mapa: 'roteamento', estabilidade: 'roteamento', diagnostico: 'roteamento', relacoes: 'roteamento', radar: 'roteamento', 'recursos-ipv4': 'numeracao',
   seguranca: 'seguranca', prontidao: 'seguranca', roa: 'seguranca', aspa: 'seguranca', bloqueios: 'seguranca', exposicao: 'seguranca',
   presenca: 'interconexao', 'interconexao-mensuravel': 'interconexao', 'route-servers': 'interconexao', 'politica-rs': 'interconexao', 'ixps-externos': 'interconexao', instalacoes: 'interconexao', peeringdb: 'interconexao',
   organizacao: 'mercado', acessos: 'mercado', 'outorga-scm': 'mercado', 'outorga-smp': 'mercado', 'outorga-stfc': 'mercado', 'outorga-seac': 'mercado',
@@ -90,7 +90,7 @@ def({ id: 'seguranca', titulo: 'Segurança de roteamento', ordem: 35, depende: [
   aplicavel: (c) => !!c.seguranca, Componente: SegurancaBloco })
 def({ id: 'prontidao', titulo: 'Prontidão em segurança de roteamento', ordem: 35.5, depende: ['useAsnPerfil'], fontes: ['apnic_irov', 'bogons', 'caida_spoofer', 'irr_route_objects', 'peeringdb_networks', 'rpki_collector'], selo: 'estimado',
   nota: 'índice de 0 a 100: soma ponderada de medições de terceiros, com regras públicas e versionadas; não é veredito sobre a empresa', aplicavel: (c) => !!c.prontidao, Componente: ProntidaoAsnBloco })
-def({ id: 'recursos-ipv4', titulo: 'Recursos IPv4', ordem: 36, depende: ['useAsn'], fontes: ['ipv4_delegated', 'ipv4_listas', 'fulltable_routeviews', 'rpki_collector'], selo: 'inferido',
+def({ id: 'recursos-ipv4', titulo: 'Recursos IPv4', ordem: 63, depende: ['useAsn'], fontes: ['ipv4_delegated', 'ipv4_listas', 'fulltable_routeviews', 'rpki_collector'], selo: 'inferido',
   nota: 'blocos do delegated cruzados com a tabela de origens e os ROAs; não anunciado não é sem uso; sinal de terceiros é hipótese', Componente: RecursosIpv4AsnBloco })
 def({ id: 'route-servers', titulo: 'Nos route servers do IX.br', ordem: 37, depende: ['useAsnPerfil'], fontes: ['ixbr_alice', 'ixbr_api'], selo: 'fato',
   nota: 'estado das sessões BGP no route server na data da coleta; sem causa atribuída', aplicavel: (c) => !!c.routeServers, Componente: RouteServersAsnBloco })
