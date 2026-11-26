@@ -3,6 +3,7 @@ id: regiao
 nome: ASNs por município (região)
 ordem: -49
 modulo: products.regiao.build
+aceita_force: true
 produtos:
 - regiao_municipios
 depois_de:

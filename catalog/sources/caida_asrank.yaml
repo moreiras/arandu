@@ -49,5 +49,6 @@ fixture: tests/fixtures/raw/caida_asrank/
 pendencias:
 - Uso comercial do dataset (AUA); servir só o derivado rotulado, com a atribuição.
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 60

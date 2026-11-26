@@ -3,6 +3,7 @@ id: peeringdb_intl_geo
 nome: Geolocalização de ASNs internacionais
 ordem: 23
 modulo: sources.peeringdb_intl_geo.enrich
+aceita_force: true
 fontes:
 - peeringdb_intl_geo
 politica_falha: opcional

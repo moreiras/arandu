@@ -3,6 +3,7 @@ id: scm_geo
 nome: Geolocalização das outorgas SCM
 ordem: 25
 modulo: sources.scm_geo.enrich
+aceita_force: true
 fontes:
 - scm_geo
 politica_falha: opcional

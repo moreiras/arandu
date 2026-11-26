@@ -66,5 +66,6 @@ fixture: tests/fixtures/raw/anatel_erbs/
 pendencias:
 - 'Arquivo aberto de cobertura 4G/5G (% por município) não localizado em 2026-11-02; o painel "Estações do SMP" (informacoes.anatel.gov.br) é aplicação, sem download.'
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 300

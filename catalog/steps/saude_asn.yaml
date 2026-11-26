@@ -3,6 +3,7 @@ id: saude_asn
 nome: Pré-cálculo de alertas e RPKI por ASN
 ordem: 41
 modulo: publish.snapshot_builder
+aceita_force: true
 args:
 - --date
 - '{date}'

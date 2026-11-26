@@ -58,5 +58,6 @@ pendencias:
 - 'Decisão do mantenedor (2026-11-07): tratar o OONI como a TeleGeography: fonte ATIVA, licença própria declarada (CC BY-NC-SA 4.0, uso_comercial restrito) e atribuição em todas as saídas. A questão jurídica do NC continua registrada e a consulta jurídica pode mudar isso. Para desligar: `OONI_ATIVO=0` no ambiente (a etapa sai sem requisição) e apagar `published/{data}/bloqueios/`.'
 - Comunicar a atribuição ao OONI (contact@openobservatory.org), se o mantenedor quiser.
 etapa:
+  aceita_force: true
   tentativas: 2
   espera_s: 300

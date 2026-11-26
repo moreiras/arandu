@@ -60,6 +60,7 @@ retencao:
   normalizado: 3 versões
 fixture: tests/fixtures/raw/receita_cnpj/
 etapa:
+  aceita_force: true
   tentativas: 2
 pendencias:
 - Termos de uso do conjunto CNPJ e uso comercial não lidos (a página oficial exige JavaScript); revisão jurídica em aberto.

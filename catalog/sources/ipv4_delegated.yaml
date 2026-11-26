@@ -54,5 +54,6 @@ retencao:
   normalizado: 52 semanas
 fixture: tests/fixtures/raw/ipv4_listas/
 etapa:
+  aceita_force: true
   tentativas: 2
   espera_s: 120

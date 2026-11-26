@@ -3,6 +3,7 @@ id: cloudflare_radar
 nome: Cloudflare Radar (IPv6 por ASN em rodízio, topos, BGP e quedas)
 ordem: 46
 modulo: sources.cloudflare_radar.collect
+aceita_force: true
 fontes:
 - cloudflare_radar
 tentativas: 2

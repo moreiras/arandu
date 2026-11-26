@@ -52,5 +52,6 @@ pendencias:
 - Comunicar a publicação ao CAIDA (data-info@caida.org) depois do deploy, com o link da página que cita o dataset.
 - Ler a página da "Public Data API" do Spoofer (termos específicos do Spoofer, se houver).
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 600

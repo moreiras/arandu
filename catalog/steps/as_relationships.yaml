@@ -3,6 +3,7 @@ id: as_relationships
 nome: Relações entre ASNs (ARC v1)
 ordem: 49
 modulo: products.as_relationships.build
+aceita_force: true
 produtos:
 - as_relationships
 parcial:

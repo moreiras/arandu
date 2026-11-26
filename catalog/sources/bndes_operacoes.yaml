@@ -48,6 +48,7 @@ retencao:
   normalizado: 3 versões
 fixture: tests/fixtures/raw/bndes_operacoes/
 etapa:
+  aceita_force: true
   tentativas: 2
 pendencias:
 - Texto integral da ODbL (base derivada, share-alike) a avaliar na publicação aberta e na consulta jurídica.

@@ -3,6 +3,7 @@ id: fulltable_routeviews
 nome: Full table global (RouteViews + RIPE RIS)
 ordem: 5
 modulo: sources.fulltable_routeviews.collect
+aceita_force: true
 fontes:
 - fulltable_routeviews
 tentativas: 3

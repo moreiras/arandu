@@ -55,5 +55,6 @@ fixture: tests/fixtures/raw/cetic/
 pendencias:
 - Margem de erro própria 8% a 14% menor que a das tabelas oficiais; investigar com o Cetic.br se há uma regra de variância que a reproduza.
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 120

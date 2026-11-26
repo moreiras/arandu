@@ -3,6 +3,7 @@ id: stfc_geo
 nome: Geolocalização das outorgas STFC
 ordem: 27
 modulo: sources.stfc_geo.enrich
+aceita_force: true
 fontes:
 - stfc_geo
 politica_falha: opcional

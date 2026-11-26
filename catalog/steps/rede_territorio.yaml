@@ -3,6 +3,7 @@ id: rede_territorio
 nome: Rede no território (IPv6, ROV e trânsito)
 ordem: -47
 modulo: products.rede_territorio.build
+aceita_force: true
 produtos:
 - rede_territorio
 depois_de:

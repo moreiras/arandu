@@ -54,5 +54,6 @@ fixture: tests/fixtures/raw/cetic/
 pendencias:
 - 'Microdados: a base pública de domicílios é a fonte `cetic_tic_domicilios_microdados`; os sob Termo de Acesso estão fora do escopo.'
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 120

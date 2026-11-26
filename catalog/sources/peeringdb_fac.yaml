@@ -75,5 +75,6 @@ fixture: tests/fixtures/raw/peeringdb_fac/
 pendencias:
 - Uso comercial e redistribuição de dados do PeeringDB dependem de autorização do PeeringDB (AUP); o mantenedor autorizou o desenvolvimento sem confirmação escrita (2026-11-06); a consulta jurídica segue aberta.
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 60

@@ -3,6 +3,7 @@ id: routing_analysis
 nome: Análise de roteamento BGP do Brasil
 ordem: 36
 modulo: products.routing_analysis.build
+aceita_force: true
 produtos:
 - routing_analysis
 depois_de:
