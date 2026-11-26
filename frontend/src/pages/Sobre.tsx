@@ -413,9 +413,9 @@ export function Sobre() {
             </div>
             <p className="text-xs text-gray-500">
               Mesma base de outorgas usada para SCM/SMP, filtrada pelo código de serviço 171
-              (Serviço Telefônico Fixo Comutado). Universo bem maior que SMP (~1.700 CNPJs),
-              incluindo pequenos provedores de VoIP e telefonia fixa, geolocalizado e cruzado
-              com os ASes brasileiros identificados.
+              (Serviço Telefônico Fixo Comutado). O universo é bem maior que o do SMP e inclui
+              pequenos provedores de VoIP e de telefonia fixa; os CNPJs são geolocalizados e
+              cruzados com os ASes brasileiros identificados.
             </p>
           </div>
 
@@ -428,7 +428,7 @@ export function Sobre() {
             <p className="text-xs text-gray-500">
               Mesma base de outorgas usada para SCM/SMP/STFC, filtrada pelo código de serviço
               750 (Serviço de Acesso Condicionado, nome oficial da TV por assinatura no Brasil,
-              Lei 12.485/2011). ~1.400 CNPJs outorgados, geolocalizados e cruzados com os ASes
+              Lei 12.485/2011). Os CNPJs outorgados são geolocalizados e cruzados com os ASes
               brasileiros identificados.
             </p>
           </div>
