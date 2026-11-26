@@ -74,9 +74,8 @@ def test_nome_do_ptt_aparece_com_o_codigo():
 
 
 def test_upstream_unico_inferido_sem_jargao():
-    """Classificação com acento e confiança em porcentagem, em vez de "nível provavel, p = 1.0"."""
+    """Classificação com acento e sem a pontuação do método na frase (em "100%" ela leria como certeza), em vez de "nível provavel, p = 1.0"."""
     from core import alerta_textos as t
     txt = t.single_homed_inferido("IPv6 e IPv4", 264490, "provavel", 1.0)
-    assert "classificação provável; confiança estimada de 100%" in txt
-    assert "p = " not in txt and "nível" not in txt
-    assert "confiança" not in t.single_homed_inferido("IPv4", 1, "possivel", None)
+    assert "classificação provável na escala do método de inferência" in txt
+    assert "p = " not in txt and "nível" not in txt and "%" not in txt and "1.0" not in txt

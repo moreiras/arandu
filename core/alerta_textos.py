@@ -98,17 +98,11 @@ def as_loop(n: int) -> str:
 _NIVEL_LEGIVEL = {"declarado": "declarado", "confirmado": "confirmado", "provavel": "provável", "possivel": "possível"}
 
 
-def _confianca(p: object) -> str:
-    """`p` da régua de relações (0 a 1) como porcentagem inteira; sem número, sem frase."""
-    try:
-        return f"; confiança estimada de {round(float(p) * 100)}%"
-    except (TypeError, ValueError):
-        return ""
-
-
 def single_homed_inferido(rotulo: str, asn: int, nivel: str, p: object) -> str:
+    # `p` é a pontuação do método de inferência, não probabilidade de acerto: em porcentagem, "100%" leria como certeza. Fica só a
+    # classificação (a escala vai de "possível" a "declarado"); o número segue em `relacoes.provedores` do documento do AS.
     return (f"Só um provedor de trânsito foi inferido para o AS ({rotulo}): AS{asn} (classificação "
-            f"{_NIVEL_LEGIVEL.get(nivel, nivel)}{_confianca(p)}), com visibilidade suficiente nos "
+            f"{_NIVEL_LEGIVEL.get(nivel, nivel)} na escala do método de inferência), com visibilidade suficiente nos "
             "coletores e nos route servers. A conclusão vem de inferência a partir do AS_PATH, do ASPA e do CAIDA, não de contrato: pode haver "
             "provedor que não aparece nas tabelas públicas.")
 
