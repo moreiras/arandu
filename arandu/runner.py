@@ -133,11 +133,13 @@ class FakeRunner:
                  picos: Optional[dict[str, int]] = None):
         self.respostas = respostas or {}
         self.chamadas: list[str] = []
+        self.argv: dict[str, list[str]] = {}      # id da etapa → argumentos com que foi chamada (última chamada)
         self.antes = antes
         self.picos = picos or {}
 
     def run(self, step: Step, date: str) -> Resultado:
         self.chamadas.append(step.id)
+        self.argv[step.id] = argv_da_etapa(step, date)
         if self.antes:
             self.antes(step, date)
         rc = self.respostas.get(step.id, 0)

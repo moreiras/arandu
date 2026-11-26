@@ -46,5 +46,6 @@ retencao:
   normalizado: 52 semanas
 fixture: tests/fixtures/raw/cgu_ceis_cnep/
 etapa:
+  aceita_force: true
   tentativas: 3
 pendencias: []

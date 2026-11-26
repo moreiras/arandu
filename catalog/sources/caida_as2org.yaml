@@ -51,5 +51,6 @@ pendencias:
 - Comunicar ao CAIDA (data-info@caida.org) o uso, como pede o Public AUA.
 - Uso comercial não verificado.
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 60

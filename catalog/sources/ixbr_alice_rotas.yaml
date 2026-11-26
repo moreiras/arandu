@@ -90,6 +90,7 @@ pendencias:
 - Termos de uso do lg.ix.br não localizados (uso comercial).
 - Medir quantos dias o rodízio leva para cobrir todos os vizinhos (orçamento padrão de 10000 requisições por rodada, 1 s de intervalo mínimo; ver `cobertura_rodizio`).
 etapa:
+  aceita_force: true
   tentativas: 1
   espera_s: 60
   memoria_mb: 256   # pico do contêiner do worker nas execuções de 2026-11-21 e 22 (amostras de 30 s) com 25% de folga; refine com `arandu memoria`

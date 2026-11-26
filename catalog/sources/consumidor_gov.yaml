@@ -50,5 +50,6 @@ retencao:
   normalizado: 52 semanas
 fixture: tests/fixtures/raw/consumidor_gov/
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 300

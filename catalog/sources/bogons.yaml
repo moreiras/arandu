@@ -44,5 +44,6 @@ fixture: tests/fixtures/raw/bogons/
 pendencias:
 - Redistribuição das listas do Team Cymru não é tratada nos termos publicados; publicar só o derivado.
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 60

@@ -71,6 +71,7 @@ pendencias:
 - 'Termos de uso: o DE-CIX não declara limite de taxa; PDF "API Terms of Use" (2020) e termos locais (BR) não valem ou não foram lidos.'
 - Medir quantas requisições e quantos dias o rodízio leva para ler todos os vizinhos de Rio e São Paulo (8 páginas por vizinho no máximo).
 etapa:
+  aceita_force: true
   tentativas: 1
   espera_s: 60
   memoria_mb: 160   # pico do contêiner do worker nas execuções de 2026-11-21 e 22 (amostras de 30 s) com 25% de folga; refine com `arandu memoria`

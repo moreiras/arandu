@@ -3,6 +3,7 @@ id: bgp_stability_deep_coleta
 nome: Análise aprofundada de estabilidade BGP
 ordem: 39
 modulo: sources.bgp_stability_deep.collect
+aceita_force: true
 fontes:
 - bgp_stability_deep
 depois_de:

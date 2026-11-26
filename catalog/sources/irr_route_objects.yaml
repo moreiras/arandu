@@ -58,5 +58,6 @@ fixture: tests/fixtures/raw/irr_route_objects/
 pendencias:
 - Confirmação formal do RADB (support@radb.net) sobre o uso do dump em derivados é opcional; ler a Acceptable Use policy da Merit.
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 600

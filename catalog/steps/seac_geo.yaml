@@ -3,6 +3,7 @@ id: seac_geo
 nome: Geolocalização das outorgas SeAC
 ordem: 28
 modulo: sources.seac_geo.enrich
+aceita_force: true
 fontes:
 - seac_geo
 politica_falha: opcional

@@ -45,5 +45,6 @@ retencao:
   normalizado: 52 semanas
 fixture: tests/fixtures/raw/anatel_multas/
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 300

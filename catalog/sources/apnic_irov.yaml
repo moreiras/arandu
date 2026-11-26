@@ -46,5 +46,6 @@ fixture: tests/fixtures/raw/apnic_labs/
 pendencias:
 - Uso comercial dos dados do APNIC Labs.
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 60

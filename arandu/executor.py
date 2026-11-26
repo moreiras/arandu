@@ -528,6 +528,13 @@ def em_paralelo(plano: list[Step], preparar, rodar, concluir, rel: "Relatorio", 
             sozinha(alvo)
 
 
+def com_force(s: Step) -> Step:
+    """Com `arandu run --force`, a etapa que declara `aceita_force` recebe `--force` no módulo; as outras já refazem tudo sempre."""
+    if s.runner != "worker" or not s.aceita_force or "--force" in s.args:
+        return s
+    return s.model_copy(update={"args": [*s.args, "--force"]})
+
+
 def executar(cat: Catalog, date: str, data_dir: Path, runner, *, only: Optional[Iterable[str]] = None,
              due: bool = False, retomar: bool = False, pin_sources: bool = False, dry_run: bool = False, force: bool = False, versao: str = "desconhecida",
              publicar: bool = False, continuo: bool = False, paralelo: int = 1, orcamento_mem_mb: Optional[int] = None,
@@ -629,16 +636,17 @@ def executar(cat: Catalog, date: str, data_dir: Path, runner, *, only: Optional[
     def rodar(s: Step) -> tuple:
         """Roda a etapa com as tentativas, sob o lock dos destinos dela. Pode ir para uma thread: não mexe no relatório."""
         t = time.time()
+        alvo = com_force(s) if force else s
         with travas_de_destino(data_dir, destinos_da_etapa(cat, s), s.id, log):
             bloqueio = bloqueada_por_disco(s, data_dir)
-            r = Resultado(75, bloqueio) if bloqueio else runner.run(s, date)
+            r = Resultado(75, bloqueio) if bloqueio else runner.run(alvo, date)
             picos = [r.pico_mem_mb]
             n = 1
             while r.rc != 0 and not bloqueio and n < s.tentativas:      # disco cheio não melhora esperando
                 log(f"[{s.id}] tentativa {n}/{s.tentativas} falhou ({r.motivo}); nova tentativa em {s.espera_s} s")
                 sleep(s.espera_s)
                 n += 1
-                r = runner.run(s, date)
+                r = runner.run(alvo, date)
                 picos.append(r.pico_mem_mb)
         return r, n, picos, round(time.time() - t, 1)
 

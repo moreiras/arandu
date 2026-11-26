@@ -3,6 +3,7 @@ id: transito
 nome: Trânsito por UF e cone de clientes (inferido)
 ordem: 51
 modulo: products.transito.build
+aceita_force: true
 produtos:
 - transito
 depois_de:

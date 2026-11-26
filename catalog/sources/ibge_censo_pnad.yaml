@@ -63,5 +63,6 @@ fixture: tests/fixtures/raw/ibge_sidra/
 pendencias:
 - Licença e termos de uso do IBGE (página de termos inacessível por HTTP 403); consulta jurídica em aberto.
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 60

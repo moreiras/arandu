@@ -105,6 +105,7 @@ class EtapaInline(_Base):
     memoria_mb: Optional[int] = Field(default=None, ge=1)    # ver Step.memoria_mb
     continua: bool = False                                    # ver Step.continua
     destinos: list[str] = Field(default_factory=list)         # ver Step.destinos
+    aceita_force: bool = False                                # ver Step.aceita_force
 
 
 class Source(_Base):
@@ -260,6 +261,9 @@ class Step(_Base):
     # Hosts que a etapa consulta além do `origem.url` das fontes dela (que entra sozinho). Cortesia por destino: nunca duas consultas
     # ao mesmo host ao mesmo tempo (lock por host em data/ops/destinos/, entre o pipeline e a trilha contínua).
     destinos: list[str] = Field(default_factory=list)
+    # O módulo da etapa aceita `--force` (refazer o que já existe) e `arandu run --force` o repassa. Só declare se o argparse do módulo
+    # tem a opção e ela vale para os `args` da etapa: tests/unit/test_arandu_force.py confere. Etapa sem ele já refaz tudo a cada execução.
+    aceita_force: bool = False
     descricao: str = ""
 
     @field_validator("id")
@@ -275,6 +279,8 @@ class Step(_Base):
             raise ValueError("etapa worker exige 'modulo'")
         if self.runner == "host" and not self.comando:
             raise ValueError("etapa host exige 'comando'")
+        if self.runner == "host" and self.aceita_force:
+            raise ValueError("etapa de host não recebe --force: 'aceita_force' só vale para etapa worker")
         if self.politica_falha == "usar_ultima_valida" and not self.reaproveita:
             raise ValueError("usar_ultima_valida exige 'reaproveita'")
         return self

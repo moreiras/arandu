@@ -3,6 +3,7 @@ id: prontidao
 nome: Prontidão em segurança de roteamento por ASN
 ordem: -77
 modulo: products.prontidao.build
+aceita_force: true
 produtos:
 - prontidao
 depois_de:

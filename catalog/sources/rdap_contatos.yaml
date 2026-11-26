@@ -69,6 +69,7 @@ retencao:
   normalizado: 2 versões (dado de contato; o estado do rodízio vive no mais recente)
 fixture: tests/fixtures/raw/rdap_contatos/
 etapa:
+  aceita_force: true
   tentativas: 1
   espera_s: 0
   continua: true   # rodízio diário com orçamento: roda em `arandu continuo` (scripts/arandu-continuo.sh), fora do pipeline

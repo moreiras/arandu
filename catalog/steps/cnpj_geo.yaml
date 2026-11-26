@@ -3,6 +3,7 @@ id: cnpj_geo
 nome: Geolocalização de organizações por CNPJ
 ordem: 22
 modulo: sources.cnpj_geo.enrich
+aceita_force: true
 fontes:
 - cnpj_geo
 politica_falha: opcional

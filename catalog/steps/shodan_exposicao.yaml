@@ -3,6 +3,7 @@ id: shodan_exposicao
 nome: Shodan (contagens de serviços por ASN em rodízio)
 ordem: -311
 modulo: sources.shodan_exposicao.collect
+aceita_force: true
 fontes:
 - shodan_exposicao
 tentativas: 1

@@ -3,6 +3,7 @@ id: history
 nome: Histórico por snapshot
 ordem: 50
 modulo: products.history.build
+aceita_force: true
 produtos:
 - history
 depois_de:

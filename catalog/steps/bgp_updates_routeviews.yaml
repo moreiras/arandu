@@ -3,6 +3,7 @@ id: bgp_updates_routeviews
 nome: Updates BGP do RouteViews (7 dias)
 ordem: 37
 modulo: sources.bgp_updates_routeviews.collect
+aceita_force: true
 fontes:
 - bgp_updates_routeviews
 pesada: true

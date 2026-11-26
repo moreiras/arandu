@@ -44,5 +44,6 @@ fixture: tests/fixtures/raw/abusech/
 pendencias:
 - URLhaus bloqueado por exigir cadastro (Auth-Key) e pela cláusula de uso; reavaliar se o mantenedor autorizar o cadastro.
 etapa:
+  aceita_force: true
   tentativas: 3
   espera_s: 60
