@@ -17,7 +17,8 @@ import { EstadoDados } from '../components/ui/EstadoDados'
 import { rotuloPix } from '../lib/geo'
 import { AvisosRecorte } from '../components/ui/AvisoRecorte'
 import { useActiveDate } from '../hooks/useSnapshot'
-import { SinteseTopo } from '../components/ui/SinteseTopo'
+import { ApresentacaoRecolhida } from '../components/ui/FontesEDatas'
+import { ResumoEmTexto } from '../components/ui/ResumoEmTexto'
 import { REGRAS_SINTESE_MUNICIPIOS, sinteseMunicipios } from '../features/territorio/sinteseMunicipios'
 
 const POR_PAGINA = 25
@@ -121,13 +122,14 @@ export function MunicipiosPage() {
   const descricao = LENTES.find((l) => l.id === lente)!.descricao
 
   return (
+    <ApresentacaoRecolhida>
     <div className="space-y-5">
       <div>
         <h1 className="text-titulo-1 text-gray-900">Municípios</h1>
         <p className="text-sm text-gray-500 mt-1">Os municípios do Brasil ordenados por um critério de dado <strong>declarado</strong> à Anatel (SICI, banda larga fixa) ou <strong>estimado</strong> sobre o Censo 2022. A ordem não mede qualidade do serviço.</p>
       </div>
-      <SinteseTopo frases={sinteseMunicipios(resumo.data)} snapshot={resumo.data?.snapshot_date} regras={REGRAS_SINTESE_MUNICIPIOS}
-        comoLer="Os totais são de todos os municípios da tabela do IBGE, sem o filtro de porte da lista; “longe” é distância em linha reta do centro do município, não o trajeto de fibra." />
+      <ResumoEmTexto frases={sinteseMunicipios(resumo.data)} snapshot={resumo.data?.snapshot_date} regras={REGRAS_SINTESE_MUNICIPIOS}
+        notaComoLer="Os totais são de todos os municípios da tabela do IBGE, sem o filtro de porte da lista; “longe” é distância em linha reta do centro do município, não o trajeto de fibra." />
       <MapaSobDemanda />
       <BarraDeAbas abas={LENTES} ativa={lente} aoEscolher={trocaLente} rotulo="Lentes da lista" />
       <div role="tabpanel" id={`painel-${lente}`} aria-labelledby={`aba-${lente}`} className="space-y-5">
@@ -158,7 +160,7 @@ export function MunicipiosPage() {
             </select></label>
         )}
       </div>
-      {ativa.isLoading && <p className="text-sm text-gray-400" role="status">Carregando…</p>}
+      {ativa.isLoading && <p className="text-sm text-gray-600" role="status">Carregando…</p>}
       {ativa.isError && <EstadoDados erro={ativa.error} oQue="a lista de municípios" mensagem="A lista de municípios não está publicada neste snapshot." aoTentarDeNovo={() => void ativa.refetch()} />}
       {ativa.data && <p className="text-xs text-gray-500">{ativa.data.criterio ?? ''} · {n(total)} municípios · snapshot {ativa.data.snapshot_date}{'mes_referencia' in ativa.data && ativa.data.mes_referencia ? ` · SICI ${ativa.data.mes_referencia}` : ''}</p>}
       {lente === 'mercado' && mercado.data && (
@@ -217,5 +219,6 @@ export function MunicipiosPage() {
       <p className="text-xs text-gray-500">Acessos autodeclarados pelas operadoras ao SICI; penetração = acessos fixos ÷ domicílios do Censo 2022 projetados para o ano mais recente da PNAD (aproximação por UF). <Link to="/rankings" className="text-primario-600 hover:underline">Rankings de operadoras</Link>.</p>
       </div>
     </div>
+    </ApresentacaoRecolhida>
   )
 }

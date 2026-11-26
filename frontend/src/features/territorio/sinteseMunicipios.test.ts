@@ -25,9 +25,9 @@ describe('sinteseMunicipios', () => {
     expect(f.map((x) => x.id)).toEqual(['longe', 'razao', 'acima-de-1', 'cobertura'])
     expect(f[0].texto).toBe('A mais de 100 km em linha reta de um ponto de interconexão do IX.br vivem 78 mi pessoas (36,4% da população estimada), em 3.680 municípios.')
     expect(f[0].selo).toBe('estimado')
-    expect(f[1].texto).toBe('Nesses municípios há 0,61 acesso fixo declarado por domicílio projetado; nos que ficam até 100 km, 0,81. É comparação de médias entre grupos e não mede causa.')
+    expect(f[1].texto).toBe('Nesses municípios há 0,61 acesso fixo declarado por domicílio projetado. Nos que ficam até 100 km, são 0,81. A comparação é de médias entre os grupos e não mede causa.')
     expect(f[2].texto).toContain('449 municípios têm mais acessos fixos declarados do que domicílios projetados')
-    expect(f[3].texto).toBe('Penetração calculada em 5.197 de 5.570 municípios (com ao menos 1.000 domicílios); 372 têm menos que isso e 1 não tem domicílios no Censo.')
+    expect(f[3].texto).toBe('A penetração foi calculada em 5.197 de 5.570 municípios, os que têm ao menos 1.000 domicílios. Outros 372 têm menos que isso, e 1 não tem domicílios no Censo.')
     for (const x of f) { expect(x.fonte).not.toBe(''); expect(x.dataRef).toBeTruthy(); expect(x.texto).not.toMatch(PALAVRAS_PROIBIDAS); expect(x.texto).not.toMatch(/sem internet|mal atendid/i) }
   })
 
