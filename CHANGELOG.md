@@ -302,6 +302,12 @@ parênteses remetem à análise.
   alocados pelo Registro.br (agora aberta, não recolhida) e as curvas de Hilbert IPv6 e IPv4 do AS, que tinham saído da página. Cada curva
   tem três camadas ligáveis (alocado pelo Registro.br, visto só na tabela global, visto num PTT à escolha), quadrantes filtráveis (/8 no
   IPv4, /20 no IPv6) e a lista de prefixos como alternativa em texto. Só mostra onde os prefixos estão, não uso nem tráfego.
+  O bloco "Recursos IPv4" (blocos delegados e se aparecem anunciados) também passa para Numeração, depois das curvas.
+- **Decisões de forma do mantenedor (PT-30), 2026-11-26.** Legenda dos selos com nova redação ("Fato: declarado pela fonte ou medido
+  diretamente", "Inferido: deduzido de outros dados por uma regra pública; pode não corresponder à realidade", "Estimado: valor
+  aproximado, obtido por amostragem ou modelo"). Faixas de distância ao PTT no painel da UF numa escala de um só tom, sem vermelho. Em
+  `/privacidade`, seção 4, parênteses no lugar dos travessões, só pontuação; com isso o teste de travessão não tem mais exceção. O
+  componente `SinteseTopo`, sem uso desde a replicação, sai. O AGENTS.md ganha o item "Apresentação" com as regras do PT-30.
 
 ## v2.1.3
 
