@@ -49,8 +49,8 @@ describe('Municípios por faixa de HHI local, por UF', () => {
     const cab = screen.getAllByRole('columnheader', { name: /2\.500 ou mais/ })[0]
     fireEvent.click(within(cab).getByRole('button'))
     expect(cab.getAttribute('aria-sort')).toBe('descending')
-    const primeira = screen.getAllByRole('row').find((r) => /^(SP|AC) —/.test(r.textContent ?? ''))!
-    expect(primeira.textContent).toMatch(/^AC —/)
+    const primeira = screen.getAllByRole('row').find((r) => /^(SP|AC) \(/.test(r.textContent ?? ''))!
+    expect(primeira.textContent).toMatch(/^AC \(/)
     expect(screen.getByTestId('municipios-por-faixa').textContent).not.toMatch(/líder|Starlink|Vivo|Claro/i)
   })
 })

@@ -150,7 +150,7 @@ function PrefixosPorUf({ f }: { f: Familia }) {
   return (
     <CartogramaIndicador titulo={`Prefixos ${NOME[f]} geolocalizados, por UF`} indicadores={[{ id: f, rotulo: 'Prefixos', valor: (uf) => porUf[uf] ?? null, texto: (v) => v.toLocaleString('pt-BR') }]}
       verDados={<table className="text-xs min-w-full" data-tabela="grade"><thead className="text-gray-500"><tr><ThOrdenavel {...props('uf')} className="px-2 py-1 text-left">UF</ThOrdenavel><ThOrdenavel {...props('prefixos')} alinhar="right" className="px-2 py-1 text-right">Prefixos {NOME[f]}</ThOrdenavel></tr></thead>
-        <tbody>{linhas.map(([uf, n]) => <tr key={uf} className="border-t border-gray-100"><td className="px-2 py-1"><Link to={`/uf/${uf}`} className="text-primario-700 hover:underline">{uf} — {nomeUf(uf)}</Link></td><td className="px-2 py-1 text-right tabular-nums">{n.toLocaleString('pt-BR')}</td></tr>)}</tbody></table>} />
+        <tbody>{linhas.map(([uf, n]) => <tr key={uf} className="border-t border-gray-100"><td className="px-2 py-1"><Link to={`/uf/${uf}`} className="text-primario-700 hover:underline">{uf} ({nomeUf(uf)})</Link></td><td className="px-2 py-1 text-right tabular-nums">{n.toLocaleString('pt-BR')}</td></tr>)}</tbody></table>} />
   )
 }
 

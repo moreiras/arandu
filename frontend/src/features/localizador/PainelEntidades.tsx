@@ -106,7 +106,7 @@ export function PainelEntidades({ className, entities, entityCounts, markerPos, 
                         <span className="font-mono text-xs text-v6-600 leading-tight pt-0.5">{e.cnpj}</span>
                       )}
                       {hasAsn && !e.fromHq && (e.v4 || e.v6) && (
-                        <span className="text-xs text-gray-600" title="Sem sede no raio — presente via prefixo">
+                        <span className="text-xs text-gray-600" title="Sem sede no raio, presente via prefixo">
                           <span aria-hidden="true">⬡</span><span className="sr-only">Sem sede no raio, presente via prefixo</span>
                         </span>
                       )}

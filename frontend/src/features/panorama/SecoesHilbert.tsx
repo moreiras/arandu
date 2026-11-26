@@ -18,7 +18,7 @@ export function SecaoHilbertV6() {
   const { data, isLoading } = useQuery({ queryKey: ['hilbert-v6', date], queryFn: () => fetchHilbertV6(date ?? undefined), staleTime: Infinity, gcTime: Infinity })
   return (
     <div>
-      <h2 className="text-base font-semibold text-gray-800 mb-2">Espaço IPv6 — Curva de Hilbert (resolução /32)</h2>
+      <h2 className="text-base font-semibold text-gray-800 mb-2">Espaço IPv6: curva de Hilbert (resolução /32)</h2>
       {isLoading ? <div className="h-48 bg-gray-100 rounded-lg animate-pulse" /> : <HilbertMapV6 data={data ?? null} blockWidth={220} />}
     </div>
   )
@@ -40,7 +40,7 @@ export function SecaoHilbertV4() {
   const { data, isLoading } = useQuery({ queryKey: ['hilbert-v4', date], queryFn: () => fetchHilbertV4(date ?? undefined), staleTime: Infinity, gcTime: Infinity })
   return (
     <div>
-      <h2 className="text-base font-semibold text-gray-800 mb-2">Espaço IPv4 — Curva de Hilbert (resolução /16)</h2>
+      <h2 className="text-base font-semibold text-gray-800 mb-2">Espaço IPv4: curva de Hilbert (resolução /16)</h2>
       <div className="flex flex-wrap gap-1.5 mb-2">
         {(Object.keys(LAYER_META) as LayerKey[]).map((key) => {
           const meta = LAYER_META[key]

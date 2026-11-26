@@ -9,6 +9,7 @@ import type { PttCtx } from '../contexto'
 import { AtribuicaoPeeringDb, LinkInstalacao, SeloCadastro, fmtMbps, localDe, n } from '../../instalacoes/comum'
 import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 import { useOrdenacao } from '../../../lib/ordenacao'
+import { palavra } from '../../../lib/sintese'
 
 /** Instalações onde o PeeringDB diz que o PTT tem presença, e, nos PTTs externos, as portas por velocidade. Autodeclarado; sem veredito sobre as instalações. */
 export function InstalacoesPtt({ facilities, portas }: { facilities?: FacilitiesPtt | null; portas?: PortasIxp | null }) {
@@ -24,7 +25,7 @@ export function InstalacoesPtt({ facilities, portas }: { facilities?: Facilities
     <div className="space-y-4 text-sm" data-testid="instalacoes-ptt">
       {facilities && (
         <div className="space-y-2">
-          <p><span className="font-medium">{n(facilities.total)} instalação(ões)</span> cadastrada(s) para este PTT no PeeringDB</p>
+          <p><span className="font-medium">{n(facilities.total)} {palavra(facilities.total, 'instalação', 'instalações')}</span> {palavra(facilities.total, 'cadastrada', 'cadastradas')} para este PTT no PeeringDB</p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
@@ -53,7 +54,7 @@ export function InstalacoesPtt({ facilities, portas }: { facilities?: Facilities
       {portas && (
         <div className="space-y-2" data-testid="portas-ptt">
           <p>
-            <span className="font-medium">{n(portas.portas)} porta(s)</span> de {n(portas.membros)} membro(s): mediana {fmtMbps(portas.mediana_mbps)}, maior {fmtMbps(portas.maior_mbps)}, soma declarada {fmtMbps(portas.capacidade_mbps)}
+            <span className="font-medium">{n(portas.portas)} {palavra(portas.portas, 'porta', 'portas')}</span> de {n(portas.membros)} {palavra(portas.membros, 'membro', 'membros')}: mediana {fmtMbps(portas.mediana_mbps)}, maior {fmtMbps(portas.maior_mbps)}, soma declarada {fmtMbps(portas.capacidade_mbps)}
           </p>
           <ul className="flex flex-wrap gap-2 text-xs">
             {Object.entries(portas.por_velocidade).map(([v, q]) => (

@@ -10,6 +10,7 @@ import { familiasV6Primeiro } from '../../../lib/familias'
 import type { RsPolMotivo } from '../../../types/api'
 import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 import { useOrdenacao } from '../../../lib/ordenacao'
+import { palavra } from '../../../lib/sintese'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 const pct = (v: number | null | undefined) => (v == null ? '—' : v > 0 && v < 0.01 ? '<1%' : `${Math.round(v * 100)}%`)
@@ -105,7 +106,7 @@ export function PoliticaRsAsnBloco({ dados }: BlocoProps<AsnCtx>) {
       ))}
       {ev && ev.rotas_rejeitadas > 0 && (
         <p className="text-xs text-gray-600">
-          Evidência do route server (insumo da prontidão, não veredito sobre o AS): {n(ev.rotas_rejeitadas)} rotas rejeitadas em {n(ev.ptts)} PTT(s), das quais {n(ev.rpki_invalido)} com RPKI inválido
+          Evidência do route server (insumo da prontidão, sem veredito sobre o AS): {n(ev.rotas_rejeitadas)} {palavra(ev.rotas_rejeitadas, 'rota rejeitada', 'rotas rejeitadas')} em {n(ev.ptts)} {palavra(ev.ptts, 'PTT', 'PTTs')}, das quais {n(ev.rpki_invalido)} com RPKI inválido
           e {n(ev.bogon)} bogon.
         </p>
       )}

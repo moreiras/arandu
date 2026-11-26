@@ -38,7 +38,7 @@ describe('bloco Política de roteamento do ASN', () => {
     expect(bloco.textContent).toContain('Invalid on RPKI')
     expect(bloco.textContent).toContain('198.18.0.0/32, 198.18.0.1/32')
     expect(document.body.textContent).toMatch(/equivalência assumida pela forma/)
-    expect(document.body.textContent).toMatch(/Evidência do route server \(insumo da prontidão, não veredito sobre o AS\): 40 rotas rejeitadas/)
+    expect(document.body.textContent).toMatch(/Evidência do route server \(insumo da prontidão, sem veredito sobre o AS\): 40 rotas rejeitadas/)
     expect(screen.getByText('Explorador de communities').getAttribute('href')).toBe('/communities')
     expect(document.body.textContent).not.toMatch(/culpa|irregular|pior|melhor|suspeito/i)
   })
