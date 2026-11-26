@@ -5,6 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 /** Diagrama de Venn, gráfico UpSet e tabela de participantes (comparação entre 2 ou mais IXPs). */
 import { Link } from '../../components/layout/LinkDatado'
+import { palavra } from '../../lib/sintese'
 import type { IXPCompareParticipant } from '../../types/api'
 import { SET_COLORS } from './MetricasAfi'
 import { nomeArquivo } from '../../lib/site'
@@ -108,7 +109,7 @@ export function UpSetPlot({
                 onClick={() => onToggle(c.key)}
                 className="flex flex-col items-center justify-end group"
                 style={{ width: colW }}
-                title={`${c.combo.map(i => labels[i]).join(' ∩ ')}: ${c.count} ASN(s) — clique para (des)selecionar`}
+                title={`${c.combo.map(i => labels[i]).join(' ∩ ')}: ${c.count} ${palavra(c.count, 'ASN', 'ASNs')}. Clique para selecionar ou desmarcar`}
               >
                 <span className={`text-xs mb-0.5 tabular-nums ${isSel ? 'font-bold text-primario-700' : 'text-gray-500'}`}>
                   {c.count}
@@ -143,7 +144,7 @@ export function UpSetPlot({
                   onClick={() => onToggle(c.key)}
                   className="relative"
                   style={{ width: colW, height: rowH * n }}
-                  title={`${c.combo.map(i => labels[i]).join(' ∩ ')}: ${c.count} ASN(s)`}
+                  title={`${c.combo.map(i => labels[i]).join(' ∩ ')}: ${c.count} ${palavra(c.count, 'ASN', 'ASNs')}`}
                 >
                   {/* Linha conectando os pontos incluídos */}
                   {includedIdx.length > 1 && (

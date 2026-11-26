@@ -45,7 +45,7 @@ export function ScmBloco({ dados, snapshot }: BlocoProps<OperadoraCtx>) {
           {data && hasSici && data.acessos_compartilhados && (
             <div className="text-xs text-aviso-800 bg-aviso-50 border border-aviso-100 rounded-lg px-3 py-2">
               Este CNPJ detém {data.asns.length} ASes. Os acessos são declarados pelo CNPJ,
-              não por AS — as páginas de cada um desses ASes mostram este mesmo total, e
+              não por AS. As páginas de cada um desses ASes mostram este mesmo total, e
               somá-las contaria os mesmos assinantes várias vezes.
             </div>
           )}

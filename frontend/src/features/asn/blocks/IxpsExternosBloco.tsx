@@ -26,7 +26,7 @@ export function IxpsExternosBloco({ dados }: BlocoProps<AsnCtx>) {
         ))}
       </div>
       <p className="text-xs text-gray-400 mt-1.5">
-        Fonte: PeeringDB — dados autodeclarados
+        Fonte: PeeringDB, dados autodeclarados
       </p>
     </div>
   )

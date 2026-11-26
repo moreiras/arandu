@@ -34,7 +34,7 @@ function sedePopupHtml(p: Record<string, unknown>): string {
       <div class="text-gray-400 font-mono">
         <a href="/operadora/${cnpj}" class="hover:underline">${fmtCnpj(cnpj)}</a>
       </div>
-      <div>${p.municipio ?? ''} – ${p.uf ?? ''}</div>
+      <div>${p.municipio ?? ''}/${p.uf ?? ''}</div>
       ${asnsLine}
     </div>`
 }

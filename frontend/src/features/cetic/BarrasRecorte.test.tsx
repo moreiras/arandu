@@ -16,7 +16,7 @@ const LINHAS = [l('Total', 'Total', '', 'Sim', 88.5, 1.2), l('Região', 'Norte',
 describe('BarrasRecorte', () => {
   it('pega os recortes de uma coluna, na ordem da planilha, sem repetir', () => {
     expect(recortesDaColuna(LINHAS, 'Sim', 'proporcao').map((r) => `${r.dimensao}:${r.recorte}`)).toEqual(['Total:Total', 'Região:Norte', 'Região:Sul'])
-    expect(recortesDaColuna(LINHAS, 'Item — Sim', 'total')[0].valor).toBe(1000)
+    expect(recortesDaColuna(LINHAS, 'Item: Sim', 'total')[0].valor).toBe(1000)
   })
   it('uma barra por recorte com o valor e a margem acessíveis, agrupada pela dimensão, sem ranking', () => {
     render(<BarrasRecorte recortes={recortesDaColuna(LINHAS, 'Sim', 'proporcao')} medida="proporcao" coluna="Sim" />)

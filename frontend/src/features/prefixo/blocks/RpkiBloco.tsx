@@ -8,6 +8,7 @@ import type { PrefixoCtx } from '../contexto'
 import type { RpkiObservado } from '../../../services/api'
 import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 import { useOrdenacao } from '../../../lib/ordenacao'
+import { palavra } from '../../../lib/sintese'
 
 const ESTADO: Record<RpkiObservado['estado'], { texto: string; cor: string }> = {
   valid: { texto: 'válido', cor: 'bg-ok-100 text-ok-800' },
@@ -67,7 +68,7 @@ export function RpkiBloco({ dados }: BlocoProps<PrefixoCtx>) {
       ) : <p className="text-gray-500">Nenhum ROA, de nenhum AS, cobre este prefixo.</p>}
       {r.asn != null && asn && (
         <p className="text-xs text-gray-500">
-          ASPA do AS de origem observado: {asn.aspa_providers == null ? 'sem objeto ASPA publicado' : `${asn.aspa_providers.length} provedor(es) declarado(s)`}.
+          ASPA do AS de origem observado: {asn.aspa_providers == null ? 'sem objeto ASPA publicado' : `${asn.aspa_providers.length} ${palavra(asn.aspa_providers.length, 'provedor declarado', 'provedores declarados')}`}.
         </p>
       )}
       <p className="max-w-3xl text-xs text-gray-500">

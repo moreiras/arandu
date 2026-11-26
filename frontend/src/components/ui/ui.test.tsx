@@ -16,7 +16,8 @@ describe('Kpi', () => {
   it('mostra valor, referência e variação; ausente vira traço, não zero', () => {
     const { rerender } = render(<Kpi rotulo="ASes" valor="1.234" referencia="mediana: 10" variacao={{ texto: '+3', bom: true }} fonte="x" dataRef="2026-11-01" />)
     expect(screen.getByText('1.234')).toHaveAttribute('title', 'Fonte: x · ref. 01/11/2026')
-    expect(screen.getByText('+3')).toHaveClass('text-ok-700')
+    expect(screen.getByText('+3')).not.toHaveClass('text-ok-700')   // PT-30: variação sem verde nem vermelho de juízo
+    expect(screen.getByText('1.234').className).not.toMatch(/text-(ok|perigo|v4|v6|violet|blue)-/)
     rerender(<Kpi rotulo="ASes" valor={null} />)
     expect(screen.getByText('—')).toBeInTheDocument()
   })

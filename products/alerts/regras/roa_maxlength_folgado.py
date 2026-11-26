@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core import alerta_textos
 from products.alerts.auxiliar import ROA_MAXLENGTH_SLACK, roas
 
 REGRA = Regra(id="roa_maxlength_folgado", categoria="rpki", severidade="info", versao=1,
@@ -24,7 +25,5 @@ def avaliar(ctx: Contexto) -> list[dict]:
         return []
     return [achado(
         "ROA com maxLength folgado",
-        f"{len(loose)} ROA(s) com maxLength muito acima do tamanho do "
-        "prefixo. Isso autoriza mais-específicos não anunciados e amplia "
-        "a superfície para sequestro por mais-específico.",
+        alerta_textos.roa_maxlength_folgado(len(loose)),
         {"items": loose[:30]})]

@@ -49,42 +49,42 @@ const ABA: Record<string, string> = {
 const def = (b: Omit<BlocoDef<OperadoraCtx>, 'entidade'>) => registrarBloco<OperadoraCtx>({ ...base, aba: ABA[b.id], ...b })
 
 def({ id: 'rede', semTitulo: true, titulo: 'Rede (BGP · RPKI · IX.br)', ordem: 10, depende: ['useOperadoraPerfil'], fontes: ['registro_br', 'apnic_pop', 'lg_ixbr', 'rpki_collector', 'fulltable_routeviews'], selo: 'fato',
-  nota: 'agregado dos ASNs do Registro.br com este CNPJ; usuários são estimativa APNIC', aplicavel: (c) => !!c.rede, Componente: RedeBloco })
+  nota: 'agregado dos ASNs do Registro.br com este CNPJ; os usuários são uma estimativa do APNIC', aplicavel: (c) => !!c.rede, Componente: RedeBloco })
 def({ id: 'empresas-relacionadas', titulo: 'Empresas relacionadas', ordem: 20, depende: ['empresas-relacionadas'], fontes: ['receita_socios', 'socios_grupos'], selo: 'inferido',
-  nota: 'cruzamento de sócios do QSA, só evidência direta', Componente: EmpresasRelacionadasBloco })
+  nota: 'cruzamento dos sócios do QSA, só com evidência direta', Componente: EmpresasRelacionadasBloco })
 def({ id: 'scm', semTitulo: true, titulo: 'SCM (banda larga fixa)', ordem: 30, depende: ['useOperadoraPerfil'], fontes: ['anatel_outorgas', 'anatel_sici', 'registro_br'], selo: 'fato',
-  nota: 'duas datas: o snapshot e o mês de referência da declaração ao SICI', aplicavel: (c) => !!c.data, Componente: ScmBloco })
+  nota: 'duas datas: a do snapshot e o mês de referência da declaração ao SICI', aplicavel: (c) => !!c.data, Componente: ScmBloco })
 def({ id: 'indicadores', titulo: 'Indicadores do SICI', ordem: 35, depende: ['useOperadoraPerfil'], fontes: ['anatel_sici', 'anatel_outorgas', 'apnic_pop'], selo: 'fato',
-  nota: 'dado declarado à Anatel; parcela sobre acessos declarados, não sobre receita; usuários APNIC são estimativa', aplicavel: (c) => !!c.indicadores, Componente: IndicadoresBloco })
+  nota: 'dado declarado à Anatel; a parcela é calculada sobre os acessos declarados, não sobre a receita; os usuários do APNIC são uma estimativa', aplicavel: (c) => !!c.indicadores, Componente: IndicadoresBloco })
 def({ id: 'recursos-ipv4', titulo: 'Recursos IPv4', ordem: 38, depende: ['useOperadoraPerfil'], fontes: ['ipv4_delegated', 'fulltable_routeviews', 'rpki_collector'], selo: 'inferido',
-  nota: 'blocos dos ASNs da operadora; não anunciado não é sem uso; sinal de terceiros é hipótese', aplicavel: (c) => c.hasScm || c.hasSici, Componente: RecursosIpv4OperadoraBloco })
+  nota: 'blocos dos ASNs da operadora; um bloco não anunciado pode estar em uso, e o sinal de terceiros é uma hipótese', aplicavel: (c) => c.hasScm || c.hasSici, Componente: RecursosIpv4OperadoraBloco })
 def({ id: 'estacoes-smp', titulo: 'Estações do SMP licenciadas', ordem: 45, depende: ['useOperadoraPerfil'], fontes: ['anatel_erbs'], selo: 'fato',
-  nota: 'cadastro de licenciamento da Anatel: não é cobertura nem estação em operação', aplicavel: (c) => !!c.erbs, Componente: ErbsOperadoraBloco })
+  nota: 'cadastro de licenciamento da Anatel, que não indica cobertura nem estação em operação', aplicavel: (c) => !!c.erbs, Componente: ErbsOperadoraBloco })
 def({ id: 'multas', titulo: 'Multas constituídas pela Anatel', ordem: 46, depende: ['useOperadoraPerfil'], fontes: ['anatel_multas'], selo: 'fato',
-  nota: 'multa constituída não é condenação definitiva; pode estar em recurso, parcelada ou suspensa', aplicavel: (c) => !!c.multas, Componente: MultasOperadoraBloco })
+  nota: 'a multa constituída pode estar em recurso, parcelada ou suspensa, então ainda não é condenação definitiva', aplicavel: (c) => !!c.multas, Componente: MultasOperadoraBloco })
 // Os dois blocos abaixo ficam com título e cartão (sem `semTitulo` e `plana`): não trazem cabeçalho próprio como os de antes.
 def({ id: 'presenca-fisica', titulo: 'Presença física (CNPJ da Receita × SICI)', ordem: 12.5, depende: ['useCadastroOperadora'], fontes: ['receita_cnpj', 'anatel_sici', 'anatel_sici_movel'], selo: 'fato',
-  nota: 'estabelecimentos do cadastro da Receita × municípios com acessos declarados ao SICI; duas fontes que medem coisas diferentes, a diferença não prova atendimento', aplicavel: (c) => !!c.cadastro, Componente: PresencaFisicaOperadoraBloco })
+  nota: 'estabelecimentos do cadastro da Receita e municípios com acessos declarados ao SICI são fontes que medem coisas diferentes; a diferença entre elas não prova atendimento', aplicavel: (c) => !!c.cadastro, Componente: PresencaFisicaOperadoraBloco })
 def({ id: 'credito-publico', titulo: 'Crédito público (BNDES)', ordem: 12.6, depende: ['useFinanciamentoOperadora'], fontes: ['bndes_operacoes'], selo: 'fato',
-  nota: 'operações diretas e não automáticas do BNDES, em valores nominais da data da contratação; ausência não é prova de que nunca houve crédito', aplicavel: (c) => !!c.financiamento?.financiamento, Componente: CreditoPublicoBloco })
+  nota: 'operações diretas e não automáticas do BNDES, em valores nominais da data da contratação; a ausência de registro não prova que nunca houve crédito', aplicavel: (c) => !!c.financiamento?.financiamento, Componente: CreditoPublicoBloco })
 def({ id: 'sancoes', titulo: 'Sanções (CEIS e CNEP)', ordem: 12.7, depende: ['useFinanciamentoOperadora'], fontes: ['cgu_ceis_cnep'], selo: 'fato',
-  nota: 'registro do órgão sancionador na data do arquivo da CGU; pode já ter sido suspensa ou anulada; não é julgamento', aplicavel: (c) => !!c.financiamento?.sancoes, Componente: SancoesBloco })
+  nota: 'registro do órgão sancionador na data do arquivo da CGU; a sanção pode já ter sido suspensa ou anulada, e o registro não é um julgamento', aplicavel: (c) => !!c.financiamento?.sancoes, Componente: SancoesBloco })
 def({ id: 'contratos', titulo: 'Contratos públicos (PNCP)', ordem: 12.8, depende: ['useContratosOperadora'], fontes: ['siasg_contratos'], selo: 'fato',
-  nota: 'resultados de itens publicados no PNCP, não contratos assinados nem pagamentos; coleta em rodízio, só o CNPJ de matriz e só a Lei 14.133; a data da leitura vem no bloco; licença do portal não verificada', aplicavel: (c) => !!c.contratos, Componente: ContratosOperadoraBloco })
+  nota: 'resultados de itens publicados no PNCP, que não são contratos assinados nem pagamentos; a coleta é em rodízio, só do CNPJ de matriz e só da Lei 14.133; a data da leitura vem no bloco, e a licença do portal não foi verificada', aplicavel: (c) => !!c.contratos, Componente: ContratosOperadoraBloco })
 def({ id: 'qualidade', titulo: 'Qualidade (RQUAL da Anatel)', ordem: 46.5, depende: ['useOperadoraPerfil'], fontes: ['anatel_rqual', 'curada_marcas_operadoras'], selo: 'fato',
-  nota: 'indicadores apurados pela Anatel, nacionais por prestadora; a ligação prestadora → CNPJ é curada; sem ranking nem veredito', aplicavel: (c) => !!c.qualidade, Componente: QualidadeOperadoraBloco })
+  nota: 'indicadores apurados pela Anatel, nacionais por prestadora; a ligação entre prestadora e CNPJ é curada; sem ranking nem veredito', aplicavel: (c) => !!c.qualidade, Componente: QualidadeOperadoraBloco })
 def({ id: 'reclamacoes', titulo: 'Reclamações na Anatel', ordem: 46.7, depende: ['useOperadoraPerfil'], fontes: ['anatel_reclamacoes', 'curada_marcas_operadoras', 'anatel_sici'], selo: 'fato',
-  nota: 'declarado por consumidores; a ligação marca → CNPJ é curada ou por nome fantasia único; reclamação não é prova de falha', aplicavel: (c) => !!c.reclamacoes, Componente: ReclamacoesOperadoraBloco })
+  nota: 'declaradas por consumidores; a ligação entre marca e CNPJ é curada ou feita por nome fantasia único; uma reclamação não prova falha', aplicavel: (c) => !!c.reclamacoes, Componente: ReclamacoesOperadoraBloco })
 def({ id: 'consumidor', titulo: 'Reclamações no Consumidor.gov.br', ordem: 46.8, depende: ['useOperadoraPerfil'], fontes: ['consumidor_gov', 'curada_marcas_operadoras'], selo: 'fato',
-  nota: 'reclamações finalizadas, declaradas por consumidores; índice, tempo e nota só com 30 ou mais casos; a ligação empresa → CNPJ é curada; reclamação não é prova de falha', aplicavel: (c) => !!c.consumidor, Componente: ConsumidorOperadoraBloco })
+  nota: 'reclamações finalizadas, declaradas por consumidores; índice, tempo e nota só com 30 ou mais casos; a ligação entre empresa e CNPJ é curada; uma reclamação não prova falha', aplicavel: (c) => !!c.consumidor, Componente: ConsumidorOperadoraBloco })
 def({ id: 'prontidao', titulo: 'Prontidão em segurança de roteamento', ordem: 47, depende: ['useOperadoraPerfil'], fontes: ['apnic_irov', 'bogons', 'caida_spoofer', 'irr_route_objects', 'peeringdb_networks', 'rpki_collector'], selo: 'estimado',
-  nota: 'agregado dos ASNs do CNPJ; soma ponderada de medições de terceiros, não veredito sobre a empresa', aplicavel: (c) => !!c.prontidao, Componente: ProntidaoOperadoraBloco })
+  nota: 'agregado dos ASNs do CNPJ; soma ponderada de medições de terceiros, sem veredito sobre a empresa', aplicavel: (c) => !!c.prontidao, Componente: ProntidaoOperadoraBloco })
 def({ id: 'smp', semTitulo: true, titulo: 'SMP (telefonia móvel)', ordem: 40, depende: ['useOperadoraPerfil'], fontes: ['anatel_outorgas', 'anatel_sici_movel'], selo: 'fato',
-  nota: 'duas datas: o snapshot e o mês de referência da declaração ao SICI móvel', aplicavel: (c) => (c.servicos ?? []).some((s) => s.sigla === 'SMP') || c.dataMovel?.acessos != null, Componente: SmpBloco })
+  nota: 'duas datas: a do snapshot e o mês de referência da declaração ao SICI móvel', aplicavel: (c) => (c.servicos ?? []).some((s) => s.sigla === 'SMP') || c.dataMovel?.acessos != null, Componente: SmpBloco })
 def({ id: 'stfc', semTitulo: true, titulo: 'STFC (telefonia fixa comutada)', ordem: 50, depende: ['operadora-stfc'], fontes: ['anatel_outorgas'], selo: 'fato', aplicavel: (c) => c.hasStfc, Componente: StfcBloco })
 def({ id: 'seac', semTitulo: true, titulo: 'SeAC (TV por assinatura)', ordem: 60, depende: ['operadora-seac'], fontes: ['anatel_outorgas'], selo: 'fato', aplicavel: (c) => c.hasSeac, Componente: SeacBloco })
 def({ id: 'linha-do-tempo', titulo: 'Linha do tempo', ordem: 70, depende: ['useOperadoraPerfil'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr', 'rpki_collector', 'apnic_pop'], selo: 'fato', nota: 'diferenças observadas entre snapshots',
   aplicavel: (c) => !!c.historico, Componente: LinhaDoTempoOperadora })
 
 def({ id: 'sobreposicao', titulo: 'Quem aparece nos mesmos municípios', ordem: 55, depende: ['useOperadoraPerfil'], fontes: ['anatel_sici', 'socios_grupos'], selo: 'fato',
-  nota: 'presença nos mesmos municípios, não rivalidade nem disputa de clientes; a marca "mesmo grupo" é inferência do quadro societário', aplicavel: (c) => !!c.sobreposicao, Componente: SobreposicaoBloco })
+  nota: 'presença nos mesmos municípios, sem implicar rivalidade nem disputa de clientes; a marca "mesmo grupo" é inferência do quadro societário', aplicavel: (c) => !!c.sobreposicao, Componente: SobreposicaoBloco })

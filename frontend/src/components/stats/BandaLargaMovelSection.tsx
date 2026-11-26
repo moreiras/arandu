@@ -193,7 +193,7 @@ export function BandaLargaMovelSection({ date }: { date?: string }) {
     <section className="space-y-6">
       <h2 className="text-sm font-semibold uppercase tracking-widest border-t border-gray-100 pt-8"
           style={{ color: SECTION_COLOR }}>
-        Telefonia móvel — SMP &amp; SICI (Anatel)
+        Telefonia móvel: SMP e SICI (Anatel)
         {acessos?.mes_referencia && (
           <span className="text-xs font-normal normal-case tracking-normal text-gray-400 ml-2">
             mês de referência {acessos.mes_referencia}
@@ -257,8 +257,8 @@ export function BandaLargaMovelSection({ date }: { date?: string }) {
           <h3 className="text-base font-semibold text-gray-800 mb-1">Rede virtual (MVNO)</h3>
           <p className="text-xs text-gray-500 mb-4">
             Operadoras que exploram o SMP por credenciamento a uma Prestadora Origem (host), em vez
-            de outorga própria — cruzamento com o dataset da Anatel de Empresas Credenciadas de
-            Rede Virtual.
+            de outorga própria. O cruzamento usa o conjunto de dados da Anatel sobre Empresas
+            Credenciadas de Rede Virtual.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <StatCard value={fmt(smp.rede_virtual.hosts)} label="Hosts" sub="prestadoras origem que credenciam terceiros" accent={SECTION_COLOR} />

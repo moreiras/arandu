@@ -227,14 +227,14 @@ export function RegistroBrCoverageTable({ data, date }: Props) {
             <tr className="border-b border-gray-200">
               <SortTh k="block" label="Bloco" tooltip="Prefixo IP alocado pelo Registro.br ao ASN brasileiro correspondente." />
               <SortTh k="afi" label="Fam." />
-              <SortTh k="asn" label="Titular — ASN"
+              <SortTh k="asn" label="Titular (ASN)"
                 tooltip="Número do sistema autônomo titular do bloco conforme alocação do Registro.br." />
               <SortTh k="name" label="Nome" tooltip="Nome da organização titular do bloco conforme Registro.br." />
               <SortTh k="cnpj" label="CNPJ" tooltip="CNPJ da organização titular conforme Registro.br." />
               <th scope="col" className="text-xs font-medium text-gray-500 text-left pb-1.5 px-1">
                 <span className="inline-flex items-center gap-0.5">
                   Anuncia na tabela
-                  <Tip text="ASN(s) que originam rotas cobrindo este bloco na tabela global. Passe o mouse sobre cada ASN para ver CNPJ, rotas anunciadas e status RPKI de cada uma. ASNs em laranja diferem do titular." />
+                  <Tip text="ASNs que originam rotas cobrindo este bloco na tabela global. Passe o mouse sobre cada ASN para ver CNPJ, rotas anunciadas e status RPKI de cada uma. ASNs em laranja diferem do titular." />
                 </span>
               </th>
               <SortTh k="routes_inside" label="Rotas" right

@@ -10,6 +10,7 @@ import { AtribuicaoPeeringDb, LinkInstalacao, SeloCadastro, dataCurta, fmtMbps, 
 import { SITE } from '../../../lib/site'
 import { useOrdenacao } from '../../../lib/ordenacao'
 import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { palavra } from '../../../lib/sintese'
 
 const sim = (v: boolean | undefined) => (v == null ? '—' : v ? 'sim' : 'não')
 /** URL de looking glass ou route server informada pela rede: só http(s) vira link; telnet e ssh aparecem como texto (o navegador não os abre). */
@@ -60,7 +61,7 @@ export function InstalacoesAsnBloco({ dados }: BlocoProps<AsnCtx>) {
               <ul className="text-xs text-gray-700 space-y-0.5">
                 {pe.portas_externas.ptts.map((p) => (
                   <li key={p.ixp}>
-                    <Link to={`/ixp-externo/${p.ixp}`} className="text-primario-600 hover:underline">{p.ixp}</Link>: {n(p.portas)} porta(s), {p.velocidades_mbps.map(fmtMbps).join(' + ')}
+                    <Link to={`/ixp-externo/${p.ixp}`} className="text-primario-600 hover:underline">{p.ixp}</Link>: {n(p.portas)} {palavra(p.portas, 'porta', 'portas')}, {p.velocidades_mbps.map(fmtMbps).join(' + ')}
                     {p.portas > 1 ? ` (soma ${fmtMbps(p.capacidade_mbps)})` : ''}
                   </li>
                 ))}
@@ -74,7 +75,7 @@ export function InstalacoesAsnBloco({ dados }: BlocoProps<AsnCtx>) {
       {fac && (
         <div className="space-y-2" data-testid="facilities-asn">
           <p>
-            <span className="font-medium">{n(fac.total)} instalação(ões) do Brasil</span> em que a rede declara estar
+            <span className="font-medium">{n(fac.total)} {palavra(fac.total, 'instalação do Brasil', 'instalações do Brasil')}</span> em que a rede declara estar
             {pe ? <span className="text-xs text-gray-500"> (o cadastro informa {n(pe.instalacoes_declaradas)}, no Brasil e no exterior)</span> : null}
           </p>
           <div className="overflow-x-auto">

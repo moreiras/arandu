@@ -20,7 +20,7 @@ export function UsuariosBloco({ dados }: BlocoProps<AsnCtx>) {
           label="Total de usuários"
           value={doc.apnic_users!.toLocaleString('pt-BR')}
           sub={doc.apnic_users_pct_cc != null
-            ? `${doc.apnic_users_pct_cc.toFixed(1).replace('.', ',')}% dos usuários Internet BR`
+            ? `${doc.apnic_users_pct_cc.toFixed(1).replace('.', ',')}% dos usuários de Internet do Brasil`
             : undefined}
           accent="violet"
         />

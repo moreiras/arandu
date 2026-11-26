@@ -350,7 +350,7 @@ export function CDNCapPage() {
               </Link>
             ))}
           </div>
-          <p className="text-xs text-gray-400 mt-1.5">Fonte: PeeringDB — dados autodeclarados</p>
+          <p className="text-xs text-gray-400 mt-1.5">Fonte: PeeringDB, dados autodeclarados</p>
         </div>
       )}
 
@@ -358,7 +358,7 @@ export function CDNCapPage() {
       <div>
         <h2 className="text-base font-semibold text-gray-800 mb-1">Relações inferidas</h2>
         <p className="text-xs text-aviso-600 bg-aviso-50 border border-aviso-200 rounded px-3 py-1.5 mb-3 inline-block">
-          Inferido do AS_PATH nos LGs dos IXPs e do RouteViews — não representa acordos comerciais verificados
+          Inferido do AS_PATH nos LGs dos IXPs e do RouteViews; não representa acordos comerciais verificados
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div ref={relColRef} className="overflow-hidden">

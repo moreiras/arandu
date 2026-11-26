@@ -140,7 +140,7 @@ export function MunicipiosPage() {
       <div className="flex flex-wrap items-end gap-3 text-sm">
         <label className="flex flex-col gap-0.5"><span className="text-xs text-gray-500">UF</span>
           <select value={uf} onChange={(e) => muda('uf', e.target.value)} className="border border-gray-200 rounded px-2 py-1 bg-white">
-            <option value="">Brasil</option>{Object.keys(UFS).map((u) => <option key={u} value={u}>{u} — {nomeUf(u)}</option>)}
+            <option value="">Brasil</option>{Object.keys(UFS).map((u) => <option key={u} value={u}>{u} ({nomeUf(u)})</option>)}
           </select></label>
         {lente !== 'sem-ptt' && (
           <>
@@ -200,7 +200,7 @@ export function MunicipiosPage() {
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-gray-500">{terr.data.limites} <strong>Reclamações por 100 mil habitantes:</strong> último ano completo, só municípios com 30 ou mais reclamações (abaixo disso a taxa oscila por acaso e vem como —); depende da adesão ao canal da Anatel e do conhecimento dele, e não mede a qualidade do serviço. Municípios pequenos oscilam mais: use o filtro de porte.</p>
+          <p className="text-xs text-gray-500">{terr.data.limites} <strong>Reclamações por 100 mil habitantes:</strong> último ano completo, só municípios com 30 ou mais reclamações (abaixo disso a taxa oscila por acaso e aparece como traço); depende da adesão ao canal da Anatel e do conhecimento dele, e não mede a qualidade do serviço. Municípios pequenos oscilam mais: use o filtro de porte.</p>
         </>
       )}
       {ativa.data && total > POR_PAGINA && (

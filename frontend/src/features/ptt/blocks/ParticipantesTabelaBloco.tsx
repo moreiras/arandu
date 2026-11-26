@@ -17,6 +17,7 @@ import { fetchIxpParticipantes } from '../../../services/api'
 import type { FiltroParticipantes, ParticipantePtt } from '../../../types/api'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
+import { palavra } from '../../../lib/sintese'
 
 const POR_PAGINA = 50
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
@@ -46,8 +47,8 @@ function Detalhe({ l, ptt, sel }: { l: ParticipantePtt; ptt: string; sel: (asn: 
       <p>{l.membro ? 'Consta no cadastro de participantes do IX.br.' : 'Não consta no cadastro de participantes do IX.br.'}{' '}
         {l.sessao_rs ? `Sessões com o route server: ${n(l.sessao_rs.up)} up e ${n(l.sessao_rs.down)} down de ${n(l.sessao_rs.sessoes)}${l.sessao_rs.incertas ? ` (${n(l.sessao_rs.incertas)} em route server sem cache de vizinhos atual)` : ''}.` : 'Sem dado de sessões no route server.'}
         {l.cadastrado_sem_sessao_rs ? ' No cadastro e sem sessão com o route server: pode haver peering bilateral, que estas fontes não observam.' : ''}</p>
-      {r && <p>Rotas filtradas ÷ recebidas nas sessões up: {n(r.filtradas)} ÷ {n(r.recebidas)}{r.pct != null ? ` (${r.pct.toLocaleString('pt-BR')}%)` : ' (sem rotas recebidas: sem percentual)'}, em {n(r.sessoes_up)} sessão(ões).</p>}
-      {d && <p>Detalhe por motivo (outra coleta): {n(d.rotas)} rotas rejeitadas{d.contagem === 'amostra' ? ' (contagem parcial)' : ''}, coleta de {d.coletado_ate?.slice(0, 10) ?? 'data desconhecida'}{d.idade_dias != null ? `, ${n(d.idade_dias)} dia(s) antes do snapshot` : ''}{d.herdado ? '; herdada de uma rodada anterior' : ''}.</p>}
+      {r && <p>Rotas filtradas ÷ recebidas nas sessões up: {n(r.filtradas)} ÷ {n(r.recebidas)}{r.pct != null ? ` (${r.pct.toLocaleString('pt-BR')}%)` : ' (sem rotas recebidas: sem percentual)'}, em {n(r.sessoes_up)} {palavra(r.sessoes_up, 'sessão', 'sessões')}.</p>}
+      {d && <p>Detalhe por motivo (outra coleta): {n(d.rotas)} rotas rejeitadas{d.contagem === 'amostra' ? ' (contagem parcial)' : ''}, coleta de {d.coletado_ate?.slice(0, 10) ?? 'data desconhecida'}{d.idade_dias != null ? `, ${n(d.idade_dias)} ${palavra(d.idade_dias, 'dia', 'dias')} antes do snapshot` : ''}{d.herdado ? '; herdada de uma rodada anterior' : ''}.</p>}
       {l.cdns.length > 0 && <p>CDNs da lista curada que são membros deste PTT: {l.cdns.join(', ')}.</p>}
     </div>
   )

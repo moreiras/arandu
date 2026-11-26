@@ -24,3 +24,10 @@ describe('Sobre: definição pública dos selos', () => {
     }
   })
 })
+
+describe('Sobre: sem contagem escrita à mão', () => {
+  it('não traz número aproximado fixo de CNPJs ou PTTs (o número vem do snapshot ou sai do texto)', () => {
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><Sobre /></MemoryRouter></QueryClientProvider>)
+    expect(document.body.textContent).not.toMatch(/~\s?\d[\d.]*\s*(CNPJs|PTTs|IXPs)/)
+  })
+})

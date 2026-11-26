@@ -145,7 +145,7 @@ export function MultasOperadoraBloco({ dados }: BlocoProps<OperadoraCtx>) {
             <tr key={g.grupo} className="border-t border-gray-100">
               <td className="px-2 py-1">{g.grupo}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(g.multas)}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(g.situacoes.Quitado ?? 0)}</td>
               <td className="px-2 py-1 text-right tabular-nums">{inteiro((g.situacoes.Devedor ?? 0) + (g.situacoes.Parcial ?? 0))}</td><td className="px-2 py-1 text-right tabular-nums">{reais(g.saldo)}</td>
-              <td className="px-2 py-1">{g.primeiro_ano === g.ultimo_ano ? g.primeiro_ano : `${g.primeiro_ano}–${g.ultimo_ano}`}</td>
+              <td className="px-2 py-1">{g.primeiro_ano === g.ultimo_ano ? g.primeiro_ano : `${g.primeiro_ano} a ${g.ultimo_ano}`}</td>
             </tr>
           ))}
         </tbody>

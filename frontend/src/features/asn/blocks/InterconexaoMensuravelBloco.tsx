@@ -44,7 +44,7 @@ export function InterconexaoMensuravelBloco({ dados }: BlocoProps<AsnCtx>) {
       )}
       {r.sessoes.length > 0 && (
         <div><h3 className="mb-1 font-medium text-gray-700">Cadastro e sessões nos route servers</h3>
-          <ul className="divide-y divide-gray-100 rounded border border-gray-100">{r.sessoes.map((s) => <li key={s.ixp + s.situacao} className="px-3 py-1.5"><Link to={`/ixp/${s.ixp}`} className="text-primario-700 hover:underline">{s.nome}</Link> <span className="text-gray-600">— {s.rotulo}</span></li>)}</ul>
+          <ul className="divide-y divide-gray-100 rounded border border-gray-100">{r.sessoes.map((s) => <li key={s.ixp + s.situacao} className="px-3 py-1.5"><Link to={`/ixp/${s.ixp}`} className="text-primario-700 hover:underline">{s.nome}</Link> <span className="text-gray-600">({s.rotulo})</span></li>)}</ul>
         </div>
       )}
       {r.rejeicoes.length > 0 && (
@@ -52,7 +52,7 @@ export function InterconexaoMensuravelBloco({ dados }: BlocoProps<AsnCtx>) {
           <ul className="divide-y divide-gray-100 rounded border border-gray-100">
             {r.rejeicoes.map((j) => (
               <li key={j.ixp} className="px-3 py-1.5"><Link to={`/ixp/${j.ixp}`} className="text-primario-700 hover:underline">{j.nome}</Link>
-                {j.rotas_rejeitadas > 0 && <span className="text-gray-600"> — {j.rotas_rejeitadas.toLocaleString('pt-BR')} rotas rejeitadas{j.motivos.length > 0 && `: ${j.motivos.map((m) => `${m.rotulo} (${m.rotas})`).join('; ')}`}</span>}
+                {j.rotas_rejeitadas > 0 && <span className="text-gray-600"> ({j.rotas_rejeitadas.toLocaleString('pt-BR')} rotas rejeitadas{j.motivos.length > 0 && `: ${j.motivos.map((m) => `${m.rotulo} (${m.rotas})`).join('; ')}`})</span>}
                 {j.perfil && <span className="text-xs text-gray-500"> · perfil {j.perfil}{j.perfil_inferido ? ' (inferido)' : ''}</span>}
                 {j.acoes.length > 0 && <span className="text-xs text-gray-500"> · ações declaradas: {j.acoes.map((a) => a.replace(/_/g, ' ')).join(', ')}</span>}</li>
             ))}

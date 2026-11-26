@@ -30,7 +30,7 @@ describe('Exposição de serviços no ASN', () => {
     expect(screen.getByTestId('exposicao-aviso')).toHaveTextContent('NÃO é prova de vulnerabilidade')
     expect(screen.getByTestId('exposicao-total')).toHaveTextContent('400 (lido em 10/11/2026)')
     expect(screen.getByTestId('exposicao-risco')).toHaveTextContent('51 (12,75%)')
-    expect(screen.getByTestId('exposicao-classes')).toHaveTextContent('Acesso remoto: 42 — Telnet (23): 40; RDP (3389): 2')
+    expect(screen.getByTestId('exposicao-classes')).toHaveTextContent('Acesso remoto: 42. Por serviço: Telnet (23): 40; RDP (3389): 2')
     expect(screen.getByTestId('exposicao-vuln')).toHaveTextContent('não disponível no plano')
     expect(screen.getByTestId('exposicao-cobertura')).toHaveTextContent('1.500 de 9.100 ASNs do Brasil já consultados')
     expect(screen.getByTestId('exposicao-atribuicao')).toHaveTextContent('Dados: Shodan')

@@ -17,7 +17,7 @@ export function MercadoFixoBloco({ dados }: BlocoProps<MunicipioCtx>) {
       <div className={`text-xs rounded-lg px-3 py-2 border ${hhi.cor}`}>
         HHI {fmt(data.hhi)} sobre acessos declarados: <strong>{hhi.texto}</strong>. {NOTA_FAIXAS_HHI}
         {' '}A contagem de operadoras inclui provedores via satélite, que declaram
-        acessos em praticamente todos os municípios do país — por isso o share e o HHI
+        acessos em praticamente todos os municípios do país. Por isso, a participação de cada operadora e o HHI
         descrevem melhor a competição local do que o número bruto de operadoras.
       </div>
       {data.fibra_pct != null && <BarraFibra pct={data.fibra_pct} acessos={data.fibra ?? 0} total={data.acessos} />}

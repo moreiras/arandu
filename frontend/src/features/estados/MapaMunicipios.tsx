@@ -60,7 +60,7 @@ export default function MapaMunicipios({ indicadores = INDICADORES_MUNICIPAIS, t
           </label>
           {indicadores.length > 1 && <label className="flex min-w-0 max-w-full items-center gap-1">Comparar com
             <select value={id2 ?? ''} onChange={(e) => setId2(e.target.value || null)} className="min-w-0 max-w-full rounded border border-gray-300 bg-white px-2 py-1">
-              <option value="">— (mapa simples)</option>
+              <option value="">Mapa simples</option>
               {indicadores.filter((i) => i.id !== id).map((i) => <option key={i.id} value={i.id}>{i.rotulo}</option>)}
             </select>
           </label>}

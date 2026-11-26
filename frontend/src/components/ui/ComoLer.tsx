@@ -13,7 +13,7 @@ import type { ReactNode } from 'react'
 export function ComoLer({ children, titulo = 'Como ler', aberto = false, className = '' }: { children: ReactNode; titulo?: string; aberto?: boolean; className?: string }) {
   return (
     <details className={`group/comoler rounded border border-gray-200 bg-gray-50/70 text-sm text-gray-700 ${className}`} open={aberto || undefined} data-testid="como-ler">
-      <summary className="flex cursor-pointer select-none items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primario-700 hover:text-primario-900">
+      <summary className="flex min-h-6 cursor-pointer select-none items-center gap-1.5 px-3 py-1 text-xs font-medium text-primario-700 hover:text-primario-900">
         <span aria-hidden="true" className="transition-transform group-open/comoler:rotate-90">▸</span>
         {titulo}
       </summary>

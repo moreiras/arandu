@@ -41,7 +41,7 @@ export const KIND_OPTIONS: Array<{ group: string; options: Array<{ value: Predic
 export function predicatePlaceholder(kind: PredicateKind): string {
   if (kind === 'ixps_direct_in' || kind === 'ixps_direct_nin' ||
       kind === 'ixps_origin_in' || kind === 'ixps_origin_nin') return 'ex: sp'
-  if (kind === 'pct_v6_gte') return '0–100'
+  if (kind === 'pct_v6_gte') return '0 a 100'
   return ''
 }
 

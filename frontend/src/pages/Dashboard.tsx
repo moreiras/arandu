@@ -117,7 +117,7 @@ export function Dashboard() {
       {/* Mapa de ASNs BR */}
       <HomeMap
         date={date ?? undefined}
-        title="ASNs Brasileiros — Visibilidade na Tabela Global"
+        title="ASNs brasileiros: visibilidade na tabela global"
         ixpIndex={ixpData?.ixps}
         brAsnsInFt={summary?.global_table?.br_asns_in_ft}
       />
@@ -128,7 +128,7 @@ export function Dashboard() {
       {/* Espaço IPv6 — 6 blocos RIR */}
       <div>
         <h2 className="text-base font-semibold text-gray-800 mb-2">
-          Espaço IPv6 — Curva de Hilbert (resolução /32)
+          Espaço IPv6: curva de Hilbert (resolução /32)
         </h2>
         {loadingHilbertV6 ? (
           <div className="h-48 bg-gray-100 rounded-lg animate-pulse" />
@@ -140,7 +140,7 @@ export function Dashboard() {
       {/* Espaço IPv4 — Curva de Hilbert */}
       <div>
         <h2 className="text-base font-semibold text-gray-800 mb-2">
-          Espaço IPv4 — Curva de Hilbert (resolução /16)
+          Espaço IPv4: curva de Hilbert (resolução /16)
         </h2>
 
         {/* Layer selector */}

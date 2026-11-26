@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core import alerta_textos
 
 REGRA = Regra(id="rpki_invalido", categoria="rpki", severidade="critico", versao=1,
               descricao="prefixo com validação RPKI invalid")
@@ -20,7 +21,5 @@ def avaliar(ctx: Contexto) -> list[dict]:
         return []
     return [achado(
         "Anúncio RPKI inválido",
-        f"{len(invalid)} prefixo(s) anunciado(s) estão como RPKI "
-        "inválidos (origem/maxLength não batem com os ROAs) e podem ser "
-        "descartados por redes que validam.",
+        alerta_textos.rpki_invalido(len(invalid)),
         {"prefixes": invalid[:30]})]

@@ -3,19 +3,19 @@
   {
    "category": "presenca",
    "desde_versao": 2,
-   "detail": "O AS aparenta depender de um único upstream (IPv6 e IPv4) na tabela global — risco de resiliência.",
+   "detail": "O AS parece depender de um único provedor de trânsito (IPv6 e IPv4) na tabela global, o que representa risco de resiliência.",
    "id": "single_homed",
    "refs": {
     "upstream_v4": 4200000000,
     "upstream_v6": 4200000000
    },
    "severity": "aviso",
-   "title": "Conectividade single-homed"
+   "title": "Um único provedor de trânsito visível"
   },
   {
    "category": "presenca",
    "desde_versao": 1,
-   "detail": "No Alice-LG do IX.br, em 2026-01-01, todas as sessões do AS estavam down há 7 dias ou mais nos route servers de: ZA (12 dias). É o estado medido no route server; não diz a causa e o AS pode manter peering bilateral no PTT.",
+   "detail": "No Alice-LG do IX.br, em 2026-01-01, todas as sessões do AS estavam inativas havia 7 dias ou mais nos route servers de: Arandurápolis (ZA): 12 dias. Esse é o estado medido no route server: não diz a causa, e o AS pode manter peering bilateral no PTT.",
    "id": "sessao_rs_down",
    "refs": {
     "coletado_em": "2026-01-01T06:00:00+00:00",
@@ -24,12 +24,12 @@
     }
    },
    "severity": "aviso",
-   "title": "Sessões down nos route servers do IX.br"
+   "title": "Sessões inativas nos route servers do IX.br"
   },
   {
    "category": "roteamento",
    "desde_versao": 1,
-   "detail": "1 bloco(s) atribuído(s) pelo Registro.br não têm nenhuma rota (nem agregado que os cubra, nem mais-específico) na tabela de roteamento global — espaço alocado mas não anunciado.",
+   "detail": "1 bloco atribuído pelo Registro.br não tem nenhuma rota na tabela de roteamento global, nem do próprio bloco, nem de um agregado que o cubra, nem de um mais específico. O espaço está alocado, mas não é anunciado.",
    "id": "prefixo_inalcancavel",
    "refs": {
     "prefixes": [
@@ -42,7 +42,7 @@
   {
    "category": "rpki",
    "desde_versao": 1,
-   "detail": "2 bloco(s) alocado(s) não têm ROA cobrindo — parte do espaço fica sem proteção de origem.",
+   "detail": "2 blocos alocados não têm ROA que os cubra. Parte do espaço fica sem proteção de origem.",
    "id": "rpki_cobertura_parcial",
    "refs": {
     "prefixes": [

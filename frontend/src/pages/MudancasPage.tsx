@@ -87,7 +87,7 @@ export function MudancasPage() {
           <span className="text-xs text-gray-500">UF</span>
           <select value={uf} onChange={(e) => novoFiltro(() => setUf(e.target.value))} className="border border-gray-200 rounded px-2 py-1 bg-white">
             <option value="">Todas</option>
-            {Object.keys(UFS).map((u) => <option key={u} value={u}>{u} — {nomeUf(u)}</option>)}
+            {Object.keys(UFS).map((u) => <option key={u} value={u}>{u} ({nomeUf(u)})</option>)}
           </select>
         </label>
         <label className="flex items-center gap-1.5 pb-1">

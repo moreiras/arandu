@@ -27,8 +27,8 @@ export function PainelBloco({ dados }: BlocoProps<UfCtx>) {
 /** Faixas de distância em linha reta ao PTT mais próximo: onde ficam os acessos fixos (e quantos municípios) em relação ao ponto de troca. */
 export const FAIXAS_KM: Array<{ ate: number; rotulo: string; cor: string }> = [
   { ate: 50, rotulo: 'até 50 km', cor: 'bg-mercado-500' },
-  { ate: RAIO_SEM_PTT_KM, rotulo: '50–100 km', cor: 'bg-ok-400' },
-  { ate: 300, rotulo: '100–300 km', cor: 'bg-aviso-400' },
+  { ate: RAIO_SEM_PTT_KM, rotulo: '50 a 100 km', cor: 'bg-ok-400' },
+  { ate: 300, rotulo: '100 a 300 km', cor: 'bg-aviso-400' },
   { ate: Infinity, rotulo: 'mais de 300 km', cor: 'bg-perigo-500' },
 ]
 

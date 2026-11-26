@@ -225,7 +225,7 @@ export function AsPathSection({ stats, date }: Props) {
                 <th className="text-xs font-medium text-gray-500 text-right pb-1.5 px-1">
                   <span className="inline-flex items-center gap-0.5 justify-end">
                     Upstream principal
-                    <Tip text="O ASN que aparece com mais frequência como penúltimo salto no AS_PATH — provável principal provedor de trânsito." />
+                    <Tip text="O ASN que mais aparece como penúltimo salto no AS_PATH, o que sugere (por inferência) que seja o principal provedor de trânsito." />
                   </span>
                 </th>
                 <UpstSortTh k="main_upstream_pct" label="% via principal" tooltip="Percentual das rotas roteadas exclusivamente via o upstream principal. 100% indica dependência total de um único provedor." />
@@ -264,7 +264,7 @@ export function AsPathSection({ stats, date }: Props) {
           <StatCard
             label="Private AS como origem"
             value={fmt(fam.private_as_as_origin)}
-            tooltip="Rotas com número de ASN privado (64512–65535 ou 4200000000–4294967295) como ASN de origem. Esses ASNs não deveriam ser visíveis na Internet pública."
+            tooltip="Rotas com número de ASN privado (de 64512 a 65535 ou de 4200000000 a 4294967295) como ASN de origem. Esses ASNs não deveriam ser visíveis na Internet pública."
           />
           <StatCard
             label="Private AS no caminho"
@@ -381,7 +381,7 @@ export function AsPathSection({ stats, date }: Props) {
                     {c.description ? (
                       <span title={c.description}>
                         {c.operator && (
-                          <span className="font-medium text-gray-800">{c.operator} — </span>
+                          <span className="font-medium text-gray-800">{c.operator}: </span>
                         )}
                         <span className="truncate">{c.description}</span>
                       </span>

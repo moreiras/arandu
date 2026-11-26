@@ -63,13 +63,13 @@ def({ id: 'rejeicoes', titulo: 'Rejeições e política nos route servers', orde
 def({ id: 'instalacoes', titulo: 'Instalações (PeeringDB)', ordem: 57, depende: ['useIxpPerfil'], fontes: ['peeringdb_fac'], selo: 'fato',
   nota: 'cadastro autodeclarado no PeeringDB; o indicador de cadastro é inferido das datas e não diz nada da operação', aplicavel: (c) => !!c.facilities || !!c.portas, Componente: InstalacoesBloco })
 def({ id: 'mapa', semTitulo: true, titulo: 'Distribuição geográfica', ordem: 60, depende: ['ixp-geo'], fontes: ['prefix_geo', 'curada_pix'], selo: 'inferido', nota: 'geolocalização por prefixo, com confiança variável', Componente: MapaGeoBloco })
-def({ id: 'hilbert-v6', semTitulo: true, titulo: 'Espaço IPv6 — Curva de Hilbert', ordem: 70, depende: ['useIxp', 'ixp-members'], fontes: ['lg_ixbr', 'registro_br'], selo: 'fato', aplicavel: (c) => !!c.v6, Componente: HilbertV6Bloco })
-def({ id: 'hilbert-v4', semTitulo: true, titulo: 'Espaço IPv4 — Curva de Hilbert', ordem: 80, depende: ['useIxp', 'ixp-members'], fontes: ['lg_ixbr', 'registro_br'], selo: 'fato', aplicavel: (c) => !!c.v4, Componente: HilbertV4Bloco })
+def({ id: 'hilbert-v6', semTitulo: true, titulo: 'Espaço IPv6: curva de Hilbert', ordem: 70, depende: ['useIxp', 'ixp-members'], fontes: ['lg_ixbr', 'registro_br'], selo: 'fato', aplicavel: (c) => !!c.v6, Componente: HilbertV6Bloco })
+def({ id: 'hilbert-v4', semTitulo: true, titulo: 'Espaço IPv4: curva de Hilbert', ordem: 80, depende: ['useIxp', 'ixp-members'], fontes: ['lg_ixbr', 'registro_br'], selo: 'fato', aplicavel: (c) => !!c.v4, Componente: HilbertV4Bloco })
 def({ id: 'linha-do-tempo', titulo: 'Linha do tempo', ordem: 85, depende: ['useIxpPerfil'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr', 'rpki_collector', 'apnic_pop'], selo: 'fato', nota: 'diferenças observadas entre snapshots',
   aplicavel: (c) => !!c.historico, Componente: LinhaDoTempoPtt })
-def({ id: 'peers-v6', semTitulo: true, titulo: 'ASNs com sessão em route server — IPv6', ordem: 100, depende: ['useIxp', 'ixp-peers-v6', 'ixp-members', 'ixp-assinantes'], fontes: ['lg_ixbr', 'anatel_sici', 'apnic_pop'], selo: 'fato',
+def({ id: 'peers-v6', semTitulo: true, titulo: 'ASNs com sessão em route server: IPv6', ordem: 100, depende: ['useIxp', 'ixp-peers-v6', 'ixp-members', 'ixp-assinantes'], fontes: ['lg_ixbr', 'anatel_sici', 'apnic_pop'], selo: 'fato',
   nota: 'assinantes: acessos SCM declarados ao SICI', Componente: PeersV6Bloco })
-def({ id: 'peers-v4', semTitulo: true, titulo: 'ASNs com sessão em route server — IPv4', ordem: 110, depende: ['useIxp', 'ixp-peers-v4', 'ixp-members', 'ixp-assinantes'], fontes: ['lg_ixbr', 'anatel_sici', 'apnic_pop'], selo: 'fato',
+def({ id: 'peers-v4', semTitulo: true, titulo: 'ASNs com sessão em route server: IPv4', ordem: 110, depende: ['useIxp', 'ixp-peers-v4', 'ixp-members', 'ixp-assinantes'], fontes: ['lg_ixbr', 'anatel_sici', 'apnic_pop'], selo: 'fato',
   nota: 'assinantes: acessos SCM declarados ao SICI', Componente: PeersV4Bloco })
 
 def({ id: 'participantes', titulo: 'Participantes do PTT', ordem: 88, depende: ['useIxp', 'ixp-members', 'useIxpPerfil', 'ixp-participantes'], fontes: ['ixbr_api', 'lg_ixbr', 'ixbr_alice', 'ixbr_alice_rotas', 'curada_cdns'], selo: 'fato',

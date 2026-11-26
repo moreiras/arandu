@@ -190,7 +190,7 @@ export function IXPPeerTable({
       id: 'assinantes_total',
       accessorFn: (r) => r.assinantesTotal ?? 0,
       header: () => (
-        <span title="Acessos SCM (B2C + B2B) informados ao SICI pelos CNPJs deste AS e de todos os ASes nos AS-paths que ele anuncia no IXP (clientes) — deduplicado por CNPJ">
+        <span title="Acessos SCM (B2C + B2B) informados ao SICI pelos CNPJs deste AS e de todos os ASes nos AS-paths que ele anuncia no IXP (clientes), sem repetição por CNPJ">
           Assinantes (total, c/ clientes)
         </span>
       ),
@@ -394,7 +394,7 @@ export function IXPPeerTable({
       {!loading && rows.length > PAGE_SIZE && (
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 bg-gray-50 px-3 py-2 text-xs text-gray-600">
           <span>
-            {n(table.getState().pagination.pageIndex * PAGE_SIZE + 1)}–
+            {n(table.getState().pagination.pageIndex * PAGE_SIZE + 1)}{' a '}
             {n(Math.min((table.getState().pagination.pageIndex + 1) * PAGE_SIZE, rows.length))} de {n(rows.length)}
           </span>
           <span className="flex items-center gap-2">

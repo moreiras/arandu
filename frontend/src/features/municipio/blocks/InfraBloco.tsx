@@ -80,7 +80,7 @@ export function InfraBloco({ dados, snapshot }: BlocoProps<MunicipioCtx>) {
         </tbody>
       </table>
       <p className="mt-2 text-xs text-gray-500">
-        Distância em linha reta até o centróide do município{dados.conjunto ? ' central (não do conjunto)' : ''} — não é o trajeto de fibra. Linhas de transmissão, cabos submarinos e rodovias estão no{' '}
+        A distância é em linha reta até o centróide do município{dados.conjunto ? ' central (não do conjunto)' : ''}, e não pelo trajeto de fibra. Linhas de transmissão, cabos submarinos e rodovias estão no{' '}
         <Link to="/mapa" className="text-primario-600 hover:underline">mapa</Link>.
       </p>
       </div>

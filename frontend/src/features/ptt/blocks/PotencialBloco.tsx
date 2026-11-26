@@ -19,12 +19,12 @@ export function PotencialBloco({ dados }: BlocoProps<PttCtx>) {
       <MetCell
         label="Potencial de IPv6 (/48s)"
         value={num(potential?.v6_prefixes_48)}
-        tooltip="Prefixos IPv6 já anunciados neste PTT mais todos os prefixos IPv6 geolocalizados a até 80km de algum PIX — colapsados e contados em equivalentes /48"
+        tooltip="Prefixos IPv6 já anunciados neste PTT, mais todos os prefixos IPv6 geolocalizados a até 80 km de algum PIX, agregados e contados em equivalentes a /48"
       />
       <MetCell
         label="Potencial de IPv4 (/24s)"
         value={num(potential?.v4_prefixes_24)}
-        tooltip="Prefixos IPv4 já anunciados neste PTT mais todos os prefixos IPv4 geolocalizados a até 80km de algum PIX — colapsados e contados em equivalentes /24"
+        tooltip="Prefixos IPv4 já anunciados neste PTT, mais todos os prefixos IPv4 geolocalizados a até 80 km de algum PIX, agregados e contados em equivalentes a /24"
       />
       <MetCell
         label="Potencial de usuários finais"

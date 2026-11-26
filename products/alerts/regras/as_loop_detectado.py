@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core import alerta_textos
 from products.alerts.auxiliar import analise_bgp
 
 REGRA = Regra(id="as_loop_detectado", categoria="roteamento", severidade="aviso", versao=1,
@@ -27,8 +28,5 @@ def avaliar(ctx: Contexto) -> list[dict]:
         return []
     return [achado(
         "Loop de AS detectado",
-        f"{len(loop_prefixes)} prefixo(s) têm AS_PATH com loop "
-        "(mesmo ASN aparece mais de uma vez de forma não-consecutiva "
-        "no caminho). Pode indicar má configuração de rota ou "
-        "manipulação incorreta de AS_PATH.",
+        alerta_textos.as_loop(len(loop_prefixes)),
         {"prefixes": loop_prefixes[:30]})]
