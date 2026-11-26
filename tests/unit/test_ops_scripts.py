@@ -336,7 +336,7 @@ def test_restart_safe_constroi_pelo_compose_para_levar_a_identidade_do_env():
     codigo = "\n".join(l for l in text.splitlines() if not l.lstrip().startswith("#"))
     assert "docker build" not in codigo
     assert '$COMPOSE_BASE build --no-cache "$servico"' in codigo
-    assert 'build_image "arandurape-frontend" frontend' in codigo and 'build_image "arandurape-api"      api' in codigo
+    assert 'build_image "$IMG_FRONT" frontend' in codigo and 'build_image "$IMG_API"   api' in codigo
 
 
 def test_vigia_de_usuario_aponta_para_o_socket_rootless_e_tem_o_mesmo_timer():
@@ -346,3 +346,15 @@ def test_vigia_de_usuario_aponta_para_o_socket_rootless_e_tem_o_mesmo_timer():
     assert "ExecStart=/usr/bin/env bash scripts/vigia-saude.sh" in svc
     corpo = lambda p: [l for l in p.read_text().splitlines() if not l.startswith("#")]
     assert corpo(ROOT / "docker" / "systemd" / "user" / "arandurape-vigia.timer") == corpo(ROOT / "docker" / "systemd" / "arandurape-vigia.timer")
+
+
+def test_restart_safe_marca_para_rollback_as_imagens_que_o_compose_usa():
+    """O ponto de rollback (:previous) e o build usam o nome de imagem declarado no compose da instância (ex. arandu-dev-api); com nome
+    fixo, a instância que usa outro nome ficava "sem rollback disponível" (visto na dev-arandu em 2026-11-26)."""
+    text = (ROOT / "restart-safe.sh").read_text()
+    assert "_imagem_do_servico api" in text and "_imagem_do_servico frontend" in text
+    usos = [l for l in text.splitlines() if ("arandurape-api" in l or "arandurape-frontend" in l) and not l.lstrip().startswith("#")]
+    assert all(":-arandurape-" in l for l in usos), usos      # só o valor padrão, quando o compose não declara imagem
+    for chamada in ('tag_as_previous "$IMG_API"', 'tag_as_previous "$IMG_FRONT"', 'build_image "$IMG_API"', 'build_image "$IMG_FRONT"',
+                    'for image in "$IMG_API" "$IMG_FRONT"'):
+        assert chamada in text, chamada

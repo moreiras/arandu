@@ -52,6 +52,15 @@ if grep -qE '^PROD_OVERRIDES=true' "$REPO_DIR/.env" 2>/dev/null; then
 fi
 COMPOSE_BASE="docker compose $_COMPOSE_FILES"
 
+# Nomes das imagens como o compose os declara (a instância pode usar outros, ex. arandu-dev-api): o ponto de rollback (:previous) tem de
+# marcar as imagens que os contêineres usam de fato, senão o rollback não acha o que restaurar.
+_imagem_do_servico() {
+    $COMPOSE_BASE config --format json 2>/dev/null \
+        | python3 -c "import sys,json; print(json.load(sys.stdin)['services']['$1'].get('image','').rsplit(':',1)[0])" 2>/dev/null
+}
+IMG_API="$(_imagem_do_servico api)";           IMG_API="${IMG_API:-arandurape-api}"
+IMG_FRONT="$(_imagem_do_servico frontend)";    IMG_FRONT="${IMG_FRONT:-arandurape-frontend}"
+
 HEALTH_RETRIES=12       # tentativas de health check após subir
 HEALTH_INTERVAL=10      # segundos entre tentativas (total: ~120s)
 
@@ -158,7 +167,7 @@ rollback() {
     err "Restaurando imagens anteriores..."
 
     local rolled_back=false
-    for image in arandurape-api arandurape-frontend; do
+    for image in "$IMG_API" "$IMG_FRONT"; do
         if docker image inspect "${image}:previous" &>/dev/null; then
             docker image tag "${image}:previous" "${image}:latest" >> "$LOG_FILE" 2>&1
             err "  ${image}:previous → ${image}:latest (restaurado)"
@@ -272,8 +281,8 @@ ok "Docker OK"
 
 header "2 — Salvando ponto de rollback"
 
-tag_as_previous "arandurape-api"
-tag_as_previous "arandurape-frontend"
+tag_as_previous "$IMG_API"
+tag_as_previous "$IMG_FRONT"
 ok "Imagens anteriores salvas como :previous"
 
 # ============================================================
@@ -284,8 +293,8 @@ header "3 — Rebuild sem cache"
 
 # O build do frontend roda `tsc --noEmit && vite build` (gate de tipagem estrita):
 # erros de tipo abortam o build aqui, antes de qualquer troca de container.
-build_image "arandurape-api"      api      || exit 1     # a mesma imagem serve mcp e worker
-build_image "arandurape-frontend" frontend || exit 1
+build_image "$IMG_API"   api      || exit 1     # a mesma imagem serve mcp e worker
+build_image "$IMG_FRONT" frontend || exit 1
 
 # ============================================================
 # 4. PARAR E RECRIAR CONTAINERS
@@ -544,8 +553,8 @@ echo "  Frontend  : nova imagem ativa"
 [[ -n "$SNAP" ]] && echo "  Snapshot  : $SNAP"
 echo ""
 echo "  Rollback disponível:"
-echo "    docker image tag arandurape-api:previous arandurape-api:latest"
-echo "    docker image tag arandurape-frontend:previous arandurape-frontend:latest"
+echo "    docker image tag ${IMG_API}:previous ${IMG_API}:latest"
+echo "    docker image tag ${IMG_FRONT}:previous ${IMG_FRONT}:latest"
 echo "    $COMPOSE_BASE up -d --force-recreate api mcp frontend"
 echo ""
 echo "  Log: $LOG_FILE"
