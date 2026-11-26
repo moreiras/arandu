@@ -295,6 +295,9 @@ parênteses remetem à análise.
   "Sessão no route server" substitui "sessão direta" nos cartões do AS (`RELACAO_PTT`), o denominador de ROA no resumo é o conjunto
   anunciado, o alerta de upstream único diz a classificação do provedor sem a pontuação do método, e a página Sobre deixa de citar
   contagem fixa de CNPJs de STFC e SeAC.
+  A mesma forma vale em PTT, UF, panorama técnico e de mercado, `/ixps`, CDNs, municípios, uso da Internet e localizador: resumo
+  em texto, fontes e datas recolhidas e, onde há cartões, cartões antes do resumo; em `/ixps` a faixa colorida virou cartões com
+  número neutro e selo. `SinteseTopo` fica sem uso (mantido) e um teste reprova uso novo.
 
 ## v2.1.3
 
