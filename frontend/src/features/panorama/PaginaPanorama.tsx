@@ -7,6 +7,7 @@ import { useEffect, type ComponentType, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { BarraDeAbas } from '../entidade/EntityPage'
 import type { AbaDef } from '../entidade/registry'
+import { ApresentacaoRecolhida } from '../../components/ui/FontesEDatas'
 import { useActiveDate } from '../../hooks/useSnapshot'
 
 export interface AbaPanorama extends AbaDef {
@@ -20,7 +21,7 @@ export interface AbaPanorama extends AbaDef {
  */
 export function PaginaPanorama({ titulo, descricao, abas, rodape, topo, aliases = {} }: {
   titulo: string; descricao: string; abas: AbaPanorama[]; rodape?: ReactNode
-  /** Bloco acima das abas (a síntese em texto da página, PT-22). */
+  /** Bloco acima das abas (o resumo em texto da página, PT-22 e PT-30). */
   topo?: ReactNode
   /** Abas que mudaram de nome ou foram fundidas: `?aba=antiga` abre a nova e a URL é reescrita (regra 8 do AGENTS.md: nada some sem alias). */
   aliases?: Record<string, string>
@@ -44,6 +45,7 @@ export function PaginaPanorama({ titulo, descricao, abas, rodape, topo, aliases 
     return novo
   })
   return (
+    <ApresentacaoRecolhida>
     <div className="space-y-5" data-testid="panorama">
       <div>
         <h1 className="text-titulo-1 text-gray-900">{titulo}</h1>
@@ -57,5 +59,6 @@ export function PaginaPanorama({ titulo, descricao, abas, rodape, topo, aliases 
       </div>
       {rodape}
     </div>
+    </ApresentacaoRecolhida>
   )
 }

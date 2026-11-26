@@ -19,8 +19,10 @@ describe('sinteseMercado', () => {
     expect(f[0].dataRef).toBe('2026-09')
     expect(f[2].dataRef).toBe('2026-08')
     expect(f[0].texto).toContain('58.075.574')
+    expect(f[0].texto).toContain('Em 09/2026')
+    expect(f[2].texto).toContain('Em 08/2026')
     expect(f[2].texto).toContain('220.900.000')
-    expect(f[2].texto).toContain('sem M2M')
+    expect(f[2].texto).toContain('sem contar M2M')
     expect(f.some((x) => x.texto.includes('279'))).toBe(false)
     for (const x of f) { expect(x.selo).toBe('fato'); expect(x.fonte).toMatch(/SICI/); expect(x.texto).not.toMatch(PALAVRAS_PROIBIDAS) }
   })
