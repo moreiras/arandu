@@ -57,8 +57,8 @@ export function DeepDiagnosisPanel({ diagnosis: d }: Props) {
           <p className="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Sincronismo de prefixos</p>
           <p className="text-lg font-semibold text-gray-800">{(d.prefix_sync_score * 100).toFixed(0)}%</p>
           <p className="text-xs text-gray-400">
-            {d.prefix_sync_score > 0.8 ? 'alto — prefixos flapam juntos' :
-             d.prefix_sync_score > 0.4 ? 'moderado' : 'baixo — prefixos independentes'}
+            {d.prefix_sync_score > 0.8 ? 'alto (os prefixos oscilam juntos)' :
+             d.prefix_sync_score > 0.4 ? 'moderado' : 'baixo (os prefixos oscilam de forma independente)'}
           </p>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-3">

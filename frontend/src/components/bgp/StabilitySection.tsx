@@ -321,7 +321,7 @@ export function StabilitySection({ data, deepData, history, carga, categorias, t
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-gray-700">
             Distribuição de updates/prefixo/dia
-            <Tip text="Histograma de todos os ASes BR por volume de updates BGP normalizado pelo número de prefixos anunciados. Eixo Y logarítmico — a cauda direita representa os ASes mais ruidosos." />
+            <Tip text="Histograma de todos os ASes BR por volume de updates BGP normalizado pelo número de prefixos anunciados. O eixo Y é logarítmico, e a cauda à direita reúne os ASes mais ruidosos." />
           </h3>
           <div className="flex text-xs rounded border border-gray-200 overflow-hidden">
             {(['v6', 'v4'] as const).map(a => (
@@ -386,7 +386,7 @@ export function StabilitySection({ data, deepData, history, carga, categorias, t
       <div>
         <h3 className="text-sm font-semibold text-gray-700 mb-2">
           {showAll && listaCompleta ? `${allMed.length} ASes com severidade média ou maior` : 'Top 10 ASes com mais updates por prefixo por dia'}
-          <Tip text="Ordenados por events/prefixo/dia no período de 7 dias (v6+v4 combinados). Clique nos cabeçalhos para ordenar. O Sparkline mostra os 7 dias — barras uniformes indicam problema crônico; barra isolada indica evento pontual." />
+          <Tip text="Ordenados por eventos por prefixo por dia nos últimos 7 dias (IPv6 e IPv4 combinados). Clique nos cabeçalhos para ordenar. O sparkline mostra os 7 dias: barras uniformes indicam atividade contínua, e uma barra isolada indica um evento pontual." />
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-xs border-collapse">
@@ -471,7 +471,7 @@ export function StabilitySection({ data, deepData, history, carga, categorias, t
       {deepData && deepData.suspected_upstreams.length > 0 && (
         <div>
           <h3 className="text-sm font-semibold text-gray-700 mb-2">
-            Upstreams em comum — correlação entre ASes
+            Upstreams em comum: correlação entre ASes
             <Tip text="ASes de trânsito que aparecem como upstream dominante em vários ASes com muitos updates no mesmo período. É coincidência observada no dado; a causa (provedor, cliente ou outra) não é observável aqui." />
           </h3>
           <div className="overflow-x-auto">

@@ -286,7 +286,7 @@ export function ASNGeoMap({ asn, date, ixpPresence }: Props) {
             <button
               key={code}
               onClick={() => setSelected(code)}
-              title={`${name} — ${isDir ? 'direto' : 'indireto'}`}
+              title={`${name}: ${isDir ? 'direto' : 'indireto'}`}
               className={`text-xs px-2 py-1 rounded border transition-colors ${
                 isActive
                   ? 'bg-gray-700 text-white border-gray-700'

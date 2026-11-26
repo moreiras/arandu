@@ -37,7 +37,7 @@ describe('CargaBgpSemanas', () => {
     expect(screen.getByText(/Nenhum update IPv4 visto/)).toBeInTheDocument()
     const tabela = screen.getByRole('table')
     expect(within(tabela).getByRole('link', { name: 'AS64500' })).toHaveAttribute('href', '/asn/64500')
-    expect(within(tabela).getByText('06/09–12/09')).toBeInTheDocument()
+    expect(within(tabela).getByText('06/09 a 12/09')).toBeInTheDocument()
     expect(within(tabela).getByTitle('1.000 updates · 4 prefixos com update')).toHaveTextContent('1 mil')
     expect(within(tabela).getByText('75%')).toBeInTheDocument()
     expect(screen.getByText(/2 dia\(s\) em comum com a semana anterior/)).toBeInTheDocument()

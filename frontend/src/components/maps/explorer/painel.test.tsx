@@ -50,7 +50,7 @@ describe('painel de camadas', () => {
   it('recorte de ASes: cria grupo com um filtro, troca o tipo, mostra o valor e remove o grupo ao tirar o último filtro', () => {
     render(envolver(<Painel matched={321} />))
     expect(screen.getByText('321 ASes')).toBeTruthy()
-    expect(screen.getByText('Sem filtros — todos os ASes.')).toBeTruthy()
+    expect(screen.getByText('Sem filtros: todos os ASes.')).toBeTruthy()
     fireEvent.click(screen.getByText('+ grupo de filtros'))
     expect(estado().grupos).toEqual([['is_br']])
     fireEvent.change(screen.getByDisplayValue('ASN brasileiro (LACNIC)'), { target: { value: 'ixps_direct_in' } })
@@ -85,7 +85,7 @@ describe('painel de camadas', () => {
     }
     render(envolver(<Painel2 />))
     expect(screen.getByText('1.234')).toBeTruthy()
-    fireEvent.click(screen.getByTitle('Baixar CSV — Sedes dos ASes'))
+    fireEvent.click(screen.getByTitle('Baixar CSV: Sedes dos ASes'))
     expect(download).toHaveBeenCalledOnce()
     fireEvent.click(screen.getByText('⚠ tentar de novo'))
     expect(retry).toHaveBeenCalledOnce()

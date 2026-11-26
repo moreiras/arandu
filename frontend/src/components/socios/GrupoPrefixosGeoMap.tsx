@@ -141,7 +141,7 @@ export function GrupoPrefixosGeoMap({
         <span className="flex items-center gap-1">
           <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: MAP_COLORS.v4Strong }} aria-hidden="true" /> IPv4
         </span>
-        <span>— sem acessos declarados ao SICI; mostrando blocos IP dos ASNs do grupo</span>
+        <span>Sem acessos declarados ao SICI: o mapa mostra os blocos IP dos ASNs do grupo.</span>
       </div>
       <VerDados dados={alternativa} campos={['cidade', 'uf', 'v6', 'v4']} rotulos={{ cidade: 'Cidade', uf: 'UF', v6: 'Blocos IPv6', v4: 'Blocos IPv4' }} titulo="Ver dados (blocos por cidade)" />
     </div>

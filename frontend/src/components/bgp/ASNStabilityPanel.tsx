@@ -71,7 +71,7 @@ export function ASNStabilityPanel({ stability, eppdStats, timestamps, weeks }: P
             <div className="flex-1 min-w-0">
               <p className={`text-sm font-medium ${colors.text}`}>
                 Este AS está entre os <strong>{rank}º mais ruidosos</strong> do universo BR
-                em anúncios BGP — {fmtEpppd(p.events_per_prefix_per_day)} updates/prefixo/dia
+                em anúncios BGP, com {fmtEpppd(p.events_per_prefix_per_day)} updates por prefixo por dia
                 nos últimos 7 dias.
               </p>
               <div className="mt-1">
@@ -144,12 +144,12 @@ export function ASNStabilityPanel({ stability, eppdStats, timestamps, weeks }: P
             ? [{ date: '', timestamps, series: stability.hourly }]
             : null
         if (!series) return null
-        const rangeLabel = series.length > 1 ? ` — últimas ${series.length} semanas` : ''
+        const rangeLabel = series.length > 1 ? `, últimas ${series.length} semanas` : ''
         return (
           <div className="border border-gray-100 rounded-lg p-3">
             <HourlyActivityChart
               weeks={series}
-              title={`Atividade horária — AS${stability.asn}${rangeLabel}`}
+              title={`Atividade horária do AS${stability.asn}${rangeLabel}`}
               tipText="Série temporal de updates BGP com resolução horária. Disponível apenas para as semanas em que este AS teve severidade média ou maior."
               height={180}
             />

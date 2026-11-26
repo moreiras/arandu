@@ -12,12 +12,12 @@ export function BgpActivityChart({ weeks }: Props) {
     series:     w.data.hourly_global,
   }))
   const rangeLabel = weeks.length > 1
-    ? ` — últimas ${weeks.length} semanas`
+    ? `, últimas ${weeks.length} semanas`
     : ''
   return (
     <HourlyActivityChart
       weeks={series}
-      title={`Atividade BGP — eventos por hora (todos os ASes BR)${rangeLabel}`}
+      title={`Atividade BGP: eventos por hora (todos os ASes BR)${rangeLabel}`}
       tipText="Série temporal de updates BGP (anúncios, retiradas, attr-updates) com resolução horária, uma semana por snapshot semanal disponível. Eventos deduplicados: múltiplos peers reportando o mesmo evento dentro de 90s são contados uma única vez."
     />
   )

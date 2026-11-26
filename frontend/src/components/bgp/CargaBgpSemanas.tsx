@@ -6,6 +6,7 @@
 import { Link } from '../layout/LinkDatado'
 import type { BgpStabilityCarga, CargaFamilia, CargaSemana } from '../../types/bgpStability'
 import { Tip } from './BgpShared'
+import { palavra } from '../../lib/sintese'
 
 // Cinco faixas em escala logarítmica do maior valor da grade. O número está sempre escrito na célula: a cor só reforça.
 // Texto escuro nas três claras e branco nas duas escuras, todos com contraste ≥ 4,5:1.
@@ -32,9 +33,9 @@ export function faixaCarga(v: number, max: number): number | null {
 /** A semana precisa de nota: janela sobreposta à anterior, dias de fora ou arquivos do coletor faltando. */
 function avisoSemana(s: CargaSemana): string | null {
   const partes = []
-  if (s.sobreposicao_dias > 0) partes.push(`${s.sobreposicao_dias} dia(s) em comum com a semana anterior`)
-  if (s.lacuna_dias > 0) partes.push(`${s.lacuna_dias} dia(s) sem cobertura antes desta semana`)
-  if ((s.arquivos_faltando ?? 0) > 0) partes.push(`${s.arquivos_faltando} arquivo(s) do coletor faltando (volume subcontado)`)
+  if (s.sobreposicao_dias > 0) partes.push(`${s.sobreposicao_dias} ${palavra(s.sobreposicao_dias, 'dia', 'dias')} em comum com a semana anterior`)
+  if (s.lacuna_dias > 0) partes.push(`${s.lacuna_dias} ${palavra(s.lacuna_dias, 'dia', 'dias')} sem cobertura antes desta semana`)
+  if ((s.arquivos_faltando ?? 0) > 0) partes.push(`${s.arquivos_faltando} ${palavra(s.arquivos_faltando, 'arquivo do coletor faltando', 'arquivos do coletor faltando')} (volume subcontado)`)
   return partes.length ? partes.join('; ') : null
 }
 
@@ -53,7 +54,7 @@ function Grade({ rotulo, fam, semanas }: { rotulo: string; fam: CargaFamilia; se
                 const aviso = avisoSemana(s)
                 return (
                   <th key={s.date} scope="col" className="px-1 py-1 text-center font-medium whitespace-nowrap" title={aviso ?? undefined}>
-                    {diaMes(s.inicio)}–{diaMes(s.ultimo_dia)}{aviso && <span aria-label={`: ${aviso}`}>*</span>}
+                    {diaMes(s.inicio)} a {diaMes(s.ultimo_dia)}{aviso && <span aria-label={`: ${aviso}`}>*</span>}
                   </th>
                 )
               })}
@@ -117,7 +118,7 @@ export function CargaBgpSemanas({ data }: { data: BgpStabilityCarga }) {
       </p>
       {avisos.length > 0 && (
         <ul className="text-xs text-gray-500 list-none">
-          {avisos.map(({ s, aviso }) => <li key={s.date}>* {diaMes(s.inicio)}–{diaMes(s.ultimo_dia)}: {aviso}.</li>)}
+          {avisos.map(({ s, aviso }) => <li key={s.date}>* {diaMes(s.inicio)} a {diaMes(s.ultimo_dia)}: {aviso}.</li>)}
         </ul>
       )}
     </div>

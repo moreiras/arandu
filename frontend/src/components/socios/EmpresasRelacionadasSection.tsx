@@ -57,7 +57,7 @@ export function EmpresasRelacionadasSection({
           <span key={r.cnpj}>
             {i > 0 && ', '}
             <Link to={`/operadora/${r.cnpj}`} className="text-primario-600 underline underline-offset-2"
-                  title={`${TIPO_LABEL[r.tipo_relacao]} — ${fmtCnpj(r.cnpj)}`}>
+                  title={`${TIPO_LABEL[r.tipo_relacao]}: ${fmtCnpj(r.cnpj)}`}>
               {r.empresa || fmtCnpj(r.cnpj)}
             </Link>{' '}
             <OutorgaBadges flags={r} />
@@ -84,7 +84,7 @@ export function EmpresasRelacionadasSection({
       <h2 className="text-base font-semibold text-gray-800 mb-1">{title}</h2>
       <p className="text-xs text-gray-400 mb-3">
         Cruzamento de quadro societário (dados abertos de CNPJ da Receita Federal).
-        Sem percentual de participação — a Receita não divulga isso publicamente.
+        Sem percentual de participação, porque a Receita não o divulga publicamente.
       </p>
 
       {mesmoGrupo.length > 0 && (

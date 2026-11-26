@@ -156,7 +156,7 @@ function RpkiSection({ rpki }: { rpki: RpkiSummary | null }) {
   ]
 
   return (
-    <Section title="RPKI — Segurança de Roteamento BGP" color="#b45309">
+    <Section title="RPKI: segurança de roteamento BGP" color="#b45309">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Cards + barras */}
         <div className="lg:col-span-2 space-y-4">
@@ -185,7 +185,7 @@ function RpkiSection({ rpki }: { rpki: RpkiSummary | null }) {
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
             <RpkiBar
-              label="Adoção de ROA — ASNs BR"
+              label="Adoção de ROA entre os ASNs BR"
               pct={roaPct}
               color="#b45309"
               sub={`${fmtN(withRoa)} de ${fmtN(total)} ASNs publicaram ao menos 1 ROA`}
@@ -203,7 +203,7 @@ function RpkiSection({ rpki }: { rpki: RpkiSummary | null }) {
               sub={`${fmtLarge(rpki?.br_space_v4_roa_24)} de ${fmtLarge(rpki?.br_space_v4_total_24)} /24 equivalentes`}
             />
             <RpkiBar
-              label="Adoção de ASPA — ASNs BR"
+              label="Adoção de ASPA entre os ASNs BR"
               pct={aspaPct}
               color="#0891b2"
               sub={`${fmtN(withAspa)} de ${fmtN(total)} ASNs publicaram ao menos 1 ASPA`}

@@ -75,7 +75,7 @@ export function TelefoniaFixaSection({ date }: { date?: string }) {
     <section className="space-y-6">
       <h2 className="text-sm font-semibold uppercase tracking-widest border-t border-gray-100 pt-8"
           style={{ color: SECTION_COLOR }}>
-        Telefonia fixa comutada — STFC (Anatel)
+        Telefonia fixa comutada: STFC (Anatel)
       </h2>
 
       <div>
