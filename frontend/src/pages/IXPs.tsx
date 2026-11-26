@@ -9,11 +9,13 @@ import { ExternalIXPTable } from '../components/tables/ExternalIXPTable'
 import { SummaryTable } from '../components/tables/SummaryTable'
 import { IXPVoronoiMap } from '../components/maps/IXPVoronoiMap'
 import type { IXPIndexEntry, ExternalIXPIndexEntry, SnapshotSummary } from '../types/api'
-import { corLegivel } from '../lib/contraste'
 import { CoberturaIxbr } from '../features/panorama/CoberturaIxbr'
 import { NotaVariosTotais } from '../components/ui/NotaVariosTotais'
 import { rotuloDe } from '../lib/universos'
-import { SinteseTopo } from '../components/ui/SinteseTopo'
+import { ApresentacaoRecolhida, GrupoFontes } from '../components/ui/FontesEDatas'
+import { Kpi } from '../components/ui/Kpi'
+import { ResumoEmTexto } from '../components/ui/ResumoEmTexto'
+import { compacto } from '../lib/sintese'
 import { REGRAS_SINTESE_LISTA_PTTS, sinteseListaPtts } from '../features/ptt/sinteseListaPtts'
 
 // ─── number formatting helpers ───────────────────────────────────────────────
@@ -23,74 +25,9 @@ function fmtN(n: number | undefined | null): string {
   return n.toLocaleString('pt-BR')
 }
 
-function fmtLarge(n: number | undefined | null): string {
-  if (n == null) return '—'
-  if (n >= 1e9) return `${(n / 1e9).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}B`
-  if (n >= 1e6) return `${(n / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}M`
-  return n.toLocaleString('pt-BR')
+function vN(n: number | undefined | null): string | null {
+  return n == null ? null : fmtN(n)
 }
-
-// ─── StatItem / StatGroup (mesmo padrão visual do Dashboard) ─────────────────
-
-function StatItem({
-  value,
-  label,
-  sub,
-  loading,
-  accent,
-}: {
-  value: string
-  label: string
-  sub?: string
-  loading?: boolean
-  accent?: string
-}) {
-  return (
-    <div className="px-4 py-3 min-w-0">
-      {loading ? (
-        <div className="h-6 w-20 bg-gray-100 rounded animate-pulse mb-1" />
-      ) : (
-        <div
-          className="text-xl font-bold text-gray-900 tabular-nums leading-tight"
-          style={accent ? { color: accent } : undefined}
-        >
-          {value}
-        </div>
-      )}
-      <div className="text-xs text-gray-500 mt-0.5 leading-tight">{label}</div>
-      {sub && <div className="text-xs text-gray-400 leading-tight">{sub}</div>}
-    </div>
-  )
-}
-
-function StatGroup({
-  title,
-  color,
-  children,
-}: {
-  title: string
-  color: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div
-        className="px-4 py-1.5 border-b"
-        style={{ backgroundColor: `${color}14`, borderColor: `${color}30` }}
-      >
-        {/* 5:1 contra o branco: o fundo é a mesma cor a 8%, que tira um pouco do contraste */}
-        <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: corLegivel(color, 5) }}>
-          {title}
-        </span>
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-none lg:grid-flow-col lg:auto-cols-fr divide-x divide-y lg:divide-y-0 divide-gray-100">
-        {children}
-      </div>
-    </div>
-  )
-}
-
-// ─── IXPsKpis ──────────────────────────────────────────────────────────────
 
 const UNIVERSO_USUARIOS_PAIS = 'usuários estimados em ASNs brasileiros'
 
@@ -99,11 +36,13 @@ function IXPsKpis({
   externalIXPs,
   summary,
   loading,
+  snapshot,
 }: {
   ixps: IXPIndexEntry[]
   externalIXPs: ExternalIXPIndexEntry[]
   summary: SnapshotSummary | null | undefined
   loading: boolean
+  snapshot?: string | null
 }) {
   const totalIXPs = ixps.length + externalIXPs.length
 
@@ -113,49 +52,24 @@ function IXPsKpis({
   const externalWithBr = externalIXPs.filter((i) => (i.br_member_count ?? 0) > 0).length
   const totalWithBr = ixbrWithBr + externalWithBr
 
+  const sub = (a: number, b: number, na: string, nb: string) => `${fmtN(a)} ${na} · ${fmtN(b)} ${nb}`
+  if (loading) return <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6" aria-hidden="true">{[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className="h-20 animate-pulse rounded-lg bg-gray-100" />)}</div>
   return (
-    <StatGroup title="IXPs" color="#d97706">
-      <StatItem
-        loading={loading}
-        value={fmtN(totalIXPs)}
-        label="PTTs do IX.br e IXPs de fora (PeeringDB)"
-        sub={`${fmtN(ixps.length)} IX.br · ${fmtN(externalIXPs.length)} outros`}
-        accent="#d97706"
-      />
-      <StatItem
-        loading={loading}
-        value={fmtN(totalWithBr)}
-        label="IXPs com AS BR presente"
-        sub={`${fmtN(ixbrWithBr)} IX.br · ${fmtN(externalWithBr)} outros`}
-      />
-      <StatItem
-        loading={loading}
-        value={fmtLarge(summary?.ixp_estimated_users_v4)}
-        label={rotuloDe('usuariosIx')}
-        sub={summary?.br_apnic_users_total != null ? `de ${fmtLarge(summary.br_apnic_users_total)} ${UNIVERSO_USUARIOS_PAIS} (APNIC); a soma por PTT, na tabela, não é este total` : 'a soma por PTT, na tabela, não é este total'}
-        accent="#0891b2"
-      />
-      <StatItem
-        loading={loading}
-        value={fmtN(summary?.ixp_aggregate?.asn_direct_union_count)}
-        label={rotuloDe('sessaoRs')}
-        sub="união, todo o IX.br; não é peering bilateral"
-      />
-      <StatItem
-        loading={loading}
-        value={fmtN(summary?.ixp_aggregate?.asn_origin_union_count)}
-        label={rotuloDe('originadores')}
-        sub="união, todo o IX.br; inclui o que chega por trânsito"
-        accent="#16a34a"
-      />
-      <StatItem
-        loading={loading}
-        value={fmtN(summary?.external_ixps_br_asn_union_count)}
-        label={rotuloDe('externosBr')}
-        sub="união por ASN (PeeringDB)"
-        accent="#8b5cf6"
-      />
-    </StatGroup>
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+      <Kpi tom="primario" selo="fato" fonte="IX.br e PeeringDB" dataRef={snapshot}
+        rotulo="PTTs do IX.br e IXPs de fora (PeeringDB)" valor={fmtN(totalIXPs)} referencia={sub(ixps.length, externalIXPs.length, 'IX.br', 'outros')} />
+      <Kpi selo="fato" fonte="looking glasses do IX.br e PeeringDB" dataRef={snapshot}
+        rotulo="IXPs com AS BR presente" valor={fmtN(totalWithBr)} referencia={sub(ixbrWithBr, externalWithBr, 'IX.br', 'outros')} />
+      <Kpi selo="estimado" fonte="APNIC Labs e looking glasses do IX.br" dataRef={snapshot}
+        rotulo={rotuloDe('usuariosIx')} valor={summary?.ixp_estimated_users_v4 != null ? compacto(summary.ixp_estimated_users_v4) : null}
+        referencia={summary?.br_apnic_users_total != null ? `de ${compacto(summary.br_apnic_users_total)} ${UNIVERSO_USUARIOS_PAIS} (APNIC); a soma por PTT, na tabela, não é este total` : 'a soma por PTT, na tabela, não é este total'} />
+      <Kpi selo="fato" fonte="looking glasses do IX.br" dataRef={snapshot}
+        rotulo={rotuloDe('sessaoRs')} valor={vN(summary?.ixp_aggregate?.asn_direct_union_count)} referencia="união, todo o IX.br; não é peering bilateral" />
+      <Kpi selo="fato" fonte="looking glasses do IX.br" dataRef={snapshot}
+        rotulo={rotuloDe('originadores')} valor={vN(summary?.ixp_aggregate?.asn_origin_union_count)} referencia="união, todo o IX.br; inclui o que chega por trânsito" />
+      <Kpi selo="fato" fonte="PeeringDB (autodeclarado)" dataRef={snapshot}
+        rotulo={rotuloDe('externosBr')} valor={vN(summary?.external_ixps_br_asn_union_count)} referencia="união por ASN (PeeringDB)" />
+    </div>
   )
 }
 
@@ -211,28 +125,32 @@ function IXPsLista() {
   const externalIXPs = externalData?.ixps ?? []
   const summary = snapshotDetails?.summary ?? null
 
+  const snap = summary?.snapshot_date ?? resolvedDate
   return (
+    <ApresentacaoRecolhida>
     <div className="space-y-8">
       <h1 className="text-titulo-1 text-gray-900">IXPs</h1>
 
-      <SinteseTopo frases={sinteseListaPtts(ixps, externalIXPs, summary, summary?.snapshot_date ?? resolvedDate)} snapshot={summary?.snapshot_date ?? resolvedDate} regras={REGRAS_SINTESE_LISTA_PTTS}
-        comoLer="O IX.br e os IXPs de fora são listas diferentes e não se somam." />
-
       <NotaVariosTotais>Os PTTs do IX.br e os IXPs de fora são listas diferentes e não se somam num número só. Um ASN pode ter sessão com o route server, constar do cadastro de participantes ou apenas originar prefixo visto no PTT: são três conjuntos de tamanhos muito diferentes. A soma dos usuários estimados por PTT conta o mesmo usuário em cada PTT onde o ASN aparece.</NotaVariosTotais>
 
-      <IXPsKpis
-        ixps={ixps}
-        externalIXPs={externalIXPs}
-        summary={summary}
-        loading={loadingIXPs || loadingExternal}
-      />
+      <GrupoFontes snapshot={snap}>
+        <IXPsKpis
+          ixps={ixps}
+          externalIXPs={externalIXPs}
+          summary={summary}
+          loading={loadingIXPs || loadingExternal}
+          snapshot={snap}
+        />
+        <ResumoEmTexto frases={sinteseListaPtts(ixps, externalIXPs, summary, snap)} snapshot={snap} regras={REGRAS_SINTESE_LISTA_PTTS}
+          notaComoLer="O IX.br e os IXPs de fora são listas diferentes e não se somam." />
+      </GrupoFontes>
 
       <div className="space-y-2">
         <div className="flex items-baseline justify-between gap-2">
           <h2 className="text-base font-semibold text-gray-800">
             Áreas de influência dos PTTs
           </h2>
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-gray-600">
             PTT mais próximo (distância geográfica) · grade 0,12°
           </span>
         </div>
@@ -259,7 +177,7 @@ function IXPsLista() {
         {loadingIXPs ? (
           <div className="h-32 bg-gray-100 rounded-lg animate-pulse" />
         ) : ixps.length === 0 ? (
-          <p className="text-gray-400 text-sm">Nenhum IXP disponível no snapshot atual.</p>
+          <p className="text-gray-600 text-sm">Nenhum IXP disponível no snapshot atual.</p>
         ) : (
           <IXPTable
             ixps={ixps}
@@ -284,7 +202,7 @@ function IXPsLista() {
         {loadingExternal ? (
           <div className="h-32 bg-gray-100 rounded-lg animate-pulse" />
         ) : externalIXPs.length === 0 ? (
-          <p className="text-gray-400 text-sm">Dados de outros IXPs não disponíveis neste snapshot.</p>
+          <p className="text-gray-600 text-sm">Dados de outros IXPs não disponíveis neste snapshot.</p>
         ) : (
           <ExternalIXPTable ixps={externalIXPs} />
         )}
@@ -297,5 +215,6 @@ function IXPsLista() {
         <CoberturaIxbr grupos={['ipv6', 'ipv4', 'asns']} />
       </section>
     </div>
+    </ApresentacaoRecolhida>
   )
 }
