@@ -285,6 +285,16 @@ parênteses remetem à análise.
   disco: tira as entradas absorvidas pelo zip (só as que estão dentro dele), acrescenta o `asns.zip` com o checksum atual e confere
   todos os checksums ao fim; nenhum documento é alterado. A regra de pessoa natural deixa de regravar documento já tratado (antes ele
   era reserializado com outra formatação, mudando bytes e checksum sem mudar o dado).
+- **Apresentação e linguagem (PT-30), forma aprovada pelo mantenedor em 2026-11-26.** Home, AS e operadora mostram os cartões
+  primeiro e o resumo em texto depois (`ResumoEmTexto`), com fontes e datas recolhidas (`FontesEDatas`, `ApresentacaoRecolhida`). Os
+  selos de natureza do dado ficam só com símbolo e cor (círculo, triângulo, losango), com nome acessível e dica de fonte e data que
+  abre por mouse, foco de teclado e toque; a legenda fica no rodapé. As caixas de destaque seguem o tom do selo (`lib/paletaSelos.ts`),
+  com contraste AA e sem cor de juízo (vermelho, verde de variação). Os textos visíveis deixam de usar travessão como pontuação e
+  "(s)": o plural segue o número (`palavra()` em `lib/sintese.ts`); "—" sozinho como valor ausente continua. Um teste
+  (`src/test/semTravessao.test.ts`) barra travessão novo em texto; a única exceção é `Privacidade.tsx`, cuja redação é do mantenedor.
+  "Sessão no route server" substitui "sessão direta" nos cartões do AS (`RELACAO_PTT`), o denominador de ROA no resumo é o conjunto
+  anunciado, o alerta de upstream único diz a classificação do provedor sem a pontuação do método, e a página Sobre deixa de citar
+  contagem fixa de CNPJs de STFC e SeAC.
 
 ## v2.1.3
 
