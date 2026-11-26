@@ -88,7 +88,7 @@ describe('bloco Instalações do PTT', () => {
   it('lista as instalações com o selo e, em PTT externo, as portas por velocidade', () => {
     render(<MemoryRouter><InstalacoesPtt facilities={lista} portas={portas} /></MemoryRouter>)
     expect(screen.getByText(/2 instalações/)).toBeTruthy()
-    expect(screen.getByTestId('portas-ptt').textContent).toMatch(/5 porta\(s\) de 5 membro\(s\): mediana 10 Gbps, maior 10 Gbps, soma declarada 50 Gbps/)
+    expect(screen.getByTestId('portas-ptt').textContent).toMatch(/5 portas de 5 membros: mediana 10 Gbps, maior 10 Gbps, soma declarada 50 Gbps/)
     expect(screen.getByTestId('portas-ptt').textContent).toMatch(/10 Gbps: 5/)
   })
 })

@@ -40,7 +40,7 @@ describe('CargaBgpSemanas', () => {
     expect(within(tabela).getByText('06/09 a 12/09')).toBeInTheDocument()
     expect(within(tabela).getByTitle('1.000 updates · 4 prefixos com update')).toHaveTextContent('1 mil')
     expect(within(tabela).getByText('75%')).toBeInTheDocument()
-    expect(screen.getByText(/2 dia\(s\) em comum com a semana anterior/)).toBeInTheDocument()
+    expect(screen.getByText(/2 dias em comum com a semana anterior/)).toBeInTheDocument()
     expect(screen.getByText(/coletor rrc-x/)).toBeInTheDocument()
   })
 })
