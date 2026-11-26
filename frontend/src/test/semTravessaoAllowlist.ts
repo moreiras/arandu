@@ -7,6 +7,4 @@
  * Arquivos de `frontend/src` que ainda têm travessão (— ou –) em texto exibido e não foram revisados (PT-30). A lista só encolhe, na
  * replicação da revisão de linguagem para o resto do site: `semTravessao.test.ts` reprova arquivo fora dela com travessão e arquivo nela já limpo.
  */
-export const ARQUIVOS_COM_TRAVESSAO: string[] = [
-  'pages/Privacidade.tsx',
-]
+export const ARQUIVOS_COM_TRAVESSAO: string[] = []

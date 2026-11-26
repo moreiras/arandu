@@ -161,8 +161,8 @@ export function Privacidade() {
         <p className="text-sm text-gray-600 leading-relaxed">
           Seus dados <strong>não são vendidos</strong>. Podem ser compartilhados com fornecedores
           ou parceiros que atuem em nome do {SITE.nome} para viabilizar a operação do serviço e as
-          demais finalidades descritas nesta política — como serviços de infraestrutura, envio de
-          comunicações e ferramentas de análise — sempre mediante obrigação de confidencialidade e
+          demais finalidades descritas nesta política (como serviços de infraestrutura, envio de
+          comunicações e ferramentas de análise), sempre mediante obrigação de confidencialidade e
           em conformidade com a LGPD.
         </p>
         <p className="text-sm text-gray-600 leading-relaxed">
