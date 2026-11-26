@@ -11,6 +11,7 @@ import { fetchIXPPeers } from '../services/api'
 import { useActiveDate } from '../hooks/useSnapshot'
 import { useFontes, useIxpPerfil } from '../hooks/entidades'
 import { coletaDaFamilia, isIXPAfiFull, type IXPAfiFull, type IXPDocument } from '../types/api'
+import { ApresentacaoRecolhida } from '../components/ui/FontesEDatas'
 import { EntityPage } from '../features/entidade/EntityPage'
 import { CabecalhoPtt } from '../features/ptt/CabecalhoPtt'
 import { getIndexAfi } from '../features/ptt/ui'
@@ -122,10 +123,12 @@ export function IXPPage() {
   }
 
   return (
+    <ApresentacaoRecolhida>
     <div className="space-y-6">
       <CabecalhoPtt code={code!} nome={ixp.name} uf={ixp.uf} snapshot={ixp.snapshot_date}
         coletaV4={coletaDaFamilia(ixp.v4)} coletaV6={coletaDaFamilia(ixp.v6)} rotasV4={v4?.total_routes ?? null} rotasV6={v6?.total_routes ?? null} />
       <EntityPage entidade="ixp" rotulo={`PTT ${ixp.name} (${ixp.uf})`} dados={ctx} snapshot={ixp.snapshot_date} fontes={fontes} espacamento="space-y-6" />
     </div>
+    </ApresentacaoRecolhida>
   )
 }

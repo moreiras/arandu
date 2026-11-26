@@ -47,7 +47,7 @@ const ABA: Record<string, string> = {
 }
 const def = (b: Omit<BlocoDef<PttCtx>, 'entidade'>) => registrarBloco<PttCtx>({ ...base, aba: ABA[b.id], ...b })
 
-def({ id: 'sintese', titulo: 'Em resumo', ordem: 5, depende: ['useIxp', 'ixps'], fontes: ['ixbr_api', 'lg_ixbr', 'apnic_pop'], selo: 'fato', semTitulo: true, plana: true,
+def({ id: 'sintese', titulo: 'Em resumo', ordem: 11, depende: ['useIxp', 'ixps'], fontes: ['ixbr_api', 'lg_ixbr', 'apnic_pop'], selo: 'fato', semTitulo: true, plana: true,
   nota: 'frases geradas por regra a partir dos números da página; a posição entre os PTTs é por ASNs em sessão direta e não mede relevância regional', Componente: SinteseBloco })
 def({ id: 'destaque', titulo: 'Indicadores em destaque', ordem: 10, depende: ['useIxp', 'ixps', 'ixp-est-users', 'snapshot-details'], fontes: ['ixbr_api', 'lg_ixbr', 'registro_br', 'apnic_pop'],
   selo: 'estimado', nota: 'participantes e originadores são medidos; usuários são estimativa APNIC Labs', Componente: DestaqueBloco })

@@ -35,11 +35,11 @@ describe('sinteseIxp', () => {
     const f = sinteseIxp(ctx('fec'), 'Feira de Santana', lista)
     expect(f.map((x) => x.id)).toEqual(['cadastro', 'posicao', 'usuarios', 'origem'])
     expect(f[0].texto).toBe('O IX.br Feira de Santana tem 52 ASNs no cadastro de participantes e 40 com sessão em route server (união IPv6 e IPv4).')
-    expect(f[1].texto).toBe('2 PTTs do IX.br têm mais ASNs em sessão direta, entre 6 com coleta; 2 têm o mesmo número.')
+    expect(f[1].texto).toBe('Entre os 6 PTTs do IX.br com coleta, 2 têm mais ASNs em sessão direta que este, e 2 têm o mesmo número.')
     expect(f[2].selo).toBe('estimado')
     expect(f[2].texto).toContain('1,2 mi')
     for (const x of f) { expect(x.fonte).not.toBe(''); expect(x.dataRef).toBe('2026-11-22'); expect(x.texto).not.toMatch(PALAVRAS_PROIBIDAS); expect(x.texto).not.toMatch(/maior|mais importante/i) }
-    expect(sinteseIxp(ctx('sp'), 'São Paulo', lista).find((x) => x.id === 'posicao')!.texto).toMatch(/^Nenhum PTT do IX\.br tem mais ASNs/)
+    expect(sinteseIxp(ctx('sp'), 'São Paulo', lista).find((x) => x.id === 'posicao')!.texto).toMatch(/nenhum tem mais ASNs em sessão direta/)
   })
 
   it('família sem coleta gera a frase de coleta, nunca "0 participantes"', () => {
