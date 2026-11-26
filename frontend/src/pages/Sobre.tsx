@@ -20,7 +20,7 @@ export function Sobre() {
         <p className="text-sm text-aviso-700 leading-relaxed">
           Este site ainda está em desenvolvimento ativo. Algumas seções podem estar incompletas,
           e os dados exibidos podem conter lacunas ou imprecisões. O projeto foi construído com
-          uso intensivo de IA generativa (Claude, da Anthropic) — tanto na geração de código
+          uso intensivo de IA generativa (Claude, da Anthropic), tanto na geração de código
           quanto na automação de partes do pipeline de dados.
         </p>
       </section>
@@ -28,9 +28,9 @@ export function Sobre() {
       <section className="space-y-4">
         <p className="text-sm text-gray-600 leading-relaxed">
           O <strong className="text-gray-800">{SITE.nome}</strong> organiza informações públicas sobre rotas, PTTs, ASes,
-          operadoras e o território, oferecendo uma visão mais clara da infraestrutura lógica da Internet no país. Não se
-          trata apenas de listar dados técnicos, mas de transformar esses dados em conhecimento útil para quem opera,
-          pesquisa, planeja ou simplesmente quer entender melhor como a Internet brasileira se conecta. Todo número tem
+          operadoras e o território, oferecendo uma visão mais clara da infraestrutura lógica da Internet no país. Mais
+          do que listar dados técnicos, ele os transforma em conhecimento útil para quem opera,
+          pesquisa, planeja ou quer entender como a Internet brasileira se conecta. Todo número tem
           fonte e data, e o que é inferido ou estimado vem rotulado como tal.
         </p>
         <p className="text-sm text-gray-600 leading-relaxed">
@@ -54,7 +54,7 @@ export function Sobre() {
           Em Guarani, <strong className="text-gray-800">Arandu</strong> pode ser entendido como
           sabedoria, conhecimento, entendimento. Ainda em Guarani, <strong className="text-gray-800">Tape</strong>{' '}
           ou <strong className="text-gray-800">Rape</strong> é
-          caminho. Juntas, as palavras formam uma ideia simples e forte: o caminho do conhecimento.
+          caminho. Juntas, as palavras formam a ideia de caminho do conhecimento.
         </p>
         <p className="text-sm text-gray-600 leading-relaxed">
           A pronúncia é aproximadamente <strong className="text-gray-800">a-ran-du-ra-PÉ</strong>,
@@ -85,7 +85,7 @@ export function Sobre() {
           Os dados de fontes públicas são processados em um pipeline offline e publicados
           semanalmente; cada fonte é coletada no seu próprio calendário. Cada publicação gera um
           {' '}<em>snapshot</em> datado. <CorrecoesNoChangelog /> Os dois snapshots mais recentes abrem sem login; os anteriores continuam guardados e abrem com login. Todos os resultados são
-          pré-computados — a interface nunca aguarda processamento em tempo real.
+          pré-computados, e a interface nunca aguarda processamento em tempo real.
         </p>
         <p className="text-sm text-gray-600 leading-relaxed">
           O pipeline coleta tabelas BGP dos looking glasses Telnet dos PTTs do IX.br, baixa
@@ -98,8 +98,8 @@ export function Sobre() {
         </p>
         <p className="text-sm text-gray-600 leading-relaxed">
           Além das outorgas, o pipeline ingere os <strong className="text-gray-800">acessos
-          declarados ao SICI</strong> — a declaração mensal obrigatória de toda prestadora à
-          Anatel — tanto de banda larga fixa quanto de telefonia móvel: quantos acessos em
+          declarados ao SICI</strong>, a declaração mensal obrigatória de toda prestadora à
+          Anatel, tanto de banda larga fixa quanto de telefonia móvel: quantos acessos em
           serviço cada CNPJ tem, por município, tecnologia e faixa de velocidade (fixa) ou
           modalidade de cobrança e geração de rede (móvel). Esses números são cruzados com as
           outorgas SCM/SMP e com os ASes identificados, alimentando as páginas de operadora,
@@ -110,7 +110,7 @@ export function Sobre() {
           do TeleGeography Submarine Cable Map, as{' '}
           <strong className="text-gray-800">linhas de transmissão de alta tensão</strong> do
           SIGEL/ANEEL e a <strong className="text-gray-800">malha rodoviária nacional</strong> do
-          IBGE (BC250) — relevantes porque faixas de domínio de rodovias e linhas de transmissão
+          IBGE (BC250). Essas camadas são relevantes porque faixas de domínio de rodovias e linhas de transmissão
           frequentemente carregam cabos OPGW/fibra usados também para telecom, embora nem o SIGEL
           nem o IBGE informem quais trechos especificamente têm essa fibra.
         </p>
@@ -123,8 +123,8 @@ export function Sobre() {
           Esses arquivos registram cada anúncio e retirada de rota ao longo do período, permitindo
           calcular métricas de instabilidade por AS e por prefixo: total de eventos, flaps,
           pico de atividade por hora e sequências repetidas de announce/withdraw. Em uma segunda
-          etapa, os ASes mais ruidosos são analisados em detalhe — relendo os arquivos MRT com o
-          AS_PATH completo dos eventos — para identificar se o ruído tem origem no próprio AS,
+          etapa, os ASes mais ruidosos são analisados em detalhe, relendo os arquivos MRT com o
+          AS_PATH completo dos eventos, para identificar se o ruído tem origem no próprio AS,
           em um prefixo específico, ou em um upstream instável.
         </p>
       </section>
@@ -183,7 +183,7 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">IX.br — Looking Glass Telnet (PTTs)</span>
+              <span className="text-sm font-semibold text-gray-800">IX.br: Looking Glass Telnet (PTTs)</span>
               <span className="text-xs text-gray-400">lg.{'{code}'}.ix.br:23</span>
             </div>
             <p className="text-xs text-gray-500">
@@ -194,14 +194,14 @@ export function Sobre() {
               abre uma sessão Telnet em cada um dos PTTs ativos, executa o comando
               da tabela BGP IPv6 conforme o firmware (FRR ou Quagga) e o{' '}
               <code className="font-mono bg-gray-100 px-0.5 rounded">show ip bgp</code> (IPv4), e extrai a tabela BGP completa
-              dos Route Servers — prefixos anunciados, ASNs com sessão no route server, ASNs de origem e estatísticas de
+              dos route servers: prefixos anunciados, ASNs com sessão no route server, ASNs de origem e estatísticas de
               cobertura por PTT.
             </p>
           </div>
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">IX.br — Dashboard (membros registrados)</span>
+              <span className="text-sm font-semibold text-gray-800">IX.br: Dashboard (membros registrados)</span>
               <a href="https://dashboard.ix.br/generate_json?ixp=sp" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">dashboard.ix.br/generate_json</a>
             </div>
@@ -231,7 +231,7 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">RouteViews — Updates MRT (route-views.saopaulo)</span>
+              <span className="text-sm font-semibold text-gray-800">RouteViews: Updates MRT (route-views.saopaulo)</span>
               <a href="https://archive.routeviews.org/route-views.saopaulo/bgpdata/" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">archive.routeviews.org/route-views.saopaulo</a>
             </div>
@@ -242,7 +242,7 @@ export function Sobre() {
               arquivos de update registram cada anúncio e retirada de rota ao longo do tempo,
               gerados a cada 15 minutos. O {SITE.software} baixa os updates dos 7 dias anteriores ao
               snapshot e os processa para calcular métricas de estabilidade BGP por AS e por
-              prefixo — eventos totais, flaps, atividade horária e diagnóstico de causa raiz para
+              prefixo: eventos totais, flaps, atividade horária e diagnóstico de causa raiz para
               os ASes mais ruidosos.
             </p>
           </div>
@@ -262,7 +262,7 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">Registro.br — nicbr-asn-blk</span>
+              <span className="text-sm font-semibold text-gray-800">Registro.br: nicbr-asn-blk</span>
               <a href="https://ftp.registro.br/pub/numeracao/origin/nicbr-asn-blk-latest.txt" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">ftp.registro.br/…/nicbr-asn-blk-latest.txt</a>
             </div>
@@ -277,7 +277,7 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">LACNIC — delegated-lacnic-extended</span>
+              <span className="text-sm font-semibold text-gray-800">LACNIC: delegated-lacnic-extended</span>
               <a href="https://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-extended-latest" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">ftp.lacnic.net/…/delegated-lacnic-extended-latest</a>
             </div>
@@ -308,7 +308,7 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">RIPE NCC — AS names</span>
+              <span className="text-sm font-semibold text-gray-800">RIPE NCC: AS names</span>
               <a href="https://ftp.ripe.net/ripe/asnames/asn.txt" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">ftp.ripe.net/ripe/asnames/asn.txt</a>
             </div>
@@ -322,7 +322,7 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">APNIC Labs — estimativas de usuários</span>
+              <span className="text-sm font-semibold text-gray-800">APNIC Labs: estimativas de usuários</span>
               <a href="https://stats.labs.apnic.net/aspop" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">stats.labs.apnic.net</a>
             </div>
@@ -335,7 +335,7 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">MANRS — participantes do programa de operadores</span>
+              <span className="text-sm font-semibold text-gray-800">MANRS: participantes do programa de operadores</span>
               <a href="https://manrs.org/netops/participants/" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">manrs.org</a>
             </div>
@@ -348,7 +348,7 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">RPKI — Routinator (NLnet Labs)</span>
+              <span className="text-sm font-semibold text-gray-800">RPKI: Routinator (NLnet Labs)</span>
               <a href="https://routinator.docs.nlnetlabs.nl/en/stable/" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">routinator.docs.nlnetlabs.nl</a>
             </div>
@@ -374,7 +374,7 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">Anatel — Outorgas SCM</span>
+              <span className="text-sm font-semibold text-gray-800">Anatel: Outorgas SCM</span>
               <a href="https://www.anatel.gov.br/dadosabertos/paineis_de_dados/outorga_e_licenciamento/" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">anatel.gov.br</a>
             </div>
@@ -388,32 +388,32 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">Anatel — Outorgas SMP</span>
+              <span className="text-sm font-semibold text-gray-800">Anatel: Outorgas SMP</span>
               <a href="https://www.anatel.gov.br/dadosabertos/paineis_de_dados/outorga_e_licenciamento/" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">anatel.gov.br</a>
             </div>
             <p className="text-xs text-gray-500">
               Mesma base de outorgas da Anatel usada para SCM, filtrada pelo código de serviço
-              010 — Serviço Móvel Pessoal. Universo pequeno (dezenas de CNPJs: grandes operadoras
+              010 (Serviço Móvel Pessoal). Universo pequeno (dezenas de CNPJs: grandes operadoras
               móveis, MVNOs e prestadoras de M2M), geolocalizado e cruzado com os ASes
               brasileiros identificados, da mesma forma que as outorgas SCM. Cruzado também com o
-              dataset de <a href="https://dados.gov.br/dados/conjuntos-dados/empresas-credenciadas-de-rede-virtual-do-servico-movel-pessoal-telefonia-movel"
+              conjunto de dados <a href="https://dados.gov.br/dados/conjuntos-dados/empresas-credenciadas-de-rede-virtual-do-servico-movel-pessoal-telefonia-movel"
               target="_blank" rel="noopener noreferrer" className="text-primario-600 hover:underline">
               Empresas Credenciadas de Rede Virtual</a>, que identifica quais operadoras são MVNO
-              puro (sem outorga própria, credenciadas a uma Prestadora Origem/host) — essas
+              puro (sem outorga própria, credenciadas a uma Prestadora Origem/host). Essas
               credenciadas passam a aparecer mesmo sem outorga SMP própria.
             </p>
           </div>
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">Anatel — Outorgas STFC</span>
+              <span className="text-sm font-semibold text-gray-800">Anatel: Outorgas STFC</span>
               <a href="https://www.anatel.gov.br/dadosabertos/paineis_de_dados/outorga_e_licenciamento/" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">anatel.gov.br</a>
             </div>
             <p className="text-xs text-gray-500">
-              Mesma base de outorgas usada para SCM/SMP, filtrada pelo código de serviço 171 —
-              Serviço Telefônico Fixo Comutado. Universo bem maior que SMP (~1.700 CNPJs),
+              Mesma base de outorgas usada para SCM/SMP, filtrada pelo código de serviço 171
+              (Serviço Telefônico Fixo Comutado). Universo bem maior que SMP (~1.700 CNPJs),
               incluindo pequenos provedores de VoIP e telefonia fixa, geolocalizado e cruzado
               com os ASes brasileiros identificados.
             </p>
@@ -421,13 +421,13 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">Anatel — Outorgas SeAC</span>
+              <span className="text-sm font-semibold text-gray-800">Anatel: Outorgas SeAC</span>
               <a href="https://www.anatel.gov.br/dadosabertos/paineis_de_dados/outorga_e_licenciamento/" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">anatel.gov.br</a>
             </div>
             <p className="text-xs text-gray-500">
               Mesma base de outorgas usada para SCM/SMP/STFC, filtrada pelo código de serviço
-              750 — Serviço de Acesso Condicionado (nome oficial da TV por assinatura no Brasil,
+              750 (Serviço de Acesso Condicionado, nome oficial da TV por assinatura no Brasil,
               Lei 12.485/2011). ~1.400 CNPJs outorgados, geolocalizados e cruzados com os ASes
               brasileiros identificados.
             </p>
@@ -435,7 +435,7 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">Anatel — Acessos declarados ao SICI</span>
+              <span className="text-sm font-semibold text-gray-800">Anatel: Acessos declarados ao SICI</span>
               <a href="https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">anatel.gov.br/dadosabertos/.../acessos</a>
             </div>
@@ -445,14 +445,14 @@ export function Sobre() {
               HTTP Range, sem repetir o download do ZIP completo a cada semana) as bases de
               acessos de banda larga fixa e de telefonia móvel: quantidade de acessos em serviço
               por CNPJ, município, tecnologia, meio de acesso, velocidade contratada (fixa) ou
-              modalidade de cobrança e geração de rede — 2G a 5G (móvel), e tipo de cliente
+              modalidade de cobrança e geração de rede, de 2G a 5G (móvel), e tipo de cliente
               (PF/PJ). É dado mensal, então só é reprocessado quando a Anatel publica um mês novo.
             </p>
           </div>
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">ITU BBmaps — Enlaces Terrestres</span>
+              <span className="text-sm font-semibold text-gray-800">ITU BBmaps: Enlaces Terrestres</span>
               <a href="https://bbmaps.itu.int/geoserver/itu-geocatalogue/wfs" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">bbmaps.itu.int</a>
             </div>
@@ -466,7 +466,7 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">TeleGeography — Submarine Cable Map</span>
+              <span className="text-sm font-semibold text-gray-800">TeleGeography: Submarine Cable Map</span>
               <a href="https://www.submarinecablemap.com" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">submarinecablemap.com</a>
             </div>
@@ -480,7 +480,7 @@ export function Sobre() {
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">SIGEL/ANEEL — Linhas de Transmissão</span>
+              <span className="text-sm font-semibold text-gray-800">SIGEL/ANEEL: Linhas de Transmissão</span>
               <a href="https://sigel.aneel.gov.br" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">sigel.aneel.gov.br</a>
             </div>
@@ -489,14 +489,14 @@ export function Sobre() {
               linhas de transmissão de alta tensão da rede básica nacional (operada pelo ONS),
               com tensão e extensão quando disponíveis. Relevante porque essas linhas
               frequentemente carregam cabos OPGW (fibra óptica no cabo para-raios) usados também
-              para telecom — mas o SIGEL não indica quais linhas especificamente têm OPGW, então
+              para telecom. O SIGEL, porém, não indica quais linhas têm OPGW, então
               a camada representa só a malha de alta tensão, sem afirmar essa presença.
             </p>
           </div>
 
           <div className="rounded-lg border border-gray-200 p-4 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-gray-800">IBGE — Malha Rodoviária (BC250)</span>
+              <span className="text-sm font-semibold text-gray-800">IBGE: Malha Rodoviária (BC250)</span>
               <a href="https://www.ibge.gov.br/geociencias/cartas-e-mapas/bases-cartograficas-continuas.html"
                 target="_blank" rel="noopener noreferrer"
                 className="text-xs text-primario-600 hover:underline">ibge.gov.br</a>
@@ -505,7 +505,7 @@ export function Sobre() {
               Base Cartográfica Contínua 1:250.000 (BC250) do IBGE: trechos de rodovia federais,
               estaduais, municipais e particulares, com jurisdição, revestimento e sigla (quando
               aplicável). Relevante porque faixas de domínio de rodovia frequentemente carregam
-              cabos de fibra óptica lançados por concessionárias ou operadoras — mas o IBGE não
+              cabos de fibra óptica lançados por concessionárias ou operadoras. O IBGE, porém, não
               indica quais trechos têm fibra, então a camada representa só a malha viária em si,
               sem afirmar essa presença. Camada opcional em /mapa, com filtro por jurisdição e
               pavimentação (não exibida por padrão, dado o volume de dados).
@@ -534,10 +534,10 @@ export function Sobre() {
       <section className="space-y-3">
         <h2 className="text-base font-semibold text-gray-800">Por que os mapas estão com o sul para cima?</h2>
         <p className="text-sm text-gray-600 leading-relaxed">
-          Não estão de ponta-cabeça — não existe "certo" ali. Norte para cima é uma convenção,
-          não um fato físico: a Terra não tem topo. A orientação virou padrão a partir dos
-          mapas europeus dos séculos 15 e 16, e o hábito se consolidou por repetição, não por
-          necessidade técnica. Em maio de 2025 o IBGE publicou um{' '}
+          Os mapas não estão de ponta-cabeça, porque não existe orientação "certa". O norte para
+          cima é uma convenção sem base física: a Terra não tem topo. A orientação virou padrão a
+          partir dos mapas europeus dos séculos 15 e 16, e o hábito se consolidou por repetição,
+          sem necessidade técnica. Em maio de 2025 o IBGE publicou um{' '}
           <a href="https://agenciabrasil.ebc.com.br/geral/noticia/2025-05/ibge-lanca-mapa-mundi-invertido-com-sul-no-topo"
             target="_blank" rel="noopener noreferrer" className="text-primario-600 hover:underline">
             mapa-múndi oficial com o sul no topo
@@ -553,7 +553,7 @@ export function Sobre() {
           O backend é escrito em <strong className="text-gray-700">Python</strong>, com um
           pipeline de coleta e processamento modular e uma API REST construída com{' '}
           <strong className="text-gray-700">FastAPI</strong>. Os dados são armazenados como
-          arquivos JSON comprimidos — sem banco de dados relacional — o que simplifica o
+          arquivos JSON comprimidos, sem banco de dados relacional, o que simplifica o
           deployment e facilita a replicação do pipeline.
         </p>
         <p className="text-sm text-gray-600 leading-relaxed">
@@ -567,7 +567,7 @@ export function Sobre() {
           com <strong className="text-gray-700">nginx</strong> como proxy reverso.
         </p>
         <p className="text-sm text-gray-600 leading-relaxed">
-          O projeto foi desenvolvido com uso intensivo de IA generativa —
+          O projeto foi desenvolvido com uso intensivo de IA generativa:
           o assistente <strong className="text-gray-700">Claude</strong> (Anthropic) foi
           utilizado em praticamente todas as etapas: escrita de código, modelagem de dados,
           depuração, documentação e revisão de lógica. Isso acelerou significativamente o
