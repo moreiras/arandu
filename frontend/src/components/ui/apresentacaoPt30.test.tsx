@@ -165,6 +165,14 @@ describe('resumo em texto', () => {
     expect(r.querySelector('p')!.textContent).toBe('Primeira frase inteira, sem corte. Segunda frase.')
   })
 
+  it('ao vivo, a região é anunciada como status sem mudar o resto', () => {
+    const { rerender } = render(<ResumoEmTexto frases={frases} regras="r-1" />)
+    expect(screen.getByTestId('resumo-em-texto')).not.toHaveAttribute('role')
+    rerender(<ResumoEmTexto frases={frases} regras="r-1" aoVivo />)
+    expect(screen.getByTestId('resumo-em-texto')).toHaveAttribute('role', 'status')
+    expect(screen.getByTestId('resumo-em-texto')).toHaveAttribute('aria-live', 'polite')
+  })
+
   it('dentro de um grupo, entrega as fontes ao bloco da seção e não cria outro', () => {
     render(<GrupoFontes><ResumoEmTexto frases={frases} regras="r-1" /></GrupoFontes>)
     expect(screen.getAllByTestId('fontes-e-datas')).toHaveLength(1)

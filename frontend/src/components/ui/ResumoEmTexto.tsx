@@ -21,7 +21,7 @@ export interface FraseResumo {
  * uma; selos, fontes e datas ficam num bloco recolhido (o da seção, se houver um `GrupoFontes` acima; senão, o do próprio resumo).
  * O texto é gerado por regra fixa, sem modelo de linguagem, a partir dos mesmos números da página.
  */
-export function ResumoEmTexto({ frases, regras, rotulo = 'Em resumo', snapshot, notaComoLer }: {
+export function ResumoEmTexto({ frases, regras, rotulo = 'Em resumo', snapshot, notaComoLer, aoVivo = false }: {
   frases: FraseResumo[]
   /** Versão das regras de montagem das frases (muda quando uma regra muda). */
   regras: string
@@ -29,13 +29,15 @@ export function ResumoEmTexto({ frases, regras, rotulo = 'Em resumo', snapshot, 
   snapshot?: string | null
   /** Frase adicional do "Como ler" específica da página. */
   notaComoLer?: string
+  /** Região anunciada (`role="status"`, `aria-live="polite"`) para o resumo que muda com a interação, como o do localizador. */
+  aoVivo?: boolean
 }) {
   const emGrupo = useEmGrupoFontes()
   const itens = frases.map((f) => ({ selo: f.selo, fonte: f.fonte, dataRef: f.dataRef }))
   useRegistrarFontes(itens)
   if (frases.length === 0) return null
   return (
-    <section aria-label={rotulo} className="space-y-2" data-testid="resumo-em-texto">
+    <section aria-label={rotulo} className="space-y-2" data-testid="resumo-em-texto" {...(aoVivo ? { role: 'status', 'aria-live': 'polite' as const } : {})}>
       <h2 className="text-sm font-semibold text-gray-800">{rotulo}</h2>
       <p className="max-w-[80ch] text-sm leading-relaxed text-gray-900">
         {frases.map((f, i) => <span key={f.id} data-testid={`frase-${f.id}`}>{i > 0 ? ' ' : ''}{f.texto}</span>)}
