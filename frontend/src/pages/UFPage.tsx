@@ -13,6 +13,7 @@ import { EstadoDados } from '../components/ui/EstadoDados'
 import type { MunicipioUf, UfCtx } from '../features/uf/contexto'
 import '../features/uf'
 import { useCadastroMercadoUf, useFontes, useUfPerfil } from '../hooks/entidades'
+import { ApresentacaoRecolhida } from '../components/ui/FontesEDatas'
 import { useActiveDate } from '../hooks/useSnapshot'
 import { UFS, nomeUf } from '../lib/ufs'
 
@@ -82,6 +83,7 @@ export function UFPage() {
   }
   const snapshot = perfil?.snapshot_date ?? date ?? null
   return (
+    <ApresentacaoRecolhida>
     <div className="space-y-5">
       <EntityHeader
         trilha={<Migalhas grupo="territorio" itens={[{ rotulo: 'Estados', to: '/estados' }, { rotulo: uf }]} />}
@@ -94,5 +96,6 @@ export function UFPage() {
       </EntityHeader>
       <EntityPage entidade="uf" rotulo={nomeUf(uf)} dados={ctx} snapshot={snapshot} fontes={fontes} espacamento="space-y-5" />
     </div>
+    </ApresentacaoRecolhida>
   )
 }

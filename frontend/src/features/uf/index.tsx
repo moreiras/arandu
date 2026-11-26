@@ -29,7 +29,7 @@ import { PttsBloco } from './blocks/PttsBloco'
 import { DeclaracaoSiciUfBloco } from './blocks/DeclaracaoSiciUfBloco'
 import { SemPttBloco } from './blocks/SemPttBloco'
 import { SITE } from '../../lib/site'
-import { SinteseTopo } from '../../components/ui/SinteseTopo'
+import { ResumoEmTexto } from '../../components/ui/ResumoEmTexto'
 import { REGRAS_SINTESE_UF, sinteseUf } from './sinteseUf'
 
 /** Blocos da página de UF: painel → PTTs → municípios → municípios sem PTT próximo → operadoras. */
@@ -56,9 +56,9 @@ const ABA: Record<string, string> = {
 }
 const def = (b: Omit<BlocoDef<UfCtx>, 'entidade'>) => registrarBloco<UfCtx>({ ...base, aba: ABA[b.id], ...b })
 
-def({ id: 'sintese', titulo: 'Em resumo', ordem: 9, depende: ['useUfPerfil'], fontes: ['anatel_sici', 'ibge_censo_pnad', 'curada_pix', 'lg_ixbr', 'registro_br'], selo: 'fato',
+def({ id: 'sintese', titulo: 'Em resumo', ordem: 11, depende: ['useUfPerfil'], fontes: ['anatel_sici', 'ibge_censo_pnad', 'curada_pix', 'lg_ixbr', 'registro_br'], selo: 'fato',
   nota: 'frases geradas por regra a partir dos números do painel; estimativas e inferências levam o selo próprio', semTitulo: true, plana: true,
-  Componente: ({ dados, snapshot }) => <SinteseTopo frases={sinteseUf(dados, snapshot)} snapshot={snapshot} regras={REGRAS_SINTESE_UF} /> })
+  Componente: ({ dados, snapshot }) => <ResumoEmTexto frases={sinteseUf(dados, snapshot)} snapshot={snapshot} regras={REGRAS_SINTESE_UF} notaComoLer="A UF de um AS é a da sede da organização, não a da operação, e a distância até o PTT é em linha reta, não o trajeto de fibra." /> })
 
 def({ id: 'mapa-municipios', titulo: 'Mapa dos municípios', ordem: 12, depende: ['useUfPerfil', 'municipios-centroides', 'malha-municipal'], fontes: ['ibge_malha_municipal', 'anatel_sici', 'curada_pix'], selo: 'fato',
   nota: 'indicadores normalizados por município; município sem dado fica cinza; malha: Fonte: IBGE', aplicavel: (c) => c.municipios.length > 0, Componente: ({ dados }) => <MapaUf dados={dados} /> })

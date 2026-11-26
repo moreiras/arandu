@@ -20,7 +20,7 @@ describe('sinteseUf', () => {
   it('AM: quatro frases na ordem mercado, domicílios, infraestrutura, rede, com selo e data', () => {
     const f = sinteseUf(base(), '2026-11-22')
     expect(f.map((x) => x.id)).toEqual(['acessos', 'penetracao', 'sem-ptt', 'rede'])
-    expect(f[0].texto).toBe('Amazonas tem 724.373 acessos de banda larga fixa declarados ao SICI, em 62 municípios; 66,9% deles são em fibra.')
+    expect(f[0].texto).toBe('Amazonas tem 724.373 acessos de banda larga fixa declarados ao SICI em 09/2026, em 62 municípios, e 66,9% deles são em fibra.')
     expect(f[0].selo).toBe('fato')
     expect(f[1].texto).toContain('58 acessos fixos para cada 100 domicílios')
     expect(f[1].selo).toBe('estimado')
