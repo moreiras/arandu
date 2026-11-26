@@ -16,6 +16,7 @@ import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { EstadoDados, ehErroDeAcessoOuFalha } from '../components/ui/EstadoDados'
 import { TEXTO_ZERO_REGISTRADO, estadoMargem } from '../features/cetic/margem'
+import { ApresentacaoRecolhida } from '../components/ui/FontesEDatas'
 import { SinteseCetic } from '../features/cetic/BlocoSinteseCetic'
 import { useActiveDate } from '../hooks/useSnapshot'
 
@@ -183,6 +184,7 @@ export function UsoInternetPage() {
   const colunaEf = colunas.includes(coluna) ? coluna : colunas[0] ?? ''
 
   return (
+    <ApresentacaoRecolhida>
     <div className="space-y-5">
       <div>
         <h1 className="text-titulo-1 text-gray-900">Uso da Internet</h1>
@@ -303,5 +305,6 @@ export function UsoInternetPage() {
         </p>
       )}
     </div>
+    </ApresentacaoRecolhida>
   )
 }
