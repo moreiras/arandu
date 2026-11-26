@@ -88,8 +88,9 @@ describe('home nova', () => {
     const ases = screen.getAllByTestId('kpi')[0]
     expect(await within(ases).findByText(/\+6 desde o snapshot anterior/)).toBeInTheDocument()
     await waitFor(() => expect(screen.getAllByTestId('kpi')[4]).toHaveTextContent('622 mil'))
-    // PT-30: fonte e data saem do cartão e ficam no bloco recolhido da seção (no DOM)
-    expect(ases.textContent).not.toMatch(/delegated-extended|ref\./)
+    // PT-30: o cartão não traz a linha de fonte; fonte e data ficam na dica do selo e no bloco recolhido da seção (no DOM)
+    expect(ases.querySelector('[data-kpi-proveniencia]')).not.toBeNull()
+    expect(within(ases).getByRole('tooltip').textContent).toMatch(/Fonte: LACNIC.*Referência: 20\/09\/2026/)
     const blocos = screen.getAllByTestId('fontes-e-datas').map((b) => b.textContent!).join(' ')
     expect(blocos).toMatch(/LACNIC.*referência: 20\/09\/2026/)
     expect(blocos).toMatch(/SICI.*referência: 08\/2026/)

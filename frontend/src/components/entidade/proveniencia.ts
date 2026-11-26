@@ -37,6 +37,12 @@ export const DESCRICAO_SELO: Record<Selo, string> = {
   estimado: 'Valor aproximado (amostragem ou modelo).',
 }
 
+/** Nome acessível do selo, com o significado ("Fato: dado declarado ou medido na fonte"), montado do rótulo e da frase acima. */
+export function nomeAcessivelSelo(selo: Selo): string {
+  const frase = (DESCRICAO_SELO[selo] ?? '').replace(/\.$/, '')
+  return `${ROTULO_SELO[selo] ?? String(selo)}${frase ? `: ${frase.charAt(0).toLowerCase()}${frase.slice(1)}` : ''}`
+}
+
 /** Declaração de um bloco: de que fontes (ids do catálogo) ele depende e como o dado deve ser lido. */
 export interface ProvenienciaBloco {
   fontes: string[]

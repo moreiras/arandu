@@ -3,11 +3,12 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import type { ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { formatarReferencia, ROTULO_SELO, type Selo } from '../entidade/proveniencia'
 import { Dica } from './Dica'
 import { useEmGrupoFontes, useRegistrarFontes } from './FontesEDatas'
-import { SeloMarca } from './SeloMarca'
+import { aspectoDoSelo } from '../../lib/paletaSelos'
+import { CLASSES_CARTAO_COM_DICA, SeloDica } from './SeloDica'
 
 /**
  * Indicador (KPI): valor, rótulo, referência de comparação, variação e proveniência. Valor ausente aparece como "—" e nunca como zero.
@@ -21,8 +22,10 @@ import { SeloMarca } from './SeloMarca'
  * cor) e lida por leitor de tela; o `title` do valor repete fonte e data apenas como redundância. Número exibido sem selo, fonte
  * e data é exceção a justificar (ex.: contagem de um conjunto cuja fonte está no bloco). Sem estado do React no hover.
  *
- * PT-30: dentro de um `GrupoFontes` (`FontesEDatas.tsx`) o cartão mostra só o selo pequeno (`SeloMarca`, com nome acessível) e entrega
- * fonte e data ao bloco recolhido "Fontes e datas destes números" da seção, que agrega e deduplica. Fora de um grupo, nada muda.
+ * PT-30: dentro de um `GrupoFontes` (`FontesEDatas.tsx`) o cartão mostra só o selo (forma e cor, sem letra) no canto superior direito,
+ * um botão com nome acessível e uma dica de fonte e data (`SeloDica`), e entrega fonte e data ao bloco recolhido "Fontes e datas
+ * destes números" da seção, que agrega e deduplica. O fundo e a faixa lateral seguem a cor do selo, alternando com branco e cinza
+ * (`lib/paletaSelos.ts`). Fora de um grupo, nada muda.
  */
 /** Acentos sóbrios por tipo de indicador: faixa lateral e fundo suaves; o valor é sempre neutro (PT-30), pois cor no número sugere juízo. */
 const TONS = {
@@ -78,16 +81,24 @@ export function Kpi({ rotulo, valor, referencia, variacao, selo, fonte, dataRef,
   const emGrupo = useEmGrupoFontes()
   const vazio = valor === null || valor === undefined || valor === ''
   useRegistrarFontes(emGrupo && !vazio && (selo || fonte || dataRef) ? [{ selo, fonte, dataRef }] : [])
+  const cartao = useRef<HTMLDivElement>(null)
+  const seloDoCartao = emGrupo && !vazio ? selo : undefined
+  const aspecto = seloDoCartao ? aspectoDoSelo(seloDoCartao) : null
   const dica = !emGrupo && fonte ? `Fonte: ${fonte}${dataRef ? ` · ref. ${formatarReferencia(dataRef)}` : ''}` : undefined
   return (
-    <div className={`rounded-lg border border-gray-200 p-3 min-w-0 ${tom ? TONS[tom].caixa : 'bg-white'}`} data-testid="kpi" data-kpi-rotulo={rotulo}>
-      <div className="text-xs text-gray-500">{rotulo}{explicacao && <Dica texto={explicacao} rotulo={rotulo} />}</div>
+    <div
+      ref={cartao}
+      className={`rounded-lg border border-gray-200 p-3 min-w-0 ${aspecto ? `${CLASSES_CARTAO_COM_DICA} border-l-4 bg-white ${aspecto.classes.faixa} ${aspecto.classes.fundoCiclo}` : tom ? TONS[tom].caixa : 'bg-white'}`}
+      data-testid="kpi"
+      data-kpi-rotulo={rotulo}
+    >
+      <div className={`text-xs text-gray-600 ${aspecto ? 'pr-6' : ''}`}>{rotulo}{explicacao && <Dica texto={explicacao} rotulo={rotulo} />}</div>
       <div className={`mt-0.5 text-titulo-2 tabular-nums ${tom ? TONS[tom].valor : 'text-gray-900'}`} title={dica} data-kpi-valor>{vazio ? '—' : valor}</div>
       {emGrupo
-        ? selo && !vazio && <p className="mt-1" data-kpi-proveniencia data-kpi-selo={selo}><SeloMarca selo={selo} /></p>
+        ? seloDoCartao && <span data-kpi-proveniencia data-kpi-selo={seloDoCartao}><SeloDica selo={seloDoCartao} fonte={fonte} dataRef={dataRef} cartao={cartao} /></span>
         : <LinhaProveniencia selo={selo} fonte={fonte} dataRef={dataRef} />}
       {(variacao || referencia) && (
-        <div className="mt-0.5 flex flex-wrap gap-x-2 text-xs text-gray-500">
+        <div className="mt-0.5 flex flex-wrap gap-x-2 text-xs text-gray-600">
           {variacao && <span>{variacao.texto}</span>}
           {referencia && <span>{referencia}</span>}
         </div>

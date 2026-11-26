@@ -3,45 +3,46 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { DESCRICAO_SELO, ROTULO_SELO, type Selo } from '../entidade/proveniencia'
-
-/**
- * Aparência de cada selo (PT-30): cor, forma e sigla. A forma e a sigla garantem que o selo não dependa só da cor (WCAG 1.4.1);
- * o texto de cada selo vem de `proveniencia.ts`, a mesma fonte que a página Sobre usa. Selo novo no vocabulário sem entrada aqui
- * cai no aspecto neutro.
- */
-const ASPECTO: Record<Selo, { cor: string; forma: 'circulo' | 'losango' | 'triangulo' }> = {
-  fato: { cor: 'bg-fato-50 text-fato-700', forma: 'circulo' },
-  inferido: { cor: 'bg-inferido-50 text-inferido-700', forma: 'losango' },
-  estimado: { cor: 'bg-estimado-50 text-estimado-700', forma: 'triangulo' },
-}
-const NEUTRO = { cor: 'bg-gray-100 text-gray-700', forma: 'circulo' as const }
+import { nomeAcessivelSelo, ROTULO_SELO, type Selo } from '../entidade/proveniencia'
+import { aspectoDoSelo, type AspectoSelo } from '../../lib/paletaSelos'
 
 /** Selos do vocabulário, na ordem em que a legenda os lista. */
 export const SELOS = Object.keys(ROTULO_SELO) as Selo[]
 
-/** Sigla do selo: a inicial do rótulo ("F" de Fato). */
-export const siglaSelo = (selo: Selo) => (ROTULO_SELO[selo] ?? String(selo)).charAt(0).toUpperCase()
-
-function Forma({ forma }: { forma: 'circulo' | 'losango' | 'triangulo' }) {
+/** Só a forma, sem letra: círculo, losango ou triângulo, na cor do selo (`lib/paletaSelos.ts`). Decorativa: quem a usa dá o nome. */
+export function FormaSelo({ selo, tamanho = 12, className = '' }: { selo: Selo; tamanho?: number; className?: string }) {
+  const a = aspectoDoSelo(selo)
   return (
-    <svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true" focusable="false" fill="currentColor">
-      {forma === 'circulo' && <circle cx="5" cy="5" r="4" />}
-      {forma === 'losango' && <polygon points="5,0.5 9.5,5 5,9.5 0.5,5" />}
-      {forma === 'triangulo' && <polygon points="5,0.8 9.5,9.2 0.5,9.2" />}
+    <svg viewBox="0 0 10 10" width={tamanho} height={tamanho} aria-hidden="true" focusable="false" fill="currentColor" className={`flex-shrink-0 ${a.classes.simbolo} ${className}`} data-forma={a.forma}>
+      <Contorno forma={a.forma} />
     </svg>
   )
 }
 
-/** Selo pequeno: forma, sigla e, para leitor de tela, o nome por extenso (`legivel` mostra o nome também na tela). */
+function Contorno({ forma }: { forma: AspectoSelo['forma'] }) {
+  if (forma === 'losango') return <polygon points="5,0.5 9.5,5 5,9.5 0.5,5" />
+  if (forma === 'triangulo') return <polygon points="5,0.8 9.5,9.2 0.5,9.2" />
+  return <circle cx="5" cy="5" r="4.2" />
+}
+
+/**
+ * Selo (PT-30): a forma e a cor, sem letra. Sem `legivel`, é uma imagem com o nome acessível por extenso ("Fato: dado declarado ou
+ * medido na fonte"); com `legivel`, o nome aparece ao lado da forma, que então fica oculta para leitor de tela. O selo clicável do
+ * cartão, com a dica de fonte e data, é o `SeloDica`.
+ */
 export function SeloMarca({ selo, legivel = false, className = '' }: { selo: Selo; legivel?: boolean; className?: string }) {
-  const a = ASPECTO[selo] ?? NEUTRO
+  if (legivel) {
+    return (
+      <span className={`inline-flex items-center gap-1.5 text-xs font-medium text-gray-800 ${className}`} data-selo={selo}>
+        <FormaSelo selo={selo} />
+        <span>{ROTULO_SELO[selo]}</span>
+      </span>
+    )
+  }
+  const a = aspectoDoSelo(selo)
   return (
-    <span className={`inline-flex items-center gap-1 rounded px-1.5 text-xs font-medium leading-4 ${a.cor} ${className}`} title={DESCRICAO_SELO[selo]} data-selo={selo}>
-      <Forma forma={a.forma} />
-      {legivel
-        ? <span>{ROTULO_SELO[selo]}</span>
-        : <><span aria-hidden="true">{siglaSelo(selo)}</span><span className="sr-only">{ROTULO_SELO[selo]}</span></>}
+    <span role="img" aria-label={nomeAcessivelSelo(selo)} className={`inline-flex flex-shrink-0 items-center ${a.classes.simbolo} ${className}`} data-selo={selo}>
+      <FormaSelo selo={selo} />
     </span>
   )
 }
