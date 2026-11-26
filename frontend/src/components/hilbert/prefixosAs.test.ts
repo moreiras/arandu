@@ -5,7 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { describe, expect, it } from 'vitest'
 import { cellIndexToV6Prefix, V6_BLOCKS } from './hilbert'
-import { intervaloV4, intervaloV6, rotuloQuadranteV6, semCobertura } from './prefixosAs'
+import { celulasV6, contidos, densidadeV4, interseccao, intervaloV4, intervaloV6, rotuloQuadranteV6, semCobertura } from './prefixosAs'
 
 describe('intervalo de células de um prefixo', () => {
   it('IPv4: /24 marca o /16 que o contém; /16 é uma célula; mais curto cobre todas', () => {
@@ -46,5 +46,27 @@ describe('semCobertura', () => {
   it('não confunde famílias nem prefixo mais curto com cobertura', () => {
     expect(semCobertura(['10.0.0.0/8'], ['10.0.0.0/24'])).toEqual(['10.0.0.0/8'])
     expect(semCobertura(['2001:db8::/32'], ['32.1.0.0/16'])).toEqual(['2001:db8::/32'])
+  })
+})
+
+describe('formato dos mapas do panorama', () => {
+  it('densidadeV4 conta /24 por /16 sem somar sobreposição; mais curto que /16 enche as células', () => {
+    const d = densidadeV4(['198.18.0.0/20', '198.18.4.0/24', '198.18.200.0/22', '198.18.200.128/26', '10.0.0.0/15'])
+    expect(d[(198 << 8) | 18]).toBe(16 + 4)
+    expect(d[(10 << 8) | 0]).toBe(256)
+    expect(d[(10 << 8) | 1]).toBe(256)
+    expect(d[(10 << 8) | 2]).toBe(0)
+    expect(densidadeV4(['198.18.0.0/16', '198.18.4.0/24'])[(198 << 8) | 18]).toBe(256)
+  })
+  it('celulasV6 devolve o índice de Hilbert da célula (o mesmo do prefixo) por bloco, sem repetição', () => {
+    const c = celulasV6(['2804:1234::/32', '2804:1234:1::/48', '2804:1230::/30', '3000::/32'])
+    expect(Object.keys(c)).toEqual(['lacnic'])
+    expect(c.lacnic).toContain(intervaloV6('2804:1234::/32')!.ini)
+    expect(new Set(c.lacnic).size).toBe(c.lacnic.length)
+  })
+  it('contidos e interseccao', () => {
+    expect(contidos(['198.18.4.0/24', '203.0.113.0/24'], ['198.18.0.0/16'])).toEqual(['198.18.4.0/24'])
+    expect(interseccao(['198.18.0.0/16'], ['198.18.4.0/24', '203.0.113.0/24'])).toEqual(['198.18.4.0/24'])
+    expect(interseccao(['198.18.0.0/16'], ['198.18.0.0/16'])).toEqual(['198.18.0.0/16'])
   })
 })

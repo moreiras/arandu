@@ -106,6 +106,63 @@ export function semCobertura(candidatos: string[], cobertura: string[]): string[
   })
 }
 
+/** Prefixos de `candidatos` contidos (ou iguais) em algum de `cobertura`: o complemento de `semCobertura`. */
+export function contidos(candidatos: string[], cobertura: string[]): string[] {
+  const fora = new Set(semCobertura(candidatos, cobertura))
+  return candidatos.filter((p) => !fora.has(p))
+}
+
+/** Prefixos presentes nas duas listas com precisão de prefixo: os de uma que estão dentro de algum da outra, sem repetição. */
+export function interseccao(a: string[], b: string[]): string[] {
+  return [...new Set([...contidos(a, b), ...contidos(b, a)])]
+}
+
+/**
+ * Densidade por /16 (índice `a<<8|b`, 65536 posições) no formato do mapa IPv4 do panorama: quantos /24 do /16 os prefixos cobrem
+ * (0 a 256). Prefixo mais curto que /16 cobre os 256 /24 de cada /16; um mais longo que /24 conta o /24 que o contém.
+ * Prefixos que se sobrepõem não contam duas vezes.
+ */
+export function densidadeV4(prefixos: string[]): number[] {
+  const dens = new Array<number>(65536).fill(0)
+  const parciais = new Map<number, Uint8Array>()
+  for (const p of prefixos) {
+    const a = analisarV4(p)
+    if (!a) continue
+    const base = a.g[0]
+    if (a.len < 16) {
+      const n = 2 ** (16 - a.len)
+      const ini = base - (base % n)
+      for (let c = ini; c < ini + n; c++) dens[c] = 256
+      continue
+    }
+    if (dens[base] === 256) continue
+    const m = parciais.get(base) ?? new Uint8Array(256)
+    parciais.set(base, m)
+    const terceiro = a.g[1] >> 8
+    const n = a.len >= 24 ? 1 : 2 ** (24 - a.len)
+    const ini = terceiro - (terceiro % n)
+    for (let c = ini; c < ini + n; c++) m[c] = 1
+  }
+  for (const [c, m] of parciais) if (dens[c] !== 256) dens[c] = m.reduce((t, x) => t + x, 0)
+  return dens
+}
+
+/**
+ * Células de /32 por bloco de RIR (índice de Hilbert = posição linear da célula), no formato do mapa IPv6 do panorama.
+ * Só entram os blocos com célula; prefixos fora dos blocos de `V6_BLOCKS` não têm onde ser desenhados.
+ */
+export function celulasV6(prefixos: string[]): Record<string, number[]> {
+  const por = new Map<string, Set<number>>()
+  for (const p of prefixos) {
+    const iv = intervaloV6(p)
+    if (!iv) continue
+    const set = por.get(iv.bloco) ?? new Set<number>()
+    por.set(iv.bloco, set)
+    for (let c = iv.ini; c < iv.fim; c++) set.add(c)
+  }
+  return Object.fromEntries([...por].map(([b, set]) => [b, [...set].sort((x, y) => x - y)]))
+}
+
 /** Verdadeiro se o intervalo cruza [ini, fim). */
 export function cruza(a: Intervalo, ini: number, fim: number): boolean {
   return a.ini < fim && a.fim > ini

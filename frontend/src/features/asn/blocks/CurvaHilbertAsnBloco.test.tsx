@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import docBase from '../../../test/fixtures/asn_detail.json'
 import { abasDe, blocosDe } from '../../entidade/registry'
@@ -37,6 +37,7 @@ describe('aba Numeração do AS', () => {
       expect(b.fontes.length).toBeGreaterThan(0)
       expect(b.selo).toBeTruthy()
       expect(b.comoLer).toContain('não uso nem tráfego')
+      expect(b.comoLer).toContain(id === 'hilbert-ipv6' ? '/32' : '/16')
       expect(b.recolhido).toBeFalsy()
     }
   })
@@ -50,43 +51,69 @@ describe('aba Numeração do AS', () => {
   })
 })
 
-describe('curvas de Hilbert do AS', () => {
-  it('IPv4: canvas com nome acessível, camadas com contagem, lista de prefixos como alternativa textual', () => {
+describe('curvas de Hilbert do AS (os mesmos mapas do panorama técnico)', () => {
+  beforeAll(() => { vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} unobserve() {} }) })
+
+  it('IPv4: canvas com nome acessível, camadas do AS em botões com aria-pressed, legenda e lista como alternativa textual', () => {
     render(<HilbertIpv4Bloco dados={dados(doc) as any} snapshot="2026-09-20" />)
-    expect(screen.getByRole('img', { name: /Curva de Hilbert IPv4 do AS64496.*lista de prefixos abaixo/ })).toBeTruthy()
-    expect(screen.getByRole('button', { name: /Alocado pelo Registro\.br \(1\)/ })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: /Só na tabela global \(1\)/ })).toBeTruthy()   // 198.18.4.0/24 está dentro do /16 alocado
+    expect(screen.getByRole('img', { name: /Curva de Hilbert IPv4 do AS64496, camada "Alocado pelo Registro\.br".*lista de prefixos abaixo/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Alocado pelo Registro.br' })).toHaveAttribute('aria-pressed', 'true')
+    for (const n of ['Visto na tabela global', 'Alocado e visível', 'Visto no PTT do IX.br']) {
+      expect(screen.getByRole('button', { name: n })).toHaveAttribute('aria-pressed', 'false')
+    }
+    expect(screen.getByText(/Prefixos IPv4 do AS64496 alocados pelo Registro\.br/)).toBeTruthy()
     const lista = screen.getByRole('list', { name: 'Prefixos IPv4 do AS64496' })
     expect(within(lista).getByText('198.18.0.0/16')).toBeTruthy()
-    expect(within(lista).getByText('203.0.113.0/24')).toBeTruthy()
-    expect(within(lista).queryByText('198.18.4.0/24')).toBeTruthy()   // visto no PTT (SP)
+    expect(within(lista).queryByText('203.0.113.0/24')).toBeNull()
   })
 
-  it('IPv4: escolher um quadrante /8 filtra a lista e "limpar filtro" volta; camada desligada some da lista', () => {
+  it('IPv4: a camada escolhida decide a lista; "alocado e visível" é a interseção e cada prefixo traz suas origens em texto', () => {
     render(<HilbertIpv4Bloco dados={dados(doc) as any} snapshot="2026-09-20" />)
+    fireEvent.click(screen.getByRole('button', { name: 'Visto na tabela global' }))
+    const lista = () => screen.getByRole('list', { name: 'Prefixos IPv4 do AS64496' })
+    expect(within(lista()).getByText('203.0.113.0/24')).toBeTruthy()
+    expect(within(lista()).getByText('198.18.4.0/24')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Alocado e visível' }))
+    expect(within(lista()).getByText('198.18.4.0/24')).toBeTruthy()   // dentro do /16 alocado
+    expect(within(lista()).queryByText('203.0.113.0/24')).toBeNull()
+    expect(lista().textContent).toMatch(/visto na tabela global, visto em PTT do IX\.br/)
+  })
+
+  it('IPv4: escolher um quadrante /8 filtra a lista e "limpar filtro" volta', () => {
+    render(<HilbertIpv4Bloco dados={dados(doc) as any} snapshot="2026-09-20" />)
+    fireEvent.click(screen.getByRole('button', { name: 'Visto na tabela global' }))
     fireEvent.click(screen.getByRole('button', { name: /^203\.0\.0\.0\/8/ }))
     const lista = screen.getByRole('list', { name: 'Prefixos IPv4 do AS64496' })
-    expect(within(lista).queryByText('198.18.0.0/16')).toBeNull()
+    expect(within(lista).queryByText('198.18.4.0/24')).toBeNull()
     expect(within(lista).getByText('203.0.113.0/24')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'limpar filtro' }))
-    expect(within(screen.getByRole('list', { name: 'Prefixos IPv4 do AS64496' })).getByText('198.18.0.0/16')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: /Alocado pelo Registro\.br/ }))
-    expect(within(screen.getByRole('list', { name: 'Prefixos IPv4 do AS64496' })).queryByText('198.18.0.0/16')).toBeNull()
+    expect(within(screen.getByRole('list', { name: 'Prefixos IPv4 do AS64496' })).getByText('198.18.4.0/24')).toBeTruthy()
   })
 
-  it('IPv6: canvas por bloco de RIR com nome acessível, quadrantes /20 e PTT escolhido', () => {
+  it('o PTT escolhido restringe a camada de PTT; sem escolha são todos', () => {
+    render(<HilbertIpv4Bloco dados={dados(doc) as any} snapshot="2026-09-20" />)
+    fireEvent.click(screen.getByRole('button', { name: 'Visto no PTT do IX.br' }))
+    const lista = () => screen.getByRole('list', { name: 'Prefixos IPv4 do AS64496' })
+    expect(within(lista()).getByText('203.0.113.0/24')).toBeTruthy()
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'sp' } })
+    expect(screen.getByRole('button', { name: 'Visto no PTT SP' })).toHaveAttribute('aria-pressed', 'true')
+    expect(within(lista()).queryByText('203.0.113.0/24')).toBeNull()
+    expect(within(lista()).getByText('198.18.5.0/24')).toBeTruthy()
+  })
+
+  it('IPv6: um mapa por bloco de RIR com prefixo, nome acessível, quadrantes /20 e lista da camada', () => {
     render(<HilbertIpv6Bloco dados={dados(doc) as any} snapshot="2026-09-20" />)
-    expect(screen.getByRole('img', { name: /Curva de Hilbert IPv6 do AS64496, bloco 2800::\/12 \(LACNIC\)/ })).toBeTruthy()
-    expect(screen.getByRole('button', { name: /Visto no PTT SP \(1\)/ })).toBeTruthy()
+    expect(screen.getAllByRole('img').length).toBe(1)
+    expect(screen.getByRole('img', { name: /Curva de Hilbert IPv6 do AS64496, camada "Alocado pelo Registro\.br", bloco 2800::\/12 \(LACNIC\)/ })).toBeTruthy()
     expect(screen.getByRole('button', { name: /^2804:1000::\/20/ })).toBeTruthy()
-    const lista = screen.getByRole('list', { name: 'Prefixos IPv6 do AS64496' })
-    expect(within(lista).getByText('2804:1234::/32')).toBeTruthy()
-    expect(within(lista).getByText('2804:9999::/32')).toBeTruthy()
+    expect(within(screen.getByRole('list', { name: 'Prefixos IPv6 do AS64496' })).getByText('2804:1234::/32')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Visto no PTT do IX.br' }))
+    expect(within(screen.getByRole('list', { name: 'Prefixos IPv6 do AS64496' })).getByText('2804:9999::/32')).toBeTruthy()
   })
 
-  it('os controles são botões reais com altura mínima e o título da camada não depende só de cor', () => {
+  it('os controles próprios são botões reais com altura mínima; o resumo conta os prefixos da camada', () => {
     render(<HilbertIpv4Bloco dados={dados(doc) as any} snapshot="2026-09-20" />)
     for (const b of screen.getAllByRole('button')) expect(b.className).toMatch(/min-h-\[2[48]px\]/)
-    expect(screen.getByRole('button', { name: /Alocado pelo Registro\.br/ }).textContent).toMatch(/\(\d+\)/)
+    expect(screen.getByTestId('resumo-curva-v4').textContent).toMatch(/1 prefixo IPv4 na camada "Alocado pelo Registro\.br"/)
   })
 })
