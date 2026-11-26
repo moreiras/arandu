@@ -79,9 +79,9 @@ describe('configuração dos serviços', () => {
   })
 
   it('colunas: as mesmas das páginas antigas', () => {
-    expect(SERVICOS.scm.colunas.map((c) => c.label)).toEqual(['CNPJ', 'Razão Social / Nome Fantasia', 'Município / UF', 'Data no cadastro', 'Acessos', 'B2B', 'Munic.', 'ASN(s)'])
-    expect(SERVICOS.smp.colunas.map((c) => c.label)).toEqual(['Operadora', 'UF sede', 'Acessos', 'B2B', 'Munic.', 'Geração', 'ASN(s)', 'Rede virtual'])
-    expect(SERVICOS.stfc.colunas.map((c) => c.label)).toEqual(['Prestadora', 'UF', 'Município', 'Data no cadastro', 'ASN(s)'])
+    expect(SERVICOS.scm.colunas.map((c) => c.label)).toEqual(['CNPJ', 'Razão Social / Nome Fantasia', 'Município / UF', 'Data no cadastro', 'Acessos', 'B2B', 'Munic.', 'ASNs'])
+    expect(SERVICOS.smp.colunas.map((c) => c.label)).toEqual(['Operadora', 'UF sede', 'Acessos', 'B2B', 'Munic.', 'Geração', 'ASNs', 'Rede virtual'])
+    expect(SERVICOS.stfc.colunas.map((c) => c.label)).toEqual(['Prestadora', 'UF', 'Município', 'Data no cadastro', 'ASNs'])
     expect(SERVICOS.smp.colunas.filter((c) => !c.ordenavel).map((c) => c.key)).toEqual(['geracao', 'asns', 'rede_virtual'])
   })
 

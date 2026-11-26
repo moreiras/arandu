@@ -14,6 +14,7 @@ import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import type { Sentido } from '../lib/ordenacao'
 import type { FacilitiesLista } from '../types/api'
+import { palavra } from '../lib/sintese'
 
 const POR_PAGINA = 100       // a prévia aberta: acima disso (ou página 2) a API exige login
 // Ordens que a API aceita (`ordem`), cada uma num sentido só: o cabeçalho escolhe a ordem no servidor, que ordena a lista inteira antes de paginar.
@@ -115,7 +116,7 @@ export function FacilitiesPage() {
       {data && (
         <>
           <p className="text-xs text-gray-500" data-testid="total-instalacoes">
-            {n(total)} instalação(ões){total > POR_PAGINA ? ` · mapa e lista mostram a página ${pagina} de ${paginas}` : ''}
+            {n(total)} {palavra(total, 'instalação', 'instalações')}{total > POR_PAGINA ? ` · mapa e lista mostram a página ${pagina} de ${paginas}` : ''}
           </p>
           {data.cobertura && <CoberturaPtts cob={data.cobertura} />}
           <MapaInstalacoes itens={data.items} />

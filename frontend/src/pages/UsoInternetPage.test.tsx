@@ -40,7 +40,7 @@ describe('página Uso da Internet', () => {
       http.get('*/api/v1/cetic/indicadores', () => HttpResponse.json({ ...meta, filtros: {}, total: 4, items: [linha('Total', 'Total', 'Sim', 31.68, 24981993), linha('Total', 'Total', 'Não', 68.32, 53879033), linha('Norte', 'Região', 'Sim', 25.39, 1200000), linha('Norte', 'Região', 'Não', 74.61, 3600000)] })),
     )
     montar()
-    await waitFor(() => expect(screen.getByText(/A1 — Domicílios com computador/, { selector: 'h2' })).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/A1: Domicílios com computador/, { selector: 'h2' })).toBeTruthy())
     expect(pedido).toBe('domicilios')
     await waitFor(() => expect(screen.getByText('31,7')).toBeTruthy())
     expect(screen.getByText('25,4')).toBeTruthy()

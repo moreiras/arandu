@@ -246,7 +246,7 @@ describe('página de UF', () => {
     expect(screen.getByText('345.678')).toBeInTheDocument()
     expect(screen.getByText('78,5%')).toBeInTheDocument()
     // gráfico de faixas de distância: 9.000 acessos a até 50 km e 300 a mais de 100 km
-    expect(screen.getByRole('img', { name: /até 50 km: 97%.*100–300 km: 3%/ })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: /até 50 km: 97%.*100 a 300 km: 3%/ })).toBeInTheDocument()
   })
 
   it('faz uma única chamada de dados à API para a UF (perfil), sem as rotas antigas nem o PIX', async () => {

@@ -355,7 +355,7 @@ export function GruposPage() {
           dos dados abertos de CNPJ da Receita Federal. {fmt(data.total_grupos ?? data.total)} grupos
           identificados neste snapshot ({date}), além de {fmt(data.total_individuais ?? 0)} empresas
           individuais (sem ligação societária com nenhuma outra operadora), listadas como grupos de
-          uma empresa só — sem percentual de participação (a Receita não divulga isso publicamente).
+          uma empresa só. Nenhum grupo traz percentual de participação, porque a Receita não o divulga publicamente.
         </p>
         <p className="text-xs text-gray-500 mt-1" data-testid="grupos-regras">
           Só sócio com participação societária liga empresas: administrador, diretor e presidente sem participação não ligam (em sociedade anônima o quadro traz a diretoria, não os
@@ -431,7 +431,7 @@ export function GruposPage() {
         <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col">
           <div className="flex items-center justify-between flex-wrap gap-x-3 gap-y-1 mb-2">
             <h2 className="text-sm font-semibold text-gray-700">
-              Distribuição municipal {grupoEmFoco ? `— ${topEmpresas(grupoEmFoco, 1)}` : ''}
+              Distribuição municipal {grupoEmFoco ? `: ${topEmpresas(grupoEmFoco, 1)}` : ''}
             </h2>
             <span className="text-xs text-gray-400">
               {grupoEmFoco
@@ -461,7 +461,7 @@ export function GruposPage() {
         <StatCard label="Individuais com atividade" value={indicadores.individuaisAtivas} hint={pct(indicadores.individuaisAtivas, indicadores.individuais)} />
       </div>
       <p className="text-xs text-gray-400 mt-1.5">
-        Atividade = usuários (APNIC) &gt; 0, assinantes &gt; 0 ou visibilidade BGP — basta uma das três.
+        Atividade: usuários (APNIC) &gt; 0, assinantes &gt; 0 ou visibilidade BGP; basta uma dessas condições.
       </p>
 
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mt-4">

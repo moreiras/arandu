@@ -33,7 +33,7 @@ function pivo(linhas: CeticLinha[]) {
   const recortes: string[] = []
   const celulas = new Map<string, CeticLinha>()
   for (const l of linhas) {
-    const col = l.item ? `${l.item} — ${l.resposta}` : l.resposta
+    const col = l.item ? `${l.item}: ${l.resposta}` : l.resposta
     const rec = `${l.dimensao}|${l.recorte}`
     if (!colunas.includes(col)) colunas.push(col)
     if (!recortes.includes(rec)) recortes.push(rec)
@@ -208,7 +208,7 @@ export function UsoInternetPage() {
         <p id="pesquisa-descricao" className="basis-full text-xs text-gray-600">{PESQUISAS.find((p) => p.id === pesquisa)?.descricao}</p>
         <label className="text-sm text-gray-600 flex flex-col">Tabela
           <select value={escolhida?.tabela ?? ''} onChange={(e) => setTabela(e.target.value)} className="border border-gray-300 rounded px-2 py-1.5 text-sm max-w-xl">
-            {itens.map((t) => <option key={t.tabela} value={t.tabela}>{t.codigo} — {t.titulo}</option>)}
+            {itens.map((t) => <option key={t.tabela} value={t.tabela}>{t.codigo}: {t.titulo}</option>)}
           </select>
         </label>
         <label className="text-sm text-gray-600 flex flex-col">Mostrar
@@ -223,7 +223,7 @@ export function UsoInternetPage() {
       {escolhida && (
         <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">{escolhida.codigo} — {escolhida.titulo}</h2>
+            <h2 className="text-base font-semibold text-gray-900">{escolhida.codigo}: {escolhida.titulo}</h2>
             <p className="text-xs text-gray-500">Universo: {escolhida.universo || '—'} · {meta?.pesquisa} {meta?.edicao}</p>
           </div>
           {dados.isLoading && <p className="text-sm text-gray-500">Carregando…</p>}
@@ -261,7 +261,7 @@ export function UsoInternetPage() {
                             <td key={c} className="px-2 py-1 text-right tabular-nums whitespace-nowrap">
                               {medida === 'proporcao' ? pct(v) : inteiro(v)}
                               {estado === 'zero_registrado'
-                                ? <span className="text-gray-500" title={TEXTO_ZERO_REGISTRADO}> ±—<span className="sr-only"> ({TEXTO_ZERO_REGISTRADO})</span></span>
+                                ? <span className="text-gray-500" title={TEXTO_ZERO_REGISTRADO}> ±{'—'}<span className="sr-only"> ({TEXTO_ZERO_REGISTRADO})</span></span>
                                 : v != null && m != null && <span className="text-gray-500"> ±{medida === 'proporcao' ? pct(m) : inteiro(m)}</span>}
                               {estado === 'precisao_baixa' && <span className="text-aviso-900"> · precisão baixa</span>}
                             </td>
@@ -281,7 +281,7 @@ export function UsoInternetPage() {
               return zeradas > 0 && (
                 <p className="text-xs text-gray-600 mt-1" data-testid="nota-margem-zero">
                   {zeradas.toLocaleString('pt-BR')} {zeradas === 1 ? 'célula tem' : 'células têm'} {TEXTO_ZERO_REGISTRADO}, com proporção entre 0% e
-                  100%; numa pesquisa amostral isso não é precisão perfeita, e a margem aparece como "±—".
+                  100%; numa pesquisa amostral isso não é precisão perfeita, e a margem aparece como "±{'—'}".
                 </p>
               )
             })()}
