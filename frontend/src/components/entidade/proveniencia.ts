@@ -32,12 +32,12 @@ export type Selo = 'fato' | 'inferido' | 'estimado'
 export const ROTULO_SELO: Record<Selo, string> = { fato: 'Fato', inferido: 'Inferido', estimado: 'Estimado' }
 
 export const DESCRICAO_SELO: Record<Selo, string> = {
-  fato: 'Dado declarado ou medido na fonte.',
-  inferido: 'Derivado de outros dados por uma regra; pode estar errado.',
-  estimado: 'Valor aproximado (amostragem ou modelo).',
+  fato: 'Declarado pela fonte ou medido diretamente.',
+  inferido: 'Deduzido de outros dados por uma regra pública; pode não corresponder à realidade.',
+  estimado: 'Valor aproximado, obtido por amostragem ou modelo.',
 }
 
-/** Nome acessível do selo, com o significado ("Fato: dado declarado ou medido na fonte"), montado do rótulo e da frase acima. */
+/** Nome acessível do selo, com o significado ("Fato: declarado pela fonte ou medido diretamente"), montado do rótulo e da frase acima. */
 export function nomeAcessivelSelo(selo: Selo): string {
   const frase = (DESCRICAO_SELO[selo] ?? '').replace(/\.$/, '')
   return `${ROTULO_SELO[selo] ?? String(selo)}${frase ? `: ${frase.charAt(0).toLowerCase()}${frase.slice(1)}` : ''}`

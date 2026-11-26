@@ -48,7 +48,7 @@ describe('selo só com símbolo e cor', () => {
       expect(el).toHaveAttribute('aria-label', nomeAcessivelSelo(s))
       unmount()
     }
-    expect(nomeAcessivelSelo('fato')).toBe('Fato: dado declarado ou medido na fonte')
+    expect(nomeAcessivelSelo('fato')).toBe('Fato: declarado pela fonte ou medido diretamente')
   })
 
   it('com o nome visível, a forma fica oculta para leitor de tela e o nome aparece uma vez', () => {
@@ -68,7 +68,7 @@ describe('dica do selo no cartão', () => {
 
   it('o botão do selo tem nome acessível e aponta para a dica com natureza, fonte e data', () => {
     render(cartao())
-    const botao = screen.getByRole('button', { name: 'Fato: dado declarado ou medido na fonte' })
+    const botao = screen.getByRole('button', { name: 'Fato: declarado pela fonte ou medido diretamente' })
     expect(botao).toHaveAttribute('type', 'button')
     const dica = document.getElementById(botao.getAttribute('aria-describedby')!)!
     expect(dica).toHaveAttribute('role', 'tooltip')

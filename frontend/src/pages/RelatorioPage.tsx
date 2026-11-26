@@ -123,7 +123,7 @@ export function RelatorioPage() {
         ))}
       </tbody></table></section>
       <footer className="space-y-1 border-t border-gray-300 pt-2 text-xs text-gray-600">
-        <p><span className="font-medium">Selos:</span> fato (declarado ou medido na fonte), inferido (derivado por regra, pode estar errado) e estimado (amostragem ou modelo). Cada linha tem o seu.</p>
+        <p><span className="font-medium">Selos:</span> fato (declarado pela fonte ou medido diretamente), inferido (deduzido de outros dados por uma regra pública; pode não corresponder à realidade) e estimado (valor aproximado, obtido por amostragem ou modelo). Cada linha tem o seu.</p>
         <p><span className="font-medium">Citar:</span> {citacao}</p>
         <p data-testid="aviso-link-citacao">{avisoLinkCitacao(r.snapshot, atuais)}</p>
       </footer>
