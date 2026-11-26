@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useEffect, useMemo, useState } from 'react'
-import { SinteseTopo } from '../../components/ui/SinteseTopo'
+import { ResumoEmTexto } from '../../components/ui/ResumoEmTexto'
 import type { FraseSintese } from '../../lib/sintese'
 import { REGRAS_SINTESE_LOCALIZADOR, sinteseLocalizador, type EntradaSinteseLocalizador } from './sinteseLocalizador'
 
@@ -21,8 +21,8 @@ export function useAtrasado<T>(valor: T, ms: number): T {
 export const ESPERA_SINTESE_MS = 500
 
 /**
- * Síntese em texto do raio, ao vivo (`role="status"`, `aria-live="polite"`): atualiza a cada mudança de ponto ou raio, com espera de 500 ms. Serve de alternativa em texto ao
- * mapa, que é canvas. Sem ponto escolhido mostra só a instrução, também na região anunciada. A região reserva altura para a página não saltar quando a síntese aparece.
+ * Resumo em texto do raio (PT-30), ao vivo (`role="status"`, `aria-live="polite"`): atualiza a cada mudança de ponto ou raio, com espera de 500 ms. Serve de alternativa em texto ao
+ * mapa, que é canvas. Sem ponto escolhido mostra só a instrução, também na região anunciada. A região reserva altura para a página não saltar quando o resumo aparece. O localizador não tem cartões: o mapa e o resumo são a leitura, então o resumo fica acima do mapa.
  */
 export function SinteseLocalizador({ marcado, entrada }: { marcado: boolean; entrada: EntradaSinteseLocalizador }) {
   // a chave textual evita novo efeito a cada renderização (a entrada é um objeto novo a cada vez)
@@ -36,8 +36,8 @@ export function SinteseLocalizador({ marcado, entrada }: { marcado: boolean; ent
           Escolha um ponto no mapa ou busque um município: aqui aparece um resumo em texto das redes, da interconexão e dos acessos de banda larga ao redor.
         </p>
       ) : (
-        <SinteseTopo frases={frases} snapshot={entrada.snapshot} regras={REGRAS_SINTESE_LOCALIZADOR} aoVivo minFrases={1}
-          comoLer="Atualiza ao mudar o ponto ou o raio. A pertinência ao raio usa a localização da sede; a lista e o mapa mostram o detalhe." />
+        <ResumoEmTexto frases={frases} snapshot={entrada.snapshot} regras={REGRAS_SINTESE_LOCALIZADOR} aoVivo
+          notaComoLer="Atualiza ao mudar o ponto ou o raio. A pertinência ao raio usa a localização da sede; a lista e o mapa mostram o detalhe." />
       )}
     </div>
   )

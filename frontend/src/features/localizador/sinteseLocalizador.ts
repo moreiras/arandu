@@ -6,7 +6,7 @@
 import { n0, n1, plural, type FraseSintese } from '../../lib/sintese'
 import type { MercadoRaio } from './calculos'
 
-export const REGRAS_SINTESE_LOCALIZADOR = 'sintese-localizador-1'
+export const REGRAS_SINTESE_LOCALIZADOR = 'sintese-localizador-2'
 
 export interface EntradaSinteseLocalizador {
   radius: number
@@ -44,7 +44,7 @@ export function sinteseLocalizador(e: EntradaSinteseLocalizador): FraseSintese[]
   }
   if (e.mercado && e.mesReferencia) {
     f.push({ id: 'mercado', selo: 'fato', fonte: 'SICI, Anatel (declarado pelas operadoras)', dataRef: e.mesReferencia,
-      texto: `${e.municipiosNoRaio === 1 ? 'No município' : `Nos ${n0(e.municipiosNoRaio)} municípios`} com centro no raio foram declarados ${n0(e.mercado.acessos)} acessos de banda larga fixa, de ${plural(e.mercado.operadoras, 'CNPJ', 'CNPJs')}; a maior participação é de ${n1(e.mercado.maiorParticipacao)}% (regra: acessos declarados por CNPJ).` })
+      texto: `${e.municipiosNoRaio === 1 ? 'No município' : `Nos ${n0(e.municipiosNoRaio)} municípios`} com centro no raio foram declarados ${n0(e.mercado.acessos)} acessos de banda larga fixa, de ${plural(e.mercado.operadoras, 'CNPJ', 'CNPJs')}; a maior participação é de ${n1(e.mercado.maiorParticipacao)}%, calculada sobre os acessos declarados por CNPJ.` })
   }
   return f
 }
