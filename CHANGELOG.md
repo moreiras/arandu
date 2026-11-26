@@ -229,6 +229,11 @@ parênteses remetem à análise.
   textos passam a dizer "sessão com o route server" (dado `asn_direct` do looking glass), distinto de "membro do cadastro"; rótulos em
   `RELACAO_PTT` (`lib/universos.ts`) e termo antigo vetado nos testes. As descrições da API e do MCP (`asn_interconexao`, `asn_rede`,
   histórico, catálogo da consulta, glossário "direto vs. originador") também passam a dizer "sessão com o route server"; só texto.
+- **Operação.** `arandu run --force` repassa `--force` às etapas que declaram `aceita_force` no catálogo (55 etapas), em vez de só
+  afetar `--retomar`: antes a `saude_asn` relatava "ok" com os alertas antigos. Sem `--only`, isso refaz coletas caras (`receita_cnpj`,
+  `cnpj_geo`, `*_geo`, `irr_route_objects`); use `--only`. `anatel_sici` e `anatel_sici_movel` ainda não aceitam (`--force-full` tem
+  outro efeito). `restart-safe.sh` marca o ponto de rollback e constrói com o nome de imagem declarado no compose, em vez de
+  `arandurape-*` fixo: a instância com outro nome ficava sem rollback.
 - **Privacidade da sede (PT-08).** Logradouro, número, complemento, bairro, CEP e coordenada exata da sede deixam de sair para
   qualquer titular no MCP (`asn_detalhe`, `asn_lote`, `outorga_*`, `operadora_detalhe`, `query`, resources de ASN, operadora e UF) e
   nas rotas REST de ASN, outorgas e operadoras; ficam município e UF. No `query`, a posição só serve ao filtro `near` e não volta na
