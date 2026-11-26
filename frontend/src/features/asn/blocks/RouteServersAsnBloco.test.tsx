@@ -27,7 +27,7 @@ const rs: RouteServersAsn = {
 describe('bloco Nos route servers do ASN', () => {
   it('mostra por PTT as sessões, o último erro reportado e marca a sessão sem frescor confirmado como incerta', () => {
     render(<MemoryRouter><RouteServersAsnBloco {...({ dados: { routeServers: rs } } as any)} /></MemoryRouter>)
-    expect(screen.getByText(/3 sessões em 2 PTT\(s\): 2 up e 1 down/)).toBeTruthy()
+    expect(screen.getByText(/3 sessões em 2 PTTs: 2 up e 1 down/)).toBeTruthy()
     expect(screen.getByText('SP').getAttribute('href')).toBe('/ixp/sp')
     expect(screen.getByText('sem cadastro no IX.br')).toBeTruthy()
     expect(screen.getByText('50%')).toBeTruthy()

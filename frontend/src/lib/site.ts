@@ -26,8 +26,8 @@ export const SITE = {
   contatoPrivacidade: valor('VITE_SITE_CONTATO_PRIVACIDADE', 'lgpd@internetbitabit.com.br'),
 }
 
-/** "Arandurapé — Mapa da Internet brasileira". */
-export const TITULO_SITE = `${SITE.nome} — ${SITE.nomeExtenso}`
+/** "Arandurapé: Mapa da Internet brasileira". */
+export const TITULO_SITE = `${SITE.nome}: ${SITE.nomeExtenso}`
 
 /** Nome de arquivo baixado: `nomeArquivo('comparar-ixps.csv')` → `arandurape-comparar-ixps.csv`. */
 export const nomeArquivo = (resto: string) => `${SITE.prefixoArquivos}-${resto}`

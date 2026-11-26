@@ -54,10 +54,10 @@ function DivergenciasSCM({ date }: { date?: string }) {
         <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
           Operadoras com outorga SCM e um único ASN cujos usuários estimados pelo APNIC chegam a
           {' '}{fmt(divs.min_razao)}× o esperado pelos acessos de banda larga fixa declarados ao SICI ({divs.mes_referencia}):
-          {' '}<b>esperado = {fmt(divs.k_pf)} × B2C + {fmt(divs.k_pj)} × B2B</b> — pessoas por
-          domicílio e uma estimativa folgada de usuários por empresa. Ordenado por usuários APNIC; o cabeçalho reordena a lista inteira.
+          {' '}<b>esperado = {fmt(divs.k_pf)} × B2C + {fmt(divs.k_pj)} × B2B</b>, em que o primeiro fator é a média de pessoas por
+          domicílio e o segundo, uma estimativa folgada de usuários por empresa. A lista está ordenada por usuários APNIC; o cabeçalho reordena a lista inteira.
           Acessos móveis não entram na conta, embora o APNIC os observe. É ponto de partida para
-          investigar, não erro comprovado de nenhuma das fontes.
+          investigar e não comprova erro em nenhuma das fontes.
           {' '}{fmt(divs.total)} ASNs nessa situação, {fmt(divs.sem_acessos)} deles sem nenhum acesso declarado.
         </p>
       </div>
@@ -381,7 +381,7 @@ export function BandaLargaFixaSection({ date }: { date?: string }) {
     <section className="space-y-6">
       <h2 className="text-sm font-semibold uppercase tracking-widest border-t border-gray-100 pt-8"
           style={{ color: SECTION_COLOR }}>
-        Banda larga fixa — SCM &amp; SICI (Anatel)
+        Banda larga fixa: SCM e SICI (Anatel)
         {acessos?.mes_referencia && (
           <span className="text-xs font-normal normal-case tracking-normal text-gray-400 ml-2">
             mês de referência {acessos.mes_referencia}
@@ -499,7 +499,7 @@ export function BandaLargaFixaSection({ date }: { date?: string }) {
       {scm && (
         <div>
           <h3 className="text-base font-semibold text-gray-800 mb-1">Municípios com mais outorgas SCM</h3>
-          <p className="text-xs text-gray-500 mb-4">Top 15 municípios por número de outorgas — uma medida de interiorização.</p>
+          <p className="text-xs text-gray-500 mb-4">Os 15 municípios com mais outorgas (um indicador de interiorização).</p>
           <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-1.5">
             {(scm.top_municipios ?? []).map(m => (
               <div key={`${m.municipio}-${m.uf}`} className="flex items-center gap-2 text-xs">

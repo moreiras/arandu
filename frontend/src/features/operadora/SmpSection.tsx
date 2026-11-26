@@ -10,10 +10,11 @@ import type { OperadoraMovelDetalhe } from '../../types/api'
 import { Barras, KPI, fmt } from './ui'
 import { ehOutorgaSmp } from './servicos'
 import { somaValores } from '../../lib/acessos'
+import { palavra } from '../../lib/sintese'
 
 /**
  * Seção SMP: outorga móvel + acessos declarados ao SICI móvel. Aparece junto da
- * seção SCM quando o CNPJ tem os dois (as grandes operadoras) — a seção "Rede"
+ * seção SCM quando o CNPJ tem os dois (as grandes operadoras): a seção "Rede"
  * (ASNs) não se repete aqui porque é a mesma agregação, já mostrada acima.
  */
 export function SmpSection({ dataMovel }: { dataMovel: OperadoraMovelDetalhe }) {
@@ -55,7 +56,7 @@ export function SmpSection({ dataMovel }: { dataMovel: OperadoraMovelDetalhe }) 
           <p className="mt-1 text-xs">
             <span className="px-1.5 py-0.5 rounded bg-primario-100 text-primario-800 font-medium">Host de rede virtual</span>
             <span className="ml-1.5 text-gray-500">
-              credencia {outorgaSmp.rede_virtual.credenciadas_count} operadora(s) MVNO
+              credencia {outorgaSmp.rede_virtual.credenciadas_count} {palavra(outorgaSmp.rede_virtual.credenciadas_count, 'operadora MVNO', 'operadoras MVNO')}
             </span>
           </p>
         )}
@@ -77,7 +78,7 @@ export function SmpSection({ dataMovel }: { dataMovel: OperadoraMovelDetalhe }) 
       {hasSici && dataMovel.acessos_compartilhados && (
         <div className="text-xs text-aviso-800 bg-aviso-50 border border-aviso-100 rounded-lg px-3 py-2">
           Este CNPJ detém {dataMovel.asns.length} ASes. Os acessos móveis são declarados pelo
-          CNPJ, não por AS — somar as páginas de cada AS contaria os mesmos assinantes várias vezes.
+          CNPJ, não por AS: somar as páginas de cada AS contaria os mesmos assinantes várias vezes.
         </div>
       )}
 

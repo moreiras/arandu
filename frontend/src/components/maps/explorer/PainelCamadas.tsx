@@ -77,7 +77,7 @@ function StatusBadge({ status }: { status: LayerStatus }) {
       )
     case 'error':
       return (
-        <button onClick={status.retry} className="text-xs text-perigo-500 hover:text-perigo-700" title="Falhou — clique para tentar de novo">
+        <button onClick={status.retry} className="text-xs text-perigo-500 hover:text-perigo-700" title="Falhou. Clique para tentar de novo">
           ⚠ tentar de novo
         </button>
       )
@@ -114,7 +114,7 @@ function LayerRow({
           <button
             onClick={status.download}
             className="p-0.5 text-gray-300 hover:text-gray-600 transition-colors"
-            title={`Baixar CSV — ${def.label}`}
+            title={`Baixar CSV: ${def.label}`}
           >
             <DownloadIcon />
           </button>
@@ -273,7 +273,7 @@ export function LayerPanel({
                   className={`w-full ${inp}`}
                   disabled={ixpOptions.length === 0}
                 >
-                  <option value="">— sem filtro —</option>
+                  <option value="">Sem filtro</option>
                   {ixpOptions.map(ix => (
                     <option key={ix.code} value={ix.code}>{ix.name}, {ix.uf}</option>
                   ))}
@@ -308,7 +308,7 @@ export function LayerPanel({
               </div>
 
               {state.groups.length === 0 && (
-                <p className="text-xs text-gray-400">Sem filtros — todos os ASes.</p>
+                <p className="text-xs text-gray-400">Sem filtros: todos os ASes.</p>
               )}
 
               {state.groups.map((group, gi) => (
@@ -356,7 +356,7 @@ export function LayerPanel({
 
             {recorteActive && !recorteLayerOn && (
               <p className="text-xs text-aviso-600 bg-aviso-50 rounded px-2 py-1 leading-snug">
-                O recorte não afeta nenhuma camada ligada — ligue uma camada com o funil.
+                O recorte não afeta nenhuma camada ligada. Ligue uma camada com o funil.
               </p>
             )}
           </div>

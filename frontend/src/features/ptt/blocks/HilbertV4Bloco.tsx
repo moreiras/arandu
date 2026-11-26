@@ -12,7 +12,7 @@ export function HilbertV4Bloco({ dados }: BlocoProps<PttCtx>) {
   return (
     <div>
       <h2 className="text-base font-semibold text-gray-800 mb-3">
-        Espaço IPv4 — Curva de Hilbert
+        Espaço IPv4: curva de Hilbert
       </h2>
       <IXPHilbert16
         code={code!}

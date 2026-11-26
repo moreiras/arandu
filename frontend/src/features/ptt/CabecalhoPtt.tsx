@@ -28,7 +28,7 @@ export function CabecalhoPtt({ code, nome, uf, snapshot, coletaV4, coletaV6, rot
   return (
     <EntityHeader
       trilha={<Migalhas grupo="interconexao" itens={[{ rotulo: 'PTTs', to: '/ixps' }, { rotulo: code.toUpperCase(), mono: true }]} />}
-      nome={`IX.br ${code.toUpperCase()} — ${nome}`}
+      nome={`IX.br ${code.toUpperCase()}: ${nome}`}
       identificadores={[{ rotulo: 'UF', valor: uf }]}
       snapshot={snapshot}
       acoes={<AcoesEntidade tipo="ixp" id={code} />}

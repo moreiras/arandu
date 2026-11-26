@@ -3,7 +3,7 @@
   {
    "category": "rpki",
    "desde_versao": 1,
-   "detail": "1 prefixo(s) anunciado(s) estão como RPKI inválidos (origem/maxLength não batem com os ROAs) e podem ser descartados por redes que validam.",
+   "detail": "1 prefixo anunciado está inválido no RPKI (origem ou maxLength não batem com os ROAs) e pode ser descartados por redes que validam.",
    "id": "rpki_invalido",
    "refs": {
     "prefixes": [
@@ -16,7 +16,7 @@
   {
    "category": "presenca",
    "desde_versao": 1,
-   "detail": "O AS é membro de PTT(s) do IX.br mas não tem registro no PeeringDB, o que dificulta o estabelecimento de peering.",
+   "detail": "O AS é membro de um PTT do IX.br, mas não tem registro no PeeringDB, o que dificulta o estabelecimento de peering.",
    "id": "sem_peeringdb",
    "refs": {},
    "severity": "aviso",
@@ -25,19 +25,19 @@
   {
    "category": "presenca",
    "desde_versao": 2,
-   "detail": "O AS aparenta depender de um único upstream (IPv6 e IPv4) na tabela global — risco de resiliência.",
+   "detail": "O AS parece depender de um único provedor de trânsito (IPv6 e IPv4) na tabela global, o que representa risco de resiliência.",
    "id": "single_homed",
    "refs": {
     "upstream_v4": 4200000001,
     "upstream_v6": 4200000001
    },
    "severity": "aviso",
-   "title": "Conectividade single-homed"
+   "title": "Um único provedor de trânsito visível"
   },
   {
    "category": "roteamento",
    "desde_versao": 1,
-   "detail": "1 prefixo(s) deste AS são originados na full table por um ASN diferente. Pode ser anúncio gerenciado por terceiro — vale confirmar se é intencional.",
+   "detail": "1 prefixo deste AS é originado na full table por um ASN diferente. Pode ser um anúncio gerenciado por terceiro; convém confirmar se é intencional.",
    "id": "anuncio_por_outro_as",
    "refs": {
     "items": [
@@ -53,7 +53,7 @@
   {
    "category": "rpki",
    "desde_versao": 1,
-   "detail": "3 bloco(s) alocado(s) não têm ROA cobrindo — parte do espaço fica sem proteção de origem.",
+   "detail": "3 blocos alocados não têm ROA que os cubra. Parte do espaço fica sem proteção de origem.",
    "id": "rpki_cobertura_parcial",
    "refs": {
     "prefixes": [
@@ -68,7 +68,7 @@
   {
    "category": "rpki",
    "desde_versao": 1,
-   "detail": "O AS possui ROAs no RPKI mas não publicou nenhum objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os upstreams autorizados e permite validação de AS_PATH — sua ausência não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
+   "detail": "O AS tem ROAs no RPKI, mas não publicou objeto ASPA (Autonomous System Provider Authorization). O ASPA declara os provedores de trânsito autorizados e permite validar o AS_PATH. A falta dele não expõe o AS a risco imediato, mas a publicação é recomendada à medida que a adoção cresce.",
    "id": "sem_aspa",
    "refs": {},
    "severity": "aviso",
@@ -77,7 +77,7 @@
   {
    "category": "presenca",
    "desde_versao": 1,
-   "detail": "No Alice-LG do IX.br, em 2026-01-01, ao menos uma sessão do AS tinha 80% ou mais do limite de importação ocupado: ZA (90%). Passar do limite derruba a sessão ou descarta rotas, conforme a configuração do route server.",
+   "detail": "No Alice-LG do IX.br, em 2026-01-01, ao menos uma sessão do AS tinha 80% ou mais do limite de importação ocupado: Arandurápolis (ZA): 90% do limite. Passar do limite derruba a sessão ou descarta rotas, conforme a configuração do route server.",
    "id": "import_limit_proximo",
    "refs": {
     "coletado_em": "2026-01-01T06:00:00+00:00",

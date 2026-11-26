@@ -69,17 +69,17 @@ export function SummaryTable({ globalTable, ixpAggregate, totalBrASNs, totalIxps
               {/* AS */}
               <Th label="Originadores" tooltip="Total de ASNs únicos originando prefixos na tabela de roteamento global" className={thBorderL} />
               <Th label="Cobertura Registro.br" tooltip="% dos ASNs brasileiros (Registro.br) com ao menos um prefixo visível na tabela global" className={thBase} />
-              <Th label="Parte do Brasil" tooltip="% dos ASNs da tabela global que são brasileiros (Registro.br) — ASNs BR visíveis / total ASNs" className={thBase} />
+              <Th label="Parte do Brasil" tooltip="% dos ASNs da tabela global que são brasileiros (Registro.br): ASNs BR visíveis dividido pelo total de ASNs" className={thBase} />
               {/* IPv6 */}
               <Th label="Prefixos" tooltip="Total de prefixos IPv6 únicos presentes na tabela de roteamento global" className={thBorderL} />
               <Th label="/48s" tooltip="Espaço IPv6 total na tabela global, expresso em equivalentes /48" className={thBase} />
-              <Th label="Cobertura Registro.br" tooltip="% do espaço IPv6 alocado ao Brasil (Registro.br) visível na tabela global — calculado via rir_br_visible / rir_br" className={thBase} />
-              <Th label="Parte do Brasil" tooltip="% do espaço total IPv6 da tabela global que é alocado ao Brasil (Registro.br) — rir_br_visible / global_all" className={thBase} />
+              <Th label="Cobertura Registro.br" tooltip="% do espaço IPv6 alocado ao Brasil (Registro.br) visível na tabela global, calculado como rir_br_visible / rir_br" className={thBase} />
+              <Th label="Parte do Brasil" tooltip="% do espaço total IPv6 da tabela global que é alocado ao Brasil (Registro.br), calculado como rir_br_visible / global_all" className={thBase} />
               {/* IPv4 */}
               <Th label="Prefixos" tooltip="Total de prefixos IPv4 únicos presentes na tabela de roteamento global" className={thBorderL} />
               <Th label="/24s" tooltip="Espaço IPv4 total na tabela global, expresso em equivalentes /24" className={thBase} />
-              <Th label="Cobertura Registro.br" tooltip="% do espaço IPv4 alocado ao Brasil (Registro.br) visível na tabela global — calculado via rir_br_visible / rir_br" className={thBase} />
-              <Th label="Parte do Brasil" tooltip="% do espaço total IPv4 da tabela global que é alocado ao Brasil (Registro.br) — rir_br_visible / global_all" className={thBase} />
+              <Th label="Cobertura Registro.br" tooltip="% do espaço IPv4 alocado ao Brasil (Registro.br) visível na tabela global, calculado como rir_br_visible / rir_br" className={thBase} />
+              <Th label="Parte do Brasil" tooltip="% do espaço total IPv4 da tabela global que é alocado ao Brasil (Registro.br), calculado como rir_br_visible / global_all" className={thBase} />
             </tr>
           </thead>
           <tbody className="text-sm">
@@ -121,8 +121,8 @@ export function SummaryTable({ globalTable, ixpAggregate, totalBrASNs, totalIxps
             <tr>
               <th className="px-2 py-1.5 sticky left-0 bg-primario-50/40" />
               {/* AS */}
-              <Th label="Diretos no RS" tooltip="ASNs com sessão com Route Server em algum PTT do IX.br — união IPv6 ∪ IPv4 sem repetição" className={thBorderL} />
-              <Th label="Originadores" tooltip="ASNs originando prefixos em qualquer IXP do IX.br — união IPv6 ∪ IPv4 sem repetição" className={thBase} />
+              <Th label="Diretos no RS" tooltip="ASNs com sessão com route server em algum PTT do IX.br (união de IPv6 e IPv4, sem repetição)" className={thBorderL} />
+              <Th label="Originadores" tooltip="ASNs originando prefixos em qualquer IXP do IX.br (união de IPv6 e IPv4, sem repetição)" className={thBase} />
               <Th label="Cobertura Registro.br" tooltip="% dos ASNs brasileiros (Registro.br) que originam prefixos em algum IXP do IX.br" className={thBase} />
               <Th label="Cobertura tabela global" tooltip="% dos ASNs da tabela global que originam prefixos em algum IXP do IX.br" className={thBase} />
               {/* IPv6 */}

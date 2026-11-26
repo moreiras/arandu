@@ -68,7 +68,7 @@ export function AfiMetricsTable({
       <table className="w-full text-sm">
         <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
           <tr>
-            <th className="px-3 py-2 text-left font-medium">Métrica BGP — {title}</th>
+            <th className="px-3 py-2 text-left font-medium">Métrica BGP: {title}</th>
             <th className="px-3 py-2 text-right font-medium w-36 truncate" title={labelA}>A</th>
             <th className="px-3 py-2 text-right font-medium w-36 truncate" title={labelB}>B</th>
           </tr>

@@ -74,13 +74,13 @@ export function TvPorAssinaturaSection({ date }: { date?: string }) {
     <section className="space-y-6">
       <h2 className="text-sm font-semibold uppercase tracking-widest border-t border-gray-100 pt-8"
           style={{ color: SECTION_COLOR }}>
-        TV por assinatura — SeAC (Anatel)
+        TV por assinatura: SeAC (Anatel)
       </h2>
 
       <div>
         <h3 className="text-base font-semibold text-gray-800 mb-1">Licença e ASN</h3>
         <p className="text-xs text-gray-500 mb-4">
-          Prestadoras com outorga de SeAC (Serviço de Acesso Condicionado — TV por assinatura,
+          Prestadoras com outorga de SeAC (Serviço de Acesso Condicionado, a TV por assinatura;
           Lei 12.485/2011), cruzadas por CNPJ com os ASNs do Registro.br. {fmt(licensed)} CNPJs
           outorgados neste snapshot. Esta página não traz assinantes de SeAC: não há declaração equivalente ao SICI para este serviço. O cruzamento é por CNPJ: uma operadora sem ASN pode usar a rede de outra empresa do grupo ou de um fornecedor, e ter ASN não garante anúncio na tabela BGP.
         </p>

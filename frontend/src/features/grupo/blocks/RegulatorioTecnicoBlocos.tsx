@@ -11,6 +11,7 @@ import type { GrupoCtx } from '../contexto'
 import type { GrupoRegulatorio, GrupoTecnico } from '../../../types/api'
 import { useOrdenacao } from '../../../lib/ordenacao'
 import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
+import { palavra } from '../../../lib/sintese'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`)
@@ -105,7 +106,7 @@ export function AsesTecnicoBloco({ dados }: BlocoProps<GrupoCtx>) {
       </div>
       {t.asns_omitidos > 0 && <p className="text-sm text-aviso-700" role="status">Mostrando os {n(t.asns_detalhados)} maiores ASes por usuários estimados; {n(t.asns_omitidos)} ficaram de fora do detalhe.</p>}
       <TabelaAses t={t} />
-      <p className="text-xs text-gray-500">{t.rpki.invalido > 0 ? `${n(t.rpki.invalido)} prefixo(s) com ROA inválido e ` : ''}{n(t.rpki.sem_roa)} sem ROA, de {n(t.rpki.validados)} validados. {t.limites}</p>
+      <p className="text-xs text-gray-500">{t.rpki.invalido > 0 ? `${n(t.rpki.invalido)} ${palavra(t.rpki.invalido, 'prefixo', 'prefixos')} com ROA inválido e ` : ''}{n(t.rpki.sem_roa)} sem ROA, de {n(t.rpki.validados)} validados. {t.limites}</p>
     </div>
   )}</Carrega>
 }

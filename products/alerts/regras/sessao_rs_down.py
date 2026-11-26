@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core import alerta_textos
 
 REGRA = Regra(id="sessao_rs_down", categoria="presenca", severidade="aviso", versao=1,
               descricao="membro_down no artefato route_servers do ASN: todas as sessões down há 7 dias ou mais, com cache de vizinhos do Alice atual")
@@ -18,9 +19,10 @@ def avaliar(ctx: Contexto) -> list[dict]:
     down = {code: x for code, x in ixps.items() if x.get("membro_down")}
     if not down:
         return []
-    partes = [f"{code.upper()} ({x['max_dias_down']} dias)" for code, x in sorted(down.items(), key=lambda kv: -(kv[1].get("max_dias_down") or 0))]
+    nomes = {row.get("code"): row.get("name") for row in getattr(ctx.store, "ixp_index", lambda d: [])(ctx.date_str)}
+    partes = [f"{alerta_textos.nome_ptt(code, nomes)}: {x['max_dias_down']} {alerta_textos.palavra(x['max_dias_down'], 'dia', 'dias')}"
+              for code, x in sorted(down.items(), key=lambda kv: -(kv[1].get("max_dias_down") or 0))]
     return [achado(
-        "Sessões down nos route servers do IX.br",
-        f"No Alice-LG do IX.br, em {doc.get('coletado_em', '')[:10]}, todas as sessões do AS estavam down há {doc.get('dias_down', 7)} dias ou mais nos route servers de: "
-        f"{', '.join(partes)}. É o estado medido no route server; não diz a causa e o AS pode manter peering bilateral no PTT.",
+        alerta_textos.TITULO_SESSAO_RS_DOWN,
+        alerta_textos.sessoes_inativas(doc.get('coletado_em', '')[:10], doc.get('dias_down', 7), partes),
         {"ixps": {code: x["max_dias_down"] for code, x in down.items()}, "coletado_em": doc.get("coletado_em")})]

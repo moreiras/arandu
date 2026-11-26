@@ -6,6 +6,7 @@
 import { Link } from '../../../components/layout/LinkDatado'
 import type { BlocoProps } from '../../entidade/registry'
 import type { AsnCtx } from '../contexto'
+import { palavra } from '../../../lib/sintese'
 
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 const data = (iso: string | null | undefined) => (iso ? iso.slice(0, 10) : '—')
@@ -24,7 +25,7 @@ export function OrganizacaoAsnBloco({ dados }: BlocoProps<AsnCtx>) {
           <p>
             <span className="font-medium">{org.org_nome ?? '—'}</span>
             {org.org_pais ? <span className="text-gray-500"> ({org.org_pais})</span> : null}
-            <span className="text-xs text-gray-500"> · {n(org.membros_total)} ASN(s) no mundo</span>
+            <span className="text-xs text-gray-500"> · {n(org.membros_total)} {palavra(org.membros_total, 'ASN', 'ASNs')} no mundo</span>
           </p>
           {org.irmaos_br && org.irmaos_br.length > 0 ? (
             <p className="text-xs text-gray-600" data-testid="irmaos">

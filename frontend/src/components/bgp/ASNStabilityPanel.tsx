@@ -2,6 +2,7 @@ import type { AsStability, EppdStats } from '../../types/bgpStability'
 import { ClassificationBadge }    from './ClassificationBadge'
 import { NoiseCategoryBadge }     from './NoiseCategoryBadge'
 import { HourlyActivityChart, type WeekSeries } from './HourlyActivityChart'
+import { palavra } from '../../lib/sintese'
 
 function fmtDuration(sec: number): string {
   if (sec <= 0) return '—'
@@ -70,7 +71,7 @@ export function ASNStabilityPanel({ stability, eppdStats, timestamps, weeks }: P
             <div className="flex-1 min-w-0">
               <p className={`text-sm font-medium ${colors.text}`}>
                 Este AS está entre os <strong>{rank}º mais ruidosos</strong> do universo BR
-                em anúncios BGP — {fmtEpppd(p.events_per_prefix_per_day)} updates/prefixo/dia
+                em anúncios BGP, com {fmtEpppd(p.events_per_prefix_per_day)} updates por prefixo por dia
                 nos últimos 7 dias.
               </p>
               <div className="mt-1">
@@ -118,7 +119,7 @@ export function ASNStabilityPanel({ stability, eppdStats, timestamps, weeks }: P
         <MetricCard
           label="Ciclos de flap"
           value={p.max_flap_cycles > 0 ? `${p.max_flap_cycles} máx.` : '0'}
-          sub={p.flapping_prefixes > 0 ? `${p.flapping_prefixes} prefixo(s) instáveis` : undefined}
+          sub={p.flapping_prefixes > 0 ? `${p.flapping_prefixes} ${palavra(p.flapping_prefixes, 'prefixo instável', 'prefixos instáveis')}` : undefined}
         />
         <MetricCard
           label="Tempo médio anunciado"
@@ -143,12 +144,12 @@ export function ASNStabilityPanel({ stability, eppdStats, timestamps, weeks }: P
             ? [{ date: '', timestamps, series: stability.hourly }]
             : null
         if (!series) return null
-        const rangeLabel = series.length > 1 ? ` — últimas ${series.length} semanas` : ''
+        const rangeLabel = series.length > 1 ? `, últimas ${series.length} semanas` : ''
         return (
           <div className="border border-gray-100 rounded-lg p-3">
             <HourlyActivityChart
               weeks={series}
-              title={`Atividade horária — AS${stability.asn}${rangeLabel}`}
+              title={`Atividade horária do AS${stability.asn}${rangeLabel}`}
               tipText="Série temporal de updates BGP com resolução horária. Disponível apenas para as semanas em que este AS teve severidade média ou maior."
               height={180}
             />

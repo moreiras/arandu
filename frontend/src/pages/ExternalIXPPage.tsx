@@ -102,7 +102,7 @@ export function ExternalIXPPage() {
       {/* Aviso */}
       <div className="bg-aviso-50 border border-aviso-200 rounded-lg px-4 py-3 text-xs text-aviso-800">
         Esta tabela lista membros autodeclarados no PeeringDB. Não inclui dados de roteamento{(data as ExternalIXPComRouteServer).route_server ? ' (os números do route server acima vêm do Alice-LG do DE-CIX)' : ''}.
-        O PeeringDB pode subestimar a participação real — redes sem cadastro não aparecem aqui.
+        O PeeringDB pode subestimar a participação real, pois as redes sem cadastro não aparecem aqui.
       </div>
 
       {(data as ExternalIXPComRouteServer).route_server && <ExternalIXPRouteServer rs={(data as ExternalIXPComRouteServer).route_server!} />}

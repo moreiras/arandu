@@ -61,7 +61,7 @@ describe('home nova', () => {
     expect(screen.getByText('Por exemplo:')).toBeInTheDocument()
     expect(PORTAS).toHaveLength(5)
     for (const p of PORTAS) expect(screen.getByTestId(`porta-${p.id}`)).toBeInTheDocument()
-    expect(await screen.findByTestId('sintese-topo')).toBeInTheDocument()
+    expect(await screen.findByTestId('resumo-em-texto')).toBeInTheDocument()
     // 8 de rede e mercado + 4 de IPv6 e segurança
     expect(await screen.findAllByTestId('kpi')).toHaveLength(12)
     expect(await screen.findByText('41,2%')).toBeInTheDocument()
@@ -87,9 +87,12 @@ describe('home nova', () => {
     await waitFor(() => expect(screen.getAllByTestId('kpi')[0]).toHaveTextContent('1.136'))
     const ases = screen.getAllByTestId('kpi')[0]
     expect(await within(ases).findByText(/\+6 desde o snapshot anterior/)).toBeInTheDocument()
-    expect(ases.querySelector('[title]')?.getAttribute('title')).toMatch(/Fonte: .*ref\. 20\/09\/2026/)
     await waitFor(() => expect(screen.getAllByTestId('kpi')[4]).toHaveTextContent('622 mil'))
-    expect(screen.getAllByTestId('kpi')[4].querySelector('[title]')?.getAttribute('title')).toMatch(/SICI.*ref\. 08\/2026/)
+    // PT-30: fonte e data saem do cartão e ficam no bloco recolhido da seção (no DOM)
+    expect(ases.textContent).not.toMatch(/delegated-extended|ref\./)
+    const blocos = screen.getAllByTestId('fontes-e-datas').map((b) => b.textContent!).join(' ')
+    expect(blocos).toMatch(/LACNIC.*referência: 20\/09\/2026/)
+    expect(blocos).toMatch(/SICI.*referência: 08\/2026/)
   })
 
   it('cartograma normalizado: começa pela penetração e não oferece métricas absolutas', async () => {
@@ -126,10 +129,13 @@ describe('destaques e faixa (lógica)', () => {
     await waitFor(() => expect(screen.getAllByTestId('kpi')[0]).toHaveTextContent('1.136'))
     await waitFor(() => expect(screen.getAllByTestId('kpi')[4]).toHaveTextContent('622 mil'))
     const kpis = screen.getAllByTestId('kpi')
-    for (const k of kpis) expect(k.querySelector('[data-kpi-proveniencia]'), k.textContent ?? '').not.toBeNull()
-    expect(within(kpis[0]).getByText(/^Fato · LACNIC .* · ref\. 2026-09-20$/)).toBeInTheDocument()
-    expect(within(kpis[3]).getByText(/^Estimado · APNIC .* · ref\. 2026-09-20$/)).toBeInTheDocument()
-    expect(within(kpis[4]).getByText(/^Fato · SICI, Anatel .* · ref\. 2026-08$/)).toBeInTheDocument()
+    for (const k of kpis) expect(k.querySelector('[data-kpi-selo]'), k.textContent ?? '').not.toBeNull()
+    expect(kpis[0].querySelector('[data-kpi-selo]')).toHaveAttribute('data-kpi-selo', 'fato')
+    expect(kpis[3].querySelector('[data-kpi-selo]')).toHaveAttribute('data-kpi-selo', 'estimado')
+    const itens = (await screen.findAllByTestId('fontes-e-datas')).flatMap((b) => [...b.querySelectorAll('[data-fonte-item]')].map((li) => li.textContent!))
+    expect(itens.some((t) => /Fato.*LACNIC.*referência: 20\/09\/2026/.test(t))).toBe(true)
+    expect(itens.some((t) => /Estimado.*APNIC.*referência: 20\/09\/2026/.test(t))).toBe(true)
+    expect(itens.some((t) => /Fato.*SICI, Anatel.*referência: 08\/2026/.test(t))).toBe(true)
   })
   it('montarKpis: todo indicador tem selo e o de usuários APNIC é estimado', () => {
     const { rede, mercado } = montarKpis(resumo(1136, 67.2, 2) as never, null, sici as never, '2026-09-20')

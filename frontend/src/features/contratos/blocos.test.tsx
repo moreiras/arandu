@@ -31,9 +31,9 @@ describe('contratos públicos da operadora', () => {
   it('resume com a data da leitura, sem adjetivo, e diz que o item cancelado fica fora da soma', () => {
     render(<ContratosOperadoraBloco dados={{ contratos: op({}) } as never} snapshot={null} />)
     const r = screen.getByTestId('contratos-resumo')
-    expect(r).toHaveTextContent('lido(s) em 08/11/2026 (há 2 dias)')
-    expect(r).toHaveTextContent('3 item(ns) em 2 contratação(ões) de 2 órgão(s), entre 20/11/2025 e 03/08/2026')
-    expect(r).toHaveTextContent('1 item(ns) cancelado(s) fora da soma')
+    expect(r).toHaveTextContent('lidos em 08/11/2026 (há 2 dias)')
+    expect(r).toHaveTextContent('3 itens em 2 contratações de 2 órgãos, entre 20/11/2025 e 03/08/2026')
+    expect(r).toHaveTextContent('1 item cancelado fica fora da soma')
     expect(screen.getByTestId('contratos-aviso')).toHaveTextContent('não é, por si, contrato assinado nem pagamento')
   })
   it('esfera sem detalhe aparece como "ainda não detalhada" e a unidade de compra é rotulada como tal', () => {
@@ -72,7 +72,7 @@ describe('contratos públicos no município', () => {
     render(<MemoryRouter><ContratosMunicipioBloco dados={{ contratos: m } as never} snapshot={null} /></MemoryRouter>)
     expect(screen.getByTestId('contratos-aviso')).toHaveTextContent('Município do órgão comprador')
     expect(screen.getByTestId('contratos-aviso')).toHaveTextContent('não é ranking de mercado nem prova de que a operadora atende o município')
-    expect(screen.getByTestId('contratos-municipio-resumo')).toHaveTextContent('Órgãos sediados em Arandurápolis/SP: 2 item(ns) em 2 contratação(ões)')
+    expect(screen.getByTestId('contratos-municipio-resumo')).toHaveTextContent('Órgãos sediados em Arandurápolis/SP: 2 itens em 2 contratações')
     expect(screen.getByText('FIBRA UM LTDA').getAttribute('href')).toBe('/operadora/11222333000181')
     expect(screen.getByTestId('contratos-cobertura')).toHaveTextContent('Quem não aparece pode ainda não ter sido lido')
   })

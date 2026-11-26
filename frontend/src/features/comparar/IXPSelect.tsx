@@ -71,7 +71,7 @@ export function IXPSelect({
         onChange={e => onChange(e.target.value)}
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primario-400 bg-white"
       >
-        <option value="">— Selecione um PTT —</option>
+        <option value="">Selecione um PTT</option>
         <optgroup label="IX.br">
           {ixbrOptions.map(o => (
             <option key={o.val} value={o.val} disabled={disabledVals.includes(o.val)}>

@@ -226,7 +226,7 @@ function buildPathNodeTooltipHtml(
 ): string {
   const name = meta?.name ?? ''
   const brLabel = meta?.is_br ? 'BR' : 'não-BR'
-  let html = `<div style="font-weight:600;margin-bottom:4px">AS${asnId}${name ? ` — ${name}` : ''} <span style="opacity:.7;font-weight:400">(${brLabel})</span></div>`
+  let html = `<div style="font-weight:600;margin-bottom:4px">AS${asnId}${name ? `: ${name}` : ''} <span style="opacity:.7;font-weight:400">(${brLabel})</span></div>`
 
   const sorted = [...bridgedIxps].sort()
   for (const code of sorted) {

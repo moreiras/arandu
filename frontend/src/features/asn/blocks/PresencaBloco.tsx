@@ -32,7 +32,7 @@ export function PresencaBloco({ dados }: BlocoProps<AsnCtx>) {
       {/* IPv6 */}
       <div ref={presenceRef} className="overflow-hidden">
         <h2 className="text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
-          Presença em IXPs — IPv6
+          Presença em IXPs: IPv6
           {loadingPaths && (
             <span className="text-xs font-normal text-gray-400 animate-pulse">carregando caminhos…</span>
           )}
@@ -56,7 +56,7 @@ export function PresencaBloco({ dados }: BlocoProps<AsnCtx>) {
       {/* IPv4 */}
       <div className="overflow-hidden">
         <h2 className="text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
-          Presença em IXPs — IPv4
+          Presença em IXPs: IPv4
           {loadingPaths && (
             <span className="text-xs font-normal text-gray-400 animate-pulse">carregando caminhos…</span>
           )}

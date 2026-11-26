@@ -8,6 +8,7 @@ import { Link } from '../../../components/layout/LinkDatado'
 import { fetchIpv4CicloDeVida } from '../../../services/api'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PrefixoCtx } from '../contexto'
+import { palavra } from '../../../lib/sintese'
 
 const ROTULOS: Record<string, string> = {
   titularidade: 'Mudou de organização (opaque-id)', recuperacao: 'Voltou ao pool (reservado)', liberacao: 'Saiu da reserva', novo: 'Passou a constar', removido: 'Deixou de constar',
@@ -41,7 +42,7 @@ export function CicloDeVidaBloco({ dados }: BlocoProps<PrefixoCtx>) {
       )}
       {(c.espaco ?? []).map((e) => (
         <p key={e.inicio} className="text-sm text-gray-700">Pela tabela de origens: <strong>{e.classe === 'nao_anunciado' ? 'não anunciado' : e.classe === 'roa_sem_anuncio' ? 'ROA sem anúncio' : e.classe === 'parcial' ? `anunciado em parte (${e.anunciado_pct.toLocaleString('pt-BR')}%)` : 'em recuperação'}</strong>
-          {e.tabelas_sem_anuncio ? ` há ${e.tabelas_sem_anuncio} tabela(s) de origem seguidas (desde ${data(e.sem_anuncio_desde ?? '')})` : ''}. <span className="text-gray-500">Não anunciado não é sem uso.</span></p>
+          {e.tabelas_sem_anuncio ? ` há ${e.tabelas_sem_anuncio} ${palavra(e.tabelas_sem_anuncio, 'tabela de origem seguida', 'tabelas de origem seguidas')} (desde ${data(e.sem_anuncio_desde ?? '')})` : ''}. <span className="text-gray-500">Não anunciado não é sem uso.</span></p>
       ))}
       {(c.sinais_de_terceiros ?? []).map((i) => (
         <div key={i.inicio} className="text-sm">

@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core import alerta_textos
 from products.alerts.auxiliar import blocos_rir
 
 REGRA = Regra(id="anuncio_por_outro_as", categoria="roteamento", severidade="aviso", versao=1,
@@ -19,7 +20,5 @@ def avaliar(ctx: Contexto) -> list[dict]:
         return []
     return [achado(
         "Bloco anunciado por outro AS",
-        f"{len(by_other)} prefixo(s) deste AS são originados na full table "
-        "por um ASN diferente. Pode ser anúncio gerenciado por terceiro — "
-        "vale confirmar se é intencional.",
+        alerta_textos.anuncio_por_outro_as(len(by_other)),
         {"items": by_other[:30]})]

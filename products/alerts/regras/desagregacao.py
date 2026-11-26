@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core import alerta_textos
 from products.alerts.auxiliar import DEAGG_MIN, DEAGG_RATIO
 
 REGRA = Regra(id="desagregacao", categoria="roteamento", severidade="info", versao=1,
@@ -23,9 +24,7 @@ def avaliar(ctx: Contexto) -> list[dict]:
         if gcount >= DEAGG_MIN and base > 0 and gcount >= DEAGG_RATIO * base:
             achados.append(achado(
                 f"Desagregação {afi} elevada",
-                f"{gcount} prefixos {afi} anunciados para {base} bloco(s) "
-                "alocado(s). Anunciar mais-específicos desnecessários infla a "
-                "tabela global; avalie agregar.",
+                alerta_textos.desagregacao(gcount, afi, base),
                 {"global_count": gcount, "rir_count": base},
                 id=f"desagregacao_{afi.lower()}"))
     return achados

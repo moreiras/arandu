@@ -39,6 +39,8 @@ export function compacto(v: number): string {
   if (a >= 1e4) return `${n0(v / 1e3)} mil`
   return n0(v)
 }
+/** A palavra no singular ou no plural pelo número, sem o número (para frases em que o número vem em outro elemento). */
+export const palavra = (q: number | null | undefined, um: string, varios: string) => (q === 1 ? um : varios)
 /** "1 PTT" / "3 PTTs". */
 export const plural = (q: number, um: string, varios: string) => `${n0(q)} ${q === 1 ? um : varios}`
 

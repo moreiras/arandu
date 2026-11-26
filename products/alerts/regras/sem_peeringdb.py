@@ -7,15 +7,16 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core import alerta_textos
 
 REGRA = Regra(id="sem_peeringdb", categoria="presenca", severidade="aviso", versao=1,
               descricao="ixp_member_codes não vazio e pdb_registered falso")
 
 
 def avaliar(ctx: Contexto) -> list[dict]:
-    if set(ctx.doc.get("ixp_member_codes") or []) and not bool(ctx.doc.get("pdb_registered")):
+    membros = set(ctx.doc.get("ixp_member_codes") or [])
+    if membros and not bool(ctx.doc.get("pdb_registered")):
         return [achado(
             "Sem cadastro no PeeringDB",
-            "O AS é membro de PTT(s) do IX.br mas não tem registro no "
-            "PeeringDB, o que dificulta o estabelecimento de peering.")]
+            alerta_textos.sem_peeringdb(len(membros)))]
     return []

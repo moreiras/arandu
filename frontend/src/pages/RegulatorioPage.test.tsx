@@ -43,7 +43,7 @@ describe('Regulatório', () => {
     expect(grupoPedido).toBeNull()
     expect(ordemPedida).toBeNull()                                                     // D6: sem `ordem`, a API entrega a ordem alfabética
     expect(screen.getByTestId('regra-multas').textContent).toMatch(/Ordem alfabética pelo nome da empresa.*Multa constituída não é condenação definitiva/)
-    expect(screen.getByText('1 quitada(s) · 2 devedor')).toBeTruthy()                 // a situação em texto
+    expect(screen.getByText('1 quitada · 2 devedores')).toBeTruthy()                 // a situação em texto
     fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: 'SMP' } })
     await waitFor(() => expect(grupoPedido).toBe('SMP'))
   })

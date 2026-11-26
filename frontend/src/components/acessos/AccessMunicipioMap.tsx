@@ -14,6 +14,7 @@ import {
   MARKER_OPACITY,
 } from '../maps/mapTheme'
 import { VerDados } from '../ui/VerDados'
+import { palavra } from '../../lib/sintese'
 
 const BR_STATES_URL = '/br-states.geojson'
 const CENTROIDS_URL = '/municipios-centroides.json'
@@ -216,7 +217,7 @@ export function AccessMunicipioMap({
         className="w-full rounded-lg overflow-hidden border border-gray-200" />
       <div className="text-xs text-gray-500 mt-1">
         Bolha proporcional aos acessos declarados no município.
-        {semCoordenada > 0 && ` ${semCoordenada} município(s) sem coordenada.`}
+        {semCoordenada > 0 && ` ${semCoordenada} ${palavra(semCoordenada, 'município sem coordenada', 'municípios sem coordenada')}.`}
       </div>
       <VerDados dados={alternativa} campos={comParcela ? ['municipio', 'uf', 'acessos', 'share'] : ['municipio', 'uf', 'acessos']}
         rotulos={{ municipio: 'Município', uf: 'UF', acessos: 'Acessos', share: 'Parcela no município (%)' }}

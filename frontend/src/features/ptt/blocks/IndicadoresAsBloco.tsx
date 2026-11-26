@@ -15,17 +15,17 @@ export function IndicadoresAsBloco({ dados }: BlocoProps<PttCtx>) {
       <MetCell
         label="Participantes"
         value={num(par)}
-        tooltip="Membros registrados neste IXP no dashboard IX.br — inclui participantes que não usam Route Servers"
+        tooltip="Membros registrados neste IXP no dashboard do IX.br, incluindo os participantes que não usam route servers"
       />
       <MetCell
         label={RELACAO_PTT.asnsSessaoRs}
         value={num(dir)}
-        tooltip="ASNs com sessão com o Route Server deste PTT — união de v6 e v4"
+        tooltip="ASNs com sessão com o route server deste PTT (união de IPv6 e IPv4)"
       />
       <MetCell
         label="Originadores"
         value={num(org)}
-        tooltip="ASNs que originam algum prefixo visível neste IXP — aprox. o maior entre IPv6 e IPv4"
+        tooltip="ASNs que originam algum prefixo visível neste IXP (aproximadamente o maior valor entre IPv6 e IPv4)"
       />
       <PctCell
         label="Cobertura Registro.br"

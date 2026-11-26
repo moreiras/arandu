@@ -75,7 +75,7 @@ function DivergenciaBox({ div, apnicUsers }: {
           <>Bem acima do esperado. Leituras possíveis: CGNAT concentrando muitos usuários
              por acesso, tráfego de terceiros (trânsito ou atacado) cursando este AS, ou
              atribuição de ASN imprecisa no APNIC. As duas fontes medem coisas
-             diferentes — a divergência é ponto de partida, não veredito.</>
+             diferentes, e a divergência serve de ponto de partida para investigar.</>
         )}
         {baixo && (
           <>Abaixo de 1 usuário por contrato. Leituras possíveis: os acessos do CNPJ
@@ -137,8 +137,8 @@ export function ASNAccessSection({ asn, date, apnicUsers }: {
         </Link>
         {data.acessos_compartilhados && (
           <span className="ml-1 text-aviso-700">
-            — este CNPJ tem {data.asns.length} ASes, e o total declarado vale para o CNPJ
-            inteiro (não some os ASes entre si).
+            (este CNPJ tem {data.asns.length} ASes, e o total declarado vale para o CNPJ
+            inteiro; não some os ASes entre si.)
           </span>
         )}
       </div>
@@ -195,7 +195,7 @@ export function ASNAccessSection({ asn, date, apnicUsers }: {
                   <ThOrdenavel {...props('uf')} className="px-3 py-1.5 w-14">UF</ThOrdenavel>
                   <ThOrdenavel {...props('acessos')} alinhar="right" className="px-3 py-1.5 w-24">Acessos</ThOrdenavel>
                   <ThOrdenavel {...props('pj')} alinhar="right" className="px-3 py-1.5 w-20">B2B</ThOrdenavel>
-                  <ThOrdenavel {...props('share')} alinhar="right" className="px-3 py-1.5 w-24">Share</ThOrdenavel>
+                  <ThOrdenavel {...props('share')} alinhar="right" className="px-3 py-1.5 w-24">Participação</ThOrdenavel>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -221,9 +221,9 @@ export function ASNAccessSection({ asn, date, apnicUsers }: {
       )}
 
       <div className="text-xs text-gray-400 mt-3 leading-relaxed">
-        Fonte: declaração mensal ao SICI (Anatel), mês de referência {data.mes_referencia} —
-        data distinta da do snapshot. Capacidade é a contratada pelos assinantes
-        (soma de velocidade × acessos), não capacidade de trânsito ou de backhaul.
+        Fonte: declaração mensal ao SICI (Anatel), mês de referência {data.mes_referencia}, com
+        data distinta da do snapshot. A capacidade é a contratada pelos assinantes
+        (soma de velocidade × acessos), e não a capacidade de trânsito ou de backhaul.
       </div>
     </div>
   )

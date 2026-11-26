@@ -25,7 +25,7 @@ describe('crédito público (BNDES)', () => {
     operacoes_omitidas: 0 } })
   it('resume totais nominais, a série por ano e a ressalva da fonte', () => {
     render(<CreditoPublicoBloco dados={dados(f)} snapshot={null} />)
-    expect(screen.getByTestId('credito-resumo')).toHaveTextContent('2 operação(ões) direta(s) com o BNDES entre 10/03/2022 e 01/07/2023')
+    expect(screen.getByTestId('credito-resumo')).toHaveTextContent('2 operações diretas com o BNDES entre 10/03/2022 e 01/07/2023')
     expect(screen.getByTestId('credito-resumo')).toHaveTextContent('valores nominais, sem correção')
     expect(screen.getAllByRole('row')).toHaveLength(3)
     expect(screen.getByText(/ausência não é prova/)).toBeInTheDocument()
@@ -40,7 +40,7 @@ describe('sanções (CEIS e CNEP)', () => {
   const f = base({ sancoes: { vigentes: [san({ sem_prazo: true, fim: null }), san({ cadastro: 'CNEP', codigo: '2', categoria: 'Multa', multa: 36680.49, cnpj: '11111111000272' })], futuras: [], encerradas: [san({ codigo: '3', situacao: 'encerrada', fim: '2021-02-01', inicio: '2019-02-01' })], total: 3 } })
   it('separa vigentes e encerradas, diz "sem prazo informado" e mostra a multa', () => {
     render(<SancoesBloco dados={dados(f)} snapshot={null} />)
-    expect(screen.getByTestId('sancoes-resumo')).toHaveTextContent('3 registro(s) no CEIS/CNEP para esta empresa: 2 constando sem fim ou com fim futuro, 1 encerrada(s)')
+    expect(screen.getByTestId('sancoes-resumo')).toHaveTextContent('3 registros no CEIS/CNEP para esta empresa: 2 constando sem fim ou com fim futuro, 1 encerrada')
     expect(screen.getAllByTestId('sancao-item')).toHaveLength(3)
     expect(screen.getByText(/desde 10\/01\/2024, sem data final informada/)).toBeInTheDocument()
     expect(screen.getByText(/R\$ 36\.680/)).toBeInTheDocument()

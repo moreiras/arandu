@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from products.alerts.base import Contexto, Regra, achado
+from core import alerta_textos
 from products.alerts.auxiliar import roas
 from products.alerts.base import net
 
@@ -32,7 +33,6 @@ def avaliar(ctx: Contexto) -> list[dict]:
     if uncovered and len(uncovered) < len(ctx.rir_v4 + ctx.rir_v6):
         return [achado(
             "Cobertura RPKI parcial",
-            f"{len(uncovered)} bloco(s) alocado(s) não têm ROA cobrindo — "
-            "parte do espaço fica sem proteção de origem.",
+            alerta_textos.cobertura_rpki_parcial(len(uncovered)),
             {"prefixes": uncovered[:30]})]
     return []
