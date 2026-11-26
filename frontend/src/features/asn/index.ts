@@ -20,6 +20,7 @@ import { MetricasBloco } from './blocks/MetricasBloco'
 import { OutorgaScmBloco, OutorgaSeacBloco, OutorgaSmpBloco, OutorgaStfcBloco } from './blocks/Outorgas'
 import { PeeringDbBloco } from './blocks/PeeringDbBloco'
 import { PrefixosRirBloco } from './blocks/PrefixosRirBloco'
+import { HilbertIpv4Bloco, HilbertIpv6Bloco, temPrefixos } from './blocks/CurvaHilbertAsnBloco'
 import { PresencaBloco } from './blocks/PresencaBloco'
 import { SegurancaBloco } from './blocks/SegurancaBloco'
 import { RouteServersAsnBloco } from './blocks/RouteServersAsnBloco'
@@ -44,6 +45,7 @@ const base = { entidade: 'asn' as const }
 /** Lentes da página: cada bloco pertence a uma, e a ordem de exibição dentro da aba segue `ordem`. A primeira é a padrão. */
 registrarAbas('asn', [
   { id: 'resumo', rotulo: 'Resumo', descricao: 'O que este AS é e onde chamar atenção, em poucos números.' },
+  { id: 'numeracao', rotulo: 'Numeração', descricao: 'Blocos de endereço delegados ao AS e onde aparecem no espaço IPv6 e IPv4.' },
   { id: 'roteamento', rotulo: 'Roteamento', descricao: 'Que prefixos anuncia, por onde as rotas passam e se são estáveis.' },
   { id: 'seguranca', rotulo: 'Segurança', descricao: 'RPKI, ROV, ASPA, bogons e outras medições de terceiros sobre este AS.' },
   { id: 'interconexao', rotulo: 'Interconexão', descricao: 'Em que PTTs e instalações está e como se conecta aos route servers.' },
@@ -52,7 +54,7 @@ registrarAbas('asn', [
 ])
 const ABA: Record<string, string> = {
   metricas: 'resumo', usuarios: 'resumo', alertas: 'resumo',
-  'prefixos-rir': 'roteamento', 'tabela-global': 'roteamento', mapa: 'roteamento', estabilidade: 'roteamento', diagnostico: 'roteamento', relacoes: 'roteamento', radar: 'roteamento', 'recursos-ipv4': 'roteamento',
+  'prefixos-rir': 'numeracao', 'hilbert-ipv6': 'numeracao', 'hilbert-ipv4': 'numeracao', 'tabela-global': 'roteamento', mapa: 'roteamento', estabilidade: 'roteamento', diagnostico: 'roteamento', relacoes: 'roteamento', radar: 'roteamento', 'recursos-ipv4': 'roteamento',
   seguranca: 'seguranca', prontidao: 'seguranca', roa: 'seguranca', aspa: 'seguranca', bloqueios: 'seguranca', exposicao: 'seguranca',
   presenca: 'interconexao', 'interconexao-mensuravel': 'interconexao', 'route-servers': 'interconexao', 'politica-rs': 'interconexao', 'ixps-externos': 'interconexao', instalacoes: 'interconexao', peeringdb: 'interconexao',
   organizacao: 'mercado', acessos: 'mercado', 'outorga-scm': 'mercado', 'outorga-smp': 'mercado', 'outorga-stfc': 'mercado', 'outorga-seac': 'mercado',
@@ -66,9 +68,11 @@ const COMO_LER: Record<string, string> = {
   relacoes: 'As relações entre ASes são inferidas do AS_PATH nas tabelas observadas. O peering bilateral não aparece nos dados públicos, então a falta de uma relação não indica ausência de peering.',
   presenca: '"Direto" é a sessão do AS nos route servers do PTT. "Originador" é o prefixo do AS visto no PTT por outro participante.',
   acessos: 'Os assinantes são os declarados pela empresa à Anatel (SICI), num mês de referência próprio. ASes do mesmo CNPJ dividem o mesmo total.',
+  'hilbert-ipv6': 'Cada célula é um /32 de um bloco de RIR; prefixo mais curto pinta todas as células que cobre e mais longo marca a célula que o contém. A curva mostra onde os prefixos estão, não uso nem tráfego. "Só na tabela global" é o que se viu na tabela sem estar dentro de um prefixo alocado pelo Registro.br.',
+  'hilbert-ipv4': 'Cada célula é um /16 (os números são os /8); prefixo mais curto pinta todas as células que cobre e mais longo, como um /24, marca o /16 que o contém. A curva mostra onde os prefixos estão, não uso nem tráfego. "Só na tabela global" é o que se viu na tabela sem estar dentro de um prefixo alocado pelo Registro.br.',
   'recursos-ipv4': 'São blocos delegados e sua aparição na tabela. Um bloco não anunciado pode estar em uso, e o sinal de terceiros é uma hipótese.',
 }
-const RECOLHIDO = new Set(['prefixos-rir', 'diagnostico', 'politica-rs', 'instalacoes'])
+const RECOLHIDO = new Set(['diagnostico', 'politica-rs', 'instalacoes'])
 const def = (b: Omit<BlocoDef<AsnCtx>, 'entidade'>) => registrarBloco<AsnCtx>({ ...base, aba: ABA[b.id], comoLer: COMO_LER[b.id], recolhido: RECOLHIDO.has(b.id) && !b.semTitulo, ...b })
 
 const FONTES_ALERTAS = ['registro_br', 'fulltable_routeviews', 'rpki_collector', 'peeringdb_networks', 'lg_ixbr']
@@ -107,6 +111,10 @@ def({ id: 'estabilidade', titulo: 'Estabilidade BGP', ordem: 40, depende: ['bgp-
 def({ id: 'diagnostico', titulo: 'Diagnóstico aprofundado', ordem: 50, depende: ['bgp-stability-deep'], fontes: ['bgp_stability_deep'], selo: 'inferido',
   aplicavel: (c) => !!c.asnDiagnosis, Componente: DiagnosticoBloco })
 def({ id: 'prefixos-rir', titulo: 'Prefixos alocados pelo Registro.br', ordem: 60, depende: ['useAsn'], fontes: ['registro_br'], selo: 'fato', Componente: PrefixosRirBloco })
+def({ id: 'hilbert-ipv6', titulo: 'Curva de Hilbert IPv6', ordem: 61, depende: ['useAsn'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr'], selo: 'fato',
+  nota: 'posição calculada do próprio prefixo (alocado, observado na tabela global, visto no PTT); não mostra uso nem tráfego', aplicavel: (c) => temPrefixos(c.doc, 'v6'), Componente: HilbertIpv6Bloco })
+def({ id: 'hilbert-ipv4', titulo: 'Curva de Hilbert IPv4', ordem: 62, depende: ['useAsn'], fontes: ['registro_br', 'fulltable_routeviews', 'lg_ixbr'], selo: 'fato',
+  nota: 'posição calculada do próprio prefixo (alocado, observado na tabela global, visto no PTT); não mostra uso nem tráfego', aplicavel: (c) => temPrefixos(c.doc, 'v4'), Componente: HilbertIpv4Bloco })
 def({ id: 'roa', semTitulo: true, titulo: 'RPKI: ROAs autorizados', ordem: 70, depende: ['useAsn'], fontes: ['rpki_collector'], selo: 'fato', Componente: RoaBloco })
 def({ id: 'aspa', titulo: 'ASPA', ordem: 80, depende: ['useAsn'], fontes: ['rpki_collector'], selo: 'fato',
   aplicavel: (c) => c.doc.aspa_providers != null || c.doc.aspa_customers != null, Componente: AspaBloco })

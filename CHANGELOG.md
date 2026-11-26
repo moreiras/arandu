@@ -298,6 +298,10 @@ parênteses remetem à análise.
   A mesma forma vale em PTT, UF, panorama técnico e de mercado, `/ixps`, CDNs, municípios, uso da Internet e localizador: resumo
   em texto, fontes e datas recolhidas e, onde há cartões, cartões antes do resumo; em `/ixps` a faixa colorida virou cartões com
   número neutro e selo. `SinteseTopo` fica sem uso (mantido) e um teste reprova uso novo.
+- **Aba Numeração no AS (curvas de Hilbert por AS).** A página de AS ganha a aba "Numeração", logo após "Resumo", com a lista de prefixos
+  alocados pelo Registro.br (agora aberta, não recolhida) e as curvas de Hilbert IPv6 e IPv4 do AS, que tinham saído da página. Cada curva
+  tem três camadas ligáveis (alocado pelo Registro.br, visto só na tabela global, visto num PTT à escolha), quadrantes filtráveis (/8 no
+  IPv4, /20 no IPv6) e a lista de prefixos como alternativa em texto. Só mostra onde os prefixos estão, não uso nem tráfego.
 
 ## v2.1.3
 

@@ -40,9 +40,9 @@ describe('blocos de ASN', () => {
   const ctxMin = { doc: fixtures.asnDetail as any, date: '2026-09-20', ixpPaths: {}, pathNodeMeta: {}, ixpMemberCodes: [], carregandoCaminhos: false }
   const aplicaveis = (doc: any) => blocosDe('asn').filter((b) => !b.aplicavel || b.aplicavel({ ...ctxMin, doc })).map((b) => b.id)
 
-  it('fixa os 30 blocos e a ordem de exibição (a ordem da página de antes)', () => {
+  it('fixa os 33 blocos e a ordem de exibição (a ordem da página de antes)', () => {
     expect(blocosDe('asn').map((b) => b.id)).toEqual([
-      'metricas', 'usuarios', 'linha-do-tempo', 'alertas', 'seguranca', 'prontidao', 'recursos-ipv4', 'route-servers', 'organizacao', 'bloqueios', 'radar', 'exposicao', 'politica-rs', 'instalacoes', 'estabilidade', 'diagnostico', 'prefixos-rir', 'roa', 'aspa', 'tabela-global', 'presenca',
+      'metricas', 'usuarios', 'linha-do-tempo', 'alertas', 'seguranca', 'prontidao', 'recursos-ipv4', 'route-servers', 'organizacao', 'bloqueios', 'radar', 'exposicao', 'politica-rs', 'instalacoes', 'estabilidade', 'diagnostico', 'prefixos-rir', 'hilbert-ipv6', 'hilbert-ipv4', 'roa', 'aspa', 'tabela-global', 'presenca',
       'interconexao-mensuravel', 'acessos', 'mapa', 'ixps-externos', 'peeringdb', 'outorga-scm', 'outorga-smp', 'outorga-stfc', 'outorga-seac', 'relacoes',
     ])
   })
@@ -149,8 +149,8 @@ describe('abas por lente', () => {
     }
   })
 
-  it('o AS tem as seis lentes da decisão 3 do portão 1, na ordem', () => {
-    expect(abasDe('asn').map((a) => a.id)).toEqual(['resumo', 'roteamento', 'seguranca', 'interconexao', 'mercado', 'historico'])
+  it('o AS tem as lentes da decisão 3 do portão 1 mais Numeração (logo após Resumo), na ordem', () => {
+    expect(abasDe('asn').map((a) => a.id)).toEqual(['resumo', 'numeracao', 'roteamento', 'seguranca', 'interconexao', 'mercado', 'historico'])
   })
 
   it('blocos recolhidos têm título próprio e os "Como ler" não ficam vazios', () => {
@@ -243,19 +243,20 @@ describe('EntityPage com abas', () => {
 describe('correspondência do AS: nenhum bloco ficou fora das abas', () => {
   const ESPERADO: Record<string, string[]> = {
     resumo: ['metricas', 'usuarios', 'alertas'],
-    roteamento: ['recursos-ipv4', 'radar', 'estabilidade', 'diagnostico', 'prefixos-rir', 'tabela-global', 'mapa', 'relacoes'],
+    numeracao: ['prefixos-rir', 'hilbert-ipv6', 'hilbert-ipv4'],
+    roteamento: ['recursos-ipv4', 'radar', 'estabilidade', 'diagnostico', 'tabela-global', 'mapa', 'relacoes'],
     seguranca: ['seguranca', 'prontidao', 'bloqueios', 'exposicao', 'roa', 'aspa'],
     interconexao: ['route-servers', 'politica-rs', 'instalacoes', 'presenca', 'interconexao-mensuravel', 'ixps-externos', 'peeringdb'],
     mercado: ['organizacao', 'acessos', 'outorga-scm', 'outorga-smp', 'outorga-stfc', 'outorga-seac'],
     historico: ['linha-do-tempo'],
   }
 
-  it('cada um dos 31 blocos registrados está em exatamente uma aba, na ordem esperada', () => {
+  it('cada um dos 33 blocos registrados está em exatamente uma aba, na ordem esperada', () => {
     const porAba: Record<string, string[]> = {}
     for (const b of blocosDe('asn')) (porAba[b.aba!] ??= []).push(b.id)
     expect(Object.fromEntries(Object.entries(porAba).map(([k, v]) => [k, [...v].sort()]))).toEqual(Object.fromEntries(Object.entries(ESPERADO).map(([k, v]) => [k, [...v].sort()])))
     expect(Object.values(porAba).flat()).toHaveLength(blocosDe('asn').length)
-    expect(blocosDe('asn')).toHaveLength(31)
+    expect(blocosDe('asn')).toHaveLength(33)
   })
 
   it('com todos os dados presentes, a união das abas é a página de antes (nenhum bloco some)', () => {
