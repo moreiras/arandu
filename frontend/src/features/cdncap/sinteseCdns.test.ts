@@ -21,9 +21,9 @@ describe('sinteseCdns', () => {
   it('três frases: catálogo no IX.br, PTTs sem provedor do catálogo e IXPs de fora', () => {
     const f = sinteseCdns(dados())
     expect(f.map((x) => x.id)).toEqual(['catalogo', 'ptts-sem', 'fora'])
-    expect(f[0].texto).toBe('O catálogo acompanha 4 provedores de CDN e de conteúdo; 2 constam do cadastro de participantes de ao menos um PTT do IX.br.')
+    expect(f[0].texto).toBe('O catálogo acompanha 4 provedores de CDN e de conteúdo. Desses, 2 constam do cadastro de participantes de ao menos um PTT do IX.br.')
     expect(f[1].texto).toContain('2 dos 3 PTTs do IX.br não têm nenhum provedor do catálogo')
-    expect(f[1].texto).toContain('o catálogo é incompleto')
+    expect(f[1].texto).toContain('O catálogo é incompleto')
     expect(f[2].texto).toBe('Fora do IX.br, 2 provedores do catálogo declaram presença em 2 IXPs do PeeringDB.')
     expect(f[2].selo).toBe('fato')
     expect(f[0].selo).toBe('inferido')

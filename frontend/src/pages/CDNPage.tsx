@@ -10,7 +10,9 @@ import { useOrdenacao } from '../lib/ordenacao'
 import { ThOrdenavel } from '../components/ui/ThOrdenavel'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import { LinhaProveniencia } from '../components/ui/Kpi'
-import { SinteseTopo } from '../components/ui/SinteseTopo'
+import { ApresentacaoRecolhida } from '../components/ui/FontesEDatas'
+import { ResumoEmTexto } from '../components/ui/ResumoEmTexto'
+import { palavra } from '../lib/sintese'
 import { REGRAS_SINTESE_CDNS, sinteseCdns } from '../features/cdncap/sinteseCdns'
 import { CdnMudancas } from '../features/cdncap/CdnMudancas'
 
@@ -452,6 +454,7 @@ export function CDNPage() {
   }, [data, activeCategories, columnCodes])
 
   return (
+    <ApresentacaoRecolhida>
     <div className="space-y-6">
       <div className="space-y-1">
         <h1 className="text-titulo-1 text-gray-900">Presença de CDNs e CAPs nos IXPs</h1>
@@ -460,15 +463,15 @@ export function CDNPage() {
           IX.br: membros do cadastro de participantes (dashboard.ix.br), com a sessão no route server vista no looking glass. Outros IXPs: membros autodeclarados no PeeringDB.
         </p>
         {data && (
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-600">
             Snapshot: <span className="font-mono">{data.snapshot_date}</span> ·{' '}
-            {visibleCdns.length} provedores ·{' '}
-            {data.ixbr_columns.length} IXPs IX.br · {data.external_columns.length} outros IXPs
+            {visibleCdns.length} {palavra(visibleCdns.length, 'provedor', 'provedores')} ·{' '}
+            {data.ixbr_columns.length} {palavra(data.ixbr_columns.length, 'IXP', 'IXPs')} IX.br · {data.external_columns.length} {palavra(data.external_columns.length, 'outro IXP', 'outros IXPs')}
           </p>
         )}
       </div>
 
-      <SinteseTopo frases={sinteseCdns(data)} snapshot={data?.snapshot_date} regras={REGRAS_SINTESE_CDNS} comoLer="Os números do resumo são do catálogo inteiro, sem os filtros da matriz." />
+      <ResumoEmTexto frases={sinteseCdns(data)} snapshot={data?.snapshot_date} regras={REGRAS_SINTESE_CDNS} notaComoLer="Os números do resumo são do catálogo inteiro, sem os filtros da matriz." />
 
       {/* Source toggles */}
       <div className="flex flex-wrap gap-1 border-b border-gray-200 pb-3">
@@ -536,5 +539,6 @@ export function CDNPage() {
       )}
       <CdnMudancas />
     </div>
+    </ApresentacaoRecolhida>
   )
 }
