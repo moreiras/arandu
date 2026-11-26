@@ -95,8 +95,20 @@ def as_loop(n: int) -> str:
             "caminho). Pode indicar má configuração de rota ou manipulação incorreta de AS_PATH.")
 
 
+_NIVEL_LEGIVEL = {"declarado": "declarado", "confirmado": "confirmado", "provavel": "provável", "possivel": "possível"}
+
+
+def _confianca(p: object) -> str:
+    """`p` da régua de relações (0 a 1) como porcentagem inteira; sem número, sem frase."""
+    try:
+        return f"; confiança estimada de {round(float(p) * 100)}%"
+    except (TypeError, ValueError):
+        return ""
+
+
 def single_homed_inferido(rotulo: str, asn: int, nivel: str, p: object) -> str:
-    return (f"Só um provedor de trânsito foi inferido para o AS ({rotulo}): AS{asn} (nível {nivel}, p = {p}), com visibilidade suficiente nos "
+    return (f"Só um provedor de trânsito foi inferido para o AS ({rotulo}): AS{asn} (classificação "
+            f"{_NIVEL_LEGIVEL.get(nivel, nivel)}{_confianca(p)}), com visibilidade suficiente nos "
             "coletores e nos route servers. A conclusão vem de inferência a partir do AS_PATH, do ASPA e do CAIDA, não de contrato: pode haver "
             "provedor que não aparece nas tabelas públicas.")
 

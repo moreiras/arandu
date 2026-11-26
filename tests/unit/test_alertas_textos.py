@@ -71,3 +71,12 @@ def test_singular_e_plural_pelo_numero(q):
 def test_nome_do_ptt_aparece_com_o_codigo():
     assert alerta_textos.nome_ptt("sp", {"sp": "IX.br São Paulo"}) == "IX.br São Paulo (SP)"
     assert alerta_textos.nome_ptt("za", {}) == "ZA"
+
+
+def test_upstream_unico_inferido_sem_jargao():
+    """Classificação com acento e confiança em porcentagem, em vez de "nível provavel, p = 1.0"."""
+    from core import alerta_textos as t
+    txt = t.single_homed_inferido("IPv6 e IPv4", 264490, "provavel", 1.0)
+    assert "classificação provável; confiança estimada de 100%" in txt
+    assert "p = " not in txt and "nível" not in txt
+    assert "confiança" not in t.single_homed_inferido("IPv4", 1, "possivel", None)
