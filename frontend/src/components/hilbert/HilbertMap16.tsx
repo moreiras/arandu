@@ -27,7 +27,10 @@ export interface HilbertLayerData {
   rir_br_visible: number[]
 }
 
-export const LAYER_META: Record<LayerKey, { label: string; color: string; description: string; legend: string }> = {
+/** Rótulo, cor e textos de uma camada do mapa. */
+export interface LayerMeta { label: string; color: string; description: string; legend: string }
+
+export const LAYER_META: Record<LayerKey, LayerMeta> = {
   rir_br: {
     label: 'Alocado Registro.br',
     color: '#3b82f6',
@@ -63,7 +66,7 @@ export const LAYER_META: Record<LayerKey, { label: string; color: string; descri
 const CANVAS_PX = 512  // CSS pixels (canvas interno 2× para retina)
 const CELL = CANVAS_PX / 256  // 2px per cell
 const BR_RED: [number, number, number] = [0xef, 0x44, 0x44]  // #ef4444
-const DUAL_COLOR_LAYERS: LayerKey[] = ['global_br', 'global_all', 'ixp_all']
+const DUAL_COLOR_LAYERS: readonly string[] = ['global_br', 'global_all', 'ixp_all']
 
 interface TooltipState {
   blockIdx: number
@@ -72,10 +75,20 @@ interface TooltipState {
 }
 
 interface HilbertMap16Props {
-  data: HilbertLayerData | null
-  activeLayer: LayerKey
+  /** Densidade (/24s por /16) de cada camada; as chaves são as de `layerMeta`. */
+  data: HilbertLayerData | Record<string, number[]> | null
+  activeLayer: LayerKey | string
   width?: number
   date?: string
+  /** Definição das camadas (padrão: as nacionais, `LAYER_META`). */
+  layerMeta?: Record<string, LayerMeta>
+  /** Camadas pintadas em vermelho onde a camada `baseLayer` também tem dado (padrão: as nacionais). */
+  dualLayers?: readonly string[]
+  baseLayer?: string
+  /** Sem o detalhe /24 do zoom (que vem da API nacional): o /8 ampliado mostra só a densidade por /16. */
+  semDetalhe?: boolean
+  /** Nome acessível do canvas; sem ele o canvas fica como sempre foi. */
+  rotuloCanvas?: string
 }
 
 interface ZoomedBlock { sx: number; sy: number; slashEight: number }
@@ -116,7 +129,8 @@ function renderCanvas(
   ctx.putImageData(imgData, 0, 0)
 }
 
-export function HilbertMap16({ data, activeLayer, width = CANVAS_PX, date }: HilbertMap16Props) {
+export function HilbertMap16({ data: dataProp, activeLayer, width = CANVAS_PX, date, layerMeta = LAYER_META, dualLayers = DUAL_COLOR_LAYERS, baseLayer = 'rir_br', semDetalhe = false, rotuloCanvas }: HilbertMap16Props) {
+  const data = dataProp as Record<string, number[]> | null
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [zoomedBlock, setZoomedBlock] = useState<ZoomedBlock | null>(null)
@@ -139,10 +153,10 @@ export function HilbertMap16({ data, activeLayer, width = CANVAS_PX, date }: Hil
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    const color = LAYER_META[activeLayer].color
-    const brDensity = data && DUAL_COLOR_LAYERS.includes(activeLayer) ? data.rir_br : null
+    const color = layerMeta[activeLayer].color
+    const brDensity = data && dualLayers.includes(activeLayer) ? data[baseLayer] ?? null : null
     renderCanvas(ctx, CANVAS_PX, density, color, brDensity)
-  }, [data, activeLayer, density])
+  }, [data, activeLayer, density, layerMeta, dualLayers, baseLayer])
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -189,6 +203,7 @@ export function HilbertMap16({ data, activeLayer, width = CANVAS_PX, date }: Hil
           ref={canvasRef}
           width={CANVAS_PX}
           height={CANVAS_PX}
+          {...(rotuloCanvas ? { role: 'img', 'aria-label': rotuloCanvas } : {})}
           style={{
             width,
             height: width,
@@ -249,8 +264,8 @@ export function HilbertMap16({ data, activeLayer, width = CANVAS_PX, date }: Hil
           const { blockIdx, cssX, cssY } = tooltip
           const count = density?.[blockIdx] ?? 0
           const slash8 = block16ToSlash8(blockIdx)
-          const isBR = DUAL_COLOR_LAYERS.includes(activeLayer) && (data?.rir_br[blockIdx] ?? 0) > 0
-          const dotColor = isBR ? '#ef4444' : LAYER_META[activeLayer].color
+          const isBR = dualLayers.includes(activeLayer) && (data?.[baseLayer]?.[blockIdx] ?? 0) > 0
+          const dotColor = isBR ? '#ef4444' : layerMeta[activeLayer].color
           return (
             <div
               className="absolute z-10 bg-white border border-gray-200 rounded shadow-md px-2 py-1.5 text-xs pointer-events-none"
@@ -266,7 +281,7 @@ export function HilbertMap16({ data, activeLayer, width = CANVAS_PX, date }: Hil
               {count > 0 ? (
                 <div className="mt-0.5 space-y-0.5">
                   <div style={{ color: dotColor }}>
-                    {count} /24{count !== 1 ? 's' : ''}: {LAYER_META[activeLayer].label}
+                    {count} /24{count !== 1 ? 's' : ''}: {layerMeta[activeLayer].label}
                   </div>
                   {isBR && (
                     <div className="text-xs" style={{ color: '#ef4444' }}>
@@ -289,7 +304,8 @@ export function HilbertMap16({ data, activeLayer, width = CANVAS_PX, date }: Hil
         sy={zoomedBlock.sy}
         slashEight={zoomedBlock.slashEight}
         activeLayer={activeLayer}
-        layerColor={LAYER_META[activeLayer].color}
+        layerColor={layerMeta[activeLayer].color}
+        semDetalhe={semDetalhe}
         density={density}
         date={date}
         onClose={() => setZoomedBlock(null)}

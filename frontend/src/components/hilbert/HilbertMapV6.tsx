@@ -3,19 +3,41 @@
  * Compartilha seletor de camada e legenda. Cada sub-mapa é HilbertMapV6Block.
  */
 import { useState, useRef, useLayoutEffect } from 'react'
-import { V6_BLOCKS } from './hilbert'
-import { HilbertMapV6Block, V6_LAYER_META, type V6LayerKey, type V6BlockData } from './HilbertMapV6Block'
+import { V6_BLOCKS, type V6BlockConfig } from './hilbert'
+import { HilbertMapV6Block, V6_LAYER_META, V6_DUAL_COLOR_LAYERS, type V6LayerKey, type V6LayerMeta, type V6BlockData } from './HilbertMapV6Block'
 import type { HilbertV6Data } from '../../types/api'
 import { corLegivel } from '../../lib/contraste'
 
 interface HilbertMapV6Props {
-  data: HilbertV6Data | null
+  data: HilbertV6Data | Record<string, Record<string, number[]>> | null
   /** Largura CSS de cada sub-mapa em px (default 160). */
   blockWidth?: number
+  /** Definição das camadas (padrão: as nacionais, `V6_LAYER_META`); a ordem das chaves é a dos botões. */
+  layerMeta?: Record<string, V6LayerMeta>
+  /** Camada inicial (padrão: `rir_br`). */
+  camadaInicial?: string
+  /** Avisa a troca de camada, para quem mostra algo que depende dela. */
+  onCamada?: (camada: string) => void
+  /** Camadas pintadas em vermelho onde `baseLayer` também tem a célula (padrão: as nacionais). */
+  dualLayers?: readonly string[]
+  baseLayer?: string
+  /** Mostra só os blocos de RIR com célula em alguma camada (padrão: os seis). */
+  soBlocosComDados?: boolean
+  /** Nome acessível do canvas de cada bloco; sem ele os canvas ficam como sempre foram. */
+  rotuloBloco?: (config: V6BlockConfig) => string
+  /** Texto abaixo dos mapas (padrão: o do panorama). */
+  rodape?: string
 }
 
-export function HilbertMapV6({ data, blockWidth: blockWidthProp = 160 }: HilbertMapV6Props) {
-  const [activeLayer, setActiveLayer] = useState<V6LayerKey>('rir_br')
+const RODAPE_PADRAO = 'Cada célula = bloco /32 IPv6. Legado (2001::/16): grade 256×256. Blocos /12: grade 1024×1024 (downscale suave). Passe o mouse para ver o prefixo. Clique em blocos destacados para ampliar.'
+
+export function HilbertMapV6({ data, blockWidth: blockWidthProp = 160, layerMeta = V6_LAYER_META, camadaInicial = 'rir_br', onCamada, dualLayers = V6_DUAL_COLOR_LAYERS, baseLayer = 'rir_br', soBlocosComDados = false, rotuloBloco, rodape = RODAPE_PADRAO }: HilbertMapV6Props) {
+  const [activeLayer, setActiveLayerEstado] = useState<V6LayerKey | string>(camadaInicial)
+  const setActiveLayer = (k: string) => { setActiveLayerEstado(k); onCamada?.(k) }
+  const dadosPorBloco = data as Record<string, Record<string, number[]> | undefined> | null
+  const blocos = soBlocosComDados
+    ? V6_BLOCKS.filter((b) => Object.values(dadosPorBloco?.[b.id] ?? {}).some((c) => c.length > 0))
+    : V6_BLOCKS
   const containerRef = useRef<HTMLDivElement>(null)
   const [cols, setCols] = useState(3)
   const [blockWidth, setBlockWidth] = useState(blockWidthProp)
@@ -37,8 +59,8 @@ export function HilbertMapV6({ data, blockWidth: blockWidthProp = 160 }: Hilbert
     <div ref={containerRef}>
       {/* Seletor de camada — mesmo estilo do mapa IPv4 */}
       <div className="flex flex-wrap gap-1.5 mb-2">
-        {(Object.keys(V6_LAYER_META) as V6LayerKey[]).map((key) => {
-          const meta = V6_LAYER_META[key]
+        {Object.keys(layerMeta).map((key) => {
+          const meta = layerMeta[key]
           const active = activeLayer === key
           return (
             <button
@@ -63,15 +85,15 @@ export function HilbertMapV6({ data, blockWidth: blockWidthProp = 160 }: Hilbert
       {/* Legenda dinâmica */}
       <p
         className="text-xs text-gray-500 mb-3 leading-relaxed border-l-2 pl-2"
-        style={{ borderColor: V6_LAYER_META[activeLayer].color }}
+        style={{ borderColor: layerMeta[activeLayer].color }}
       >
-        {V6_LAYER_META[activeLayer].legend}
+        {layerMeta[activeLayer].legend}
       </p>
 
       {/* 6 mapas — 3 colunas no desktop, 2 no mobile */}
       <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-        {V6_BLOCKS.map((config) => {
-          const blockData = data ? (data[config.id as keyof HilbertV6Data] as V6BlockData) : null
+        {blocos.map((config) => {
+          const blockData = dadosPorBloco ? (dadosPorBloco[config.id] as V6BlockData | undefined) ?? null : null
           return (
             <HilbertMapV6Block
               key={config.id}
@@ -79,16 +101,17 @@ export function HilbertMapV6({ data, blockWidth: blockWidthProp = 160 }: Hilbert
               data={blockData}
               activeLayer={activeLayer}
               cssWidth={blockWidth}
-              layerColor={V6_LAYER_META[activeLayer].color}
+              layerColor={layerMeta[activeLayer].color}
+              layerMeta={layerMeta}
+              dualLayers={dualLayers}
+              baseLayer={baseLayer}
+              rotuloCanvas={rotuloBloco?.(config)}
             />
           )
         })}
       </div>
 
-      <p className="text-xs text-gray-400 mt-1.5">
-        Cada célula = bloco /32 IPv6. Legado (2001::/16): grade 256×256.
-        Blocos /12: grade 1024×1024 (downscale suave). Passe o mouse para ver o prefixo. Clique em blocos destacados para ampliar.
-      </p>
+      <p className="text-xs text-gray-400 mt-1.5">{rodape}</p>
     </div>
   )
 }

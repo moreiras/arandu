@@ -414,10 +414,12 @@ interface ZoomDashV4Props {
   sx: number
   sy: number
   slashEight: number
-  activeLayer: LayerKey
+  activeLayer: LayerKey | string
   layerColor: string
   density: number[]     // density array for activeLayer (65536 values)
   date?: string
+  /** Não busca o detalhe /24 na API (camadas que não existem lá): mostra a densidade por /16. */
+  semDetalhe?: boolean
   onClose: () => void
 }
 
@@ -433,7 +435,7 @@ interface Tooltip4Dash {
 export function ZoomModalDashV4({
   sx, sy, slashEight,
   activeLayer, layerColor, density,
-  date, onClose,
+  date, semDetalhe, onClose,
 }: ZoomDashV4Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [tooltip, setTooltip] = useState<Tooltip4Dash | null>(null)
@@ -441,6 +443,7 @@ export function ZoomModalDashV4({
   const { data: detailData, isLoading: loadingDetail } = useQuery({
     queryKey: ['hilbert-v4-detail', slashEight, activeLayer, date],
     queryFn: () => fetchHilbertV4Detail(slashEight, activeLayer, date),
+    enabled: !semDetalhe,
     staleTime: Infinity, gcTime: Infinity,
   })
 

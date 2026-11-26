@@ -17,7 +17,10 @@ import { ZoomModalV6 } from './IXPHilbertZoom'
 
 export type V6LayerKey = 'rir_br' | 'global_br' | 'global_all' | 'ixp_all' | 'rir_br_visible'
 
-export const V6_LAYER_META: Record<V6LayerKey, { label: string; color: string; description: string; legend: string }> = {
+/** Rótulo, cor e textos de uma camada do mapa IPv6. */
+export interface V6LayerMeta { label: string; color: string; description: string; legend: string }
+
+export const V6_LAYER_META: Record<V6LayerKey, V6LayerMeta> = {
   rir_br: {
     label: 'Alocado Registro.br',
     color: '#3b82f6',
@@ -50,7 +53,7 @@ export const V6_LAYER_META: Record<V6LayerKey, { label: string; color: string; d
   },
 }
 
-export interface V6BlockData {
+export type V6BlockData = {
   rir_br: number[]
   global_br: number[]
   global_all: number[]
@@ -79,9 +82,17 @@ function computeActiveV6Squares(cells: number[] | null, config: V6BlockConfig): 
 
 interface HilbertMapV6BlockProps {
   config: V6BlockConfig
-  data: V6BlockData | null
-  activeLayer: V6LayerKey
+  /** Células (índices de Hilbert) de cada camada; as chaves são as de `layerMeta`. */
+  data: V6BlockData | Record<string, number[]> | null
+  activeLayer: V6LayerKey | string
   cssWidth: number
+  /** Definição das camadas (padrão: as nacionais, `V6_LAYER_META`). */
+  layerMeta?: Record<string, V6LayerMeta>
+  /** Camadas pintadas em vermelho onde `baseLayer` também tem a célula (padrão: as nacionais). */
+  dualLayers?: readonly string[]
+  baseLayer?: string
+  /** Nome acessível do canvas; sem ele o canvas fica como sempre foi. */
+  rotuloCanvas?: string
   /** Cor para o zoom modal (usa a cor da camada ativa). */
   layerColor?: string
 }
@@ -89,7 +100,7 @@ interface HilbertMapV6BlockProps {
 interface ZoomedSquare { gx: number; gy: number }
 
 const V6_BR_RED: [number, number, number] = [0xef, 0x44, 0x44]
-const V6_DUAL_COLOR_LAYERS: V6LayerKey[] = ['global_br', 'global_all', 'ixp_all']
+export const V6_DUAL_COLOR_LAYERS: readonly string[] = ['global_br', 'global_all', 'ixp_all']
 
 export function renderV6Block(
   ctx: CanvasRenderingContext2D,
@@ -138,18 +149,21 @@ export function renderV6Block(
   ctx.putImageData(new ImageData(pixels, canvasPx, canvasPx), 0, 0)
 }
 
-export function HilbertMapV6Block({ config, data, activeLayer, cssWidth, layerColor }: HilbertMapV6BlockProps) {
+export function HilbertMapV6Block({ config, data: dataProp, activeLayer, cssWidth, layerColor, layerMeta = V6_LAYER_META, dualLayers = V6_DUAL_COLOR_LAYERS, baseLayer = 'rir_br', rotuloCanvas }: HilbertMapV6BlockProps) {
+  const data = dataProp as Record<string, number[]> | null
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [tooltip, setTooltip] = useState<{ d: number; cssX: number; cssY: number } | null>(null)
   const [zoomedSquare, setZoomedSquare] = useState<ZoomedSquare | null>(null)
   const [isHoveredClickable, setIsHoveredClickable] = useState(false)
 
   // Sets para lookup O(1) no tooltip (evita includes() O(n))
-  const rir_brSet      = useMemo(() => new Set(data?.rir_br         ?? []), [data?.rir_br])
-  const globalBrSet    = useMemo(() => new Set(data?.global_br      ?? []), [data?.global_br])
-  const globalSet      = useMemo(() => new Set(data?.global_all     ?? []), [data?.global_all])
-  const ixpSet         = useMemo(() => new Set(data?.ixp_all        ?? []), [data?.ixp_all])
-  const rir_visibleSet = useMemo(() => new Set(data?.rir_br_visible ?? []), [data?.rir_br_visible])
+  const camadaKeys = useMemo(() => Object.keys(layerMeta), [layerMeta])
+  const sets = useMemo(() => {
+    const m: Record<string, Set<number>> = {}
+    for (const k of camadaKeys) m[k] = new Set(data?.[k] ?? [])
+    return m
+  }, [data, camadaKeys])
+  const baseSet = sets[baseLayer]
 
   const activeCells = useMemo(
     () => data ? (data[activeLayer] ?? []) : [],
@@ -169,9 +183,9 @@ export function HilbertMapV6Block({ config, data, activeLayer, cssWidth, layerCo
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    const brSet = V6_DUAL_COLOR_LAYERS.includes(activeLayer) ? rir_brSet : null
-    renderV6Block(ctx, config, data ? data[activeLayer] : null, V6_LAYER_META[activeLayer].color, brSet)
-  }, [data, activeLayer, config, rir_brSet])
+    const brSet = dualLayers.includes(activeLayer) ? baseSet ?? null : null
+    renderV6Block(ctx, config, data ? data[activeLayer] : null, layerMeta[activeLayer].color, brSet)
+  }, [data, activeLayer, config, baseSet, dualLayers, layerMeta])
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -204,25 +218,12 @@ export function HilbertMapV6Block({ config, data, activeLayer, cssWidth, layerCo
   }, [config, gridScale, numCols, activeSquares])
 
   const hd = tooltip?.d ?? -1
-  const activePresent   = hd >= 0 && (
-    activeLayer === 'rir_br'         ? rir_brSet.has(hd)
-    : activeLayer === 'global_br'    ? globalBrSet.has(hd)
-    : activeLayer === 'global_all'   ? globalSet.has(hd)
-    : activeLayer === 'ixp_all'      ? ixpSet.has(hd)
-    : rir_visibleSet.has(hd)
-  )
-  const isBRinDual = V6_DUAL_COLOR_LAYERS.includes(activeLayer) && rir_brSet.has(hd)
-  const activeDotColor = isBRinDual ? '#ef4444' : V6_LAYER_META[activeLayer].color
+  const activePresent   = hd >= 0 && (sets[activeLayer]?.has(hd) ?? false)
+  const isBRinDual = dualLayers.includes(activeLayer) && (baseSet?.has(hd) ?? false)
+  const activeDotColor = isBRinDual ? '#ef4444' : layerMeta[activeLayer].color
 
   // Outras camadas presentes além da ativa
-  const otherLayers: V6LayerKey[] = (['rir_br', 'global_br', 'global_all', 'ixp_all', 'rir_br_visible'] as V6LayerKey[])
-    .filter(k => k !== activeLayer && (
-      k === 'rir_br'         ? rir_brSet.has(hd)
-      : k === 'global_br'    ? globalBrSet.has(hd)
-      : k === 'global_all'   ? globalSet.has(hd)
-      : k === 'ixp_all'      ? ixpSet.has(hd)
-      : rir_visibleSet.has(hd)
-    ))
+  const otherLayers: string[] = camadaKeys.filter(k => k !== activeLayer && sets[k].has(hd))
 
   return (
     <div className="flex flex-col items-center gap-0.5">
@@ -233,6 +234,7 @@ export function HilbertMapV6Block({ config, data, activeLayer, cssWidth, layerCo
           ref={canvasRef}
           width={config.canvasPx}
           height={config.canvasPx}
+          {...(rotuloCanvas ? { role: 'img', 'aria-label': rotuloCanvas } : {})}
           style={{
             width: cssWidth,
             height: cssWidth,
@@ -296,12 +298,12 @@ export function HilbertMapV6Block({ config, data, activeLayer, cssWidth, layerCo
             {activePresent ? (
               <div className="mt-0.5 space-y-0.5">
                 <div style={{ color: activeDotColor }} className="text-xs">
-                  {V6_LAYER_META[activeLayer].label}
+                  {layerMeta[activeLayer].label}
                   {isBRinDual && <span className="ml-1 text-xs">· alocado BR</span>}
                 </div>
                 {otherLayers.map(k => (
-                  <div key={k} className="text-xs flex items-center gap-1" style={{ color: V6_LAYER_META[k].color }}>
-                    <span>●</span><span>{V6_LAYER_META[k].label}</span>
+                  <div key={k} className="text-xs flex items-center gap-1" style={{ color: layerMeta[k].color }}>
+                    <span>●</span><span>{layerMeta[k].label}</span>
                   </div>
                 ))}
               </div>
@@ -309,8 +311,8 @@ export function HilbertMapV6Block({ config, data, activeLayer, cssWidth, layerCo
               <div className="mt-0.5 space-y-0.5">
                 <div className="text-gray-300 text-xs">sem dados nesta camada</div>
                 {otherLayers.map(k => (
-                  <div key={k} className="text-xs flex items-center gap-1" style={{ color: V6_LAYER_META[k].color }}>
-                    <span>●</span><span>{V6_LAYER_META[k].label}</span>
+                  <div key={k} className="text-xs flex items-center gap-1" style={{ color: layerMeta[k].color }}>
+                    <span>●</span><span>{layerMeta[k].label}</span>
                   </div>
                 ))}
               </div>
@@ -328,7 +330,7 @@ export function HilbertMapV6Block({ config, data, activeLayer, cssWidth, layerCo
           ownCells={null}
           thirdCells={null}
           isPeerMode={false}
-          color={layerColor ?? V6_LAYER_META[activeLayer].color}
+          color={layerColor ?? layerMeta[activeLayer].color}
           onClose={() => setZoomedSquare(null)}
         />
       )}
