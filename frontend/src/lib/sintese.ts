@@ -8,7 +8,7 @@ import type { Selo } from '../components/entidade/proveniencia'
 /**
  * Síntese em texto no topo das páginas (PT-22): 2 a 4 frases montadas por regra fixa, sem modelo de linguagem, a partir dos MESMOS números que a
  * página exibe (os geradores recebem os objetos que a página já buscou; nenhum número é digitado à mão). Cada frase leva selo, fonte e data de
- * referência, mostrados por `SinteseTopo` com o `LinhaProveniencia` dos KPIs. Política editorial: só dados e comparações, sem juízo de valor,
+ * referência, mostrados por `ResumoEmTexto` com o `LinhaProveniencia` dos KPIs. Política editorial: só dados e comparações, sem juízo de valor,
  * causa ou intenção; o que é estimado ou inferido leva o selo próprio. Frase cujo dado falta não é gerada (ausência não vira zero).
  */
 export interface FraseSintese {

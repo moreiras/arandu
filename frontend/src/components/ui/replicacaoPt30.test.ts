@@ -11,9 +11,8 @@ const de = (fim: string) => Object.entries(fontes).find(([k]) => k.endsWith(fim)
 const semComentarios = (v: string) => v.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/.*$/gm, '')
 
 describe('replicação do PT-30', () => {
-  it('nenhum arquivo, além do próprio componente e do índice, usa o SinteseTopo (o arquivo fica até a remoção ser decidida)', () => {
+  it('nenhum arquivo usa o SinteseTopo, removido depois da replicação', () => {
     const usuarios = Object.entries(fontes)
-      .filter(([k]) => k !== './SinteseTopo.tsx' && k !== './index.ts')
       .filter(([, v]) => /\bSinteseTopo\b/.test(semComentarios(v)))
       .map(([k]) => k)
     expect(usuarios).toEqual([])
