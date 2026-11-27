@@ -49,6 +49,10 @@ _TEXTO_EI = re.compile(r"empres[aá]rio\s*\(?\s*individual", re.I)
 # de EI só estas chaves recebem o nome público, para não trocar `municipio_nome` ou `ixp_nome`.
 _CHAVE_NOME = re.compile(r"^(razao_social|razao|nome_fantasia|fantasia|nome_empresarial|nome_empresa|empresa|sici_empresa|operadora|prestadora|titular|"
                          r"name|nome|org|org_name|as_name|asn_name|marca|holder|owner|empresa_nome|nome_titular)$")
+# `entidade` só é nome onde o produto o diz: nos registros de multas (`raiz`, `cnpjs` ou `cnpj_matriz`) e de ERBs (`marca`) ela traz a razão social da Anatel,
+# mas nos eventos do histórico é um rótulo de tipo ("asn") ao lado de `asn`: por isso fica fora de `_CHAVE_NOME` e é reconhecida pela forma do registro.
+_CHAVE_ENTIDADE = "entidade"
+_MARCAS_DE_REGISTRO_DE_EMPRESA = frozenset({"marca", "cnpjs", "cnpj_matriz"})
 _LISTA_DE_NOMES = re.compile(r"^(alt_names|nomes|marcas|nomes_alternativos)$")
 _CHAVE_CNPJ = frozenset({"cnpj", "cnpj_14", "cnpj14", "cnpj_basico", "cnpj_raiz", "cnpj_root", "raiz", "raiz_cnpj", "cnpj_matriz"})
 _CHAVE_ASN = frozenset({"asn", "as_number", "origin_asn", "asn_titular"})
@@ -386,6 +390,7 @@ def _dict(d: dict, chave_pai: Any, ctx: _Contexto, herdado: Any = None) -> Any:
     """`herdado`: o titular do registro pai, para os itens de uma lista de nomes do próprio titular (`alt_names`: [{name, source}])."""
     props = d.get("properties") if d.get("type") == "Feature" else None
     ti = _titular_do_dict(props if isinstance(props, dict) else d, chave_pai, ctx) or herdado
+    entidade_e_nome = _CHAVE_ENTIDADE in d and not _MARCAS_DE_REGISTRO_DE_EMPRESA.isdisjoint(d)
     novo: Optional[dict] = None
 
     def troca(k, v):
@@ -404,11 +409,12 @@ def _dict(d: dict, chave_pai: Any, ctx: _Contexto, herdado: Any = None) -> Any:
             novo.pop(k, None)
             continue
         if isinstance(v, str):
-            if ti is not None and _CHAVE_NOME.match(ks):
+            e_nome = _CHAVE_NOME.match(ks) is not None or (entidade_e_nome and ks == _CHAVE_ENTIDADE)
+            if ti is not None and e_nome:
                 n = _nome_de_titular(v, ti, ctx)
             elif ti is None and ks.isdigit() and (tk := _titular_da_chave(ks, ctx)) is not None and _LETRA.search(v):
                 n = _nome_de_titular(v, tk, ctx)                  # mapa por ASN (`asns/names.json`): a chave é o titular
-            elif ti is None and ctx.idx.nomes and (e_campo_de_nome(ks) or ks.isdigit()):
+            elif ti is None and ctx.idx.nomes and (e_nome or e_campo_de_nome(ks) or ks.isdigit()):
                 n = _nome_sem_titular(v, ctx) or v
             else:
                 continue

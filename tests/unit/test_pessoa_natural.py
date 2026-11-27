@@ -111,6 +111,21 @@ def test_feicao_geojson_de_ei_ganha_o_centroide_e_a_de_pj_nao_muda():
     assert out["features"][1] is pj
 
 
+def test_entidade_e_nome_so_em_registro_de_multa_ou_erb():
+    """`entidade` traz a razão social da Anatel em multas (`cnpjs`, `cnpj_matriz`) e ERBs (`marca`); no histórico é o rótulo de tipo e não muda."""
+    idx = _indice()
+    rotulo = pn.rotulo(265061, CNPJ)
+    multa = {"raiz": CNPJ[:8], "grupo": "SCM", "entidade": "FULANO DE TAL", "cnpjs": [CNPJ], "multas": 2}
+    resumo = {"raiz": CNPJ[:8], "cnpj_matriz": CNPJ, "entidade": "FULANO DE TAL", "servicos": ["SCM"], "nomes_alternativos": ["FULANO DE TAL"]}
+    erb = {"cnpj": CNPJ, "marca": "FULANO DE TAL", "entidade": "FULANO DE TAL", "estacoes": 3}
+    out = pn.aplicar({"empresas": [multa, resumo], "operadoras": [erb]}, idx)
+    assert out["empresas"][0]["entidade"] == rotulo and out["empresas"][1]["entidade"] == rotulo and out["empresas"][1]["nomes_alternativos"] == [rotulo]
+    assert out["operadoras"][0]["entidade"] == rotulo and out["operadoras"][0]["marca"] == rotulo
+    eventos = [{"data": "2026-11-01", "tipo": "asn_novo", "entidade": "asn", "asn": 265061, "chave": ""},
+               {"data": "2026-11-01", "tipo": "outorga_nova", "entidade": "cnpj", "cnpj": CNPJ, "chave": ""}]
+    assert pn.aplicar(eventos, idx) == eventos
+
+
 def test_texto_json_de_resource_do_mcp():
     idx = _indice()
     texto = json.dumps({"asn": 265061, "name": "FULANO DE TAL"}, indent=2, ensure_ascii=False)
