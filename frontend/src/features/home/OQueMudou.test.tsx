@@ -37,6 +37,14 @@ beforeEach(() => {
   useAppStore.setState({ activeDate: null, latestSnapshot: '2026-09-20' })
 })
 
+const POR_TIPO = {
+  asn_novo: { confirmado: 36, pendente: 9, revertido: 0 }, asn_sumido: { confirmado: 1, pendente: 0, revertido: 0 },
+  ixp_entrada: { confirmado: 66, pendente: 0, revertido: 0 }, ixp_saida: { confirmado: 34, pendente: 0, revertido: 0 },
+  outorga_nova: { confirmado: 0, pendente: 0, revertido: 0 }, outorga_baixa: { confirmado: 0, pendente: 0, revertido: 0 },
+  rpki_invalido_novo: { confirmado: 43, pendente: 0, revertido: 0 }, rpki_invalido_resolvido: { confirmado: 28, pendente: 0, revertido: 0 },
+  roa_ganho: { confirmado: 128, pendente: 0, revertido: 0 }, roa_perdido: { confirmado: 97, pendente: 0, revertido: 0 },
+}
+
 // TRANSV-E20: o "O que mudou" da home vem de `/brasil/destaques`, rota fixa e aberta; não depende do orçamento anônimo e só conta a janela dos snapshots atuais.
 describe('O que mudou na home', () => {
   it('consulta a rota aberta mesmo com o orçamento anônimo esgotado e diz desde quando conta', async () => {
@@ -47,6 +55,25 @@ describe('O que mudou na home', () => {
 
   it('sem ASes novos na janela diz desde quando, em vez de afirmar "nos últimos snapshots"', async () => {
     montar(false, { ...resposta, o_que_mudou: { total: 0, de: '2026-09-13', mais_recente: null } })
-    await waitFor(() => expect(screen.getByTestId('o-que-mudou')).toHaveTextContent('nenhum AS brasileiro novo confirmado desde 13/09/2026'))
+    await waitFor(() => expect(screen.getByTestId('o-que-mudou')).toHaveTextContent('Nenhum AS brasileiro novo confirmado desde 13/09/2026'))
+  })
+
+  it('mostra as contagens por tipo com o período, os pendentes à parte e o link para /mudancas filtrada (PT-22 / HOME 5.4)', async () => {
+    montar(false, { ...resposta, o_que_mudou: { total: 36, de: '2026-09-13', ate: '2026-09-20', mais_recente: '2026-09-18', por_tipo: POR_TIPO } })
+    const lista = await screen.findByTestId('o-que-mudou-contagens')
+    expect(screen.getByTestId('o-que-mudou')).toHaveTextContent('entre os snapshots de 13/09/2026 e 20/09/2026')
+    const linhaDe = (rotulo: RegExp) => screen.getByRole('link', { name: rotulo }).closest('div') as HTMLElement
+    expect(linhaDe(/ASes novos na tabela de roteamento/)).toHaveTextContent(/ASes novos na tabela de roteamento \(mais 9 em confirmação\)36$/)
+    expect(linhaDe(/AS deixou de aparecer na tabela/)).toHaveTextContent(/1$/)
+    const link = screen.getByRole('link', { name: /ASes novos na tabela de roteamento/ })
+    expect(link).toHaveAttribute('href', expect.stringContaining('/mudancas?tipo=asn_novo'))
+    // zero aparece como 0, nunca some
+    expect(linhaDe(/outorgas novas no cadastro da Anatel/)).toHaveTextContent(/0$/)
+  })
+
+  it('tipo ausente da resposta não vira zero', async () => {
+    montar(false, { ...resposta, o_que_mudou: { total: 3, de: '2026-09-13', ate: '2026-09-20', mais_recente: '2026-09-20', por_tipo: { asn_novo: POR_TIPO.asn_novo } } })
+    const lista = await screen.findByTestId('o-que-mudou-contagens')
+    expect(lista).not.toHaveTextContent('ROA')
   })
 })
