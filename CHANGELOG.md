@@ -5,6 +5,13 @@
 Correções e melhorias da análise do OBINT (instância pública), integradas na branch `correcoes-obint`. Os identificadores entre
 parênteses remetem à análise.
 
+- **Tabela única de participantes do PTT completa (PT-24 / IXP 5.5).** A tabela passa a ter a empresa (com link para a operadora,
+  nunca o CNPJ no lugar do nome), a política de peering declarada no PeeringDB, duas colunas de usuários (os usuários APNIC do AS e,
+  estimados, os que ficam atrás dos prefixos do AS vistos no PTT, pela fração do espaço IPv4) e a linha aberta com prefixos próprios e
+  de terceiros, porta e o botão que destaca o AS na curva de Hilbert. A soma da coluna mais a dos ASNs que anunciam no PTT sem ser
+  participantes é o total de usuários do PTT, e a tela diz as duas parcelas. Os blocos de peers IPv6 e IPv4 saem da página (a rota
+  `/ixps/{code}/peers` continua). `GET /ixps/{code}/participantes` ganhou `empresa`, `politica_peering`, `usuarios_apnic`,
+  `usuarios_ptt`, `prefixos`, `usuarios_ptt_resumo` e as ordens `usuarios_apnic` e `usuarios_ptt`; o `esquema` da chamada passou a 3.
 - **Página /ixps quebrada por feição sem geometria.** A regra de pessoa natural tira o ponto de um empresário individual ou MEI cujo
   município não tem centróide (`geometry: null`, válido pela RFC 7946); o mapa de áreas dos PTTs lia as coordenadas sem conferir e a
   página inteira caía. Os mapas passam a ignorar a feição sem ponto (o AS continua contado na UF), e o teste de console visita
