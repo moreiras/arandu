@@ -5,6 +5,18 @@
 Correções e melhorias da análise do OBINT (instância pública), integradas na branch `correcoes-obint`. Os identificadores entre
 parênteses remetem à análise.
 
+- **CSV da tabela de participantes do PTT (PT-24 / IXP 5.5).** O botão "Baixar CSV" da tabela baixa o PTT inteiro com o filtro, a UF, a
+  busca e a ordem da tela, e todas as colunas (cadastro, direto e originador por família com IPv6 antes de IPv4, sessões e rotas
+  filtradas ÷ recebidas do route server, rejeição por motivo com a idade da coleta, acessos fixos do SICI com o mês de referência, CDNs e a
+  data do snapshot). Família sem coleta vem em branco, nunca como "não". Como toda exportação, exige conta: o navegador pede o login e a
+  rota já trata mais de 100 linhas como `login` (nenhuma rota nova, nenhuma classe nova). Sem contatos.
+- **Acessos fixos do SICI por participante do PTT (PT-24 / IXP 5.5).** A tabela de participantes ganha a coluna "Acessos fixos (SICI)",
+  ordenável: os acessos de banda larga fixa que o CNPJ do ASN declarou à Anatel no mês de referência (outra data que a do snapshot, dita
+  na fonte da tabela). Traço quando não há CNPJ vinculado ao ASN ou o CNPJ não declarou; "compartilhado" quando o CNPJ tem mais de um
+  ASN e o mesmo total vale em cada um (não se soma). O registro traz o ASN, então a regra de empresário individual e MEI alcança a
+  linha. `GET /ixps/{code}/participantes` ganhou `sici` em cada linha, `fontes.sici` e `ordem=assinantes`; o `esquema` da chamada do
+  frontend passou a 2, para o navegador não servir a resposta antiga de um `?date=`. O filtro "No cadastro, sem sessão no RS" (membro
+  sem sessão com o route server, com o aviso de que pode haver peering bilateral) já existia desde a integração da PT-24.
 - **Variação nos KPIs de segurança do panorama e Linha do tempo com comparabilidade (PT-28 / PANT 5.1).** No Panorama técnico, as rotas
   brasileiras RPKI-válidas (IPv6 e IPv4) ganham a variação em pontos percentuais desde o snapshot anterior, e um cartão novo traz as
   rotas RPKI-inválidas com a mesma variação, sempre pela regra de comparabilidade das séries nacionais (sem variação quando a medida

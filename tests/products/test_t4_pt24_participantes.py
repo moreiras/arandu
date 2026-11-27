@@ -221,3 +221,19 @@ def test_matriz_de_cdns_separa_membro_com_sessao_membro_sem_sessao_e_so_via_outr
         assert set(c["ixbr_rs"]) | set(c["ixbr_sem_rs"]) | set(c["ixbr_sem_coleta"]) == membros, c["name"]
         assert isinstance(c["sem_rs_em_nenhum_ptt"], bool) and isinstance(c["asns_sem_documento"], list)
         assert c["ixbr_count"] == len(c["ixbr"])                                  # os campos de antes seguem como estavam
+
+
+def test_sici_por_participante_vem_do_cnpj_do_asn_com_mes_de_referencia(api, codigos):
+    achou = False
+    for code in codigos:
+        j, itens = _todas(api, code)
+        assert j["fontes"]["sici"]["fonte"].startswith("Anatel")
+        for l in itens:
+            assert "sici" in l
+            if l["sici"] is not None:
+                assert set(l["sici"]) == {"acessos", "compartilhado"} and isinstance(l["sici"]["acessos"], int)
+                achou = True
+        ordenada = _get(api, code, ordem="assinantes", desc=True, limit=200)["items"]
+        valores = [(l["sici"] or {}).get("acessos", -1) for l in ordenada]
+        assert valores == sorted(valores, reverse=True), code
+    assert achou

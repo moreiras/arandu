@@ -15,14 +15,14 @@ import type { ParticipantePtt, ParticipantesPtt } from '../../../types/api'
 const linha = (asn: number, o: Partial<ParticipantePtt> = {}): ParticipantePtt => ({
   asn, nome: `REDE ${asn}`, uf: 'SP', is_br: true, membro: true, direto: { v6: true, v4: true }, originador: { v6: true, v4: true }, sessao_rs: { sessoes: 2, up: 2, down: 0, incertas: 0 },
   cadastrado_sem_sessao_rs: false, sessao_rs_sem_cadastro: false, rejeicao: { filtradas: 20, recebidas: 100, pct: 20, sessoes_up: 2 },
-  rejeicao_detalhe: { rotas: 20, coletado_ate: '2026-11-12T10:00:00Z', idade_dias: 10, herdado: true, contagem: 'exata' }, cdns: ['CDN Alfa'], ...o,
+  rejeicao_detalhe: { rotas: 20, coletado_ate: '2026-11-12T10:00:00Z', idade_dias: 10, herdado: true, contagem: 'exata' }, cdns: ['CDN Alfa'], sici: null, ...o,
 })
 const resposta = (items: ParticipantePtt[], o: Partial<ParticipantesPtt> = {}): ParticipantesPtt => ({
   snapshot_date: '2026-11-22', ixp: 'fec', limites: 'Cada linha é um ASN.', filtros: { q: null, uf: null, filtro: 'todos', definicao_do_filtro: 'todos os participantes' }, ordem: 'ASN, crescente (ordem neutra)',
   page: 1, limit: 50, route_servers_medido: true,
   fontes: { cadastro: { fonte: 'IX.br (cadastro de participantes)', snapshot: '2026-11-22' }, looking_glass: { fonte: 'looking glass do IX.br', snapshot: '2026-11-22', coleta: { v6: 'ok', v4: 'ok' } },
     route_servers: { fonte: 'Alice-LG', coletado_em: '2026-11-22T06:00:00+00:00', versao_alice: '6.1.0', rs_consultados: 1, rs_total: 1 },
-    rejeicoes_por_motivo: { fonte: 'Alice-LG', coletado_nivel2: '2026-11-21T06:00:00+00:00', cobertura: null }, cdns: { fonte: 'lista curada de CDNs', snapshot: '2026-11-22' } },
+    rejeicoes_por_motivo: { fonte: 'Alice-LG', coletado_nivel2: '2026-11-21T06:00:00+00:00', cobertura: null }, cdns: { fonte: 'lista curada de CDNs', snapshot: '2026-11-22' }, sici: { fonte: 'Anatel, SICI (banda larga fixa)', mes_referencia: '2026-09', snapshot: '2026-11-22' } },
   total: items.length, total_participantes: items.length,
   contagens: { todos: items.length, 'sem-v6': 0, 'sem-v4': 0, 'sem-direto': 0, 'membro-sem-sessao-rs': 1, 'sessao-sem-cadastro': 0, 'com-cdn': items.length, 'com-rejeicao': items.length }, ufs: ['SP'], items, ...o,
 })
@@ -51,6 +51,20 @@ describe('tabela única de participantes do PTT (PT-24 / IXP-E5.5)', () => {
     expect(screen.getByText(/Fato · .*cadastro de participantes.* · ref\. 2026-11-22/)).toBeInTheDocument()
     expect(screen.getByText(/Fato · Alice-LG 6\.1\.0: sessões e rotas filtradas ÷ recebidas · ref\. 2026-11-22/)).toBeInTheDocument()
     expect(screen.getAllByText('CDN Alfa').length).toBe(2)
+  })
+
+  it('acessos fixos do SICI: número com fonte e mês de referência, "compartilhado" quando o CNPJ tem mais de um ASN, traço sem vínculo, e a ordem pede ao servidor', async () => {
+    montar(resposta([linha(64496, { sici: { acessos: 12345, compartilhado: false } }), linha(64497, { sici: { acessos: 900, compartilhado: true } }), linha(64498)]))
+    await screen.findByText('AS64496')
+    const cel = (asn: string) => Array.from(screen.getByText(asn).closest('tr')!.querySelectorAll('td')).map((t) => t.textContent)
+    expect(cel('AS64496')).toContain('12.345')
+    expect(cel('AS64497')).toContain('900 (compartilhado)')
+    expect(cel('AS64498')).not.toContain('0')
+    expect(cel('AS64498')[cel('AS64498').length - 2]).toBe('—')
+    expect(screen.getByText(/Fato · Anatel, SICI \(banda larga fixa\): coluna Acessos fixos.* · ref\. 2026-09/)).toBeInTheDocument()
+    fireEvent.click(within(screen.getByRole('columnheader', { name: /Acessos fixos/ })).getAllByRole('button')[0])
+    await waitFor(() => expect(pedidos[pedidos.length - 1].searchParams.get('ordem')).toBe('assinantes'))
+    expect(pedidos[pedidos.length - 1].searchParams.get('esquema')).toBe('2')
   })
 
   it('família sem coleta aparece como "sem coleta", nunca como "não", e o aviso diz que isso não é ausência de sessão', async () => {

@@ -6,6 +6,7 @@
 import { Fragment, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { useAuth } from '../../../auth/AuthContext'
 import { Link } from '../../../components/layout/LinkDatado'
 import { Dica } from '../../../components/ui/Dica'
 import { EstadoDados } from '../../../components/ui/EstadoDados'
@@ -18,8 +19,11 @@ import type { FiltroParticipantes, ParticipantePtt } from '../../../types/api'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
 import { palavra } from '../../../lib/sintese'
+import { baixarCsvParticipantes, montarCsvParticipantes } from '../participantesCsv'
 
 const POR_PAGINA = 50
+/** Páginas do CSV: o máximo da rota, para pedir o PTT inteiro em poucas chamadas (mais de 100 linhas é da classe `login`). */
+const POR_PAGINA_CSV = 200
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 
 /** Filtros e o que cada um diz, na ordem da tela. Os contadores vêm do servidor e valem para o PTT inteiro. */
@@ -27,7 +31,7 @@ const FILTROS: Array<[FiltroParticipantes, string]> = [
   ['todos', 'Todos'], ['sem-v6', 'Sem direto IPv6'], ['sem-v4', 'Sem direto IPv4'], ['sem-direto', 'Sem direto em nenhuma família'],
   ['membro-sem-sessao-rs', 'No cadastro, sem sessão no RS'], ['sessao-sem-cadastro', 'Sessão no RS, fora do cadastro'], ['com-cdn', 'CDN da lista curada'], ['com-rejeicao', 'Com rota filtrada no RS'],
 ]
-const ORDENS: Record<string, { primeiro: 'asc' | 'desc' }> = { asn: { primeiro: 'asc' }, nome: { primeiro: 'asc' }, uf: { primeiro: 'asc' }, sessoes_rs: { primeiro: 'desc' }, rejeicao: { primeiro: 'desc' } }
+const ORDENS: Record<string, { primeiro: 'asc' | 'desc' }> = { asn: { primeiro: 'asc' }, nome: { primeiro: 'asc' }, uf: { primeiro: 'asc' }, sessoes_rs: { primeiro: 'desc' }, rejeicao: { primeiro: 'desc' }, assinantes: { primeiro: 'desc' } }
 
 /** Sim, não ou "sem coleta": `null` é família sem coleta válida e nunca vira "não". */
 const simNao = (v: boolean | null) => (v == null ? 'sem coleta' : v ? 'sim' : 'não')
@@ -72,6 +76,9 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
   const rs = params.get('rs') === '1'
   const [busca, setBusca] = useState(q)
   const [abertas, setAbertas] = useState<Set<number>>(new Set())
+  const { requireLogin } = useAuth()
+  const [baixando, setBaixando] = useState(false)
+  const [erroCsv, setErroCsv] = useState(false)
 
   const mudar = (patch: Record<string, string | null>, manterPagina = false) => {
     setParams((atual) => {
@@ -98,6 +105,25 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
   const ordenar = (c: string) => { const o = alternarOrdem(campo === c ? ordemAtual : null, c, ORDENS[c].primeiro); mudar({ ordem: o.campo === 'asn' && o.dir === 'asc' ? null : o.campo, sentido: o.dir === 'desc' ? 'desc' : null }) }
   const th = (c: string) => ({ campo: c, ordem: ordemAtual, onOrdenar: ordenar })
   const alternar = (asn: number) => setAbertas((s) => { const x = new Set(s); if (x.has(asn)) x.delete(asn); else x.add(asn); return x })
+  /** CSV do que a tela mostra (mesmos filtro, UF, busca e ordem), do PTT inteiro e não só da página. Exige login, como toda exportação. */
+  const baixar = async () => {
+    if (!requireLogin('exportar')) return
+    setBaixando(true); setErroCsv(false)
+    try {
+      const itens: ParticipantePtt[] = []
+      let ultima: Awaited<ReturnType<typeof fetchIxpParticipantes>> | null = null
+      for (let pag = 1; ; pag++) {
+        const r = await fetchIxpParticipantes(code, { date: date ?? undefined, filtro, uf: uf || undefined, q: q || undefined, ordem: campo, desc: desc || undefined, limit: POR_PAGINA_CSV, page: pag })
+        itens.push(...r.items); ultima = r
+        if (itens.length >= r.total || r.items.length === 0) break
+      }
+      baixarCsvParticipantes(montarCsvParticipantes(itens, ultima.fontes, ultima.snapshot_date), code, ultima.snapshot_date)
+    } catch {
+      setErroCsv(true)
+    } finally {
+      setBaixando(false)
+    }
+  }
   const sel = (asn: number) => { setSelectedPeerV4(asn); setSelectedPeerV6(asn) }
 
   if (error && !data) return <EstadoDados erro={error} oQue="a tabela de participantes do PTT" />
@@ -106,7 +132,7 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
   const paginas = Math.max(1, Math.ceil(data.total / POR_PAGINA))
   const f = data.fontes
   const semColeta = (['v6', 'v4'] as const).filter((a) => f.looking_glass.coleta[a] !== 'ok')
-  const colunas = rs ? 12 : 9
+  const colunas = rs ? 13 : 10
 
   return (
     <div className="space-y-3" data-testid="participantes-tabela">
@@ -132,6 +158,11 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
         <label className="flex items-center gap-1.5 pb-1">
           <input type="checkbox" checked={rs} onChange={(e) => mudar({ rs: e.target.checked ? '1' : null }, true)} /> mostrar colunas do route server (sessões, rejeição, idade da coleta)
         </label>
+        <button type="button" onClick={baixar} disabled={baixando} className="mb-0.5 rounded border border-gray-200 bg-white px-2.5 py-1 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          title="Baixa o PTT inteiro com o filtro, a UF, a busca e a ordem atuais, com todas as colunas. Exige entrar com a conta.">
+          {baixando ? 'Preparando o CSV…' : 'Baixar CSV'}
+        </button>
+        {erroCsv && <span role="alert" className="pb-1 text-gray-700">Não foi possível preparar o CSV agora. Tente de novo em instantes.</span>}
       </div>
       <p className="text-xs text-gray-600" aria-live="polite">
         {n(data.total)} de {n(data.total_participantes)} participantes ({data.filtros.definicao_do_filtro}). Ordem: {data.ordem}.
@@ -143,7 +174,7 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
       )}
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
-          <caption className="sr-only">Participantes do PTT: uma linha por ASN, com cadastro, sessão direta por família, originador, route server, rejeição, idade da coleta e CDNs. A ordem padrão é por ASN.</caption>
+          <caption className="sr-only">Participantes do PTT: uma linha por ASN, com cadastro, sessão direta por família, originador, route server, rejeição, idade da coleta, acessos fixos declarados ao SICI e CDNs. A ordem padrão é por ASN.</caption>
           <thead>
             <tr className="text-left text-xs text-gray-500 border-b border-gray-200">
               <ThOrdenavel {...th('asn')} className="py-1 pr-3 font-medium">ASN</ThOrdenavel>
@@ -157,6 +188,7 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
               {rs && <ThOrdenavel {...th('sessoes_rs')} className="py-1 pr-3 font-medium" extra={<Dica rotulo="Sessões no route server" texto={UNIVERSOS.sessaoRs.definicao} />}>Sessões RS (up/total)</ThOrdenavel>}
               {rs && <ThOrdenavel {...th('rejeicao')} className="py-1 pr-3 font-medium" extra={<Dica rotulo="Rotas filtradas ÷ recebidas" texto="Contadores do route server nas sessões up, do mesmo instante. Rota filtrada é a que o route server não aceitou; o motivo está no detalhe da linha e a causa não é atribuída." />}>Filtradas ÷ recebidas</ThOrdenavel>}
               {rs && <th scope="col" className="py-1 pr-3 font-medium">Idade da coleta por motivo<Dica rotulo="Idade da coleta por motivo" texto="Dias entre a coleta do detalhe de rotas rejeitadas por motivo e a data do snapshot. É uma coleta à parte (rodízio) e pode ser herdada de uma rodada anterior." /></th>}
+              <ThOrdenavel {...th('assinantes')} className="py-1 pr-3 font-medium" extra={<Dica rotulo="Acessos fixos (SICI)" texto="Acessos de banda larga fixa que o CNPJ do ASN declarou ao SICI da Anatel no mês de referência (outra data que a do snapshot). 'Compartilhado': o CNPJ tem mais de um ASN e o mesmo total vale em cada um; não some. Traço: sem CNPJ vinculado ao ASN ou sem declaração." />}>Acessos fixos (SICI)</ThOrdenavel>
               <th scope="col" className="py-1 pr-3 font-medium">CDNs</th>
             </tr>
           </thead>
@@ -182,6 +214,7 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
                     {rs && <td className="py-1 pr-3 tabular-nums">{l.sessao_rs ? `${n(l.sessao_rs.up)}/${n(l.sessao_rs.sessoes)}` : 'sem dado'}</td>}
                     {rs && <td className="py-1 pr-3 tabular-nums">{l.rejeicao ? `${n(l.rejeicao.filtradas)} ÷ ${n(l.rejeicao.recebidas)}${l.rejeicao.pct != null ? ` (${l.rejeicao.pct.toLocaleString('pt-BR')}%)` : ''}` : '—'}</td>}
                     {rs && <td className="py-1 pr-3">{l.rejeicao_detalhe ? `${l.rejeicao_detalhe.idade_dias != null ? `${n(l.rejeicao_detalhe.idade_dias)} d` : 'idade desconhecida'}${l.rejeicao_detalhe.herdado ? ', herdada' : ''}` : '—'}</td>}
+                    <td className="py-1 pr-3 tabular-nums">{l.sici ? <>{n(l.sici.acessos)}{l.sici.compartilhado && <span className="text-xs text-gray-600"> (compartilhado)</span>}</> : '—'}</td>
                     <td className="py-1 pr-3 text-xs text-gray-600">{l.cdns.length ? `${l.cdns.slice(0, 2).join(', ')}${l.cdns.length > 2 ? ` +${l.cdns.length - 2}` : ''}` : ''}</td>
                   </tr>
                   {aberta && <tr id={idDet} className="border-b border-gray-100 bg-gray-50"><td colSpan={colunas} className="px-3 py-2"><Detalhe l={l} ptt={code} sel={sel} /></td></tr>}
@@ -205,6 +238,7 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
         <LinhaProveniencia selo="fato" fonte={`${f.looking_glass.fonte}: colunas Direto e Originador`} dataRef={f.looking_glass.snapshot} />
         <LinhaProveniencia selo="fato" fonte={`${f.route_servers.fonte ?? 'route servers (Alice-LG)'}${f.route_servers.versao_alice ? ` ${f.route_servers.versao_alice}` : ''}: sessões e rotas filtradas ÷ recebidas`} dataRef={f.route_servers.coletado_em} />
         <LinhaProveniencia selo="fato" fonte={`${f.rejeicoes_por_motivo.fonte ?? 'route servers (Alice-LG)'}: rotas rejeitadas por motivo, no detalhe da linha`} dataRef={f.rejeicoes_por_motivo.coletado_nivel2} />
+        <LinhaProveniencia selo="fato" fonte={`${f.sici.fonte}: coluna Acessos fixos, declarados pelo CNPJ do ASN`} dataRef={f.sici.mes_referencia ?? f.sici.snapshot} />
         <LinhaProveniencia selo="fato" fonte={`${f.cdns.fonte}: coluna CDNs (membro do PTT que é ASN de CDN da lista)`} dataRef={f.cdns.snapshot} />
       </div>
     </div>

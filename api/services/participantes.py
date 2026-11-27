@@ -36,11 +36,13 @@ ORDENS = {
     "uf": "UF da sede, A–Z",
     "sessoes_rs": "número de sessões com o route server",
     "rejeicao": "rotas filtradas ÷ recebidas nas sessões up",
+    "assinantes": "acessos de banda larga fixa declarados ao SICI (Anatel) pelo CNPJ do ASN",
 }
 LIMITES = ("Cada linha é um ASN visto no cadastro do IX.br, no looking glass ou nos route servers do PTT. 'Direto' é a sessão com o route server vista no looking glass; 'membro' é o cadastro do IX.br; "
            "as duas coisas são diferentes, e membro sem sessão pode trocar tráfego por sessão bilateral, que estas fontes não observam. Família sem coleta válida aparece como 'sem coleta', nunca como ausência. "
            "'Originador' vale só para ASN brasileiro (a lista publicada). A rejeição é o contador de rotas filtradas dividido pelo de rotas recebidas nas sessões up do route server, do mesmo instante; "
-           "o número de rotas por motivo vem de outra coleta, com a idade dela. Não é ranking nem diz quem tem razão.")
+           "o número de rotas por motivo vem de outra coleta, com a idade dela. 'Assinantes' são os acessos de banda larga fixa que o CNPJ do ASN declarou ao SICI da Anatel no mês de referência "
+           "(data diferente da do snapshot); vale só para ASN com CNPJ vinculado e, quando o CNPJ tem mais de um ASN, o mesmo total aparece em cada um (não some). Não é ranking nem diz quem tem razão.")
 
 
 class ParticipantesErro(Exception):
@@ -77,8 +79,9 @@ def _rejeicao(lista: list[dict]) -> Optional[dict]:
 
 
 def montar(date_str: str, code: str, ixp: dict, membros: set[int], rs_ixp: Optional[dict], rs_asns: Optional[dict], pol_asns: Optional[dict], cdns: Optional[dict],
-           nomes_de: Callable[[list[int]], dict], br_de: Callable[[int], Optional[bool]]) -> dict:
-    """Todas as linhas do PTT (sem filtro nem página) e os metadados. `nomes_de(asns)` devolve `{str(asn): {name, uf}}`; `br_de(asn)` diz se o ASN é brasileiro (LACNIC)."""
+           nomes_de: Callable[[list[int]], dict], br_de: Callable[[int], Optional[bool]], sici_de: Optional[Callable[[int], Optional[dict]]] = None) -> dict:
+    """Todas as linhas do PTT (sem filtro nem página) e os metadados. `nomes_de(asns)` devolve `{str(asn): {name, uf}}`; `br_de(asn)` diz se o ASN é brasileiro (LACNIC);
+    `sici_de(asn)` devolve `{acessos, compartilhado}` do CNPJ do ASN no SICI, ou None quando não há vínculo ASN→CNPJ ou o CNPJ não declarou."""
     fam = {"v6": _familia(ixp, "v6"), "v4": _familia(ixp, "v4")}
     rs_membros = {m["asn"]: m for m in ((rs_ixp or {}).get("membros") or [])}
     rs_medido = bool(rs_ixp) and ((rs_ixp.get("resumo") or {}).get("rs_consultados") or 0) > 0
@@ -113,6 +116,7 @@ def montar(date_str: str, code: str, ixp: dict, membros: set[int], rs_ixp: Optio
             "rejeicao": _rejeicao(lista),
             "rejeicao_detalhe": detalhe,
             "cdns": sorted(por_asn_cdn.get(asn, [])),
+            "sici": sici_de(asn) if sici_de else None,
         })
     return {"linhas": linhas, "familias": {a: f["coleta"] for a, f in fam.items()}, "route_servers_medido": rs_medido}
 
@@ -156,6 +160,8 @@ def _chave(ordem: str):
         return lambda l: (l["sessao_rs"]["sessoes"] if l["sessao_rs"] else -1, l["asn"])
     if ordem == "rejeicao":
         return lambda l: ((l["rejeicao"] or {}).get("pct") if (l["rejeicao"] or {}).get("pct") is not None else -1, l["asn"])
+    if ordem == "assinantes":
+        return lambda l: ((l["sici"] or {}).get("acessos", -1), l["asn"])
     return lambda l: l["asn"]
 
 
