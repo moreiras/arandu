@@ -6,6 +6,7 @@
 import { Fragment, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { useAuth } from '../../../auth/AuthContext'
 import { Link } from '../../../components/layout/LinkDatado'
 import { Dica } from '../../../components/ui/Dica'
 import { EstadoDados } from '../../../components/ui/EstadoDados'
@@ -18,8 +19,11 @@ import type { FiltroParticipantes, ParticipantePtt } from '../../../types/api'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
 import { palavra } from '../../../lib/sintese'
+import { baixarCsvParticipantes, montarCsvParticipantes } from '../participantesCsv'
 
 const POR_PAGINA = 50
+/** Páginas do CSV: o máximo da rota, para pedir o PTT inteiro em poucas chamadas (mais de 100 linhas é da classe `login`). */
+const POR_PAGINA_CSV = 200
 const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('pt-BR'))
 
 /** Filtros e o que cada um diz, na ordem da tela. Os contadores vêm do servidor e valem para o PTT inteiro. */
@@ -72,6 +76,9 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
   const rs = params.get('rs') === '1'
   const [busca, setBusca] = useState(q)
   const [abertas, setAbertas] = useState<Set<number>>(new Set())
+  const { requireLogin } = useAuth()
+  const [baixando, setBaixando] = useState(false)
+  const [erroCsv, setErroCsv] = useState(false)
 
   const mudar = (patch: Record<string, string | null>, manterPagina = false) => {
     setParams((atual) => {
@@ -98,6 +105,25 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
   const ordenar = (c: string) => { const o = alternarOrdem(campo === c ? ordemAtual : null, c, ORDENS[c].primeiro); mudar({ ordem: o.campo === 'asn' && o.dir === 'asc' ? null : o.campo, sentido: o.dir === 'desc' ? 'desc' : null }) }
   const th = (c: string) => ({ campo: c, ordem: ordemAtual, onOrdenar: ordenar })
   const alternar = (asn: number) => setAbertas((s) => { const x = new Set(s); if (x.has(asn)) x.delete(asn); else x.add(asn); return x })
+  /** CSV do que a tela mostra (mesmos filtro, UF, busca e ordem), do PTT inteiro e não só da página. Exige login, como toda exportação. */
+  const baixar = async () => {
+    if (!requireLogin('exportar')) return
+    setBaixando(true); setErroCsv(false)
+    try {
+      const itens: ParticipantePtt[] = []
+      let ultima: Awaited<ReturnType<typeof fetchIxpParticipantes>> | null = null
+      for (let pag = 1; ; pag++) {
+        const r = await fetchIxpParticipantes(code, { date: date ?? undefined, filtro, uf: uf || undefined, q: q || undefined, ordem: campo, desc: desc || undefined, limit: POR_PAGINA_CSV, page: pag })
+        itens.push(...r.items); ultima = r
+        if (itens.length >= r.total || r.items.length === 0) break
+      }
+      baixarCsvParticipantes(montarCsvParticipantes(itens, ultima.fontes, ultima.snapshot_date), code, ultima.snapshot_date)
+    } catch {
+      setErroCsv(true)
+    } finally {
+      setBaixando(false)
+    }
+  }
   const sel = (asn: number) => { setSelectedPeerV4(asn); setSelectedPeerV6(asn) }
 
   if (error && !data) return <EstadoDados erro={error} oQue="a tabela de participantes do PTT" />
@@ -132,6 +158,11 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
         <label className="flex items-center gap-1.5 pb-1">
           <input type="checkbox" checked={rs} onChange={(e) => mudar({ rs: e.target.checked ? '1' : null }, true)} /> mostrar colunas do route server (sessões, rejeição, idade da coleta)
         </label>
+        <button type="button" onClick={baixar} disabled={baixando} className="mb-0.5 rounded border border-gray-200 bg-white px-2.5 py-1 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          title="Baixa o PTT inteiro com o filtro, a UF, a busca e a ordem atuais, com todas as colunas. Exige entrar com a conta.">
+          {baixando ? 'Preparando o CSV…' : 'Baixar CSV'}
+        </button>
+        {erroCsv && <span role="alert" className="pb-1 text-gray-700">Não foi possível preparar o CSV agora. Tente de novo em instantes.</span>}
       </div>
       <p className="text-xs text-gray-600" aria-live="polite">
         {n(data.total)} de {n(data.total_participantes)} participantes ({data.filtros.definicao_do_filtro}). Ordem: {data.ordem}.

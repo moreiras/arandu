@@ -5,6 +5,11 @@
 Correções e melhorias da análise do OBINT (instância pública), integradas na branch `correcoes-obint`. Os identificadores entre
 parênteses remetem à análise.
 
+- **CSV da tabela de participantes do PTT (PT-24 / IXP 5.5).** O botão "Baixar CSV" da tabela baixa o PTT inteiro com o filtro, a UF, a
+  busca e a ordem da tela, e todas as colunas (cadastro, direto e originador por família com IPv6 antes de IPv4, sessões e rotas
+  filtradas ÷ recebidas do route server, rejeição por motivo com a idade da coleta, acessos fixos do SICI com o mês de referência, CDNs e a
+  data do snapshot). Família sem coleta vem em branco, nunca como "não". Como toda exportação, exige conta: o navegador pede o login e a
+  rota já trata mais de 100 linhas como `login` (nenhuma rota nova, nenhuma classe nova). Sem contatos.
 - **Acessos fixos do SICI por participante do PTT (PT-24 / IXP 5.5).** A tabela de participantes ganha a coluna "Acessos fixos (SICI)",
   ordenável: os acessos de banda larga fixa que o CNPJ do ASN declarou à Anatel no mês de referência (outra data que a do snapshot, dita
   na fonte da tabela). Traço quando não há CNPJ vinculado ao ASN ou o CNPJ não declarou; "compartilhado" quando o CNPJ tem mais de um
