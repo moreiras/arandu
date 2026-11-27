@@ -116,7 +116,7 @@ describe('painel de camadas', () => {
     expect(linhas).toEqual(['AC1010', 'SP2111'])                                        // UF em ordem alfabética: outorgas, com, sem, com ASN
     const texto = screen.getByTestId('resumo-scm-uf').textContent ?? ''
     expect(texto).toMatch(/não uma avaliação de cumprimento/)
-    expect(texto).not.toMatch(/irregular|infra[çc]|omiss|omitiu|pior|melhor/i)
+    expect(texto).not.toMatch(/irregular|infra[çc]|omi[s]s|omitiu|pior|melhor/i)
   })
 
   it('PIX: o texto de cobertura vem do dado, com fonte e data, e cita os PTTs sem local (PT-25 / MAPA 5.1)', () => {
