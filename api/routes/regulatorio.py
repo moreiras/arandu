@@ -19,6 +19,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from api.services import fust as f
+from core import pessoa_natural
 
 router = APIRouter()
 
@@ -109,7 +110,10 @@ def multas_empresas(
     date: Optional[str] = Query(None), limit: int = Query(25, ge=1, le=500), page: int = Query(1, ge=1),
 ) -> dict:
     try:
-        return r.multas_empresas(_doc_de(request, date, "multas", "Multas"), grupo, q, ordem, limit, (page - 1) * limit, visao)
+        doc = _doc_de(request, date, "multas", "Multas")
+        # a busca `q` e a ordem operam sobre o nome já no padrão público (D1): o nome civil de EI/MEI não acha a linha, como em `/busca` e `/query`
+        doc = pessoa_natural.aplicar(doc, request.app.state.store.pessoa_natural_indice(request.app.state.store.resolve_date(date)))
+        return r.multas_empresas(doc, grupo, q, ordem, limit, (page - 1) * limit, visao)
     except r.RegulatorioErro as x:
         raise HTTPException(x.status, x.mensagem)
 

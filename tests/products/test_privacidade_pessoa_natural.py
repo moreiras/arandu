@@ -559,3 +559,15 @@ def test_erbs_de_ei_e_mei_saem_com_o_nome_publico_na_rest(cliente, mundo):
     assert r.status_code == 200 and _achados(r.text) == [], r.text[:300]
     doc = r.json()
     assert _entidades(doc, cnpj_a) == {_rotulo_do_a(mundo)} and _entidades(doc, cnpj_b) == {FANTASIA_B}
+
+
+def test_busca_de_multas_nao_acha_o_nome_civil_e_acha_a_fantasia(cliente, mundo):
+    (_, cnpj_a), (_, cnpj_b) = mundo[2]["a"], mundo[2]["b"]
+    for visao in ("servico", "raiz"):
+        for q in ("JOAOZINHO", "MARIAZINHA", "Plantado PTONZE"):
+            r = cliente.get("/api/v1/multas/empresas", params={"q": q, "visao": visao}, headers=ALLOWED)
+            assert r.status_code == 200 and r.json()["total"] == 0 and _achados(r.text) == [], (visao, q)
+        r = cliente.get("/api/v1/multas/empresas", params={"q": "Fibra Plantada", "visao": visao}, headers=ALLOWED)
+        assert r.status_code == 200 and _entidades(r.json(), cnpj_b) == {FANTASIA_B}, visao
+        r = cliente.get("/api/v1/multas/empresas", params={"q": cnpj_a[:8], "visao": visao}, headers=ALLOWED)
+        assert _entidades(r.json(), cnpj_a) == {_rotulo_do_a(mundo)}, visao
