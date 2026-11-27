@@ -967,12 +967,12 @@ export function fetchMunicipioAcessos(
   return get(`/api/v1/acessos/municipio/${ibge}`, { date, opcional: true })
 }
 
-/** Perfil consolidado do município (fixo, móvel, centróide e PTTs mais próximos) numa chamada. */
-export function fetchMunicipioPerfil(ibge: string, date?: string): Promise<PerfilMunicipio> {
-  return get(`/api/v1/municipios/${ibge}`, { date, include: 'indicadores,territorio,erbs,fust,qualidade,reclamacoes,consumidor,serie_mercado,mercado_grupos,rede_territorio', opcional: true, esquema: ESQUEMA_MUNICIPIO })
 // o ?date= é imutável: ganho e perda com marca somada, `mudancas_cnpj` e a série com quem liderou na janela só chegam com o esquema novo
 const ESQUEMA_MUNICIPIO = 7
 
+/** Perfil consolidado do município (fixo, móvel, centróide e PTTs mais próximos) numa chamada. */
+export function fetchMunicipioPerfil(ibge: string, date?: string): Promise<PerfilMunicipio> {
+  return get(`/api/v1/municipios/${ibge}`, { date, include: 'indicadores,territorio,erbs,fust,qualidade,reclamacoes,consumidor,serie_mercado,mercado_grupos,rede_territorio', opcional: true, esquema: ESQUEMA_MUNICIPIO })
 }
 
 /** ASNs de um conjunto de municípios: provedores, participação nos PTTs, trânsito e carregadores. Até 50 códigos IBGE. */
