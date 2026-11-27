@@ -78,3 +78,25 @@ def test_satelites_resumo_conta_vencidos_na_data_do_snapshot():
     assert (r["direitos"], r["operadoras"], r["satelites"], r["vencidos_na_data"], r["ngeo"], r["operando"]) == (4, 3, 3, 1, 3, 2)
     assert r["por_tipo"] == {"Estrangeiro": 3, "Brasileiro": 1} and r["ngeo_por_orbita"] == {"BAIXA (LEO)": 2, "MÉDIA (MEO)": 1}
     assert r["ngeo_sistemas"] == 3
+
+
+def test_multas_por_raiz_soma_os_servicos_e_guarda_os_nomes():
+    from api.services.regulatorio import multas_empresas
+    emp = [{**_emp("1", "SCM", 100.0, 2, {"2020": 1, "2021": 1}, situacoes={"Quitado": 1, "Devedor": 1}), "entidade": "ALFA S.A."},
+           {**_emp("1", "SMP", 50.0, 1, {"2019": 1}, situacoes={"Parcial": 1}), "entidade": "ALFA SA"},
+           {**_emp("1", "STFC", 10.0, 1, {"2022": 1}), "entidade": "ALFA S.A."},
+           _emp("2", "SCM", 900.0, 1)]
+    doc = {**calcular_multas(emp), "snapshot_date": "d"}
+    r = multas_empresas(doc, None, None, "empresa", 10, 0, "raiz")
+    assert r["visao"] == "raiz" and r["total"] == 2
+    a = r["items"][0]
+    assert (a["raiz"], a["entidade"], a["servicos"], a["multas"], a["saldo"], a["primeiro_ano"], a["ultimo_ano"]) == ("1", "ALFA S.A.", ["SCM", "SMP", "STFC"], 4, 160.0, "2019", "2022")
+    assert a["situacoes"] == {"Quitado": 1, "Devedor": 2, "Parcial": 1} and a["nomes_alternativos"] == ["ALFA SA"]
+    assert sum(x["saldo"] for x in r["items"]) == doc["brasil"]["saldo"]                     # a soma por raiz fecha com o total
+    assert multas_empresas(doc, None, None, "saldo", 10, 0, "raiz")["items"][0]["raiz"] == "2"
+    assert multas_empresas(doc, None, None, "empresa", 10, 0)["total"] == 4 and "servicos" not in multas_empresas(doc, None, None, "empresa", 10, 0)["items"][0]
+    assert multas_empresas(doc, "SMP", None, "empresa", 10, 0, "raiz")["items"][0]["servicos"] == ["SMP"]
+    import pytest
+    from api.services.regulatorio import RegulatorioErro
+    with pytest.raises(RegulatorioErro):
+        multas_empresas(doc, None, None, "empresa", 10, 0, "outra")

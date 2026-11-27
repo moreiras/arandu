@@ -5,20 +5,33 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { Link } from '../../components/layout/LinkDatado'
 import { COLETA_ANATEL, NOTA_COLETA_ANATEL, NOTA_FAIXAS_HHI, rotuloFaixaHhi, faixaHhi } from '../../lib/referencias'
-import type { MercadoRaio } from './calculos'
+import type { InfoCnpjRaio, MercadoRaio } from './calculos'
 
 const n = (v: number) => v.toLocaleString('pt-BR')
 const MAX_LINHAS = 15
+
+/** Tecnologia, ASNs (com link) e outorga SCM do CNPJ; sem dado, traço (ausência do dado, não "nenhum"). */
+function CelulasInfo({ i }: { i?: InfoCnpjRaio }) {
+  return (
+    <>
+      <td className="px-2 py-1 text-xs">{i?.tecnologia || '—'}</td>
+      <td className="px-2 py-1 text-xs">{i && i.asns.length > 0 ? i.asns.map((a, k) => <span key={a}>{k > 0 && ', '}<Link to={`/asn/${a}`} className="text-primario-700 hover:underline">AS{a}</Link></span>) : '—'}</td>
+      <td className="px-2 py-1 text-xs">{i ? (i.outorgaScm ? 'sim' : 'não') : '—'}</td>
+    </>
+  )
+}
 
 /**
  * Banda larga fixa no raio (PT-26, localizador 5.4): fato declarado, com a regra da participação e o mês à vista. Ordem por acessos, regra escrita.
  * A linha de conformidade declaratória só traz a contagem (nenhum nome): a lista está em "Sem declaração ao SICI".
  */
-export function BlocoMercado({ mercado, mesReferencia, snapshot, outorgas }: {
+export function BlocoMercado({ mercado, mesReferencia, snapshot, outorgas, info }: {
   mercado: MercadoRaio
   mesReferencia: string
   snapshot: string
   outorgas: { total: number; semDeclaracao: number }
+  /** Colunas de tecnologia, ASNs e outorga SCM por CNPJ; sem ele (camada SCM ainda não carregada) as colunas não aparecem. */
+  info?: Map<string, InfoCnpjRaio>
 }) {
   const linhas = mercado.linhas.slice(0, MAX_LINHAS)
   return (
@@ -33,7 +46,7 @@ export function BlocoMercado({ mercado, mesReferencia, snapshot, outorgas }: {
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <caption className="sr-only">Operadoras de banda larga fixa por acessos declarados nos municípios do raio</caption>
-          <thead className="text-xs text-gray-500"><tr><th scope="col" className="px-2 py-1 text-left">CNPJ / empresa</th><th scope="col" className="px-2 py-1 text-right">Acessos no raio</th><th scope="col" className="px-2 py-1 text-right">Participação</th><th scope="col" className="px-2 py-1 text-right">Municípios</th></tr></thead>
+          <thead className="text-xs text-gray-500"><tr><th scope="col" className="px-2 py-1 text-left">CNPJ / empresa</th><th scope="col" className="px-2 py-1 text-right">Acessos no raio</th><th scope="col" className="px-2 py-1 text-right">Participação</th><th scope="col" className="px-2 py-1 text-right">Municípios</th>{info && <><th scope="col" className="px-2 py-1 text-left" title="Tecnologia predominante que a empresa declara ao SICI, no país inteiro (cadastro de outorgas SCM); não é a tecnologia dos municípios do raio.">Tecnologia declarada pela empresa (país)</th><th scope="col" className="px-2 py-1 text-left">ASNs</th><th scope="col" className="px-2 py-1 text-left">Outorga SCM no snapshot</th></>}</tr></thead>
           <tbody>
             {linhas.map((l) => (
               <tr key={l.cnpj} className="border-t border-gray-100">
@@ -41,6 +54,7 @@ export function BlocoMercado({ mercado, mesReferencia, snapshot, outorgas }: {
                 <td className="px-2 py-1 text-right tabular-nums">{n(l.acessos)}</td>
                 <td className="px-2 py-1 text-right tabular-nums">{l.participacao.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%</td>
                 <td className="px-2 py-1 text-right tabular-nums">{n(l.municipios)}</td>
+                {info && <CelulasInfo i={info.get(l.cnpj)} />}
               </tr>
             ))}
           </tbody>
@@ -49,7 +63,7 @@ export function BlocoMercado({ mercado, mesReferencia, snapshot, outorgas }: {
       {mercado.linhas.length > MAX_LINHAS && <p className="text-xs text-gray-500">e mais {n(mercado.linhas.length - MAX_LINHAS)} operadoras.</p>}
       <p className="text-xs text-gray-500">
         Regra: participação = acessos declarados pelo CNPJ nos municípios cujo centro está no raio, divididos pelo total desses municípios; o HHI usa a mesma base. Ordem por acessos, do maior para o menor.
-        Cada linha é um CNPJ: empresas do mesmo grupo aparecem separadas. {NOTA_FAIXAS_HHI}
+        Cada linha é um CNPJ: empresas do mesmo grupo aparecem separadas. {info && <>A tecnologia é a predominante que a empresa declara ao SICI no país inteiro, lida do cadastro de outorgas SCM; CNPJ fora desse cadastro fica com traço. "Outorga SCM no snapshot" diz só se o CNPJ consta no cadastro de outorgas. </>}{NOTA_FAIXAS_HHI}
       </p>
       {outorgas.total > 0 && (
         <p className="text-xs text-gray-600" data-testid="mercado-sem-declaracao">

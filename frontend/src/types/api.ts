@@ -1995,10 +1995,13 @@ export interface IndicadoresOperadora {
   var_aa?: VariacaoSici
   meses_declinio?: number
   em_declinio?: boolean
-  parou_de_declarar?: { empresa: string; ultimo_mes_declarado: string; meses_sem_declarar: number; acessos_no_ultimo_mes: number }
+  parou_de_declarar?: { empresa: string; ultimo_mes_declarado: string; meses_sem_declarar: number; acessos_no_ultimo_mes: number; empresa_fonte?: 'sici' | 'cadastro_scm'; scm_vigente?: boolean; grupo_id?: string | null; grupo_declara?: boolean }
   sem_declaracao?: ItemSemDeclaracao
 }
-export interface GanhoPerdaMunicipio { cnpj: string; empresa: string; acessos: number }
+/** Maior ganho ou perda em 12 meses; `cnpjs` presente quando os CNPJs de uma mesma marca foram somados (mudança de CNPJ provável, inferido). */
+export interface GanhoPerdaMunicipio { cnpj: string; empresa: string; acessos: number; cnpjs?: string[] }
+/** CNPJs de mesmo nome fantasia com movimento oposto em 12 meses que se compensa em 80% ou mais (inferido; não prova sucessão). */
+export interface MudancaCnpjMunicipio { marca: string; de_cnpj: string; para_cnpj: string; acessos_de: number; acessos_para: number }
 export interface IndicadoresMunicipio {
   mes_referencia: string
   metodologia: string
@@ -2013,6 +2016,8 @@ export interface IndicadoresMunicipio {
   perda_aa?: GanhoPerdaMunicipio
   /** Fatos sobre a declaração no município (PT-26): CNPJ sem declaração desde um mês e primeira declaração. Ausente sem evento. */
   eventos?: EventoDeclaracaoMunicipio[]
+  /** Mudança de CNPJ provável entre CNPJs da mesma marca (inferido); ganho e perda já vêm com os dois somados. */
+  mudancas_cnpj?: MudancaCnpjMunicipio[]
 }
 /** `include=indicadores` da UF: acessos, HHI e variações da UF e as contagens de CNPJs sem declaração (PT-26). */
 export interface IndicadoresUf {
@@ -2074,7 +2079,15 @@ export interface ItemSemDeclaracao {
   rede_virtual_origem?: string
 }
 export interface LinhaSemDeclaracao extends Partial<ItemSemDeclaracao> { posicao: number; cnpj: string }
-export interface LinhaParou { posicao: number; cnpj: string; empresa: string; ultimo_mes_declarado: string; meses_sem_declarar: number; acessos_no_ultimo_mes: number }
+export interface LinhaParou {
+  posicao: number; cnpj: string; empresa: string; ultimo_mes_declarado: string; meses_sem_declarar: number; acessos_no_ultimo_mes: number
+  /** De onde vem `empresa`: o último nome declarado ao SICI ou, na falta, a razão social do cadastro SCM. Ausente em snapshots antigos. */
+  empresa_fonte?: 'sici' | 'cadastro_scm'
+  /** O CNPJ tem outorga SCM no snapshot. Ausente em snapshots antigos (a tela mostra "—", não "não"). */
+  scm_vigente?: boolean
+  grupo_id?: string | null
+  grupo_declara?: boolean
+}
 export interface SemDeclaracaoSici {
   snapshot_date: string
   mes_referencia: string
@@ -2522,6 +2535,8 @@ export interface RegMeta { natureza: string; fonte: string; data_arquivo: string
 export type GrupoServico = 'SCM' | 'SMP' | 'STFC' | 'SeAC'
 export interface MultasTotais { empresas: number; multas: number; original: number; pago: number; saldo: number; situacoes: Record<string, number> }
 export interface MultasResumo extends RegMeta {
+  /** Raízes de CNPJ distintas; `brasil.empresas` conta raiz × serviço. Ausente em respostas antigas. */
+  raizes?: number
   leitura: { linhas: number; pessoa_fisica: number; fora_do_escopo: number; sem_servico: number; empresas: number; multas: number }
   brasil: MultasTotais; por_grupo: Record<GrupoServico, MultasTotais>; por_ano: Array<{ ano: number; total: number } & Record<GrupoServico, number>>
 }
@@ -2529,7 +2544,9 @@ export interface MultaEmpresa {
   raiz: string; cnpj_matriz: string | null; entidade: string; grupo: GrupoServico; uf: string | null; multas: number; original: number; pago: number; saldo: number
   situacoes: Record<string, number>; primeiro_ano: string | null; ultimo_ano: string | null
 }
-export interface MultasEmpresas extends RegMeta { grupo: string | null; ordem: string; regra_ordem?: string; aviso?: string; total: number; limit: number; offset: number; items: MultaEmpresa[] }
+/** Linha da lista de multas: por raiz e serviço (`grupo`) ou, com `visao=raiz`, por raiz com `servicos` somados e os outros nomes em `nomes_alternativos`. */
+export type MultaLinha = Omit<MultaEmpresa, 'grupo'> & { grupo?: GrupoServico; servicos?: GrupoServico[]; nomes_alternativos?: string[] }
+export interface MultasEmpresas extends RegMeta { visao?: 'servico' | 'raiz'; grupo: string | null; ordem: string; regra_ordem?: string; aviso?: string; total: number; limit: number; offset: number; items: MultaLinha[] }
 export interface MultasOperadora extends RegMeta {
   raiz: string; multas: number; original: number; pago: number; saldo: number; por_grupo: MultaEmpresa[]; brasil: { empresas: number; multas: number; saldo: number }
 }
@@ -2929,7 +2946,7 @@ export interface SerieMercadoMunicipio {
   mes_referencia: string
   meses: string[]
   fonte: string
-  parametros: { meses: number; lideres: number }
+  parametros: { meses: number; lideres: number; linhas_max?: number }
   acessos: Array<number | null>
   hhi: Array<number | null>
   lideres: Array<{ cnpj: string; empresa: string; share: Array<number | null> }>

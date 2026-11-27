@@ -19,6 +19,8 @@ As séries mensais por município vêm do cache normalizado do SICI (`normalized
 from __future__ import annotations
 
 import json
+import re
+import unicodedata
 from collections import defaultdict
 from pathlib import Path
 from typing import Optional
@@ -31,7 +33,9 @@ from core.nome_grupo import nome_do_grupo
 FAIXAS_HHI = ((1500, "competitivo"), (2500, "moderado"))      # método do projeto (D11): abaixo de 1.500, de 1.500 a 2.499, 2.500 ou mais; os mesmos limiares do Guia H do CADE (2016), sem número de seção; os nomes dos valores são só chaves, a interface mostra a faixa numérica
 TOP_SOBREPOSICAO = 10        # concorrentes listados por operadora
 MESES_SERIE = 13             # série de participação por município: o mês de referência e os 12 anteriores (compara com o ano anterior)
-LIDERES_SERIE = 4            # só as maiores operadoras do mês de referência entram na série; o resto é "demais"
+LIDERES_SERIE = 4            # as maiores operadoras de cada mês da janela entram na série (união); o resto é "demais"
+MAX_LINHAS_SERIE = 6         # teto de linhas da série por município, pelos maiores acessos na janela
+COMPENSACAO_MUDANCA_CNPJ = 0.8   # ganho e perda de CNPJs de mesmo nome fantasia que se compensam em pelo menos isto: "mudança de CNPJ provável"
 JANELA_DECLINIO = 6          # meses seguidos de queda para "em declínio contínuo"
 JANELA_PAROU = 6             # meses sem declarar para "parou de declarar"
 ANTIGUIDADE_MAX_PAROU = 36   # quem declarou pela última vez há mais que isso é inativo antigo: não entra
@@ -122,11 +126,61 @@ def _eventos_municipio(ops: dict[str, int], p: Optional[dict[str, int]], y: Opti
     return ev
 
 
+def _chave_fantasia(nome: Optional[str]) -> str:
+    """Nome fantasia sem acento, caixa e pontuação, para comparar CNPJs da mesma marca; vazio se não houver nome."""
+    t = unicodedata.normalize("NFKD", nome or "")
+    return " ".join(re.sub(r"[^a-z0-9 ]", " ", t.encode("ascii", "ignore").decode().lower()).split())
+
+
+def _ganho_perda(ops: dict[str, int], base: dict[str, int], nomes: dict[str, str], fantasias: dict[str, str]) -> tuple[Optional[dict], Optional[dict], list[dict]]:
+    """Maior ganho e maior perda em 12 meses por município (MUN 5.1 d). CNPJs de mesmo nome fantasia, um que ganhou e outro que perdeu, cujo movimento se
+    compensa em pelo menos `COMPENSACAO_MUDANCA_CNPJ`, são somados como uma marca (`cnpjs` lista os dois; o nome é o do CNPJ de mais acessos hoje) e
+    entram em `mudancas_cnpj` como INFERIDO (mesmo nome fantasia e movimento oposto; não prova sucessão). Sem nome fantasia, nada é somado."""
+    delta = {c: ops.get(c, 0) - base.get(c, 0) for c in set(ops) | set(base)}
+    por_marca: dict[str, list[str]] = defaultdict(list)
+    for c in delta:
+        k = _chave_fantasia(fantasias.get(c))
+        if k:
+            por_marca[k].append(c)
+    mudancas: list[dict] = []
+    unidades: dict[str, tuple[int, list[str]]] = {c: (d, [c]) for c, d in delta.items()}
+    for k, cs in sorted(por_marca.items()):
+        if len(cs) < 2:
+            continue
+        ganhos = [c for c in cs if delta[c] > 0]
+        perdas = [c for c in cs if delta[c] < 0]
+        if not ganhos or not perdas:
+            continue
+        g, p = sum(delta[c] for c in ganhos), -sum(delta[c] for c in perdas)
+        if min(g, p) < COMPENSACAO_MUDANCA_CNPJ * max(g, p):
+            continue
+        de = max(perdas, key=lambda c: (base.get(c, 0), c))
+        para = max(ganhos, key=lambda c: (ops.get(c, 0), c))
+        mudancas.append({"marca": fantasias.get(para) or fantasias.get(de) or "", "de_cnpj": de, "para_cnpj": para, "acessos_de": delta[de], "acessos_para": delta[para]})
+        for c in cs:
+            unidades.pop(c, None)
+        rep = max(cs, key=lambda c: (ops.get(c, 0), c))
+        unidades[rep] = (sum(delta[c] for c in cs), sorted(cs))
+    if not unidades:
+        return None, None, mudancas
+
+    def reg(c: str) -> dict:
+        d, cs = unidades[c]
+        r = {"cnpj": c, "empresa": nomes.get(c, ""), "acessos": d}
+        if len(cs) > 1:
+            r["cnpjs"] = cs
+        return r
+    ganha = max(unidades, key=lambda c: (unidades[c][0], c))
+    perde = min(unidades, key=lambda c: (unidades[c][0], c))
+    return (reg(ganha) if unidades[ganha][0] > 0 else None), (reg(perde) if unidades[perde][0] < 0 else None), mudancas
+
+
 def calcular_indicadores(mes_ref: str, meses: dict[str, dict], series: dict[str, list], nomes_extra: Optional[dict[str, str]] = None,
-                         ufs_extra: Optional[dict[str, str]] = None) -> dict:
+                         ufs_extra: Optional[dict[str, str]] = None, fantasias: Optional[dict[str, str]] = None) -> dict:
     """`meses`: {mes: cnpjs do cache} com `mes_ref`, o anterior e o de um ano antes (os dois últimos podem faltar).
     `series`: `serie_por_cnpj` do sici.json.gz. `nomes_extra`: razão social por CNPJ (cadastro SCM) para quem não está no mês.
-    `ufs_extra`: UF da sede por CNPJ (cadastro SCM), gravada em `parou_de_declarar[].uf`."""
+    `ufs_extra`: UF da sede por CNPJ (cadastro SCM), gravada em `parou_de_declarar[].uf`.
+    `fantasias`: nome fantasia por CNPJ (cadastro SCM), para reconhecer mudança de CNPJ da mesma marca no ganho e na perda."""
     atual = meses[mes_ref]
     ant, ano = meses.get(somar_meses(mes_ref, -1)), meses.get(somar_meses(mes_ref, -12))
     # nome de quem não declarou no mês (ganho e perda em 12 meses, MUN-E1): o do mês de um ano antes ou do anterior (como declarou ao
@@ -188,13 +242,13 @@ def calcular_indicadores(mes_ref: str, meses: dict[str, dict], series: dict[str,
             e["eventos"] = ev
         base = mun_y.get(ibge) if ano is not None else None
         if base is not None:
-            delta = {c: ops.get(c, 0) - base.get(c, 0) for c in set(ops) | set(base)}
-            ganha = max(delta, key=lambda c: (delta[c], c))
-            perde = min(delta, key=lambda c: (delta[c], c))
-            if delta[ganha] > 0:
-                e["ganho_aa"] = {"cnpj": ganha, "empresa": nomes.get(ganha, ""), "acessos": delta[ganha]}
-            if delta[perde] < 0:
-                e["perda_aa"] = {"cnpj": perde, "empresa": nomes.get(perde, ""), "acessos": delta[perde]}
+            ganho, perda, mudancas = _ganho_perda(ops, base, nomes, fantasias or {})
+            if ganho:
+                e["ganho_aa"] = ganho
+            if perda:
+                e["perda_aa"] = perda
+            if mudancas:
+                e["mudancas_cnpj"] = mudancas
         municipios[ibge] = e
 
     ufs: dict[str, dict] = {}
@@ -213,6 +267,31 @@ def calcular_indicadores(mes_ref: str, meses: dict[str, dict], series: dict[str,
     brasil = _hhi_e_lider({c: a["acessos"] for c, a in atual.items()}, nomes)
     brasil.pop("lider", None)
     return {"operadoras": operadoras, "parou_de_declarar": parou, "ufs": ufs, "municipios": municipios, "brasil": brasil}
+
+
+def complementar_parou(parou: dict[str, dict], leitor_mes, grupos: Optional[list[dict]], cnpjs_declarantes: set[str], cnpjs_scm: set[str]) -> None:
+    """Completa `parou_de_declarar` no lugar (RANKINGS 5.2): o nome declarado ao SICI no último mês declarado (o do cadastro SCM, já em `empresa`, só
+    quando o SICI não o traz; `empresa_fonte` diz qual), a leitura de grupo como em `sem_declaracao_sici` (`grupo_id`, `grupo_declara`: OUTRO CNPJ do
+    grupo inferido declarou no mês de referência; sem grupo, os campos não existem) e `scm_vigente` (o CNPJ tem outorga SCM no snapshot). Sem causa.
+    `leitor_mes(mes)` devolve os `cnpjs` do cache do mês ou None."""
+    grupo_de = {c: g for g in (grupos or []) for c in g.get("cnpjs", [])}
+    por_mes: dict[str, list[str]] = defaultdict(list)
+    for c, v in parou.items():
+        por_mes[v["ultimo_mes_declarado"]].append(c)
+    for mes in sorted(por_mes):
+        cn = leitor_mes(mes) or {}
+        for c in por_mes[mes]:
+            nome = (cn.get(c) or {}).get("empresa") or ""
+            if nome:
+                parou[c]["empresa"], parou[c]["empresa_fonte"] = nome, "sici"
+            elif parou[c].get("empresa"):
+                parou[c]["empresa_fonte"] = "cadastro_scm"
+    for c, v in parou.items():
+        v["scm_vigente"] = c in cnpjs_scm
+        g = grupo_de.get(c)
+        if g:
+            v["grupo_id"] = g.get("grupo_id")
+            v["grupo_declara"] = any(o in cnpjs_declarantes for o in g["cnpjs"] if o != c)
 
 
 def classificar_sem_declaracao(usuarios: Optional[int], tem_asn: bool) -> str:
@@ -275,7 +354,8 @@ def calcular_sem_declaracao(mes_ref: str, scms: list[dict], cnpjs_declarantes: s
 
 
 def serie_municipios(mes_ref: str, meses: list[str], leitor, nomes_extra: Optional[dict[str, str]] = None) -> dict:
-    """Série mensal por município: acessos, HHI e a participação das `LIDERES_SERIE` maiores operadoras do mês de referência.
+    """Série mensal por município: acessos, HHI e a participação das operadoras que estiveram entre as `LIDERES_SERIE` maiores em algum mês da janela
+    (no máximo `MAX_LINHAS_SERIE`, pelos maiores acessos aqui na janela), para que quem deixou de declarar não suma do gráfico (MUN 5.1 c).
 
     `meses`: os meses da janela em ordem crescente (o último é `mes_ref`); `leitor(mes)` devolve os `cnpjs` do cache do mês ou `None` (mês ausente: ponto
     vazio, nunca zero). Um mês de cada vez na memória. Participação é sobre acessos declarados, não sobre receita."""
@@ -296,7 +376,12 @@ def serie_municipios(mes_ref: str, meses: list[str], leitor, nomes_extra: Option
         return {}
     out: dict[str, dict] = {}
     for ibge, ops_ref in por_mes[mes_ref].items():
-        lideres = sorted(ops_ref, key=lambda c: (-ops_ref[c], c))[:LIDERES_SERIE]
+        pico: dict[str, int] = {}
+        for m in meses:
+            ops_m = (por_mes.get(m) or {}).get(ibge) or {}
+            for c in sorted(ops_m, key=lambda c: (-ops_m[c], c))[:LIDERES_SERIE]:
+                pico[c] = max(pico.get(c, 0), ops_m[c])
+        lideres = sorted(pico, key=lambda c: (-pico[c], c))[:MAX_LINHAS_SERIE]
         acessos, hhi = [], []
         for m in meses:
             ops = (por_mes.get(m) or {}).get(ibge)
@@ -429,11 +514,18 @@ def publicar_sici_indicadores(base: Path, date_str: str, log) -> dict:
         log.warning("mês de referência %s fora do cache do SICI: indicadores não gerados", mes_ref)
         return {}
     nomes_scm = {s["cnpj"]: s.get("razao_social", "") for s in scm.get("scms", []) if s.get("cnpj")}
+    fantasias_scm: dict[str, str] = {}
+    for s in scm.get("scms", []):
+        if s.get("cnpj") and s.get("nome_fantasia") and not fantasias_scm.get(s["cnpj"]):
+            fantasias_scm[s["cnpj"]] = s["nome_fantasia"]
     ufs_scm: dict[str, str] = {}
     for s in scm.get("scms", []):
         if s.get("cnpj") and s.get("uf") and not ufs_scm.get(s["cnpj"]):
             ufs_scm[s["cnpj"]] = s["uf"]
-    ind = calcular_indicadores(mes_ref, meses, sici.get("serie_por_cnpj", {}), nomes_scm, ufs_scm)
+    ind = calcular_indicadores(mes_ref, meses, sici.get("serie_por_cnpj", {}), nomes_scm, ufs_scm, fantasias_scm)
+    grupos_soc = (carregar_json_gz(pub / "grupos_societarios.json.gz") or {}).get("grupos", [])
+    complementar_parou(ind["parou_de_declarar"], lambda m: (carregar_json_gz(cache / f"{m}.json.gz") or {}).get("cnpjs"), grupos_soc,
+                       set(ind["operadoras"]), {s["cnpj"] for s in scm.get("scms", []) if s.get("cnpj")})
     meta = {
         "snapshot_date": date_str, "generated_at": now_iso(), "mes_referencia": mes_ref,
         "mes_anterior": somar_meses(mes_ref, -1) if somar_meses(mes_ref, -1) in meses else None,
@@ -449,7 +541,7 @@ def publicar_sici_indicadores(base: Path, date_str: str, log) -> dict:
         gravar_json_gz(pub / "sici_serie_municipio.json.gz", {
             "snapshot_date": date_str, "generated_at": meta["generated_at"], "mes_referencia": mes_ref, "meses": janela,
             "fonte": "Anatel/SICI (acessos declarados); participação e HHI sobre acessos, não sobre receita",
-            "parametros": {"meses": MESES_SERIE, "lideres": LIDERES_SERIE}, "municipios": serie})
+            "parametros": {"meses": MESES_SERIE, "lideres": LIDERES_SERIE, "linhas_max": MAX_LINHAS_SERIE}, "municipios": serie})
 
     munis = (carregar_json_gz(pub / "sici_municipios.json.gz") or {}).get("municipios")
     grupos_doc = carregar_json_gz(pub / "grupos_societarios.json.gz")
@@ -470,7 +562,7 @@ def publicar_sici_indicadores(base: Path, date_str: str, log) -> dict:
     usuarios = {}
     if ip.exists():
         usuarios = {a["asn"]: a["apnic_users"] for a in json.loads(ip.read_text(encoding="utf-8")) if a.get("is_br") and a.get("apnic_users")}
-    grupos = (carregar_json_gz(pub / "grupos_societarios.json.gz") or {}).get("grupos", [])
+    grupos = grupos_soc
     credenciadas = credenciadas_rede_virtual(carregar_json_gz(pub / "smp.json.gz"))
     om = calcular_sem_declaracao(mes_ref, scm.get("scms", []), set(ind["operadoras"]), usuarios, grupos, credenciadas)
     gravar_json_gz(pub / "sem_declaracao_sici.json.gz", {

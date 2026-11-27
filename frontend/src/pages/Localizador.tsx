@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useActiveDate } from '../hooks/useSnapshot'
 import {
   agruparPorCoordenada, contagemEntidades, contagensIx, etiquetasIx, filtrarNoRaio, indicesScm, mapaDeNomes, montarEntidades,
-  municipiosSiciNoRaio, mercadoNoRaio, operadoresSici, outorgasSemDeclaracaoNoRaio, pixNoRaio, presencaPorPtt, resumoDoRaio, scmsNoRaio,
+  infoPorCnpj, municipiosSiciNoRaio, mercadoNoRaio, operadoresSici, outorgasSemDeclaracaoNoRaio, pixNoRaio, presencaPorPtt, resumoDoRaio, scmsNoRaio,
 } from '../features/localizador/calculos'
 import type { Ponto, PresencaIx } from '../features/localizador/calculos'
 import { baixarCsv, montarCsv } from '../features/localizador/csv'
@@ -66,6 +66,10 @@ export function Localizador() {
   const mercado = useMemo(() => mercadoNoRaio(siciMunInRadius), [siciMunInRadius])
   const outorgasSemDeclaracao = useMemo(() => outorgasSemDeclaracaoNoRaio(scmsInRadius), [scmsInRadius])
   const { asnToCnpj, cnpjAllAsns, scmCnpjs } = useMemo(() => indicesScm(scmGeo, asnGeo), [scmGeo, asnGeo])
+  const infoMercado = useMemo(
+    () => (mercado && scmGeo ? infoPorCnpj(mercado.linhas.map(l => l.cnpj), scmGeo.features, cnpjAllAsns, scmCnpjs) : undefined),
+    [mercado, scmGeo, cnpjAllAsns, scmCnpjs],
+  )
   const entities = useMemo(
     () => montarEntidades({ filteredAsns, scmsInRadius, asnToCnpj, cnpjAllAsns, scmCnpjs, asnNameMap, showScms: show.scms, showSici: show.sici, siciOperadores }),
     [filteredAsns, scmsInRadius, asnToCnpj, cnpjAllAsns, scmCnpjs, asnNameMap, show.scms, show.sici, siciOperadores],
@@ -190,7 +194,7 @@ export function Localizador() {
 
       {markerPos && mercado && siciMunData && (
         <BlocoMercado mercado={mercado} mesReferencia={siciMunData.mes_referencia} snapshot={siciMunData.snapshot_date}
-          outorgas={outorgasSemDeclaracao} />
+          outorgas={outorgasSemDeclaracao} info={infoMercado} />
       )}
 
       {/* os municípios e as UFs da área, com link para as páginas deles. */}

@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
@@ -16,6 +16,8 @@ import type { MultasOperadora } from '../types/api'
 vi.mock('../auth/AuthContext', () => ({ useAuth: () => ({ anon: null, loading: false }) }))
 
 const meta = { natureza: 'cadastro_regulatorio', fonte: 'Anatel', data_arquivo: 'Mon, 02 Nov 2026 10:30:08 GMT', limites: 'Multa constituída não é condenação definitiva.', snapshot_date: '2026-11-02' }
+// o gráfico anual usa o ResponsiveContainer do recharts, que mede o contêiner com ResizeObserver, que o jsdom não tem
+beforeAll(() => { vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} }) })
 const totais = { empresas: 2, multas: 5, original: 2000, pago: 500, saldo: 1500, situacoes: { Quitado: 3, Devedor: 2 } }
 const multasResumo = { ...meta, leitura: { linhas: 50, pessoa_fisica: 10, fora_do_escopo: 20, sem_servico: 5, empresas: 2, multas: 5 }, brasil: totais, por_grupo: { SCM: totais, SMP: totais },
   por_ano: [{ ano: 2020, SCM: 1, SMP: 2, STFC: 0, SeAC: 0, total: 3 }] }
@@ -62,6 +64,31 @@ describe('Regulatório', () => {
     expect(screen.getByText(/2026/, { selector: 'td' }).textContent).toMatch(/parcial, até 02\/11\/2026/)
     expect(screen.getByTestId('atualizacao-multas').textContent).toMatch(/Selic.*0,33% ao dia até 20%.*589\/2012.*10\.522\/2002/)
     expect(document.body.textContent).not.toMatch(/infra[çc]|irregular|omi[s]s|culpa|devedor contumaz/i)
+  })
+
+  it('aba Multas: abre por empresa (raiz), alterna para por serviço e o gráfico anual tem tabela e marca o ano parcial (PT-26 / REG 5.2)', async () => {
+    const visoes: Array<string | null> = []
+    server.use(
+      http.get('*/api/v1/multas/resumo', () => HttpResponse.json({ ...multasResumo, raizes: 1, por_ano: [{ ano: 2025, SCM: 1, SMP: 0, STFC: 0, SeAC: 0, total: 1 }, { ano: 2026, SCM: 2, SMP: 0, STFC: 0, SeAC: 0, total: 2 }] })),
+      http.get('*/api/v1/multas/empresas', ({ request }) => {
+        const v = new URL(request.url).searchParams.get('visao')
+        visoes.push(v)
+        const { grupo: _g, ...resto } = empresa
+        return HttpResponse.json({ ...meta, visao: v, grupo: null, ordem: 'empresa', total: 1, limit: 20, offset: 0,
+          items: [v === 'raiz' ? { ...resto, servicos: ['SCM', 'SMP'], nomes_alternativos: ['PROVEDOR 1'] } : empresa] })
+      }),
+    )
+    montar('/regulatorio?aba=multas')
+    await waitFor(() => expect(screen.getByText('SCM, SMP')).toBeTruthy())
+    expect(visoes[0]).toBe('raiz')
+    expect(screen.getByRole('button', { name: 'Por empresa' }).getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getByTestId('regra-multas').textContent).toMatch(/Cada linha é uma raiz de CNPJ.*serviços somados.*Valores absolutos.*sem ajuste pelo tamanho da empresa/)
+    expect(screen.getByText(/contra 1 raiz de CNPJ \(2 combinações de raiz e serviço\)/)).toBeTruthy()
+    expect(screen.getByTestId('grafico-multas-ano')).toBeTruthy()
+    expect(screen.getByTestId('ano-parcial').textContent).toMatch(/2026 é parcial: vai até 02\/11\/2026/)
+    fireEvent.click(screen.getByRole('button', { name: 'Por serviço' }))
+    await waitFor(() => expect(visoes).toContain('servico'))
+    await waitFor(() => expect(screen.queryByText('SCM, SMP')).toBeNull())
   })
 
   it('aba Espectro: faixas de interesse e filtro por serviço', async () => {

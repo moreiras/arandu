@@ -17,6 +17,24 @@ parênteses remetem à análise.
   linha. `GET /ixps/{code}/participantes` ganhou `sici` em cada linha, `fontes.sici` e `ordem=assinantes`; o `esquema` da chamada do
   frontend passou a 2, para o navegador não servir a resposta antiga de um `?date=`. O filtro "No cadastro, sem sessão no RS" (membro
   sem sessão com o route server, com o aviso de que pode haver peering bilateral) já existia desde a integração da PT-24.
+- **Estado do dado do SICI no município, grupo e outorga em "pararam de declarar", multas por empresa, camada SCM por declaração e colunas do
+  raio (PT-26, itens que ficaram parciais).** Município: a série de participação passa a incluir quem esteve entre as quatro maiores
+  em algum mês da janela (até seis linhas), com marcas e coluna "Evento" nos meses em que um CNPJ deixa de declarar ou volta; o maior
+  ganho e a maior perda somam CNPJs de mesmo nome fantasia com movimento oposto que se compensa em 80% ou mais ("mudança de CNPJ
+  provável", inferido, sem afirmar sucessão); a síntese avisa "com declaração incompleta" quando há CNPJ sem declaração no mês e o bloco
+  de municípios do mesmo porte marca o município. Rankings: "pararam de declarar" traz o último nome declarado ao SICI (cadastro SCM como
+  alternativa, `empresa_fonte`), a leitura de grupo em três valores com link, e "Outorga SCM no snapshot" (`scm_vigente`); o filtro
+  `grupo_declara` da API vale também para essa lista. Regulatório: lista de multas "Por empresa" (`visao=raiz` em `/multas/empresas`,
+  serviços somados, nome mais frequente) ao lado de "Por serviço", gráfico anual empilhado por serviço com o ano parcial marcado e
+  tabela equivalente. Mapa: "Colorir por" ASN ou declaração ao SICI nas outorgas SCM (dois tons de azul) e resumo por UF do recorte.
+  Localizador: colunas de tecnologia declarada pela empresa (nacional), ASNs e outorga SCM na tabela de banda larga fixa no raio.
+  `esquema`: perfil de município 7. Rotas: `visao` em `/multas/empresas`, `parou_de_declarar` com mais campos, `raizes` em
+  `/multas/resumo`; classes de acesso inalteradas.
+- **Lente "Sem PTT a 100 km" sem rede com sessão e cobertura do cadastro de PIX no mapa (PT-25).** `/territorio/ranking` aceita
+  `sem_sessao_ptt` (nenhum ASN com sede no município tem sessão direta em PTT, inferido pela sede do CNPJ; sem o produto de redes na
+  data o filtro não afirma nada) e a lista tem a caixa correspondente. O painel do mapa mostra "N de M locais do cadastro com
+  coordenadas" e os PTTs sem nenhum local, gerados do cadastro (`config/pix.yaml`, que ganhou `data_cadastro`) e entregues em
+  `pix_cobertura` na camada `pix` de `/map/query`, com fonte e data.
 - **Variação nos KPIs de segurança do panorama e Linha do tempo com comparabilidade (PT-28 / PANT 5.1).** No Panorama técnico, as rotas
   brasileiras RPKI-válidas (IPv6 e IPv4) ganham a variação em pontos percentuais desde o snapshot anterior, e um cartão novo traz as
   rotas RPKI-inválidas com a mesma variação, sempre pela regra de comparabilidade das séries nacionais (sem variação quando a medida

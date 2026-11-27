@@ -171,6 +171,14 @@ class MapasService:
                 })
         return feats
 
+    def pix_cobertura(self, date_str: str) -> dict:
+        """Quantos locais do cadastro de PIX do IX.br têm coordenadas e quais PTTs ficam sem nenhum local no mapa; gerado do dado, nunca escrito à mão (MAPA 5.1)."""
+        cad = self._s._geolocalizacao.pix_cadastro()
+        com_codigo = set(self._s._load_pix_config())
+        sem = sorted(e.get("name") or e["code"].upper() for e in self.ixp_index(date_str) if e.get("status") != "missing" and e["code"] not in com_codigo)
+        return {"locais_no_cadastro": cad.get("locais", 0), "locais_com_coordenadas": cad.get("com_coordenadas", 0), "ptts_sem_local": sem,
+                "fonte": "cadastro de PIX do IX.br (config/pix.yaml)", "data_cadastro": cad.get("data_cadastro"), "snapshot_date": date_str}
+
     def pix_map(self, date_str: str) -> dict:
         """GeoJSON apenas com os PIX (PTTs) do IX.br geolocalizados."""
         return {
@@ -490,6 +498,7 @@ class MapasService:
             "features": features,
             "snapshot_date": date_str,
             "matched_asns": len(matched_asns) if needs_recorte else None,
+            **({"pix_cobertura": self.pix_cobertura(date_str)} if "pix" in layers else {}),
         }
 
     def _map_asn_rows(self, date_str: str) -> tuple[list[dict], dict[int, dict]]:

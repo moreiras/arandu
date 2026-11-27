@@ -199,6 +199,23 @@ export function mercadoNoRaio(municipios: MunicipioSici[]): MercadoRaio | null {
   }
 }
 
+export interface InfoCnpjRaio { tecnologia: string; asns: number[]; outorgaScm: boolean }
+
+/**
+ * Colunas extras da tabela do raio (PT-26, localizador 5.4): por CNPJ, a tecnologia predominante que a empresa declara ao SICI (um dado nacional,
+ * lido da camada de outorgas SCM, não a do município), os ASNs ligados ao CNPJ (cadastro dos ASes e outorgas) e se há outorga SCM no snapshot.
+ * CNPJ que não está na camada SCM fica sem tecnologia (traço): o dado não existe ali, não é "nenhuma".
+ */
+export function infoPorCnpj(cnpjs: string[], scms: ScmGeoFeature[], cnpjAllAsns: Map<string, Set<number>>, scmCnpjs: Set<string>): Map<string, InfoCnpjRaio> {
+  const quer = new Set(cnpjs)
+  const tec = new Map<string, string>()
+  for (const f of scms) {
+    const p = f.properties
+    if (quer.has(p.cnpj) && !tec.has(p.cnpj) && p.sici_tecnologia) tec.set(p.cnpj, p.sici_tecnologia)
+  }
+  return new Map(cnpjs.map(c => [c, { tecnologia: tec.get(c) ?? '', asns: [...(cnpjAllAsns.get(c) ?? [])].sort((a, b) => a - b), outorgaScm: scmCnpjs.has(c) }]))
+}
+
 /** Outorgas SCM com sede no raio e quantas não têm acessos declarados no mês de referência (`sici_ativo === false`; sem o campo, não conta). */
 export function outorgasSemDeclaracaoNoRaio(scms: ScmGeoFeature[]): { total: number; semDeclaracao: number; cnpjsSemDeclaracao: number } {
   const sem = scms.filter(f => f.properties.sici_ativo === false)

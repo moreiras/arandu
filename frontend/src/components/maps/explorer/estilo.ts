@@ -5,7 +5,8 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 /** Cor das sedes de AS por dimensão ("Colorir por"): expressão do MapLibre, rótulo do popup e itens da legenda. */
 import type * as maplibregl from 'maplibre-gl'
-import { COLOR_ASNS_GEO, COLOR_BOTH, COLOR_NONE, COLOR_V4, COLOR_V6, COLOR_WITHOUT_SCM, COLOR_WITH_SCM } from './tipos'
+import { COLOR_ASNS_GEO, COLOR_BOTH, COLOR_NONE, COLOR_SCM, COLOR_SCM_SICI_COM, COLOR_SCM_SICI_NA, COLOR_SCM_SICI_SEM, COLOR_SCM_WITH_ASN, COLOR_V4, COLOR_V6, COLOR_WITHOUT_SCM, COLOR_WITH_SCM } from './tipos'
+import type { ScmColorBy } from './tipos'
 
 export function colorExpr(colorBy: string): maplibregl.ExpressionSpecification {
   const cv: maplibregl.ExpressionSpecification = ['get', 'color_value']
@@ -85,4 +86,12 @@ export function colorByItems(colorBy: string): Array<{ color: string; label: str
     ]
     default: return []
   }
+}
+
+/** Cor das outorgas SCM: por ASN (padrão) ou pela declaração de acessos ao SICI (PT-26, MAPA 5.4). */
+export function scmColorExpr(por: ScmColorBy): maplibregl.ExpressionSpecification {
+  if (por === 'sici') {
+    return ['match', ['to-string', ['coalesce', ['get', 'sici_ativo'], '']], 'true', COLOR_SCM_SICI_COM, 'false', COLOR_SCM_SICI_SEM, COLOR_SCM_SICI_NA]
+  }
+  return ['case', ['get', 'has_asn'], COLOR_SCM_WITH_ASN, COLOR_SCM]
 }

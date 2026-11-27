@@ -7,7 +7,7 @@
 
 Só fato com dado: nenhuma causa sem fonte; nenhum texto qualifica infração.
 """
-from products.sici_indicadores.build import calcular_indicadores, calcular_sem_declaracao, credenciadas_rede_virtual, somar_meses
+from products.sici_indicadores.build import calcular_indicadores, calcular_sem_declaracao, complementar_parou, credenciadas_rede_virtual, somar_meses
 
 
 def _mes(**ops):
@@ -117,3 +117,18 @@ def test_recuperacao_do_asn_so_por_tipo_asn_e_sem_motivo():
     r = bloco_recuperacao(doc, 22351)
     assert (r["inicio"], r["fim"], r["selo"]) == ("2026-09-01", "2026-11-30", "fato") and "motivo" not in r
     assert bloco_recuperacao(doc, 13357) is None and bloco_recuperacao(None, 1) is None
+
+
+def test_parou_de_declarar_com_nome_do_sici_grupo_e_outorga():
+    parou = {"A": {"empresa": "RAZAO A", "ultimo_mes_declarado": "2024-11", "meses_sem_declarar": 22, "acessos_no_ultimo_mes": 510},
+             "B": {"empresa": "RAZAO B", "ultimo_mes_declarado": "2025-01", "meses_sem_declarar": 20, "acessos_no_ultimo_mes": 5},
+             "C": {"empresa": "", "ultimo_mes_declarado": "2025-01", "meses_sem_declarar": 20, "acessos_no_ultimo_mes": 4}}
+    cache = {"2024-11": {"A": {"empresa": "AMERICA NET"}}, "2025-01": {"B": {"empresa": ""}}}
+    grupos = [{"grupo_id": "g1", "cnpjs": ["A", "V"]}, {"grupo_id": "g2", "cnpjs": ["B", "W"]}]
+    complementar_parou(parou, cache.get, grupos, {"V"}, {"B"})
+    assert parou["A"]["empresa"] == "AMERICA NET" and parou["A"]["empresa_fonte"] == "sici"           # o nome declarado vence o do cadastro
+    assert parou["B"]["empresa"] == "RAZAO B" and parou["B"]["empresa_fonte"] == "cadastro_scm"
+    assert "empresa_fonte" not in parou["C"] and parou["C"]["empresa"] == ""                          # sem nome em fonte nenhuma: o front diz isso
+    assert (parou["A"]["grupo_id"], parou["A"]["grupo_declara"], parou["A"]["scm_vigente"]) == ("g1", True, False)
+    assert (parou["B"]["grupo_declara"], parou["B"]["scm_vigente"]) == (False, True)
+    assert "grupo_id" not in parou["C"] and "grupo_declara" not in parou["C"]                         # sem grupo: o campo não existe (desconhecido)

@@ -33,6 +33,8 @@ export function SemelhantesBloco({ dados }: BlocoProps<MunicipioCtx>) {
   })
   if (q.isLoading) return <div className="h-24 bg-gray-50 rounded animate-pulse" />
   if (!r) return q.isError && ehErroDeAcessoOuFalha(q.error) ? <EstadoDados erro={q.error} oQue="a comparação com municípios do mesmo porte" /> : null
+  // PT-26 / MUN 5.1 e: o município com CNPJ sem declaração no mês é marcado, pois a penetração dele descreve só o declarado
+  const incompleta = !!dados.indicadores?.eventos?.some((e) => e.tipo === 'sem_declaracao_desde')
   const pos = (p: { posicao: number; de: number } | null) => (p ? `${p.posicao}º de ${p.de}` : 'sem dado')
   return (
     <div className="space-y-2 text-sm" data-testid="semelhantes">
@@ -49,7 +51,7 @@ export function SemelhantesBloco({ dados }: BlocoProps<MunicipioCtx>) {
         <tbody>
           {[r.municipio, ...ordenados].map((m, i) => (
             <tr key={m.ibge} className={`border-t border-gray-100 ${i === 0 ? 'font-medium bg-primario-50' : ''}`}>
-              <td className="px-2 py-1">{i === 0 ? m.nome : <Link to={`/municipio/${m.ibge}`} className="text-primario-700 hover:underline">{m.nome}</Link>} <span className="text-gray-400">{m.uf}</span></td>
+              <td className="px-2 py-1">{i === 0 ? m.nome : <Link to={`/municipio/${m.ibge}`} className="text-primario-700 hover:underline">{m.nome}</Link>} <span className="text-gray-400">{m.uf}</span>{i === 0 && incompleta && <span className="ml-1 text-gray-500 font-normal" data-testid="semelhantes-declaracao-incompleta">(declaração incompleta no mês de referência)</span>}</td>
               <td className="px-2 py-1 text-right tabular-nums">{n(m.domicilios)}</td><td className="px-2 py-1 text-right tabular-nums">{n(m.acessos)}</td><td className="px-2 py-1 text-right tabular-nums">{razao(m.penetracao)}</td>
               <td className="px-2 py-1 text-right tabular-nums">{m.fibra_pct == null ? '—' : `${n(m.fibra_pct)}%`}</td><td className="px-2 py-1 text-right tabular-nums">{n(m.km_ptt)}</td>
             </tr>

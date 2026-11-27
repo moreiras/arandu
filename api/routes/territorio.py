@@ -29,13 +29,13 @@ router = APIRouter()
     summary="Municípios por penetração, mercado não visto ou distância ao PTT",
     description=f"""
 Municípios ordenados por `campo` ({', '.join(t.CAMPOS)}). `uf` restringe; `sem_ptt_proximo=true` mantém só os a mais de 100 km de um PTT (linha reta do
-centróide); `min_domicilios` evita o ruído de municípios muito pequenos. Cada linha traz população, domicílios, acessos, penetração, o não visto estimado e o PTT mais próximo (`ptt_proximo`, `ptt_proximo_nome`) com o PIX, o local de interconexão, mais próximo (`pix_proximo`).
+centróide); `sem_sessao_ptt=true` mantém só os municípios em que nenhum ASN com sede tem sessão direta em PTT do IX.br (inferido pela sede do CNPJ; inclui os sem ASN com sede, que o campo `redes_sede.asns` distingue; `false`, os que têm ao menos uma rede com sessão; snapshot sem o produto de redes por município não tem como responder e devolve lista vazia com o filtro); `min_domicilios` evita o ruído de municípios muito pequenos. Cada linha traz população, domicílios, acessos, penetração, o não visto estimado e o PTT mais próximo (`ptt_proximo`, `ptt_proximo_nome`) com o PIX, o local de interconexão, mais próximo (`pix_proximo`).
 O `nao_visto` é max(0, domicílios projetados × taxa de internet da UF − acessos de pessoa física): estimativa que inclui quem usa só o celular (PNAD). Fórmulas e limites vêm na resposta.
 """,
 )
 def territorio_ranking(
     request: Request, date: Optional[str] = Query(None), campo: str = Query("penetracao"), uf: Optional[str] = Query(None),
-    asc: bool = Query(False), sem_ptt_proximo: Optional[bool] = Query(None), min_domicilios: int = Query(0, ge=0),
+    asc: bool = Query(False), sem_ptt_proximo: Optional[bool] = Query(None), sem_sessao_ptt: Optional[bool] = Query(None), min_domicilios: int = Query(0, ge=0),
     limit: int = Query(25, ge=1, le=500), page: int = Query(1, ge=1),
 ) -> dict:
     store = request.app.state.store
@@ -46,7 +46,7 @@ def territorio_ranking(
     if not doc:
         raise HTTPException(404, f"Penetração não publicada no snapshot {d}.")
     try:
-        return t.ranking(doc, store.territorio_linhas(d), campo, uf, asc, sem_ptt_proximo, min_domicilios, limit, (page - 1) * limit)
+        return t.ranking(doc, store.territorio_linhas(d), campo, uf, asc, sem_ptt_proximo, min_domicilios, limit, (page - 1) * limit, sem_sessao_ptt)
     except t.TerritorioErro as e:
         raise HTTPException(e.status, e.mensagem)
 

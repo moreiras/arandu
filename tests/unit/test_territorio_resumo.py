@@ -72,3 +72,18 @@ def test_grupo_vazio_nao_vira_razao_zero():
 def test_resposta_traz_as_datas_e_os_limites_do_territorio():
     r = t.resumo(DOC, LINHAS, None)
     assert r["mes_referencia_sici"] == "2026-09" and r["censo_ano"] == "2022" and r["limites"] == "y" and "linha reta" in r["criterio"]
+
+
+def test_ranking_filtra_municipios_sem_rede_com_sessao_em_ptt():
+    """PT-25 / municipios 5.3: separa distância de ausência de interligação registrada; sem o produto de redes por município o filtro não afirma nada."""
+    rs = lambda asns, sessao: {"asns": asns, "sessao_ptt": sessao, "rotas_ptt": sessao}      # noqa: E731
+    linhas = [_m("1", "AM", 1000, 500, 3000, km=250, redes_sede=rs(3, 0)),      # longe, redes sem sessão
+              _m("2", "AM", 2000, 1000, 6000, km=250, redes_sede=rs(5, 2)),     # longe, com sessão
+              _m("3", "AM", 3000, 1000, 6000, km=250, redes_sede=rs(0, 0)),     # longe, sem ASN com sede
+              _m("4", "AM", 4000, 1000, 6000, km=250)]                          # longe, sem o produto de redes
+    ids = lambda **kw: [i["ibge"] for i in t.ranking(DOC, linhas, "populacao_estimada", None, True, True, 0, 50, 0, **kw)["items"]]      # noqa: E731
+    assert ids() == ["1", "2", "3", "4"]
+    assert ids(sem_sessao_ptt=True) == ["1", "3"]
+    assert ids(sem_sessao_ptt=False) == ["2"]
+    r = t.ranking(DOC, linhas, "populacao_estimada", None, True, True, 0, 50, 0, sem_sessao_ptt=True)
+    assert r["filtros"]["sem_sessao_ptt"] is True

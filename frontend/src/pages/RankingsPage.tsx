@@ -19,6 +19,7 @@ import { PreviaLista } from '../components/ui/PreviaLista'
 import { PREVIEW_LIMIT } from '../auth/accessPolicy'
 import { alternarOrdem, type Ordem } from '../lib/ordenacao'
 import { NOTA_COLETA_ANATEL, NOTA_REDE_VIRTUAL } from '../lib/referencias'
+import { fmtCnpj } from '../features/operadora/ui'
 
 const POR_PAGINA = 25
 const POR_PAGINA_RANK = 25
@@ -44,6 +45,17 @@ const razao = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleS
 const CLASSES: Record<string, string> = { com_usuarios_apnic: 'ASN com 100 ou mais usuários estimados (APNIC)', sem_usuarios: 'ASN com menos de 100 usuários estimados (APNIC)', nao_comparavel: 'sem ASN ligado ao CNPJ' }
 /** Leitura de grupo com três valores em texto (RANKINGS-E2): `grupo_declara` ausente é CNPJ sem grupo societário identificado. Sem cor. */
 const leituraGrupo = (v: boolean | undefined) => (v === true ? 'outro CNPJ do grupo declarou' : v === false ? 'nenhum CNPJ do grupo declarou' : 'grupo não identificado')
+
+/** Célula de grupo das duas listas de "sem declaração": a leitura em texto (sem cor) e, havendo grupo, o link para a página dele. O grupo é inferido do quadro societário. */
+function CelulaGrupo({ declara, grupoId }: { declara?: boolean; grupoId?: string | null }) {
+  return (
+    <td className="px-2 py-1 text-xs text-gray-500">
+      {leituraGrupo(declara)}
+      {declara !== undefined && <span className="text-gray-400"> (inferido do quadro societário)</span>}
+      {grupoId && <> · <Link to={`/grupo/${encodeURIComponent(grupoId)}`} className="text-primario-600 hover:underline">ver grupo</Link></>}
+    </td>
+  )
+}
 
 /**
  * `/rankings` — Rankings do SICI e outorgas sem declaração. Só dado declarado ou medido, com o critério e o mês de referência à vista, sem juízo
@@ -249,21 +261,23 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
               <td className="px-2 py-1 text-xs">{r.uf}</td>
               <td className="px-2 py-1 text-right tabular-nums">{n(r.usuarios_apnic)}</td>
               <td className="px-2 py-1 text-xs">{r.classe ? CLASSES[r.classe] : ''}</td>
-              <td className="px-2 py-1 text-xs text-gray-500">{leituraGrupo(r.grupo_declara)}{r.grupo_declara !== undefined && <span className="text-gray-400"> (inferido do quadro societário)</span>}</td>
+              <CelulaGrupo declara={r.grupo_declara} grupoId={r.grupo_id} />
               <td className="px-2 py-1 text-xs text-gray-500">{r.rede_virtual_origem ? <>credenciada de rede virtual; acessos declarados pela prestadora de origem <Link to={`/operadora/${r.rede_virtual_origem}`} className="text-primario-600 hover:underline">{r.rede_virtual_origem}</Link></> : ''}</td>
             </tr>
           ))}
         </Tabela>
       )}
       {aba === 'sem-declaracao' && om.data && tipo === 'parou_de_declarar' && (
-        <Tabela legenda="CNPJs que pararam de declarar" cab={['#', 'CNPJ', 'Último mês declarado', 'Meses sem declarar', 'Acessos no último mês']}>
+        <Tabela legenda="CNPJs que pararam de declarar" cab={['#', 'Empresa (CNPJ)', 'Último mês declarado', 'Meses sem declarar', 'Acessos no último mês', 'Grupo (inferido)', 'Outorga SCM no snapshot']}>
           {om.data.items.map((r) => (
             <tr key={r.cnpj}>
               <td className="px-2 py-1 text-gray-400 tabular-nums">{r.posicao}</td>
-              <td className="px-2 py-1"><Link to={`/operadora/${r.cnpj}`} className="text-primario-600 hover:underline">{r.empresa || r.cnpj}</Link></td>
+              <td className="px-2 py-1"><Link to={`/operadora/${r.cnpj}`} className="text-primario-600 hover:underline" title={r.empresa_fonte === 'cadastro_scm' ? 'Nome do cadastro de outorgas SCM; o SICI não traz o nome deste CNPJ.' : r.empresa_fonte === 'sici' ? 'Último nome declarado ao SICI.' : undefined}>{r.empresa || 'Sem nome no dado'}</Link> <span className="text-xs text-gray-500">(CNPJ {fmtCnpj(r.cnpj)})</span></td>
               <td className="px-2 py-1 tabular-nums">{r.ultimo_mes_declarado}</td>
               <td className="px-2 py-1 text-right tabular-nums">{n(r.meses_sem_declarar)}</td>
               <td className="px-2 py-1 text-right tabular-nums">{n(r.acessos_no_ultimo_mes)}</td>
+              <CelulaGrupo declara={r.grupo_declara} grupoId={r.grupo_id} />
+              <td className="px-2 py-1 text-xs text-gray-500" data-testid="scm-vigente">{r.scm_vigente === undefined ? '—' : r.scm_vigente ? 'sim' : 'não'}</td>
             </tr>
           ))}
         </Tabela>
@@ -286,7 +300,7 @@ function RankingsConteudo({ abaFixa }: { abaFixa?: Aba }) {
           <li>"Sem declaração ao SICI em AAAA-MM" diz só que o CNPJ tem outorga SCM e não tem acessos declarados naquele mês de referência. Não indica causa nem intenção; as únicas informações adicionais são "outro CNPJ do grupo declarou", inferida do quadro societário, e "credenciada de rede virtual", do contrato vigente na Anatel.</li>
           <li>Os usuários são <strong>estimados</strong> pela APNIC por medição estatística, somados nos ASNs do CNPJ. A classe "sem ASN" quer dizer que não há como observar usuários.</li>
           <li>{NOTA_REDE_VIRTUAL} Por isso o credenciado pode não ter acessos declarados em seu nome; só aparece a causa "credenciada de rede virtual" quando o contrato vigente está no dado da Anatel.</li>
-          <li>"Outro CNPJ do grupo declarou" usa os grupos societários (Receita Federal); grupo parcial não prova controle.</li>
+          <li>"Outro CNPJ do grupo declarou" usa os grupos societários (Receita Federal); grupo parcial não prova controle. Quando outro CNPJ do mesmo grupo declara, os acessos podem estar declarados sob esse CNPJ; a lista só registra o fato, sem dizer que houve transferência. Em "pararam de declarar", o nome é o último declarado ao SICI (ou o do cadastro SCM, quando o SICI não o traz) e "Outorga SCM no snapshot" diz se o CNPJ ainda consta no cadastro de outorgas.</li>
           <li>Penetração = acessos fixos declarados ÷ domicílios do Censo 2022 projetados para o ano mais recente da PNAD pelo crescimento de domicílios da UF (aproximação: vale igual para todos os municípios dela); passa de 1 quando há mais de um acesso por domicílio. "Não visto" é <strong>estimativa</strong>: domicílios projetados × taxa de internet da UF (PNAD) − acessos de pessoa física, e inclui quem usa só o celular. A distância ao PTT é em linha reta do centróide do município.</li>
           <li>Janelas: "queda seguida" = 6 meses seguidos; "pararam de declarar" = 6 meses ou mais sem declaração e declaração nos últimos 36 meses.</li>
           <li>Para corrigir um dado, use o <a href="/sobre#contato" className="text-primario-600 hover:underline">contato da página Sobre</a>; a correção vale no próximo snapshot.</li>

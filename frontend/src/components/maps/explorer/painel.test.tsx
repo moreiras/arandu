@@ -9,7 +9,10 @@ import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-li
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
 import { server } from '../../../test/server'
+import type { PixCobertura } from '../../../services/api'
+import { Legend } from './Legenda'
 import { LayerPanel } from './PainelCamadas'
+import { resumirScm } from './scmSici'
 import type { LayerStatus } from './PainelCamadas'
 import { INITIAL, LAYERS } from './tipos'
 import type { LayerId, MapState } from './tipos'
@@ -89,6 +92,49 @@ describe('painel de camadas', () => {
     expect(download).toHaveBeenCalledOnce()
     fireEvent.click(screen.getByText('⚠ tentar de novo'))
     expect(retry).toHaveBeenCalledOnce()
+  })
+
+  it('outorgas SCM: "Colorir por" declaração ao SICI e resumo por UF do recorte, sem juízo (PT-26 / MAPA 5.4)', () => {
+    const f = (p: Record<string, unknown>): GeoJSON.Feature => ({ type: 'Feature', properties: p, geometry: { type: 'Point', coordinates: [0, 0] } })
+    const resumo = resumirScm({ type: 'FeatureCollection', features: [
+      f({ uf: 'SP', sici_ativo: true, sici_mes_referencia: '2026-09', has_asn: true }), f({ uf: 'SP', sici_ativo: false, sici_mes_referencia: '2026-09', has_asn: false }), f({ uf: 'AC', sici_ativo: false, sici_mes_referencia: '2026-09', has_asn: false }),
+    ] })
+    let ultimo: MapState | null = null
+    const P = () => {
+      const [state, setState] = useState<MapState>({ ...INITIAL, on: { ...INITIAL.on, outorgas_scm: true } })
+      ultimo = state
+      return <><LayerPanel state={state} onChange={setState} onClose={() => {}} statuses={statusOff} selectedIx={null} resumoScm={resumo} /><Legend state={state} resumoScm={resumo} /></>
+    }
+    render(envolver(<P />))
+    expect(ultimo!.scmColorBy).toBe('asn')                                              // o padrão não muda
+    expect(screen.getByText('SCM com ASN (1)')).toBeTruthy()
+    fireEvent.change(screen.getByLabelText('Colorir as outorgas SCM por'), { target: { value: 'sici' } })
+    expect(ultimo!.scmColorBy).toBe('sici')
+    expect(screen.getByText('SCM com acessos declarados ao SICI em 2026-09 (1)')).toBeTruthy()
+    expect(screen.getByText('SCM sem acessos declarados em 2026-09 (2)')).toBeTruthy()
+    const linhas = [...screen.getByTestId('resumo-scm-uf').querySelectorAll('tbody tr')].map(tr => tr.textContent)
+    expect(linhas).toEqual(['AC1010', 'SP2111'])                                        // UF em ordem alfabética: outorgas, com, sem, com ASN
+    const texto = screen.getByTestId('resumo-scm-uf').textContent ?? ''
+    expect(texto).toMatch(/não uma avaliação de cumprimento/)
+    expect(texto).not.toMatch(/irregular|infra[çc]|omi[s]s|omitiu|pior|melhor/i)
+  })
+
+  it('PIX: o texto de cobertura vem do dado, com fonte e data, e cita os PTTs sem local (PT-25 / MAPA 5.1)', () => {
+    const cobertura: PixCobertura = { locais_no_cadastro: 189, locais_com_coordenadas: 173, ptts_sem_local: ['Caxias do Sul'], fonte: 'cadastro de PIX do IX.br (config/pix.yaml)', data_cadastro: '2026-11-24', snapshot_date: '2026-11-22' }
+    const P = ({ c }: { c: PixCobertura | null }) => {
+      const [state, setState] = useState<MapState>(INITIAL)
+      return <LayerPanel state={state} onChange={setState} onClose={() => {}} statuses={statusOff} selectedIx={null} pixCobertura={c} />
+    }
+    const { unmount } = render(envolver(<P c={cobertura} />))
+    const t = screen.getByTestId('pix-cobertura').textContent ?? ''
+    expect(t).toMatch(/173 de 189 locais do cadastro com coordenadas no mapa/)
+    expect(t).toMatch(/cadastro de PIX do IX\.br \(config\/pix\.yaml\), cadastro de 2026-11-24; snapshot 2026-11-22/)
+    expect(t).toMatch(/PTTs sem nenhum local no mapa: Caxias do Sul\./)
+    unmount()
+    render(envolver(<P c={{ ...cobertura, locais_no_cadastro: 1, locais_com_coordenadas: 1, ptts_sem_local: [], data_cadastro: null }} />))
+    const u = screen.getByTestId('pix-cobertura').textContent ?? ''
+    expect(u).toMatch(/1 de 1 local do cadastro/)
+    expect(u).not.toMatch(/PTTs sem nenhum local|cadastro de 20/)
   })
 
   it('lista de PTTs vem de /ixps, sem os ausentes, em ordem alfabética', async () => {

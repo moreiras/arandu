@@ -92,6 +92,8 @@ export function MunicipiosPage() {
   const asc = sp.get('asc') === '1'
   const minDom = Number(sp.get('dom') ?? 1000) || 0
   const pagina = Math.max(1, Number(sp.get('p') ?? 1) || 1)
+  // lente "Sem PTT": só os municípios em que nenhuma rede com sede tem sessão em PTT (separa distância de ausência de interligação registrada)
+  const semSessao = lente === 'sem-ptt' && sp.get('sem_sessao') === '1'
   // Clique no título: mesma coluna inverte o sentido; coluna nova começa do maior para o menor.
   const ordenar = (chave: string) => {
     const q = new URLSearchParams(sp); const param = lente === 'mercado' ? 'ordem' : 'campo'
@@ -111,9 +113,9 @@ export function MunicipiosPage() {
 
   const mercado = useQuery({ queryKey: ['mun-mercado', date, uf, ordem, asc, pagina], enabled: lente === 'mercado', ...base,
     queryFn: () => fetchRankingMunicipios({ date, uf: uf || undefined, ordem: ordem || undefined, asc: asc || undefined, limit: POR_PAGINA, page: pagina }) })
-  const terr = useQuery({ queryKey: ['mun-terr', date, lente, uf, campo, asc, minDom, pagina], enabled: lente !== 'mercado', ...base,
+  const terr = useQuery({ queryKey: ['mun-terr', date, lente, uf, campo, asc, minDom, pagina, semSessao], enabled: lente !== 'mercado', ...base,
     queryFn: () => fetchTerritorioRanking(lente === 'sem-ptt'
-      ? { date, uf: uf || undefined, campo, asc: asc || undefined, sem_ptt_proximo: true, min_domicilios: minDom, limit: POR_PAGINA, page: pagina }
+      ? { date, uf: uf || undefined, campo, asc: asc || undefined, sem_ptt_proximo: true, ...(semSessao ? { sem_sessao_ptt: true } : {}), min_domicilios: minDom, limit: POR_PAGINA, page: pagina }
       : { date, uf: uf || undefined, campo, asc: asc || undefined, min_domicilios: minDom, limit: POR_PAGINA, page: pagina }) })
   // agregados do país (ou da UF filtrada) para a síntese do topo; a mesma consulta em todas as lentes
   const resumo = useQuery({ queryKey: ['mun-resumo', date, uf], ...base, queryFn: () => fetchTerritorioResumo({ date, uf: uf || undefined }) })
@@ -152,6 +154,12 @@ export function MunicipiosPage() {
               </select></label>
             <label className="flex items-center gap-1.5 pb-1"><input type="checkbox" checked={asc} onChange={(e) => muda('asc', e.target.checked ? '1' : '')} /><span>Ordem crescente</span></label>
           </>
+        )}
+        {lente === 'sem-ptt' && (
+          <label className="flex items-center gap-1.5 pb-1" title="Mantém só os municípios em que nenhum ASN com sede (pelo CNPJ) tem sessão direta em PTT do IX.br; inclui os sem ASN com sede, que a coluna Redes com sede mostra como 0 ASNs. É inferência pela sede, não pela área de operação.">
+            <input type="checkbox" checked={semSessao} onChange={(e) => muda('sem_sessao', e.target.checked ? '1' : '')} data-testid="filtro-sem-sessao" />
+            <span>Nenhuma rede com sede com sessão em PTT (inferido)</span>
+          </label>
         )}
         {lente !== 'mercado' && (
           <label className="flex flex-col gap-0.5"><span className="text-xs text-gray-500">Porte (domicílios no município)</span>

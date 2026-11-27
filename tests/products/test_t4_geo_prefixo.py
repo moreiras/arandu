@@ -126,3 +126,18 @@ def test_camadas_explicitas_de_asn_ptt_e_mapa_tambem_nao_geolocalizam_prefixo(ap
             continue
         vazamentos += [f"{metodo} {url} {kw} → {a}" for a in list(_achados(r.json()))[:2]]
     assert not vazamentos, "\n".join(vazamentos)
+
+
+def test_camada_pix_traz_a_cobertura_do_cadastro_gerada_do_dado(api):  # noqa: F811
+    """PT-25 / MAPA 5.1: a tela não escreve "N de M locais" à mão; o número vem do cadastro (`config/pix.yaml`), com fonte e data, e só quando a camada pix é pedida."""
+    import yaml
+    from pathlib import Path
+    cfg = yaml.safe_load((Path(__file__).resolve().parents[2] / "config" / "pix.yaml").read_text(encoding="utf-8"))
+    todos = [e for v in cfg["pix"].values() for e in (v or [])]
+    r = api.post("/api/v1/map/query", json={"layers": ["pix"]}, headers=ALLOWED)
+    assert r.status_code == 200
+    c = r.json()["pix_cobertura"]
+    assert c["locais_no_cadastro"] == len(todos)
+    assert c["locais_com_coordenadas"] == sum(1 for e in todos if e.get("lat") is not None and e.get("lon") is not None)      # o cadastro, não o PIX sintético do teste
+    assert c["fonte"] and c["data_cadastro"] == str(cfg["data_cadastro"]) and isinstance(c["ptts_sem_local"], list)
+    assert "pix_cobertura" not in api.post("/api/v1/map/query", json={"layers": ["asns_geo"]}, headers=ALLOWED).json()

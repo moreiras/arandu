@@ -797,7 +797,10 @@ export interface MapQueryResponse {
   snapshot_date: string
   // null quando nenhuma camada pedida depende do recorte de ASes
   matched_asns: number | null
+  /** Só com a camada `pix`: locais do cadastro com coordenadas e PTTs sem nenhum local no mapa (texto gerado do dado). */
+  pix_cobertura?: PixCobertura
 }
+export interface PixCobertura { locais_no_cadastro: number; locais_com_coordenadas: number; ptts_sem_local: string[]; fonte: string; data_cadastro: string | null; snapshot_date: string }
 
 /** GET de um caminho da API com parâmetros (cartões da página inicial). Mesmo tratamento de login e limite das demais chamadas. */
 export function fetchCaminho<T = unknown>(caminho: string, params?: Record<string, string | number | boolean | undefined>): Promise<T> {
@@ -973,9 +976,12 @@ export function fetchMunicipioAcessos(
   return get(`/api/v1/acessos/municipio/${ibge}`, { date, opcional: true })
 }
 
+// o ?date= é imutável: ganho e perda com marca somada, `mudancas_cnpj` e a série com quem liderou na janela só chegam com o esquema novo
+const ESQUEMA_MUNICIPIO = 7
+
 /** Perfil consolidado do município (fixo, móvel, centróide e PTTs mais próximos) numa chamada. */
 export function fetchMunicipioPerfil(ibge: string, date?: string): Promise<PerfilMunicipio> {
-  return get(`/api/v1/municipios/${ibge}`, { date, include: 'indicadores,territorio,erbs,fust,qualidade,reclamacoes,consumidor,serie_mercado,mercado_grupos,rede_territorio', opcional: true, esquema: ESQUEMA_GRUPOS })
+  return get(`/api/v1/municipios/${ibge}`, { date, include: 'indicadores,territorio,erbs,fust,qualidade,reclamacoes,consumidor,serie_mercado,mercado_grupos,rede_territorio', opcional: true, esquema: ESQUEMA_MUNICIPIO })
 }
 
 /** ASNs de um conjunto de municípios: provedores, participação nos PTTs, trânsito e carregadores. Até 50 códigos IBGE. */
@@ -1446,7 +1452,7 @@ export function fetchSemDeclaracaoSici(opts: { tipo?: string; uf?: string; class
 }
 /** `esquema` 2: cada linha ganhou `ptt_proximo_nome` e `pix_proximo`, o PIX mais próximo (PT-25). */
 const ESQUEMA_TERRITORIO = 2
-export function fetchTerritorioRanking(opts: { date?: string; campo?: string; uf?: string; asc?: boolean; sem_ptt_proximo?: boolean; min_domicilios?: number; limit?: number; page?: number }): Promise<RankingTerritorio> {
+export function fetchTerritorioRanking(opts: { date?: string; campo?: string; uf?: string; asc?: boolean; sem_ptt_proximo?: boolean; sem_sessao_ptt?: boolean; min_domicilios?: number; limit?: number; page?: number }): Promise<RankingTerritorio> {
   return get('/api/v1/territorio/ranking', { ...opts, esquema: ESQUEMA_TERRITORIO })
 }
 /** Infraestrutura física e instalações do PeeringDB num raio (PT-25). `metered`; pedir só quando o leitor abre o bloco. */
@@ -1524,7 +1530,7 @@ export function fetchMultasResumo(date?: string): Promise<MultasResumo> {
   return get('/api/v1/multas/resumo', { date })
 }
 
-export function fetchMultasEmpresas(opts: { date?: string; grupo?: string; q?: string; ordem?: string; limit?: number; page?: number } = {}): Promise<MultasEmpresas> {
+export function fetchMultasEmpresas(opts: { date?: string; grupo?: string; q?: string; ordem?: string; visao?: 'servico' | 'raiz'; limit?: number; page?: number } = {}): Promise<MultasEmpresas> {
   return get('/api/v1/multas/empresas', { ...opts, esquema: ESQUEMA_RANKINGS })
 }
 
