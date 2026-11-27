@@ -20,3 +20,14 @@ describe('penetração na síntese do município (MUN-E8)', () => {
     expect(frase(0)).toMatch(/^Estimativa: 0 acesso fixo para cada 100/)
   })
 })
+
+describe('penetração com declaração incompleta (PT-26, MUN 5.1 e)', () => {
+  const com = (eventos: any[]) => sinteseMunicipio('X', { ibge: '1', proximos: [], territorio: { penetracao: 0.0033 }, indicadores: { eventos } } as any).find((f) => f.id === 'penetracao')!.texto
+  it('com CNPJ sem declaração no mês a frase avisa que o número descreve o declarado', () => {
+    expect(com([{ tipo: 'sem_declaracao_desde', cnpj: '1', empresa: '', mes: '2026-08', acessos: 1, mes_acessos: '2026-07' }])).toMatch(/^Estimativa, com declaração incompleta neste município/)
+  })
+  it('primeira declaração ou ausência de evento não muda a frase', () => {
+    expect(com([{ tipo: 'primeira_declaracao', cnpj: '1', empresa: '', mes: '2026-09', acessos: 1, mes_acessos: '2026-09' }])).toMatch(/^Estimativa: /)
+    expect(com([])).toMatch(/^Estimativa: /)
+  })
+})

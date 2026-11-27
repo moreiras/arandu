@@ -10,7 +10,7 @@ import type { MunicipioCtx } from './contexto'
  * Síntese do município: regras fixas, sem modelo de linguagem, como a do AS e a da operadora. Cada frase sai de campos do snapshot e leva o selo
  * (fato, inferido ou estimado); regra sem dado não gera frase. Só descreve o que a fonte declara ou mede: nunca diz que o município "é mal atendido".
  */
-export const REGRAS_VERSAO = 'sintese-municipio-1'
+export const REGRAS_VERSAO = 'sintese-municipio-2'
 
 export interface Frase { id: string; texto: string; selo: Selo }
 
@@ -31,7 +31,9 @@ export function sinteseMunicipio(nome: string, c: MunicipioCtx): Frase[] {
     // uma casa decimal: sem ela 0,33 por 100 saía "0" (MUN-E8); abaixo de 0,05 por 100 diz "menos de 0,1" em vez de um zero falso
     const v = t.penetracao * 100
     const txt = v > 0 && v < 0.05 ? 'menos de 0,1 acesso fixo' : `${p1(v)} ${v < 2 ? 'acesso fixo' : 'acessos fixos'}`
-    f.push({ id: 'penetracao', selo: 'estimado', texto: `Estimativa: ${txt} para cada 100 domicílios (domicílios projetados a partir do Censo 2022).` })
+    // com CNPJ sem declaração no mês (PT-26, MUN 5.1 e), o numerador da penetração descreve só o declarado: a frase diz isso em vez de calar
+    const incompleta = c.indicadores?.eventos?.some((e) => e.tipo === 'sem_declaracao_desde')
+    f.push({ id: 'penetracao', selo: 'estimado', texto: `Estimativa${incompleta ? ', com declaração incompleta neste município (há CNPJ sem declaração no mês de referência)' : ''}: ${txt} para cada 100 domicílios (domicílios projetados a partir do Censo 2022).` })
   }
   if (c.movel) f.push({ id: 'movel', selo: 'fato', texto: `Há ${n(c.movel.acessos)} acessos móveis declarados ao SICI, de ${plural(c.movel.operadores_count, 'operadora', 'operadoras')}.` })
   const ptt = c.proximos[0]

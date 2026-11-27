@@ -1998,7 +1998,10 @@ export interface IndicadoresOperadora {
   parou_de_declarar?: { empresa: string; ultimo_mes_declarado: string; meses_sem_declarar: number; acessos_no_ultimo_mes: number }
   sem_declaracao?: ItemSemDeclaracao
 }
-export interface GanhoPerdaMunicipio { cnpj: string; empresa: string; acessos: number }
+/** Maior ganho ou perda em 12 meses; `cnpjs` presente quando os CNPJs de uma mesma marca foram somados (mudança de CNPJ provável, inferido). */
+export interface GanhoPerdaMunicipio { cnpj: string; empresa: string; acessos: number; cnpjs?: string[] }
+/** CNPJs de mesmo nome fantasia com movimento oposto em 12 meses que se compensa em 80% ou mais (inferido; não prova sucessão). */
+export interface MudancaCnpjMunicipio { marca: string; de_cnpj: string; para_cnpj: string; acessos_de: number; acessos_para: number }
 export interface IndicadoresMunicipio {
   mes_referencia: string
   metodologia: string
@@ -2013,6 +2016,8 @@ export interface IndicadoresMunicipio {
   perda_aa?: GanhoPerdaMunicipio
   /** Fatos sobre a declaração no município (PT-26): CNPJ sem declaração desde um mês e primeira declaração. Ausente sem evento. */
   eventos?: EventoDeclaracaoMunicipio[]
+  /** Mudança de CNPJ provável entre CNPJs da mesma marca (inferido); ganho e perda já vêm com os dois somados. */
+  mudancas_cnpj?: MudancaCnpjMunicipio[]
 }
 /** `include=indicadores` da UF: acessos, HHI e variações da UF e as contagens de CNPJs sem declaração (PT-26). */
 export interface IndicadoresUf {
@@ -2926,7 +2931,7 @@ export interface SerieMercadoMunicipio {
   mes_referencia: string
   meses: string[]
   fonte: string
-  parametros: { meses: number; lideres: number }
+  parametros: { meses: number; lideres: number; linhas_max?: number }
   acessos: Array<number | null>
   hhi: Array<number | null>
   lideres: Array<{ cnpj: string; empresa: string; share: Array<number | null> }>

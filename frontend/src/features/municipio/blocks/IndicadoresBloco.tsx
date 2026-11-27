@@ -11,6 +11,8 @@ import { fmtCnpj } from '../../operadora/ui'
 const n = (v: number) => v.toLocaleString('pt-BR')
 // quem não declarou no mês pode vir sem nome em snapshots antigos (MUN-E1): o CNPJ, com link, no lugar do vazio
 const quem = (e: { cnpj: string; empresa: string }) => <Link to={`/operadora/${e.cnpj}`} className="text-primario-700 hover:underline">{e.empresa || `CNPJ ${fmtCnpj(e.cnpj)}`}</Link>
+// marca com mais de um CNPJ somado (mudança de CNPJ provável): diz quantos entram na conta
+const somados = (e: { cnpjs?: string[] }) => (e.cnpjs && e.cnpjs.length > 1 ? `, soma de ${e.cnpjs.length} CNPJs da mesma marca (inferido)` : '')
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${v > 0 ? '+' : ''}${v.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%`)
 
 /** Variação dos acessos fixos declarados no município e quem mais ganhou e perdeu em 12 meses. Dado declarado; sem juízo sobre a causa. */
@@ -24,8 +26,13 @@ export function IndicadoresBloco({ dados }: BlocoProps<MunicipioCtx>) {
         <div><dt className="text-xs text-gray-500">Variação em 12 meses</dt><dd className="text-lg font-semibold tabular-nums">{pct(i.var_aa_pct)}</dd></div>
         <div><dt className="text-xs text-gray-500">Operadoras declarantes</dt><dd className="text-lg font-semibold tabular-nums">{n(i.n_operadoras)}</dd></div>
       </dl>
-      {i.ganho_aa && <p className="text-xs text-gray-600">Maior ganho em 12 meses: {quem(i.ganho_aa)} (+{n(i.ganho_aa.acessos)} acessos).</p>}
-      {i.perda_aa && <p className="text-xs text-gray-600">Maior perda em 12 meses: {quem(i.perda_aa)} ({n(i.perda_aa.acessos)} acessos).</p>}
+      {i.ganho_aa && <p className="text-xs text-gray-600">Maior ganho em 12 meses: {quem(i.ganho_aa)} (+{n(i.ganho_aa.acessos)} acessos){somados(i.ganho_aa)}.</p>}
+      {i.perda_aa && <p className="text-xs text-gray-600">Maior perda em 12 meses: {quem(i.perda_aa)} ({n(i.perda_aa.acessos)} acessos){somados(i.perda_aa)}.</p>}
+      {i.mudancas_cnpj?.map((m) => (
+        <p key={`${m.de_cnpj}-${m.para_cnpj}`} className="text-xs text-gray-600" data-testid="mudanca-cnpj">
+          {m.marca || 'Mesma marca'}: mudança de CNPJ provável (inferido): {fmtCnpj(m.de_cnpj)} ({n(m.acessos_de)} acessos) → {fmtCnpj(m.para_cnpj)} (+{n(m.acessos_para)} acessos). Mesmo nome fantasia no cadastro de outorgas e movimento oposto que se compensa em 80% ou mais; não prova sucessão. O ganho e a perda acima somam os dois CNPJs.
+        </p>
+      ))}
     </div>
   )
 }
