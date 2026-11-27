@@ -23,6 +23,8 @@ class IxpPotencialService:
         self._ixp_est_users_agg_cache: dict[str, dict] = {}
         # Cache: "{date}/{code}" → estimativa de usuários finais BR visíveis (IPv4)
         self._ixp_est_users_cache: dict[str, dict] = {}
+        # Cache: "{date}/{code}" → {asn: contribuição} da mesma estimativa, por ASN (a coluna da tabela de participantes e o total do PTT saem daqui)
+        self._ixp_users_asn_cache: dict[str, dict[int, dict]] = {}
         # Cache: "{date}/{code}" → indicadores da seção "Potencial" do IXP
         self._ixp_potential_cache: dict[str, Optional[dict]] = {}
 
@@ -104,12 +106,21 @@ class IxpPotencialService:
             "asns": items[:limit],
         }
 
-    def _ixp_user_contributions(self, date_str: str, code: str) -> dict[int, float]:
-        """{asn BR originador: fração de espaço IPv4 visível no PTT}. Mesma matemática
-        de ixp_estimated_users; usado para de-duplicar usuários em operator_reach."""
-        origins = self._load_origin_prefixes(date_str, code, "v4")
+    def ixp_users_por_asn(self, date_str: str, code: str) -> dict[int, dict]:
+        """Contribuição de cada ASN BR originador à estimativa de usuários finais do PTT (IPv4): a única conta desta estimativa.
+
+        Para cada AS BR que origina prefixos IPv4 no PTT, com usuários APNIC e espaço IPv4 global conhecidos:
+            fração = espaço_v4_visível_no_PTT ÷ espaço_v4_total_anunciado_do_AS (limitada a 1)
+            estimado = usuários_APNIC × fração
+        Espaços em /24-equivalentes; os prefixos visíveis são colapsados e só entram os de até /24. `estimado` não é arredondado:
+        a soma dos `estimado` é o `estimated_users` do PTT (que arredonda uma vez, no total). Cacheado por (date, code).
+        """
+        cache_key = f"{date_str}/{code}"
+        if cache_key in self._ixp_users_asn_cache:
+            return self._ixp_users_asn_cache[cache_key]
+        origins = self._load_origin_prefixes(date_str, code, "v4")  # {asn_str: [prefixes]}
         asn_lkp = self.asn_map(date_str)
-        out: dict[int, float] = {}
+        out: dict[int, dict] = {}
         for asn_str, prefixes in (origins or {}).items():
             try:
                 asn = int(asn_str)
@@ -118,7 +129,8 @@ class IxpPotencialService:
             row = asn_lkp.get(asn)
             if row is None or not row.get("is_br"):
                 continue
-            users, space_v4 = row.get("apnic_users"), row.get("space_v4")
+            users = row.get("apnic_users")
+            space_v4 = row.get("space_v4")  # /24-equiv do espaço global anunciado
             if not users or not space_v4:
                 continue
             nets = []
@@ -132,8 +144,14 @@ class IxpPotencialService:
             if not nets:
                 continue
             visible_24 = sum(1 << (24 - n.prefixlen) for n in ipaddress.collapse_addresses(nets))
-            out[asn] = min(visible_24 / space_v4, 1.0)
+            frac = min(visible_24 / space_v4, 1.0)
+            out[asn] = {"usuarios_apnic": users, "fracao": frac, "estimado": users * frac}
+        self._ixp_users_asn_cache[cache_key] = out
         return out
+
+    def _ixp_user_contributions(self, date_str: str, code: str) -> dict[int, float]:
+        """{asn BR originador: fração de espaço IPv4 visível no PTT} (de `ixp_users_por_asn`); usado para de-duplicar usuários em operator_reach."""
+        return {asn: c["fracao"] for asn, c in self.ixp_users_por_asn(date_str, code).items()}
 
     def operator_reach(self, date_str: str, asns: list[int]) -> dict:
         """Alcance de usuários finais BR de um operador (conjunto de ASes) via os PTTs
@@ -192,42 +210,11 @@ class IxpPotencialService:
         if cache_key in self._ixp_est_users_cache:
             return self._ixp_est_users_cache[cache_key]
 
-        origins = self._load_origin_prefixes(date_str, code, "v4")  # {asn_str: [prefixes]}
-        asn_lkp = self.asn_map(date_str)
-
+        por_asn = self.ixp_users_por_asn(date_str, code)
         total_users = 0.0
-        contributing = 0
-        for asn_str, prefixes in origins.items():
-            try:
-                asn = int(asn_str)
-            except (TypeError, ValueError):
-                continue
-            row = asn_lkp.get(asn)
-            if row is None or not row.get("is_br"):
-                continue
-            users = row.get("apnic_users")
-            space_v4 = row.get("space_v4")  # /24-equiv do espaço global anunciado
-            if not users or not space_v4:
-                continue
-
-            nets = []
-            for p in prefixes or []:
-                try:
-                    net = ipaddress.ip_network(p, strict=False)
-                except ValueError:
-                    continue
-                if net.version == 4 and net.prefixlen <= 24:
-                    nets.append(net)
-            if not nets:
-                continue
-            visible_24 = sum(
-                1 << (24 - net.prefixlen)
-                for net in ipaddress.collapse_addresses(nets)
-            )
-
-            frac = min(visible_24 / space_v4, 1.0)
-            total_users += users * frac
-            contributing += 1
+        for c in por_asn.values():
+            total_users += c["estimado"]
+        contributing = len(por_asn)
 
         result = {
             "snapshot_date": date_str,

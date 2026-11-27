@@ -2786,7 +2786,10 @@ export interface paths {
          * @description Uma linha por ASN visto no cadastro do IX.br, no looking glass ou nos route servers do PTT, com as colunas que a página de PTT mostrava em blocos separados:
          *     `membro` (cadastro de participantes), `direto` (sessão com o route server vista no looking glass, por família; `null` quando a família não teve coleta válida),
          *     `originador` (prefixo visto no PTT, só para ASN brasileiro), `sessao_rs` (sessões up/down no route server, Alice-LG), `rejeicao` (rotas filtradas ÷ rotas recebidas nas sessões up, do mesmo instante),
-         *     `rejeicao_detalhe` (rotas rejeitadas por motivo, de outra coleta, com `idade_dias` e `herdado`), `cdns` (CDNs da lista curada que são membros do PTT) e `sici`
+         *     `rejeicao_detalhe` (rotas rejeitadas por motivo, de outra coleta, com `idade_dias` e `herdado`), `cdns` (CDNs da lista curada que são membros do PTT), `empresa` (`cnpj` e `nome` comercial do CNPJ vinculado ao ASN; `nome` nulo quando nenhuma fonte tem nome, e nunca o CNPJ no lugar dele),
+         *     `politica_peering` (política declarada pela própria rede no PeeringDB, sem verificação), `usuarios_apnic` (usuários estimados pela APNIC para o ASN inteiro, só ASN brasileiro),
+         *     `usuarios_ptt` (estimativa de usuários do ASN via os prefixos IPv4 vistos no PTT, só ASN brasileiro e até /24; `null` quando não se aplica). `usuarios_ptt_resumo` fecha a conta com `estimated_users` de `/ixps/{code}/estimated-users`: `na_tabela` (soma da coluna, de todas as linhas) mais `fora_da_tabela` (ASNs que originam prefixos no PTT sem constar como participantes) é o total do PTT, arredondado uma vez; `null` sem coleta IPv4 válida,
+         *     `prefixos` (prefixos próprios e de terceiros vistos no PTT por família, os mesmos de `/ixps/{code}/peers`), `peeringdb` (portas declaradas e instalações inferidas), `sici_alcancado` (assinantes dos CNPJs nos AS-paths do ASN, por família) e `sici`
          *     (acessos de banda larga fixa que o CNPJ do ASN declarou ao SICI da Anatel no `mes_referencia` de `fontes.sici`; `null` sem vínculo ASN→CNPJ ou sem declaração; `compartilhado` quando o CNPJ tem mais de um ASN e o total vale em cada um).
          *     Membro sem sessão com o route server pode trocar tráfego por sessão bilateral, que estas fontes não observam; nenhuma coluna indica causa nem qualidade.
          *
@@ -10276,7 +10279,7 @@ export interface operations {
                 uf?: string | null;
                 /** @description Um de: todos, sem-v6, sem-v4, sem-direto, membro-sem-sessao-rs, sessao-sem-cadastro, com-cdn, com-rejeicao. */
                 filtro?: string;
-                /** @description Um de: asn, nome, uf, sessoes_rs, rejeicao, assinantes. */
+                /** @description Um de: asn, nome, uf, sessoes_rs, rejeicao, assinantes, usuarios_apnic, usuarios_ptt. */
                 ordem?: string;
                 /** @description Ordem decrescente. */
                 desc?: boolean;

@@ -571,3 +571,20 @@ def test_busca_de_multas_nao_acha_o_nome_civil_e_acha_a_fantasia(cliente, mundo)
         assert r.status_code == 200 and _entidades(r.json(), cnpj_b) == {FANTASIA_B}, visao
         r = cliente.get("/api/v1/multas/empresas", params={"q": cnpj_a[:8], "visao": visao}, headers=ALLOWED)
         assert _entidades(r.json(), cnpj_a) == {_rotulo_do_a(mundo)}, visao
+
+
+def test_tabela_de_participantes_mascara_nome_e_empresa_de_ei_e_mei(cliente, mundo):
+    """PT-24: a tabela única traz `nome` e `empresa.nome` por ASN; o EI sai pelo rótulo e o MEI pela fantasia, em todo PTT onde aparecem."""
+    ptts = [i["code"] for i in cliente.get("/api/v1/ixps", headers=ALLOWED).json()["ixps"]]
+    visto = {"a": 0, "b": 0}
+    for rotulo, (asn, cnpj) in mundo[2].items():
+        esperado = f"Empresário individual (AS{asn}, CNPJ **.***.{cnpj[5:8]}/{cnpj[8:12]}-**)" if rotulo == "a" else FANTASIA_B
+        for code in ptts:
+            r = cliente.get(f"/api/v1/ixps/{code}/participantes", headers=ALLOWED, params={"q": f"AS{asn}", "limit": 200})
+            assert r.status_code == 200 and not _achados(r.text), (code, rotulo, _achados(r.text))
+            for linha in (l for l in r.json()["items"] if l["asn"] == asn):
+                visto[rotulo] += 1
+                assert (linha["nome"] or "").startswith(esperado), linha["nome"]
+                emp = linha["empresa"]
+                assert emp is None or emp["nome"] is None or emp["nome"].startswith(esperado), emp
+    assert all(visto.values()), visto

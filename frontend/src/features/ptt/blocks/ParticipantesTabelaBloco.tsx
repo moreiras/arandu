@@ -20,6 +20,7 @@ import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
 import { palavra } from '../../../lib/sintese'
 import { baixarCsvParticipantes, montarCsvParticipantes } from '../participantesCsv'
+import { fmtPortas } from '../portas'
 
 const POR_PAGINA = 50
 /** Páginas do CSV: o máximo da rota, para pedir o PTT inteiro em poucas chamadas (mais de 100 linhas é da classe `login`). */
@@ -31,28 +32,70 @@ const FILTROS: Array<[FiltroParticipantes, string]> = [
   ['todos', 'Todos'], ['sem-v6', 'Sem direto IPv6'], ['sem-v4', 'Sem direto IPv4'], ['sem-direto', 'Sem direto em nenhuma família'],
   ['membro-sem-sessao-rs', 'No cadastro, sem sessão no RS'], ['sessao-sem-cadastro', 'Sessão no RS, fora do cadastro'], ['com-cdn', 'CDN da lista curada'], ['com-rejeicao', 'Com rota filtrada no RS'],
 ]
-const ORDENS: Record<string, { primeiro: 'asc' | 'desc' }> = { asn: { primeiro: 'asc' }, nome: { primeiro: 'asc' }, uf: { primeiro: 'asc' }, sessoes_rs: { primeiro: 'desc' }, rejeicao: { primeiro: 'desc' }, assinantes: { primeiro: 'desc' } }
+const ORDENS: Record<string, { primeiro: 'asc' | 'desc' }> = { asn: { primeiro: 'asc' }, nome: { primeiro: 'asc' }, uf: { primeiro: 'asc' }, sessoes_rs: { primeiro: 'desc' }, rejeicao: { primeiro: 'desc' }, assinantes: { primeiro: 'desc' }, usuarios_apnic: { primeiro: 'desc' }, usuarios_ptt: { primeiro: 'desc' } }
 
 /** Sim, não ou "sem coleta": `null` é família sem coleta válida e nunca vira "não". */
 const simNao = (v: boolean | null) => (v == null ? 'sem coleta' : v ? 'sim' : 'não')
+/** Usuários estimados: inteiro arredondado; entre 0 e 0,5 diz "menos de 1" (0 de verdade é 0); `null` é "não se aplica" (ASN fora do Brasil, sem dado ou sem coleta IPv4). */
+const usuarios = (v: number | null | undefined) => (v == null ? '—' : v > 0 && v < 0.5 ? 'menos de 1' : n(Math.round(v)))
 /** Originador: `null` é família sem coleta ou ASN fora do Brasil (a lista publicada é só dos brasileiros). */
 const originador = (l: ParticipantePtt, v: boolean | null) => (v == null ? (l.is_br === false ? 'n/d (fora do Brasil)' : 'sem coleta') : v ? 'sim' : 'não')
 
-function Detalhe({ l, ptt, sel }: { l: ParticipantePtt; ptt: string; sel: (asn: number) => void }) {
+/** Prefixos vistos no PTT por família (IPv6 antes de IPv4): próprios (o ASN é o originador) e de terceiros (repassados por ele); `null` é sem sessão direta na família. */
+function Prefixos({ l }: { l: ParticipantePtt }) {
+  const fam = (['v6', 'v4'] as const).filter((a) => l.prefixos?.[a])
+  if (!fam.length) return <p>Prefixos vistos no PTT: sem sessão direta observada no looking glass, então não há prefixos por este ASN.</p>
+  return (
+    <ul className="list-none space-y-0.5">
+      {fam.map((a) => {
+        const st = l.prefixos[a]!
+        const unidade = a === 'v6' ? '/48' : '/24'
+        return (
+          <li key={a}>
+            Prefixos vistos no PTT em {a === 'v6' ? 'IPv6' : 'IPv4'}: {n(st.own_prefixes)} {palavra(st.own_prefixes, 'próprio', 'próprios')}
+            {st.own_space_24 > 0 ? ` (${n(st.own_space_24)} ${unidade})` : ''} e {n(st.third_prefixes)} {palavra(st.third_prefixes, 'de terceiro', 'de terceiros')}
+            {st.third_space_24 > 0 ? ` (${n(st.third_space_24)} ${unidade})` : ''}, de {n(st.origin_asns)} {palavra(st.origin_asns, 'ASN originador', 'ASNs originadores')}.
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+function Detalhe({ l, ptt, sel }: { l: ParticipantePtt; ptt: string; sel: (l: ParticipantePtt) => void }) {
   const r = l.rejeicao
   const d = l.rejeicao_detalhe
+  const portas = fmtPortas(l.peeringdb?.portas_mbps ?? undefined)
+  const inst = l.peeringdb?.instalacoes ?? []
+  const comDireto = l.direto.v6 === true || l.direto.v4 === true
   return (
     <div className="space-y-1 text-xs text-gray-700">
       <p>
         <Link to={`/asn/${l.asn}`} className="text-primario-700 hover:underline">Abrir AS{l.asn}</Link>
-        {' · '}
-        <Link to={`/ixp/${ptt}?aba=cobertura`} onClick={() => sel(l.asn)} className="text-primario-700 hover:underline">Destacar na curva de Hilbert (aba Cobertura)</Link>
+        {comDireto && (
+          <>
+            {' · '}
+            <Link to={`/ixp/${ptt}?aba=cobertura`} onClick={() => sel(l)} className="text-primario-700 hover:underline" data-testid={`hilbert-${l.asn}`}>
+              Destacar AS{l.asn} na curva de Hilbert (abre a aba Cobertura)
+            </Link>
+          </>
+        )}
       </p>
+      <Prefixos l={l} />
       <p>{l.membro ? 'Consta no cadastro de participantes do IX.br.' : 'Não consta no cadastro de participantes do IX.br.'}{' '}
         {l.sessao_rs ? `Sessões com o route server: ${n(l.sessao_rs.up)} up e ${n(l.sessao_rs.down)} down de ${n(l.sessao_rs.sessoes)}${l.sessao_rs.incertas ? ` (${n(l.sessao_rs.incertas)} em route server sem cache de vizinhos atual)` : ''}.` : 'Sem dado de sessões no route server.'}
         {l.cadastrado_sem_sessao_rs ? ' No cadastro e sem sessão com o route server: pode haver peering bilateral, que estas fontes não observam.' : ''}</p>
       {r && <p>Rotas filtradas ÷ recebidas nas sessões up: {n(r.filtradas)} ÷ {n(r.recebidas)}{r.pct != null ? ` (${r.pct.toLocaleString('pt-BR')}%)` : ' (sem rotas recebidas: sem percentual)'}, em {n(r.sessoes_up)} {palavra(r.sessoes_up, 'sessão', 'sessões')}.</p>}
       {d && <p>Detalhe por motivo (outra coleta): {n(d.rotas)} rotas rejeitadas{d.contagem === 'amostra' ? ' (contagem parcial)' : ''}, coleta de {d.coletado_ate?.slice(0, 10) ?? 'data desconhecida'}{d.idade_dias != null ? `, ${n(d.idade_dias)} ${palavra(d.idade_dias, 'dia', 'dias')} antes do snapshot` : ''}{d.herdado ? '; herdada de uma rodada anterior' : ''}.</p>}
+      {(l.sici_alcancado?.v6 != null || l.sici_alcancado?.v4 != null) && (
+        <p>Acessos fixos (SICI) dos CNPJs nos AS-paths que este ASN anuncia no PTT, sem repetir CNPJ:{' '}
+          {(['v6', 'v4'] as const).filter((a) => l.sici_alcancado[a] != null).map((a) => `${a === 'v6' ? 'IPv6' : 'IPv4'} ${n(l.sici_alcancado[a])}`).join(' e ')}.</p>
+      )}
+      {portas && <p>Porta declarada pela própria rede no PeeringDB para este PTT: {portas}. Autodeclarado: pode estar desatualizado e não é a porta contratada no IX.br nem tráfego.</p>}
+      {inst.length > 0 && (
+        <p>Instalações (inferidas do PeeringDB) onde a rede declara presença e que abrigam este PTT:{' '}
+          {inst.map((x, i) => <span key={x.id}>{i > 0 ? ', ' : ''}<Link to={`/instalacao/${x.id}`} className="text-primario-700 hover:underline">{x.nome ?? `instalação ${x.id}`}</Link></span>)}.</p>
+      )}
       {l.cdns.length > 0 && <p>CDNs da lista curada que são membros deste PTT: {l.cdns.join(', ')}.</p>}
     </div>
   )
@@ -60,8 +103,8 @@ function Detalhe({ l, ptt, sel }: { l: ParticipantePtt; ptt: string; sel: (asn: 
 
 /**
  * Tabela única de participantes do PTT (PT-24 / IXP-E5.5): uma linha por ASN visto no cadastro do IX.br, no looking glass ou nos route servers, com paginação,
- * busca e filtros no servidor (`GET /ixps/{code}/participantes`) e o estado na URL. Substitui os blocos "Participantes e filtros" e "Membros registrados sem peering
- * direto". Cadastro (membro) e sessão com o route server são colunas distintas; família sem coleta aparece como tal, nunca como ausência. Sem cor de juízo e com ordem
+ * busca e filtros no servidor (`GET /ixps/{code}/participantes`) e o estado na URL. Substitui os blocos "Participantes e filtros", "Membros registrados sem peering
+ * direto" e as tabelas de ASNs por família (peers IPv6 e IPv4), de que traz empresa, política de peering, usuários, prefixos e o destaque na curva de Hilbert. Cadastro (membro) e sessão com o route server são colunas distintas; família sem coleta aparece como tal, nunca como ausência. Sem cor de juízo e com ordem
  * padrão por ASN: nenhuma coluna aqui é ranking.
  */
 export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
@@ -124,7 +167,8 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
       setBaixando(false)
     }
   }
-  const sel = (asn: number) => { setSelectedPeerV4(asn); setSelectedPeerV6(asn) }
+  /** Destaca o AS na curva de Hilbert de cada família em que ele tem sessão direta (a seleção vive na página e a aba Cobertura a lê). */
+  const sel = (l: ParticipantePtt) => { setSelectedPeerV6(l.direto.v6 ? l.asn : null); setSelectedPeerV4(l.direto.v4 ? l.asn : null) }
 
   if (error && !data) return <EstadoDados erro={error} oQue="a tabela de participantes do PTT" />
   if (isLoading && !data) return <EstadoDados estado="carregando" mensagem="Carregando os participantes…" />
@@ -132,7 +176,7 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
   const paginas = Math.max(1, Math.ceil(data.total / POR_PAGINA))
   const f = data.fontes
   const semColeta = (['v6', 'v4'] as const).filter((a) => f.looking_glass.coleta[a] !== 'ok')
-  const colunas = rs ? 13 : 10
+  const colunas = rs ? 17 : 14
 
   return (
     <div className="space-y-3" data-testid="participantes-tabela">
@@ -174,12 +218,14 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
       )}
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
-          <caption className="sr-only">Participantes do PTT: uma linha por ASN, com cadastro, sessão direta por família, originador, route server, rejeição, idade da coleta, acessos fixos declarados ao SICI e CDNs. A ordem padrão é por ASN.</caption>
+          <caption className="sr-only">Participantes do PTT: uma linha por ASN, com empresa, política de peering declarada no PeeringDB, cadastro, sessão direta por família, originador, route server, rejeição, idade da coleta, usuários estimados pela APNIC, acessos fixos declarados ao SICI e CDNs. A ordem padrão é por ASN.</caption>
           <thead>
             <tr className="text-left text-xs text-gray-500 border-b border-gray-200">
               <ThOrdenavel {...th('asn')} className="py-1 pr-3 font-medium">ASN</ThOrdenavel>
               <ThOrdenavel {...th('nome')} className="py-1 pr-3 font-medium">Nome</ThOrdenavel>
               <ThOrdenavel {...th('uf')} className="py-1 pr-3 font-medium">UF</ThOrdenavel>
+              <th scope="col" className="py-1 pr-3 font-medium">Empresa<Dica rotulo="Empresa" texto="Nome comercial do CNPJ vinculado ao ASN, pelas bases da Anatel. O link abre a página da operadora. Sem nome nas fontes, a célula diz isso e o CNPJ não é usado como nome." /></th>
+              <th scope="col" className="py-1 pr-3 font-medium">Política de peering (PeeringDB)<Dica rotulo="Política de peering" texto="O que a própria rede declarou no PeeringDB (Open, Selective, Restrictive ou No). É autodeclarado, pode estar desatualizado e não é verificado. Traço: sem cadastro ou sem o campo." /></th>
               <th scope="col" className="py-1 pr-3 font-medium">Membro (cadastro)<Dica rotulo="Membro (cadastro)" texto={UNIVERSOS.membroCadastro.definicao} /></th>
               <th scope="col" className="py-1 pr-3 font-medium">Direto IPv6<Dica rotulo="Direto IPv6" texto="Sessão BGP com o route server vista no looking glass do IX.br, na família IPv6. Não é o cadastro, e não inclui peering bilateral." /></th>
               <th scope="col" className="py-1 pr-3 font-medium">Direto IPv4</th>
@@ -189,6 +235,8 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
               {rs && <ThOrdenavel {...th('rejeicao')} className="py-1 pr-3 font-medium" extra={<Dica rotulo="Rotas filtradas ÷ recebidas" texto="Contadores do route server nas sessões up, do mesmo instante. Rota filtrada é a que o route server não aceitou; o motivo está no detalhe da linha e a causa não é atribuída." />}>Filtradas ÷ recebidas</ThOrdenavel>}
               {rs && <th scope="col" className="py-1 pr-3 font-medium">Idade da coleta por motivo<Dica rotulo="Idade da coleta por motivo" texto="Dias entre a coleta do detalhe de rotas rejeitadas por motivo e a data do snapshot. É uma coleta à parte (rodízio) e pode ser herdada de uma rodada anterior." /></th>}
               <ThOrdenavel {...th('assinantes')} className="py-1 pr-3 font-medium" extra={<Dica rotulo="Acessos fixos (SICI)" texto="Acessos de banda larga fixa que o CNPJ do ASN declarou ao SICI da Anatel no mês de referência (outra data que a do snapshot). 'Compartilhado': o CNPJ tem mais de um ASN e o mesmo total vale em cada um; não some. Traço: sem CNPJ vinculado ao ASN ou sem declaração." />}>Acessos fixos (SICI)</ThOrdenavel>
+              <ThOrdenavel {...th('usuarios_apnic')} className="py-1 pr-3 font-medium" extra={<Dica rotulo="Usuários APNIC (total do AS)" texto="Usuários que a APNIC estima para o AS inteiro, por amostragem de anúncios, não por prefixo. Só ASN brasileiro; os demais ficam em traço." />}>Usuários APNIC (total do AS)</ThOrdenavel>
+              <ThOrdenavel {...th('usuarios_ptt')} className="py-1 pr-3 font-medium" extra={<Dica rotulo="Dos quais via prefixos vistos no PTT (estimado)" texto="Estimativa: usuários APNIC do AS multiplicados pela parte do espaço IPv4 do AS que aparece neste PTT. Supõe usuários uniformes no espaço IPv4. Veja Como ler abaixo da tabela." />}>Dos quais via prefixos vistos no PTT (estimado)</ThOrdenavel>
               <th scope="col" className="py-1 pr-3 font-medium">CDNs</th>
             </tr>
           </thead>
@@ -206,6 +254,10 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
                     </td>
                     <td className="py-1 pr-3 text-gray-700">{l.nome ?? <span className="text-gray-500">sem nome na fonte</span>}</td>
                     <td className="py-1 pr-3 text-gray-500">{l.uf ?? ''}</td>
+                    <td className="py-1 pr-3 text-gray-700">
+                      {l.empresa ? <Link to={`/operadora/${l.empresa.cnpj}`} className="text-primario-700 hover:underline">{l.empresa.nome ?? 'operadora (sem nome nas fontes)'}</Link> : <span className="text-gray-500">—</span>}
+                    </td>
+                    <td className="py-1 pr-3 text-gray-700">{l.politica_peering ?? <span className="text-gray-500">—</span>}</td>
                     <td className="py-1 pr-3">{l.membro ? 'sim' : 'não'}</td>
                     <td className="py-1 pr-3">{simNao(l.direto.v6)}</td>
                     <td className="py-1 pr-3">{simNao(l.direto.v4)}</td>
@@ -215,6 +267,8 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
                     {rs && <td className="py-1 pr-3 tabular-nums">{l.rejeicao ? `${n(l.rejeicao.filtradas)} ÷ ${n(l.rejeicao.recebidas)}${l.rejeicao.pct != null ? ` (${l.rejeicao.pct.toLocaleString('pt-BR')}%)` : ''}` : '—'}</td>}
                     {rs && <td className="py-1 pr-3">{l.rejeicao_detalhe ? `${l.rejeicao_detalhe.idade_dias != null ? `${n(l.rejeicao_detalhe.idade_dias)} d` : 'idade desconhecida'}${l.rejeicao_detalhe.herdado ? ', herdada' : ''}` : '—'}</td>}
                     <td className="py-1 pr-3 tabular-nums">{l.sici ? <>{n(l.sici.acessos)}{l.sici.compartilhado && <span className="text-xs text-gray-600"> (compartilhado)</span>}</> : '—'}</td>
+                    <td className="py-1 pr-3 tabular-nums">{usuarios(l.usuarios_apnic)}</td>
+                    <td className="py-1 pr-3 tabular-nums">{usuarios(l.usuarios_ptt)}</td>
                     <td className="py-1 pr-3 text-xs text-gray-600">{l.cdns.length ? `${l.cdns.slice(0, 2).join(', ')}${l.cdns.length > 2 ? ` +${l.cdns.length - 2}` : ''}` : ''}</td>
                   </tr>
                   {aberta && <tr id={idDet} className="border-b border-gray-100 bg-gray-50"><td colSpan={colunas} className="px-3 py-2"><Detalhe l={l} ptt={code} sel={sel} /></td></tr>}
@@ -234,11 +288,23 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
       )}
       <div className="space-y-0.5 text-xs text-gray-600">
         <p><b>Como ler.</b> {data.limites}</p>
+        <p><b>Como ler as colunas de usuários.</b> {data.limites_usuarios}</p>
+        {data.usuarios_ptt_resumo && (
+          <p data-testid="usuarios-resumo">
+            Estimativa para o PTT inteiro: {usuarios(data.usuarios_ptt_resumo.na_tabela)} {palavra(Math.round(data.usuarios_ptt_resumo.na_tabela), 'usuário', 'usuários')} na coluna, somando todos os participantes (não só esta página)
+            {data.usuarios_ptt_resumo.fora_da_tabela.asns > 0 && <>, e {usuarios(data.usuarios_ptt_resumo.fora_da_tabela.usuarios)} {palavra(Math.round(data.usuarios_ptt_resumo.fora_da_tabela.usuarios), 'usuário', 'usuários')} de {n(data.usuarios_ptt_resumo.fora_da_tabela.asns)} {palavra(data.usuarios_ptt_resumo.fora_da_tabela.asns, 'ASN que anuncia', 'ASNs que anunciam')} prefixos neste PTT sem constar como {palavra(data.usuarios_ptt_resumo.fora_da_tabela.asns, 'participante', 'participantes')}</>}
+            : total de {usuarios(data.usuarios_ptt_resumo.total_do_ptt)}, o mesmo valor de usuários estimados do PTT no resumo da página.
+          </p>
+        )}
         <LinhaProveniencia selo="fato" fonte={`${f.cadastro.fonte}: coluna Membro`} dataRef={f.cadastro.snapshot} />
         <LinhaProveniencia selo="fato" fonte={`${f.looking_glass.fonte}: colunas Direto e Originador`} dataRef={f.looking_glass.snapshot} />
         <LinhaProveniencia selo="fato" fonte={`${f.route_servers.fonte ?? 'route servers (Alice-LG)'}${f.route_servers.versao_alice ? ` ${f.route_servers.versao_alice}` : ''}: sessões e rotas filtradas ÷ recebidas`} dataRef={f.route_servers.coletado_em} />
         <LinhaProveniencia selo="fato" fonte={`${f.rejeicoes_por_motivo.fonte ?? 'route servers (Alice-LG)'}: rotas rejeitadas por motivo, no detalhe da linha`} dataRef={f.rejeicoes_por_motivo.coletado_nivel2} />
         <LinhaProveniencia selo="fato" fonte={`${f.sici.fonte}: coluna Acessos fixos, declarados pelo CNPJ do ASN`} dataRef={f.sici.mes_referencia ?? f.sici.snapshot} />
+        <LinhaProveniencia selo="fato" fonte={`${f.apnic.fonte}: coluna Usuários APNIC (total do AS)`} dataRef={f.apnic.snapshot} />
+        <LinhaProveniencia selo="estimado" fonte={`${f.apnic.fonte} e ${f.prefixos.fonte}: coluna Dos quais via prefixos vistos no PTT`} dataRef={f.prefixos.snapshot} />
+        <LinhaProveniencia selo="fato" fonte={`${f.peeringdb.fonte}: coluna Política de peering`} dataRef={f.peeringdb.coletado_em ?? f.peeringdb.snapshot} />
+        <LinhaProveniencia selo="fato" fonte={`${f.prefixos.fonte}: prefixos próprios e de terceiros, no detalhe da linha`} dataRef={f.prefixos.snapshot} />
         <LinhaProveniencia selo="fato" fonte={`${f.cdns.fonte}: coluna CDNs (membro do PTT que é ASN de CDN da lista)`} dataRef={f.cdns.snapshot} />
       </div>
     </div>

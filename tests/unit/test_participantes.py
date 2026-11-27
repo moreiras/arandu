@@ -136,3 +136,46 @@ def test_filtro_e_ordem_invalidos_dao_400():
     assert e.value.status == 400
     with pytest.raises(p.ParticipantesErro):
         p.pagina(b, None, "todos", None, "x", False, 50, 0)
+
+
+def test_colunas_de_empresa_usuarios_prefixos_e_alcancado_vem_dos_ganchos_e_ordenam():
+    usuarios = {100: {"apnic": 1000, "ptt": 250.4}, 200: {"apnic": 500, "ptt": 0.0}}
+    nomes = {"100": {"name": "Nome do ASN 100", "uf": "SP"}, "200": {"name": "Nome do ASN 200", "uf": "RJ"}, "400": {"name": "Quatro", "uf": "SP"}}
+    b = p.montar(SNAP, "sp", _ixp(), {100, 200, 400}, _rs(), _asns_rs(), _pol(), _cdns(), lambda asns: {k: v for k, v in nomes.items() if int(k) in asns}, lambda a: a != 500,
+                 empresa_de=lambda a: {"cnpj": "00000000000191", "nome": None} if a == 100 else None, usuarios_de=lambda a: usuarios.get(a, {"apnic": None, "ptt": None}),
+                 prefixos={"v4": {"100": {"own_prefixes": 3, "third_prefixes": 1}}}, pdb_de=lambda a: {"portas_mbps": [10000], "instalacoes": None} if a == 100 else None,
+                 alcancado={"v4": {"100": 77}})
+    l100, l400 = _linha(b, 100), _linha(b, 400)
+    assert l100["empresa"] == {"cnpj": "00000000000191", "nome": None} and l400["empresa"] is None
+    assert (l100["usuarios_apnic"], l100["usuarios_ptt"]) == (1000, 250.4) and (l400["usuarios_apnic"], l400["usuarios_ptt"]) == (None, None)
+    assert l100["prefixos"] == {"v6": None, "v4": {"own_prefixes": 3, "third_prefixes": 1}} and l400["prefixos"] == {"v6": None, "v4": None}
+    assert l100["peeringdb"]["portas_mbps"] == [10000] and l100["sici_alcancado"] == {"v6": None, "v4": 77}
+    r = p.pagina(b, None, "todos", None, "usuarios_ptt", True, 10, 0)
+    assert [l["asn"] for l in r["items"]][:2] == [100, 200]                     # sem valor (-1) vai ao fim
+    r = p.pagina(b, None, "todos", None, "usuarios_apnic", False, 10, 0)
+    assert [l["asn"] for l in r["items"]][-2:] == [200, 100]
+    assert [l["asn"] for l in p.pagina(b, None, "todos", None, "asn", False, 10, 0)["items"]] == [100, 200, 400, 500]      # a ordem padrão segue neutra
+
+
+def test_estimativa_por_asn_e_a_unica_conta_do_total_do_ptt():
+    """`ixp_estimated_users` soma `ixp_users_por_asn`: o total do PTT e a coluna não podem divergir (prefixos até /24 colapsados, fração limitada a 1)."""
+    from api.services.ixp_potencial import IxpPotencialService
+
+    class S:
+        def asn_map(self, d):
+            return {64496: {"is_br": True, "apnic_users": 1000, "space_v4": 8}, 64497: {"is_br": True, "apnic_users": 300, "space_v4": 2},
+                    64498: {"is_br": False, "apnic_users": 999, "space_v4": 4}, 64499: {"is_br": True, "apnic_users": None, "space_v4": 4}}
+
+        def _load_origin_prefixes(self, d, code, afi):
+            return {"64496": ["192.0.2.0/24", "192.0.2.0/25", "198.51.100.0/23", "203.0.113.0/25", "2001:db8::/32"],        # 1 + (aninhado, não conta) + 2 = 3 de 8 /24
+                    "64497": ["198.18.0.0/22"],                                                                          # 4 de 2: limitado a 1
+                    "64498": ["192.0.2.0/24"], "64499": ["192.0.2.0/24"], "abc": ["192.0.2.0/24"]}
+
+    svc = IxpPotencialService(S())
+    por_asn = svc.ixp_users_por_asn("2026-11-22", "sp")
+    assert set(por_asn) == {64496, 64497}
+    assert por_asn[64496]["fracao"] == pytest.approx(3 / 8) and por_asn[64496]["estimado"] == pytest.approx(375)
+    assert por_asn[64497]["fracao"] == 1.0 and por_asn[64497]["estimado"] == pytest.approx(300)
+    est = svc.ixp_estimated_users("2026-11-22", "sp")
+    assert est["estimated_users"] == round(sum(c["estimado"] for c in por_asn.values())) == 675 and est["contributing_asns"] == 2
+    assert svc._ixp_user_contributions("2026-11-22", "sp") == {64496: pytest.approx(3 / 8), 64497: 1.0}

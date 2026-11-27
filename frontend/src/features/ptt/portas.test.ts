@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { describe, expect, it } from 'vitest'
-import { fmtPortas } from './IXPPeerTable'
+import { fmtPortas } from './portas'
 
 describe('porta declarada no PeeringDB', () => {
   it('formata em G/M, agrupa as repetidas e marca a não informada', () => {

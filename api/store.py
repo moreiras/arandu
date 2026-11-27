@@ -1020,9 +1020,9 @@ class Store:
 outorgas_store.instalar(Store)
 
 # Métodos que o `Store` apenas repassa ao serviço que os implementa (api/services/): mesma interface pública de antes.
-delegar(Store, "_ixp_potencial", "all_ixp_estimated_users", "ixp_estimated_users", "ixp_estimated_users_aggregate", "ixp_nearby_breakdown", "ixp_potential", "operator_reach")
+delegar(Store, "_ixp_potencial", "all_ixp_estimated_users", "ixp_estimated_users", "ixp_estimated_users_aggregate", "ixp_nearby_breakdown", "ixp_potential", "ixp_users_por_asn", "operator_reach")
 delegar(Store, "_perfis", "asns_por_uf", "municipio_centroide", "outorgas_do_cnpj", "outorgas_unificadas", "perfil_municipio", "perfil_uf", "territorio_linhas", "ptt_mais_proximo", "ptts_pontos", "ptts_proximos", "resumo_ufs")
-delegar(Store, "_operadoras", "_display_name_for_cnpj", "_load_socios_grupos", "acessos_movel_municipio_index", "acessos_municipio_index", "asn_vinculo", "asns_do_grupo", "asns_mesma_pj", "asns_vinculados", "cnpj_asns_index", "vinculo_resumo", "empresas_relacionadas", "grupo_equivalente", "grupo_prefixos_geo", "grupos_societarios_overview", "operadora_index", "operadora_movel_index", "outorgas_flags_for_cnpj", "peeringdb_contacts_for_asn", "rdap_contatos_for_asn", "socios_grupos_index")
+delegar(Store, "_operadoras", "_display_name_for_cnpj", "nome_comercial_do_cnpj", "_load_socios_grupos", "acessos_movel_municipio_index", "acessos_municipio_index", "asn_vinculo", "asns_do_grupo", "asns_mesma_pj", "asns_vinculados", "cnpj_asns_index", "vinculo_resumo", "empresas_relacionadas", "grupo_equivalente", "grupo_prefixos_geo", "grupos_societarios_overview", "operadora_index", "operadora_movel_index", "outorgas_flags_for_cnpj", "peeringdb_contacts_for_asn", "rdap_contatos_for_asn", "socios_grupos_index")
 delegar(Store, "_asns", "announced_starts", "asn_coords", "asn_ixp_peers", "asn_names", "asn_paths", "bgp_stability_por_asn", "bgp_stability_resumo", "nomes_asns", "origin_by_prefix")
 delegar(Store, "_mapas", "_pix_features", "asns_overview_map", "geo_map", "geo_map_prefixos_agregado", "geo_map_arquivo", "geo_map_filtrado", "map_query", "pix_map")
 delegar(Store, "_geolocalizacao", "_ixp_city_coords", "_ixp_geo_prefixes", "_ixp_origin_asns_from_routes", "_load_ixp_members", "_load_ixp_prefix_set", "_load_origin_prefixes", "asn_geo", "ixp_geo")
