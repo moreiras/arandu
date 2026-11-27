@@ -280,9 +280,37 @@ def _participantes_base(store: Store, date_str: str, code: str, doc: dict) -> di
         reg = sici_cnpjs.get(c) if c else None
         return {"acessos": reg.get("acessos", 0), "compartilhado": por_cnpj.get(c, 0) > 1} if reg else None
 
+    def empresa_de(asn: int) -> Optional[dict]:
+        c = asn_cnpj.get(asn)
+        return {"cnpj": c, "nome": store.nome_comercial_do_cnpj(date_str, c)} if c else None           # sem nome nas fontes: None (o CNPJ não é nome)
+
+    # a estimativa de usuários vem da mesma função do total do PTT (`ixp_users_por_asn`): a soma da coluna é o `estimated_users`
+    v4_coletado = (doc.get("v4") or {}).get("coleta") == "ok"
+    por_asn_usuarios = store.ixp_users_por_asn(date_str, code) if v4_coletado else {}
+
+    def usuarios_de(asn: int) -> dict:
+        row = asn_map.get(asn) or {}
+        if not row.get("is_br") or not row.get("apnic_users"):
+            return {"apnic": None, "ptt": None}
+        if not v4_coletado or not row.get("space_v4"):
+            return {"apnic": row["apnic_users"], "ptt": None}
+        c = por_asn_usuarios.get(asn)
+        return {"apnic": row["apnic_users"], "ptt": c["estimado"] if c else 0.0}
+
+    membros = store._load_ixp_members(date_str, code)
+    peers = {a: ((store.ixp_peers_stats(date_str, code, a) or {})) for a in ("v6", "v4")}
+    todos = sorted(set(membros) | {int(x) for d in peers.values() for x in d} | {m["asn"] for m in ((rs_ixp or {}).get("membros") or [])})
+    pdb = peeringdb_dos_peers(store, date_str, code, [str(a) for a in todos])
+    assin = store.ixp_assinantes(date_str, code) or {}
+
+    def pdb_de(asn: int) -> Optional[dict]:
+        portas, inst = pdb["portas"].get(str(asn)), pdb["instalacoes"].get(str(asn))
+        return {"portas_mbps": portas, "instalacoes": inst} if portas or inst else None
+
     base = p.montar(
-        date_str, code, doc, store._load_ixp_members(date_str, code), rs_ixp, store.route_servers_asns_doc(date_str), store.rs_policy_asns_doc(date_str), store.cdn_presence(date_str),
-        lambda asns: store.nomes_asns(date_str, asns, detalhe=True), lambda a: (asn_map.get(a) or {}).get("is_br"), sici_de)
+        date_str, code, doc, membros, rs_ixp, store.route_servers_asns_doc(date_str), store.rs_policy_asns_doc(date_str), store.cdn_presence(date_str),
+        lambda asns: store.nomes_asns(date_str, asns, detalhe=True), lambda a: (asn_map.get(a) or {}).get("is_br"), sici_de,
+        empresa_de=empresa_de, usuarios_de=usuarios_de, prefixos=peers, pdb_de=pdb_de, alcancado=assin.get("peers"))
     pol = store.rs_policy_ixps_doc(date_str) or {}
     fontes = {
         "cadastro": {"fonte": "IX.br (cadastro de participantes)", "snapshot": date_str},
@@ -293,13 +321,28 @@ def _participantes_base(store: Store, date_str: str, code: str, doc: dict) -> di
                                  "cobertura": (((pol.get("ixps") or {}).get(code) or {}).get("rejeicoes") or {}).get("cobertura")},
         "cdns": {"fonte": "lista curada de CDNs (config/cdns.yaml)", "snapshot": date_str},
         "sici": {"fonte": "Anatel, SICI (banda larga fixa)", "mes_referencia": sici.get("mes_referencia") or None, "snapshot": date_str},
+        "apnic": {"fonte": "APNIC Labs (usuários por AS, estimativa por amostragem)", "snapshot": date_str, "limites": p.LIMITES_USUARIOS},
+        "peeringdb": {"fonte": "PeeringDB (autodeclarado pela rede)", "snapshot": date_str, "coletado_em": pdb.get("coletado_em"), "limites": pdb.get("limites")},
+        "prefixos": {"fonte": "looking glass do IX.br (prefixos vistos no PTT)", "snapshot": date_str},
     }
-    base = {**base, "fontes": fontes}
+    resumo_usuarios = None
+    if v4_coletado:
+        na_tabela = {l["asn"] for l in base["linhas"]}
+        fora = [c["estimado"] for a, c in por_asn_usuarios.items() if a not in na_tabela]          # originam prefixos no PTT sem constar como participantes
+        resumo_usuarios = {"na_tabela": sum(l["usuarios_ptt"] for l in base["linhas"] if l["usuarios_ptt"] is not None),
+                           "fora_da_tabela": {"asns": len(fora), "usuarios": sum(fora)}, "total_do_ptt": store.ixp_estimated_users(date_str, code)["estimated_users"]}
+    base = {**base, "fontes": fontes, "usuarios_ptt_resumo": resumo_usuarios}
     with _cache_participantes_lock:
         _cache_participantes[chave] = base
         while len(_cache_participantes) > _CACHE_PARTICIPANTES_MAX:
             _cache_participantes.popitem(last=False)
     return base
+
+
+def _politica_peering(store: Store, date_str: str, asn: int) -> Optional[str]:
+    """Política de peering que a rede declarou no PeeringDB (`policy_general`, ex.: Open, Selective, Restrictive); None sem cadastro ou sem o campo. Nada além desse campo sai do documento."""
+    pdb = ((store.asn_detail(date_str, asn) or {}).get("pdb") or {}).get("policy_general")
+    return pdb if isinstance(pdb, str) and pdb.strip() else None
 
 
 @router.get(
@@ -309,7 +352,10 @@ def _participantes_base(store: Store, date_str: str, code: str, doc: dict) -> di
 Uma linha por ASN visto no cadastro do IX.br, no looking glass ou nos route servers do PTT, com as colunas que a página de PTT mostrava em blocos separados:
 `membro` (cadastro de participantes), `direto` (sessão com o route server vista no looking glass, por família; `null` quando a família não teve coleta válida),
 `originador` (prefixo visto no PTT, só para ASN brasileiro), `sessao_rs` (sessões up/down no route server, Alice-LG), `rejeicao` (rotas filtradas ÷ rotas recebidas nas sessões up, do mesmo instante),
-`rejeicao_detalhe` (rotas rejeitadas por motivo, de outra coleta, com `idade_dias` e `herdado`), `cdns` (CDNs da lista curada que são membros do PTT) e `sici`
+`rejeicao_detalhe` (rotas rejeitadas por motivo, de outra coleta, com `idade_dias` e `herdado`), `cdns` (CDNs da lista curada que são membros do PTT), `empresa` (`cnpj` e `nome` comercial do CNPJ vinculado ao ASN; `nome` nulo quando nenhuma fonte tem nome, e nunca o CNPJ no lugar dele),
+`politica_peering` (política declarada pela própria rede no PeeringDB, sem verificação), `usuarios_apnic` (usuários estimados pela APNIC para o ASN inteiro, só ASN brasileiro),
+`usuarios_ptt` (estimativa de usuários do ASN via os prefixos IPv4 vistos no PTT, só ASN brasileiro e até /24; `null` quando não se aplica). `usuarios_ptt_resumo` fecha a conta com `estimated_users` de `/ixps/{code}/estimated-users`: `na_tabela` (soma da coluna, de todas as linhas) mais `fora_da_tabela` (ASNs que originam prefixos no PTT sem constar como participantes) é o total do PTT, arredondado uma vez; `null` sem coleta IPv4 válida,
+`prefixos` (prefixos próprios e de terceiros vistos no PTT por família, os mesmos de `/ixps/{code}/peers`), `peeringdb` (portas declaradas e instalações inferidas), `sici_alcancado` (assinantes dos CNPJs nos AS-paths do ASN, por família) e `sici`
 (acessos de banda larga fixa que o CNPJ do ASN declarou ao SICI da Anatel no `mes_referencia` de `fontes.sici`; `null` sem vínculo ASN→CNPJ ou sem declaração; `compartilhado` quando o CNPJ tem mais de um ASN e o total vale em cada um).
 Membro sem sessão com o route server pode trocar tráfego por sessão bilateral, que estas fontes não observam; nenhuma coluna indica causa nem qualidade.
 
@@ -324,7 +370,7 @@ def ixp_participantes_tabela(
     q: Optional[str] = Query(None, max_length=80, description="ASN (com ou sem o prefixo AS) ou parte do nome."),
     uf: Optional[str] = Query(None, max_length=2, description="UF da sede do ASN."),
     filtro: str = Query("todos", description="Um de: todos, sem-v6, sem-v4, sem-direto, membro-sem-sessao-rs, sessao-sem-cadastro, com-cdn, com-rejeicao."),
-    ordem: str = Query("asn", description="Um de: asn, nome, uf, sessoes_rs, rejeicao, assinantes."),
+    ordem: str = Query("asn", description="Um de: asn, nome, uf, sessoes_rs, rejeicao, assinantes, usuarios_apnic, usuarios_ptt."),
     desc: bool = Query(False, description="Ordem decrescente."),
     limit: int = Query(50, ge=1, le=200),
     page: int = Query(1, ge=1),
@@ -343,7 +389,8 @@ def ixp_participantes_tabela(
         r = p.pagina(base, q, filtro, uf, ordem, desc, limit, (page - 1) * limit)
     except p.ParticipantesErro as e:
         raise HTTPException(e.status, e.mensagem)
-    return {"snapshot_date": date_str, "ixp": code, "limites": p.LIMITES, "filtros": {"q": q, "uf": uf, "filtro": filtro, "definicao_do_filtro": p.FILTROS[filtro]},
+    r["items"] = [{**l, "politica_peering": _politica_peering(store, date_str, l["asn"])} for l in r["items"]]       # só da página: o documento do ASN é lido sob demanda
+    return {"snapshot_date": date_str, "ixp": code, "limites": p.LIMITES, "limites_usuarios": p.LIMITES_USUARIOS, "usuarios_ptt_resumo": base["usuarios_ptt_resumo"], "filtros": {"q": q, "uf": uf, "filtro": filtro, "definicao_do_filtro": p.FILTROS[filtro]},
             "ordem": p.ORDENS[ordem] + (" (decrescente)" if desc else ""), "page": page, "limit": limit, "route_servers_medido": base["route_servers_medido"], "fontes": base["fontes"], **r}
 
 

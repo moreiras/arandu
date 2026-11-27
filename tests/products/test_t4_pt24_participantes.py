@@ -122,8 +122,74 @@ def test_erros_e_privacidade(api, codigos):
     assert api.get(URL.format(codigos[0]), headers=ALLOWED, params={"filtro": "x"}).status_code == 400
     assert api.get(URL.format(codigos[0]), headers=ALLOWED, params={"ordem": "x"}).status_code == 400
     texto = api.get(URL.format(codigos[0]), headers=ALLOWED, params={"limit": 200}).text
-    assert not re.search(r'"(email|e-mail|phone|telefone|contato|contacts?|cnpj)"', texto)
+    assert not re.search(r'"(email|e-mail|phone|telefone|contato|contacts?)"', texto)       # `empresa.cnpj` entra para o link à operadora (já é público em /assinantes)
     assert not re.search(r"[\w.+-]+@[\w-]+\.[\w.]+", texto)                     # nenhum e-mail em lugar nenhum da resposta
+
+
+def test_soma_da_coluna_de_usuarios_via_ptt_e_o_estimated_users_do_ptt(api, codigos):
+    """As duas colunas de usuários (PT-24): a estimativa por ASN sai da mesma função do total do PTT, então a soma da coluna fecha com `/estimated-users`."""
+    com_valor = 0
+    for code in codigos:
+        _, itens = _todas(api, code)
+        est = api.get(f"/api/v1/ixps/{code}/estimated-users", headers=ALLOWED).json()
+        v4_ok = _get(api, code)["fontes"]["looking_glass"]["coleta"]["v4"] == "ok"
+        soma = sum(l["usuarios_ptt"] for l in itens if l["usuarios_ptt"] is not None)
+        resumo = _get(api, code)["usuarios_ptt_resumo"]
+        if v4_ok:
+            # linhas = participantes; quem origina prefixos no PTT sem ser participante fica fora da tabela e o resumo diz quanto
+            assert resumo["na_tabela"] == pytest.approx(soma) and resumo["total_do_ptt"] == est["estimated_users"], code
+            assert round(soma + resumo["fora_da_tabela"]["usuarios"]) == est["estimated_users"], code
+            assert sum(1 for l in itens if l["usuarios_ptt"]) + resumo["fora_da_tabela"]["asns"] <= est["contributing_asns"]
+        else:
+            assert resumo is None
+        com_valor += bool(soma)
+        for l in itens:
+            if l["usuarios_ptt"] is not None:
+                assert l["usuarios_apnic"] is not None and 0 <= l["usuarios_ptt"] <= l["usuarios_apnic"] + 1e-6, (code, l["asn"])
+            if l["is_br"] is False:
+                assert l["usuarios_apnic"] is None and l["usuarios_ptt"] is None
+    assert com_valor, "o dataset sintético tem originador brasileiro com usuários APNIC"
+
+
+def test_colunas_de_usuarios_ordenam_sem_virar_ordem_padrao(api, codigos):
+    code = codigos[0]
+    assert _get(api, code)["ordem"].startswith("ASN")
+    for campo in ("usuarios_apnic", "usuarios_ptt"):
+        itens = _get(api, code, ordem=campo, desc=True, limit=200)["items"]
+        vals = [l[campo] if l[campo] is not None else -1 for l in itens]
+        assert vals == sorted(vals, reverse=True), campo
+
+
+def test_empresa_nunca_e_o_cnpj_e_politica_peering_vem_do_peeringdb(api, codigos):
+    empresas = politicas = prefixos = 0
+    for code in codigos:
+        _, itens = _todas(api, code)
+        for l in itens:
+            e = l["empresa"]
+            if e:
+                empresas += 1
+                assert re.fullmatch(r"\d{14}", e["cnpj"]) and e["nome"] != e["cnpj"] and (e["nome"] is None or not re.fullmatch(r"[\d./-]+", e["nome"])), (code, l["asn"])
+            if l["politica_peering"]:
+                politicas += 1
+                assert l["politica_peering"] == "Open"                       # `policy_general` do PeeringDB sintético
+            assert set(l["prefixos"]) == {"v6", "v4"}
+            for st in l["prefixos"].values():
+                if st:
+                    prefixos += 1
+                    assert st["own_prefixes"] >= 0 and st["third_prefixes"] >= 0
+    assert empresas and politicas and prefixos
+    f = _get(api, codigos[0])["fontes"]
+    assert f["peeringdb"]["fonte"] and f["apnic"]["limites"] and "uniforme" in f["apnic"]["limites"]
+
+
+def test_prefixos_da_linha_batem_com_a_rota_peers(api, codigos):
+    for code in codigos:
+        _, itens = _todas(api, code)
+        for afi in ("v6", "v4"):
+            peers = (api.get(f"/api/v1/ixps/{code}/peers", headers=ALLOWED, params={"afi": afi}).json() or {}).get("peers") or {}
+            por_asn = {l["asn"]: l["prefixos"][afi] for l in itens}
+            for asn, st in peers.items():
+                assert por_asn.get(int(asn)) == st, (code, afi, asn)
 
 
 def test_lista_de_ptts_traz_sessoes_por_familia_e_cdns_com_fonte_e_data(api, codigos):

@@ -37,12 +37,20 @@ ORDENS = {
     "sessoes_rs": "número de sessões com o route server",
     "rejeicao": "rotas filtradas ÷ recebidas nas sessões up",
     "assinantes": "acessos de banda larga fixa declarados ao SICI (Anatel) pelo CNPJ do ASN",
+    "usuarios_apnic": "usuários estimados pela APNIC para o ASN inteiro (só ASN brasileiro)",
+    "usuarios_ptt": "estimativa de usuários do ASN via os prefixos IPv4 vistos no PTT",
 }
 LIMITES = ("Cada linha é um ASN visto no cadastro do IX.br, no looking glass ou nos route servers do PTT. 'Direto' é a sessão com o route server vista no looking glass; 'membro' é o cadastro do IX.br; "
            "as duas coisas são diferentes, e membro sem sessão pode trocar tráfego por sessão bilateral, que estas fontes não observam. Família sem coleta válida aparece como 'sem coleta', nunca como ausência. "
            "'Originador' vale só para ASN brasileiro (a lista publicada). A rejeição é o contador de rotas filtradas dividido pelo de rotas recebidas nas sessões up do route server, do mesmo instante; "
            "o número de rotas por motivo vem de outra coleta, com a idade dela. 'Assinantes' são os acessos de banda larga fixa que o CNPJ do ASN declarou ao SICI da Anatel no mês de referência "
-           "(data diferente da do snapshot); vale só para ASN com CNPJ vinculado e, quando o CNPJ tem mais de um ASN, o mesmo total aparece em cada um (não some). Não é ranking nem diz quem tem razão.")
+           "(data diferente da do snapshot); vale só para ASN com CNPJ vinculado e, quando o CNPJ tem mais de um ASN, o mesmo total aparece em cada um (não some). Não é ranking nem diz quem tem razão. "
+           "'Empresa' é o nome comercial do CNPJ vinculado ao ASN (Anatel); sem nome nas fontes, a coluna fica em branco e o CNPJ não é usado como nome. 'Política de peering' é o que a própria rede declarou no PeeringDB, sem verificação.")
+LIMITES_USUARIOS = ("Usuários APNIC (total do AS): a APNIC estima usuários por AS por amostragem de anúncios, não por prefixo; só ASN brasileiro (os demais ficam em branco). "
+                    "Dos quais via prefixos vistos no PTT (estimado): usuários APNIC do AS multiplicados pela parte do espaço IPv4 anunciado pelo AS que aparece neste PTT (prefixos até /24, sem contar blocos aninhados duas vezes). "
+                    "A conta supõe usuários distribuídos de modo uniforme pelo espaço IPv4 do AS; não vale bem com CGNAT, blocos de servidor nem para IPv6. É só IPv4, só ASN brasileiro e só prefixos até /24. "
+                    "'Visto no PTT' inclui prefixos anunciados por terceiros, então pode haver valor para um ASN sem sessão. Somar o valor entre PTTs conta o mesmo usuário mais de uma vez. "
+                    "A soma da coluna, mais a de ASNs que anunciam prefixos no PTT sem constar como participantes, é a estimativa de usuários do PTT; os valores exibidos são arredondados.")
 
 
 class ParticipantesErro(Exception):
@@ -79,9 +87,15 @@ def _rejeicao(lista: list[dict]) -> Optional[dict]:
 
 
 def montar(date_str: str, code: str, ixp: dict, membros: set[int], rs_ixp: Optional[dict], rs_asns: Optional[dict], pol_asns: Optional[dict], cdns: Optional[dict],
-           nomes_de: Callable[[list[int]], dict], br_de: Callable[[int], Optional[bool]], sici_de: Optional[Callable[[int], Optional[dict]]] = None) -> dict:
+           nomes_de: Callable[[list[int]], dict], br_de: Callable[[int], Optional[bool]], sici_de: Optional[Callable[[int], Optional[dict]]] = None,
+           empresa_de: Optional[Callable[[int], Optional[dict]]] = None, usuarios_de: Optional[Callable[[int], Optional[dict]]] = None,
+           prefixos: Optional[dict[str, dict]] = None, pdb_de: Optional[Callable[[int], Optional[dict]]] = None,
+           alcancado: Optional[dict[str, dict]] = None) -> dict:
     """Todas as linhas do PTT (sem filtro nem página) e os metadados. `nomes_de(asns)` devolve `{str(asn): {name, uf}}`; `br_de(asn)` diz se o ASN é brasileiro (LACNIC);
-    `sici_de(asn)` devolve `{acessos, compartilhado}` do CNPJ do ASN no SICI, ou None quando não há vínculo ASN→CNPJ ou o CNPJ não declarou."""
+    `sici_de(asn)` devolve `{acessos, compartilhado}` do CNPJ do ASN no SICI, ou None quando não há vínculo ASN→CNPJ ou o CNPJ não declarou.
+    `empresa_de(asn)` devolve `{cnpj, nome}` (nome None sem nome nas fontes); `usuarios_de(asn)` devolve `{apnic, ptt}` (cada um None quando não se aplica);
+    `prefixos` é `{afi: {str(asn): estatísticas de prefixos do peer}}` (de `/ixps/{code}/peers`); `pdb_de(asn)` devolve `{portas_mbps, instalacoes}` do PeeringDB;
+    `alcancado` é `{afi: {str(asn): assinantes SICI alcançados pelo peer}}`."""
     fam = {"v6": _familia(ixp, "v6"), "v4": _familia(ixp, "v4")}
     rs_membros = {m["asn"]: m for m in ((rs_ixp or {}).get("membros") or [])}
     rs_medido = bool(rs_ixp) and ((rs_ixp.get("resumo") or {}).get("rs_consultados") or 0) > 0
@@ -117,6 +131,12 @@ def montar(date_str: str, code: str, ixp: dict, membros: set[int], rs_ixp: Optio
             "rejeicao_detalhe": detalhe,
             "cdns": sorted(por_asn_cdn.get(asn, [])),
             "sici": sici_de(asn) if sici_de else None,
+            "empresa": empresa_de(asn) if empresa_de else None,
+            "usuarios_apnic": (usuarios_de(asn) or {}).get("apnic") if usuarios_de else None,
+            "usuarios_ptt": (usuarios_de(asn) or {}).get("ptt") if usuarios_de else None,
+            "prefixos": {a: ((prefixos or {}).get(a) or {}).get(str(asn)) for a in ("v6", "v4")},
+            "peeringdb": pdb_de(asn) if pdb_de else None,
+            "sici_alcancado": {a: ((alcancado or {}).get(a) or {}).get(str(asn)) for a in ("v6", "v4")},
         })
     return {"linhas": linhas, "familias": {a: f["coleta"] for a, f in fam.items()}, "route_servers_medido": rs_medido}
 
@@ -162,6 +182,8 @@ def _chave(ordem: str):
         return lambda l: ((l["rejeicao"] or {}).get("pct") if (l["rejeicao"] or {}).get("pct") is not None else -1, l["asn"])
     if ordem == "assinantes":
         return lambda l: ((l["sici"] or {}).get("acessos", -1), l["asn"])
+    if ordem in ("usuarios_apnic", "usuarios_ptt"):
+        return lambda l: (l[ordem] if l[ordem] is not None else -1, l["asn"])
     return lambda l: l["asn"]
 
 

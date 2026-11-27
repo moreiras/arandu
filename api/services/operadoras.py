@@ -250,12 +250,8 @@ class OperadorasService:
             return []
         return [row for row in data.get("by_cnpj", {}).values() if row.get("grupo_id")]
 
-    def _display_name_for_cnpj(self, date_str: str, cnpj: str) -> str:
-        """Nome comercial de exibição — mesma cadeia de fallback da página de
-        Operadora (OperadoraPage.tsx): SICI fixo → SICI móvel → outorga SCM →
-        SMP → STFC → SeAC → o próprio CNPJ, se nada mais existir. Um CNPJ que só
-        tem outorga SMP/STFC/SeAC (sem SCM nem declaração ao SICI) não tinha
-        nome nenhum antes desse fallback completo."""
+    def nome_comercial_do_cnpj(self, date_str: str, cnpj: str) -> Optional[str]:
+        """Nome comercial de exibição de um CNPJ (cadeia de `_display_name_for_cnpj`), ou None quando nenhuma fonte tem nome: quem exibe não mostra o CNPJ como nome."""
         agg = self.sici_for_cnpj(date_str, cnpj)
         if agg and agg.get("empresa"):
             return agg["empresa"]
@@ -272,7 +268,15 @@ class OperadorasService:
                 nome = outorgas[0].get("razao_social") or outorgas[0].get("nome_fantasia")
                 if nome:
                     return nome
-        return cnpj
+        return None
+
+    def _display_name_for_cnpj(self, date_str: str, cnpj: str) -> str:
+        """Nome comercial de exibição — mesma cadeia de fallback da página de
+        Operadora (OperadoraPage.tsx): SICI fixo → SICI móvel → outorga SCM →
+        SMP → STFC → SeAC → o próprio CNPJ, se nada mais existir. Um CNPJ que só
+        tem outorga SMP/STFC/SeAC (sem SCM nem declaração ao SICI) não tinha
+        nome nenhum antes desse fallback completo."""
+        return self.nome_comercial_do_cnpj(date_str, cnpj) or cnpj
 
     def outorgas_flags_for_cnpj(self, date_str: str, cnpj: str) -> dict[str, bool]:
         """Quais das 4 outorgas Anatel (SCM/SMP/STFC/SeAC) um CNPJ tem — para
