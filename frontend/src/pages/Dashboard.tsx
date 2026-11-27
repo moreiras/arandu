@@ -190,7 +190,7 @@ export function Dashboard() {
         </div>
 
         <p className="text-xs text-gray-400 mt-1.5">
-          Cada célula = bloco /16. Intensidade proporcional ao número de /24s presentes.
+          Cada célula = bloco /16. A intensidade cresce com o número de /24 presentes; todo bloco com dado aparece, mesmo com um só /24.
           Clique em um bloco /8 destacado para ampliar.
         </p>
       </div>

@@ -17,6 +17,7 @@ import {
   block16ToSlash8,
   hexToRGB,
   mouseToBlock16,
+  opacidadeDensidade,
 } from './hilbert'
 import { ZoomModalV4 } from './IXPHilbertZoom'
 
@@ -38,7 +39,7 @@ function renderSingle(
   for (let d = 0; d < 65536; d++) {
     const count = density[d]
     if (!count) continue
-    const opacity = 0.18 + (count / 256) * 0.70
+    const opacity = opacidadeDensidade(count)
     const { x, y } = GRID16[d]
     for (let cy = 0; cy < CELL; cy++) {
       for (let cx = 0; cx < CELL; cx++) {
@@ -67,7 +68,7 @@ function renderDual(
     const total = ownCount + thirdCount
     if (!total) continue
 
-    const opacity = 0.18 + (Math.min(total, 256) / 256) * 0.70
+    const opacity = opacidadeDensidade(total)
     // Blend: blue × own_pct + orange × third_pct
     const ownPct = ownCount / total
     const thirdPct = 1 - ownPct
@@ -234,7 +235,7 @@ export function IXPHilbert16({
       ) : (
         <p className="text-xs text-gray-500">
           <span className="inline-block w-3 h-3 rounded-sm align-middle mr-1" style={{ background: COLOR_ALL }} />
-          Prefixos IPv4 anunciados neste IXP. Intensidade proporcional ao número de /24s no bloco /16.
+          Prefixos IPv4 anunciados neste IXP. A intensidade cresce com o número de /24 no bloco /16; todo bloco com dado aparece, mesmo com um só /24.
         </p>
       )}
 
