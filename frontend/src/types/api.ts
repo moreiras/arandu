@@ -1952,6 +1952,9 @@ export interface HistoricoBloco {
   snapshots_com_historico: number
   colunas: string[]
   serie: Array<{ date: string } & Record<string, number | string | null | undefined>>
+  /** Comparabilidade de cada coluna da série (PT-28, `core/comparabilidade.py`): cortes, trechos, linha só com pontos comparáveis e variação só entre comparáveis. */
+  metricas?: MetricaHistorico[]
+  regra?: { versao: number; min_pontos_linha: number; motivos: Record<string, string>; texto: string[] }
   eventos: HistoricoEvento[]
   eventos_total: number
 }
@@ -1966,6 +1969,17 @@ export interface HistoricoEvento {
   para?: unknown
   estado: 'pendente' | 'confirmado' | 'revertido'
   destaque?: boolean
+  /** Motivo da data atípica marcada (D7): o evento é mantido, mas a data é sinalizada. */
+  atipico?: string
+}
+
+export interface MetricaHistorico {
+  id: string
+  desenhar_linha: boolean
+  segmentos: number[][]
+  pontos: Array<{ date: string; comparavel_com_anterior: boolean | null; motivos: string[] }>
+  variacao?: { de: string; para: string; calculada: boolean; absoluta: number | null; unidade: string | null; pct: number | null; motivos: string[] }
+  nota?: string
 }
 
 /** Indicadores do SICI. Dado DECLARADO à Anatel; parcela e HHI são sobre acessos declarados, não sobre receita. */

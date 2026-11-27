@@ -23,11 +23,11 @@ const ver = (h?: HistoricoBloco | null, escopo: 'asn' | 'ixp' | 'operadora' | 'u
   render(<MemoryRouter><LinhaDoTempo historico={h} escopo={escopo} /></MemoryRouter>)
 
 describe('LinhaDoTempo', () => {
-  it('desenha uma miniatura por métrica com o valor mais recente e a variação', () => {
+  it('desenha uma miniatura por métrica com o valor mais recente, a data e, sem anotação da API, nenhuma variação', () => {
     const { container } = ver(historico)
-    expect(screen.getByText('Usuários estimados (APNIC)')).toBeTruthy()
-    expect(screen.getByText('140')).toBeTruthy()
-    expect(screen.getByText(/\+40 desde 2026-10-29/)).toBeTruthy()
+    const cartao = screen.getAllByTestId('linha-do-tempo-metrica')[0]
+    expect(cartao.textContent).toMatch(/Usuários estimados \(APNIC\)140em 2026-10-31/)
+    expect(screen.queryByTestId('linha-do-tempo-variacao')).toBeNull()
     expect(container.querySelectorAll('svg').length).toBe(3)
     expect(screen.getByText(/3 snapshots com histórico, de 2026-10-29 a 2026-10-31/)).toBeTruthy()
   })
@@ -58,6 +58,40 @@ describe('LinhaDoTempo', () => {
     const { container } = ver({ ...historico, serie: [historico.serie[0]], eventos: [], eventos_total: 0 })
     expect(container.querySelectorAll('circle').length).toBe(3)
     expect(screen.getByText(/Nenhuma mudança observada/)).toBeTruthy()
+  })
+})
+
+describe('LinhaDoTempo com a regra de comparabilidade (PT-28)', () => {
+  const regra = { versao: 1, min_pontos_linha: 4, motivos: { data_atipica: 'um dos pontos está numa data atípica marcada', ausente: 'falta a medida em um dos pontos' }, texto: ['Variação só entre pontos comparáveis.'] }
+  const pontos = (flags: Array<boolean | null>) => flags.map((f, i) => ({ date: `2026-10-0${i + 1}`, comparavel_com_anterior: f, motivos: f === false ? ['data_atipica'] : [] }))
+  const base = (metricas: HistoricoBloco['metricas'], n: number): HistoricoBloco => ({
+    completo: true, snapshots_com_historico: n, colunas: ['users'], regra, metricas,
+    serie: Array.from({ length: n }, (_, i) => ({ date: `2026-10-0${i + 1}`, users: 100 + i })), eventos: [], eventos_total: 0,
+  })
+
+  it('variação calculada aparece com o intervalo; a linha só liga trechos com 4 pontos comparáveis', () => {
+    const m = { id: 'users', desenhar_linha: true, segmentos: [[0, 1, 2, 3]], pontos: pontos([null, true, true, true]), variacao: { de: '2026-10-01', para: '2026-10-04', calculada: true, absoluta: 3, unidade: 'absoluta', pct: 3, motivos: [] } }
+    const { container } = ver(base([m], 4))
+    expect(screen.getByTestId('linha-do-tempo-variacao').textContent).toBe('+3 entre 2026-10-01 e 2026-10-04')
+    expect(container.querySelectorAll('polyline').length).toBe(1)
+  })
+
+  it('série curta fica só em pontos, sem linha, e a variação não calculada traz o motivo, nunca zero', () => {
+    const m = { id: 'users', desenhar_linha: false, segmentos: [[0], [1, 2]], pontos: pontos([null, false, true]), variacao: { de: '2026-10-01', para: '2026-10-03', calculada: false, absoluta: null, unidade: null, pct: null, motivos: ['data_atipica'] } }
+    const { container } = ver(base([m], 3))
+    expect(container.querySelectorAll('polyline').length).toBe(0)
+    expect(container.querySelectorAll('line[stroke-dasharray="3 3"]').length).toBe(1)
+    expect(screen.getByTestId('linha-do-tempo-variacao').textContent).toMatch(/Variação não calculada entre 2026-10-01 e 2026-10-03: um dos pontos está numa data atípica marcada/)
+  })
+
+  it('traz o "Como ler" da regra, a tabela dos mesmos números e a marca de data atípica no evento', () => {
+    const h = base([], 3)
+    h.eventos = [{ data: '2026-10-02', tipo: 'roa_perdido', entidade: 'asn:1', chave: '', estado: 'confirmado', atipico: 'campo ausente' }]
+    h.eventos_total = 1
+    ver(h)
+    expect(screen.getByText('Variação só entre pontos comparáveis.')).toBeTruthy()
+    expect(screen.getByTestId('ver-dados')).toBeTruthy()
+    expect(screen.getByText('data atípica marcada')).toBeTruthy()
   })
 })
 
