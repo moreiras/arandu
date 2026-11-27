@@ -16,8 +16,10 @@ import {
 } from './hilbert'
 import { ZoomModalV6 } from './IXPHilbertZoom'
 import { corLegivel } from '../../lib/contraste'
+import { QuadrantesTeclado } from './QuadrantesTeclado'
 import { AneisIsoladas } from './AneisIsoladas'
 import { celulasIsoladas, posicaoCelulaV6, RAIO_MARCADOR_PX, TRACO_MARCADOR_PX } from './isoladas'
+import { nomeAmpliar, prefixoQuadranteV6 } from './quadrantes'
 
 export type V6LayerKey = 'rir_br' | 'global_br' | 'global_all' | 'ixp_all' | 'rir_br_visible'
 
@@ -187,6 +189,11 @@ export function HilbertMapV6Block({ config, data: dataProp, activeLayer, cssWidt
     const pos = posicaoCelulaV6(config.gridSize)
     return celulasIsoladas(activeCells, pos, config.gridSize, cssWidth).map(pos)
   }, [activeCells, config.gridSize, cssWidth])
+  const quadrantes = useMemo(() => [...activeSquares].map((idx) => {
+    const col = idx % numCols
+    const lin = Math.floor(idx / numCols)
+    return { col, lin, nome: nomeAmpliar(prefixoQuadranteV6(config, col, lin)), aoAbrir: () => setZoomedSquare({ gx: col, gy: lin }) }
+  }), [activeSquares, numCols, config])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -289,6 +296,7 @@ export function HilbertMapV6Block({ config, data: dataProp, activeLayer, cssWidt
             </svg>
           )
         })()}
+        <QuadrantesTeclado lado={numCols} quadrantes={quadrantes} />
         {tooltip !== null && (
           <div
             className="absolute z-10 bg-white border border-gray-200 rounded shadow-md px-2 py-1.5 pointer-events-none"

@@ -167,7 +167,7 @@ function CurvaAsn({ doc, fam }: { doc: ASNDocument; fam: Familia }) {
           onCamada={trocar}
           dualLayers={[]}
           rotuloBloco={(cfg: V6BlockConfig) => nomeCanvas(`, bloco ${cfg.label} (${cfg.rir})`, nNoBloco(cfg.id))}
-          rodape={`Os seis blocos de RIR aparecem sempre, como no panorama técnico; só os prefixos do AS são coloridos. Cada célula é um /32; um prefixo menor que o /32 marca o /32 que o contém. Passe o mouse para ver o prefixo. Clique em blocos destacados para ampliar. ${LEGENDA_MARCADOR}`}
+          rodape={`Os seis blocos de RIR aparecem sempre, como no panorama técnico; só os prefixos do AS são coloridos. Cada célula é um /32; um prefixo menor que o /32 marca o /32 que o contém. Passe o mouse para ver o prefixo. Clique em blocos destacados, ou use Tab e Enter, para ampliar. ${LEGENDA_MARCADOR}`}
         />
       ) : (
         <CurvaV4 dados={dadosV4!} meta={meta} camada={camada} onCamada={trocar} rotulo={nomeCanvas(', grade de /16 com /8 numerados', itens.length)} />

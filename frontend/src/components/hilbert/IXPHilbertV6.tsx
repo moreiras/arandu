@@ -19,8 +19,10 @@ import {
 import { renderV6Block } from './HilbertMapV6Block'
 import { ZoomModalV6 } from './IXPHilbertZoom'
 import type { IXPHilbertV6Blocks } from '../../types/api'
+import { QuadrantesTeclado } from './QuadrantesTeclado'
 import { AneisIsoladas } from './AneisIsoladas'
 import { LEGENDA_MARCADOR, celulasIsoladas, posicaoCelulaV6, RAIO_MARCADOR_PX, TRACO_MARCADOR_PX } from './isoladas'
+import { nomeAmpliar, prefixoQuadranteV6 } from './quadrantes'
 
 // Passo de grade = /20 para todos os blocos:
 // - Legado /16 (gridSize=256): step=64 → 4×4 = 16 quadrados de /20
@@ -153,6 +155,11 @@ function IXPV6Block({ config, allCells, ownCells, thirdCells, isPeerMode, cssWid
     const pos = posicaoCelulaV6(config.gridSize)
     return celulasIsoladas(activeCellsForGrid, pos, config.gridSize, cssWidth).map(pos)
   }, [activeCellsForGrid, config.gridSize, cssWidth])
+  const quadrantes = useMemo(() => [...activeSquares].map((idx) => {
+    const col = idx % numCols
+    const lin = Math.floor(idx / numCols)
+    return { col, lin, nome: nomeAmpliar(prefixoQuadranteV6(config, col, lin)), aoAbrir: () => setZoomedSquare({ gx: col, gy: lin }) }
+  }), [activeSquares, numCols, config])
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -237,6 +244,7 @@ function IXPV6Block({ config, allCells, ownCells, thirdCells, isPeerMode, cssWid
           })}
           <AneisIsoladas pontos={aneis} gridSize={gridSize} larguraCss={cssWidth} raioPx={RAIO_MARCADOR_PX} tracoPx={TRACO_MARCADOR_PX} />
         </svg>
+        <QuadrantesTeclado lado={numCols} quadrantes={quadrantes} />
         {/* Tooltip */}
         {tooltip !== null && hd >= 0 && (
           <div
