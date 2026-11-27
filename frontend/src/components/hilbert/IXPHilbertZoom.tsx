@@ -4,7 +4,7 @@
  * ZoomModalV4  — amplia um /8 com granularidade /24 (256×256 Hilbert), grade /16, tooltip /24.
  * ZoomModalV6  — amplia um /20 (64×64 de /32), grade /28, tooltip /32.
  */
-import { useRef, useEffect, useMemo, useState, useCallback } from 'react'
+import { useRef, useEffect, useId, useMemo, useState, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   d2xy,
@@ -15,6 +15,7 @@ import {
 } from './hilbert'
 import { fetchIXPHilbertV4Detail, fetchHilbertV4Detail } from '../../services/api'
 import type { LayerKey } from './HilbertMap16'
+import { ModalAcessivel } from '../ui/ModalAcessivel'
 
 const ZOOM_CANVAS = 512
 const ZOOM_CSS    = 440
@@ -85,6 +86,7 @@ export function ZoomModalV4({
   densityAll, densityOwn, densityThird,
   isPeerMode, onClose,
 }: ZoomV4Props) {
+  const idTitulo = useId()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [tooltip, setTooltip] = useState<Tooltip4 | null>(null)
 
@@ -285,21 +287,17 @@ export function ZoomModalV4({
   }, [hasDetail, detailData, blockIndices, densityAll, densityOwn, densityThird, isPeerMode, slashEight])
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={onClose}>
-      <div
-        className="bg-white rounded-xl shadow-2xl p-5 flex gap-5 max-h-[90vh]"
-        onClick={e => e.stopPropagation()}
-      >
+    <ModalAcessivel idTitulo={idTitulo} onClose={onClose}>
         {/* Canvas */}
         <div className="flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h3 className="font-mono font-semibold text-gray-900 text-sm">{slashEight}.0.0.0/8</h3>
+              <h3 id={idTitulo} className="font-mono font-semibold text-gray-900 text-sm">{slashEight}.0.0.0/8</h3>
               {loadingDetail && (
                 <span className="text-xs text-gray-400 animate-pulse">carregando /24…</span>
               )}
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-2xl leading-none ml-4">&times;</button>
+            <button type="button" onClick={onClose} aria-label="Fechar" className="text-gray-600 hover:text-gray-900 text-2xl leading-none ml-4 min-h-[28px] min-w-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario-700"><span aria-hidden="true">&times;</span></button>
           </div>
           <div className="relative">
             <canvas
@@ -401,8 +399,7 @@ export function ZoomModalV4({
             </>
           )}
         </div>
-      </div>
-    </div>
+    </ModalAcessivel>
   )
 }
 
@@ -437,6 +434,7 @@ export function ZoomModalDashV4({
   activeLayer, layerColor, density,
   date, semDetalhe, onClose,
 }: ZoomDashV4Props) {
+  const idTitulo = useId()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [tooltip, setTooltip] = useState<Tooltip4Dash | null>(null)
 
@@ -564,20 +562,16 @@ export function ZoomModalDashV4({
   }, [hasDetail, detailData, blockIndices, density, slashEight])
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={onClose}>
-      <div
-        className="bg-white rounded-xl shadow-2xl p-5 flex gap-5 max-h-[90vh]"
-        onClick={e => e.stopPropagation()}
-      >
+    <ModalAcessivel idTitulo={idTitulo} onClose={onClose}>
         <div className="flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h3 className="font-mono font-semibold text-gray-900 text-sm">{slashEight}.0.0.0/8</h3>
+              <h3 id={idTitulo} className="font-mono font-semibold text-gray-900 text-sm">{slashEight}.0.0.0/8</h3>
               {loadingDetail && (
                 <span className="text-xs text-gray-400 animate-pulse">carregando /24…</span>
               )}
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-2xl leading-none ml-4">&times;</button>
+            <button type="button" onClick={onClose} aria-label="Fechar" className="text-gray-600 hover:text-gray-900 text-2xl leading-none ml-4 min-h-[28px] min-w-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario-700"><span aria-hidden="true">&times;</span></button>
           </div>
           <div className="relative">
             <canvas
@@ -660,8 +654,7 @@ export function ZoomModalDashV4({
             </>
           )}
         </div>
-      </div>
-    </div>
+    </ModalAcessivel>
   )
 }
 
@@ -692,6 +685,7 @@ export function ZoomModalV6({
   allCells, ownCells, thirdCells,
   isPeerMode, color, onClose,
 }: ZoomV6Props) {
+  const idTitulo = useId()
   const singleColor = color ?? COLOR_ALL
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [tooltip, setTooltip] = useState<Tooltip6 | null>(null)
@@ -824,16 +818,12 @@ export function ZoomModalV6({
   const gridLines = Array.from({ length: 15 }, (_, i) => (i + 1) * (ZOOM_CANVAS / 16))
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={onClose}>
-      <div
-        className="bg-white rounded-xl shadow-2xl p-5 flex gap-5 max-h-[90vh]"
-        onClick={e => e.stopPropagation()}
-      >
+    <ModalAcessivel idTitulo={idTitulo} onClose={onClose}>
         {/* Canvas */}
         <div className="flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-mono font-semibold text-gray-900 text-sm">{slashTwentyPrefix}</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-2xl leading-none ml-4">&times;</button>
+            <h3 id={idTitulo} className="font-mono font-semibold text-gray-900 text-sm">{slashTwentyPrefix}</h3>
+            <button type="button" onClick={onClose} aria-label="Fechar" className="text-gray-600 hover:text-gray-900 text-2xl leading-none ml-4 min-h-[28px] min-w-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario-700"><span aria-hidden="true">&times;</span></button>
           </div>
           <div className="relative">
             <canvas
@@ -910,7 +900,6 @@ export function ZoomModalV6({
             </>
           )}
         </div>
-      </div>
-    </div>
+    </ModalAcessivel>
   )
 }
