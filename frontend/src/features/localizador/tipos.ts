@@ -39,6 +39,8 @@ export interface ScmGeoFeature {
     /** Declarou acessos no mês de referência do SICI (ausente em snapshot antigo). */
     sici_ativo?: boolean
     sici_mes_referencia?: string
+    /** Tecnologia predominante declarada pela empresa ao SICI (nacional, por CNPJ; não é a do município). */
+    sici_tecnologia?: string
   }
 }
 

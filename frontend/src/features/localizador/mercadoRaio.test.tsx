@@ -6,7 +6,7 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { mercadoNoRaio, outorgasSemDeclaracaoNoRaio } from './calculos'
+import { infoPorCnpj, mercadoNoRaio, outorgasSemDeclaracaoNoRaio } from './calculos'
 import { BlocoMercado } from './BlocoMercado'
 import type { MunicipioSici, ScmGeoFeature } from './tipos'
 
@@ -47,5 +47,18 @@ describe('mercado de banda larga fixa no raio (PT-26 / localizador 5.4)', () => 
     expect(t).toMatch(/método do projeto/)
     expect(screen.getByRole('link', { name: 'EA' })).toHaveAttribute('href', '/operadora/A')
     expect(t).not.toMatch(/omi[s]s|irregular|infra[çc]/i)
+  })
+
+  it('colunas de tecnologia, ASNs e outorga SCM por CNPJ; sem dado, traço (PT-26 / localizador 5.4)', () => {
+    const mercado = mercadoNoRaio([mun('1', [['A', 600], ['B', 400]])])!
+    const scms = [{ ...scm('A', true), properties: { ...scm('A', true).properties, sici_tecnologia: 'Satélite' } }]
+    const info = infoPorCnpj(['A', 'B'], scms, new Map([['A', new Set([64512, 64496])]]), new Set(['A']))
+    expect(info.get('A')).toEqual({ tecnologia: 'Satélite', asns: [64496, 64512], outorgaScm: true })
+    expect(info.get('B')).toEqual({ tecnologia: '', asns: [], outorgaScm: false })
+    render(<MemoryRouter><BlocoMercado mercado={mercado} mesReferencia="2026-09" snapshot="2026-11-22" outorgas={{ total: 0, semDeclaracao: 0 }} info={info} /></MemoryRouter>)
+    const linhas = [...screen.getByTestId('localizador-mercado').querySelectorAll('tbody tr')].map(tr => [...tr.querySelectorAll('td')].slice(4).map(td => td.textContent))
+    expect(linhas).toEqual([['Satélite', 'AS64496, AS64512', 'sim'], ['—', '—', 'não']])
+    expect(screen.getByRole('link', { name: 'AS64496' })).toHaveAttribute('href', '/asn/64496')
+    expect(screen.getByTestId('localizador-mercado').textContent).toMatch(/predominante que a empresa declara ao SICI no país inteiro/)
   })
 })
