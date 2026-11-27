@@ -313,7 +313,7 @@ export function IXPHilbert16({
                 })}
               </svg>
 
-              <QuadrantesTeclado lado={16} quadrantes={quadrantes} />
+              <QuadrantesTeclado lado={16} quadrantes={quadrantes} rotulo="Quadrantes do mapa IPv4, use as setas" />
 
               {/* Tooltip */}
               {tooltip !== null && (() => {

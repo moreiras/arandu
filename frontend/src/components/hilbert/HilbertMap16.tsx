@@ -271,7 +271,7 @@ export function HilbertMap16({ data: dataProp, activeLayer, width = CANVAS_PX, d
           })}
         </svg>
 
-        <QuadrantesTeclado lado={16} quadrantes={quadrantes} />
+        <QuadrantesTeclado lado={16} quadrantes={quadrantes} rotulo="Quadrantes do mapa IPv4, use as setas" />
 
         {tooltip !== null && (() => {
           const { blockIdx, cssX, cssY } = tooltip

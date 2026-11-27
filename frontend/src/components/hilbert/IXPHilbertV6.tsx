@@ -244,7 +244,7 @@ function IXPV6Block({ config, allCells, ownCells, thirdCells, isPeerMode, cssWid
           })}
           <AneisIsoladas pontos={aneis} gridSize={gridSize} larguraCss={cssWidth} raioPx={RAIO_MARCADOR_PX} tracoPx={TRACO_MARCADOR_PX} />
         </svg>
-        <QuadrantesTeclado lado={numCols} quadrantes={quadrantes} />
+        <QuadrantesTeclado lado={numCols} quadrantes={quadrantes} rotulo={`Quadrantes do mapa IPv6 ${config.label}, use as setas`} />
         {/* Tooltip */}
         {tooltip !== null && hd >= 0 && (
           <div

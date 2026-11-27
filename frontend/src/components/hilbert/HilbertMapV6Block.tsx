@@ -296,7 +296,7 @@ export function HilbertMapV6Block({ config, data: dataProp, activeLayer, cssWidt
             </svg>
           )
         })()}
-        <QuadrantesTeclado lado={numCols} quadrantes={quadrantes} />
+        <QuadrantesTeclado lado={numCols} quadrantes={quadrantes} rotulo={`Quadrantes do mapa IPv6 ${config.label}, use as setas`} />
         {tooltip !== null && (
           <div
             className="absolute z-10 bg-white border border-gray-200 rounded shadow-md px-2 py-1.5 pointer-events-none"
