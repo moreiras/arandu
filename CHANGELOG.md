@@ -5,6 +5,12 @@
 Correções e melhorias da análise do OBINT (instância pública), integradas na branch `correcoes-obint`. Os identificadores entre
 parênteses remetem à análise.
 
+- **Página /ixps quebrada por feição sem geometria.** A regra de pessoa natural tira o ponto de um empresário individual ou MEI cujo
+  município não tem centróide (`geometry: null`, válido pela RFC 7946); o mapa de áreas dos PTTs lia as coordenadas sem conferir e a
+  página inteira caía. Os mapas passam a ignorar a feição sem ponto (o AS continua contado na UF), e o teste de console visita
+  `/ixps`, `/ases`, `/cdns`, `/municipios`, `/grupos` e operadoras SMP.
+- **CDNs e CAPs no bloco "Por PTT".** O bloco dizia "provedores do catálogo"; agora diz CDNs e CAPs, como o resto da página, e
+  explicita que essas colunas contam empresas (uma entrada do catálogo pode ter vários ASNs), não ASNs como a de participantes.
 - **Empresário individual e MEI em multas e ERBs.** O nome do titular nas multas da Anatel e nas estações rádio base fica no campo
   `entidade`, que a regra de pessoa natural não alcançava. `entidade` passa a contar como nome só em registros de multa ou de ERB
   (reconhecidos por `cnpjs`, `cnpj_matriz` ou `marca` ao lado dele), sem mudar o formato; nos eventos do histórico, onde `entidade` é o
