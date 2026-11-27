@@ -15,6 +15,7 @@ import { fetchCDNPresence, fetchDiffSnapshots, fetchIXPs } from '../../services/
 import { useSnapshots } from '../../hooks/useSnapshot'
 import { ComoLerNumerosPais, EXPLICA, referenciaMedicao, useBrasilIndicadores } from './IndicadoresBrasil'
 import { useResumo } from './useResumo'
+import { RetratoRegional } from './RetratoRegional'
 import { fracao, grande, num, pct } from './formato'
 
 /** Um tema do resumo: título, uma linha de KPIs e os links para onde o tema é detalhado. */
@@ -93,6 +94,8 @@ export function ResumoTecnico() {
         <Kpi selo="estimado" rotulo="Filtragem de rotas inválidas (ROV, média ponderada por amostras)" valor={pct(br?.rov?.media_ponderada_pct, 2)} tom="tecnico" referencia={referenciaMedicao(br?.rov)} explicacao={EXPLICA.rov} fonte="APNIC Labs" dataRef={br?.rov?.fonte?.as_of ?? br?.snapshot_date} />
         <Kpi selo="estimado" rotulo="Validação de DNSSEC (média ponderada por amostras)" valor={pct(br?.dnssec?.media_ponderada_pct, 2)} tom="tecnico" referencia={referenciaMedicao(br?.dnssec)} explicacao={EXPLICA.dnssec} fonte="APNIC Labs" dataRef={br?.dnssec?.fonte?.as_of ?? br?.snapshot_date} />
       </Tema>
+
+      <RetratoRegional por={br?.por_regiao} dataRef={br?.snapshot_date} />
 
       <ResumoEmTexto frases={sinteseTecnica(s, br, ref)} snapshot={ref} regras={REGRAS_SINTESE_TECNICA} notaComoLer="Os números são os mesmos dos cartões acima." />
       </GrupoFontes>
