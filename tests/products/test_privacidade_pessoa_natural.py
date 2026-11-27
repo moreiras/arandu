@@ -106,6 +106,19 @@ def _plantar_nomes(doc, cnpjs: dict, estrutura: dict):
             _plantar_nomes(v, cnpjs, estrutura)
 
 
+def _plantar_multas_e_erbs(resumo: Path, cnpjs: dict) -> None:
+    """Multas e ERBs trazem o nome do titular em `entidade` (a razão social da Anatel): um EI e um MEI multados e donos de estações."""
+    multas = _ler(resumo / "anatel_multas.json.gz")
+    erbs = _ler(resumo / "anatel_erbs.json.gz")
+    modelo = erbs["estacoes"][0]
+    for i, (cnpj, (nome, _fantasia)) in enumerate(cnpjs.items()):
+        multas["empresas"].append({"raiz": cnpj[:8], "grupo": "SCM", "entidade": nome, "cnpjs": [cnpj], "uf": "ES", "multas": 2, "original": 200.0, "pago": 0.0,
+                                   "saldo": 100.0, "situacoes": {"Devedor": 2}, "anos": {"2025": 2}})
+        erbs["estacoes"].append({**modelo, "fistel": f"5990000{i}", "estacao": f"pt11{i}", "marca": "MARCA PLANTADA", "entidade": nome, "cnpj": cnpj})
+    _gravar(resumo / "anatel_multas.json.gz", multas)
+    _gravar(resumo / "anatel_erbs.json.gz", erbs)
+
+
 def _plantar(base: Path) -> dict:
     (a, cnpj_a), (b, cnpj_b) = _cnpj_do_asn(base)
     nome_a = f"{NOME_A} {CPF}"
@@ -137,6 +150,8 @@ def _plantar(base: Path) -> dict:
                 doc = _ler(arq)
                 _plantar_nomes(doc, cnpjs, {})
                 _gravar(arq, doc)
+
+        _plantar_multas_e_erbs(resumo, cnpjs)
 
         nomes = _ler(resumo / "asn_names.json.gz")
         nomes[str(a)], nomes[str(b)] = f"{nome_a}, BR", f"{NOME_B}, BR"
@@ -497,3 +512,50 @@ def test_raio_pequeno_segue_valendo_onde_nao_ha_sede(cliente):
     """Prefixos têm a posição do IP, não a da sede: o piso não vale para eles (não muda comportamento fora do escopo)."""
     r = cliente.post("/api/v1/query/prefixes", json={"near": {"point": [-23.6, -46.7], "radius_km": 0.5}, "limit": 5}, headers=ALLOWED)
     assert r.status_code == 200
+
+
+# ── multas e ERBs: o nome do titular está em `entidade` ──────────────────────────────────────────────────
+
+def _rotulo_do_a(mundo) -> str:
+    (a, cnpj_a) = mundo[2]["a"]
+    return f"Empresário individual (AS{a}, CNPJ **.***.{cnpj_a[5:8]}/{cnpj_a[8:12]}-**)"
+
+
+def _entidades(doc, cnpj: str) -> set:
+    """`entidade` dos registros do documento cujo `raiz`, `cnpj` ou `cnpj_matriz` é do titular."""
+    achou = set()
+    if isinstance(doc, dict):
+        if "entidade" in doc and any(isinstance(doc.get(k), str) and doc[k].startswith(cnpj[:8]) for k in ("raiz", "cnpj", "cnpj_matriz")):
+            achou.add(doc["entidade"])
+        for v in doc.values():
+            achou |= _entidades(v, cnpj)
+    elif isinstance(doc, list):
+        for v in doc:
+            achou |= _entidades(v, cnpj)
+    return achou
+
+
+def test_multas_de_ei_e_mei_saem_com_o_nome_publico_na_rest(cliente, mundo):
+    (_, cnpj_a), (_, cnpj_b) = mundo[2]["a"], mundo[2]["b"]
+    for visao in ("servico", "raiz"):
+        r = cliente.get("/api/v1/multas/empresas", params={"visao": visao, "limit": 500}, headers=ALLOWED)
+        assert r.status_code == 200 and _achados(r.text) == [], r.text[:300]
+        doc = r.json()
+        assert _entidades(doc, cnpj_a) == {_rotulo_do_a(mundo)} and _entidades(doc, cnpj_b) == {FANTASIA_B}, visao
+    r = cliente.post("/api/v1/query/multas_empresa", json={"limit": 500}, headers=ALLOWED)
+    assert r.status_code == 200 and _entidades(r.json(), cnpj_a) == {_rotulo_do_a(mundo)} and _entidades(r.json(), cnpj_b) == {FANTASIA_B}
+
+
+def test_multas_de_ei_saem_com_o_nome_publico_no_mcp(srv, mundo):
+    (_, cnpj_a), (_, cnpj_b) = mundo[2]["a"], mundo[2]["b"]
+    doc = json.loads(_texto_da_tool(srv, "query", {"collection": "multas_empresa", "limit": 500}))
+    assert _achados(json.dumps(doc, ensure_ascii=False)) == []
+    assert _entidades(doc, cnpj_a) == {_rotulo_do_a(mundo)} and _entidades(doc, cnpj_b) == {FANTASIA_B}
+
+
+def test_erbs_de_ei_e_mei_saem_com_o_nome_publico_na_rest(cliente, mundo):
+    (_, cnpj_a), (_, cnpj_b) = mundo[2]["a"], mundo[2]["b"]
+    r = cliente.get("/api/v1/erbs/resumo", headers=ALLOWED)
+    assert r.status_code == 200 and _achados(r.text) == [], r.text[:300]
+    doc = r.json()
+    assert _entidades(doc, cnpj_a) == {_rotulo_do_a(mundo)} and _entidades(doc, cnpj_b) == {FANTASIA_B}
