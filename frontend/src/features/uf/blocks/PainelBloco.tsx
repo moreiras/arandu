@@ -3,6 +3,10 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
+import { useQuery } from '@tanstack/react-query'
+import { fetchUfs } from '../../../services/api'
+import { useActiveDate } from '../../../hooks/useSnapshot'
+import { referenciaUf } from '../referenciasUf'
 import type { BlocoProps } from '../../entidade/registry'
 import type { MunicipioUf, UfCtx } from '../contexto'
 import { KPI, fmt } from '../../municipio/ui'
@@ -10,12 +14,19 @@ import { RAIO_SEM_PTT_KM } from '../contexto'
 
 export function PainelBloco({ dados }: BlocoProps<UfCtx>) {
   const { ixps, municipios, totais, operadorasTotal, operadorasPresentesTotal, semCentroides } = dados
+  // a mesma consulta e a mesma chave do bloco "A UF entre as 27": nada é buscado duas vezes; sem `/ufs` os cartões ficam sem a linha de referência
+  const date = useActiveDate()
+  const q = useQuery({ queryKey: ['ufs', date], queryFn: () => fetchUfs(date ?? undefined), staleTime: 10 * 60 * 1000, retry: false })
+  const ref = (id: Parameters<typeof referenciaUf>[2]) => referenciaUf(q.data?.items, dados.uf, id)
+  const pen = dados.territorio?.penetracao
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-        <KPI label="PTTs" value={fmt(ixps.length)} hint="IX.br na UF" />
-        <KPI label="Acessos fixos" value={fmt(totais.acessos)} hint={totais.acessos == null ? 'sem SICI neste snapshot' : `${fmt(totais.municipios)} municípios com banda larga`} />
-        <KPI label="Fibra" value={totais.fibra_pct == null ? '—' : `${totais.fibra_pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`} hint="dos acessos fixos (FTTH/FTTB)" />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <KPI label="Acessos fixos" value={fmt(totais.acessos)} hint={totais.acessos == null ? 'sem SICI neste snapshot' : `${fmt(totais.municipios)} municípios com banda larga`} referencia={ref('acessos')} />
+        <KPI label="Fibra" value={totais.fibra_pct == null ? '—' : `${totais.fibra_pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`} hint="dos acessos fixos (FTTH/FTTB)" referencia={ref('fibra')} />
+        {pen != null && <KPI label="Acessos por 100 domicílios" value={(pen * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} hint="estimativa: acessos declarados ÷ domicílios projetados" referencia={ref('penetracao')} />}
+        <KPI label="PTTs" value={fmt(ixps.length)} hint="IX.br na UF" referencia={ref('ptts')} />
+        <KPI label="ASNs com sede na UF" value={fmt(totais.asns)} hint="ASNs brasileiros; a UF é a da sede da organização" referencia={ref('asns')} />
         <KPI label="Usuários estimados em ASNs sediados na UF" value={fmt(totais.usuarios)} hint={`APNIC, ${fmt(totais.asns)} ASNs brasileiros com sede na UF; não é a população conectada (ver Uso da Internet)`} />
         <KPI label="Operadoras com acesso na UF" value={fmt(operadorasPresentesTotal)} hint={`CNPJs com acesso fixo declarado na UF; ${fmt(operadorasTotal)} com sede na UF`} />
       </div>

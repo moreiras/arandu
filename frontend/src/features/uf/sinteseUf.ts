@@ -15,8 +15,8 @@ const SICI = 'SICI, Anatel (declarado pelas operadoras)'
 /**
  * Síntese da UF (PT-22, uf 5.5): frases montadas dos números do painel e da posição (`UfCtx`: totais do perfil, território e PTTs), na ordem fixa
  * mercado, domicílios, infraestrutura, rede. Ficam de fora as frases que pedem agregados novos do pipeline (maiores operadoras, ASNs sem sessão em PTT):
- * a das operadoras seria ranking nominal e a outra não tem fonte nesta página. Posição entre as 27 UFs e "Brasil: X" nos KPIs também dependem de
- * `/ufs` e ficam em `PosicaoBloco`. Sem dado, sem frase; UF sem município longe de PTT não ganha a frase de distância.
+ * a das operadoras seria ranking nominal e a outra não tem fonte nesta página. "Brasil: X" e a posição entre as 27 UFs ficam nos cartões do painel
+ * (`referenciasUf.ts`) e em `PosicaoBloco`. Sem dado, sem frase; UF sem município longe de PTT não ganha a frase de distância.
  */
 export function sinteseUf(c: UfCtx, snapshot: string | null): FraseSintese[] {
   const t = c.totais
