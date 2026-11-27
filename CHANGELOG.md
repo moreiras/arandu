@@ -5,6 +5,16 @@
 Correções e melhorias da análise do OBINT (instância pública), integradas na branch `correcoes-obint`. Os identificadores entre
 parênteses remetem à análise.
 
+- **Empresário individual e MEI em multas e ERBs.** O nome do titular nas multas da Anatel e nas estações rádio base fica no campo
+  `entidade`, que a regra de pessoa natural não alcançava. `entidade` passa a contar como nome só em registros de multa ou de ERB
+  (reconhecidos por `cnpjs`, `cnpj_matriz` ou `marca` ao lado dele), sem mudar o formato; nos eventos do histórico, onde `entidade` é o
+  tipo, nada muda. A busca `q` de `/multas/empresas` passa a comparar com o nome já mascarado: buscar o nome civil de um titular não
+  devolve mais a linha.
+- **Curvas de Hilbert: célula IPv6 isolada e zoom pelo teclado.** Prefixo IPv6 pequeno demais para aparecer como ponto e sem vizinhos
+  ganha um anel cinza ao redor, sem mudar o tamanho da célula (dito na legenda). O zoom de quadrante, antes só por clique, abre também
+  pelo teclado: cada mapa tem um grupo de quadrantes com uma só parada de Tab, setas, Home e End, e Enter ou Espaço abre o zoom; o
+  nome acessível traz o prefixo do quadrante na forma da RFC 5952 ("Ampliar quadrante 2800::/20"), e o foco volta ao quadrante ao
+  fechar.
 - **CSV da tabela de participantes do PTT (PT-24 / IXP 5.5).** O botão "Baixar CSV" da tabela baixa o PTT inteiro com o filtro, a UF, a
   busca e a ordem da tela, e todas as colunas (cadastro, direto e originador por família com IPv6 antes de IPv4, sessões e rotas
   filtradas ÷ recebidas do route server, rejeição por motivo com a idade da coleta, acessos fixos do SICI com o mês de referência, CDNs e a
