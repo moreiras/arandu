@@ -3055,6 +3055,14 @@ export interface BrasilIndicadores {
   dnssec?: MedicaoApnicPais
   rov?: MedicaoApnicPais
   asns?: number
+  /** Retrato por macro-região da sede do AS (PT-22 / PANORAMA TÉCNICO 5.2); as linhas e `sem_regiao` fecham o `total`. Ausente sem o cadastro de organizações. */
+  por_regiao?: {
+    regioes: Array<{ regiao: string; nome: string; asns: number; usuarios: number; usuarios_ipv6: number; usuarios_com_roa: number; usuarios_sessao_rs: number; asns_com_ipv6: number }>
+    sem_regiao: { asns: number; usuarios: number; usuarios_ipv6: number; usuarios_com_roa: number; usuarios_sessao_rs: number; asns_com_ipv6: number }
+    total: { asns: number; usuarios: number; usuarios_ipv6: number; usuarios_com_roa: number; usuarios_sessao_rs: number; asns_com_ipv6: number }
+    fonte: string
+    nota: string
+  }
   prontidao?: {
     natureza?: string
     agregado: { asns: number; classes: Record<string, number>; asns_com_indice: number; media_ponderada_usuarios: number | null; mediana: number | null; usuarios?: number;
