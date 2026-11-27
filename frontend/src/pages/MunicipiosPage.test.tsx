@@ -74,4 +74,18 @@ describe('/municipios', () => {
     await waitFor(() => expect(pedido).toContain('sem_ptt_proximo=true'))
     expect(pedido).toContain('uf=SP')
   })
+
+  it('lente Sem PTT: filtro "nenhuma rede com sede com sessão em PTT" vai para a API e para a URL (PT-25)', async () => {
+    const pedidos: string[] = []
+    server.use(
+      http.get('*/api/v1/ranking/municipios', () => HttpResponse.json({ snapshot_date: 'd', mes_referencia: 'm', criterio: 'c', total: 0, items: [] })),
+      http.get('*/api/v1/territorio/ranking', ({ request }) => { pedidos.push(new URL(request.url).search); return HttpResponse.json({ snapshot_date: 'd', criterio: 'c', limites: 'l', total: 0, items: [] }) }),
+    )
+    montar('/municipios?lente=sem-ptt')
+    await waitFor(() => expect(pedidos.length).toBeGreaterThan(0))
+    expect(pedidos[0]).not.toContain('sem_sessao_ptt')
+    fireEvent.click(screen.getByTestId('filtro-sem-sessao'))
+    await waitFor(() => expect(pedidos.some((p) => p.includes('sem_sessao_ptt=true') && p.includes('sem_ptt_proximo=true'))).toBe(true))
+    expect(screen.getByTestId('filtro-sem-sessao').closest('label')!.textContent).toMatch(/\(inferido\)/)
+  })
 })

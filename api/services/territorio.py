@@ -39,18 +39,27 @@ def meta(doc: dict) -> dict:
             "fonte": doc["fonte"], "formulas": doc["formulas"], "limites": doc["limites"]}
 
 
-def ranking(doc: dict, linhas: list[dict], campo: str, uf: Optional[str], asc: bool, sem_ptt: Optional[bool], min_domicilios: int, limit: int, offset: int) -> dict:
+def _sem_sessao(r: dict) -> Optional[bool]:
+    """Nenhuma rede com sede no município tem sessão direta em PTT do IX.br (`redes_sede.sessao_ptt == 0`, inferido pela sede do CNPJ). `None` quando a linha
+    não traz `redes_sede` (produto `regiao` ausente na data): sem o dado não se afirma nem uma coisa nem outra. Município sem ASN com sede também dá True."""
+    rs = r.get("redes_sede")
+    return None if rs is None else rs.get("sessao_ptt", 0) == 0
+
+
+def ranking(doc: dict, linhas: list[dict], campo: str, uf: Optional[str], asc: bool, sem_ptt: Optional[bool], min_domicilios: int, limit: int, offset: int,
+            sem_sessao_ptt: Optional[bool] = None) -> dict:
     if campo not in CAMPOS:
         raise TerritorioErro(400, f"campo inválido: {campo}. Use: {', '.join(CAMPOS)}")
     uf = uf.upper() if uf else None
     sel = [r for r in linhas if (not uf or r["uf"] == uf) and r.get("domicilios", 0) >= min_domicilios
-           and (sem_ptt is None or bool(r.get("sem_ptt_proximo")) is sem_ptt) and r.get(campo) is not None]
+           and (sem_ptt is None or bool(r.get("sem_ptt_proximo")) is sem_ptt) and r.get(campo) is not None
+           and (sem_sessao_ptt is None or _sem_sessao(r) is sem_sessao_ptt)]
     if uf and not any(r["uf"] == uf for r in linhas):
         raise TerritorioErro(404, f"UF {uf} desconhecida.")
     sel.sort(key=lambda r: (r[campo], r["ibge"]), reverse=not asc)
     itens = [{"posicao": offset + i + 1, **r} for i, r in enumerate(sel[offset:offset + limit])]
     return {**meta(doc), "criterio": CAMPOS[campo] + (" (crescente)" if asc else " (decrescente)"), "escopo": {"uf": uf} if uf else {"pais": "BR"},
-            "filtros": {"sem_ptt_proximo": sem_ptt, "min_domicilios": min_domicilios}, "total": len(sel), "items": itens}
+            "filtros": {"sem_ptt_proximo": sem_ptt, "sem_sessao_ptt": sem_sessao_ptt, "min_domicilios": min_domicilios}, "total": len(sel), "items": itens}
 
 
 def bloco_municipio(doc: Optional[dict], linhas: list[dict], ibge: str) -> Optional[dict]:

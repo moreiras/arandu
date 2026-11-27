@@ -1440,7 +1440,7 @@ export function fetchSemDeclaracaoSici(opts: { tipo?: string; uf?: string; class
 }
 /** `esquema` 2: cada linha ganhou `ptt_proximo_nome` e `pix_proximo`, o PIX mais próximo (PT-25). */
 const ESQUEMA_TERRITORIO = 2
-export function fetchTerritorioRanking(opts: { date?: string; campo?: string; uf?: string; asc?: boolean; sem_ptt_proximo?: boolean; min_domicilios?: number; limit?: number; page?: number }): Promise<RankingTerritorio> {
+export function fetchTerritorioRanking(opts: { date?: string; campo?: string; uf?: string; asc?: boolean; sem_ptt_proximo?: boolean; sem_sessao_ptt?: boolean; min_domicilios?: number; limit?: number; page?: number }): Promise<RankingTerritorio> {
   return get('/api/v1/territorio/ranking', { ...opts, esquema: ESQUEMA_TERRITORIO })
 }
 /** Infraestrutura física e instalações do PeeringDB num raio (PT-25). `metered`; pedir só quando o leitor abre o bloco. */
