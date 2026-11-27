@@ -4,6 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '../components/layout/LinkDatado'
 import { fetchDemandaOferta, fetchCeticEstimativas, fetchCeticIndicadores, fetchCeticTabelas } from '../services/api'
@@ -166,7 +167,10 @@ function DemandaOfertaUfs() {
  */
 export function UsoInternetPage() {
   const date = useActiveDate() ?? undefined
-  const [pesquisa, setPesquisa] = useState('domicilios')
+  // a pesquisa é uma aba na URL (`?aba=domicilios|provedores`): o link guarda a escolha e recarregar não a perde
+  const [sp, setSp] = useSearchParams()
+  const pesquisa = PESQUISAS.find((p) => p.id === sp.get('aba'))?.id ?? 'domicilios'
+  const setPesquisa = (id: string) => setSp((prev) => { const q = new URLSearchParams(prev); q.set('aba', id); return q }, { replace: true })
   const [tabela, setTabela] = useState('')
   const [medida, setMedida] = useState<'proporcao' | 'total'>('proporcao')
   const [coluna, setColuna] = useState('')
@@ -194,7 +198,7 @@ export function UsoInternetPage() {
         </p>
       </div>
 
-      <SinteseCetic />
+      <SinteseCetic aoAbrirTabela={(p, t) => { setPesquisa(p); setTabela(t) }} />
 
       <div className="flex flex-wrap gap-3 items-end">
         <div role="group" aria-label="Pesquisa" className="flex gap-1">
