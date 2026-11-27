@@ -1,4 +1,5 @@
 import { escapar } from '../../lib/html'
+import { comGeometria } from '../../lib/geo'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
@@ -304,10 +305,10 @@ export function HomeMap({ date, height, className, title, ixpIndex, brAsnsInFt }
     const pixFeatures = data.features.filter(f => f.properties?.role === 'pix')
 
     ;(map.getSource('asns') as maplibregl.GeoJSONSource)?.setData({
-      type: 'FeatureCollection', features: asnFeatures,
+      type: 'FeatureCollection', features: comGeometria(asnFeatures),
     })
     ;(map.getSource('pix') as maplibregl.GeoJSONSource)?.setData({
-      type: 'FeatureCollection', features: pixFeatures,
+      type: 'FeatureCollection', features: comGeometria(pixFeatures),
     })
   }, [data, ready])
 

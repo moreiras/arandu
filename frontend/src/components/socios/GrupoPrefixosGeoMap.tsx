@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { GrupoPrefixoGeoFeature } from '../../services/api'
+import { comGeometria } from '../../lib/geo'
 import { VerDados } from '../ui/VerDados'
 import {
   MAP_COLORS,
@@ -42,7 +43,7 @@ export function GrupoPrefixosGeoMap({
   const [ready, setReady] = useState(false)
 
   const fc = useMemo<GeoJSON.FeatureCollection>(
-    () => ({ type: 'FeatureCollection', features: features as unknown as GeoJSON.Feature[] }),
+    () => ({ type: 'FeatureCollection', features: comGeometria(features) as unknown as GeoJSON.Feature[] }),
     [features],
   )
 

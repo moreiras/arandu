@@ -6,6 +6,14 @@
 /** Ponto no formato do GeoJSON: [longitude, latitude]. */
 export type LonLat = [number, number]
 
+/**
+ * Descarta feições sem geometria. A regra de pessoa natural põe `geometry: null` (válido pela RFC 7946, seção 3.2)
+ * quando o município do titular não tem centróide; quem lê `coordinates` só pode receber o resultado desta função.
+ */
+export function comGeometria<T extends { geometry: unknown }>(feicoes: readonly T[]): Array<T & { geometry: NonNullable<T['geometry']> }> {
+  return feicoes.filter((f): f is T & { geometry: NonNullable<T['geometry']> } => f.geometry != null)
+}
+
 const RAIO_TERRA_KM = 6371.0088
 
 /** Distância em linha reta (great-circle, haversine) entre dois pontos, em km. */

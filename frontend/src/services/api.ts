@@ -624,7 +624,7 @@ export type IXPGeoLayer =
 
 export interface IXPGeoFeature {
   type: 'Feature'
-  geometry: { type: 'Point'; coordinates: [number, number] }
+  geometry: { type: 'Point'; coordinates: [number, number] } | null
   properties: {
     // camadas de ASN
     asn?: number
@@ -662,7 +662,7 @@ export type ASNGeoLayer = 'fulltable_v4' | 'fulltable_v6' | 'ixp_v4' | 'ixp_v6'
 
 export interface ASNGeoFeature {
   type: 'Feature'
-  geometry: { type: 'Point'; coordinates: [number, number] }
+  geometry: { type: 'Point'; coordinates: [number, number] } | null
   properties: {
     role: 'own' | 'downstream'
     direct?: boolean
@@ -687,7 +687,7 @@ export interface ASNGeoResponse {
 
 export interface HomeMapFeature {
   type: 'Feature'
-  geometry: { type: 'Point'; coordinates: [number, number] }
+  geometry: { type: 'Point'; coordinates: [number, number] } | null
   properties: {
     role: 'asn' | 'pix'
     // ASN fields
@@ -747,7 +747,7 @@ export interface MapQueryBody {
 
 export interface MapQueryFeature {
   type: 'Feature'
-  geometry: { type: 'Point'; coordinates: [number, number] }
+  geometry: { type: 'Point'; coordinates: [number, number] } | null
   properties: {
     layer: string
     // asns_geo / asns_ix_*
@@ -930,7 +930,7 @@ export function fetchEmpresasRelacionadas(cnpj: string, date?: string): Promise<
 
 export interface GrupoPrefixoGeoFeature {
   type: 'Feature'
-  geometry: { type: 'Point'; coordinates: [number, number] }
+  geometry: { type: 'Point'; coordinates: [number, number] } | null
   properties: { afi: 'v4' | 'v6'; city?: string; uf?: string; block_count?: number }
 }
 
@@ -1133,7 +1133,7 @@ export interface GeoJSONFeatureCollection {
   type: 'FeatureCollection'
   features: Array<{
     type: 'Feature'
-    geometry: { type: string; coordinates: unknown }
+    geometry: { type: string; coordinates: unknown } | null
     properties: Record<string, unknown>
   }>
   snapshot_date?: string

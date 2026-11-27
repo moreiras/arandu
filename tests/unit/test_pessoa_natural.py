@@ -111,6 +111,17 @@ def test_feicao_geojson_de_ei_ganha_o_centroide_e_a_de_pj_nao_muda():
     assert out["features"][1] is pj
 
 
+def test_feicao_geojson_de_ei_sem_centroide_fica_com_geometria_nula():
+    """RFC 7946 seção 3.2: `geometry: null` é válido. O frontend precisa tolerá-lo (IXPVoronoiMap.buildStats, `lib/geo.comGeometria`)."""
+    idx = _indice()
+    ei = {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-40.26223, -20.27112]},
+          "properties": {"cnpj": CNPJ, "razao_social": "FULANO DE TAL", "municipio": "Arandurápolis", "uf": "SP"}}
+    out = pn.aplicar({"type": "FeatureCollection", "features": [ei]}, idx)
+    f = out["features"][0]
+    assert "geometry" in f and f["geometry"] is None
+    assert f["properties"]["razao_social"] == pn.rotulo(265061, CNPJ)
+
+
 def test_entidade_e_nome_so_em_registro_de_multa_ou_erb():
     """`entidade` traz a razão social da Anatel em multas (`cnpjs`, `cnpj_matriz`) e ERBs (`marca`); no histórico é o rótulo de tipo e não muda."""
     idx = _indice()

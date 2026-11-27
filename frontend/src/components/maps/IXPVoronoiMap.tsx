@@ -258,10 +258,17 @@ interface PttStats {
 }
 
 interface GeoFeature {
-  geometry: { coordinates: [number, number] }
+  /** Nula quando a regra de pessoa natural não tem centróide do município (RFC 7946, seção 3.2). */
+  geometry: { type?: string; coordinates: [number, number] } | null
   properties: Record<string, unknown>
 }
-function buildStats(
+/** Coordenadas [lon, lat] da feição, ou null se não tiver geometria Point. */
+function pontoDe(f: GeoFeature): [number, number] | null {
+  const g = f.geometry
+  if (!g || (g.type !== undefined && g.type !== 'Point') || !Array.isArray(g.coordinates)) return null
+  return g.coordinates
+}
+export function buildStats(
   ixps: IXPIndexEntry[],
   asnGeo: { features: GeoFeature[] } | undefined,
   prefixGeo: { features: GeoFeature[] } | undefined,
@@ -284,7 +291,9 @@ function buildStats(
     const asn = Number(f.properties.asn)
     if (!asn) continue
     brAsns.add(asn)
-    const [lon, lat] = f.geometry.coordinates
+    const ponto = pontoDe(f)
+    if (!ponto) continue
+    const [lon, lat] = ponto
     const idx = idxFor(lat, lon)
     if (idx < 0) continue
     const code = PTTS[idx].code
@@ -295,7 +304,9 @@ function buildStats(
   for (const f of prefixGeo?.features ?? []) {
     const asn = Number(f.properties.origin_asn)
     if (!asn) continue
-    const [lon, lat] = f.geometry.coordinates
+    const ponto = pontoDe(f)
+    if (!ponto) continue
+    const [lon, lat] = ponto
     const idx = idxFor(lat, lon)
     if (idx < 0) continue
     opByCode.get(PTTS[idx].code)!.add(asn)

@@ -7,7 +7,7 @@
 import { MAP_COLORS } from '../../components/maps/mapTheme'
 
 export interface AsnFeature {
-  geometry: { coordinates: [number, number] } // [lon, lat]
+  geometry: { coordinates: [number, number] } | null // [lon, lat]; nula quando a regra de pessoa natural não tem centróide
   properties: {
     asn: number; name: string
     cnpj?: string; razao_social?: string; nome_fantasia?: string
@@ -16,17 +16,17 @@ export interface AsnFeature {
 }
 
 export interface PrefixFeature {
-  geometry: { coordinates: [number, number] } // [lon, lat]
+  geometry: { coordinates: [number, number] } | null // [lon, lat]; nula quando a regra de pessoa natural não tem centróide
   properties: { prefix_count?: number; ip_version?: number; origin_asn?: number; city?: string; uf?: string }
 }
 
 export interface PixFeature {
-  geometry: { coordinates: [number, number] } // [lon, lat]
+  geometry: { coordinates: [number, number] } | null // [lon, lat]; nula quando a regra de pessoa natural não tem centróide
   properties: { ixp_code?: string; name?: string; ixp_name?: string }
 }
 
 export interface ScmGeoFeature {
-  geometry: { coordinates: [number, number] }
+  geometry: { coordinates: [number, number] } | null
   properties: {
     cnpj: string
     razao_social: string

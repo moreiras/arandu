@@ -14,6 +14,7 @@ import {
   MARKER_OPACITY,
 } from './mapTheme'
 import { html, htmlSeguro } from '../../lib/html'
+import { comGeometria } from '../../lib/geo'
 
 // ---------------------------------------------------------------------------
 // Configuração das camadas
@@ -330,7 +331,7 @@ export function IXPGeoMap({ code, date }: Props) {
     const dataSource = map.getSource('ixp-data') as maplibregl.GeoJSONSource | undefined
     const siciSource = map.getSource('ixp-sici') as maplibregl.GeoJSONSource | undefined
     if (!dataSource || !siciSource) return
-    dataSource.setData(isSici ? EMPTY_FC : (data ?? EMPTY_FC))
+    dataSource.setData(isSici || !data ? EMPTY_FC : { ...data, features: comGeometria(data.features) })
     siciSource.setData(isSici ? siciFC : EMPTY_FC)
 
     const isPrefix = activeLayer.startsWith('prefixes_')
