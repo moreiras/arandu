@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { EmptyState, formatarReferencia, rotuloFrescor, type FonteEntrada } from '../components/entidade'
 import { descreverCadencia, heranca, legivel, rotuloLicenca, rotuloTipo, rotuloUsoComercial, type Catalogo, type CampoCatalogo, type FonteCatalogo } from '../features/fontes/catalogo'
+import { UsoDasFontes } from '../features/fontes/UsoDasFontes'
 import { useFontes } from '../hooks/entidades'
 import { comIdentidade } from '../lib/site'
 
@@ -126,6 +127,8 @@ export function FontesPage() {
           )}
         </section>
       )}
+
+      {cat.data && <UsoDasFontes fontes={cat.data.fontes} />}
 
       {cat.data && (
         <section aria-labelledby="produtos-titulo">
