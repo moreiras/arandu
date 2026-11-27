@@ -136,6 +136,22 @@ export function hexToRGB(hex: string): [number, number, number] {
   return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)]
 }
 
+/** Opacidade mínima de uma célula com dado: com menos que isso, um AS ou região com poucos /24 some no fundo. */
+export const OPACIDADE_MIN = 0.5
+const OPACIDADE_MAX = 0.88
+
+/**
+ * Opacidade de uma célula /16 pela quantidade de /24 (0 a 256): 0 sem dado; com dado, de `OPACIDADE_MIN` (1 /24) a 0,88 (256 /24),
+ * crescente com a contagem, de modo que a ordem relativa se mantém e nenhuma célula com dado fica quase invisível.
+ */
+export function opacidadeDensidade(count: number): number {
+  if (!(count > 0)) return 0
+  return OPACIDADE_MIN + (OPACIDADE_MAX - OPACIDADE_MIN) * (Math.min(count, 256) / 256)
+}
+
+/** Cor da camada "alocado e visível" (alocado pelo Registro.br e visto na tabela global): ciano, tom sem sentido de alerta ou melhora. */
+export const COR_ALOCADO_VISIVEL = '#0891b2'
+
 // ---------------------------------------------------------------------------
 // IPv6 Hilbert — 6 blocos RIR, granularidade /32
 // ---------------------------------------------------------------------------

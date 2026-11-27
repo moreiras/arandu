@@ -9,6 +9,7 @@ import docBase from '../../../test/fixtures/asn_detail.json'
 import { abasDe, blocosDe } from '../../entidade/registry'
 import '../index'
 import { HilbertIpv4Bloco, HilbertIpv6Bloco } from './CurvaHilbertAsnBloco'
+import { V6_BLOCKS } from '../../../components/hilbert/hilbert'
 
 const doc: any = {
   ...docBase,
@@ -101,9 +102,9 @@ describe('curvas de Hilbert do AS (os mesmos mapas do panorama técnico)', () =>
     expect(within(lista()).getByText('198.18.5.0/24')).toBeTruthy()
   })
 
-  it('IPv6: um mapa por bloco de RIR com prefixo, nome acessível, quadrantes /20 e lista da camada', () => {
+  it('IPv6: todos os blocos de RIR aparecem, como no panorama, com nome acessível, quadrantes /20 e lista da camada', () => {
     render(<HilbertIpv6Bloco dados={dados(doc) as any} snapshot="2026-09-20" />)
-    expect(screen.getAllByRole('img').length).toBe(1)
+    expect(screen.getAllByRole('img').length).toBe(V6_BLOCKS.length)
     expect(screen.getByRole('img', { name: /Curva de Hilbert IPv6 do AS64496, camada "Alocado pelo Registro\.br", bloco 2800::\/12 \(LACNIC\)/ })).toBeTruthy()
     expect(screen.getByRole('button', { name: /^2804:1000::\/20/ })).toBeTruthy()
     expect(within(screen.getByRole('list', { name: 'Prefixos IPv6 do AS64496' })).getByText('2804:1234::/32')).toBeTruthy()

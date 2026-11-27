@@ -11,9 +11,11 @@ import {
   cellIndexToV6Prefix,
   mouseToBlockV6,
   hexToRGB,
+  COR_ALOCADO_VISIVEL,
   type V6BlockConfig,
 } from './hilbert'
 import { ZoomModalV6 } from './IXPHilbertZoom'
+import { corLegivel } from '../../lib/contraste'
 
 export type V6LayerKey = 'rir_br' | 'global_br' | 'global_all' | 'ixp_all' | 'rir_br_visible'
 
@@ -47,7 +49,7 @@ export const V6_LAYER_META: Record<V6LayerKey, V6LayerMeta> = {
   },
   rir_br_visible: {
     label: 'Alocado BR + visível',
-    color: '#ef4444',
+    color: COR_ALOCADO_VISIVEL,
     description: 'Espaço IPv6 alocado ao Brasil e presente na tabela de roteamento global',
     legend: 'Interseção entre o espaço IPv6 alocado ao Brasil (Registro.br) e a tabela de roteamento global. Mostra o espaço em uso: alocado ao Brasil e anunciado na Internet.',
   },
@@ -88,7 +90,7 @@ interface HilbertMapV6BlockProps {
   cssWidth: number
   /** Definição das camadas (padrão: as nacionais, `V6_LAYER_META`). */
   layerMeta?: Record<string, V6LayerMeta>
-  /** Camadas pintadas em vermelho onde `baseLayer` também tem a célula (padrão: as nacionais). */
+  /** Camadas pintadas em ciano (alocado e visível) onde `baseLayer` também tem a célula (padrão: as nacionais). */
   dualLayers?: readonly string[]
   baseLayer?: string
   /** Nome acessível do canvas; sem ele o canvas fica como sempre foi. */
@@ -99,7 +101,8 @@ interface HilbertMapV6BlockProps {
 
 interface ZoomedSquare { gx: number; gy: number }
 
-const V6_BR_RED: [number, number, number] = [0xef, 0x44, 0x44]
+/** Onde a camada ativa também é espaço alocado: o ciano de "alocado e visível". */
+const V6_BR_RED: [number, number, number] = hexToRGB(COR_ALOCADO_VISIVEL)
 export const V6_DUAL_COLOR_LAYERS: readonly string[] = ['global_br', 'global_all', 'ixp_all']
 
 export function renderV6Block(
@@ -107,7 +110,7 @@ export function renderV6Block(
   config: V6BlockConfig,
   activeCells: number[] | null,
   overlayColor: string,
-  /** Se fornecido, células com índice no set são pintadas em vermelho (#ef4444). */
+  /** Se fornecido, células com índice no set são pintadas no ciano de "alocado e visível". */
   brSet: Set<number> | null,
 ) {
   const { canvasPx, gridSize } = config
@@ -220,7 +223,7 @@ export function HilbertMapV6Block({ config, data: dataProp, activeLayer, cssWidt
   const hd = tooltip?.d ?? -1
   const activePresent   = hd >= 0 && (sets[activeLayer]?.has(hd) ?? false)
   const isBRinDual = dualLayers.includes(activeLayer) && (baseSet?.has(hd) ?? false)
-  const activeDotColor = isBRinDual ? '#ef4444' : layerMeta[activeLayer].color
+  const activeDotColor = corLegivel(isBRinDual ? COR_ALOCADO_VISIVEL : layerMeta[activeLayer].color)
 
   // Outras camadas presentes além da ativa
   const otherLayers: string[] = camadaKeys.filter(k => k !== activeLayer && sets[k].has(hd))

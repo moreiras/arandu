@@ -4,17 +4,19 @@
  * ZoomModalV4  — amplia um /8 com granularidade /24 (256×256 Hilbert), grade /16, tooltip /24.
  * ZoomModalV6  — amplia um /20 (64×64 de /32), grade /28, tooltip /32.
  */
-import { useRef, useEffect, useMemo, useState, useCallback } from 'react'
+import { useRef, useEffect, useId, useMemo, useState, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   d2xy,
   GRID16, getGrid1024, POS_TO_D16,
   ianaColorRGB, block16ToPrefix, block16ToSlash8,
-  cellIndexToV6Prefix, hexToRGB,
+  cellIndexToV6Prefix, hexToRGB, opacidadeDensidade,
   type V6BlockConfig,
 } from './hilbert'
 import { fetchIXPHilbertV4Detail, fetchHilbertV4Detail } from '../../services/api'
 import type { LayerKey } from './HilbertMap16'
+import { ModalAcessivel } from '../ui/ModalAcessivel'
+import { palavra } from '../../lib/sintese'
 
 const ZOOM_CANVAS = 512
 const ZOOM_CSS    = 440
@@ -85,6 +87,7 @@ export function ZoomModalV4({
   densityAll, densityOwn, densityThird,
   isPeerMode, onClose,
 }: ZoomV4Props) {
+  const idTitulo = useId()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [tooltip, setTooltip] = useState<Tooltip4 | null>(null)
 
@@ -193,13 +196,13 @@ export function ZoomModalV4({
           const tc = densityThird[blockIdx] ?? 0
           const total = oc + tc
           if (!total) continue
-          const opacity = 0.18 + (Math.min(total, 256) / 256) * 0.70
+          const opacity = opacidadeDensidade(total)
           const p = oc / total
           paint16(dx, dy, Math.round(or*p+tr*(1-p)), Math.round(og*p+tg*(1-p)), Math.round(ob*p+tb*(1-p)), opacity)
         } else if (densityAll) {
           const count = densityAll[blockIdx]
           if (!count) continue
-          paint16(dx, dy, ar, ag, ab, 0.18 + (count / 256) * 0.70)
+          paint16(dx, dy, ar, ag, ab, opacidadeDensidade(count))
         }
       }
     }
@@ -285,21 +288,17 @@ export function ZoomModalV4({
   }, [hasDetail, detailData, blockIndices, densityAll, densityOwn, densityThird, isPeerMode, slashEight])
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={onClose}>
-      <div
-        className="bg-white rounded-xl shadow-2xl p-5 flex gap-5 max-h-[90vh]"
-        onClick={e => e.stopPropagation()}
-      >
+    <ModalAcessivel idTitulo={idTitulo} onClose={onClose}>
         {/* Canvas */}
         <div className="flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h3 className="font-mono font-semibold text-gray-900 text-sm">{slashEight}.0.0.0/8</h3>
+              <h3 id={idTitulo} className="font-mono font-semibold text-gray-900 text-sm">{slashEight}.0.0.0/8</h3>
               {loadingDetail && (
                 <span className="text-xs text-gray-400 animate-pulse">carregando /24…</span>
               )}
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-2xl leading-none ml-4">&times;</button>
+            <button type="button" onClick={onClose} aria-label="Fechar" className="text-gray-600 hover:text-gray-900 text-2xl leading-none ml-4 min-h-[28px] min-w-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario-700"><span aria-hidden="true">&times;</span></button>
           </div>
           <div className="relative">
             <canvas
@@ -382,17 +381,17 @@ export function ZoomModalV4({
         {/* Stats */}
         <div className="min-w-44 max-w-64 overflow-y-auto">
           <div className="text-xs font-semibold text-gray-700 mb-2">
-            Blocos {stats.level} presentes
+            {palavra(stats.count, 'Bloco', 'Blocos')} {stats.level} {palavra(stats.count, 'presente', 'presentes')}
           </div>
           <div className="text-sm space-y-1 mb-3 text-gray-700">
             <div>
               <span className="font-semibold">{stats.count.toLocaleString('pt-BR')}</span>
-              <span className="text-gray-500"> blocos {stats.level}</span>
+              <span className="text-gray-500"> {palavra(stats.count, 'bloco', 'blocos')} {stats.level}</span>
             </div>
           </div>
           {stats.list.length > 0 && (
             <>
-              <div className="text-xs text-gray-400 mb-1">Blocos {stats.level}:</div>
+              <div className="text-xs text-gray-400 mb-1">{palavra(stats.count, 'Bloco', 'Blocos')} {stats.level}:</div>
               <div className="space-y-0.5 max-h-80 overflow-y-auto">
                 {stats.list.map(p => (
                   <div key={p} className="text-xs font-mono text-gray-700 leading-tight">{p}</div>
@@ -401,8 +400,7 @@ export function ZoomModalV4({
             </>
           )}
         </div>
-      </div>
-    </div>
+    </ModalAcessivel>
   )
 }
 
@@ -437,6 +435,7 @@ export function ZoomModalDashV4({
   activeLayer, layerColor, density,
   date, semDetalhe, onClose,
 }: ZoomDashV4Props) {
+  const idTitulo = useId()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [tooltip, setTooltip] = useState<Tooltip4Dash | null>(null)
 
@@ -497,7 +496,7 @@ export function ZoomModalDashV4({
       for (const { dx, dy, blockIdx } of blockIndices) {
         const count = density[blockIdx]
         if (!count) continue
-        const opacity = 0.18 + (count / 256) * 0.70
+        const opacity = opacidadeDensidade(count)
         for (let cy = 0; cy < V4_CELL; cy++) {
           for (let cx = 0; cx < V4_CELL; cx++) {
             const i = ((dy * V4_CELL + cy) * ZOOM_CANVAS + (dx * V4_CELL + cx)) * 4
@@ -564,20 +563,16 @@ export function ZoomModalDashV4({
   }, [hasDetail, detailData, blockIndices, density, slashEight])
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={onClose}>
-      <div
-        className="bg-white rounded-xl shadow-2xl p-5 flex gap-5 max-h-[90vh]"
-        onClick={e => e.stopPropagation()}
-      >
+    <ModalAcessivel idTitulo={idTitulo} onClose={onClose}>
         <div className="flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h3 className="font-mono font-semibold text-gray-900 text-sm">{slashEight}.0.0.0/8</h3>
+              <h3 id={idTitulo} className="font-mono font-semibold text-gray-900 text-sm">{slashEight}.0.0.0/8</h3>
               {loadingDetail && (
                 <span className="text-xs text-gray-400 animate-pulse">carregando /24…</span>
               )}
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-2xl leading-none ml-4">&times;</button>
+            <button type="button" onClick={onClose} aria-label="Fechar" className="text-gray-600 hover:text-gray-900 text-2xl leading-none ml-4 min-h-[28px] min-w-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario-700"><span aria-hidden="true">&times;</span></button>
           </div>
           <div className="relative">
             <canvas
@@ -627,7 +622,7 @@ export function ZoomModalDashV4({
                 ) : (
                   <div className="mt-0.5 text-xs" style={{ color: (tooltip.count ?? 0) > 0 ? layerColor : undefined }}>
                     {(tooltip.count ?? 0) > 0
-                      ? `${tooltip.count} /24${tooltip.count !== 1 ? 's' : ''}`
+                      ? `${tooltip.count} ${palavra(tooltip.count, 'bloco', 'blocos')} /24`
                       : <span className="text-gray-300">sem dados</span>}
                   </div>
                 )}
@@ -641,17 +636,17 @@ export function ZoomModalDashV4({
 
         <div className="min-w-44 max-w-64 overflow-y-auto">
           <div className="text-xs font-semibold text-gray-700 mb-2">
-            Blocos {stats.level} presentes
+            {palavra(stats.count, 'Bloco', 'Blocos')} {stats.level} {palavra(stats.count, 'presente', 'presentes')}
           </div>
           <div className="text-sm space-y-1 mb-3 text-gray-700">
             <div>
               <span className="font-semibold">{stats.count.toLocaleString('pt-BR')}</span>
-              <span className="text-gray-500"> blocos {stats.level}</span>
+              <span className="text-gray-500"> {palavra(stats.count, 'bloco', 'blocos')} {stats.level}</span>
             </div>
           </div>
           {stats.list.length > 0 && (
             <>
-              <div className="text-xs text-gray-400 mb-1">Blocos {stats.level}:</div>
+              <div className="text-xs text-gray-400 mb-1">{palavra(stats.count, 'Bloco', 'Blocos')} {stats.level}:</div>
               <div className="space-y-0.5 max-h-80 overflow-y-auto">
                 {stats.list.map(p => (
                   <div key={p} className="text-xs font-mono text-gray-700 leading-tight">{p}</div>
@@ -660,8 +655,7 @@ export function ZoomModalDashV4({
             </>
           )}
         </div>
-      </div>
-    </div>
+    </ModalAcessivel>
   )
 }
 
@@ -692,6 +686,7 @@ export function ZoomModalV6({
   allCells, ownCells, thirdCells,
   isPeerMode, color, onClose,
 }: ZoomV6Props) {
+  const idTitulo = useId()
   const singleColor = color ?? COLOR_ALL
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [tooltip, setTooltip] = useState<Tooltip6 | null>(null)
@@ -824,16 +819,12 @@ export function ZoomModalV6({
   const gridLines = Array.from({ length: 15 }, (_, i) => (i + 1) * (ZOOM_CANVAS / 16))
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={onClose}>
-      <div
-        className="bg-white rounded-xl shadow-2xl p-5 flex gap-5 max-h-[90vh]"
-        onClick={e => e.stopPropagation()}
-      >
+    <ModalAcessivel idTitulo={idTitulo} onClose={onClose}>
         {/* Canvas */}
         <div className="flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-mono font-semibold text-gray-900 text-sm">{slashTwentyPrefix}</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-2xl leading-none ml-4">&times;</button>
+            <h3 id={idTitulo} className="font-mono font-semibold text-gray-900 text-sm">{slashTwentyPrefix}</h3>
+            <button type="button" onClick={onClose} aria-label="Fechar" className="text-gray-600 hover:text-gray-900 text-2xl leading-none ml-4 min-h-[28px] min-w-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario-700"><span aria-hidden="true">&times;</span></button>
           </div>
           <div className="relative">
             <canvas
@@ -892,16 +883,16 @@ export function ZoomModalV6({
 
         {/* Stats */}
         <div className="min-w-44 max-w-64 overflow-y-auto">
-          <div className="text-xs font-semibold text-gray-700 mb-2">Blocos /32 presentes</div>
+          <div className="text-xs font-semibold text-gray-700 mb-2">{palavra(slash32Count, 'Bloco', 'Blocos')} /32 {palavra(slash32Count, 'presente', 'presentes')}</div>
           <div className="text-sm space-y-1 mb-3 text-gray-700">
             <div>
               <span className="font-semibold">{slash32Count.toLocaleString('pt-BR')}</span>
-              <span className="text-gray-500"> blocos /32</span>
+              <span className="text-gray-500"> {palavra(slash32Count, 'bloco', 'blocos')} /32</span>
             </div>
           </div>
           {showList && (
             <>
-              <div className="text-xs text-gray-400 mb-1">Blocos /32:</div>
+              <div className="text-xs text-gray-400 mb-1">{palavra(slash32Count, 'Bloco', 'Blocos')} /32:</div>
               <div className="space-y-0.5">
                 {prefixList.map(p => (
                   <div key={p} className="text-xs font-mono text-gray-700 leading-tight">{p}</div>
@@ -910,7 +901,6 @@ export function ZoomModalV6({
             </>
           )}
         </div>
-      </div>
-    </div>
+    </ModalAcessivel>
   )
 }

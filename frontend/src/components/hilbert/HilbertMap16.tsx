@@ -14,8 +14,12 @@ import {
   block16ToSlash8,
   hexToRGB,
   mouseToBlock16,
+  opacidadeDensidade,
+  COR_ALOCADO_VISIVEL,
 } from './hilbert'
 import { ZoomModalDashV4 } from './IXPHilbertZoom'
+import { corLegivel } from '../../lib/contraste'
+import { palavra } from '../../lib/sintese'
 
 export type LayerKey = 'rir_br' | 'global_br' | 'global_all' | 'ixp_all' | 'rir_br_visible'
 
@@ -35,7 +39,7 @@ export const LAYER_META: Record<LayerKey, LayerMeta> = {
     label: 'Alocado Registro.br',
     color: '#3b82f6',
     description: 'Espaço IPv4 alocado ao Brasil pelo Registro.br/LACNIC',
-    legend: 'Prefixos IPv4 atribuídos a entidades brasileiras pelo Registro.br. Representam o espaço de endereçamento formalmente alocado ao Brasil, esteja ou não anunciado na Internet. A intensidade é proporcional ao número de blocos /24 alocados no /16.',
+    legend: 'Prefixos IPv4 atribuídos a entidades brasileiras pelo Registro.br. Representam o espaço de endereçamento formalmente alocado ao Brasil, esteja ou não anunciado na Internet. A intensidade cresce com o número de blocos /24 alocados no /16, e todo /16 com dado aparece, mesmo com um só /24.',
   },
   global_br: {
     label: 'ASNs BR na tabela global',
@@ -57,7 +61,7 @@ export const LAYER_META: Record<LayerKey, LayerMeta> = {
   },
   rir_br_visible: {
     label: 'Alocado BR + visível',
-    color: '#ef4444',
+    color: COR_ALOCADO_VISIVEL,
     description: 'Espaço alocado ao Brasil que está presente na tabela de roteamento global',
     legend: 'Interseção entre o espaço alocado ao Brasil (Registro.br) e a tabela de roteamento global, calculada com precisão de bloco /24. Mostra o espaço em uso: alocado ao Brasil e anunciado na Internet.',
   },
@@ -65,7 +69,8 @@ export const LAYER_META: Record<LayerKey, LayerMeta> = {
 
 const CANVAS_PX = 512  // CSS pixels (canvas interno 2× para retina)
 const CELL = CANVAS_PX / 256  // 2px per cell
-const BR_RED: [number, number, number] = [0xef, 0x44, 0x44]  // #ef4444
+/** Onde a camada ativa também é espaço alocado ao Brasil: o ciano de "alocado e visível". */
+const BR_RED: [number, number, number] = hexToRGB(COR_ALOCADO_VISIVEL)
 const DUAL_COLOR_LAYERS: readonly string[] = ['global_br', 'global_all', 'ixp_all']
 
 interface TooltipState {
@@ -82,7 +87,7 @@ interface HilbertMap16Props {
   date?: string
   /** Definição das camadas (padrão: as nacionais, `LAYER_META`). */
   layerMeta?: Record<string, LayerMeta>
-  /** Camadas pintadas em vermelho onde a camada `baseLayer` também tem dado (padrão: as nacionais). */
+  /** Camadas pintadas em ciano (alocado e visível) onde a camada `baseLayer` também tem dado (padrão: as nacionais). */
   dualLayers?: readonly string[]
   baseLayer?: string
   /** Sem o detalhe /24 do zoom (que vem da API nacional): o /8 ampliado mostra só a densidade por /16. */
@@ -98,7 +103,7 @@ function renderCanvas(
   canvasPx: number,
   density: number[] | null,
   overlayColor: string,
-  /** Se fornecido, blocos com rir_br > 0 são pintados em vermelho (#ef4444). */
+  /** Se fornecido, blocos com rir_br > 0 são pintados no ciano de "alocado e visível". */
   brDensity: number[] | null,
 ) {
   const cell = canvasPx / 256
@@ -109,8 +114,7 @@ function renderCanvas(
     for (let d = 0; d < 65536; d++) {
       const count = density[d]
       if (!count) continue
-      // opacity: minimum 0.18 for count=1, maximum 0.88 for count=256
-      const opacity = 0.18 + (count / 256) * 0.70
+      const opacity = opacidadeDensidade(count)
       const isBR = brDensity ? brDensity[d] > 0 : false
       const [cr, cg, cb] = isBR ? BR_RED : [or, og, ob]
       const { x, y } = GRID16[d]
@@ -265,7 +269,7 @@ export function HilbertMap16({ data: dataProp, activeLayer, width = CANVAS_PX, d
           const count = density?.[blockIdx] ?? 0
           const slash8 = block16ToSlash8(blockIdx)
           const isBR = dualLayers.includes(activeLayer) && (data?.[baseLayer]?.[blockIdx] ?? 0) > 0
-          const dotColor = isBR ? '#ef4444' : layerMeta[activeLayer].color
+          const dotColor = corLegivel(isBR ? COR_ALOCADO_VISIVEL : layerMeta[activeLayer].color)
           return (
             <div
               className="absolute z-10 bg-white border border-gray-200 rounded shadow-md px-2 py-1.5 text-xs pointer-events-none"
@@ -281,10 +285,10 @@ export function HilbertMap16({ data: dataProp, activeLayer, width = CANVAS_PX, d
               {count > 0 ? (
                 <div className="mt-0.5 space-y-0.5">
                   <div style={{ color: dotColor }}>
-                    {count} /24{count !== 1 ? 's' : ''}: {layerMeta[activeLayer].label}
+                    {count} {palavra(count, 'bloco', 'blocos')} /24: {layerMeta[activeLayer].label}
                   </div>
                   {isBR && (
-                    <div className="text-xs" style={{ color: '#ef4444' }}>
+                    <div className="text-xs" style={{ color: corLegivel(COR_ALOCADO_VISIVEL) }}>
                       ● alocado Registro.br
                     </div>
                   )}

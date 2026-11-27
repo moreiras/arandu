@@ -6,7 +6,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { HilbertMap16, type LayerMeta } from '../../../components/hilbert/HilbertMap16'
 import { HilbertMapV6 } from '../../../components/hilbert/HilbertMapV6'
-import { V6_BLOCKS, type V6BlockConfig } from '../../../components/hilbert/hilbert'
+import { COR_ALOCADO_VISIVEL, V6_BLOCKS, type V6BlockConfig } from '../../../components/hilbert/hilbert'
 import { celulasV6, cruza, densidadeV4, intervaloDe, interseccao, rotuloQuadranteV6, type Intervalo } from '../../../components/hilbert/prefixosAs'
 import { corLegivel } from '../../../lib/contraste'
 import { n0, palavra } from '../../../lib/sintese'
@@ -18,8 +18,8 @@ type Familia = 'v4' | 'v6'
 type IdCamada = 'rir' | 'global' | 'visivel' | 'ptt'
 type IdOrigem = 'rir' | 'global' | 'ptt'
 
-/** Cores das camadas, as dos mapas nacionais (Registro.br, tabela global, PTT); a interseção usa um tom próprio, sem vermelho. */
-const COR: Record<IdCamada, string> = { rir: '#3b82f6', global: '#10b981', visivel: '#0891b2', ptt: '#8b5cf6' }
+/** Cores das camadas, as dos mapas nacionais (Registro.br, tabela global, PTT, alocado e visível em ciano, sem vermelho). */
+const COR: Record<IdCamada, string> = { rir: '#3b82f6', global: '#10b981', visivel: COR_ALOCADO_VISIVEL, ptt: '#8b5cf6' }
 const ORDEM: IdCamada[] = ['rir', 'global', 'visivel', 'ptt']
 const ORIGENS: IdOrigem[] = ['rir', 'global', 'ptt']
 const MAX_LISTA = 200
@@ -165,9 +165,8 @@ function CurvaAsn({ doc, fam }: { doc: ASNDocument; fam: Familia }) {
           camadaInicial={camada}
           onCamada={trocar}
           dualLayers={[]}
-          soBlocosComDados
           rotuloBloco={(cfg: V6BlockConfig) => nomeCanvas(`, bloco ${cfg.label} (${cfg.rir})`, nNoBloco(cfg.id))}
-          rodape="Cada célula é um /32 de um bloco de RIR; um prefixo menor que o /32 marca o /32 que o contém. Passe o mouse para ver o prefixo. Clique em blocos destacados para ampliar."
+          rodape="Os seis blocos de RIR aparecem sempre, como no panorama técnico; só os prefixos do AS são coloridos. Cada célula é um /32; um prefixo menor que o /32 marca o /32 que o contém. Passe o mouse para ver o prefixo. Clique em blocos destacados para ampliar."
         />
       ) : (
         <CurvaV4 dados={dadosV4!} meta={meta} camada={camada} onCamada={trocar} rotulo={nomeCanvas(', grade de /16 com /8 numerados', itens.length)} />
@@ -252,7 +251,7 @@ function CurvaV4({ dados, meta, camada, onCamada, rotulo }: { dados: Record<stri
       <div ref={ref}>
         <HilbertMap16 data={dados} activeLayer={camada} width={largura} layerMeta={meta} dualLayers={[]} semDetalhe rotuloCanvas={rotulo} />
       </div>
-      <p className="text-xs text-gray-400 mt-1.5">Cada célula é um bloco /16; a intensidade é proporcional ao número de /24 do AS no /16, e um prefixo menor que o /24 conta o /24 que o contém. Clique em um bloco /8 destacado para ampliar.</p>
+      <p className="text-xs text-gray-400 mt-1.5">Cada célula é um bloco /16; a intensidade cresce com o número de /24 do AS no /16 (todo /16 com dado aparece, mesmo com um só /24), e um prefixo menor que o /24 conta o /24 que o contém. Clique em um bloco /8 destacado para ampliar.</p>
     </div>
   )
 }

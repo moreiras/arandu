@@ -307,6 +307,13 @@ parênteses remetem à análise.
   do /20), com as camadas do AS (alocado pelo Registro.br, visto na tabela global, alocado e visível, visto em PTT do IX.br) e a lista
   de prefixos da camada escolhida embaixo; o desenho próprio em canvas sai. O panorama técnico não muda: os componentes só ganham
   props opcionais, com o padrão de antes.
+- **Curvas de Hilbert: decisões do mantenedor, 2026-11-27.** A curva IPv6 do AS passa a mostrar os seis blocos de RIR, como o panorama
+  técnico, com os prefixos do AS coloridos (antes só os blocos onde o AS tinha prefixo: no AS22548, só o Legado). A camada "alocado e
+  visível" é ciano (`COR_ALOCADO_VISIVEL`) no panorama, IPv4 e IPv6, e na curva do AS; o vermelho que a representava (e o que marca,
+  nas outras camadas, o espaço alocado) sai. Três problemas herdados, no panorama e no AS: o zoom concorda o plural ("1 bloco /16",
+  "2 blocos /32"); célula com dado tem opacidade mínima de 0,5 (antes 0,18 para 1 /24, quase invisível), crescente até 0,88, sem
+  mudar a ordem; e o modal de zoom vira diálogo acessível (`ui/ModalAcessivel`: `role="dialog"`, foco preso, Esc fecha, foco volta).
+  Os textos de selo da API não mudam.
 - **Decisões de forma do mantenedor (PT-30), 2026-11-26.** Legenda dos selos com nova redação ("Fato: declarado pela fonte ou medido
   diretamente", "Inferido: deduzido de outros dados por uma regra pública; pode não corresponder à realidade", "Estimado: valor
   aproximado, obtido por amostragem ou modelo"). Faixas de distância ao PTT no painel da UF numa escala de um só tom, sem vermelho. Em

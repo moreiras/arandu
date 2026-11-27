@@ -18,11 +18,9 @@ interface HilbertMapV6Props {
   camadaInicial?: string
   /** Avisa a troca de camada, para quem mostra algo que depende dela. */
   onCamada?: (camada: string) => void
-  /** Camadas pintadas em vermelho onde `baseLayer` também tem a célula (padrão: as nacionais). */
+  /** Camadas pintadas em ciano (alocado e visível) onde `baseLayer` também tem a célula (padrão: as nacionais). */
   dualLayers?: readonly string[]
   baseLayer?: string
-  /** Mostra só os blocos de RIR com célula em alguma camada (padrão: os seis). */
-  soBlocosComDados?: boolean
   /** Nome acessível do canvas de cada bloco; sem ele os canvas ficam como sempre foram. */
   rotuloBloco?: (config: V6BlockConfig) => string
   /** Texto abaixo dos mapas (padrão: o do panorama). */
@@ -31,13 +29,11 @@ interface HilbertMapV6Props {
 
 const RODAPE_PADRAO = 'Cada célula = bloco /32 IPv6. Legado (2001::/16): grade 256×256. Blocos /12: grade 1024×1024 (downscale suave). Passe o mouse para ver o prefixo. Clique em blocos destacados para ampliar.'
 
-export function HilbertMapV6({ data, blockWidth: blockWidthProp = 160, layerMeta = V6_LAYER_META, camadaInicial = 'rir_br', onCamada, dualLayers = V6_DUAL_COLOR_LAYERS, baseLayer = 'rir_br', soBlocosComDados = false, rotuloBloco, rodape = RODAPE_PADRAO }: HilbertMapV6Props) {
+export function HilbertMapV6({ data, blockWidth: blockWidthProp = 160, layerMeta = V6_LAYER_META, camadaInicial = 'rir_br', onCamada, dualLayers = V6_DUAL_COLOR_LAYERS, baseLayer = 'rir_br', rotuloBloco, rodape = RODAPE_PADRAO }: HilbertMapV6Props) {
   const [activeLayer, setActiveLayerEstado] = useState<V6LayerKey | string>(camadaInicial)
   const setActiveLayer = (k: string) => { setActiveLayerEstado(k); onCamada?.(k) }
   const dadosPorBloco = data as Record<string, Record<string, number[]> | undefined> | null
-  const blocos = soBlocosComDados
-    ? V6_BLOCKS.filter((b) => Object.values(dadosPorBloco?.[b.id] ?? {}).some((c) => c.length > 0))
-    : V6_BLOCKS
+  const blocos = V6_BLOCKS
   const containerRef = useRef<HTMLDivElement>(null)
   const [cols, setCols] = useState(3)
   const [blockWidth, setBlockWidth] = useState(blockWidthProp)
