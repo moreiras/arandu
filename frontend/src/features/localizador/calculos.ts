@@ -45,6 +45,7 @@ export function filtrarNoRaio(p: {
   const hqAsns = new Map<number, { name: string; city?: string; uf?: string }>()
 
   for (const f of asnGeo?.features ?? []) {
+    if (!f.geometry) continue
     const [flon, flat] = f.geometry.coordinates
     if (distKm(lat, lon, flat, flon) <= radius) {
       hqAsns.set(f.properties.asn, {
@@ -64,6 +65,7 @@ export function filtrarNoRaio(p: {
 
   if (showPrefixes) {
     for (const f of prefixGeo?.features ?? []) {
+      if (!f.geometry) continue
       const [flon, flat] = f.geometry.coordinates
       if (distKm(lat, lon, flat, flon) > radius) continue
       const asn = f.properties.origin_asn
@@ -123,6 +125,7 @@ export function pixNoRaio(markerPos: Ponto | null, radius: number, pixGeo?: { fe
   if (!markerPos) return out
   const [lat, lon] = markerPos
   for (const f of pixGeo?.features ?? []) {
+    if (!f.geometry) continue
     const [flon, flat] = f.geometry.coordinates
     if (distKm(lat, lon, flat, flon) <= radius) {
       out.push({ lat: flat, lon: flon, name: f.properties.name ?? '', ixpName: f.properties.ixp_name ?? '' })
@@ -136,6 +139,7 @@ export function scmsNoRaio(markerPos: Ponto | null, radius: number, scmGeo?: { f
   if (!markerPos) return []
   const [lat, lon] = markerPos
   return (scmGeo?.features ?? []).filter(f => {
+    if (!f.geometry) return false
     const [flon, flat] = f.geometry.coordinates
     return distKm(lat, lon, flat, flon) <= radius
   })
@@ -347,6 +351,7 @@ export function agruparPorCoordenada(p: {
   }
   if (p.showScms && p.markerPos) {
     for (const f of p.scmsInRadius) {
+      if (!f.geometry) continue
       const [lon, lat] = f.geometry.coordinates
       const key = `${lon},${lat}`
       if (!map.has(key)) map.set(key, { lon, lat, asns: [], scms: [] })

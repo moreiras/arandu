@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { fetchASNGeo, fetchIXPs, type ASNGeoFeature } from '../../services/api'
+import { comGeometria } from '../../lib/geo'
 import type { IXPPresence } from '../../types/api'
 import {
   MAP_COLORS,
@@ -235,7 +236,7 @@ export function ASNGeoMap({ asn, date, ixpPresence }: Props) {
     if (!map || !ready) return
 
     ;(map.getSource('data') as maplibregl.GeoJSONSource)?.setData({
-      type: 'FeatureCollection', features: activeFeatures,
+      type: 'FeatureCollection', features: comGeometria(activeFeatures),
     })
     ;(map.getSource('pix') as maplibregl.GeoJSONSource)?.setData(
       activePix.length

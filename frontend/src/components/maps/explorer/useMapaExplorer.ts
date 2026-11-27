@@ -206,7 +206,7 @@ export function useMapaExplorer(p: {
     const code = state.nearIxp.trim().toLowerCase()
     if (!code || !pixData || !(state.nearRadiusKm > 0)) { src.setData(EMPTY_FC); return }
     const features = pixData.features
-      .filter(f => (f.properties as Record<string, unknown>)?.ixp_code === code && f.geometry.type === 'Point')
+      .filter(f => (f.properties as Record<string, unknown>)?.ixp_code === code && f.geometry?.type === 'Point')
       .map(f => {
         const [lon, lat] = (f.geometry as GeoJSON.Point).coordinates
         return circlePolygon(lon, lat, state.nearRadiusKm)
