@@ -100,15 +100,16 @@ def multas_resumo(request: Request, date: Optional[str] = Query(None)) -> dict:
     summary="Multas constituídas por empresa (raiz do CNPJ) e serviço",
     description="""
 Uma linha por empresa (raiz do CNPJ: matriz e filiais) e grupo de serviço, com multas, valor original, pago, saldo devedor atualizado, situações (Quitado, Devedor, Parcial) e primeiro e último
-ano de aplicação. `grupo` filtra por SCM, SMP, STFC ou SeAC; `q` busca no nome ou na raiz do CNPJ; `ordem` = `empresa` (padrão: ordem alfabética pelo nome, neutra), `saldo`, `multas`, `original` ou `pago` (estas, do maior para o menor, por escolha de quem consulta); a resposta traz a regra em `regra_ordem`. **Multa constituída não é condenação definitiva.** Só pessoa jurídica.
+ano de aplicação. `grupo` filtra por SCM, SMP, STFC ou SeAC; `q` busca no nome ou na raiz do CNPJ; `ordem` = `empresa` (padrão: ordem alfabética pelo nome, neutra), `saldo`, `multas`, `original` ou `pago` (estas, do maior para o menor, por escolha de quem consulta); a resposta traz a regra em `regra_ordem`. `visao=servico` (padrão) devolve uma linha por empresa e serviço; `visao=raiz` soma os serviços de cada raiz do CNPJ numa só linha (`servicos` lista os serviços; o nome é o mais frequente entre as linhas e os outros vêm em `nomes_alternativos`). **Multa constituída não é condenação definitiva.** Só pessoa jurídica.
 """,
 )
 def multas_empresas(
     request: Request, grupo: Optional[str] = Query(None, description="SCM, SMP, STFC ou SeAC."), q: Optional[str] = Query(None, max_length=80), ordem: str = Query("empresa"),
+    visao: str = Query("servico", description="`servico` (uma linha por raiz e serviço) ou `raiz` (uma linha por raiz, serviços somados)."),
     date: Optional[str] = Query(None), limit: int = Query(25, ge=1, le=500), page: int = Query(1, ge=1),
 ) -> dict:
     try:
-        return r.multas_empresas(_doc_de(request, date, "multas", "Multas"), grupo, q, ordem, limit, (page - 1) * limit)
+        return r.multas_empresas(_doc_de(request, date, "multas", "Multas"), grupo, q, ordem, limit, (page - 1) * limit, visao)
     except r.RegulatorioErro as x:
         raise HTTPException(x.status, x.mensagem)
 

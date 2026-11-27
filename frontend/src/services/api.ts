@@ -1514,7 +1514,7 @@ export function fetchMultasResumo(date?: string): Promise<MultasResumo> {
   return get('/api/v1/multas/resumo', { date })
 }
 
-export function fetchMultasEmpresas(opts: { date?: string; grupo?: string; q?: string; ordem?: string; limit?: number; page?: number } = {}): Promise<MultasEmpresas> {
+export function fetchMultasEmpresas(opts: { date?: string; grupo?: string; q?: string; ordem?: string; visao?: 'servico' | 'raiz'; limit?: number; page?: number } = {}): Promise<MultasEmpresas> {
   return get('/api/v1/multas/empresas', { ...opts, esquema: ESQUEMA_RANKINGS })
 }
 

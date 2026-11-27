@@ -22,6 +22,7 @@ import { useActiveDate } from '../hooks/useSnapshot'
 import { manterData } from '../lib/dataAtiva'
 import { NOTA_ATUALIZACAO_MULTAS, NOTA_MULTA_CONSTITUIDA } from '../lib/referencias'
 import { palavra } from '../lib/sintese'
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 const ABAS = [
   { id: 'fust', rotulo: 'FUST' },
@@ -30,6 +31,8 @@ const ABAS = [
   { id: 'satelites', rotulo: 'Satélites' },
 ]
 const GRUPOS: GrupoServico[] = ['SCM', 'SMP', 'STFC', 'SeAC']
+// uma cor por serviço, só para distinguir as séries (identidade, não juízo)
+const COR_SERVICO: Record<GrupoServico, string> = { SCM: '#2563eb', SMP: '#d97706', STFC: '#7c3aed', SeAC: '#0891b2' }
 const inteiro = (v?: number | null) => (v == null ? '—' : Math.round(v).toLocaleString('pt-BR'))
 const reais = (v?: number | null) => (v == null ? '—' : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }))
 const mhz = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits: 4 })
@@ -129,13 +132,16 @@ function Multas() {
   const [page, setPage] = useState(1)
   // Lista paginada pela API: a ordem vai ao servidor e volta à primeira página.
   const [ordem, setOrdem] = useState('empresa')
+  // Por empresa (uma linha por raiz do CNPJ, serviços somados) abre primeiro; Por serviço é a lista de raiz × serviço.
+  const [visao, setVisao] = useState<'raiz' | 'servico'>('raiz')
   const date = useActiveDate() ?? undefined
   const resumo = useQuery({ queryKey: ['multas-resumo', date], queryFn: () => fetchMultasResumo(date), staleTime, retry: false })
-  const lista = useQuery({ queryKey: ['multas-empresas', date, grupo, q, page, ordem], queryFn: () => fetchMultasEmpresas({ date, grupo: grupo || undefined, q: q || undefined, limit: 20, page, ...(ordem === 'empresa' ? {} : { ordem }) }), staleTime, retry: false })
+  const lista = useQuery({ queryKey: ['multas-empresas', date, grupo, q, page, ordem, visao], queryFn: () => fetchMultasEmpresas({ date, grupo: grupo || undefined, q: q || undefined, visao, limit: 20, page, ...(ordem === 'empresa' ? {} : { ordem }) }), staleTime, retry: false })
   const th = thServidor(ordem, (c) => { setOrdem(c); setPage(1) })
   const r = resumo.data
   if (!r) return resumo.isError ? <EstadoDados erro={resumo.error} oQue="as multas" mensagem="Multas não publicadas neste snapshot." aoTentarDeNovo={() => void resumo.refetch()} /> : <p className="text-sm text-gray-500">Carregando…</p>
   const anos = [...r.por_ano].reverse()
+  const anosAsc = r.por_ano
   const dataArquivo = r.data_arquivo ? new Date(r.data_arquivo) : null
   const anoParcial = dataArquivo && !Number.isNaN(dataArquivo.getTime()) ? dataArquivo.getUTCFullYear() : null
   const sit = r.brasil.situacoes ?? {}
@@ -150,7 +156,7 @@ function Multas() {
       </p>
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
         <div className="flex flex-wrap items-baseline gap-x-8 gap-y-1 text-sm">
-          <div><span className="text-2xl font-semibold tabular-nums">{inteiro(r.brasil.multas)}</span> <span className="text-gray-500">multas constituídas contra {inteiro(r.brasil.empresas)} empresas/serviços</span></div>
+          <div><span className="text-2xl font-semibold tabular-nums">{inteiro(r.brasil.multas)}</span> <span className="text-gray-500">multas constituídas {r.raizes != null ? <>contra {inteiro(r.raizes)} {palavra(r.raizes, 'raiz', 'raízes')} de CNPJ ({inteiro(r.brasil.empresas)} combinações de raiz e serviço)</> : <>em {inteiro(r.brasil.empresas)} combinações de raiz de CNPJ e serviço</>}</span></div>
           <div className="text-gray-600">Saldo devedor atualizado {reais(r.brasil.saldo)} · original {reais(r.brasil.original)} · pago {reais(r.brasil.pago)}</div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -158,13 +164,37 @@ function Multas() {
             <div key={g} className="border border-gray-100 rounded p-2 text-sm"><div className="font-medium">{g}</div><div className="tabular-nums">{inteiro(r.por_grupo[g].multas)} multas</div><div className="text-xs text-gray-500">{inteiro(r.por_grupo[g].empresas)} empresas · saldo {reais(r.por_grupo[g].saldo)}</div><div className="text-xs text-gray-500">{situacaoTexto(r.por_grupo[g].situacoes ?? {})}</div></div>
           ))}
         </div>
+        <div role="img" aria-label={`Multas constituídas por ano da sanção e serviço, de ${anosAsc[0]?.ano ?? ''} a ${anosAsc[anosAsc.length - 1]?.ano ?? ''}; a tabela com os mesmos números está logo abaixo`} data-testid="grafico-multas-ano">
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={anosAsc.map((a) => ({ ...a, rotulo: a.ano === anoParcial ? `${a.ano}*` : String(a.ano) }))} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <XAxis dataKey="rotulo" tick={{ fontSize: 10 }} interval={0} angle={-60} textAnchor="end" height={44} />
+              <YAxis tick={{ fontSize: 11 }} width={44} />
+              <Tooltip />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              {GRUPOS.map((g) => <Bar key={g} dataKey={g} stackId="s" fill={COR_SERVICO[g]} isAnimationActive={false} />)}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        {anoParcial && dataArquivo && <p className="text-xs text-gray-500" data-testid="ano-parcial">* {anoParcial} é parcial: vai até {dataArquivo.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}, a data do arquivo da Anatel. O ano é o da aplicação da sanção.</p>}
+        <details className="text-sm">
+          <summary className="cursor-pointer text-primario-600 hover:underline">Ver dados (tabela por ano)</summary>
+          <div className="mt-2 overflow-x-auto">
         <table className="text-xs min-w-full"><caption className="sr-only">Multas por ano da sanção e serviço</caption>
           <thead className="text-gray-500"><tr><th scope="col" className="text-left px-2 py-1">Ano da sanção</th>{GRUPOS.map((g) => <th scope="col" key={g} className="text-right px-2 py-1">{g}</th>)}<th scope="col" className="text-right px-2 py-1">Total</th></tr></thead>
           <tbody>{anos.map((a) => <tr key={a.ano} className="border-t border-gray-100"><td className="px-2 py-1 font-medium">{a.ano}{a.ano === anoParcial && dataArquivo ? <span className="font-normal text-gray-500"> (parcial, até {dataArquivo.toLocaleDateString('pt-BR', { timeZone: 'UTC' })})</span> : null}</td>{GRUPOS.map((g) => <td key={g} className="px-2 py-1 text-right tabular-nums">{inteiro(a[g] ?? 0)}</td>)}<td className="px-2 py-1 text-right tabular-nums">{inteiro(a.total)}</td></tr>)}</tbody>
         </table>
+          </div>
+        </details>
       </section>
       <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap items-end gap-3">
+          <div role="group" aria-label="Unidade da lista" className="flex text-sm" data-testid="visao-multas">
+            {([['raiz', 'Por empresa'], ['servico', 'Por serviço']] as const).map(([v, rot]) => (
+              <button key={v} type="button" aria-pressed={visao === v} onClick={() => { setVisao(v); setPage(1) }}
+                className={`px-3 py-1.5 border border-gray-300 first:rounded-l last:rounded-r ${visao === v ? 'bg-primario-50 text-primario-700 font-medium' : 'bg-white text-gray-700'}`}>{rot}</button>
+            ))}
+          </div>
           <label className="text-sm text-gray-600 flex flex-col">Serviço
             <select value={grupo} onChange={(e) => { setGrupo(e.target.value); setPage(1) }} className="border border-gray-300 rounded px-2 py-1.5 text-sm"><option value="">Todos</option>{GRUPOS.map((g) => <option key={g} value={g}>{g}</option>)}</select></label>
           <label className="text-sm text-gray-600 flex flex-col">Empresa ou raiz do CNPJ
@@ -173,14 +203,14 @@ function Multas() {
         {lista.isError && <EstadoDados erro={lista.error} oQue="a lista" mensagem="A lista não está publicada neste snapshot." aoTentarDeNovo={() => void lista.refetch()} />}
         {lista.data && (
           <>
-            <p className="text-xs text-gray-600" data-testid="regra-multas">{lista.data.regra_ordem ?? 'Ordem alfabética pelo nome da empresa.'} Reordene pelos cabeçalhos. <strong>Multa constituída não é condenação definitiva.</strong></p>
+            <p className="text-xs text-gray-600" data-testid="regra-multas">{lista.data.regra_ordem ?? 'Ordem alfabética pelo nome da empresa.'} {visao === 'raiz' ? 'Cada linha é uma raiz de CNPJ (matriz e filiais), com os serviços somados; o nome é o mais frequente entre os serviços.' : 'Cada linha é uma raiz de CNPJ em um serviço.'} Valores absolutos, acumulados desde o primeiro ano registrado, sem ajuste pelo tamanho da empresa. Reordene pelos cabeçalhos. <strong>Multa constituída não é condenação definitiva.</strong></p>
             <div className="overflow-x-auto">
-              <table className="text-xs min-w-full"><caption className="sr-only">Multas por empresa e serviço</caption>
-                <thead className="text-gray-500"><tr><ThOrdenavel {...th('empresa')} className="text-left px-2 py-1">Empresa</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Serviço</th><ThOrdenavel {...th('multas')} alinhar="right" className="text-right px-2 py-1">Multas</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Situação das multas</th><ThOrdenavel {...th('saldo')} alinhar="right" className="text-right px-2 py-1">Saldo atualizado</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Anos</th></tr></thead>
+              <table className="text-xs min-w-full"><caption className="sr-only">{visao === 'raiz' ? 'Multas por empresa (raiz do CNPJ), serviços somados' : 'Multas por empresa e serviço'}</caption>
+                <thead className="text-gray-500"><tr><ThOrdenavel {...th('empresa')} className="text-left px-2 py-1">Empresa</ThOrdenavel><th scope="col" className="text-left px-2 py-1">{visao === 'raiz' ? 'Serviços' : 'Serviço'}</th><ThOrdenavel {...th('multas')} alinhar="right" className="text-right px-2 py-1">Multas</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Situação das multas</th><ThOrdenavel {...th('saldo')} alinhar="right" className="text-right px-2 py-1">Saldo atualizado</ThOrdenavel><th scope="col" className="text-left px-2 py-1">Anos</th></tr></thead>
                 <tbody>{lista.data.items.map((e) => (
-                  <tr key={`${e.raiz}-${e.grupo}`} className="border-t border-gray-100">
-                    <td className="px-2 py-1">{e.cnpj_matriz ? <Link to={`/operadora/${e.cnpj_matriz}`} className="text-primario-600 hover:underline">{e.entidade}</Link> : e.entidade}</td>
-                    <td className="px-2 py-1">{e.grupo}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(e.multas)}</td>
+                  <tr key={`${e.raiz}-${e.grupo ?? 'raiz'}`} className="border-t border-gray-100">
+                    <td className="px-2 py-1" title={e.nomes_alternativos?.length ? `Outros nomes da mesma raiz: ${e.nomes_alternativos.join('; ')}` : undefined}>{e.cnpj_matriz ? <Link to={`/operadora/${e.cnpj_matriz}`} className="text-primario-600 hover:underline">{e.entidade}</Link> : e.entidade}</td>
+                    <td className="px-2 py-1">{e.servicos ? e.servicos.join(', ') : e.grupo}</td><td className="px-2 py-1 text-right tabular-nums">{inteiro(e.multas)}</td>
                     <td className="px-2 py-1">{situacaoTexto(e.situacoes)}</td><td className="px-2 py-1 text-right tabular-nums">{reais(e.saldo)}</td>
                     <td className="px-2 py-1">{e.primeiro_ano === e.ultimo_ano ? e.primeiro_ano : `${e.primeiro_ano} a ${e.ultimo_ano}`}</td></tr>))}</tbody>
               </table>

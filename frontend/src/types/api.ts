@@ -2532,6 +2532,8 @@ export interface RegMeta { natureza: string; fonte: string; data_arquivo: string
 export type GrupoServico = 'SCM' | 'SMP' | 'STFC' | 'SeAC'
 export interface MultasTotais { empresas: number; multas: number; original: number; pago: number; saldo: number; situacoes: Record<string, number> }
 export interface MultasResumo extends RegMeta {
+  /** Raízes de CNPJ distintas; `brasil.empresas` conta raiz × serviço. Ausente em respostas antigas. */
+  raizes?: number
   leitura: { linhas: number; pessoa_fisica: number; fora_do_escopo: number; sem_servico: number; empresas: number; multas: number }
   brasil: MultasTotais; por_grupo: Record<GrupoServico, MultasTotais>; por_ano: Array<{ ano: number; total: number } & Record<GrupoServico, number>>
 }
@@ -2539,7 +2541,9 @@ export interface MultaEmpresa {
   raiz: string; cnpj_matriz: string | null; entidade: string; grupo: GrupoServico; uf: string | null; multas: number; original: number; pago: number; saldo: number
   situacoes: Record<string, number>; primeiro_ano: string | null; ultimo_ano: string | null
 }
-export interface MultasEmpresas extends RegMeta { grupo: string | null; ordem: string; regra_ordem?: string; aviso?: string; total: number; limit: number; offset: number; items: MultaEmpresa[] }
+/** Linha da lista de multas: por raiz e serviço (`grupo`) ou, com `visao=raiz`, por raiz com `servicos` somados e os outros nomes em `nomes_alternativos`. */
+export type MultaLinha = Omit<MultaEmpresa, 'grupo'> & { grupo?: GrupoServico; servicos?: GrupoServico[]; nomes_alternativos?: string[] }
+export interface MultasEmpresas extends RegMeta { visao?: 'servico' | 'raiz'; grupo: string | null; ordem: string; regra_ordem?: string; aviso?: string; total: number; limit: number; offset: number; items: MultaLinha[] }
 export interface MultasOperadora extends RegMeta {
   raiz: string; multas: number; original: number; pago: number; saldo: number; por_grupo: MultaEmpresa[]; brasil: { empresas: number; multas: number; saldo: number }
 }
