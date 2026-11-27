@@ -18,6 +18,8 @@ import {
   COR_ALOCADO_VISIVEL,
 } from './hilbert'
 import { ZoomModalDashV4 } from './IXPHilbertZoom'
+import { QuadrantesTeclado } from './QuadrantesTeclado'
+import { nomeAmpliar, prefixoQuadranteV4 } from './quadrantes'
 import { corLegivel } from '../../lib/contraste'
 import { palavra } from '../../lib/sintese'
 
@@ -151,6 +153,11 @@ export function HilbertMap16({ data: dataProp, activeLayer, width = CANVAS_PX, d
     return active
   }, [density])
 
+  const quadrantes = useMemo(() => [...slash8WithData].map((idx) => {
+    const { sx, sy, block } = SLASH8_GRID[idx]
+    return { col: sx, lin: sy, nome: nomeAmpliar(prefixoQuadranteV4(block)), aoAbrir: () => setZoomedBlock({ sx, sy, slashEight: block }) }
+  }), [slash8WithData])
+
   // Render whenever data or layer changes
   useEffect(() => {
     const canvas = canvasRef.current
@@ -263,6 +270,8 @@ export function HilbertMap16({ data: dataProp, activeLayer, width = CANVAS_PX, d
             )
           })}
         </svg>
+
+        <QuadrantesTeclado lado={16} quadrantes={quadrantes} rotulo="Quadrantes do mapa IPv4, use as setas" />
 
         {tooltip !== null && (() => {
           const { blockIdx, cssX, cssY } = tooltip

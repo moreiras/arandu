@@ -16,6 +16,7 @@ import {
 import { fetchIXPHilbertV4Detail, fetchHilbertV4Detail } from '../../services/api'
 import type { LayerKey } from './HilbertMap16'
 import { ModalAcessivel } from '../ui/ModalAcessivel'
+import { prefixoQuadranteDeCelula } from './quadrantes'
 import { palavra } from '../../lib/sintese'
 
 const ZOOM_CANVAS = 512
@@ -807,7 +808,7 @@ export function ZoomModalV6({
   const slashTwentyPrefix = useMemo(() => {
     if (!activeCells.length) return `${config.rir} /20`
     const minCell = Math.min(...activeCells)
-    return cellIndexToV6Prefix(minCell & ~0xFFF, config).replace('::/32', '::/20')
+    return prefixoQuadranteDeCelula(config, minCell)
   }, [activeCells, config])
 
   const slash32Count = activeCells.length

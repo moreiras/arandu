@@ -7,6 +7,7 @@ import { V6_BLOCKS, type V6BlockConfig } from './hilbert'
 import { HilbertMapV6Block, V6_LAYER_META, V6_DUAL_COLOR_LAYERS, type V6LayerKey, type V6LayerMeta, type V6BlockData } from './HilbertMapV6Block'
 import type { HilbertV6Data } from '../../types/api'
 import { corLegivel } from '../../lib/contraste'
+import { LEGENDA_MARCADOR } from './isoladas'
 
 interface HilbertMapV6Props {
   data: HilbertV6Data | Record<string, Record<string, number[]>> | null
@@ -27,7 +28,7 @@ interface HilbertMapV6Props {
   rodape?: string
 }
 
-const RODAPE_PADRAO = 'Cada célula = bloco /32 IPv6. Legado (2001::/16): grade 256×256. Blocos /12: grade 1024×1024 (downscale suave). Passe o mouse para ver o prefixo. Clique em blocos destacados para ampliar.'
+const RODAPE_PADRAO = 'Cada célula = bloco /32 IPv6. Legado (2001::/16): grade 256×256. Blocos /12: grade 1024×1024 (downscale suave). Passe o mouse para ver o prefixo. Clique em blocos destacados, ou use Tab e Enter, para ampliar. ' + LEGENDA_MARCADOR
 
 export function HilbertMapV6({ data, blockWidth: blockWidthProp = 160, layerMeta = V6_LAYER_META, camadaInicial = 'rir_br', onCamada, dualLayers = V6_DUAL_COLOR_LAYERS, baseLayer = 'rir_br', rotuloBloco, rodape = RODAPE_PADRAO }: HilbertMapV6Props) {
   const [activeLayer, setActiveLayerEstado] = useState<V6LayerKey | string>(camadaInicial)

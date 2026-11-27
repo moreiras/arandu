@@ -20,6 +20,8 @@ import {
   opacidadeDensidade,
 } from './hilbert'
 import { ZoomModalV4 } from './IXPHilbertZoom'
+import { QuadrantesTeclado } from './QuadrantesTeclado'
+import { nomeAmpliar, prefixoQuadranteV4 } from './quadrantes'
 
 const CANVAS_PX = 512
 const CELL = CANVAS_PX / 256
@@ -160,6 +162,11 @@ export function IXPHilbert16({
     })
     return active
   }, [activeDensity])
+
+  const quadrantes = useMemo(() => [...slash8WithData].map((idx) => {
+    const { sx, sy, block } = SLASH8_GRID[idx]
+    return { col: sx, lin: sy, nome: nomeAmpliar(prefixoQuadranteV4(block)), aoAbrir: () => setZoomedBlock({ sx, sy, slashEight: block }) }
+  }), [slash8WithData])
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -306,6 +313,8 @@ export function IXPHilbert16({
                 })}
               </svg>
 
+              <QuadrantesTeclado lado={16} quadrantes={quadrantes} rotulo="Quadrantes do mapa IPv4, use as setas" />
+
               {/* Tooltip */}
               {tooltip !== null && (() => {
                 const { blockIdx, cssX, cssY } = tooltip
@@ -358,7 +367,7 @@ export function IXPHilbert16({
       </div>
 
       <p className="text-xs text-gray-400">
-        Cada célula = bloco /16. Clique em um bloco /8 destacado para ampliar. Use o dropdown ou a tabela para selecionar um peer.
+        Cada célula = bloco /16. Clique em um bloco /8 destacado, ou use Tab e Enter, para ampliar. Use o dropdown ou a tabela para selecionar um peer.
       </p>
 
       {zoomedBlock && (

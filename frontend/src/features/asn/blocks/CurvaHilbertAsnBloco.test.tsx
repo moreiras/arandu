@@ -114,7 +114,8 @@ describe('curvas de Hilbert do AS (os mesmos mapas do panorama técnico)', () =>
 
   it('os controles próprios são botões reais com altura mínima; o resumo conta os prefixos da camada', () => {
     render(<HilbertIpv4Bloco dados={dados(doc) as any} snapshot="2026-09-20" />)
-    for (const b of screen.getAllByRole('button')) expect(b.className).toMatch(/min-h-\[2[48]px\]/)
+    // Os botões de quadrante sobre o mapa só recebem foco do teclado (sem captura do mouse): o alvo do ponteiro é o canvas, então a altura mínima não se aplica.
+    for (const b of screen.getAllByRole('button')) if (!b.hasAttribute('data-quadrante')) expect(b.className).toMatch(/min-h-\[2[48]px\]/)
     expect(screen.getByTestId('resumo-curva-v4').textContent).toMatch(/1 prefixo IPv4 na camada "Alocado pelo Registro\.br"/)
   })
 })
