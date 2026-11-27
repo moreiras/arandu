@@ -9,6 +9,7 @@ import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-li
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
 import { server } from '../../../test/server'
+import type { PixCobertura } from '../../../services/api'
 import { Legend } from './Legenda'
 import { LayerPanel } from './PainelCamadas'
 import { resumirScm } from './scmSici'
@@ -116,6 +117,24 @@ describe('painel de camadas', () => {
     const texto = screen.getByTestId('resumo-scm-uf').textContent ?? ''
     expect(texto).toMatch(/não uma avaliação de cumprimento/)
     expect(texto).not.toMatch(/irregular|infra[çc]|omiss|omitiu|pior|melhor/i)
+  })
+
+  it('PIX: o texto de cobertura vem do dado, com fonte e data, e cita os PTTs sem local (PT-25 / MAPA 5.1)', () => {
+    const cobertura: PixCobertura = { locais_no_cadastro: 189, locais_com_coordenadas: 173, ptts_sem_local: ['Caxias do Sul'], fonte: 'cadastro de PIX do IX.br (config/pix.yaml)', data_cadastro: '2026-11-24', snapshot_date: '2026-11-22' }
+    const P = ({ c }: { c: PixCobertura | null }) => {
+      const [state, setState] = useState<MapState>(INITIAL)
+      return <LayerPanel state={state} onChange={setState} onClose={() => {}} statuses={statusOff} selectedIx={null} pixCobertura={c} />
+    }
+    const { unmount } = render(envolver(<P c={cobertura} />))
+    const t = screen.getByTestId('pix-cobertura').textContent ?? ''
+    expect(t).toMatch(/173 de 189 locais do cadastro com coordenadas no mapa/)
+    expect(t).toMatch(/cadastro de PIX do IX\.br \(config\/pix\.yaml\), cadastro de 2026-11-24; snapshot 2026-11-22/)
+    expect(t).toMatch(/PTTs sem nenhum local no mapa: Caxias do Sul\./)
+    unmount()
+    render(envolver(<P c={{ ...cobertura, locais_no_cadastro: 1, locais_com_coordenadas: 1, ptts_sem_local: [], data_cadastro: null }} />))
+    const u = screen.getByTestId('pix-cobertura').textContent ?? ''
+    expect(u).toMatch(/1 de 1 local do cadastro/)
+    expect(u).not.toMatch(/PTTs sem nenhum local|cadastro de 20/)
   })
 
   it('lista de PTTs vem de /ixps, sem os ausentes, em ordem alfabética', async () => {

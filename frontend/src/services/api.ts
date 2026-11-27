@@ -788,7 +788,10 @@ export interface MapQueryResponse {
   snapshot_date: string
   // null quando nenhuma camada pedida depende do recorte de ASes
   matched_asns: number | null
+  /** Só com a camada `pix`: locais do cadastro com coordenadas e PTTs sem nenhum local no mapa (texto gerado do dado). */
+  pix_cobertura?: PixCobertura
 }
+export interface PixCobertura { locais_no_cadastro: number; locais_com_coordenadas: number; ptts_sem_local: string[]; fonte: string; data_cadastro: string | null; snapshot_date: string }
 
 /** GET de um caminho da API com parâmetros (cartões da página inicial). Mesmo tratamento de login e limite das demais chamadas. */
 export function fetchCaminho<T = unknown>(caminho: string, params?: Record<string, string | number | boolean | undefined>): Promise<T> {

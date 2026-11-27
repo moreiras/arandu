@@ -31,6 +31,7 @@ class GeolocalizacaoService:
         self._ixp_geo_cache = _SafeLRU(maxsize=512)                              # (data, ixp, camada): 2 datas × ~40 PTTs × 5 camadas
         self._mmdb: object = _MMDB_UNINIT                                          # leitor lazy; None se indisponível
         self._pix_config: Optional[dict] = _MMDB_UNINIT  # type: ignore[assignment]  # config/pix.yaml, lido uma vez
+        self._pix_cadastro: dict = {}                     # contagem de locais do cadastro (com e sem coordenadas), da mesma leitura
         self._asn_geo_cache = _SafeLRU(maxsize=2048)                             # (data, asn, camada) → FeatureCollection
         self._origin_prefixes_cache = _SafeLRU(maxsize=256)                      # "{data}/{ixp}/{afi}" → {asn: [prefixos]}
 
@@ -121,10 +122,17 @@ class GeolocalizacaoService:
             if sem:
                 _log.warning("pix.yaml: %d PIX sem coordenada fora do mapa: %s", len(sem), ", ".join(sem))
             self._pix_config = result
+            todos = [e for entries in raw.values() for e in (entries or [])]
+            self._pix_cadastro = {"locais": len(todos), "com_coordenadas": len(todos) - len(sem), "data_cadastro": str(cfg.get("data_cadastro") or "") or None}
         except Exception as exc:
             _log.warning("failed to load pix.yaml: %s", exc)
             self._pix_config = {}
         return self._pix_config  # type: ignore[return-value]
+
+    def pix_cadastro(self) -> dict:
+        """{locais, com_coordenadas, data_cadastro} do `config/pix.yaml` (a mesma leitura de `pix_config`): quantos locais o cadastro tem e quantos entram no mapa."""
+        self.pix_config()
+        return dict(self._pix_cadastro)
 
     def _compute_ixp_geo(self, date_str: str, code: str, layer: str) -> Optional[dict]:
         ixp_doc = self.ixp_detail(date_str, code)

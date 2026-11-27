@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AccessError, type MapQueryBody } from '../../services/api'
+import { AccessError, type MapQueryBody, type PixCobertura } from '../../services/api'
 import { estadoDoErro, formatarEspera } from '../ui/EstadoDados'
 import { useAuth } from '../../auth/AuthContext'
 import { baixarCsv } from './explorer/csv'
@@ -113,6 +113,7 @@ export function ExplorerMap({ date }: { date?: string }) {
             selectedIx={selectedIx}
             date={date}
             resumoScm={resumoScm}
+            pixCobertura={(dados.resultById.pix?.data as { pix_cobertura?: PixCobertura } | undefined)?.pix_cobertura ?? null}
           />
         </div>
       )}

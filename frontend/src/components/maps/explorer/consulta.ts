@@ -88,7 +88,7 @@ export function layerBody(id: DataLayerId, s: MapState): MapQueryBody {
   return body
 }
 
-export type LayerData = GeoJSON.FeatureCollection & Partial<Pick<MapQueryResponse, 'snapshot_date' | 'matched_asns'>>
+export type LayerData = GeoJSON.FeatureCollection & Partial<Pick<MapQueryResponse, 'snapshot_date' | 'matched_asns' | 'pix_cobertura'>>
 
 // Chave + função de busca de cada camada de dados. Rodovias usam a rota GET
 // filtrada no servidor (124 mil feições no total: grande demais para o POST /map/query).

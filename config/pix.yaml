@@ -1,6 +1,8 @@
 # PIX (Pontos de Intercâmbio) do IX.br — localização física
 # Gerado por scripts/scrape_pix_locations.py
 # Fonte: https://old.ix.br/adesao/{code}
+# data_cadastro: data da última alteração do cadastro (a tela do mapa a mostra); atualizar ao regravar o arquivo
+data_cadastro: '2026-11-24'
 
 pix:
   ac:

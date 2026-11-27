@@ -8,12 +8,14 @@ import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchIXPs } from '../../../services/api'
 import { DownloadIcon, CloseIcon, FunnelIcon, Spinner } from './icones'
+import { palavra } from '../../../lib/sintese'
 import { hasRecorte, makeGroup, makePredicate } from './consulta'
 import { Swatch } from './Legenda'
 import { PredicateRow } from './PredicateRow'
 import { INITIAL, LAYERS, LAYER_BY_ID } from './tipos'
 import type { FilterGroup, LayerDef, LayerId, MapState, Predicate, ScmColorBy } from './tipos'
 import type { ResumoScm } from './scmSici'
+import type { PixCobertura } from '../../../services/api'
 
 export interface LayerStatus {
   state: 'off' | 'queued' | 'loading' | 'error' | 'done'
@@ -135,6 +137,7 @@ export function LayerPanel({
   selectedIx,
   date,
   resumoScm,
+  pixCobertura,
 }: {
   state: MapState
   onChange: (s: MapState) => void
@@ -145,6 +148,8 @@ export function LayerPanel({
   date?: string
   /** Contagens das outorgas SCM que chegaram (recorte aplicado), para o resumo por UF e a legenda. */
   resumoScm?: ResumoScm | null
+  /** Cobertura do cadastro de PIX que a camada trouxe (texto gerado do dado, com fonte e data). */
+  pixCobertura?: PixCobertura | null
 }) {
   const set = (partial: Partial<MapState>) => onChange({ ...state, ...partial })
   const setOn = (id: LayerId, v: boolean) => set({ on: { ...state.on, [id]: v } })
@@ -480,11 +485,22 @@ export function LayerPanel({
 
         {/* Infraestrutura física */}
         <Section title="Infraestrutura física" open={open.infra} onToggle={() => toggleSection('infra')}>
-          {row('pix', selectedIx && (
-            <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer">
-              <input type="checkbox" checked={state.pixOnlySelected} onChange={e => set({ pixOnlySelected: e.target.checked })} />
-              só do PTT selecionado ({selectedIx})
-            </label>
+          {row('pix', (
+            <>
+              {selectedIx && (
+                <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer">
+                  <input type="checkbox" checked={state.pixOnlySelected} onChange={e => set({ pixOnlySelected: e.target.checked })} />
+                  só do PTT selecionado ({selectedIx})
+                </label>
+              )}
+              {pixCobertura && pixCobertura.locais_no_cadastro > 0 && (
+                <p className="text-xs text-gray-400 leading-snug" data-testid="pix-cobertura">
+                  {pixCobertura.locais_com_coordenadas.toLocaleString('pt-BR')} de {pixCobertura.locais_no_cadastro.toLocaleString('pt-BR')} {palavra(pixCobertura.locais_no_cadastro, 'local', 'locais')} do cadastro com coordenadas no mapa
+                  {' '}(fato: {pixCobertura.fonte}{pixCobertura.data_cadastro ? `, cadastro de ${pixCobertura.data_cadastro}` : ''}; snapshot {pixCobertura.snapshot_date}).
+                  {pixCobertura.ptts_sem_local.length > 0 && ` PTTs sem nenhum local no mapa: ${pixCobertura.ptts_sem_local.join(', ')}.`}
+                </p>
+              )}
+            </>
           ))}
           {row('submarine')}
           {row('terrestrial')}
