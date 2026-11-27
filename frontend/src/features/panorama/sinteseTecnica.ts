@@ -13,7 +13,7 @@ export const REGRAS_SINTESE_TECNICA = 'sintese-tecnica-2'
 /**
  * Síntese do Resumo do Panorama técnico (PT-22, panorama-técnico 5.2): frases montadas dos objetos que os KPIs da aba usam (`summary` do snapshot e
  * `/brasil/indicadores`), com as mesmas contas (`fracao`). Descreve, não explica: nada de causa, comparação regional nem juízo. O recorte por região
- * da proposta (5.2) pede o agregado no pipeline e não está aqui.
+ * (5.2) é a tabela `RetratoRegional`, depois dos cartões, e não entra nas frases.
  */
 export function sinteseTecnica(s: SnapshotSummary | null | undefined, br: BrasilIndicadores | null | undefined, ref: string | null | undefined): FraseSintese[] {
   const pub = br?.rpki?.publicacao

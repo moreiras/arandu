@@ -334,6 +334,20 @@ parênteses remetem à análise.
   aproximado, obtido por amostragem ou modelo"). Faixas de distância ao PTT no painel da UF numa escala de um só tom, sem vermelho. Em
   `/privacidade`, seção 4, parênteses no lugar dos travessões, só pontuação; com isso o teste de travessão não tem mais exceção. O
   componente `SinteseTopo`, sem uso desde a replicação, sai. O AGENTS.md ganha o item "Apresentação" com as regras do PT-30.
+- **Seções 5 restantes do PT-22 (decisão do mantenedor, 2026-11-27).** Além do resumo em texto, que não muda de lugar, cada página ganha o
+  que a análise propunha e ainda faltava. Home: "O que mudou" passa a contar por tipo de evento (ASes novos e que sumiram, entradas e saídas
+  de PTT, outorgas, RPKI inválido, ROA), com o período dito, os ainda em confirmação à parte e cada contagem ligada a `/mudancas` com o tipo
+  já escolhido (`/brasil/destaques` ganha `o_que_mudou.por_tipo`, `ate` e `datas_atipicas`; parâmetro `esquema` 2 no front). Panorama técnico:
+  tabela "Por região (sede da organização do AS)" com ASNs, usuários estimados e a parte deles com IPv6, em ASNs com ROA e em ASNs com sessão
+  em route server, com a nota de que a região é a da sede (`/brasil/indicadores` ganha `por_regiao`, que fecha o total nacional; `esquema` 6).
+  Panorama de mercado: cartões de banda larga fixa e móvel, cada serviço com o seu mês e nunca somados (acessos e variação em 12 meses, três
+  maiores por CNPJ e por empresa ou grupo inferido, HHI nacional e municípios com HHI local de 2.500 ou mais, linhas móveis sem M2M). UF: "Brasil: X e posição
+  N de 27 UFs" em cada cartão do painel, mais os cartões "Acessos por 100 domicílios" e "ASNs com sede na UF". PTT: "Este PTT entre os PTTs do IX.br"
+  (medida, mediana e posição, IPv6 antes de IPv4), a UF como link com os outros PTTs da UF e o parágrafo "O que é um PTT". IXPs: o cartão de
+  PTTs conta só o IX.br, o PeeringDB aparece à parte e dividido em "No Brasil" e "No exterior", a tabela agregada ganha título e há "Como citar esta
+  página". CDNs: tabela "Por PTT" agrupada por região e UF, com as UFs sem provedor do catálogo. Uso da Internet: cinco cartões com valor, margem,
+  universo, pesquisa e edição, cada um levando à tabela, e a pesquisa passa a ser a aba `?aba=` da URL. Localizador: ponto por latitude e longitude
+  digitadas, diálogo das entidades com nome, foco e Escape, e tabela do raio em texto, paginada. `/mudancas` aceita `?tipo=`. Sem rota nova.
 
 ## v2.1.3
 

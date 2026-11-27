@@ -9,6 +9,7 @@ técnico, numa chamada só e aberta (a home é página de entrada).
 - `ipv6`: adoção de IPv6 pelos usuários, somando as estimativas do APNIC por ASN do Brasil (Σ usuários IPv6 ÷ Σ usuários). É agregado dos
   ASes, não o número que o APNIC publica por país (que usa a própria amostra por país); a diferença costuma ser pequena e vem rotulada;
 - `dnssec` e `rov`: o agregado nacional do produto de segurança de roteamento (medições do APNIC por ASN, com amostra mínima);
+- `por_regiao`: o retrato por macro-região da sede do AS (ASNs, usuários, IPv6, ROA e sessão em route server do IX.br; as linhas fecham o total);
 - `prontidao`: o índice de prontidão em segurança de roteamento do país (classes, média ponderada por usuários, pilares e componentes);
 - `rpki` (Panorama técnico): `publicacao` (ASNs com ROA e ASPA, o mesmo corpo de `/rpki/summary`) e `rotas` (estado RPKI de origem das
   rotas brasileiras e totais de saúde da tabela, de `routing_analysis_resumo.json`; null em snapshot sem o arquivo).
@@ -39,11 +40,59 @@ def ipv6_apnic(store: Store, date_str: str) -> dict:
     }
 
 
+_REGIOES = ("N", "NE", "CO", "SE", "S")
+_NOMES_REGIAO = {"N": "Norte", "NE": "Nordeste", "CO": "Centro-Oeste", "SE": "Sudeste", "S": "Sul"}
+
+
+def por_regiao(store: Store, date_str: str) -> Optional[dict]:
+    """Retrato por macro-região (IBGE) da sede da organização dona do AS (PT-22 / PANORAMA TÉCNICO 5.2): ASNs do Registro.br, usuários estimados pelo
+    APNIC, usuários em ASNs com IPv6, com ROA e com sessão em route server do IX.br. Soma os mesmos números do agregado nacional, de modo que as linhas
+    (mais `sem_regiao`) fecham o total. A região é a da sede da empresa, não a dos usuários. None sem o cadastro de organizações (sem número, não zero)."""
+    from api.query_catalogo import REGION_BY_UF
+    try:
+        geo = store._load_geo_orgs(date_str)
+    except Exception:
+        return None
+    if not geo:
+        return None
+    zero = lambda: {"asns": 0, "usuarios": 0, "usuarios_ipv6": 0, "usuarios_com_roa": 0, "usuarios_sessao_rs": 0, "asns_com_ipv6": 0}
+    linhas = {r: zero() for r in _REGIOES}
+    linhas["sem_regiao"] = zero()
+    for a in store.asn_index(date_str):
+        if not a.get("is_br"):
+            continue
+        uf = (geo.get(a.get("asn")) or {}).get("uf")
+        reg = REGION_BY_UF.get(uf)
+        l = linhas[reg if reg in _REGIOES else "sem_regiao"]
+        u = a.get("apnic_users") or 0
+        l["asns"] += 1
+        l["usuarios"] += u
+        l["usuarios_ipv6"] += a.get("apnic_v6_users") or 0
+        if a.get("has_rpki"):
+            l["usuarios_com_roa"] += u
+        if (a.get("ixps_direct_count") or 0) >= 1:
+            l["usuarios_sessao_rs"] += u
+    total = zero()
+    for l in linhas.values():
+        for k in total:
+            total[k] += l[k]
+    return {
+        "regioes": [{"regiao": r, "nome": _NOMES_REGIAO[r], **linhas[r]} for r in _REGIOES],
+        "sem_regiao": linhas["sem_regiao"], "total": total,
+        "fonte": "APNIC Labs (usuários por ASN), RPKI (ROA), looking glasses do IX.br (sessão em route server) e cadastro de organizações (região da sede)",
+        "nota": "A região é a da sede da empresa dona do AS, não a dos usuários: uma operadora nacional sediada em uma região conta todos os seus usuários nela. "
+                "Sessão em route server não inclui acordos bilaterais nem interligação privada.",
+    }
+
+
 def indicadores(store: Store, date_str: str) -> dict:
     chave = (id(store), date_str)
     if chave in _CACHE:
         return _CACHE[chave]
     out: dict = {"snapshot_date": date_str, "ipv6": ipv6_apnic(store, date_str)}
+    regioes = por_regiao(store, date_str)
+    if regioes:
+        out["por_regiao"] = regioes
     seg = store.seguranca_doc(date_str)
     if seg:
         b = seg.get("brasil") or {}
@@ -80,7 +129,7 @@ def indicadores(store: Store, date_str: str) -> dict:
     description="""
 Agregados nacionais para a home e o Panorama técnico: `ipv6` (Σ usuários com IPv6 ÷ Σ usuários nas estimativas do APNIC por ASN do Brasil; não é o número por país do
 APNIC), `dnssec` e `rov` (percentual medido pelo APNIC, mediana e média ponderada, só ASNs com amostra suficiente) e `prontidao` (índice do país por classe, média ponderada
-por usuários, pilares e componentes, com as regras) e `rpki` (`publicacao`: ASNs com ROA e ASPA; `rotas`: estado RPKI de origem das rotas brasileiras, válidas,
+por usuários, pilares e componentes, com as regras) e `por_regiao` (retrato por macro-região da sede do AS, com as linhas fechando o total) e `rpki` (`publicacao`: ASNs com ROA e ASPA; `rotas`: estado RPKI de origem das rotas brasileiras, válidas,
 inválidas e sem ROA, com o espaço de cada estado, e totais de saúde da tabela; `rotas` é null em snapshot anterior ao resumo). Só números do país: o detalhe por UF e porte está em `/seguranca/resumo` e `/prontidao/resumo`. Fontes e limites na resposta.
 """,
 )
@@ -107,6 +156,22 @@ _O_QUE_MUDOU = {"filter": {"and": [{"field": "tipo", "op": "eq", "value": "asn_n
 _CACHE_DESTAQUES: dict[tuple, dict] = {}
 
 
+# Tipos de evento mostrados na Home em "O que mudou" (PT-22 / HOME 5.4), na ordem de leitura. Fora os de provedor (inferência) e os de alerta.
+_TIPOS_JANELA = ("asn_novo", "asn_sumido", "ixp_entrada", "ixp_saida", "roa_ganho", "roa_perdido", "rpki_invalido_novo", "rpki_invalido_resolvido",
+                 "outorga_nova", "outorga_baixa")
+
+
+def _por_tipo_da_janela(store: Store, de: str, ate: str) -> dict:
+    """Contagem por tipo e estado dos eventos entre `de` e `ate` (a mesma de `/changes/summary`, restrita a `_TIPOS_JANELA`), mais as datas atípicas."""
+    from api.repos.historico import HistoricoRepo
+    from api.services import historico as h
+    r = h.mudancas_resumo(HistoricoRepo(store.base), de, ate, tipo=",".join(_TIPOS_JANELA))
+    out = {"por_tipo": {t: r["por_tipo"].get(t, {"confirmado": 0, "pendente": 0, "revertido": 0}) for t in _TIPOS_JANELA}}
+    if r.get("datas_atipicas"):
+        out["datas_atipicas"] = r["datas_atipicas"]
+    return out
+
+
 def destaques_home(store: Store, date_str: str) -> dict:
     chave = (id(store), date_str)
     if chave in _CACHE_DESTAQUES:
@@ -120,7 +185,8 @@ def destaques_home(store: Store, date_str: str) -> dict:
     janela_de = store.list_snapshots()[-N_DATAS_ATUAIS:][0]
     r = store.query(date_str, "eventos", {**_O_QUE_MUDOU, "de": janela_de})
     ultimo = (r.get("items") or [None])[0]
-    out["o_que_mudou"] = {"total": r.get("total", 0), "de": janela_de, "mais_recente": (ultimo or {}).get("data")}
+    out["o_que_mudou"] = {"total": r.get("total", 0), "de": janela_de, "mais_recente": (ultimo or {}).get("data"),
+                         "ate": date_str, **_por_tipo_da_janela(store, janela_de, date_str)}
     if len(_CACHE_DESTAQUES) > 16:
         _CACHE_DESTAQUES.clear()
     _CACHE_DESTAQUES[chave] = out
@@ -133,7 +199,7 @@ def destaques_home(store: Store, date_str: str) -> dict:
     description="""
 Os números fixos dos destaques da página inicial, numa chamada aberta: `destaques` traz o `total` de cada pergunta pronta (operadoras com mais de 5 mil acessos sem ASN
 próprio, ASes brasileiros em 3 ou mais PTTs com IPv6 e sem ROA, municípios com uma operadora de 80% ou mais da banda larga fixa e ASNs com usuários APNIC 10 vezes ou mais acima do esperado
-pelos acessos SCM) e `o_que_mudou` os ASes brasileiros novos e confirmados desde `de`, a data do snapshot atual mais antigo (a rota é aberta, então não alcança o histórico). Cada total é
+pelos acessos SCM) e `o_que_mudou` os ASes brasileiros novos e confirmados desde `de`, a data do snapshot atual mais antigo (a rota é aberta, então não alcança o histórico), com `por_tipo` (eventos entre `de` e `ate` por tipo e estado: confirmado, pendente e revertido; diferença observada entre snapshots, sem causa). Cada total é
 o da lista de destino do destaque. As consultas são fixas; a consulta genérica (`/query`) segue medida.
 """,
 )

@@ -34,7 +34,7 @@ const montar = () => render(
 describe('/cdns: grade e controles acessíveis (CDNS-E7, SEG-E1)', () => {
   it('a grade tem caption, cabeçalhos com scope e estado de cada célula em texto', async () => {
     montar()
-    const tabela = await screen.findByRole('table')
+    const tabela = await screen.findByRole('table', { name: /Estado de cada CDN/ })
     expect(tabela.querySelector('caption')).toHaveTextContent(/Estado de cada CDN/)
     for (const th of tabela.querySelectorAll('thead th')) expect(th).toHaveAttribute('scope', 'col')
     expect(within(tabela).getByRole('rowheader', { name: /Exemplo CDN/ })).toBeInTheDocument()
@@ -46,7 +46,7 @@ describe('/cdns: grade e controles acessíveis (CDNS-E7, SEG-E1)', () => {
 
   it('botões de filtro anunciam o estado com aria-pressed', async () => {
     montar()
-    await screen.findByRole('table')
+    await screen.findByRole('table', { name: /Estado de cada CDN/ })
     const ixbr = screen.getByRole('button', { name: /^IX\.br/ })
     expect(ixbr).toHaveAttribute('aria-pressed', 'true')
     fireEvent.click(ixbr)
@@ -70,7 +70,7 @@ describe('/cdns: três estados por célula (PT-24 / CDNS-E5.1)', () => {
     external_columns: [],
     estados_limites: 'Membro é o ASN listado como participante do PTT pelo IX.br. Sessão no route server é observada no looking glass.',
   }
-  const abrir = async () => { server.use(http.get('*/api/v1/cdns/presence', () => HttpResponse.json(doc))); montar(); return within(await screen.findByRole('table')) }
+  const abrir = async () => { server.use(http.get('*/api/v1/cdns/presence', () => HttpResponse.json(doc))); montar(); return within(await screen.findByRole('table', { name: /Estado de cada CDN/ })) }
 
   it('cada estado tem texto e forma própria e a sessão não é confundida com cadastro', async () => {
     const t = await abrir()

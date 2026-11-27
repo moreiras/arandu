@@ -18,12 +18,13 @@ export function hhiLabel(hhi: number): { texto: string; cor: string } {
   return { texto: rotuloFaixaHhi(faixaHhi(hhi)), cor: 'text-gray-700 bg-gray-50 border-gray-200' }
 }
 
-export function KPI({ label, value, hint }: { label: string; value: string; hint?: string }) {
+export function KPI({ label, value, hint, referencia }: { label: string; value: string; hint?: string; referencia?: string }) {
   return (
     <div className="px-3 py-2 rounded-lg bg-gray-50 border border-gray-100">
       <div className="text-xs text-gray-400 uppercase tracking-wide">{label}</div>
       <div className="text-lg font-semibold text-gray-900 tabular-nums leading-tight">{value}</div>
       {hint && <div className="text-xs text-gray-400">{hint}</div>}
+      {referencia && <div className="text-xs text-gray-600" data-kpi-referencia>{referencia}</div>}
     </div>
   )
 }

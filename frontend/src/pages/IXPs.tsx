@@ -16,6 +16,8 @@ import { ApresentacaoRecolhida, GrupoFontes } from '../components/ui/FontesEData
 import { Kpi } from '../components/ui/Kpi'
 import { ResumoEmTexto } from '../components/ui/ResumoEmTexto'
 import { compacto } from '../lib/sintese'
+import { CitarDado } from '../components/entidade/CitarDado'
+import { useFontes } from '../hooks/entidades'
 import { REGRAS_SINTESE_LISTA_PTTS, sinteseListaPtts } from '../features/ptt/sinteseListaPtts'
 
 // ─── number formatting helpers ───────────────────────────────────────────────
@@ -44,8 +46,6 @@ function IXPsKpis({
   loading: boolean
   snapshot?: string | null
 }) {
-  const totalIXPs = ixps.length + externalIXPs.length
-
   const ixbrWithBr = ixps.filter(
     (i) => (i.br_asns_origin_union_count ?? 0) > 0 || (i.br_asns_direct_union_count ?? 0) > 0
   ).length
@@ -57,7 +57,7 @@ function IXPsKpis({
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
       <Kpi tom="primario" selo="fato" fonte="IX.br e PeeringDB" dataRef={snapshot}
-        rotulo="PTTs do IX.br e IXPs de fora (PeeringDB)" valor={fmtN(totalIXPs)} referencia={sub(ixps.length, externalIXPs.length, 'IX.br', 'outros')} />
+        rotulo="PTTs do IX.br" valor={fmtN(ixps.length)} referencia={`${fmtN(externalIXPs.length)} IXPs de fora, no PeeringDB, listados à parte e não somados`} />
       <Kpi selo="fato" fonte="looking glasses do IX.br e PeeringDB" dataRef={snapshot}
         rotulo="IXPs com AS BR presente" valor={fmtN(totalWithBr)} referencia={sub(ixbrWithBr, externalWithBr, 'IX.br', 'outros')} />
       <Kpi selo="estimado" fonte="APNIC Labs e looking glasses do IX.br" dataRef={snapshot}
@@ -124,6 +124,10 @@ function IXPsLista() {
   const ixps = ixpData?.ixps ?? []
   const externalIXPs = externalData?.ixps ?? []
   const summary = snapshotDetails?.summary ?? null
+  // IXPs do PeeringDB divididos pelo país do cadastro (PT-22 / ixps 5.5): os do Brasil e os de fora são universos diferentes para quem lê a tabela
+  const externosNoBrasil = externalIXPs.filter((i) => i.country === 'BR')
+  const externosNoExterior = externalIXPs.filter((i) => i.country !== 'BR')
+  const { fontes } = useFontes()
 
   const snap = summary?.snapshot_date ?? resolvedDate
   return (
@@ -144,6 +148,14 @@ function IXPsLista() {
         <ResumoEmTexto frases={sinteseListaPtts(ixps, externalIXPs, summary, snap)} snapshot={snap} regras={REGRAS_SINTESE_LISTA_PTTS}
           notaComoLer="O IX.br e os IXPs de fora são listas diferentes e não se somam." />
       </GrupoFontes>
+
+      <details className="text-sm text-gray-700" data-testid="como-citar-ixps">
+        <summary className="cursor-pointer select-none text-xs font-medium text-primario-700 hover:text-primario-900">Como citar esta página</summary>
+        <div className="mt-1 max-w-xl rounded border border-gray-200 bg-white p-2 shadow-sm">
+          <p>Os números desta página são do snapshot de {snap || 'data não carregada'}; a lista dos PTTs do IX.br está em <code>/api/v1/ixps?date={snap}</code> e a dos IXPs de fora em <code>/api/v1/external-ixps?date={snap}</code>.</p>
+          <CitarDado pedido={{ entidade: 'Lista de PTTs do IX.br e de IXPs do PeeringDB', bloco: 'IXPs' }} fontes={['lg_ixbr', 'ixbr_api', 'peeringdb_ixps']} fontesEntradas={fontes} snapshot={snap} />
+        </div>
+      </details>
 
       <div className="space-y-2">
         <div className="flex items-baseline justify-between gap-2">
@@ -190,7 +202,7 @@ function IXPsLista() {
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-4">
         <div className="flex items-center gap-2">
           <h2 className="text-base font-semibold text-gray-800">
             Outros IXPs{externalIXPs.length > 0 ? ` (${externalIXPs.length})` : ''}
@@ -204,7 +216,20 @@ function IXPsLista() {
         ) : externalIXPs.length === 0 ? (
           <p className="text-gray-600 text-sm">Dados de outros IXPs não disponíveis neste snapshot.</p>
         ) : (
-          <ExternalIXPTable ixps={externalIXPs} />
+          <>
+            {externosNoBrasil.length > 0 && (
+              <div className="space-y-2" data-testid="externos-no-brasil">
+                <h3 className="text-sm font-semibold text-gray-700">No Brasil ({externosNoBrasil.length})</h3>
+                <ExternalIXPTable ixps={externosNoBrasil} />
+              </div>
+            )}
+            {externosNoExterior.length > 0 && (
+              <div className="space-y-2" data-testid="externos-no-exterior">
+                <h3 className="text-sm font-semibold text-gray-700">No exterior ({externosNoExterior.length})</h3>
+                <ExternalIXPTable ixps={externosNoExterior} />
+              </div>
+            )}
+          </>
         )}
       </div>
 

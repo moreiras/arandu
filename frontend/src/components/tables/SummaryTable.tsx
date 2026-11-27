@@ -51,6 +51,7 @@ export function SummaryTable({ globalTable, ixpAggregate, totalBrASNs, totalIxps
 
   return (
     <div className="space-y-3">
+      <h2 className="text-base font-semibold text-gray-800">Agregado do IX.br e tabela global</h2>
 
       {/* ── Tabela 1: Tabela global ── */}
       <div className="overflow-x-auto rounded border border-gray-200">

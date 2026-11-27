@@ -9,6 +9,8 @@ import { baixarCsv, montarCsv } from '../features/localizador/csv'
 import { distanciasPtt, nearestIxCode } from '../features/localizador/geo'
 import { PainelControles } from '../features/localizador/PainelControles'
 import { PainelEntidades } from '../features/localizador/PainelEntidades'
+import { ModalEntidades } from '../features/localizador/ModalEntidades'
+import { TabelaEntidades } from '../features/localizador/TabelaEntidades'
 import { BlocoInterconexao } from '../features/localizador/BlocoInterconexao'
 import { BlocoMercado } from '../features/localizador/BlocoMercado'
 import { ESPERA_SINTESE_MS, SinteseLocalizador, useAtrasado } from '../features/localizador/BlocoSinteseLocalizador'
@@ -153,38 +155,16 @@ export function Localizador() {
       >
         {/* MapLibre map (w-full/h-full: MapLibre força position:relative no container,
             então não dá para depender de `absolute inset-0` para o tamanho) */}
-        <div ref={mapDivRef} className="w-full h-full" />
+        <div ref={mapDivRef} className="w-full h-full" role="region" aria-label="Mapa do localizador (o resumo em texto e a tabela abaixo trazem as mesmas redes)" />
 
-        {/* Modal de entidades agregadas (abre ao clicar em marcador com 2+ entidades) */}
-        {modal && (
-          <div
-            className="absolute inset-0 z-50 flex items-center justify-center bg-black/40"
-            onClick={() => setModal(null)}
-          >
-            <div
-              className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-80 flex flex-col"
-              style={{ maxHeight: '70%' }}
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-700 flex-shrink-0">
-                <span className="text-xs font-semibold text-white leading-snug">{modal.title}</span>
-                <button
-                  className="ml-3 flex-shrink-0 text-gray-400 hover:text-white text-base leading-none"
-                  onClick={() => setModal(null)}
-                >✕</button>
-              </div>
-              <div
-                className="overflow-y-auto p-3 text-xs text-gray-200 flex-1"
-                dangerouslySetInnerHTML={{ __html: modal.html }}
-              />
-            </div>
-          </div>
-        )}
+        {/* Modal de entidades agregadas (abre ao clicar em marcador com 2+ entidades): diálogo com nome, foco no botão de fechar e Escape */}
+        {modal && <ModalEntidades titulo={modal.title} html={modal.html} aoFechar={() => setModal(null)} />}
 
         <PainelControles
           className={`${panelBase} top-3 left-3 p-3 w-64 space-y-3`}
           search={search} setSearch={setSearch} searching={searching} onSearch={handleSearch}
           radius={radius} setRadius={setRadius} show={show} setShow={setShow}
+          aoDefinirCoordenadas={(lat, lon) => { setMarkerPos([lat, lon]); mapRef.current?.flyTo({ center: [lon, lat], zoom: 9 }) }}
         />
 
         <PainelEntidades
@@ -194,6 +174,8 @@ export function Localizador() {
           temPresenca={!!ixPresence} tagsDoAs={tagsDoAs}
         />
       </div>
+
+      {markerPos && entities.length > 0 && <TabelaEntidades entities={entities} />}
 
       {erroBusca && <EstadoDados erro={erroBusca.erro} oQue={'a busca por "' + erroBusca.termo + '"'} mensagem={erroBusca.mensagem ?? 'Lugar não encontrado: "' + erroBusca.termo + '". Tente o nome do município (ex.: Vitória ou Bom Jesus/PI).'} />}
       {dados.erro && <EstadoDados erro={dados.erro} oQue="algumas camadas do mapa" />}

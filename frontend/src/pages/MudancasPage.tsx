@@ -4,6 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Link } from '../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
 import { fetchMudancas, fetchMudancasResumo } from '../services/api'
@@ -33,7 +34,9 @@ function alvo(e: { entidade: string; asn?: number }): { to: string; texto: strin
  */
 export function MudancasPage() {
   const { anon, loading } = useAuth()
-  const [tipo, setTipo] = useState('')
+  const [params] = useSearchParams()
+  const tipoInicial = params.get('tipo') ?? ''
+  const [tipo, setTipo] = useState(TIPOS_DA_PAGINA.includes(tipoInicial) ? tipoInicial : '')
   const [uf, setUf] = useState('')
   const [pendentes, setPendentes] = useState(false)
   const [pagina, setPagina] = useState(0)

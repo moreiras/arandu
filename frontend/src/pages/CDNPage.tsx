@@ -15,6 +15,7 @@ import { ResumoEmTexto } from '../components/ui/ResumoEmTexto'
 import { palavra } from '../lib/sintese'
 import { REGRAS_SINTESE_CDNS, sinteseCdns } from '../features/cdncap/sinteseCdns'
 import { CdnMudancas } from '../features/cdncap/CdnMudancas'
+import { PorPtt } from '../features/cdncap/PorPtt'
 
 // ─── CDN categories ───────────────────────────────────────────────────────────
 
@@ -535,6 +536,7 @@ export function CDNPage() {
             columns={columns}
             getPresence={cdn => [...cdn.ixbr, ...cdn.external]}
           />
+          <PorPtt data={data} />
         </div>
       )}
       <CdnMudancas />

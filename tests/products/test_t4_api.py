@@ -1934,6 +1934,22 @@ def test_brasil_indicadores_e_aberto_e_soma_o_apnic_dos_asns_br(api):
     assert "APNIC" in v["fonte"] and v["nota"]
 
 
+def test_brasil_indicadores_por_regiao_fecha_o_total_nacional(api):
+    """PT-22 / PANORAMA TÉCNICO 5.2: as cinco regiões mais `sem_regiao` somam o total de ASNs BR e de usuários do agregado nacional."""
+    d = api.get("/api/v1/brasil/indicadores", headers=ANON).json()
+    r = d.get("por_regiao")
+    assert r is not None and [x["regiao"] for x in r["regioes"]] == ["N", "NE", "CO", "SE", "S"] and "sede" in r["nota"]
+    store = api.app.state.store
+    br = [a for a in store.asn_index(store.latest()) if a.get("is_br")]
+    for campo in ("asns", "usuarios", "usuarios_ipv6", "usuarios_com_roa", "usuarios_sessao_rs"):
+        soma = sum(x[campo] for x in r["regioes"]) + r["sem_regiao"][campo]
+        assert soma == r["total"][campo], campo
+    assert r["total"]["asns"] == len(br)
+    assert r["total"]["usuarios"] == d["ipv6"]["usuarios"] and r["total"]["usuarios_ipv6"] == d["ipv6"]["usuarios_ipv6"]
+    assert r["total"]["usuarios_com_roa"] == sum(a.get("apnic_users") or 0 for a in br if a.get("has_rpki"))
+    assert r["total"]["usuarios_sessao_rs"] == sum(a.get("apnic_users") or 0 for a in br if (a.get("ixps_direct_count") or 0) >= 1)
+
+
 def test_rota_medida_nao_fica_na_borda_exceto_mapas_e_agregados(api, ctx):
     """A borda (Cloudflare) não passa pelo gate: o que ela guarda vai para quem esgotou o orçamento. Rota `metered` sai com
     `Cloudflare-CDN-Cache-Control: no-store`, salvo as camadas de mapa e agregados da lista `_BORDA_PATTERNS`; rota aberta não leva o
@@ -2038,6 +2054,13 @@ def test_destaques_da_home_sao_os_totais_das_listas_de_destino(api):
     completo = api.post("/api/v1/query/eventos", json={"filter": {"and": [{"field": "tipo", "op": "eq", "value": "asn_novo"}, {"field": "estado", "op": "eq", "value": "confirmado"}]},
                                                       "limit": 1000}, headers=ALLOWED).json()
     assert d["o_que_mudou"]["total"] == len([e for e in completo["items"] if e["data"] >= T0])
+    # PT-22 / HOME 5.4: contagens por tipo e estado da mesma janela, as de `/changes/summary` restritas aos tipos da Home
+    assert d["o_que_mudou"]["ate"] == T1
+    resumo = api.get("/api/v1/changes/summary", params={"from": T0, "to": T1}, headers=ANON).json()["por_tipo"]
+    por_tipo = d["o_que_mudou"]["por_tipo"]
+    assert "provedor_novo" not in por_tipo and "asn_novo" in por_tipo
+    for t, c in por_tipo.items():
+        assert c == resumo.get(t, {"confirmado": 0, "pendente": 0, "revertido": 0}), t
 
 
 def test_eventos_com_de_so_devolvem_o_historico_pedido_e_o_anonimo_precisa_dele(api):

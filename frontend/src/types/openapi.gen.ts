@@ -1154,7 +1154,7 @@ export interface paths {
          * Destaques da home: o total de cada pergunta pronta e os ASes novos da janela atual
          * @description Os números fixos dos destaques da página inicial, numa chamada aberta: `destaques` traz o `total` de cada pergunta pronta (operadoras com mais de 5 mil acessos sem ASN
          *     próprio, ASes brasileiros em 3 ou mais PTTs com IPv6 e sem ROA, municípios com uma operadora de 80% ou mais da banda larga fixa e ASNs com usuários APNIC 10 vezes ou mais acima do esperado
-         *     pelos acessos SCM) e `o_que_mudou` os ASes brasileiros novos e confirmados desde `de`, a data do snapshot atual mais antigo (a rota é aberta, então não alcança o histórico). Cada total é
+         *     pelos acessos SCM) e `o_que_mudou` os ASes brasileiros novos e confirmados desde `de`, a data do snapshot atual mais antigo (a rota é aberta, então não alcança o histórico), com `por_tipo` (eventos entre `de` e `ate` por tipo e estado: confirmado, pendente e revertido; diferença observada entre snapshots, sem causa). Cada total é
          *     o da lista de destino do destaque. As consultas são fixas; a consulta genérica (`/query`) segue medida.
          */
         get: operations["brasil_destaques_api_v1_brasil_destaques_get"];
@@ -1177,7 +1177,7 @@ export interface paths {
          * O Brasil em números: IPv6 (APNIC), DNSSEC, ROV, RPKI e prontidão em segurança de roteamento, no agregado do país
          * @description Agregados nacionais para a home e o Panorama técnico: `ipv6` (Σ usuários com IPv6 ÷ Σ usuários nas estimativas do APNIC por ASN do Brasil; não é o número por país do
          *     APNIC), `dnssec` e `rov` (percentual medido pelo APNIC, mediana e média ponderada, só ASNs com amostra suficiente) e `prontidao` (índice do país por classe, média ponderada
-         *     por usuários, pilares e componentes, com as regras) e `rpki` (`publicacao`: ASNs com ROA e ASPA; `rotas`: estado RPKI de origem das rotas brasileiras, válidas,
+         *     por usuários, pilares e componentes, com as regras) e `por_regiao` (retrato por macro-região da sede do AS, com as linhas fechando o total) e `rpki` (`publicacao`: ASNs com ROA e ASPA; `rotas`: estado RPKI de origem das rotas brasileiras, válidas,
          *     inválidas e sem ROA, com o espaço de cada estado, e totais de saúde da tabela; `rotas` é null em snapshot anterior ao resumo). Só números do país: o detalhe por UF e porte está em `/seguranca/resumo` e `/prontidao/resumo`. Fontes e limites na resposta.
          */
         get: operations["brasil_indicadores_api_v1_brasil_indicadores_get"];

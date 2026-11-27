@@ -330,10 +330,19 @@ const ESQUEMA_SNAPSHOT = 2
 export interface DestaquesHome {
   snapshot_date: string
   destaques: Record<string, { total: number }>
-  o_que_mudou: { total: number; de: string; mais_recente: string | null }
+  o_que_mudou: {
+    total: number; de: string; mais_recente: string | null
+    /** Fim da janela (a data do snapshot). */
+    ate?: string
+    /** Eventos entre `de` e `ate` por tipo e estado (PT-22 / HOME 5.4). */
+    por_tipo?: Record<string, { confirmado: number; pendente: number; revertido: number }>
+    datas_atipicas?: Record<string, { motivo: string; tipos: string[] }>
+  }
 }
+/** `esquema` 2: `o_que_mudou` ganhou `ate`, `por_tipo` e `datas_atipicas` (PT-22 / HOME 5.4). O mesmo `?date=` servia a versão antiga do cache imutável. */
+const ESQUEMA_DESTAQUES = 2
 export function fetchDestaquesHome(date?: string): Promise<DestaquesHome> {
-  return get('/api/v1/brasil/destaques', { date })
+  return get('/api/v1/brasil/destaques', { date, esquema: ESQUEMA_DESTAQUES })
 }
 
 // `coleta` por família (ok, vazia, missing) e `status: partial` com a tabela vazia: a resposta de snapshot publicado mudou e o `?date=` é
@@ -1483,8 +1492,9 @@ export function fetchCeticIndicadores(opts: { date?: string; pesquisa: string; t
  * senão quem já abriu a página continua com a resposta antiga. A API ignora o parâmetro. 3: `rpki.rotas.saude.moas` nulo em todas as datas.
  * 4: `rpki.rotas.rotas_br.{afi}.asn_br_fora_de_bloco` e rota brasileira só por prefixo (D4).
  * 5: `rpki.rotas.saude.moas` por família ({prefixos, prefixos_br, coletores}) nos snapshots com MOAS medido.
+ * 6: `por_regiao`, o retrato por macro-região da sede do AS (PT-22 / PANORAMA TÉCNICO 5.2).
  */
-const ESQUEMA_BRASIL_INDICADORES = 5
+const ESQUEMA_BRASIL_INDICADORES = 6
 
 /** Agregados do país para a home e o Panorama técnico: IPv6 do APNIC, DNSSEC, ROV, prontidão e RPKI. Rota aberta. */
 export function fetchBrasilIndicadores(date?: string): Promise<BrasilIndicadores> {
