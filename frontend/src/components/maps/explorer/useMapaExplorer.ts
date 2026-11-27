@@ -11,7 +11,7 @@ import type { MapQueryBody } from '../../../services/api'
 import { bearingInicial, addStandardControls, createBaseMapStyle } from '../mapTheme'
 import { adicionarCamadas } from './camadasMapa'
 import { circlePolygon } from './geo'
-import { colorExpr } from './estilo'
+import { colorExpr, scmColorExpr } from './estilo'
 import { ligarInteracoes } from './interacoes'
 import type { LayerStatus } from './PainelCamadas'
 import {
@@ -143,6 +143,13 @@ export function useMapaExplorer(p: {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...resultados.map(r => r?.data), ...resultados.map(r => r?.isPlaceholderData), ready])
+
+  // "Colorir por" das outorgas SCM: só pinta de novo, sem refazer consulta nem recriar o mapa
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !ready || !map.getLayer('explorer-scms')) return
+    map.setPaintProperty('explorer-scms', 'circle-color', scmColorExpr(state.scmColorBy))
+  }, [state.scmColorBy, ready])
 
   // Visibilidade + opacidade (dados antigos esmaecidos enquanto os novos chegam)
   useEffect(() => {

@@ -12,7 +12,8 @@ import { hasRecorte, makeGroup, makePredicate } from './consulta'
 import { Swatch } from './Legenda'
 import { PredicateRow } from './PredicateRow'
 import { INITIAL, LAYERS, LAYER_BY_ID } from './tipos'
-import type { FilterGroup, LayerDef, LayerId, MapState, Predicate } from './tipos'
+import type { FilterGroup, LayerDef, LayerId, MapState, Predicate, ScmColorBy } from './tipos'
+import type { ResumoScm } from './scmSici'
 
 export interface LayerStatus {
   state: 'off' | 'queued' | 'loading' | 'error' | 'done'
@@ -133,6 +134,7 @@ export function LayerPanel({
   matchedAsns,
   selectedIx,
   date,
+  resumoScm,
 }: {
   state: MapState
   onChange: (s: MapState) => void
@@ -141,6 +143,8 @@ export function LayerPanel({
   matchedAsns?: number | null
   selectedIx: string | null
   date?: string
+  /** Contagens das outorgas SCM que chegaram (recorte aplicado), para o resumo por UF e a legenda. */
+  resumoScm?: ResumoScm | null
 }) {
   const set = (partial: Partial<MapState>) => onChange({ ...state, ...partial })
   const setOn = (id: LayerId, v: boolean) => set({ on: { ...state.on, [id]: v } })
@@ -389,6 +393,27 @@ export function LayerPanel({
               <button onClick={() => set({ scmMode: 'com_asn' })} className={opBtn(state.scmMode === 'com_asn')}>com ASN</button>
               <button onClick={() => set({ scmMode: 'sem_asn' })} className={opBtn(state.scmMode === 'sem_asn')}>sem ASN</button>
             </div>
+            <label className="flex items-center gap-1.5 text-xs text-gray-600">
+              <span className="flex-shrink-0">Colorir por</span>
+              <select aria-label="Colorir as outorgas SCM por" value={state.scmColorBy} onChange={e => set({ scmColorBy: e.target.value as ScmColorBy })} className="border border-gray-200 rounded px-1 py-0.5 text-xs min-w-0">
+                <option value="asn">ASN no BGP</option>
+                <option value="sici">Declaração ao SICI{resumoScm?.mes ? ` em ${resumoScm.mes}` : ''}</option>
+              </select>
+            </label>
+            {resumoScm && (
+              <details className="text-xs text-gray-500" data-testid="resumo-scm-uf">
+                <summary className="cursor-pointer select-none">Resumo por UF do recorte</summary>
+                <table className="mt-1 w-full tabular-nums">
+                  <caption className="sr-only">Outorgas SCM por UF: total, com declaração ao SICI, sem declaração e com ASN</caption>
+                  <thead><tr className="text-gray-400"><th scope="col" className="text-left font-normal">UF</th><th scope="col" className="text-right font-normal" title="Outorgas SCM no recorte">Outorgas</th><th scope="col" className="text-right font-normal" title="Com acessos declarados ao SICI no mês de referência">Com decl.</th><th scope="col" className="text-right font-normal" title="Sem acessos declarados ao SICI no mês de referência">Sem decl.</th><th scope="col" className="text-right font-normal" title="Com ASN no BGP">Com ASN</th></tr></thead>
+                  <tbody>
+                    {resumoScm.porUf.map(u => <tr key={u.uf}><th scope="row" className="text-left font-normal">{u.uf}</th><td className="text-right">{u.total.toLocaleString('pt-BR')}</td><td className="text-right">{u.com.toLocaleString('pt-BR')}</td><td className="text-right">{u.sem.toLocaleString('pt-BR')}</td><td className="text-right">{u.comAsn.toLocaleString('pt-BR')}</td></tr>)}
+                  </tbody>
+                  <tfoot><tr className="border-t border-gray-200"><th scope="row" className="text-left font-normal">Total</th><td className="text-right">{resumoScm.total.toLocaleString('pt-BR')}</td><td className="text-right">{resumoScm.com.toLocaleString('pt-BR')}</td><td className="text-right">{resumoScm.sem.toLocaleString('pt-BR')}</td><td className="text-right">{resumoScm.comAsn.toLocaleString('pt-BR')}</td></tr></tfoot>
+                </table>
+                <p className="mt-1 leading-snug">Contagem das outorgas que o mapa recebeu com os filtros atuais. A UF é a da sede da outorga; sem declaração é só um fato sobre o mês {resumoScm.mes || 'de referência'}, não uma avaliação de cumprimento.{resumoScm.semInformacao > 0 && ` ${resumoScm.semInformacao.toLocaleString('pt-BR')} outorgas vêm sem o campo de declaração (snapshot antigo) e não entram em com nem sem.`}</p>
+              </details>
+            )}
             <p className="text-xs text-gray-400 leading-snug" data-testid="nota-scm-sici">
               O balão mostra os acessos declarados à Anatel no mês de referência do SICI (sistema Coleta de Dados, Resolução Anatel nº 774/2025). Sem acessos declarados é só um fato sobre a declaração: o mapa não avalia o cumprimento da norma.
             </p>

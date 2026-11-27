@@ -9,7 +9,9 @@ import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-li
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
 import { server } from '../../../test/server'
+import { Legend } from './Legenda'
 import { LayerPanel } from './PainelCamadas'
+import { resumirScm } from './scmSici'
 import type { LayerStatus } from './PainelCamadas'
 import { INITIAL, LAYERS } from './tipos'
 import type { LayerId, MapState } from './tipos'
@@ -89,6 +91,31 @@ describe('painel de camadas', () => {
     expect(download).toHaveBeenCalledOnce()
     fireEvent.click(screen.getByText('⚠ tentar de novo'))
     expect(retry).toHaveBeenCalledOnce()
+  })
+
+  it('outorgas SCM: "Colorir por" declaração ao SICI e resumo por UF do recorte, sem juízo (PT-26 / MAPA 5.4)', () => {
+    const f = (p: Record<string, unknown>): GeoJSON.Feature => ({ type: 'Feature', properties: p, geometry: { type: 'Point', coordinates: [0, 0] } })
+    const resumo = resumirScm({ type: 'FeatureCollection', features: [
+      f({ uf: 'SP', sici_ativo: true, sici_mes_referencia: '2026-09', has_asn: true }), f({ uf: 'SP', sici_ativo: false, sici_mes_referencia: '2026-09', has_asn: false }), f({ uf: 'AC', sici_ativo: false, sici_mes_referencia: '2026-09', has_asn: false }),
+    ] })
+    let ultimo: MapState | null = null
+    const P = () => {
+      const [state, setState] = useState<MapState>({ ...INITIAL, on: { ...INITIAL.on, outorgas_scm: true } })
+      ultimo = state
+      return <><LayerPanel state={state} onChange={setState} onClose={() => {}} statuses={statusOff} selectedIx={null} resumoScm={resumo} /><Legend state={state} resumoScm={resumo} /></>
+    }
+    render(envolver(<P />))
+    expect(ultimo!.scmColorBy).toBe('asn')                                              // o padrão não muda
+    expect(screen.getByText('SCM com ASN (1)')).toBeTruthy()
+    fireEvent.change(screen.getByLabelText('Colorir as outorgas SCM por'), { target: { value: 'sici' } })
+    expect(ultimo!.scmColorBy).toBe('sici')
+    expect(screen.getByText('SCM com acessos declarados ao SICI em 2026-09 (1)')).toBeTruthy()
+    expect(screen.getByText('SCM sem acessos declarados em 2026-09 (2)')).toBeTruthy()
+    const linhas = [...screen.getByTestId('resumo-scm-uf').querySelectorAll('tbody tr')].map(tr => tr.textContent)
+    expect(linhas).toEqual(['AC1010', 'SP2111'])                                        // UF em ordem alfabética: outorgas, com, sem, com ASN
+    const texto = screen.getByTestId('resumo-scm-uf').textContent ?? ''
+    expect(texto).toMatch(/não uma avaliação de cumprimento/)
+    expect(texto).not.toMatch(/irregular|infra[çc]|omiss|omitiu|pior|melhor/i)
   })
 
   it('lista de PTTs vem de /ixps, sem os ausentes, em ordem alfabética', async () => {

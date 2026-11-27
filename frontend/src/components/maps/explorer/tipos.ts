@@ -59,6 +59,8 @@ export type StyleLayerId = 'submarine' | 'terrestrial' | 'power'
 export type LayerId = DataLayerId | StyleLayerId
 
 export type ScmMode = 'todas' | 'com_asn' | 'sem_asn'
+/** "Colorir por" da camada de outorgas SCM: presença de ASN no BGP (padrão) ou declaração de acessos ao SICI no mês de referência. */
+export type ScmColorBy = 'asn' | 'sici'
 
 export interface MapState {
   // Recorte de ASes — vale para todas as camadas com `recorte: true`
@@ -72,6 +74,7 @@ export interface MapState {
   // Ajustes por camada
   colorBy: string
   scmMode: ScmMode
+  scmColorBy: ScmColorBy
   ixCode: string
   ixExcludeAsns: string
   ixIncludeAsns: string
@@ -123,6 +126,10 @@ export const COLOR_ASNS_GEO     = MAP_COLORS.asMember
 export const COLOR_SCM          = MAP_COLORS.scmWithoutAsn // só SCM (sem ASN) — igual ao Localizador
 export const COLOR_SCM_WITH_ASN = MAP_COLORS.scmWithAsn
 export const COLOR_SCM_STROKE   = '#6b21a8'
+// "Colorir por" declaração ao SICI: dois tons de azul (com acessos declarados mais escuro), sem verde nem vermelho; sem o campo, cinza
+export const COLOR_SCM_SICI_COM = '#1d4ed8'
+export const COLOR_SCM_SICI_SEM = '#93c5fd'
+export const COLOR_SCM_SICI_NA  = '#9ca3af'
 // Dimensão "outorga" do colorBy das sedes de AS:
 export const COLOR_WITH_SCM     = '#60a5fa' // AS + SCM — azul claro
 export const COLOR_WITHOUT_SCM  = '#1e3a8a' // só AS (sem outorga) — azul escuro
@@ -195,6 +202,7 @@ export const INITIAL: MapState = {
   },
   colorBy: 'solid',
   scmMode: 'todas',
+  scmColorBy: 'asn',
   ixCode: 'sp',
   ixExcludeAsns: '',
   ixIncludeAsns: '',

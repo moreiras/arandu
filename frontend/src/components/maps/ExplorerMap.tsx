@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AccessError, type MapQueryBody } from '../../services/api'
 import { estadoDoErro, formatarEspera } from '../ui/EstadoDados'
 import { useAuth } from '../../auth/AuthContext'
 import { baixarCsv } from './explorer/csv'
 import { Legend } from './explorer/Legenda'
+import { resumirScm } from './explorer/scmSici'
 import { Spinner } from './explorer/icones'
 import { LayerPanel } from './explorer/PainelCamadas'
 import { INITIAL, LAYER_BY_ID } from './explorer/tipos'
@@ -47,6 +48,8 @@ export function ExplorerMap({ date }: { date?: string }) {
     corpoSedes: () => dados.specs.find(sp => sp.id === 'asns_geo')?.key[3] as MapQueryBody | undefined,
   })
   const { loadingLabels, errors, activeData, doneCount } = dados
+  const dadosScm = state.on.outorgas_scm ? dados.resultById.outorgas_scm?.data : undefined
+  const resumoScm = useMemo(() => resumirScm(dadosScm as GeoJSON.FeatureCollection | undefined), [dadosScm])
   // A causa do erro das camadas (orçamento, login, taxa) muda a ação: "falha" só quando é falha mesmo.
   const causa = errors.map((id) => dados.resultById[id]?.error).find((e) => e instanceof AccessError) as AccessError | undefined
   const tipoErro = causa ? estadoDoErro(causa) : 'falha'
@@ -109,12 +112,13 @@ export function ExplorerMap({ date }: { date?: string }) {
             matchedAsns={dados.matchedAsns}
             selectedIx={selectedIx}
             date={date}
+            resumoScm={resumoScm}
           />
         </div>
       )}
 
       <div className="absolute bottom-8 right-4 z-10">
-        <Legend state={state} />
+        <Legend state={state} resumoScm={resumoScm} />
       </div>
     </div>
   )
