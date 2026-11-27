@@ -1454,9 +1454,12 @@ export function fetchRankingRouteServers(opts: { date?: string; criterio?: strin
   return get('/api/v1/ranking/route-servers', opts)
 }
 
+/** `esquema` 2: a linha ganhou `sici` e `fontes.sici` (acessos fixos do CNPJ do ASN, PT-24). */
+const ESQUEMA_PARTICIPANTES = 2
+
 /** Tabela única de participantes do PTT, paginada no servidor (a 1ª página, até 100 linhas, é medida; ampliar exige login). */
 export function fetchIxpParticipantes(code: string, opts: { date?: string; q?: string; uf?: string; filtro?: string; ordem?: string; desc?: boolean; limit?: number; page?: number }): Promise<ParticipantesPtt> {
-  return get(`/api/v1/ixps/${code}/participantes`, opts)
+  return get(`/api/v1/ixps/${code}/participantes`, { ...opts, esquema: ESQUEMA_PARTICIPANTES })
 }
 
 /** `esquema` 2: a resposta ganhou a cobertura do rodízio (`cobertura_total_nivel3`, `rs_pulados`; PT-16). */

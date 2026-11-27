@@ -27,7 +27,7 @@ const FILTROS: Array<[FiltroParticipantes, string]> = [
   ['todos', 'Todos'], ['sem-v6', 'Sem direto IPv6'], ['sem-v4', 'Sem direto IPv4'], ['sem-direto', 'Sem direto em nenhuma família'],
   ['membro-sem-sessao-rs', 'No cadastro, sem sessão no RS'], ['sessao-sem-cadastro', 'Sessão no RS, fora do cadastro'], ['com-cdn', 'CDN da lista curada'], ['com-rejeicao', 'Com rota filtrada no RS'],
 ]
-const ORDENS: Record<string, { primeiro: 'asc' | 'desc' }> = { asn: { primeiro: 'asc' }, nome: { primeiro: 'asc' }, uf: { primeiro: 'asc' }, sessoes_rs: { primeiro: 'desc' }, rejeicao: { primeiro: 'desc' } }
+const ORDENS: Record<string, { primeiro: 'asc' | 'desc' }> = { asn: { primeiro: 'asc' }, nome: { primeiro: 'asc' }, uf: { primeiro: 'asc' }, sessoes_rs: { primeiro: 'desc' }, rejeicao: { primeiro: 'desc' }, assinantes: { primeiro: 'desc' } }
 
 /** Sim, não ou "sem coleta": `null` é família sem coleta válida e nunca vira "não". */
 const simNao = (v: boolean | null) => (v == null ? 'sem coleta' : v ? 'sim' : 'não')
@@ -106,7 +106,7 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
   const paginas = Math.max(1, Math.ceil(data.total / POR_PAGINA))
   const f = data.fontes
   const semColeta = (['v6', 'v4'] as const).filter((a) => f.looking_glass.coleta[a] !== 'ok')
-  const colunas = rs ? 12 : 9
+  const colunas = rs ? 13 : 10
 
   return (
     <div className="space-y-3" data-testid="participantes-tabela">
@@ -143,7 +143,7 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
       )}
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
-          <caption className="sr-only">Participantes do PTT: uma linha por ASN, com cadastro, sessão direta por família, originador, route server, rejeição, idade da coleta e CDNs. A ordem padrão é por ASN.</caption>
+          <caption className="sr-only">Participantes do PTT: uma linha por ASN, com cadastro, sessão direta por família, originador, route server, rejeição, idade da coleta, acessos fixos declarados ao SICI e CDNs. A ordem padrão é por ASN.</caption>
           <thead>
             <tr className="text-left text-xs text-gray-500 border-b border-gray-200">
               <ThOrdenavel {...th('asn')} className="py-1 pr-3 font-medium">ASN</ThOrdenavel>
@@ -157,6 +157,7 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
               {rs && <ThOrdenavel {...th('sessoes_rs')} className="py-1 pr-3 font-medium" extra={<Dica rotulo="Sessões no route server" texto={UNIVERSOS.sessaoRs.definicao} />}>Sessões RS (up/total)</ThOrdenavel>}
               {rs && <ThOrdenavel {...th('rejeicao')} className="py-1 pr-3 font-medium" extra={<Dica rotulo="Rotas filtradas ÷ recebidas" texto="Contadores do route server nas sessões up, do mesmo instante. Rota filtrada é a que o route server não aceitou; o motivo está no detalhe da linha e a causa não é atribuída." />}>Filtradas ÷ recebidas</ThOrdenavel>}
               {rs && <th scope="col" className="py-1 pr-3 font-medium">Idade da coleta por motivo<Dica rotulo="Idade da coleta por motivo" texto="Dias entre a coleta do detalhe de rotas rejeitadas por motivo e a data do snapshot. É uma coleta à parte (rodízio) e pode ser herdada de uma rodada anterior." /></th>}
+              <ThOrdenavel {...th('assinantes')} className="py-1 pr-3 font-medium" extra={<Dica rotulo="Acessos fixos (SICI)" texto="Acessos de banda larga fixa que o CNPJ do ASN declarou ao SICI da Anatel no mês de referência (outra data que a do snapshot). 'Compartilhado': o CNPJ tem mais de um ASN e o mesmo total vale em cada um; não some. Traço: sem CNPJ vinculado ao ASN ou sem declaração." />}>Acessos fixos (SICI)</ThOrdenavel>
               <th scope="col" className="py-1 pr-3 font-medium">CDNs</th>
             </tr>
           </thead>
@@ -182,6 +183,7 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
                     {rs && <td className="py-1 pr-3 tabular-nums">{l.sessao_rs ? `${n(l.sessao_rs.up)}/${n(l.sessao_rs.sessoes)}` : 'sem dado'}</td>}
                     {rs && <td className="py-1 pr-3 tabular-nums">{l.rejeicao ? `${n(l.rejeicao.filtradas)} ÷ ${n(l.rejeicao.recebidas)}${l.rejeicao.pct != null ? ` (${l.rejeicao.pct.toLocaleString('pt-BR')}%)` : ''}` : '—'}</td>}
                     {rs && <td className="py-1 pr-3">{l.rejeicao_detalhe ? `${l.rejeicao_detalhe.idade_dias != null ? `${n(l.rejeicao_detalhe.idade_dias)} d` : 'idade desconhecida'}${l.rejeicao_detalhe.herdado ? ', herdada' : ''}` : '—'}</td>}
+                    <td className="py-1 pr-3 tabular-nums">{l.sici ? <>{n(l.sici.acessos)}{l.sici.compartilhado && <span className="text-xs text-gray-600"> (compartilhado)</span>}</> : '—'}</td>
                     <td className="py-1 pr-3 text-xs text-gray-600">{l.cdns.length ? `${l.cdns.slice(0, 2).join(', ')}${l.cdns.length > 2 ? ` +${l.cdns.length - 2}` : ''}` : ''}</td>
                   </tr>
                   {aberta && <tr id={idDet} className="border-b border-gray-100 bg-gray-50"><td colSpan={colunas} className="px-3 py-2"><Detalhe l={l} ptt={code} sel={sel} /></td></tr>}
@@ -205,6 +207,7 @@ export function ParticipantesTabelaBloco({ dados }: BlocoProps<PttCtx>) {
         <LinhaProveniencia selo="fato" fonte={`${f.looking_glass.fonte}: colunas Direto e Originador`} dataRef={f.looking_glass.snapshot} />
         <LinhaProveniencia selo="fato" fonte={`${f.route_servers.fonte ?? 'route servers (Alice-LG)'}${f.route_servers.versao_alice ? ` ${f.route_servers.versao_alice}` : ''}: sessões e rotas filtradas ÷ recebidas`} dataRef={f.route_servers.coletado_em} />
         <LinhaProveniencia selo="fato" fonte={`${f.rejeicoes_por_motivo.fonte ?? 'route servers (Alice-LG)'}: rotas rejeitadas por motivo, no detalhe da linha`} dataRef={f.rejeicoes_por_motivo.coletado_nivel2} />
+        <LinhaProveniencia selo="fato" fonte={`${f.sici.fonte}: coluna Acessos fixos, declarados pelo CNPJ do ASN`} dataRef={f.sici.mes_referencia ?? f.sici.snapshot} />
         <LinhaProveniencia selo="fato" fonte={`${f.cdns.fonte}: coluna CDNs (membro do PTT que é ASN de CDN da lista)`} dataRef={f.cdns.snapshot} />
       </div>
     </div>

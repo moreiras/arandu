@@ -2284,6 +2284,8 @@ export interface ParticipantePtt {
   rejeicao: { filtradas: number; recebidas: number; pct: number | null; sessoes_up: number } | null
   rejeicao_detalhe: { rotas: number; coletado_ate: string | null; idade_dias: number | null; herdado: boolean; contagem: string | null } | null
   cdns: string[]
+  /** Acessos de banda larga fixa que o CNPJ do ASN declarou ao SICI (Anatel) no mês de referência; `null` sem vínculo ASN→CNPJ ou sem declaração. */
+  sici: { acessos: number; compartilhado: boolean } | null
 }
 export type FiltroParticipantes = 'todos' | 'sem-v6' | 'sem-v4' | 'sem-direto' | 'membro-sem-sessao-rs' | 'sessao-sem-cadastro' | 'com-cdn' | 'com-rejeicao'
 export interface ParticipantesPtt {
@@ -2296,6 +2298,7 @@ export interface ParticipantesPtt {
     route_servers: { fonte: string | null; coletado_em: string | null; versao_alice: string | null; rs_consultados: number | null; rs_total: number | null }
     rejeicoes_por_motivo: { fonte: string | null; coletado_nivel2: string | null; cobertura: Record<string, number | null> | null }
     cdns: { fonte: string; snapshot: string }
+    sici: { fonte: string; mes_referencia: string | null; snapshot: string }
   }
   total: number; total_participantes: number; contagens: Record<FiltroParticipantes, number>; ufs: string[]
   items: ParticipantePtt[]

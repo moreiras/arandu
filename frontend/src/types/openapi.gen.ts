@@ -2786,7 +2786,8 @@ export interface paths {
          * @description Uma linha por ASN visto no cadastro do IX.br, no looking glass ou nos route servers do PTT, com as colunas que a página de PTT mostrava em blocos separados:
          *     `membro` (cadastro de participantes), `direto` (sessão com o route server vista no looking glass, por família; `null` quando a família não teve coleta válida),
          *     `originador` (prefixo visto no PTT, só para ASN brasileiro), `sessao_rs` (sessões up/down no route server, Alice-LG), `rejeicao` (rotas filtradas ÷ rotas recebidas nas sessões up, do mesmo instante),
-         *     `rejeicao_detalhe` (rotas rejeitadas por motivo, de outra coleta, com `idade_dias` e `herdado`) e `cdns` (CDNs da lista curada que são membros do PTT).
+         *     `rejeicao_detalhe` (rotas rejeitadas por motivo, de outra coleta, com `idade_dias` e `herdado`), `cdns` (CDNs da lista curada que são membros do PTT) e `sici`
+         *     (acessos de banda larga fixa que o CNPJ do ASN declarou ao SICI da Anatel no `mes_referencia` de `fontes.sici`; `null` sem vínculo ASN→CNPJ ou sem declaração; `compartilhado` quando o CNPJ tem mais de um ASN e o total vale em cada um).
          *     Membro sem sessão com o route server pode trocar tráfego por sessão bilateral, que estas fontes não observam; nenhuma coluna indica causa nem qualidade.
          *
          *     Filtros: `q` (ASN ou parte do nome), `uf` (UF da sede), `filtro` e `ordem` (a ordem padrão é por ASN, neutra). Paginação por `page` e `limit` (prévia de 100 linhas; além disso, login).
@@ -10273,7 +10274,7 @@ export interface operations {
                 uf?: string | null;
                 /** @description Um de: todos, sem-v6, sem-v4, sem-direto, membro-sem-sessao-rs, sessao-sem-cadastro, com-cdn, com-rejeicao. */
                 filtro?: string;
-                /** @description Um de: asn, nome, uf, sessoes_rs, rejeicao. */
+                /** @description Um de: asn, nome, uf, sessoes_rs, rejeicao, assinantes. */
                 ordem?: string;
                 /** @description Ordem decrescente. */
                 desc?: boolean;

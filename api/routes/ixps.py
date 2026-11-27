@@ -265,9 +265,24 @@ def _participantes_base(store: Store, date_str: str, code: str, doc: dict) -> di
     rs_doc = store.route_servers_ixps_doc(date_str)
     rs_ixp = ((rs_doc or {}).get("ixps") or {}).get(code)
     asn_map = store.asn_map(date_str)
+    # ASN → CNPJ como em `ixp_assinantes` (geo_orgs, completado pelo SICI); `compartilhado`: o CNPJ tem mais de um ASN e o total integral vale em cada um
+    sici = store._load_sici(date_str) or {}
+    sici_cnpjs = sici.get("cnpjs") or {}
+    asn_cnpj: dict[int, str] = {a: c for c, asns in store.cnpj_asns_index(date_str).items() for a in asns}
+    for a, c in (sici.get("asn_to_cnpj") or {}).items():
+        asn_cnpj.setdefault(int(a), c)
+    por_cnpj: dict[str, int] = {}
+    for c in asn_cnpj.values():
+        por_cnpj[c] = por_cnpj.get(c, 0) + 1
+
+    def sici_de(asn: int) -> Optional[dict]:
+        c = asn_cnpj.get(asn)
+        reg = sici_cnpjs.get(c) if c else None
+        return {"acessos": reg.get("acessos", 0), "compartilhado": por_cnpj.get(c, 0) > 1} if reg else None
+
     base = p.montar(
         date_str, code, doc, store._load_ixp_members(date_str, code), rs_ixp, store.route_servers_asns_doc(date_str), store.rs_policy_asns_doc(date_str), store.cdn_presence(date_str),
-        lambda asns: store.nomes_asns(date_str, asns, detalhe=True), lambda a: (asn_map.get(a) or {}).get("is_br"))
+        lambda asns: store.nomes_asns(date_str, asns, detalhe=True), lambda a: (asn_map.get(a) or {}).get("is_br"), sici_de)
     pol = store.rs_policy_ixps_doc(date_str) or {}
     fontes = {
         "cadastro": {"fonte": "IX.br (cadastro de participantes)", "snapshot": date_str},
@@ -277,6 +292,7 @@ def _participantes_base(store: Store, date_str: str, code: str, doc: dict) -> di
         "rejeicoes_por_motivo": {"fonte": pol.get("fonte"), "coletado_nivel2": pol.get("coletado_nivel2"),
                                  "cobertura": (((pol.get("ixps") or {}).get(code) or {}).get("rejeicoes") or {}).get("cobertura")},
         "cdns": {"fonte": "lista curada de CDNs (config/cdns.yaml)", "snapshot": date_str},
+        "sici": {"fonte": "Anatel, SICI (banda larga fixa)", "mes_referencia": sici.get("mes_referencia") or None, "snapshot": date_str},
     }
     base = {**base, "fontes": fontes}
     with _cache_participantes_lock:
@@ -293,7 +309,8 @@ def _participantes_base(store: Store, date_str: str, code: str, doc: dict) -> di
 Uma linha por ASN visto no cadastro do IX.br, no looking glass ou nos route servers do PTT, com as colunas que a página de PTT mostrava em blocos separados:
 `membro` (cadastro de participantes), `direto` (sessão com o route server vista no looking glass, por família; `null` quando a família não teve coleta válida),
 `originador` (prefixo visto no PTT, só para ASN brasileiro), `sessao_rs` (sessões up/down no route server, Alice-LG), `rejeicao` (rotas filtradas ÷ rotas recebidas nas sessões up, do mesmo instante),
-`rejeicao_detalhe` (rotas rejeitadas por motivo, de outra coleta, com `idade_dias` e `herdado`) e `cdns` (CDNs da lista curada que são membros do PTT).
+`rejeicao_detalhe` (rotas rejeitadas por motivo, de outra coleta, com `idade_dias` e `herdado`), `cdns` (CDNs da lista curada que são membros do PTT) e `sici`
+(acessos de banda larga fixa que o CNPJ do ASN declarou ao SICI da Anatel no `mes_referencia` de `fontes.sici`; `null` sem vínculo ASN→CNPJ ou sem declaração; `compartilhado` quando o CNPJ tem mais de um ASN e o total vale em cada um).
 Membro sem sessão com o route server pode trocar tráfego por sessão bilateral, que estas fontes não observam; nenhuma coluna indica causa nem qualidade.
 
 Filtros: `q` (ASN ou parte do nome), `uf` (UF da sede), `filtro` e `ordem` (a ordem padrão é por ASN, neutra). Paginação por `page` e `limit` (prévia de 100 linhas; além disso, login).
@@ -307,7 +324,7 @@ def ixp_participantes_tabela(
     q: Optional[str] = Query(None, max_length=80, description="ASN (com ou sem o prefixo AS) ou parte do nome."),
     uf: Optional[str] = Query(None, max_length=2, description="UF da sede do ASN."),
     filtro: str = Query("todos", description="Um de: todos, sem-v6, sem-v4, sem-direto, membro-sem-sessao-rs, sessao-sem-cadastro, com-cdn, com-rejeicao."),
-    ordem: str = Query("asn", description="Um de: asn, nome, uf, sessoes_rs, rejeicao."),
+    ordem: str = Query("asn", description="Um de: asn, nome, uf, sessoes_rs, rejeicao, assinantes."),
     desc: bool = Query(False, description="Ordem decrescente."),
     limit: int = Query(50, ge=1, le=200),
     page: int = Query(1, ge=1),
