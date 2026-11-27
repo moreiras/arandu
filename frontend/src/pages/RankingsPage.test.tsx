@@ -151,4 +151,23 @@ describe('página Rankings do SICI', () => {
     await waitFor(() => expect(pedido).toContain('criterio=sessoes_down'))      // a ordem por número medido é escolha do usuário
     expect(document.body.textContent).not.toMatch(/pior|melhor|culpa|irregular/i)
   })
+  it('pararam de declarar: último nome declarado, grupo em três valores com link e outorga SCM no snapshot (PT-26 / RANKINGS 5.2)', async () => {
+    server.use(http.get('*/api/v1/sem-declaracao-sici', () => HttpResponse.json({
+      ...meta, criterio: 'Acessos no último mês declarado (decrescente)', tipo: 'parou_de_declarar', total: 3, parametros: {},
+      items: [
+        { posicao: 1, cnpj: '01778972000174', empresa: 'AMERICA NET LTDA', empresa_fonte: 'sici', ultimo_mes_declarado: '2024-11', meses_sem_declarar: 22, acessos_no_ultimo_mes: 510036, grupo_id: 'g1', grupo_declara: true, scm_vigente: false },
+        { posicao: 2, cnpj: '22222222000122', empresa: 'OUTRA LTDA', empresa_fonte: 'cadastro_scm', ultimo_mes_declarado: '2025-01', meses_sem_declarar: 20, acessos_no_ultimo_mes: 1000, grupo_id: 'g2', grupo_declara: false, scm_vigente: true },
+        { posicao: 3, cnpj: '33333333000133', empresa: '', ultimo_mes_declarado: '2025-02', meses_sem_declarar: 19, acessos_no_ultimo_mes: 10 },
+      ],
+    })))
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter initialEntries={['/?tipo=parou']}><RankingsSici abaFixa="sem-declaracao" /></MemoryRouter></QueryClientProvider>)
+    await waitFor(() => expect(screen.getByText('AMERICA NET LTDA')).toBeTruthy())
+    expect(screen.getByRole('columnheader', { name: 'Empresa (CNPJ)' })).toBeTruthy()
+    expect(screen.getByText(/^outro CNPJ do grupo declarou/, { selector: 'td' })).toBeTruthy()
+    expect(screen.getByText(/^nenhum CNPJ do grupo declarou/, { selector: 'td' })).toBeTruthy()
+    expect(screen.getByText(/^grupo não identificado/, { selector: 'td' })).toBeTruthy()
+    expect(screen.getAllByRole('link', { name: 'ver grupo' })[0].getAttribute('href')).toBe('/grupo/g1')
+    expect(screen.getAllByTestId('scm-vigente').map((e) => e.textContent)).toEqual(['não', 'sim', '—'])      // snapshot antigo sem o campo: traço, nunca "não"
+    expect(document.body.textContent).not.toMatch(/migrou|incorporou|sonegou|omitiu|irregular/i)
+  })
 })

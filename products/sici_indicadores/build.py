@@ -269,6 +269,31 @@ def calcular_indicadores(mes_ref: str, meses: dict[str, dict], series: dict[str,
     return {"operadoras": operadoras, "parou_de_declarar": parou, "ufs": ufs, "municipios": municipios, "brasil": brasil}
 
 
+def complementar_parou(parou: dict[str, dict], leitor_mes, grupos: Optional[list[dict]], cnpjs_declarantes: set[str], cnpjs_scm: set[str]) -> None:
+    """Completa `parou_de_declarar` no lugar (RANKINGS 5.2): o nome declarado ao SICI no último mês declarado (o do cadastro SCM, já em `empresa`, só
+    quando o SICI não o traz; `empresa_fonte` diz qual), a leitura de grupo como em `sem_declaracao_sici` (`grupo_id`, `grupo_declara`: OUTRO CNPJ do
+    grupo inferido declarou no mês de referência; sem grupo, os campos não existem) e `scm_vigente` (o CNPJ tem outorga SCM no snapshot). Sem causa.
+    `leitor_mes(mes)` devolve os `cnpjs` do cache do mês ou None."""
+    grupo_de = {c: g for g in (grupos or []) for c in g.get("cnpjs", [])}
+    por_mes: dict[str, list[str]] = defaultdict(list)
+    for c, v in parou.items():
+        por_mes[v["ultimo_mes_declarado"]].append(c)
+    for mes in sorted(por_mes):
+        cn = leitor_mes(mes) or {}
+        for c in por_mes[mes]:
+            nome = (cn.get(c) or {}).get("empresa") or ""
+            if nome:
+                parou[c]["empresa"], parou[c]["empresa_fonte"] = nome, "sici"
+            elif parou[c].get("empresa"):
+                parou[c]["empresa_fonte"] = "cadastro_scm"
+    for c, v in parou.items():
+        v["scm_vigente"] = c in cnpjs_scm
+        g = grupo_de.get(c)
+        if g:
+            v["grupo_id"] = g.get("grupo_id")
+            v["grupo_declara"] = any(o in cnpjs_declarantes for o in g["cnpjs"] if o != c)
+
+
 def classificar_sem_declaracao(usuarios: Optional[int], tem_asn: bool) -> str:
     if not tem_asn:
         return "nao_comparavel"
@@ -498,6 +523,9 @@ def publicar_sici_indicadores(base: Path, date_str: str, log) -> dict:
         if s.get("cnpj") and s.get("uf") and not ufs_scm.get(s["cnpj"]):
             ufs_scm[s["cnpj"]] = s["uf"]
     ind = calcular_indicadores(mes_ref, meses, sici.get("serie_por_cnpj", {}), nomes_scm, ufs_scm, fantasias_scm)
+    grupos_soc = (carregar_json_gz(pub / "grupos_societarios.json.gz") or {}).get("grupos", [])
+    complementar_parou(ind["parou_de_declarar"], lambda m: (carregar_json_gz(cache / f"{m}.json.gz") or {}).get("cnpjs"), grupos_soc,
+                       set(ind["operadoras"]), {s["cnpj"] for s in scm.get("scms", []) if s.get("cnpj")})
     meta = {
         "snapshot_date": date_str, "generated_at": now_iso(), "mes_referencia": mes_ref,
         "mes_anterior": somar_meses(mes_ref, -1) if somar_meses(mes_ref, -1) in meses else None,
@@ -534,7 +562,7 @@ def publicar_sici_indicadores(base: Path, date_str: str, log) -> dict:
     usuarios = {}
     if ip.exists():
         usuarios = {a["asn"]: a["apnic_users"] for a in json.loads(ip.read_text(encoding="utf-8")) if a.get("is_br") and a.get("apnic_users")}
-    grupos = (carregar_json_gz(pub / "grupos_societarios.json.gz") or {}).get("grupos", [])
+    grupos = grupos_soc
     credenciadas = credenciadas_rede_virtual(carregar_json_gz(pub / "smp.json.gz"))
     om = calcular_sem_declaracao(mes_ref, scm.get("scms", []), set(ind["operadoras"]), usuarios, grupos, credenciadas)
     gravar_json_gz(pub / "sem_declaracao_sici.json.gz", {

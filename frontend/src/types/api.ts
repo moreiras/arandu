@@ -1995,7 +1995,7 @@ export interface IndicadoresOperadora {
   var_aa?: VariacaoSici
   meses_declinio?: number
   em_declinio?: boolean
-  parou_de_declarar?: { empresa: string; ultimo_mes_declarado: string; meses_sem_declarar: number; acessos_no_ultimo_mes: number }
+  parou_de_declarar?: { empresa: string; ultimo_mes_declarado: string; meses_sem_declarar: number; acessos_no_ultimo_mes: number; empresa_fonte?: 'sici' | 'cadastro_scm'; scm_vigente?: boolean; grupo_id?: string | null; grupo_declara?: boolean }
   sem_declaracao?: ItemSemDeclaracao
 }
 /** Maior ganho ou perda em 12 meses; `cnpjs` presente quando os CNPJs de uma mesma marca foram somados (mudança de CNPJ provável, inferido). */
@@ -2079,7 +2079,15 @@ export interface ItemSemDeclaracao {
   rede_virtual_origem?: string
 }
 export interface LinhaSemDeclaracao extends Partial<ItemSemDeclaracao> { posicao: number; cnpj: string }
-export interface LinhaParou { posicao: number; cnpj: string; empresa: string; ultimo_mes_declarado: string; meses_sem_declarar: number; acessos_no_ultimo_mes: number }
+export interface LinhaParou {
+  posicao: number; cnpj: string; empresa: string; ultimo_mes_declarado: string; meses_sem_declarar: number; acessos_no_ultimo_mes: number
+  /** De onde vem `empresa`: o último nome declarado ao SICI ou, na falta, a razão social do cadastro SCM. Ausente em snapshots antigos. */
+  empresa_fonte?: 'sici' | 'cadastro_scm'
+  /** O CNPJ tem outorga SCM no snapshot. Ausente em snapshots antigos (a tela mostra "—", não "não"). */
+  scm_vigente?: boolean
+  grupo_id?: string | null
+  grupo_declara?: boolean
+}
 export interface SemDeclaracaoSici {
   snapshot_date: string
   mes_referencia: string

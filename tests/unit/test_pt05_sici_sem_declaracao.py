@@ -49,3 +49,11 @@ def test_produto_grava_uf_de_quem_parou_de_declarar():
     meses = {"2026-09": {"a": {"empresa": "A", "acessos": 5, "por_municipio": {}}}}
     ind = calcular_indicadores("2026-09", meses, serie, {"z": "Z LTDA"}, {"z": "AC"})
     assert ind["parou_de_declarar"]["z"]["uf"] == "AC"
+
+
+def test_parou_de_declarar_aceita_o_filtro_de_grupo_com_a_mesma_semantica():
+    ind = {"parou_de_declarar": {"a": {"empresa": "A", "acessos_no_ultimo_mes": 30, "grupo_declara": True},
+                                 "b": {"empresa": "B", "acessos_no_ultimo_mes": 20, "grupo_declara": False},
+                                 "c": {"empresa": "C", "acessos_no_ultimo_mes": 10}}}
+    cnpjs = lambda v: [i["cnpj"] for i in s.sem_declaracao(OM, ind, "parou_de_declarar", None, None, v, 50, 0)["items"]]   # noqa: E731
+    assert cnpjs("true") == ["a"] and cnpjs("false") == ["b"] and cnpjs("desconhecido") == ["c"] and cnpjs(None) == ["a", "b", "c"]

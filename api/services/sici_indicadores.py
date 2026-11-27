@@ -138,6 +138,8 @@ def sem_declaracao(om: dict, ind: dict, tipo: str, uf: Optional[str], classe: Op
             if linhas and not any("uf" in r for r in linhas):
                 raise IndicadoresErro(400, "este snapshot não tem a UF de quem parou de declarar; consulte sem `uf`.")
             linhas = [r for r in linhas if (r.get("uf") or "") == uf]
+        if gd is not None:
+            linhas = [r for r in linhas if (r.get("grupo_declara") is None if gd == "desconhecido" else r.get("grupo_declara") is gd)]
         linhas.sort(key=lambda r: (-r["acessos_no_ultimo_mes"], r["cnpj"]))
         return {**meta, "tipo": tipo, "escopo": {"uf": uf} if uf else {"pais": "BR"}, "criterio": "Acessos no último mês declarado (decrescente)",
                 "total": len(linhas), "items": _paginar(linhas, limit, offset)}

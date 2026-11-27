@@ -85,7 +85,9 @@ def ranking_municipios(
     description="""
 `tipo=outorga_sem_declaracao` (padrão): CNPJs com outorga SCM sem acessos declarados no mês de referência, em ordem de usuários estimados (APNIC) dos
 ASNs do CNPJ, com a `classe` (`com_usuarios_apnic`, `sem_usuarios`, `nao_comparavel` = CNPJ sem ASN) e `grupo_declara` (outro CNPJ do grupo
-declarou; ausente = CNPJ sem grupo societário). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar. É a descrição de um fato sobre a
+declarou; ausente = CNPJ sem grupo societário). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar, com o último nome declarado ao SICI
+(`empresa_fonte` diz se veio do SICI ou do cadastro SCM), `grupo_id` e `grupo_declara` (mesma leitura de grupo da outra lista, e o filtro `grupo_declara` vale para as duas)
+e `scm_vigente` (o CNPJ tem outorga SCM no snapshot). É a descrição de um fato sobre a
 declaração, sem causa nem intenção. Metodologia na página Rankings.
 """,
 )
