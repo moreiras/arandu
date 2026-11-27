@@ -11,11 +11,12 @@ import { REGRAS_SINTESE_TECNICA, sinteseTecnica } from './sinteseTecnica'
 import { rotuloDe } from '../../lib/universos'
 import { HomeMap } from '../../components/maps/HomeMap'
 import { SnapshotHealth } from '../dashboard/Estatisticas'
-import { fetchCDNPresence, fetchDiffSnapshots, fetchIXPs } from '../../services/api'
+import { fetchCDNPresence, fetchDiffSnapshots, fetchIXPs, fetchSerieNacional } from '../../services/api'
 import { useSnapshots } from '../../hooks/useSnapshot'
 import { ComoLerNumerosPais, EXPLICA, referenciaMedicao, useBrasilIndicadores } from './IndicadoresBrasil'
 import { useResumo } from './useResumo'
 import { fracao, grande, num, pct } from './formato'
+import { variacaoRotasRpki } from './variacaoRotas'
 
 /** Um tema do resumo: título, uma linha de KPIs e os links para onde o tema é detalhado. */
 function Tema({ titulo, links, children }: { titulo: string; links: Array<[string, string]>; children: ReactNode }) {
@@ -49,6 +50,10 @@ export function ResumoTecnico() {
   const variacaoV6 = razao?.comparavel && razao.variacao_pp != null
     ? { texto: `${razao.variacao_pp >= 0 ? '+' : ''}${razao.variacao_pp.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} p.p. desde ${anterior} (série semanal)` }
     : undefined
+  // Variação do estado RPKI das rotas brasileiras: a série nacional (aberta) já traz a variação só entre pontos comparáveis (PT-28)
+  const serieRota = useQuery({ queryKey: ['serie-nacional-variacao', 'roteamento', anterior, date], queryFn: () => fetchSerieNacional('roteamento', anterior as string, { to: date as string, opcional: true }), enabled: !!anterior && !!date, staleTime: Infinity, gcTime: Infinity, retry: false })
+  const variacaoValidas = variacaoRotasRpki(serieRota.data, 'rpki_valido_pct_v6', 'rpki_valido_pct_v4', anterior)
+  const variacaoInvalidas = variacaoRotasRpki(serieRota.data, 'rpki_invalido_pct_v6', 'rpki_invalido_pct_v4', anterior)
   const gt = s?.global_table
   const ix = s?.ixp_aggregate
   const ref = s?.snapshot_date ?? date
@@ -88,8 +93,10 @@ export function ResumoTecnico() {
       <Tema titulo="Segurança" links={[['?aba=seguranca', 'Segurança'], ['/seguranca-de-roteamento', 'Por UF e porte']]}>
         <Kpi selo="fato" rotulo="ASNs com ROA" valor={pct(fracao(pub?.br_asns_with_roa, pub?.br_asns_total))} tom="tecnico" referencia={pub ? `${num(pub.br_asns_with_roa)} de ${num(pub.br_asns_total)}` : undefined}
           explicacao="ASNs do Registro.br que publicaram ao menos uma ROA no RPKI." fonte="RPKI (Routinator)" dataRef={br?.snapshot_date} />
-        <Kpi selo="fato" rotulo="Rotas BR RPKI-válidas (IPv6 · IPv4)" valor={rotas ? `${pct(rotas.v6.pct.valid) ?? '—'} · ${pct(rotas.v4.pct.valid) ?? '—'}` : null} tom="tecnico"
+        <Kpi selo="fato" rotulo="Rotas BR RPKI-válidas (IPv6 · IPv4)" valor={rotas ? `${pct(rotas.v6.pct.valid) ?? '—'} · ${pct(rotas.v4.pct.valid) ?? '—'}` : null} tom="tecnico" variacao={variacaoValidas}
           explicacao="Rotas brasileiras na tabela global cuja origem é confirmada por uma ROA (RFC 6811). O restante é inválido ou sem ROA; o detalhe está na aba Segurança." fonte="RouteViews e RPKI" dataRef={br?.rpki?.rotas?.snapshot_date} />
+        <Kpi selo="fato" rotulo="Rotas BR RPKI-inválidas (IPv6 · IPv4)" valor={rotas ? `${pct(rotas.v6.pct.invalid, 2) ?? '—'} · ${pct(rotas.v4.pct.invalid, 2) ?? '—'}` : null} tom="tecnico" variacao={variacaoInvalidas}
+          explicacao="Rotas brasileiras na tabela global cuja origem contradiz uma ROA (RFC 6811): o prefixo ou o comprimento não confere com o autorizado." fonte="RouteViews e RPKI" dataRef={br?.rpki?.rotas?.snapshot_date} />
         <Kpi selo="estimado" rotulo="Filtragem de rotas inválidas (ROV, média ponderada por amostras)" valor={pct(br?.rov?.media_ponderada_pct, 2)} tom="tecnico" referencia={referenciaMedicao(br?.rov)} explicacao={EXPLICA.rov} fonte="APNIC Labs" dataRef={br?.rov?.fonte?.as_of ?? br?.snapshot_date} />
         <Kpi selo="estimado" rotulo="Validação de DNSSEC (média ponderada por amostras)" valor={pct(br?.dnssec?.media_ponderada_pct, 2)} tom="tecnico" referencia={referenciaMedicao(br?.dnssec)} explicacao={EXPLICA.dnssec} fonte="APNIC Labs" dataRef={br?.dnssec?.fonte?.as_of ?? br?.snapshot_date} />
       </Tema>

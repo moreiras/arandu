@@ -141,7 +141,7 @@ describe('aba IPv6 do Panorama técnico', () => {
 
 describe('selo, fonte e data visíveis nos KPIs do panorama (PT-14)', () => {
   const ARQUIVOS = ['AbaFamilia', 'AbaInterconexao', 'AbaSeguranca', 'IndicadoresBrasil', 'ResumoTecnico']
-  it('toda chamada de Kpi dos cinco arquivos do panorama declara selo (66 chamadas)', () => {
+  it('toda chamada de Kpi dos cinco arquivos do panorama declara selo (67 chamadas)', () => {
     let total = 0
     const fontes = import.meta.glob('./{AbaFamilia,AbaInterconexao,AbaSeguranca,IndicadoresBrasil,ResumoTecnico}.tsx', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
     for (const a of ARQUIVOS) {
@@ -152,7 +152,7 @@ describe('selo, fonte e data visíveis nos KPIs do panorama (PT-14)', () => {
       for (const c of chamadas) expect(c, `${a}: ${c}`).toMatch(/selo=/)
       expect((fonte.match(/<Kpi[\s>]/g) ?? []).length, a).toBe(chamadas.length)
     }
-    expect(total).toBe(66)
+    expect(total).toBe(67)
   })
   beforeEach(() => {
     useAppStore.setState({ activeDate: '2026-09-20', latestSnapshot: '2026-09-20' })

@@ -1407,8 +1407,9 @@ export interface CdnMudancas {
 export function fetchCdnMudancas(a: string, b: string): Promise<CdnMudancas> {
   return get('/api/v1/cdns/mudancas', { a, b })
 }
-export function fetchSerieNacional(familia: 'roteamento' | 'seguranca', from?: string): Promise<SerieNacional> {
-  return get('/api/v1/history/brasil/series', { familia, from })
+/** `opcional` (bloco acessório, como a variação dos KPIs do panorama): sem snapshot no período a API responde 204, sem erro no console. */
+export function fetchSerieNacional(familia: 'roteamento' | 'seguranca', from?: string, opts: { opcional?: boolean; to?: string } = {}): Promise<SerieNacional> {
+  return get('/api/v1/history/brasil/series', { familia, from, ...(opts.to ? { to: opts.to } : {}), ...(opts.opcional ? { opcional: true } : {}) })
 }
 /** `opcional` (bloco acessório, como a variação do panorama): sem histórico nas duas datas a API responde 204, sem erro no console. */
 export function fetchDiffSnapshots(a: string, b: string, opts: { opcional?: boolean } = {}): Promise<DiffSnapshots> {
