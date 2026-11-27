@@ -3,11 +3,9 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { useParams, useLocation, useSearchParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Link } from '../components/layout/LinkDatado'
-import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { fetchIXPPeers } from '../services/api'
 import { useActiveDate } from '../hooks/useSnapshot'
 import { useFontes, useIxpPerfil } from '../hooks/entidades'
 import { coletaDaFamilia, isIXPAfiFull, type IXPAfiFull, type IXPDocument } from '../types/api'
@@ -22,16 +20,12 @@ import '../features/ptt'
 export function IXPPage() {
   const { code } = useParams<{ code: string }>()
   const date = useActiveDate()
-  const [params] = useSearchParams()
-  const { hash } = useLocation()
-  // as listas de pares (por família de IP) só são buscadas quando a aba Participantes abre; `?versao=1` mostra tudo, sem abas
-  const precisaPares = params.get('versao') === '1' || params.get('aba') === 'participantes' || /^#bloco-(peers|membros)/.test(hash)
   const { fontes } = useFontes()
   const [selectedPeerV4, setSelectedPeerV4] = useState<number | null>(null)
   const [selectedPeerV6, setSelectedPeerV6] = useState<number | null>(null)
 
   // Perfil consolidado: documento, membros (com nomes), usuários estimados, potencial, assinantes, linha do índice e totais do
-  // snapshot numa chamada (eram 7). Só os pares v6 e v4 ficam à parte (listas longas).
+  // snapshot numa chamada (eram 7). A tabela de participantes busca as próprias linhas, paginadas no servidor.
   const { data: perfil, isLoading, isError } = useIxpPerfil(code)
   const { ixp, ixpEntry, estUsers, potential, assinantes, membersData, totais, historico, routeServers, rejeicoes, facilities, portas } = useMemo(() => {
     if (!perfil) return { ixp: undefined, ixpEntry: undefined, estUsers: undefined, potential: undefined, assinantes: undefined, membersData: undefined, totais: undefined, historico: undefined, routeServers: undefined, rejeicoes: undefined, facilities: undefined, portas: undefined }
@@ -50,20 +44,6 @@ export function IXPPage() {
   const totalBrASNs = totais?.total_asns_br ?? null
   const totalGlobalASNs = totais?.total_asns_global ?? null
 
-
-  const { data: peersV4, isLoading: loadingPeersV4 } = useQuery({
-    queryKey: ['ixp-peers-v4', code, date],
-    queryFn: () => fetchIXPPeers(code!, 'v4', date ?? undefined),
-    enabled: !!code && !!v4 && precisaPares,
-    staleTime: Infinity, gcTime: Infinity,
-  })
-
-  const { data: peersV6, isLoading: loadingPeersV6 } = useQuery({
-    queryKey: ['ixp-peers-v6', code, date],
-    queryFn: () => fetchIXPPeers(code!, 'v6', date ?? undefined),
-    enabled: !!code && !!v6 && precisaPares,
-    staleTime: Infinity, gcTime: Infinity,
-  })
 
   // Merge: doc slim (estatísticas) + listas de membros quando chegarem
   const mergedV4 = useMemo((): IXPAfiFull | null => {
@@ -117,8 +97,8 @@ export function IXPPage() {
   const cftAsns = org != null && totalGlobalASNs ? (org / totalGlobalASNs) * 100 : null
   const ctx: PttCtx = {
     code: code!, date, historico, routeServers, rejeicoes, facilities, portas, ixp, v4, v6, v4idx, v6idx, par, dir, dif, org, brOriginUnion, cbrAsns, cftAsns, totalBrASNs, totalGlobalASNs,
-    estUsers, potential, usuariosBrTotal: totais?.br_apnic_users_total ?? null, mergedV4, mergedV6, nameMap, peersV4, peersV6,
-    loadingPeersV4, loadingPeersV6, loadingMembers, membersData, assinantes,
+    estUsers, potential, usuariosBrTotal: totais?.br_apnic_users_total ?? null, mergedV4, mergedV6, nameMap,
+    loadingMembers, membersData, assinantes,
     selectedPeerV4, selectedPeerV6, setSelectedPeerV4, setSelectedPeerV6,
   }
 

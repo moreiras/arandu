@@ -2299,12 +2299,31 @@ export interface ParticipantePtt {
   cdns: string[]
   /** Acessos de banda larga fixa que o CNPJ do ASN declarou ao SICI (Anatel) no mês de referência; `null` sem vínculo ASN→CNPJ ou sem declaração. */
   sici: { acessos: number; compartilhado: boolean } | null
+  /** Nome comercial do CNPJ vinculado ao ASN (Anatel). `nome` nulo sem nome nas fontes: o CNPJ nunca faz as vezes de nome. */
+  empresa: { cnpj: string; nome: string | null } | null
+  /** Política de peering que a própria rede declarou no PeeringDB (`policy_general`); sem verificação. */
+  politica_peering: string | null
+  /** Usuários estimados pela APNIC para o ASN inteiro; só ASN brasileiro. */
+  usuarios_apnic: number | null
+  /** ESTIMADO: usuários do ASN via os prefixos IPv4 vistos no PTT (APNIC × parte do espaço IPv4 do AS que aparece no PTT). Não arredondado. */
+  usuarios_ptt: number | null
+  /** Prefixos próprios e de terceiros vistos no PTT, por família (os mesmos de `/ixps/{code}/peers`); `null` se o ASN não tem sessão direta na família. */
+  prefixos: { v6: PrefixosPeer | null; v4: PrefixosPeer | null }
+  /** Portas declaradas e instalações inferidas, do PeeringDB. */
+  peeringdb: { portas_mbps: number[] | null; instalacoes: { id: number; nome: string | null }[] | null } | null
+  /** Assinantes SICI dos CNPJs nos AS-paths anunciados pelo ASN no PTT, por família. */
+  sici_alcancado: { v6: number | null; v4: number | null }
 }
+export interface PrefixosPeer { total_prefixes: number; own_prefixes: number; third_prefixes: number; origin_asns: number; own_space_24: number; third_space_24: number }
 export type FiltroParticipantes = 'todos' | 'sem-v6' | 'sem-v4' | 'sem-direto' | 'membro-sem-sessao-rs' | 'sessao-sem-cadastro' | 'com-cdn' | 'com-rejeicao'
 export interface ParticipantesPtt {
   snapshot_date: string; ixp: string; limites: string
   filtros: { q: string | null; uf: string | null; filtro: FiltroParticipantes; definicao_do_filtro: string }
   ordem: string; page: number; limit: number; route_servers_medido: boolean
+  /** "Como ler" das duas colunas de usuários. */
+  limites_usuarios: string
+  /** Fecha a conta da coluna `usuarios_ptt` com o total do PTT; `null` sem coleta IPv4 válida. */
+  usuarios_ptt_resumo: { na_tabela: number; fora_da_tabela: { asns: number; usuarios: number }; total_do_ptt: number } | null
   fontes: {
     cadastro: { fonte: string; snapshot: string }
     looking_glass: { fonte: string; snapshot: string; coleta: { v6: string; v4: string } }
@@ -2312,6 +2331,9 @@ export interface ParticipantesPtt {
     rejeicoes_por_motivo: { fonte: string | null; coletado_nivel2: string | null; cobertura: Record<string, number | null> | null }
     cdns: { fonte: string; snapshot: string }
     sici: { fonte: string; mes_referencia: string | null; snapshot: string }
+    apnic: { fonte: string; snapshot: string; limites: string }
+    peeringdb: { fonte: string; snapshot: string; coletado_em: string | null; limites: string | null }
+    prefixos: { fonte: string; snapshot: string }
   }
   total: number; total_participantes: number; contagens: Record<FiltroParticipantes, number>; ufs: string[]
   items: ParticipantePtt[]

@@ -11,24 +11,28 @@ const esc = (v: string | number | boolean | null | undefined) => {
   const s = String(v)
   return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
 }
-/** `null` (família sem coleta ou ASN fora do Brasil) fica vazio: nunca vira "não". */
+/** `null` (família sem coleta ou ASN fora do Brasil) fica vazio: nunca vira "não". `usuarios_via_prefixos_no_ptt_estimado` é estimativa, como o nome diz, e vai arredondada. */
 const sn = (b: boolean | null) => (b == null ? '' : b ? 'sim' : 'não')
 
 /** IPv6 antes de IPv4 em toda ordem. Nenhum contato (e-mail, telefone) entra: a rota não os traz. */
 export const CABECALHO_PARTICIPANTES = [
-  'asn', 'nome', 'uf', 'membro_cadastro', 'direto_v6', 'direto_v4', 'originador_v6', 'originador_v4',
+  'asn', 'nome', 'uf', 'empresa', 'empresa_cnpj', 'politica_peering_peeringdb', 'membro_cadastro', 'direto_v6', 'direto_v4', 'originador_v6', 'originador_v4',
   'sessoes_rs', 'sessoes_rs_up', 'sessoes_rs_down', 'rotas_filtradas', 'rotas_recebidas', 'pct_filtradas',
   'rejeicao_por_motivo_rotas', 'rejeicao_por_motivo_idade_dias', 'rejeicao_por_motivo_herdada',
   'acessos_fixos_sici', 'acessos_fixos_sici_compartilhado', 'acessos_fixos_sici_mes_referencia',
+  'usuarios_apnic_total_do_as', 'usuarios_via_prefixos_no_ptt_estimado',
+  'prefixos_proprios_v6', 'prefixos_terceiros_v6', 'prefixos_proprios_v4', 'prefixos_terceiros_v4',
   'cdns', 'data_snapshot',
 ]
 
 export function montarCsvParticipantes(items: ParticipantePtt[], fontes: ParticipantesPtt['fontes'], snapshot: string): string {
   const linhas = items.map((l) => [
-    l.asn, l.nome ?? '', l.uf ?? '', sn(l.membro), sn(l.direto.v6), sn(l.direto.v4), sn(l.originador.v6), sn(l.originador.v4),
+    l.asn, l.nome ?? '', l.uf ?? '', l.empresa?.nome ?? '', l.empresa?.cnpj ?? '', l.politica_peering ?? '', sn(l.membro), sn(l.direto.v6), sn(l.direto.v4), sn(l.originador.v6), sn(l.originador.v4),
     l.sessao_rs?.sessoes, l.sessao_rs?.up, l.sessao_rs?.down, l.rejeicao?.filtradas, l.rejeicao?.recebidas, l.rejeicao?.pct,
     l.rejeicao_detalhe?.rotas, l.rejeicao_detalhe?.idade_dias, l.rejeicao_detalhe ? sn(l.rejeicao_detalhe.herdado) : '',
     l.sici?.acessos, l.sici ? sn(l.sici.compartilhado) : '', l.sici ? (fontes.sici.mes_referencia ?? '') : '',
+    l.usuarios_apnic, l.usuarios_ptt == null ? '' : Math.round(l.usuarios_ptt),
+    l.prefixos?.v6?.own_prefixes, l.prefixos?.v6?.third_prefixes, l.prefixos?.v4?.own_prefixes, l.prefixos?.v4?.third_prefixes,
     l.cdns.join(' '), snapshot,
   ].map(esc).join(','))
   return '﻿' + [CABECALHO_PARTICIPANTES.join(','), ...linhas].join('\n')

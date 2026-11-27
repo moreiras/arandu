@@ -40,10 +40,6 @@ export interface PttCtx {
   mergedV4: IXPAfiFull | null
   mergedV6: IXPAfiFull | null
   nameMap: Record<string, string>
-  peersV4: any
-  peersV6: any
-  loadingPeersV4: boolean
-  loadingPeersV6: boolean
   loadingMembers: boolean
   membersData: any
   assinantes?: IXPAssinantes

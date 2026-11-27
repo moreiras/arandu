@@ -1469,8 +1469,8 @@ export function fetchRankingRouteServers(opts: { date?: string; criterio?: strin
   return get('/api/v1/ranking/route-servers', opts)
 }
 
-/** `esquema` 2: a linha ganhou `sici` e `fontes.sici` (acessos fixos do CNPJ do ASN, PT-24). */
-const ESQUEMA_PARTICIPANTES = 2
+/** `esquema` 3: a linha ganhou `empresa`, `politica_peering`, `usuarios_apnic`, `usuarios_ptt`, `prefixos`, `peeringdb` e `sici_alcancado`, e `fontes` ganhou `apnic`, `peeringdb` e `prefixos` (fusão com os blocos de peers, PT-24). O 2 trouxe `sici`. */
+const ESQUEMA_PARTICIPANTES = 3
 
 /** Tabela única de participantes do PTT, paginada no servidor (a 1ª página, até 100 linhas, é medida; ampliar exige login). */
 export function fetchIxpParticipantes(code: string, opts: { date?: string; q?: string; uf?: string; filtro?: string; ordem?: string; desc?: boolean; limit?: number; page?: number }): Promise<ParticipantesPtt> {

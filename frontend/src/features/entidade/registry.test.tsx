@@ -64,11 +64,18 @@ describe('blocos de ASN', () => {
 describe('blocos de PTT', () => {
   const ctx = (v4: unknown, v6: unknown) => ({ v4, v6 }) as any
 
-  it('fixa os 20 blocos e a ordem de exibição (os indicadores em destaque e depois o resumo em texto, a posição entre os PTTs e o território, PT-22 e PT-30; a tabela única de participantes substitui "Participantes e filtros" e "Membros sem peering direto")', () => {
+  it('fixa os 18 blocos e a ordem de exibição (os indicadores em destaque e depois o resumo em texto, a posição entre os PTTs e o território, PT-22 e PT-30; a tabela única de participantes substitui "Participantes e filtros", "Membros sem peering direto" e as tabelas de ASNs por família, PT-24)', () => {
     expect(blocosDe('ixp').map((b) => b.id)).toEqual([
       'destaque', 'sintese', 'posicao', 'territorio', 'indicadores-as', 'indicadores-v6', 'indicadores-v4', 'potencial', 'route-servers', 'rejeicoes', 'instalacoes', 'mapa', 'hilbert-v6', 'hilbert-v4',
-      'linha-do-tempo', 'participantes', 'entrou-saiu', 'conteudo', 'peers-v6', 'peers-v4',
+      'linha-do-tempo', 'participantes', 'entrou-saiu', 'conteudo',
     ])
+  })
+
+  it('os blocos peers-v6 e peers-v4 saíram: a tabela única de participantes cobre empresa, política, usuários, prefixos e o destaque no Hilbert (PT-24)', () => {
+    const ids = blocosDe('ixp').map((b) => b.id)
+    expect(ids).not.toContain('peers-v6')
+    expect(ids).not.toContain('peers-v4')
+    expect(ids.filter((i) => /peers|membros-sem|participantes-filtrados/.test(i))).toEqual([])
   })
 
   it('Hilbert só aparece com dado e a tabela de participantes aparece sempre (regras da página de antes)', () => {
