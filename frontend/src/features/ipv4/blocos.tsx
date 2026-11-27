@@ -13,6 +13,7 @@ import type { OperadoraCtx } from '../operadora/contexto'
 import type { Ipv4EspacoLinha, Ipv4UsoItem } from '../../types/api'
 import { useOrdenacao } from '../../lib/ordenacao'
 import { ThOrdenavel } from '../../components/ui/ThOrdenavel'
+import { palavra } from '../../lib/sintese'
 
 export const CLASSES_ESPACO: Record<string, string> = { nao_anunciado: 'não anunciado', roa_sem_anuncio: 'ROA sem anúncio', parcial: 'anunciado em parte', em_recuperacao: 'em recuperação' }
 const inteiro = (v?: number | null) => (v == null ? '—' : Math.round(v).toLocaleString('pt-BR'))
@@ -66,7 +67,7 @@ export function RecursosIpv4AsnBloco({ dados }: BlocoProps<AsnCtx>) {
   if (!r) return null
   return (
     <div className="space-y-3">
-      <p className="text-sm text-gray-700">{inteiro(r.blocos)} blocos IPv4 alocados ao ASN ({inteiro(r.enderecos)} endereços). {r.nao_plenamente_anunciados.length > 0 && `${r.nao_plenamente_anunciados.length} não estão plenamente anunciados.`}</p>
+      <p className="text-sm text-gray-700">{inteiro(r.blocos)} {palavra(r.blocos ?? 0, 'bloco IPv4 alocado', 'blocos IPv4 alocados')} ao ASN ({inteiro(r.enderecos)} {palavra(r.enderecos ?? 0, 'endereço', 'endereços')}). {r.nao_plenamente_anunciados.length > 0 && `${r.nao_plenamente_anunciados.length} ${palavra(r.nao_plenamente_anunciados.length, 'não está plenamente anunciado', 'não estão plenamente anunciados')}.`}</p>
       <ListaEspaco itens={r.nao_plenamente_anunciados} />
       {r.sinais_como_titular.length > 0 && <div><h3 className="text-sm font-medium text-gray-800">Blocos do ASN com sinais de uso por terceiros</h3><ListaSinais itens={r.sinais_como_titular} /></div>}
       {r.sinais_como_origem.length > 0 && <div><h3 className="text-sm font-medium text-gray-800">Blocos de outro titular que o ASN anuncia</h3><ListaSinais itens={r.sinais_como_origem} /></div>}
