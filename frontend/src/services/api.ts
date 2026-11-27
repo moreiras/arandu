@@ -368,9 +368,16 @@ export type IxpPerfil = IXPDocument & {
  * exige login (a API responde 401 ao anônimo). A resposta depende só da URL, então os caches por URL (nginx, API) não misturam os dois.
  */
 export const blocoHistorico = (completo: boolean) => (completo ? 'historico_completo' : 'historico')
+/**
+ * `esquema` do bloco `historico` dos perfis (ASN, PTT, operadora, UF): 2 (PT-28) ganhou `metricas` (comparabilidade de cada série), `regra` e `atipico` nos
+ * eventos. O `?date=` do perfil sai `immutable` por um ano, então a URL tem de mudar. Vai como sufixo do `esquema` de cada perfil (`6.h2`), e não como
+ * novo número: assim as outras rotas que dividem a mesma constante (lista de PTTs, instalações, grupos) não perdem o cache sem motivo.
+ */
+const ESQUEMA_HISTORICO = 2
+const esquemaPerfil = (base: number) => `${base}.h${ESQUEMA_HISTORICO}`
 
 export function fetchIXPPerfil(code: string, date?: string, historicoCompleto = false): Promise<IxpPerfil> {
-  return get(`/api/v1/ixps/${code}`, { date, esquema: ESQUEMA_IXPS, include: `membros,usuarios_estimados,potencial,assinantes,indice,totais,${blocoHistorico(historicoCompleto)},route_servers,rejeicoes,facilities,portas`, opcional: true })
+  return get(`/api/v1/ixps/${code}`, { date, esquema: esquemaPerfil(ESQUEMA_IXPS), include: `membros,usuarios_estimados,potencial,assinantes,indice,totais,${blocoHistorico(historicoCompleto)},route_servers,rejeicoes,facilities,portas`, opcional: true })
 }
 
 /** Um acerto da busca universal. `url` é o caminho da página no site. */
@@ -445,7 +452,7 @@ export type AsnPerfil = ASNDocument & {
   recuperacao?: import('../types/api').AsnRecuperacao | null
 }
 export function fetchASNPerfil(asn: number | string, date?: string, historicoCompleto = false): Promise<AsnPerfil> {
-  return get(`/api/v1/asns/${asn}`, { date, include: `paths,ixp_peers,estabilidade,${blocoHistorico(historicoCompleto)},seguranca,prontidao,route_servers,politica_rs,organizacao,abuso,bloqueios,radar,exposicao,facilities,peering,transito,referencias,cadastro,recuperacao`, opcional: true, esquema: ESQUEMA_INSTALACOES })
+  return get(`/api/v1/asns/${asn}`, { date, include: `paths,ixp_peers,estabilidade,${blocoHistorico(historicoCompleto)},seguranca,prontidao,route_servers,politica_rs,organizacao,abuso,bloqueios,radar,exposicao,facilities,peering,transito,referencias,cadastro,recuperacao`, opcional: true, esquema: esquemaPerfil(ESQUEMA_INSTALACOES) })
 }
 
 export function fetchASNContacts(asn: number | string, date?: string): Promise<ASNContactsResponse> {
@@ -894,7 +901,7 @@ const ESQUEMA_GRUPOS = 6
 
 /** Perfil consolidado da operadora (SCM, SMP, STFC e SeAC, ASNs e rede) numa chamada; 204 = CNPJ sem informação. */
 export function fetchOperadoraPerfil(cnpj: string, date?: string, historicoCompleto = false): Promise<PerfilOperadora | null> {
-  return get(`/api/v1/operadoras/${cnpj}`, { date, include: `${blocoHistorico(historicoCompleto)},indicadores,erbs,multas,prontidao,qualidade,reclamacoes,consumidor,mercado_grupos`, opcional: true, esquema: ESQUEMA_GRUPOS })
+  return get(`/api/v1/operadoras/${cnpj}`, { date, include: `${blocoHistorico(historicoCompleto)},indicadores,erbs,multas,prontidao,qualidade,reclamacoes,consumidor,mercado_grupos`, opcional: true, esquema: esquemaPerfil(ESQUEMA_GRUPOS) })
 }
 
 export function fetchOperadoraContacts(cnpj: string, date?: string): Promise<OperadoraContactsResponse> {
@@ -1014,7 +1021,7 @@ export function fetchUfs(date?: string): Promise<{ snapshot_date: string; mes_re
 /** Sobe quando o corpo de `/ufs/{uf}` muda (2: `operadoras_presentes`, UF-E2; 3: `indicadores` com as contagens sem declaração, PT-26): a URL com `date` é imutável no cache. */
 const ESQUEMA_UF = 3
 export function fetchUfPerfil(uf: string, date?: string, historicoCompleto = false): Promise<PerfilUf> {
-  return get(`/api/v1/ufs/${uf}`, { date, esquema: ESQUEMA_UF, include: `${blocoHistorico(historicoCompleto)},indicadores,territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio` })
+  return get(`/api/v1/ufs/${uf}`, { date, esquema: esquemaPerfil(ESQUEMA_UF), include: `${blocoHistorico(historicoCompleto)},indicadores,territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio` })
 }
 
 export function fetchAcessosMunicipios(opts: {
@@ -1407,8 +1414,9 @@ export interface CdnMudancas {
 export function fetchCdnMudancas(a: string, b: string): Promise<CdnMudancas> {
   return get('/api/v1/cdns/mudancas', { a, b })
 }
-export function fetchSerieNacional(familia: 'roteamento' | 'seguranca', from?: string): Promise<SerieNacional> {
-  return get('/api/v1/history/brasil/series', { familia, from })
+/** `opcional` (bloco acessório, como a variação dos KPIs do panorama): sem snapshot no período a API responde 204, sem erro no console. */
+export function fetchSerieNacional(familia: 'roteamento' | 'seguranca', from?: string, opts: { opcional?: boolean; to?: string } = {}): Promise<SerieNacional> {
+  return get('/api/v1/history/brasil/series', { familia, from, ...(opts.to ? { to: opts.to } : {}), ...(opts.opcional ? { opcional: true } : {}) })
 }
 /** `opcional` (bloco acessório, como a variação do panorama): sem histórico nas duas datas a API responde 204, sem erro no console. */
 export function fetchDiffSnapshots(a: string, b: string, opts: { opcional?: boolean } = {}): Promise<DiffSnapshots> {

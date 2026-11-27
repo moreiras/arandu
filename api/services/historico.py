@@ -263,6 +263,30 @@ _COLUNAS_PERFIL = {
 LIMITE_EVENTOS_PERFIL = 30
 
 
+def _metricas_perfil(escopo: str, serie: list[dict], colunas: list[str], estrangeiro: bool) -> list[dict]:
+    """Anotação de comparabilidade (`core/comparabilidade.py`) de cada coluna numérica da série do perfil, na mesma regra de `tendencia`: o ponto marca
+    se é comparável com o anterior, a série se corta onde não é e a variação só existe entre pontos comparáveis. Não repete os valores (estão em `serie`)."""
+    out = []
+    for c in colunas:
+        if c == "status":
+            continue
+        pontos = [{"date": p["date"], "valor": p[c], "meta": {"coleta_ok": p.get("status") == "ok"} if escopo == "ixp" and "status" in p else {}}
+                  for p in serie if isinstance(p.get(c), (int, float))]
+        if not pontos:
+            continue
+        a = comp.anotar_serie(pontos, c, estrangeiro)
+        v = a.get("variacao")
+        m = {"id": c, "desenhar_linha": a["desenhar_linha"], "segmentos": a["segmentos"],
+             "pontos": [{"date": p["date"], "comparavel_com_anterior": p["comparavel_com_anterior"], "motivos": p["motivos"]} for p in a["pontos"]]}
+        if v:
+            m["variacao"] = {"de": v["de"], "para": v["para"], "calculada": v["calculada"], "absoluta": v.get("absoluta"), "unidade": v.get("unidade"), "pct": v.get("pct"),
+                             "motivos": [x["codigo"] for x in v["motivos"]]}
+        if "nota" in a:
+            m["nota"] = a["nota"]
+        out.append(m)
+    return out
+
+
 def perfil(repo: HistoricoRepo, escopo: str, chave: str, completo: bool, recentes: list[str]) -> Optional[dict]:
     """O bloco `historico` do perfil de uma entidade: série e eventos recentes. `completo=False` (anônimo) limita às datas atuais (`recentes`),
     como a política de acesso exige para a série inteira. None se a entidade não tem linha em nenhuma data. Eventos de provedor ficam de fora."""
@@ -271,10 +295,12 @@ def perfil(repo: HistoricoRepo, escopo: str, chave: str, completo: bool, recente
               "operadora": lambda d: repo.linha_operadora(d, chave), "uf": lambda d: repo.linha_uf(d, chave)}[escopo]
     cols = _COLUNAS_PERFIL[escopo]
     serie = []
+    estrangeiro = False
     for d in datas:
         ln = leitor(d)
         if ln is not None:
             serie.append({"date": d, **{k: ln[k] for k in cols if k in ln}})
+            estrangeiro = estrangeiro or (escopo == "asn" and ln.get("is_br") is False)
     if not serie:
         return None
     # Candidatos pelo índice do repositório (nada de varrer todos os eventos a cada perfil); o filtro `casa` continua valendo.
@@ -302,9 +328,15 @@ def perfil(repo: HistoricoRepo, escopo: str, chave: str, completo: bool, recente
     no_recorte = set(datas)
     todos = [e for e in candidatos if e["data"] in no_recorte and e["estado"] != "revertido" and e["tipo"] not in _INFERIDOS and casa(e)]
     for e in todos[:LIMITE_EVENTOS_PERFIL]:
-        eventos.append({k: e[k] for k in ("data", "tipo", "entidade", "chave", "de", "para", "estado", "destaque") if k in e})
-    return {"completo": completo, "snapshots_com_historico": len(repo.datas()), "colunas": [c for c in cols if any(c in p for p in serie)],
-            "serie": serie, "eventos": eventos, "eventos_total": len(todos)}
+        ev = {k: e[k] for k in ("data", "tipo", "entidade", "chave", "de", "para", "estado", "destaque") if k in e}
+        atipico = comp.atipica_evento(e["data"], e["tipo"])
+        if atipico:
+            ev["atipico"] = atipico                 # D7: data marcada, evento mantido
+        eventos.append(ev)
+    colunas = [c for c in cols if any(c in p for p in serie)]
+    return {"completo": completo, "snapshots_com_historico": len(repo.datas()), "colunas": colunas,
+            "serie": serie, "metricas": _metricas_perfil(escopo, serie, colunas, estrangeiro), "regra": {"versao": comp.VERSAO_REGRA, "min_pontos_linha": comp.MIN_PONTOS_LINHA, "motivos": dict(comp.MOTIVOS), "texto": list(comp.REGRA_COMO_LER)},
+            "eventos": eventos, "eventos_total": len(todos)}
 
 
 # ── Feed Atom ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

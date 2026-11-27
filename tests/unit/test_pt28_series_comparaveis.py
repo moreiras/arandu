@@ -230,3 +230,50 @@ def test_serie_valida_parametros(tmp_path):
     with pytest.raises(sn.SerieErro) as e:
         sn.serie(st, "roteamento", de="2027-01-01")
     assert e.value.status == 404
+
+
+# ── bloco `historico` dos perfis (Linha do tempo): a mesma regra, por coluna ─────────────────────────────────────────────────────────
+class _RepoPerfil(_Repo):
+    def eventos_de(self, tipo, chave):
+        return [e for d in self._d for e in self._ev.get(d, []) if e.get("entidade", "").startswith(f"{tipo}:")]
+
+
+def _metrica(bloco, mid):
+    return next(m for m in bloco["metricas"] if m["id"] == mid)
+
+
+def test_perfil_de_asn_estrangeiro_marca_o_corte_na_data_atipica_e_nao_calcula_a_variacao():
+    datas = ["2026-06-21", "2026-06-28", "2026-07-05", "2026-07-12"]
+    asns = {(d, 7): {"is_br": False, "n_roa": n, "p4": 3} for d, n in zip(datas, (5, 5, 0, 0))}
+    b = h.perfil(_RepoPerfil(datas, asns=asns), "asn", "7", True, datas[-2:])
+    roa = _metrica(b, "n_roa")
+    assert [p["comparavel_com_anterior"] for p in roa["pontos"]] == [None, True, False, False]
+    assert roa["variacao"]["calculada"] is False and roa["variacao"]["absoluta"] is None and "2026-07-05" in roa["nota"]
+    assert _metrica(b, "p4")["variacao"]["calculada"] is True            # a data atípica só vale para as métricas marcadas
+    assert b["regra"]["min_pontos_linha"] == 4 and b["regra"]["texto"]
+
+
+def test_perfil_de_asn_brasileiro_na_mesma_data_continua_comparavel_e_so_desenha_linha_com_4_pontos():
+    datas = ["2026-06-21", "2026-06-28", "2026-07-05", "2026-07-12"]
+    asns = {(d, 7): {"is_br": True, "n_roa": n} for d, n in zip(datas, (5, 6, 7, 8))}
+    b = h.perfil(_RepoPerfil(datas, asns=asns), "asn", "7", True, datas[-2:])
+    assert _metrica(b, "n_roa")["desenhar_linha"] is True and _metrica(b, "n_roa")["variacao"]["absoluta"] == 3
+    curto = h.perfil(_RepoPerfil(datas, asns=asns), "asn", "7", False, datas[-2:])           # anônimo: 2 snapshots
+    assert _metrica(curto, "n_roa")["desenhar_linha"] is False and len(curto["serie"]) == 2
+    assert _metrica(curto, "n_roa")["variacao"]["calculada"] is True
+
+
+def test_perfil_de_ptt_com_coleta_parcial_nao_compara_e_status_nao_vira_metrica():
+    datas = ["2026-11-15", "2026-11-22"]
+    ixps = {datas[0]: [{"ixp": "sp", "status": "ok", "n_direct": 100}], datas[1]: [{"ixp": "sp", "status": "partial", "n_direct": 40}]}
+    b = h.perfil(_RepoPerfil(datas, ixps=ixps), "ixp", "sp", True, datas)
+    assert _metrica(b, "n_direct")["variacao"]["calculada"] is False
+    assert "status" not in [m["id"] for m in b["metricas"]]
+
+
+def test_perfil_marca_o_evento_de_data_atipica_sem_apagar_o_evento():
+    datas = ["2026-06-28", "2026-07-05"]
+    ev = {"2026-07-05": [{"data": "2026-07-05", "tipo": "roa_perdido", "entidade": "asn:7", "chave": "", "estado": "confirmado", "asn": 7}]}
+    asns = {(d, 7): {"is_br": False, "n_roa": 1} for d in datas}
+    b = h.perfil(_RepoPerfil(datas, asns=asns, eventos=ev), "asn", "7", True, datas)
+    assert b["eventos_total"] == 1 and b["eventos"][0]["atipico"]
