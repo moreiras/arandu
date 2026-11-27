@@ -13950,7 +13950,7 @@
   },
   "/api/v1/multas/empresas": {
    "get": {
-    "description": "Uma linha por empresa (raiz do CNPJ: matriz e filiais) e grupo de serviço, com multas, valor original, pago, saldo devedor atualizado, situações (Quitado, Devedor, Parcial) e primeiro e último\nano de aplicação. `grupo` filtra por SCM, SMP, STFC ou SeAC; `q` busca no nome ou na raiz do CNPJ; `ordem` = `empresa` (padrão: ordem alfabética pelo nome, neutra), `saldo`, `multas`, `original` ou `pago` (estas, do maior para o menor, por escolha de quem consulta); a resposta traz a regra em `regra_ordem`. **Multa constituída não é condenação definitiva.** Só pessoa jurídica.",
+    "description": "Uma linha por empresa (raiz do CNPJ: matriz e filiais) e grupo de serviço, com multas, valor original, pago, saldo devedor atualizado, situações (Quitado, Devedor, Parcial) e primeiro e último\nano de aplicação. `grupo` filtra por SCM, SMP, STFC ou SeAC; `q` busca no nome ou na raiz do CNPJ; `ordem` = `empresa` (padrão: ordem alfabética pelo nome, neutra), `saldo`, `multas`, `original` ou `pago` (estas, do maior para o menor, por escolha de quem consulta); a resposta traz a regra em `regra_ordem`. `visao=servico` (padrão) devolve uma linha por empresa e serviço; `visao=raiz` soma os serviços de cada raiz do CNPJ numa só linha (`servicos` lista os serviços; o nome é o mais frequente entre as linhas e os outros vêm em `nomes_alternativos`). **Multa constituída não é condenação definitiva.** Só pessoa jurídica.",
     "operationId": "multas_empresas_api_v1_multas_empresas_get",
     "parameters": [
      {
@@ -13995,6 +13995,18 @@
       "schema": {
        "default": "empresa",
        "title": "Ordem",
+       "type": "string"
+      }
+     },
+     {
+      "description": "`servico` (uma linha por raiz e serviço) ou `raiz` (uma linha por raiz, serviços somados).",
+      "in": "query",
+      "name": "visao",
+      "required": false,
+      "schema": {
+       "default": "servico",
+       "description": "`servico` (uma linha por raiz e serviço) ou `raiz` (uma linha por raiz, serviços somados).",
+       "title": "Visao",
        "type": "string"
       }
      },
@@ -18002,7 +18014,7 @@
   },
   "/api/v1/sem-declaracao-sici": {
    "get": {
-    "description": "`tipo=outorga_sem_declaracao` (padrão): CNPJs com outorga SCM sem acessos declarados no mês de referência, em ordem de usuários estimados (APNIC) dos\nASNs do CNPJ, com a `classe` (`com_usuarios_apnic`, `sem_usuarios`, `nao_comparavel` = CNPJ sem ASN) e `grupo_declara` (outro CNPJ do grupo\ndeclarou; ausente = CNPJ sem grupo societário). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar. É a descrição de um fato sobre a\ndeclaração, sem causa nem intenção. Metodologia na página Rankings.",
+    "description": "`tipo=outorga_sem_declaracao` (padrão): CNPJs com outorga SCM sem acessos declarados no mês de referência, em ordem de usuários estimados (APNIC) dos\nASNs do CNPJ, com a `classe` (`com_usuarios_apnic`, `sem_usuarios`, `nao_comparavel` = CNPJ sem ASN) e `grupo_declara` (outro CNPJ do grupo\ndeclarou; ausente = CNPJ sem grupo societário). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar, com o último nome declarado ao SICI\n(`empresa_fonte` diz se veio do SICI ou do cadastro SCM), `grupo_id` e `grupo_declara` (mesma leitura de grupo da outra lista, e o filtro `grupo_declara` vale para as duas)\ne `scm_vigente` (o CNPJ tem outorga SCM no snapshot). É a descrição de um fato sobre a\ndeclaração, sem causa nem intenção. Metodologia na página Rankings.",
     "operationId": "sem_declaracao_sici_api_v1_sem_declaracao_sici_get",
     "parameters": [
      {
@@ -19079,7 +19091,7 @@
   },
   "/api/v1/territorio/ranking": {
    "get": {
-    "description": "Municípios ordenados por `campo` (penetracao, penetracao_pf, nao_visto, nao_visto_pct, populacao, populacao_estimada, domicilios, domicilios_projetados, acessos, km_ptt, fibra_pct, reclam_100mil). `uf` restringe; `sem_ptt_proximo=true` mantém só os a mais de 100 km de um PTT (linha reta do\ncentróide); `min_domicilios` evita o ruído de municípios muito pequenos. Cada linha traz população, domicílios, acessos, penetração, o não visto estimado e o PTT mais próximo (`ptt_proximo`, `ptt_proximo_nome`) com o PIX, o local de interconexão, mais próximo (`pix_proximo`).\nO `nao_visto` é max(0, domicílios projetados × taxa de internet da UF − acessos de pessoa física): estimativa que inclui quem usa só o celular (PNAD). Fórmulas e limites vêm na resposta.",
+    "description": "Municípios ordenados por `campo` (penetracao, penetracao_pf, nao_visto, nao_visto_pct, populacao, populacao_estimada, domicilios, domicilios_projetados, acessos, km_ptt, fibra_pct, reclam_100mil). `uf` restringe; `sem_ptt_proximo=true` mantém só os a mais de 100 km de um PTT (linha reta do\ncentróide); `sem_sessao_ptt=true` mantém só os municípios em que nenhum ASN com sede tem sessão direta em PTT do IX.br (inferido pela sede do CNPJ; inclui os sem ASN com sede, que o campo `redes_sede.asns` distingue; `false`, os que têm ao menos uma rede com sessão; snapshot sem o produto de redes por município não tem como responder e devolve lista vazia com o filtro); `min_domicilios` evita o ruído de municípios muito pequenos. Cada linha traz população, domicílios, acessos, penetração, o não visto estimado e o PTT mais próximo (`ptt_proximo`, `ptt_proximo_nome`) com o PIX, o local de interconexão, mais próximo (`pix_proximo`).\nO `nao_visto` é max(0, domicílios projetados × taxa de internet da UF − acessos de pessoa física): estimativa que inclui quem usa só o celular (PNAD). Fórmulas e limites vêm na resposta.",
     "operationId": "territorio_ranking_api_v1_territorio_ranking_get",
     "parameters": [
      {
@@ -19148,6 +19160,22 @@
         }
        ],
        "title": "Sem Ptt Proximo"
+      }
+     },
+     {
+      "in": "query",
+      "name": "sem_sessao_ptt",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Sem Sessao Ptt"
       }
      },
      {

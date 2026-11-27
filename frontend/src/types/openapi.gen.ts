@@ -3493,7 +3493,7 @@ export interface paths {
         /**
          * Multas constituídas por empresa (raiz do CNPJ) e serviço
          * @description Uma linha por empresa (raiz do CNPJ: matriz e filiais) e grupo de serviço, com multas, valor original, pago, saldo devedor atualizado, situações (Quitado, Devedor, Parcial) e primeiro e último
-         *     ano de aplicação. `grupo` filtra por SCM, SMP, STFC ou SeAC; `q` busca no nome ou na raiz do CNPJ; `ordem` = `empresa` (padrão: ordem alfabética pelo nome, neutra), `saldo`, `multas`, `original` ou `pago` (estas, do maior para o menor, por escolha de quem consulta); a resposta traz a regra em `regra_ordem`. **Multa constituída não é condenação definitiva.** Só pessoa jurídica.
+         *     ano de aplicação. `grupo` filtra por SCM, SMP, STFC ou SeAC; `q` busca no nome ou na raiz do CNPJ; `ordem` = `empresa` (padrão: ordem alfabética pelo nome, neutra), `saldo`, `multas`, `original` ou `pago` (estas, do maior para o menor, por escolha de quem consulta); a resposta traz a regra em `regra_ordem`. `visao=servico` (padrão) devolve uma linha por empresa e serviço; `visao=raiz` soma os serviços de cada raiz do CNPJ numa só linha (`servicos` lista os serviços; o nome é o mais frequente entre as linhas e os outros vêm em `nomes_alternativos`). **Multa constituída não é condenação definitiva.** Só pessoa jurídica.
          */
         get: operations["multas_empresas_api_v1_multas_empresas_get"];
         put?: never;
@@ -4468,7 +4468,9 @@ export interface paths {
          * Outorgas SCM sem acessos declarados ao SICI no mês
          * @description `tipo=outorga_sem_declaracao` (padrão): CNPJs com outorga SCM sem acessos declarados no mês de referência, em ordem de usuários estimados (APNIC) dos
          *     ASNs do CNPJ, com a `classe` (`com_usuarios_apnic`, `sem_usuarios`, `nao_comparavel` = CNPJ sem ASN) e `grupo_declara` (outro CNPJ do grupo
-         *     declarou; ausente = CNPJ sem grupo societário). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar. É a descrição de um fato sobre a
+         *     declarou; ausente = CNPJ sem grupo societário). `tipo=parou_de_declarar`: CNPJs que declararam antes e estão há 6 meses ou mais sem declarar, com o último nome declarado ao SICI
+         *     (`empresa_fonte` diz se veio do SICI ou do cadastro SCM), `grupo_id` e `grupo_declara` (mesma leitura de grupo da outra lista, e o filtro `grupo_declara` vale para as duas)
+         *     e `scm_vigente` (o CNPJ tem outorga SCM no snapshot). É a descrição de um fato sobre a
          *     declaração, sem causa nem intenção. Metodologia na página Rankings.
          */
         get: operations["sem_declaracao_sici_api_v1_sem_declaracao_sici_get"];
@@ -4743,7 +4745,7 @@ export interface paths {
         /**
          * Municípios por penetração, mercado não visto ou distância ao PTT
          * @description Municípios ordenados por `campo` (penetracao, penetracao_pf, nao_visto, nao_visto_pct, populacao, populacao_estimada, domicilios, domicilios_projetados, acessos, km_ptt, fibra_pct, reclam_100mil). `uf` restringe; `sem_ptt_proximo=true` mantém só os a mais de 100 km de um PTT (linha reta do
-         *     centróide); `min_domicilios` evita o ruído de municípios muito pequenos. Cada linha traz população, domicílios, acessos, penetração, o não visto estimado e o PTT mais próximo (`ptt_proximo`, `ptt_proximo_nome`) com o PIX, o local de interconexão, mais próximo (`pix_proximo`).
+         *     centróide); `sem_sessao_ptt=true` mantém só os municípios em que nenhum ASN com sede tem sessão direta em PTT do IX.br (inferido pela sede do CNPJ; inclui os sem ASN com sede, que o campo `redes_sede.asns` distingue; `false`, os que têm ao menos uma rede com sessão; snapshot sem o produto de redes por município não tem como responder e devolve lista vazia com o filtro); `min_domicilios` evita o ruído de municípios muito pequenos. Cada linha traz população, domicílios, acessos, penetração, o não visto estimado e o PTT mais próximo (`ptt_proximo`, `ptt_proximo_nome`) com o PIX, o local de interconexão, mais próximo (`pix_proximo`).
          *     O `nao_visto` é max(0, domicílios projetados × taxa de internet da UF − acessos de pessoa física): estimativa que inclui quem usa só o celular (PNAD). Fórmulas e limites vêm na resposta.
          */
         get: operations["territorio_ranking_api_v1_territorio_ranking_get"];
@@ -11215,6 +11217,8 @@ export interface operations {
                 grupo?: string | null;
                 q?: string | null;
                 ordem?: string;
+                /** @description `servico` (uma linha por raiz e serviço) ou `raiz` (uma linha por raiz, serviços somados). */
+                visao?: string;
                 date?: string | null;
                 limit?: number;
                 page?: number;
@@ -13326,6 +13330,7 @@ export interface operations {
                 uf?: string | null;
                 asc?: boolean;
                 sem_ptt_proximo?: boolean | null;
+                sem_sessao_ptt?: boolean | null;
                 min_domicilios?: number;
                 limit?: number;
                 page?: number;
