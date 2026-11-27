@@ -27,15 +27,15 @@ export function PorPtt({ data }: { data: CDNPresenceResponse }) {
       <h2 id="por-ptt-titulo" className="text-base font-semibold text-gray-800">Por PTT do IX.br, agrupado por região e UF</h2>
       <div className="overflow-x-auto">
         <table className="w-full text-sm tabular-nums">
-          <caption className="sr-only">PTTs do IX.br por região e UF, com participantes, provedores do catálogo no cadastro, com sessão no route server e só com prefixos vistos por outro participante</caption>
+          <caption className="sr-only">PTTs do IX.br por região e UF, com o número de ASNs participantes e o número de CDNs e CAPs do catálogo (contadas por empresa, não por ASN) no cadastro, com sessão no route server e só com prefixos vistos por outro participante</caption>
           <thead>
             <tr className="border-b border-gray-200 text-left text-xs text-gray-600">
               <th scope="col" className="py-1 pr-3 font-medium">UF</th>
               <th scope="col" className="py-1 pr-3 font-medium">PTT</th>
-              <th scope="col" className="py-1 px-2 text-right font-medium">Participantes</th>
-              <th scope="col" className="py-1 px-2 text-right font-medium">Provedores do catálogo no cadastro</th>
-              <th scope="col" className="py-1 px-2 text-right font-medium">Desses, com route server</th>
-              <th scope="col" className="py-1 pl-2 text-right font-medium">Só prefixos vistos por outro participante</th>
+              <th scope="col" className="py-1 px-2 text-right font-medium">Participantes (ASNs)</th>
+              <th scope="col" className="py-1 px-2 text-right font-medium">CDNs e CAPs no cadastro (empresas)</th>
+              <th scope="col" className="py-1 px-2 text-right font-medium">Dessas, com route server (empresas)</th>
+              <th scope="col" className="py-1 pl-2 text-right font-medium">CDNs e CAPs só com prefixos vistos por outro participante (empresas)</th>
             </tr>
           </thead>
           {grupos.map((g) => (
@@ -43,7 +43,7 @@ export function PorPtt({ data }: { data: CDNPresenceResponse }) {
               <tr className="bg-gray-50">
                 <th scope="rowgroup" colSpan={6} className="py-1 px-2 text-left text-xs font-semibold text-gray-700">
                   {g.nome}
-                  {g.ufsSemCdn.length > 0 && <span className="ml-2 font-normal text-gray-600">UFs da região sem provedor do catálogo em PTT local: {g.ufsSemCdn.join(', ')}</span>}
+                  {g.ufsSemCdn.length > 0 && <span className="ml-2 font-normal text-gray-600">UFs da região sem CDN ou CAP do catálogo em PTT local: {g.ufsSemCdn.join(', ')}</span>}
                 </th>
               </tr>
               {g.ptts.map((p, i) => (
@@ -61,8 +61,8 @@ export function PorPtt({ data }: { data: CDNPresenceResponse }) {
         </table>
       </div>
       <ComoLer>
-        <p>Participantes é o número de ASNs do cadastro do PTT no IX.br. Os provedores vêm de um catálogo mantido pelo projeto e incompleto: zero quer dizer nenhum provedor deste catálogo, não ausência de conteúdo no PTT.</p>
-        <p>“Só prefixos vistos por outro participante” conta provedores do catálogo que não são participantes, mas cujos prefixos aparecem nas rotas do PTT; é inferência e não diz onde está o servidor nem quanto tráfego passa. A ordem é a da região do IBGE, da UF e do código do PTT, sem ranking.</p>
+        <p>Participantes é o número de ASNs do cadastro do PTT no IX.br. As CDNs e CAPs (redes de distribuição e grandes provedores de conteúdo) vêm de um catálogo mantido pelo projeto e incompleto, com classificação editorial do projeto. Cada uma é contada como uma empresa, mesmo quando tem vários ASNs: basta um deles no cadastro para contar, e por isso essas colunas não se comparam diretamente com a de participantes. Zero quer dizer nenhuma CDN ou CAP deste catálogo, não ausência de conteúdo no PTT.</p>
+        <p>“Só prefixos vistos por outro participante” conta CDNs e CAPs do catálogo que não são participantes, mas cujos prefixos aparecem nas rotas do PTT; é inferência e não diz onde está o servidor nem quanto tráfego passa. A ordem é a da região do IBGE, da UF e do código do PTT, sem ranking.</p>
       </ComoLer>
       <LinhaProveniencia selo="inferido" fonte="catálogo curado do projeto, cadastro de participantes e looking glasses do IX.br" dataRef={data.snapshot_date} />
     </section>
