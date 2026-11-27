@@ -243,7 +243,7 @@ export function HilbertMap16({ data: dataProp, activeLayer, width = CANVAS_PX, d
                 <rect x={sx * 16} y={sy * 16} width={16} height={16}
                   fill="none" stroke="#334155" strokeWidth={0.35} strokeOpacity={0.40} />
                 {hasData && <rect x={sx * 16} y={sy * 16} width={16} height={16}
-                  fill="none" stroke="#ef4444" strokeWidth={1.2} strokeOpacity={0.30} />}
+                  fill="none" stroke="#1e293b" strokeWidth={1.2} strokeOpacity={0.55} />}
                 <text
                   x={sx * 16 + 8}
                   y={sy * 16 + 8}

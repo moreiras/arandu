@@ -222,8 +222,8 @@ function IXPV6Block({ config, allCells, ownCells, thirdCells, isPeerMode, cssWid
                 />
                 {hasData && <rect x={gx * V6_STEP} y={gy * V6_STEP}
                   width={V6_STEP} height={V6_STEP}
-                  fill="none" stroke="#ef4444"
-                  strokeWidth={isLegacy ? 2 : 8} strokeOpacity={0.30}
+                  fill="none" stroke="#1e293b"
+                  strokeWidth={isLegacy ? 2 : 8} strokeOpacity={0.55}
                 />}
               </g>
             )

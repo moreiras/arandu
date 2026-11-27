@@ -273,8 +273,8 @@ export function HilbertMapV6Block({ config, data: dataProp, activeLayer, cssWidt
                       fill="none" stroke="#334155"
                       strokeWidth={isLegacy ? 0.6 : 2.5} strokeOpacity={0.40} />
                     {hasData && <rect x={gx * V6_STEP} y={gy * V6_STEP} width={V6_STEP} height={V6_STEP}
-                      fill="none" stroke="#ef4444"
-                      strokeWidth={isLegacy ? 2 : 8} strokeOpacity={0.30} />}
+                      fill="none" stroke="#1e293b"
+                      strokeWidth={isLegacy ? 2 : 8} strokeOpacity={0.55} />}
                   </g>
                 )
               })}
