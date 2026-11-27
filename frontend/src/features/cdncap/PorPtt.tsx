@@ -11,7 +11,7 @@ import { n0 } from '../../lib/sintese'
 import { useActiveDate } from '../../hooks/useSnapshot'
 import { fetchIXPs } from '../../services/api'
 import type { CDNPresenceResponse } from '../../types/api'
-import { pttsPorRegiao } from './porPtt'
+import { pttsPorRegiao } from './pttsPorRegiao'
 
 /**
  * "Por PTT" agrupado por região e UF (PT-22 / cdns 5.2): uma tabela de texto, sem ranking e sem cor de juízo, que responde onde ficam os PTTs sem provedor do

@@ -5,7 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 /** "Por PTT" agrupado por região e UF (PT-22 / cdns 5.2): contas das linhas de presença, ordem fixa, UF sem provedor do catálogo, PTT sem UF. */
 import { describe, expect, it } from 'vitest'
-import { pttsPorRegiao } from './porPtt'
+import { pttsPorRegiao } from './pttsPorRegiao'
 
 const d = {
   snapshot_date: '2026-11-22',
