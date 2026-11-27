@@ -5,6 +5,21 @@
 Correções e melhorias da análise do OBINT (instância pública), integradas na branch `correcoes-obint`. Os identificadores entre
 parênteses remetem à análise.
 
+- **Variação nos KPIs de segurança do panorama e Linha do tempo com comparabilidade (PT-28 / PANT 5.1).** No Panorama técnico, as rotas
+  brasileiras RPKI-válidas (IPv6 e IPv4) ganham a variação em pontos percentuais desde o snapshot anterior, e um cartão novo traz as
+  rotas RPKI-inválidas com a mesma variação, sempre pela regra de comparabilidade das séries nacionais (sem variação quando a medida
+  falta ou a base, o método ou a cobertura mudou; nunca zero; sem cor de melhora ou de piora). "ASNs com ROA" continua sem variação:
+  não há série nacional dessa contagem na mesma base. Os blocos "Linha do tempo" de AS, PTT, operadora e UF passam a usar a mesma regra
+  em cada métrica: a linha só liga pontos comparáveis (mínimo de 4 seguidos), o corte aparece com o motivo, a variação só existe entre
+  pontos comparáveis, os eventos da data atípica (2026-07-05, D7) são marcados e há "Como ler" e tabela com os mesmos números.
+  O bloco `historico` dos perfis ganhou `metricas`, `regra` e `atipico` nos eventos; a regra de acesso não mudou (2 datas recentes
+  em `include=historico`; a série inteira só em `include=historico_completo`, com login). Para quem implanta: o `esquema` dos quatro
+  perfis passou a ter o sufixo `.h2` (cache imutável de `?date=`).
+- **Índice fonte para páginas (PT-20 / FONT 5.5).** `/fontes` ganha "Onde cada fonte aparece": para cada fonte do catálogo, os blocos
+  das páginas de AS, PTT, operadora, grupo, UF, município e prefixo que a declaram, montado do registro de blocos (sem lista à mão),
+  com a ressalva de que cada bloco combina várias fontes. As fontes que nenhum bloco declara são listadas à parte. Teste garante
+  que toda fonte declarada por um bloco está no índice.
+
 - **Estado de erro e de acesso (PT-01).** Quando o tempo de uso sem login acaba, quando é preciso entrar, quando há consultas demais
   ou quando a API ou a rede falha, as páginas passam a dizer a causa e o que fazer ("Entrar", "Tentar de novo", "volte em N"). Antes,
   essas situações apareciam como "não encontrado", "sem dado neste snapshot", zeros ou seções que sumiam, em mais de 20 páginas
