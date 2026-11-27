@@ -6,6 +6,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { HilbertMap16, type LayerMeta } from '../../../components/hilbert/HilbertMap16'
 import { HilbertMapV6 } from '../../../components/hilbert/HilbertMapV6'
+import { LEGENDA_MARCADOR } from '../../../components/hilbert/isoladas'
 import { COR_ALOCADO_VISIVEL, V6_BLOCKS, type V6BlockConfig } from '../../../components/hilbert/hilbert'
 import { celulasV6, cruza, densidadeV4, intervaloDe, interseccao, rotuloQuadranteV6, type Intervalo } from '../../../components/hilbert/prefixosAs'
 import { corLegivel } from '../../../lib/contraste'
@@ -166,7 +167,7 @@ function CurvaAsn({ doc, fam }: { doc: ASNDocument; fam: Familia }) {
           onCamada={trocar}
           dualLayers={[]}
           rotuloBloco={(cfg: V6BlockConfig) => nomeCanvas(`, bloco ${cfg.label} (${cfg.rir})`, nNoBloco(cfg.id))}
-          rodape="Os seis blocos de RIR aparecem sempre, como no panorama técnico; só os prefixos do AS são coloridos. Cada célula é um /32; um prefixo menor que o /32 marca o /32 que o contém. Passe o mouse para ver o prefixo. Clique em blocos destacados para ampliar."
+          rodape={`Os seis blocos de RIR aparecem sempre, como no panorama técnico; só os prefixos do AS são coloridos. Cada célula é um /32; um prefixo menor que o /32 marca o /32 que o contém. Passe o mouse para ver o prefixo. Clique em blocos destacados para ampliar. ${LEGENDA_MARCADOR}`}
         />
       ) : (
         <CurvaV4 dados={dadosV4!} meta={meta} camada={camada} onCamada={trocar} rotulo={nomeCanvas(', grade de /16 com /8 numerados', itens.length)} />

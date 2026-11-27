@@ -19,6 +19,8 @@ import {
 import { renderV6Block } from './HilbertMapV6Block'
 import { ZoomModalV6 } from './IXPHilbertZoom'
 import type { IXPHilbertV6Blocks } from '../../types/api'
+import { AneisIsoladas } from './AneisIsoladas'
+import { LEGENDA_MARCADOR, celulasIsoladas, posicaoCelulaV6, RAIO_MARCADOR_PX, TRACO_MARCADOR_PX } from './isoladas'
 
 // Passo de grade = /20 para todos os blocos:
 // - Legado /16 (gridSize=256): step=64 → 4×4 = 16 quadrados de /20
@@ -147,6 +149,11 @@ function IXPV6Block({ config, allCells, ownCells, thirdCells, isPeerMode, cssWid
   const gridScale = config.gridSize / config.canvasPx
   const numCols = config.gridSize / V6_STEP
 
+  const aneis = useMemo(() => {
+    const pos = posicaoCelulaV6(config.gridSize)
+    return celulasIsoladas(activeCellsForGrid, pos, config.gridSize, cssWidth).map(pos)
+  }, [activeCellsForGrid, config.gridSize, cssWidth])
+
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const scale = config.canvasPx / rect.width
@@ -228,6 +235,7 @@ function IXPV6Block({ config, allCells, ownCells, thirdCells, isPeerMode, cssWid
               </g>
             )
           })}
+          <AneisIsoladas pontos={aneis} gridSize={gridSize} larguraCss={cssWidth} raioPx={RAIO_MARCADOR_PX} tracoPx={TRACO_MARCADOR_PX} />
         </svg>
         {/* Tooltip */}
         {tooltip !== null && hd >= 0 && (
@@ -349,7 +357,7 @@ export function IXPHilbertV6({
       ) : (
         <p className="text-xs text-gray-500">
           <span className="inline-block w-3 h-3 rounded-sm align-middle mr-1" style={{ background: COLOR_ALL }} />
-          Prefixos IPv6 anunciados neste IXP. Cada célula = bloco /32.
+          Prefixos IPv6 anunciados neste IXP. Cada célula = bloco /32. {LEGENDA_MARCADOR}
         </p>
       )}
 

@@ -16,6 +16,8 @@ import {
 } from './hilbert'
 import { ZoomModalV6 } from './IXPHilbertZoom'
 import { corLegivel } from '../../lib/contraste'
+import { AneisIsoladas } from './AneisIsoladas'
+import { celulasIsoladas, posicaoCelulaV6, RAIO_MARCADOR_PX, TRACO_MARCADOR_PX } from './isoladas'
 
 export type V6LayerKey = 'rir_br' | 'global_br' | 'global_all' | 'ixp_all' | 'rir_br_visible'
 
@@ -181,6 +183,11 @@ export function HilbertMapV6Block({ config, data: dataProp, activeLayer, cssWidt
   const gridScale = config.gridSize / config.canvasPx
   const numCols = config.gridSize / V6_STEP
 
+  const aneis = useMemo(() => {
+    const pos = posicaoCelulaV6(config.gridSize)
+    return celulasIsoladas(activeCells, pos, config.gridSize, cssWidth).map(pos)
+  }, [activeCells, config.gridSize, cssWidth])
+
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -278,6 +285,7 @@ export function HilbertMapV6Block({ config, data: dataProp, activeLayer, cssWidt
                   </g>
                 )
               })}
+              <AneisIsoladas pontos={aneis} gridSize={gs} larguraCss={cssWidth} raioPx={RAIO_MARCADOR_PX} tracoPx={TRACO_MARCADOR_PX} />
             </svg>
           )
         })()}
