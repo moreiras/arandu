@@ -12,12 +12,11 @@ import { MapaSobDemanda } from '../features/estados/MapaSobDemanda'
 import { UFS, nomeUf } from '../lib/ufs'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
 import { Dica } from '../components/ui/Dica'
-import { ComoLer } from '../components/ui/ComoLer'
 import { EstadoDados } from '../components/ui/EstadoDados'
 import { rotuloPix } from '../lib/geo'
 import { AvisosRecorte } from '../components/ui/AvisoRecorte'
 import { useActiveDate } from '../hooks/useSnapshot'
-import { ApresentacaoRecolhida } from '../components/ui/FontesEDatas'
+import { ApresentacaoRecolhida, FontesEDatas, type ItemFonte } from '../components/ui/FontesEDatas'
 import { ResumoEmTexto } from '../components/ui/ResumoEmTexto'
 import { REGRAS_SINTESE_MUNICIPIOS, sinteseMunicipios } from '../features/territorio/sinteseMunicipios'
 
@@ -121,6 +120,11 @@ export function MunicipiosPage() {
   const resumo = useQuery({ queryKey: ['mun-resumo', date, uf], ...base, queryFn: () => fetchTerritorioResumo({ date, uf: uf || undefined }) })
   const ativa = lente === 'mercado' ? mercado : terr
   const total = ativa.data?.total ?? 0
+  const mesSici = ativa.data && 'mes_referencia' in ativa.data ? ativa.data.mes_referencia : null
+  const itensFontes: ItemFonte[] = ativa.data ? [
+    { selo: 'fato', fonte: 'SICI, Anatel (declarado pelas operadoras)', dataRef: mesSici ?? ativa.data.snapshot_date },
+    ...(lente === 'mercado' ? [] : [{ selo: 'estimado' as const, fonte: 'Censo 2022 (IBGE), com projeção pela PNAD', dataRef: ativa.data.snapshot_date }]),
+  ] : []
   const descricao = LENTES.find((l) => l.id === lente)!.descricao
 
   return (
@@ -136,11 +140,6 @@ export function MunicipiosPage() {
       <BarraDeAbas abas={LENTES} ativa={lente} aoEscolher={trocaLente} rotulo="Lentes da lista" />
       <div role="tabpanel" id={`painel-${lente}`} aria-labelledby={`aba-${lente}`} className="space-y-5">
       <p className="text-sm text-gray-500">{descricao}</p>
-      {lente === 'penetracao' && (
-        <ComoLer aberto>
-          <p>Acessos fixos por domicílio acima de 1 significam mais acessos declarados à Anatel do que domicílios projetados no município. Acesso não é domicílio: um domicílio pode ter vários acessos, e há acessos de empresas (B2B) na conta. Em alguns municípios um único CNPJ concentra a maior parte dos acessos declarados (confira o líder na lente Mercado); a causa não é apurada aqui, e declaração na sede da empresa ou faturamento são hipóteses, não fatos. Valores bem acima de 1 merecem cautela: não indicam população atendida.</p>
-        </ComoLer>
-      )}
       <div className="flex flex-wrap items-end gap-3 text-sm">
         <label className="flex flex-col gap-0.5"><span className="text-xs text-gray-500">UF</span>
           <select value={uf} onChange={(e) => muda('uf', e.target.value)} className="border border-gray-200 rounded px-2 py-1 bg-white">
@@ -210,7 +209,6 @@ export function MunicipiosPage() {
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-gray-500">{terr.data.limites} <strong>Reclamações por 100 mil habitantes:</strong> último ano completo, só municípios com 30 ou mais reclamações (abaixo disso a taxa oscila por acaso e aparece como traço); depende da adesão ao canal da Anatel e do conhecimento dele, e não mede a qualidade do serviço. Municípios pequenos oscilam mais: use o filtro de porte.</p>
         </>
       )}
       {ativa.data && total > POR_PAGINA && (
@@ -224,7 +222,17 @@ export function MunicipiosPage() {
           </div>
         )
       )}
-      <p className="text-xs text-gray-500">Acessos autodeclarados pelas operadoras ao SICI; penetração = acessos fixos ÷ domicílios do Censo 2022 projetados para o ano mais recente da PNAD (aproximação por UF). <Link to="/rankings" className="text-primario-600 hover:underline">Rankings de operadoras</Link>.</p>
+      {ativa.data && <FontesEDatas snapshot={ativa.data?.snapshot_date} itens={itensFontes} comoLer={(
+        <>
+          {lente === 'penetracao' && (
+            <p>Acessos fixos por domicílio acima de 1 significam mais acessos declarados à Anatel do que domicílios projetados no município. Acesso não é domicílio: um domicílio pode ter vários acessos, e há acessos de empresas (B2B) na conta. Em alguns municípios um único CNPJ concentra a maior parte dos acessos declarados (confira o líder na lente Mercado); a causa não é apurada aqui, e declaração na sede da empresa ou faturamento são hipóteses, não fatos. Valores bem acima de 1 merecem cautela: não indicam população atendida.</p>
+          )}
+          {lente !== 'mercado' && terr.data && (
+            <p>{terr.data.limites} <strong>Reclamações por 100 mil habitantes:</strong> último ano completo, só municípios com 30 ou mais reclamações (abaixo disso a taxa oscila por acaso e aparece como traço); depende da adesão ao canal da Anatel e do conhecimento dele, e não mede a qualidade do serviço. Municípios pequenos oscilam mais: use o filtro de porte.</p>
+          )}
+          <p>Acessos autodeclarados pelas operadoras ao SICI; penetração = acessos fixos ÷ domicílios do Censo 2022 projetados para o ano mais recente da PNAD (aproximação por UF). <Link to="/rankings" className="text-primario-600 hover:underline">Rankings de operadoras</Link>.</p>
+        </>
+      )} />}
       </div>
     </div>
     </ApresentacaoRecolhida>

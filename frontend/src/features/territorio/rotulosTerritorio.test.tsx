@@ -47,7 +47,8 @@ describe('denominador escrito e penetração acima de 1 (USO-E5, MUNS-E3)', () =
 
   it('a lente de penetração traz o "Como ler": acima de 1 é acesso, não domicílio, e a causa não é apurada', () => {
     const mun = fonte('/MunicipiosPage.tsx')
-    expect(mun).toMatch(/lente === 'penetracao' && \(\s*<ComoLer aberto>/)
+    expect(mun).toMatch(/<FontesEDatas[^]*lente === 'penetracao' && \(/)
+    expect(mun).not.toMatch(/<ComoLer/)
     expect(mun).toMatch(/Acesso não é domicílio/)
     expect(mun).toMatch(/a causa não é apurada aqui/)
   })

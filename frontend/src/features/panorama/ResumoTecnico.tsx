@@ -64,7 +64,7 @@ export function ResumoTecnico() {
   const pttsIxbr = s ? (s.ixps_ok ?? 0) + (s.ixps_partial ?? 0) + (s.ixps_missing ?? 0) : null
   return (
     <div className="space-y-8" data-testid="resumo-tecnico">
-      <GrupoFontes snapshot={ref}>
+      <GrupoFontes snapshot={ref} comoLer={<ComoLerNumerosPais />}>
       <SnapshotHealth summary={s} loading={carregando} />
 
       <Tema titulo="Recursos e visibilidade" links={[['?aba=ipv6', 'IPv6'], ['?aba=ipv4', 'IPv4'], ['/bgp', 'Tabela BGP']]}>
@@ -105,8 +105,6 @@ export function ResumoTecnico() {
 
       <ResumoEmTexto frases={sinteseTecnica(s, br, ref)} snapshot={ref} regras={REGRAS_SINTESE_TECNICA} notaComoLer="Os números são os mesmos dos cartões acima." />
       </GrupoFontes>
-
-      <ComoLerNumerosPais />
 
       <section className="space-y-2" aria-label="Mapa ilustrativo">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4">

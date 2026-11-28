@@ -28,92 +28,75 @@ const dados = { resumo, br, sici } as unknown as DadosSinteseHome
 const kpis = montarKpis(resumo as never, null, sici as never, '2026-11-22')
 
 describe('sinteseHome', () => {
-  it('cada frase tem selo, fonte e data, sem palavra de juízo, e os números dos KPIs são os mesmos', () => {
+  it('no máximo 6 frases curtas em até dois parágrafos, cada uma com selo, fonte e data, sem palavra de juízo', () => {
     const f = sinteseHome(kpis, dados)
-    expect(f.length).toBeGreaterThan(4)
+    expect(MAX_FRASES_HOME).toBe(6)
+    expect(f.length).toBeGreaterThan(2)
     expect(f.length).toBeLessThanOrEqual(MAX_FRASES_HOME)
+    expect(new Set(f.map((x) => x.paragrafo)).size).toBeLessThanOrEqual(2)
     for (const x of f) {
       expect(['fato', 'estimado', 'inferido']).toContain(x.selo)
       expect(x.fonte).not.toBe('')
       expect(x.dataRef).toBeTruthy()
       expect(x.paragrafo).toBeTruthy()
+      expect(x.texto.length).toBeLessThan(260)
       expect(x.texto).not.toMatch(PALAVRAS_PROIBIDAS)
       expect(x.texto).not.toMatch(/[—–]/)
     }
-    const valor = (id: string) => [...kpis.rede, ...kpis.mercado].find((k) => k.id === id)!.valor!
-    expect(f.find((x) => x.id === 'ases')!.texto).toContain(valor('ases'))
-    expect(f.find((x) => x.id === 'ipv6')!.texto).toContain(valor('ipv6'))
-    expect(f.find((x) => x.id === 'acessos')!.texto).toContain(valor('acessos'))
-    expect(f.find((x) => x.id === 'acessos')!.dataRef).toBe('2026-09')
   })
 
-  it('segue a ordem rede, IX.br, segurança, mercado e usuários, com IPv6 antes de IPv4', () => {
+  it('segue a ordem rede, IX.br, usuários, segurança e mercado, com IPv6 antes de IPv4', () => {
     const f = sinteseHome(kpis, dados)
-    expect(f.map((x) => x.id)).toEqual(['ases', 'ipv6', 'ixbr-diretos', 'ixbr-indiretos', 'ixbr-espaco', 'dnssec', 'roa', 'roa-rotas', 'rov', 'aspa',
-      'acessos', 'operadoras', 'hhi', 'tres-maiores', 'usuarios', 'ixbr-usuarios'])
-    expect(f.find((x) => x.id === 'ixbr-espaco')!.texto.indexOf('IPv6')).toBeLessThan(f.find((x) => x.id === 'ixbr-espaco')!.texto.indexOf('IPv4'))
-    expect(f.find((x) => x.id === 'roa-rotas')!.texto.indexOf('IPv6')).toBeLessThan(f.find((x) => x.id === 'roa-rotas')!.texto.indexOf('IPv4'))
+    expect(f.map((x) => x.id)).toEqual(['rede', 'ixbr', 'usuarios', 'seguranca', 'mercado'])
+    const ix = f.find((x) => x.id === 'ixbr')!.texto
+    expect(ix.indexOf('IPv6')).toBeLessThan(ix.indexOf('IPv4'))
   })
 
-  it('IX.br: diretos e indiretos do agregado, espaço coberto e usuários pela união por ASN', () => {
-    const f = sinteseHome(kpis, dados)
-    const t = (id: string) => f.find((x) => x.id === id)!
-    expect(t('ixbr-diretos').texto).toContain('2.100 ASNs da lista do Registro.br participam diretamente')
-    expect(t('ixbr-diretos').selo).toBe('fato')
-    expect(t('ixbr-indiretos').texto).toContain('Outros 1.500 ASNs participam indiretamente')
-    expect(t('ixbr-indiretos').selo).toBe('inferido')
-    expect(t('ixbr-espaco').texto).toContain('61,3% do espaço IPv6 e 48,5% do espaço IPv4')
-    expect(t('ixbr-usuarios').selo).toBe('estimado')
-    expect(t('ixbr-usuarios').texto).toContain('120 mi')
-    expect(t('ixbr-usuarios').texto).toContain('74,4%')
-    expect(t('ixbr-usuarios').texto).toContain('Cada ASN conta uma só vez')
+  it('rede e IPv6 numa frase, com os números dos cartões e o rótulo de universo do PT-15', () => {
+    const t = sinteseHome(kpis, dados).find((x) => x.id === 'rede')!
+    const valor = (id: string) => kpis.rede.find((k) => k.id === id)!.valor!
+    expect(t.texto).toBe(`Dos ${valor('ases')} ASNs brasileiros (delegados pela LACNIC ao Brasil), ${valor('ipv6')} originam ao menos um prefixo IPv6 na tabela global.`)
+    expect(t.selo).toBe('fato')
   })
 
-  it('segurança e mercado: números e regras visíveis, sem nomear empresa', () => {
+  it('IX.br: diretos, indiretos e espaço coberto numa frase; usuários alcançados pela união por ASN', () => {
     const f = sinteseHome(kpis, dados)
     const t = (id: string) => f.find((x) => x.id === id)!
-    expect(t('dnssec').texto).toContain('38,46%')
-    expect(t('dnssec').dataRef).toBe('2026-11-20')
-    expect(t('roa').texto).toContain('4.500 dos 9.000')
-    expect(t('roa-rotas').texto).toContain('80,5% em IPv6 e 70,3% em IPv4')
-    expect(t('rov').texto).toContain('61,23%')
-    expect(t('aspa').texto).toContain('90 ASNs (1%)')
-    expect(t('operadoras').texto).toContain('9.928 CNPJs que declararam')
-    expect(t('hhi').texto).toContain('1.234')
-    expect(t('hhi').texto).toContain('não agrupa CNPJs do mesmo grupo econômico')
-    expect(t('tres-maiores').texto).toContain('60%')
+    expect(t('ixbr').texto).toBe('No IX.br, 2.100 ASNs participam diretamente e outros 1.500 participam indiretamente, só originando prefixos vistos nos PTTs; os prefixos vistos nos PTTs cobrem 61,3% do espaço IPv6 e 48,5% do espaço IPv4 alocados ao Brasil.')
+    expect(t('ixbr').selo).toBe('inferido')
+    expect(t('usuarios').selo).toBe('estimado')
+    expect(t('usuarios').texto).toBe('Os PTTs do IX.br alcançam cerca de 120 mi dos 161,3 mi usuários de Internet que o APNIC estima no Brasil (74,4%), com cada ASN contado uma só vez e só em IPv4.')
   })
 
-  it('usa os rótulos de universo do PT-15 e rotula a estimativa do APNIC como estimado', () => {
+  it('segurança (ROA e ROV) e mercado (CNPJs e HHI) numa frase cada, sem nomear empresa', () => {
     const f = sinteseHome(kpis, dados)
-    expect(f.find((x) => x.id === 'ases')!.texto).toContain('ASNs brasileiros (delegados pela LACNIC ao Brasil)')
-    const u = f.find((x) => x.id === 'usuarios')!
-    expect(u.selo).toBe('estimado')
-    expect(u.texto).toContain('estimado a partir de amostras de anúncios')
+    const t = (id: string) => f.find((x) => x.id === id)!
+    expect(t('seguranca').texto).toBe('4.500 dos 9.000 ASNs na lista do Registro.br publicaram ao menos uma ROA (50%), e 61,23% das medições do APNIC indicam filtragem de rotas inválidas (ROV).')
+    expect(t('seguranca').selo).toBe('estimado')
+    expect(t('mercado').texto).toBe('9.928 CNPJs declararam acessos de banda larga fixa ao SICI, e o HHI nacional por CNPJ, sem agrupar grupos econômicos, é 1.234, numa escala de 0 a 10.000.')
+    expect(t('mercado').selo).toBe('fato')
+    expect(t('mercado').dataRef).toBe('2026-09')
+    expect(f.some((x) => /DNSSEC|ASPA/.test(x.texto))).toBe(false)
   })
 
-  it('sem os agregados novos a síntese cai para as frases dos KPIs, sem zero inventado', () => {
+  it('sem os agregados novos a síntese cai para rede e usuários, sem zero inventado', () => {
     const f = sinteseHome(kpis)
-    expect(f.map((x) => x.id)).toEqual(['ases', 'ipv6', 'acessos', 'usuarios'])
-    const so = sinteseHome(montarKpis(resumo as never, null, null, '2026-11-22'))
-    expect(so.some((x) => x.id === 'acessos')).toBe(false)
+    expect(f.map((x) => x.id)).toEqual(['rede', 'usuarios'])
     expect(sinteseHome(montarKpis(null, null, null, null))).toEqual([])
     expect(f.every((x) => !/\b0\b/.test(x.texto))).toBe(true)
   })
 
-  it('PTT sem coleta não gera frase de IX.br, e cobertura zero de uma família não aparece', () => {
+  it('PTT sem coleta não gera a frase de IX.br, e cobertura zero de uma família não aparece', () => {
     const sem = { ...dados, resumo: { ...resumo, ixps_ok: 0 } } as unknown as DadosSinteseHome
-    expect(sinteseHome(kpis, sem).some((x) => x.id.startsWith('ixbr-') && x.id !== 'ixbr-usuarios')).toBe(false)
+    expect(sinteseHome(kpis, sem).some((x) => x.id === 'ixbr')).toBe(false)
     const v6zero = { ...dados, resumo: { ...resumo, ixp_aggregate: { ...resumo.ixp_aggregate, v6_br_coverage_pct: 0 } } } as unknown as DadosSinteseHome
-    const t = sinteseHome(kpis, v6zero).find((x) => x.id === 'ixbr-espaco')!.texto
+    const t = sinteseHome(kpis, v6zero).find((x) => x.id === 'ixbr')!.texto
     expect(t).not.toContain('IPv6')
     expect(t).toContain('IPv4')
   })
 
   it('singular quando há um só ASN', () => {
     const um = { ...dados, br: { ...br, ixbr: { ...br.ixbr, asns_br_diretos: 1, asns_br_indiretos: 1 } } } as unknown as DadosSinteseHome
-    const f = sinteseHome(kpis, um)
-    expect(f.find((x) => x.id === 'ixbr-diretos')!.texto).toContain('1 ASN da lista do Registro.br participa diretamente')
-    expect(f.find((x) => x.id === 'ixbr-indiretos')!.texto).toContain('Outros 1 ASN participa indiretamente, pois só origina')
+    expect(sinteseHome(kpis, um).find((x) => x.id === 'ixbr')!.texto).toContain('1 ASN participa diretamente e outros 1 participa indiretamente')
   })
 })

@@ -30,14 +30,14 @@ export function referenciaMedicao(m?: MedicaoApnicPais | null): string | undefin
   return `mediana das redes: ${pct(m.mediana_pct, 2)}${m.asns != null ? ` (${num(m.asns)} ASes medidos)` : ''}${faixas}`
 }
 
-/** "Como ler" das médias ponderadas e do IPv6 da faixa de números do país: o que cada percentual conta (PT-15 / TRANSV-E5, TRANSV-E6). */
+/** Texto do "Como ler" (vai na prop `comoLer` do `GrupoFontes`) das médias ponderadas e do IPv6 da faixa de números do país: o que cada percentual conta (PT-15 / TRANSV-E5, TRANSV-E6). */
 export function ComoLerNumerosPais() {
   return (
-    <ComoLer titulo="Como ler: IPv6, médias ponderadas e medianas">
+    <>
       <p>As medidas de IPv6 contam coisas diferentes. &ldquo;ASNs brasileiros que anunciam IPv6&rdquo; conta as redes com prefixo IPv6 na tabela global. &ldquo;Usuários com IPv6&rdquo; conta os usuários estimados pelo APNIC Labs. Ter um bloco IPv6 alocado, anunciado ou visto num PTT é outra medida, que não indica anúncio nem uso.</p>
       <p>ROV e DNSSEC aparecem como média ponderada pelas amostras do APNIC Labs, que dá mais peso às redes com mais medições. A mediana trata todas as redes do mesmo modo, e as faixas mostram quantas redes ficam em cada parte da escala. Por isso a mediana pode ficar longe da média. A prontidão em segurança de roteamento usa outra ponderação: os usuários estimados de cada rede.</p>
       <p>A variação do IPv6, em pontos percentuais, vem da série semanal do histórico. Essa série usa uma base de ASNs e de usuários diferente da deste indicador, então a variação mostrada é a do percentual dentro da própria série, nunca a diferença entre totais de bases distintas. Onde os pontos não são comparáveis, a variação não aparece. As séries de segurança e de roteamento, com a regra completa, estão em Estado da segurança de roteamento e na Tabela BGP.</p>
-    </ComoLer>
+    </>
   )
 }
 
