@@ -4,6 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { Selo } from '../entidade/proveniencia'
+import { Link } from '../layout/LinkDatado'
 import { ComoLer } from './ComoLer'
 import { ListaFontes } from './FontesEDatas'
 
@@ -16,6 +17,8 @@ export interface FraseResumo {
   dataRef?: string | null
   /** Frases seguidas com o mesmo `paragrafo` formam um parágrafo; sem o campo, todas ficam num só. */
   paragrafo?: string
+  /** Link depois do texto da frase (por exemplo, o ranking completo que a frase cita em parte). */
+  link?: { to: string; rotulo: string }
 }
 
 /**
@@ -47,7 +50,12 @@ export function ResumoEmTexto({ frases, regras, rotulo = 'Em resumo', snapshot, 
       <h2 className="text-sm font-semibold text-gray-800">{rotulo}</h2>
       {paragrafos.map((grupo, p) => (
         <p key={p} className="max-w-[80ch] text-sm leading-relaxed text-gray-900">
-          {grupo.map((f, i) => <span key={f.id} data-testid={`frase-${f.id}`}>{i > 0 ? ' ' : ''}{f.texto}</span>)}
+          {grupo.map((f, i) => (
+            <span key={f.id} data-testid={`frase-${f.id}`}>
+              {i > 0 ? ' ' : ''}{f.texto}
+              {f.link && <>{' '}<Link to={f.link.to} className="text-primario-600 hover:underline">{f.link.rotulo}</Link>.</>}
+            </span>
+          ))}
         </p>
       ))}
       <ComoLer titulo="Como este resumo é gerado e de onde vêm os dados">

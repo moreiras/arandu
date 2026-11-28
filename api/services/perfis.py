@@ -273,15 +273,18 @@ class PerfisService:
     RAIO_SEM_PTT_KM = 100
 
     def asns_por_uf(self, date_str: str) -> dict[str, dict]:
-        """UF → {quantidade, usuarios} dos ASNs BR (UF pela geo da organização); `usuarios` = soma do APNIC. Cacheado por data."""
+        """UF → {quantidade, usuarios, sem_sessao_ptt} dos ASNs BR (UF pela geo da organização); `usuarios` = soma do APNIC; `sem_sessao_ptt` = ASNs sem sessão direta em PTT do IX.br. Cacheado por data."""
         if date_str not in self._asns_por_uf:
             acc: dict[str, dict] = {}
             for r in self.query_table(date_str, "asns"):
                 uf = r.get("uf")
                 if not uf or not r.get("is_br"):
                     continue
-                d = acc.setdefault(uf.upper(), {"quantidade": 0, "usuarios": 0})
+                d = acc.setdefault(uf.upper(), {"quantidade": 0, "usuarios": 0, "sem_sessao_ptt": 0})
                 d["quantidade"] += 1
+                # mesmo critério do filtro municipal (`regiao`, campo `d`): sessão direta em PTT = `ixps_direct` do ASN, ou seja, `ixps_direct_count` > 0 no índice
+                if not (r.get("ixps_direct_count") or 0):
+                    d["sem_sessao_ptt"] += 1
                 d["usuarios"] += r.get("apnic_users") or 0
             self._asns_por_uf[date_str] = acc
         return self._asns_por_uf[date_str]
@@ -320,7 +323,7 @@ class PerfisService:
         fixos = self.sici_municipios(date_str)
         tem_sici = bool(fixos)                 # snapshot sem SICI: acessos e municípios são ausência, não zero
         tem_distancia = tem_sici and bool(self.ptts_pontos(date_str))
-        asns = self.asns_por_uf(date_str).get(uf, {"quantidade": 0, "usuarios": 0})
+        asns = self.asns_por_uf(date_str).get(uf, {"quantidade": 0, "usuarios": 0, "sem_sessao_ptt": 0})
         acessos = sum(m["acessos"] for m in municipios)
         sem_ptt = [m for m in municipios if m["km_ptt"] is not None and m["km_ptt"] > self.RAIO_SEM_PTT_KM]
         out: dict = {
@@ -329,7 +332,7 @@ class PerfisService:
             "totais": {
                 "municipios": len(municipios) if tem_sici else None, "acessos": acessos if tem_sici else None,
                 "fibra_pct": self._fibra_pct(municipios, fixos),
-                "asns": asns["quantidade"], "usuarios": asns["usuarios"],
+                "asns": asns["quantidade"], "usuarios": asns["usuarios"], "asns_sem_sessao_ptt": asns.get("sem_sessao_ptt", 0),
                 "municipios_sem_ptt": len(sem_ptt) if tem_distancia else None,
                 "acessos_sem_ptt": sum(m["acessos"] for m in sem_ptt) if tem_distancia else None,
                 "raio_sem_ptt_km": self.RAIO_SEM_PTT_KM,
@@ -423,6 +426,7 @@ class PerfisService:
                     "municipios": len(muns) if tem_sici else None,
                     "acessos": sum(m["acessos"] for m in muns) if tem_sici else None, "fibra_pct": self._fibra_pct(muns, fixos),
                     "asns": asns.get(uf, {}).get("quantidade", 0), "usuarios": asns.get(uf, {}).get("usuarios", 0),
+                    "asns_sem_sessao_ptt": asns.get(uf, {}).get("sem_sessao_ptt", 0),
                     "municipios_sem_ptt": sem if tem_sici and pontos else None,
                     "domicilios": dom_uf.get(uf) or None,
                     "penetracao": round(acessos_dom_uf[uf] / dom_uf[uf], 4) if dom_uf.get(uf) else None,

@@ -4,7 +4,7 @@
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { Link } from '../components/layout/LinkDatado'
-import { CartogramaUfs } from '../features/estados/CartogramaUfs'
+import { CartogramaUfs, METRICAS_ESTADOS } from '../features/estados/CartogramaUfs'
 import { MapaSobDemanda } from '../features/estados/MapaSobDemanda'
 import { useUfs } from '../hooks/entidades'
 import { EstadoDados } from '../components/ui/EstadoDados'
@@ -22,7 +22,7 @@ function textoPtts(u: ResumoUf): string {
 
 /**
  * `/estados`: o cartograma das 27 UFs e a lista por região, cada UF levando a `/uf/<sigla>`.
- * Uma chamada: `/ufs` traz PTTs, acessos fixos, % de fibra e usuários estimados de todas — e é aberta a qualquer visitante.
+ * Uma chamada: `/ufs?include=rede,territorio` traz PTTs, acessos fixos, % de fibra, usuários estimados, a camada de rede e o mercado não visto de todas, e é aberta a qualquer visitante.
  */
 export function EstadosPage() {
   const q = useUfs()
@@ -35,7 +35,7 @@ export function EstadosPage() {
         <p className="text-sm text-gray-500 mt-1">Escolha uma UF para ver seus PTTs, os maiores municípios em banda larga, os que ficam longe de um PTT e as operadoras sediadas nela.</p>
       </div>
       {q.isError && <EstadoDados erro={q.error} oQue="os números por UF" mensagem="Os números por UF não estão publicados neste snapshot." aoTentarDeNovo={() => void q.refetch()} />}
-      {ufs.length > 0 && <CartogramaUfs ufs={ufs} />}
+      {ufs.length > 0 && <CartogramaUfs ufs={ufs} metricas={METRICAS_ESTADOS} agrupar />}
       <MapaSobDemanda />
       {REGIOES.map((r) => (
         <section key={r.id} aria-labelledby={`regiao-${r.id}`}>

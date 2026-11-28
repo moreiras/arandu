@@ -21,11 +21,15 @@ export interface FraseSintese {
   dataRef?: string | null
   /** Agrupa frases em parágrafos (frases seguidas com o mesmo valor ficam juntas); sem o campo, o resumo é um parágrafo só. */
   paragrafo?: string
+  /** Link depois da frase (por exemplo, a lista completa de que a frase cita só os primeiros). */
+  link?: { to: string; rotulo: string }
 }
 
 /** Mínimo e máximo de frases de uma síntese: com menos de duas não há síntese (o bloco some), e acima de quatro vira lista de KPIs. */
 export const MIN_FRASES = 2
 export const MAX_FRASES = 4
+/** Teto das páginas com mais de quatro regras na ordem fixa (UF: mercado, domicílios, infraestrutura, rede e regulação). */
+export const MAX_FRASES_ORDEM_FIXA = 7
 
 /** Palavras de juízo, causa ou intenção que uma frase gerada nunca usa (conferido em `sintese.test.ts` de cada gerador). */
 export const PALAVRAS_PROIBIDAS = /\b(melhor|pior|atrás|atras|ruim|omitiu|preocupante|alarmante|deficiente|porque|culpa|negligên)/i

@@ -1018,6 +1018,28 @@ export interface ResumoUf {
   domicilios?: number | null
   /** Acessos fixos ÷ domicílios projetados (razão; 0,8 = 80 acessos por 100 domicílios). */
   penetracao?: number | null
+  /** Dos `asns`, os sem sessão direta em PTT do IX.br (mesmo critério do filtro municipal); ausente em respostas antigas. */
+  asns_sem_sessao_ptt?: number
+  /** `include=rede`: estimativas e inferências da camada de rede, cada uma com o n ou a cobertura; `null` sem o produto na data. */
+  rede?: ResumoUfRede | null
+  /** `include=territorio`: mercado não visto (estimativa); `null` sem o produto na data. */
+  territorio?: { nao_visto: number; nao_visto_por_100_dom: number | null } | null
+}
+
+/** Camada de rede de uma UF em `GET /ufs?include=rede`. A UF é a da sede das redes; prontidão e HHI não são veredito nem ranking. */
+export interface ResumoUfRede {
+  ipv6_pct: number | null; ipv6_cobertura: number | null
+  rov_pct: number | null; rov_cobertura: number | null
+  transito_unico_pct: number | null; transito_unico_cobertura: number | null
+  /** HHI dos provedores de trânsito inferidos (0 a 10.000) e o n: ASNs com sede na UF e ao menos um provedor inferido. */
+  hhi_transito: number | null; hhi_transito_n: number | null
+  /** Mediana do índice de prontidão e o n: ASNs com índice. */
+  prontidao_mediana: number | null; prontidao_n: number | null
+}
+export interface RespostaUfs {
+  snapshot_date: string; mes_referencia?: string | null; total: number; items: ResumoUf[]
+  rede_meta?: { aviso: string; produtos: { rede_territorio: boolean; transito: boolean; prontidao: boolean } }
+  territorio_meta?: { produto: boolean; mes_referencia_sici?: string | null; limites?: string; formula?: string }
 }
 
 /** `GET /ufs/{uf}`: totais, PTTs, municípios com a distância ao PTT mais próximo e as maiores operadoras sediadas. */
@@ -1028,6 +1050,8 @@ export interface PerfilUf {
   totais: {
     /** `null` quando o snapshot não tem o SICI (ausência, não zero). */
     municipios: number | null; acessos: number | null; fibra_pct: number | null; asns: number; usuarios: number
+    /** Dos `asns`, os sem sessão direta em PTT do IX.br; ausente em respostas antigas. */
+    asns_sem_sessao_ptt?: number
     municipios_sem_ptt: number | null; acessos_sem_ptt: number | null; raio_sem_ptt_km: number
   }
   territorio?: TerritorioUf | null

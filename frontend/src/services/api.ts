@@ -101,7 +101,7 @@ import type { BrasilIndicadores,
   RadarAsn,
   RadarUf,
   ExposicaoAsn,
-  ResumoUf,
+  RespostaUfs,
   MunicipiosSemelhantes,
   SiciMunicipioDetalhe,
   SiciMunicipiosMapaResponse,
@@ -1026,15 +1026,16 @@ export function fetchTerritorioMapa(indicador: string, date?: string): Promise<T
 
 // `ptts` passou a contar os PTTs do snapshot com ou sem coleta (+ `ptts_com_coleta`) e acessos/municípios sem SICI saem `null`; o `?date=`
 // é imutável no cache: subir quando a resposta de `/ufs` ou `/ufs/{uf}` mudar para um snapshot já publicado.
-const ESQUEMA_UFS = 2
+// 3: `asns_sem_sessao_ptt` e `include=rede,territorio` (camada de rede e mercado não visto por UF, estados 5.4).
+const ESQUEMA_UFS = 3
 
-export function fetchUfs(date?: string): Promise<{ snapshot_date: string; mes_referencia?: string | null; total: number; items: ResumoUf[] }> {
-  return get('/api/v1/ufs', { date, esquema: ESQUEMA_UFS })
+export function fetchUfs(date?: string): Promise<RespostaUfs> {
+  return get('/api/v1/ufs', { date, include: 'rede,territorio', esquema: ESQUEMA_UFS })
 }
 
 /** Perfil consolidado da UF numa chamada. */
-/** Sobe quando o corpo de `/ufs/{uf}` muda (2: `operadoras_presentes`, UF-E2; 3: `indicadores` com as contagens sem declaração, PT-26): a URL com `date` é imutável no cache. */
-const ESQUEMA_UF = 3
+/** Sobe quando o corpo de `/ufs/{uf}` muda (2: `operadoras_presentes`, UF-E2; 3: `indicadores` com as contagens sem declaração, PT-26; 4: `totais.asns_sem_sessao_ptt`): a URL com `date` é imutável no cache. */
+const ESQUEMA_UF = 4
 export function fetchUfPerfil(uf: string, date?: string, historicoCompleto = false): Promise<PerfilUf> {
   return get(`/api/v1/ufs/${uf}`, { date, esquema: esquemaPerfil(ESQUEMA_UF), include: `${blocoHistorico(historicoCompleto)},indicadores,territorio,cetic,erbs,fust,prontidao,qualidade,reclamacoes,consumidor,transito,radar,exposicao,mercado_grupos,rede_territorio` })
 }

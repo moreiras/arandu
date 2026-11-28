@@ -27,7 +27,6 @@ export function PainelBloco({ dados }: BlocoProps<UfCtx>) {
         {pen != null && <KPI label="Acessos por 100 domicílios" value={(pen * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} hint="estimativa: acessos declarados ÷ domicílios projetados" referencia={ref('penetracao')} />}
         <KPI label="PTTs" value={fmt(ixps.length)} hint="IX.br na UF" referencia={ref('ptts')} />
         <KPI label="ASNs com sede na UF" value={fmt(totais.asns)} hint="ASNs brasileiros; a UF é a da sede da organização" referencia={ref('asns')} />
-        <KPI label="Usuários estimados em ASNs sediados na UF" value={fmt(totais.usuarios)} hint={`APNIC, ${fmt(totais.asns)} ASNs brasileiros com sede na UF; não é a população conectada (ver Uso da Internet)`} />
         <KPI label="Operadoras com acesso na UF" value={fmt(operadorasPresentesTotal)} hint={`CNPJs com acesso fixo declarado na UF; ${fmt(operadorasTotal)} com sede na UF`} />
       </div>
       {!semCentroides && <FaixasDistancia municipios={municipios} />}

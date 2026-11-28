@@ -77,3 +77,15 @@ def test_sem_nenhum_ptt_georreferenciado_a_distancia_e_ausente():
     s = _svc([{"code": "ap", "uf": "AP", "status": "ok"}], [], SICI_AP)
     linha = next(r for r in s.resumo_ufs(D) if r["uf"] == "AP")
     assert linha["acessos"] == 105 and linha["municipios_sem_ptt"] is None
+
+
+def test_asns_sem_sessao_ptt_por_uf_usa_o_criterio_do_filtro_municipal():
+    """Estados 5.4 / UF 5.5: dos ASNs BR com UF, os sem sessão direta em PTT (`ixps_direct_count` 0 ou ausente, o mesmo `ixps_direct` do `regiao`); ASN fora do BR ou sem UF não conta."""
+    linhas = [{"asn": 1, "uf": "AP", "is_br": True, "ixps_direct_count": 2, "apnic_users": 10}, {"asn": 2, "uf": "AP", "is_br": True, "ixps_direct_count": 0},
+              {"asn": 3, "uf": "ap", "is_br": True}, {"asn": 4, "uf": "AP", "is_br": False}, {"asn": 5, "uf": None, "is_br": True}]
+
+    class _S:
+        def query_table(self, d, colecao):
+            return linhas
+    s = PerfisService(_S())
+    assert s.asns_por_uf(D) == {"AP": {"quantidade": 3, "usuarios": 10, "sem_sessao_ptt": 2}}

@@ -566,6 +566,51 @@ def test_perfil_e_resumo_das_ufs_batem_com_as_rotas_antigas(api, ctx):
     assert api.get(f"/api/v1/ufs/{uf}", params={"blocos": "x"}, headers=ALLOWED).status_code == 400
 
 
+def test_ufs_com_rede_e_territorio_batem_com_os_produtos_do_mesmo_snapshot(api, ctx, monkeypatch):
+    """`/ufs?include=rede,territorio` (estados 5.4) repete valor a valor `transito_uf`, `prontidao_agregado`, `rede_territorio` e a soma de `nao_visto` por UF,
+    com o n ao lado; sem `include` a resposta não muda; `asns_sem_sessao_ptt` bate com a contagem direta sobre `asns`."""
+    store = api.app.state.store
+    d = store.resolve_date(None)
+    base = api.get("/api/v1/ufs", headers=ALLOWED).json()
+    if not store.transito_ufs_doc(d):        # o sintético não gera `transito/ufs`: um documento mínimo na forma do produto, para o HHI e o n
+        doc = {"snapshot_date": d, "fonte": None, "limites": "teste", "cobertura": None,
+               "ufs": {r["uf"]: {"asns_br": 20, "asns_com_provedor": 14, "hhi_clientes": 1938, "provedores": []} for r in base["items"]}}
+        monkeypatch.setattr(store, "transito_ufs_doc", lambda data: doc)
+    assert all("rede" not in r and "territorio" not in r for r in base["items"]) and "rede_meta" not in base
+    r = api.get("/api/v1/ufs", params={"include": "rede,territorio"}, headers=ALLOWED)
+    assert r.status_code == 200
+    j = r.json()
+    assert {x["uf"] for x in j["items"]} == {x["uf"] for x in base["items"]}
+    assert "não são veredito" in j["rede_meta"]["aviso"] and "territorio_meta" in j
+    transito, pront, rede = store.transito_ufs_doc(d), store.prontidao_doc(d), store.rede_territorio_doc(d)
+    com_dado = 0
+    for linha in j["items"]:
+        uf, rd = linha["uf"], linha["rede"]
+        if transito and uf in transito["ufs"]:
+            assert rd["hhi_transito"] == transito["ufs"][uf]["hhi_clientes"] and rd["hhi_transito_n"] == transito["ufs"][uf]["asns_com_provedor"]
+            com_dado += 1
+        if pront and uf in pront["por_uf"]:
+            assert rd["prontidao_mediana"] == pront["por_uf"][uf]["mediana"] and rd["prontidao_n"] == pront["por_uf"][uf]["asns_com_indice"]
+        if rede and uf in rede["ipv6"]["ufs"]:
+            assert rd["ipv6_pct"] == rede["ipv6"]["ufs"][uf]["pct_v6"]
+        if rede and uf in rede["transito"]["ufs"]:
+            assert rd["transito_unico_pct"] == rede["transito"]["ufs"][uf]["pct_provedor_unico"]
+        if rede and uf in rede["rov"]["ufs"]:
+            assert rd["rov_pct"] == rede["rov"]["ufs"][uf]["pct_atras_rov"]
+    assert (bool(transito), bool(pront), bool(rede)) == (True, True, True), (bool(transito), bool(pront), bool(rede))
+    linhas = [t for t in store.territorio_linhas(d) if t.get("nao_visto") is not None]
+    for linha in j["items"]:
+        esperado = sum(int(t["nao_visto"]) for t in linhas if (t.get("uf") or "").upper() == linha["uf"])
+        if linha["territorio"]:
+            assert linha["territorio"]["nao_visto"] == esperado
+    asns = [a for a in store.query_table(d, "asns") if a.get("uf") and a.get("is_br")]
+    for linha in base["items"]:
+        da_uf = [a for a in asns if a["uf"].upper() == linha["uf"]]
+        assert linha["asns"] == len(da_uf)
+        assert linha["asns_sem_sessao_ptt"] == sum(1 for a in da_uf if not a.get("ixps_direct_count"))
+    assert api.get("/api/v1/ufs", params={"include": "x"}, headers=ALLOWED).status_code == 400
+
+
 def test_lote_de_asns_igual_aos_documentos_individuais_e_projeta(api, ctx):
     """`/asns?asns=` devolve os mesmos documentos de `/asns/{asn}`; `fields` projeta; `include` acrescenta; limite de 100."""
     asns = [int(x) for x in ctx["asns"].split(",")]

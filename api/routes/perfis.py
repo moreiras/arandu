@@ -252,18 +252,26 @@ _BLOCOS_UF = {"ptts", "municipios", "operadoras"}
 Uma linha por UF com os números que a página `/estados` mostra: `ptts` (PTTs do IX.br na UF no snapshot, com ou sem coleta: a mesma
 lista usada na distância) e `ptts_com_coleta`, municípios e acessos fixos declarados ao SICI (`null` quando o snapshot não tem o SICI;
 ausência, não zero), `fibra_pct` (meio de acesso "Fibra"), ASNs BR e **usuários estimados** (soma APNIC dos ASNs
-da UF, pela geolocalização da organização — estimativa, não censo), municípios a mais de 100 km de um PTT e, quando há o produto de território,
+da UF, pela geolocalização da organização — estimativa, não censo), `asns_sem_sessao_ptt` (dos `asns`, os sem sessão direta em PTT do IX.br, pelo mesmo critério do filtro municipal),
+municípios a mais de 100 km de um PTT e, quando há o produto de território,
 `domicilios` (projetados, IBGE) e `penetracao` (acessos fixos ÷ domicílios; é razão, não percentual, e pode passar de 1 porque um domicílio tem vários acessos).
+
+`include=rede` acrescenta a cada UF o bloco `rede` (estimativas e inferências, cada uma com o n ou a cobertura: `ipv6_pct`, `rov_pct`, `transito_unico_pct`, `hhi_transito` com `hhi_transito_n`,
+`prontidao_mediana` com `prontidao_n`) e `rede_meta` (natureza, limites e o aviso de que prontidão e HHI não são veredito nem ranking). `include=territorio` acrescenta `territorio` (`nao_visto` e
+`nao_visto_por_100_dom`, estimativa) e `territorio_meta`. Produto ausente na data: o bloco da UF sai `null`, não zero.
 """,
 )
-def ufs_resumo(request: Request, date: Optional[str] = Query(None)) -> dict:
+def ufs_resumo(request: Request, date: Optional[str] = Query(None),
+               include: Optional[str] = Query(None, description="Extras por UF, separados por vírgula: `rede` (IPv6, ROV, trânsito, HHI do trânsito e prontidão, com o n) e `territorio` (mercado não visto).")) -> dict:
     store: Store = request.app.state.store
     date_str = store.resolve_date(date)
     if date_str is None:
         raise HTTPException(404, "Nenhum snapshot disponível")
     meta = store.sici_meta(date_str) or {}
     itens = store.resumo_ufs(date_str)
-    return {"snapshot_date": date_str, "mes_referencia": meta.get("mes_referencia"), "total": len(itens), "items": itens}
+    from api.services.ufs_extras import INCLUDES_UFS, com_extras
+    itens, extra_meta = com_extras(store, date_str, itens, _blocos(include, INCLUDES_UFS))
+    return {"snapshot_date": date_str, "mes_referencia": meta.get("mes_referencia"), "total": len(itens), "items": itens, **extra_meta}
 
 
 @router.get(

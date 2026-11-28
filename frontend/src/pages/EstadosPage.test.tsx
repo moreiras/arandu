@@ -25,10 +25,14 @@ const montar = () => render(
 
 beforeEach(() => {
   useAppStore.setState({ activeDate: null, latestSnapshot: '2026-09-20' })
-  const linha = (uf: string, ptts: number, acessos: number, fibra: number | null, usuarios: number) =>
-    ({ uf, ptts, municipios: 10, acessos, fibra_pct: fibra, asns: 5, usuarios, municipios_sem_ptt: 0 })
+  const linha = (uf: string, ptts: number, acessos: number, fibra: number | null, usuarios: number, extra: Record<string, unknown> = {}) =>
+    ({ uf, ptts, municipios: 10, acessos, fibra_pct: fibra, asns: 5, usuarios, municipios_sem_ptt: 0, ...extra })
+  const rede = (o: Record<string, number | null>) => ({ ipv6_pct: null, ipv6_cobertura: null, rov_pct: null, rov_cobertura: null, transito_unico_pct: null, transito_unico_cobertura: null,
+    hhi_transito: null, hhi_transito_n: null, prontidao_mediana: null, prontidao_n: null, ...o })
   server.use(http.get('*/api/v1/ufs', () => HttpResponse.json({ snapshot_date: '2026-09-20', mes_referencia: '2026-08', total: 3, items: [
-    linha('SP', 2, 9_000_000, 82.4, 40_000_000), linha('ES', 1, 1_200_000, 70, 3_000_000), linha('AC', 0, 90_000, null, 500_000),
+    linha('SP', 2, 9_000_000, 82.4, 40_000_000, { rede: rede({ prontidao_mediana: 50.7, prontidao_n: 1863, hhi_transito: 157, hhi_transito_n: 1992, ipv6_pct: 41.2, rov_pct: 63, transito_unico_pct: 30 }), territorio: { nao_visto: 4_000_000, nao_visto_por_100_dom: 16.4 } }),
+    linha('ES', 1, 1_200_000, 70, 3_000_000, { rede: rede({ prontidao_mediana: 61.7, prontidao_n: 77, hhi_transito: 1938, hhi_transito_n: 19 }), territorio: { nao_visto: 300_000, nao_visto_por_100_dom: 22 } }),
+    linha('AC', 0, 90_000, null, 500_000, { rede: null, territorio: null }),
   ] })))
 })
 
@@ -88,6 +92,64 @@ describe('cartograma', () => {
   })
 })
 
+describe('camada de rede e mercado não visto no cartograma (estados 5.4)', () => {
+  const botoes = () => within(screen.getByRole('group', { name: 'Infraestrutura e rede' })).getAllByRole('button').map((b) => b.textContent)
+
+  it('os botões ficam nos grupos Mercado e Infraestrutura e rede, com o selo no nome, e IPv6 vem como indicador de rede', async () => {
+    montar()
+    await screen.findByTestId('cartograma')
+    expect(botoes()).toEqual(expect.arrayContaining([
+      '% de acessos com um só provedor de trânsito (inferido)', '% de acessos em IPv6 (estimado)', '% de usuários atrás de ROV (estimado)',
+      'Prontidão em segurança de roteamento (mediana)', 'HHI do trânsito']))
+    expect(within(screen.getByRole('group', { name: 'Mercado' })).getByRole('button', { name: 'Mercado não visto por 100 domicílios (estimado)' })).toBeInTheDocument()
+  })
+
+  it('prontidão e HHI abertos, com o n na célula e no título, e sem borda tracejada nem regra de base pequena', async () => {
+    montar()
+    const grade = await screen.findByTestId('cartograma')
+    fireEvent.click(screen.getByRole('button', { name: 'Prontidão em segurança de roteamento (mediana)' }))
+    expect(within(grade).getByTitle(/^SP: 50,7; n=1\.863/)).toBeInTheDocument()
+    expect(within(grade).getByTitle(/^ES: 61,7; n=77/)).toBeInTheDocument()      // base de 77: aparece como as outras, só com o n
+    expect(within(grade).getByTitle(/^AC: sem dado/)).toBeInTheDocument()
+    expect(grade.innerHTML).not.toMatch(/dashed|base pequena/)
+    fireEvent.click(screen.getByRole('button', { name: 'HHI do trânsito' }))
+    expect(within(grade).getByTitle(/^SP: 157; n=1\.992/)).toBeInTheDocument()
+    expect(within(grade).getByTitle(/^ES: 1\.938; n=19/)).toBeInTheDocument()
+  })
+
+  it('o aviso de que não é veredito nem ranking fica visível, sem expandir nada', async () => {
+    montar()
+    await screen.findByTestId('cartograma')
+    const aviso = screen.getByTestId('aviso-rede-ufs')
+    expect(aviso).toBeVisible()
+    expect(aviso.closest('details')).toBeNull()
+    expect(aviso).toHaveTextContent(/não são veredito sobre a segurança nem sobre o mercado de um estado e não devem ser lidos como ranking/)
+    expect(aviso).toHaveTextContent(/a UF é a da sede das redes/)
+  })
+
+  it('a tabela traz as colunas de prontidão e HHI com o n ao lado, e o mercado não visto', async () => {
+    montar()
+    const ver = await screen.findByTestId('ver-dados')
+    ;(ver as HTMLDetailsElement).open = true
+    const tabela = within(ver).getByRole('table', { name: 'Ver dados (tabela das UFs)' })
+    const sp = within(tabela).getAllByRole('row').find((l) => l.querySelector('td')?.textContent === 'SP')!
+    expect(sp).toHaveTextContent('50,7')
+    expect(sp).toHaveTextContent('1.863')
+    expect(sp).toHaveTextContent('157')
+    expect(sp).toHaveTextContent('1.992')
+    expect(sp).toHaveTextContent('16,4')
+    const ac = within(tabela).getAllByRole('row').find((l) => l.querySelector('td')?.textContent === 'AC')!
+    expect(within(ac).getAllByText('—').length).toBeGreaterThanOrEqual(7)        // UF sem linha de rede: ausência, nunca zero
+  })
+
+  it('sem posição ordinal: nenhum ranking nem "posição" nos indicadores de rede', async () => {
+    montar()
+    await screen.findByTestId('cartograma')
+    fireEvent.click(screen.getByRole('button', { name: 'HHI do trânsito' }))
+    expect(screen.queryByText(/posição \d|\d+º de/i)).toBeNull()
+  })
+})
+
 describe('mapa dos municípios sob demanda', () => {
   it('não carrega o mapa até a pessoa pedir; depois de pedir, mostra', async () => {
     montar()
@@ -106,7 +168,10 @@ describe('alternativa textual do cartograma (EST-E7)', () => {
     const tabela = within(ver).getByRole('table', { name: 'Ver dados (tabela das UFs)' })
     const cab = within(tabela).getAllByRole('columnheader').map((th) => th.textContent?.replace(/[▲▼↕]/g, '').trim())
     expect(cab).toEqual(['UF', 'Nome', 'Acessos fixos (SICI)', 'Fibra (% dos acessos)', 'Usuários estimados em ASNs sediados na UF (APNIC)', 'PTTs (IX.br)',
-      'Acessos / 100 domicílios', 'Municípios longe de PTT (%)', 'Municípios com acessos', 'ASNs'])
+      'Acessos / 100 domicílios', 'Municípios longe de PTT (%)', 'Municípios com acessos', 'ASNs',
+      'Acessos com um só provedor de trânsito (% inferido)', 'Acessos em IPv6 (% estimado)', 'Usuários atrás de ROV (% estimado)',
+      'Prontidão (mediana do índice dos ASNs)', 'n da prontidão (ASNs com índice)', 'HHI do trânsito (0 a 10.000)', 'n do HHI (ASNs com provedor inferido)',
+      'Mercado não visto / 100 domicílios (estimado)'])
     const linhas = within(tabela).getAllByRole('row').slice(1)
     expect(linhas.map((l) => l.querySelector('td')?.textContent)).toEqual(['AC', 'ES', 'SP'])
     expect(linhas[2]).toHaveTextContent('São Paulo')
