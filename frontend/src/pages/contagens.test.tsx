@@ -3,13 +3,12 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-/** PT-15: rótulo por universo e nota "Por que há vários totais" (TRANSV-E4, TRANSV-E5). */
+/** PT-15: rótulo por universo (TRANSV-E4, TRANSV-E5); a explicação dos vários totais fica só em /sobre#contagens (decisão de 2026-11-28). */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter } from 'react-router-dom'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { montarKpis } from '../features/home/kpisBrasilEmNumeros'
-import { NotaVariosTotais } from '../components/ui/NotaVariosTotais'
 import { LISTA_UNIVERSOS, rotuloDe } from '../lib/universos'
 import { Sobre } from './Sobre'
 
@@ -17,13 +16,9 @@ const fontes = import.meta.glob(['../**/*.{ts,tsx}', '!../types/openapi.gen.ts']
 const fonte = (fim: string) => Object.entries(fontes).find(([a]) => a.endsWith(fim))![1]
 const naoTeste = Object.entries(fontes).filter(([a]) => !/\.test\.tsx?$/.test(a) && !a.includes('/test/') && !a.includes('openapi.gen'))
 
-describe('nota "Por que há vários totais" (PT-15)', () => {
-  it('as páginas com totais que diferem trazem a nota, ligada à explicação em /sobre#contagens', () => {
-    for (const arq of ['/features/home/BrasilEmNumeros.tsx', '/features/panorama/ResumoTecnico.tsx', '/Snapshots.tsx', '/IXPs.tsx', '/BGP.tsx',
-      '/components/stats/StatsOverview.tsx', '/OperadorasPage.tsx']) expect(fonte(arq), arq).toMatch(/<NotaVariosTotais/)
-    render(<MemoryRouter><NotaVariosTotais /></MemoryRouter>)
-    expect(screen.getByTestId('nota-varios-totais')).toHaveTextContent('Por que há vários totais')
-    expect(screen.getByRole('link', { name: 'Como cada total é contado' })).toHaveAttribute('href', '/sobre#contagens')
+describe('vários totais (PT-15)', () => {
+  it('nenhuma página traz a nota solta; a explicação fica em /sobre#contagens', () => {
+    expect(naoTeste.filter(([, s]) => /NotaVariosTotais|nota-varios-totais/.test(s)).map(([a]) => a)).toEqual([])
   })
 
   it('a explicação em /sobre#contagens lista todos os universos, com o rótulo e a definição da mesma tabela das telas', () => {

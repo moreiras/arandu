@@ -3,7 +3,7 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { GrupoFontes, Kpi, NotaVariosTotais } from '../../components/ui'
+import { GrupoFontes, Kpi } from '../../components/ui'
 import type { KpiHome } from './kpisBrasilEmNumeros'
 import { useKpisHome } from './useKpisHome'
 import { ComoLerNumerosPais, KpisSegurancaPais } from '../panorama/IndicadoresBrasil'
@@ -38,7 +38,6 @@ export function BrasilEmNumeros() {
         </div>
       </GrupoFontes>
       <ComoLerNumerosPais />
-      <NotaVariosTotais />
     </section>
   )
 }

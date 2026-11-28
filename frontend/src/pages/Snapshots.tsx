@@ -5,7 +5,6 @@ import { useActiveDate, useSnapshots } from '../hooks/useSnapshot'
 import { useState } from 'react'
 import { NotaRevisao } from '../components/ui/NotaRevisao'
 import { CorrecoesNoChangelog } from '../components/ui/CorrecoesNoChangelog'
-import { NotaVariosTotais } from '../components/ui/NotaVariosTotais'
 import { rotuloDe } from '../lib/universos'
 import { ColetaSnapshot, IndicadoresSnapshot, type LinhaIndicador, type ManifestoSnapshot } from '../features/snapshots/ManifestoSnapshot'
 
@@ -84,7 +83,6 @@ export function Snapshots() {
       </div>
 
       <NotaRevisao />
-      <NotaVariosTotais />
 
       {isError ? (
         <div className="text-center py-16 text-perigo-500 text-sm">

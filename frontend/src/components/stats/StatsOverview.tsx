@@ -11,7 +11,6 @@ import { corLegivel } from '../../lib/contraste'
 import { VerDados } from '../ui/VerDados'
 import { AtribuicaoDbIp } from '../ui/AtribuicaoDbIp'
 import { LinhaProveniencia } from '../ui/Kpi'
-import { NotaVariosTotais } from '../ui/NotaVariosTotais'
 import type { Selo } from '../entidade/proveniencia'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -329,7 +328,6 @@ export function StatsOverview({ summary, date }: { summary: SnapshotSummary | nu
 
   return (
     <div className="space-y-10">
-      <NotaVariosTotais />
       {/* Hero */}
       <div className="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white px-4 py-3">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-3 gap-y-2 divide-x divide-gray-200">
