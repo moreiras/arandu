@@ -11,7 +11,8 @@
    "corpo": "anon_limit_reached"
   },
   "previa_linhas": 100,
-  "snapshots_atuais": 2
+  "snapshots_atuais": 2,
+  "teto_por_rede_segundos": 1800
  },
  "api": {
   "sem_conta": [

@@ -128,7 +128,7 @@ import type { BrasilIndicadores,
   EmpresasRelacionadasResponse,
 } from '../types/api'
 import type { RoutingAnalysis } from '../types/routingAnalysis'
-import { getFingerprint } from '../auth/fingerprint'
+import { getFingerprint, getFingerprintEstavel } from '../auth/fingerprint'
 
 const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? ''
 
@@ -137,6 +137,7 @@ const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? ''
 // sinaliza, em qualquer resposta, que o limite de navegação anônima foi
 // atingido (ver api/main.py::anon_session_guard).
 const FINGERPRINT_HEADER = 'X-Device-Fingerprint'
+const FINGERPRINT_ESTAVEL_HEADER = 'X-Device-Fingerprint-Estavel'
 const ANON_LIMIT_HEADER = 'X-Anon-Limit-Reached'
 const AREA_HEADER = 'X-Arandu-Area'
 
@@ -207,7 +208,11 @@ function checkAnonLimitHeader(res: Response): void {
 }
 
 function baseHeaders(): Record<string, string> {
-  return { [FINGERPRINT_HEADER]: getFingerprint(), [AREA_HEADER]: currentArea }
+  return {
+    [FINGERPRINT_HEADER]: getFingerprint(),
+    [FINGERPRINT_ESTAVEL_HEADER]: getFingerprintEstavel(),
+    [AREA_HEADER]: currentArea,
+  }
 }
 
 /** Converte respostas 401/403 de política em AccessError e notifica ouvintes. */
@@ -1236,6 +1241,8 @@ export interface AnonInfo {
   activeSeconds: number
   limitSeconds: number
   limitReached: boolean
+  /** O bloqueio vem do teto da rede (soma das sessões), não do orçamento individual; a mensagem é a mesma de `limitReached`. */
+  bloqueioRede?: boolean
   heartbeatIntervalSeconds: number
   inactivityTimeoutSeconds: number
 }
@@ -1244,6 +1251,7 @@ function anonInfoFromApi(raw: {
   active_seconds: number
   limit_seconds: number
   limit_reached: boolean
+  bloqueio_rede?: boolean
   heartbeat_interval_seconds: number
   inactivity_timeout_seconds: number
 } | null | undefined): AnonInfo | null {
@@ -1252,6 +1260,7 @@ function anonInfoFromApi(raw: {
     activeSeconds: raw.active_seconds,
     limitSeconds: raw.limit_seconds,
     limitReached: raw.limit_reached,
+    bloqueioRede: raw.bloqueio_rede ?? false,
     heartbeatIntervalSeconds: raw.heartbeat_interval_seconds,
     inactivityTimeoutSeconds: raw.inactivity_timeout_seconds,
   }

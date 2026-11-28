@@ -23,6 +23,14 @@ describe('cliente da API sobre respostas reais do dataset sintético', () => {
     expect(Object.keys(h).some((k) => k.includes('fingerprint') || k.includes('device'))).toBe(true)
   })
 
+  it('envia os dois fingerprints, o forte e o estável (sem canvas), em cabeçalhos separados', async () => {
+    await fetchSnapshots()
+    const h = seenHeaders['/api/v1/brasil/snapshots']
+    expect(h['x-device-fingerprint']).toBeTruthy()
+    expect(h['x-device-fingerprint-estavel']).toBeTruthy()
+    expect(h['x-device-fingerprint-estavel']).not.toBe(h['x-device-fingerprint'])
+  })
+
   it('primeira página da lista de ASNs', async () => {
     const r = await fetchASNs({ page: 1, limit: 5 })
     expect(r.items.length).toBeLessThanOrEqual(5)
