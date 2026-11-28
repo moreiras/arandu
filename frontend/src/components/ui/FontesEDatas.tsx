@@ -5,6 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { createContext, useContext, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
 import { formatarReferencia, type Selo } from '../entidade/proveniencia'
+import { ComoLer } from './ComoLer'
 import { SeloMarca } from './SeloMarca'
 
 /** Uma fonte de um número ou de uma frase: o que o leitor consulta no bloco recolhido da seção. */
@@ -55,20 +56,26 @@ function dataVisivel(v: string): string {
   return formatarReferencia(m ? m[1] : v)
 }
 
+export const TITULO_FONTES = 'Fontes e datas'
+export const TITULO_COMO_LER_E_FONTES = 'Como ler e de onde vêm estes números'
+
 /**
- * Bloco recolhido "Fontes e datas destes números": uma lista única, sem repetição, com o selo, a fonte e a data de referência de cada
- * cartão ou frase da seção. O conteúdo fica no DOM (`<details>`), então leitor de tela e busca na página o alcançam.
+ * Bloco recolhido único de uma seção: o "Como ler" (se houver) em cima e, embaixo, uma lista sem repetição com o selo, a fonte e a
+ * data de referência de cada cartão ou frase. Tem a aparência do `ComoLer`, para todos os recolhidos do site terem um formato só.
+ * O conteúdo fica no DOM (`<details>`), então leitor de tela e busca na página o alcançam.
  */
-export function FontesEDatas({ itens, titulo = 'Fontes e datas destes números', snapshot, className = '' }: { itens: ItemFonte[]; titulo?: string; snapshot?: string | null; className?: string }) {
-  if (deduplicar(itens).length === 0) return null
+export function FontesEDatas({ itens, comoLer, titulo, snapshot, className = '' }: { itens: ItemFonte[]; comoLer?: ReactNode; titulo?: string; snapshot?: string | null; className?: string }) {
+  const temFontes = deduplicar(itens).length > 0
+  if (!temFontes && !comoLer) return null
   return (
-    <details className={`group/fontes text-xs text-gray-700 ${className}`} data-testid="fontes-e-datas">
-      <summary className="inline-flex min-h-6 cursor-pointer select-none items-center gap-1.5 rounded px-1 text-primario-700 hover:text-primario-900">
-        <span aria-hidden="true" className="transition-transform group-open/fontes:rotate-90">▸</span>
-        {titulo}
-      </summary>
-      <ListaFontes itens={itens} snapshot={snapshot} className="mt-1 pl-4" />
-    </details>
+    <ComoLer testId="fontes-e-datas" className={className} titulo={titulo ?? (comoLer ? TITULO_COMO_LER_E_FONTES : TITULO_FONTES)}>
+      {comoLer && <div className="space-y-2" data-testid="como-ler-texto">{comoLer}</div>}
+      {temFontes && (
+        <div className={comoLer ? 'border-t border-gray-200 pt-2' : undefined}>
+          <ListaFontes itens={itens} snapshot={snapshot} />
+        </div>
+      )}
+    </ComoLer>
   )
 }
 
@@ -91,10 +98,11 @@ export function ListaFontes({ itens, snapshot, className = '' }: { itens: ItemFo
 }
 
 /**
- * Seção cujos cartões e frases entregam fonte e data a um único bloco recolhido, colocado depois do conteúdo.
+ * Seção cujos cartões e frases entregam fonte e data a um único bloco recolhido, colocado depois do conteúdo. `comoLer` entra no
+ * mesmo bloco, acima da lista de fontes.
  * Os `Kpi` e o `ResumoEmTexto` dentro dela mostram só o selo (cartão) ou nada (frase).
  */
-export function GrupoFontes({ children, titulo, snapshot, className = '' }: { children: ReactNode; titulo?: string; snapshot?: string | null; className?: string }) {
+export function GrupoFontes({ children, comoLer, titulo, snapshot, className = '' }: { children: ReactNode; comoLer?: ReactNode; titulo?: string; snapshot?: string | null; className?: string }) {
   const [mapa, setMapa] = useState<Map<string, ItemFonte[]>>(() => new Map())
   const registro = useMemo<Registro>(() => ({
     definir: (k, itens) => setMapa((m) => new Map(m).set(k, itens)),
@@ -103,7 +111,7 @@ export function GrupoFontes({ children, titulo, snapshot, className = '' }: { ch
   return (
     <RegistroCtx.Provider value={registro}>
       {children}
-      <FontesEDatas itens={[...mapa.values()].flat()} titulo={titulo} snapshot={snapshot} className={className} />
+      <FontesEDatas itens={[...mapa.values()].flat()} comoLer={comoLer} titulo={titulo} snapshot={snapshot} className={className} />
     </RegistroCtx.Provider>
   )
 }

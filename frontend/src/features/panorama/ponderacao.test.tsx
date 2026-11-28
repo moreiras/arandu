@@ -12,6 +12,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { server } from '../../test/server'
 import { useAppStore } from '../../store/app'
 import { ComoLerNumerosPais, KpisSegurancaPais, referenciaMedicao } from './IndicadoresBrasil'
+import { GrupoFontes } from '../../components/ui'
 
 // os valores medidos de `/brasil/indicadores` em 2026-11-22 (analise-obint, TRANSV-E6)
 const ROV = { asns: 4144, mediana_pct: 0.14, media_ponderada_pct: 6.38, faixas: { ate_10: 3648, de_10_a_90: 307, acima_de_90: 189 }, fonte: { fonte: 'APNIC Labs', as_of: '2026-11-15' } }
@@ -57,8 +58,8 @@ describe('média ponderada com mediana e faixas ao lado (PT-15 / TRANSV-E6)', ()
   })
 
   it('o "Como ler" separa as três medidas de IPv6 e diz que a mediana trata cada rede igual', () => {
-    render(<ComoLerNumerosPais />)
-    const t = screen.getByTestId('como-ler').textContent!
+    render(<GrupoFontes comoLer={<ComoLerNumerosPais />}><span /></GrupoFontes>)
+    const t = screen.getByTestId('como-ler-texto').textContent!
     expect(t).toMatch(/conta as redes com prefixo IPv6 na tabela global/)
     expect(t).toMatch(/conta os usuários estimados/)
     expect(t).toMatch(/não indica anúncio nem uso/)

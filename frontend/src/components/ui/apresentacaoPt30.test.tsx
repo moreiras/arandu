@@ -7,6 +7,8 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { DESCRICAO_SELO, nomeAcessivelSelo, ROTULO_SELO } from '../entidade/proveniencia'
+import type { ReactNode } from 'react'
+import { ComoLer } from './ComoLer'
 import { ApresentacaoRecolhida, deduplicar, FontesEDatas, GrupoFontes } from './FontesEDatas'
 import { Kpi } from './Kpi'
 import { LegendaSelos } from './LegendaSelos'
@@ -147,6 +149,48 @@ describe('fontes e datas recolhidas', () => {
     expect(deduplicar([{ selo: 'fato', fonte: 'X', dataRef: '2026-01' }, { selo: 'fato', fonte: 'X', dataRef: '2026-01' }, { selo: 'fato' }])).toHaveLength(1)
     const { container } = render(<FontesEDatas itens={[]} />)
     expect(container).toBeEmptyDOMElement()
+  })
+})
+
+describe('recolhido único da seção: "Como ler" e fontes juntos', () => {
+  const secao = (comoLer?: ReactNode) => (
+    <GrupoFontes comoLer={comoLer} snapshot="2026-11-22">
+      <Kpi rotulo="A" valor="1" selo="fato" fonte="LACNIC" dataRef="2026-09-20" />
+    </GrupoFontes>
+  )
+  it('com "Como ler": um só recolhido, com o texto em cima e a lista de fontes embaixo', () => {
+    render(secao(<p>Texto do como ler.</p>))
+    const bloco = screen.getByTestId('fontes-e-datas')
+    expect(screen.getAllByTestId('fontes-e-datas')).toHaveLength(1)
+    expect(screen.queryByTestId('como-ler')).toBeNull()
+    expect(bloco.tagName).toBe('DETAILS')
+    expect(bloco).not.toHaveAttribute('open')
+    expect(bloco.querySelector('summary')!.textContent).toContain('Como ler e de onde vêm estes números')
+    const texto = within(bloco).getByTestId('como-ler-texto')
+    const lista = within(bloco).getByTestId('lista-fontes')
+    expect(texto.textContent).toBe('Texto do como ler.')
+    expect(texto.compareDocumentPosition(lista) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(lista.textContent).toMatch(/LACNIC.*referência: 20\/09\/2026/)
+    expect(lista.textContent).toMatch(/Snapshot de/)
+  })
+  it('sem "Como ler": título "Fontes e datas", só a lista, e a mesma aparência de caixa do ComoLer', () => {
+    const { unmount } = render(secao())
+    const sem = screen.getByTestId('fontes-e-datas')
+    expect(sem.querySelector('summary')!.textContent).toContain('Fontes e datas')
+    expect(within(sem).queryByTestId('como-ler-texto')).toBeNull()
+    expect(within(sem).getByTestId('lista-fontes')).toBeInTheDocument()
+    const classesSem = sem.className
+    unmount()
+    render(<ComoLer><p>x</p></ComoLer>)
+    expect(screen.getByTestId('como-ler').className).toBe(classesSem)
+  })
+  it('só com "Como ler" e sem fontes, o recolhido aparece sem lista', () => {
+    render(<GrupoFontes comoLer={<p>Só texto.</p>}><span /></GrupoFontes>)
+    expect(within(screen.getByTestId('fontes-e-datas')).queryByTestId('lista-fontes')).toBeNull()
+  })
+  it('FontesEDatas isolado continua funcionando com o mesmo visual', () => {
+    render(<FontesEDatas itens={[{ selo: 'fato', fonte: 'X', dataRef: '2026-01' }]} />)
+    expect(screen.getByTestId('fontes-e-datas').className).toContain('rounded border border-gray-200')
   })
 })
 

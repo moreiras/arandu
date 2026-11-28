@@ -27,7 +27,7 @@ export function BrasilEmNumeros() {
   return (
     <section aria-labelledby="numeros-titulo" className="space-y-3">
       <h2 id="numeros-titulo" className="text-titulo-3 text-gray-900">O Brasil em números</h2>
-      <GrupoFontes snapshot={data}>
+      <GrupoFontes snapshot={data} comoLer={<ComoLerNumerosPais />}>
         <div className="space-y-3">
           <Faixa titulo="Rede" itens={rede} cor="text-v4-700" />
           <Faixa titulo="Mercado" itens={mercado} cor="text-mercado-700" />
@@ -37,7 +37,6 @@ export function BrasilEmNumeros() {
           </div>
         </div>
       </GrupoFontes>
-      <ComoLerNumerosPais />
     </section>
   )
 }
