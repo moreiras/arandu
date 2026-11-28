@@ -5,6 +5,22 @@
 Correções e melhorias da análise do OBINT (instância pública), integradas na branch `correcoes-obint`. Os identificadores entre
 parênteses remetem à análise.
 
+- **Resumos em texto: um bloco só e linguagem revista.** Cada resumo tem um único recolhido, "Como este resumo é gerado e de onde
+  vêm os dados", com o método e as fontes das frases. As frases foram reescritas sem fórmulas de contraste nem coloquialismos ("não
+  entra nessa conta", "É uma estimativa, não um censo"), e um teste barra essas fórmulas nos geradores. A nota solta "Por que há
+  vários totais" saiu das páginas; a explicação fica em `/sobre#contagens`.
+- **Resumo da home ampliado.** Parágrafos de rede, IX.br (ASNs brasileiros diretos e indiretos, espaço IPv6 e IPv4 coberto), segurança
+  (DNSSEC, ROA, ROV, ASPA), mercado (CNPJs que declararam, HHI nacional, três maiores) e usuários (alcançados pelos PTTs, cada ASN uma
+  vez). `/brasil/indicadores` ganhou `ixbr` e `mercado`; `esquema` 7.
+- **Rede e mercado não visto por UF em /estados (Estados 5.4).** `GET /ufs?include=rede,territorio` traz IPv6, ROV e provedor único de
+  trânsito estimados, HHI do trânsito e mediana da prontidão (com n) e mercado não visto por 100 domicílios; o cartograma ganha esses
+  botões, em escala de um tom, com o aviso visível de que prontidão e HHI não são veredito nem ranking. `get_uf` no MCP acompanha.
+- **Síntese da UF (UF 5.5).** Frases das três maiores operadoras por acessos fixos declarados (regra e mês na frase, link para o
+  ranking), dos CNPJs sem declaração e dos ASNs com sede na UF sem sessão direta em PTT (agregado novo `asns_sem_sessao_ptt`); o
+  cartão de usuários APNIC passa à aba Rede.
+- **Quem atende e como se conecta (município 5.2).** Bloco de abertura da aba Rede: uma linha por operadora com acessos fixos locais,
+  ASN, PTTs diretos e só indiretos, e três indicadores inferidos.
+- **CSV do mapa (MAPA 5.4).** Sem a coluna `situacao`, vazia, e com as colunas do SICI da camada SCM.
 - **Tabela única de participantes do PTT completa (PT-24 / IXP 5.5).** A tabela passa a ter a empresa (com link para a operadora,
   nunca o CNPJ no lugar do nome), a política de peering declarada no PeeringDB, duas colunas de usuários (os usuários APNIC do AS e,
   estimados, os que ficam atrás dos prefixos do AS vistos no PTT, pela fração do espaço IPv4) e a linha aberta com prefixos próprios e
