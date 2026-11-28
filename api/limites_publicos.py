@@ -36,6 +36,7 @@ def limites_publicados() -> dict:
         "sem_conta": {
             "identificacao": "rede de origem: IPv4 inteiro, IPv6 pelo prefixo /64",
             "orcamento_diario_segundos": cfg.limit_seconds,
+            "teto_por_rede_segundos": cfg.rede_limit_seconds or None,      # soma do tempo de todas as sessões da rede no dia; None = sem teto
             "custo_por_chamada_segundos": custo,
             "chamadas_medidas_por_dia": (cfg.limit_seconds // custo) if custo else None,
             "renovacao": "meia-noite UTC",

@@ -132,6 +132,11 @@ def _texto_mcp(mcp: dict) -> str:
             "Comece por `describe_schema`.")
 
 
+def _teto_rede(sem_conta: dict) -> str:
+    teto = sem_conta.get("teto_por_rede_segundos")
+    return f" (e, somadas todas as sessões da rede, {teto} s por dia)" if teto else ""
+
+
 def llms() -> str:
     b = SITE.url
     lim = limites_publicados()
@@ -153,7 +158,7 @@ Todo número tem fonte e data: o snapshot (data da coleta) e, quando a fonte tem
 - As páginas são montadas no navegador: sem JavaScript chegam vazias. Os dados estão no MCP e na API.
 - MCP (Streamable HTTP): {b}/mcp. {mcp}
 - API REST: {b}/api/v1/ (OpenAPI em {b}/api/v1/openapi.json). Sem conta: prévia (até {lim['sem_conta']['previa_linhas']} linhas, os {lim['sem_conta']['snapshots_atuais']} snapshots mais recentes) e
-  orçamento de {lim['sem_conta']['orcamento_diario_segundos']} s por dia UTC por rede, a {lim['sem_conta']['custo_por_chamada_segundos']} s por chamada medida; ao esgotá-lo, 429 com Retry-After.
+  orçamento de {lim['sem_conta']['orcamento_diario_segundos']} s por dia UTC por rede, a {lim['sem_conta']['custo_por_chamada_segundos']} s por chamada medida{_teto_rede(lim['sem_conta'])}; ao esgotá-lo, 429 com Retry-After.
   A REST não tem chave. Valores em vigor: {b}/api/v1/limites
 - Cite a data do snapshot de cada número. Uso na resposta, sim; treino de modelos, não; coleta extensiva da base é proibida
   ([Uso aceitável]({b}/uso-aceitavel)). Contatos e dados de pessoa física não são servidos.

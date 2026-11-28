@@ -137,7 +137,7 @@ def resolve_identity(request: Request) -> dict:
     o heartbeat. Retorna um dict com:
       - authenticated: bool
       - user: {email, name, provider} | None
-      - anon: {active_seconds, limit_seconds, limit_reached,
+      - anon: {active_seconds, limit_seconds, limit_reached, bloqueio_rede,
                heartbeat_interval_seconds, inactivity_timeout_seconds} | None
       - set_cookie: session_id a gravar no cookie de resposta, ou None
     """
@@ -151,6 +151,8 @@ def resolve_identity(request: Request) -> dict:
     fp_raw = request.headers.get(anon_session.FINGERPRINT_HEADER)
     rede = anon_session.hash_rede(client_ip(request), cfg.jwt_secret)
     fp_hash = anon_session.hash_fingerprint(fp_raw, rede) if fp_raw else None     # restrito à rede: aparelhos iguais não se misturam
+    fp_est_raw = request.headers.get(anon_session.FINGERPRINT_ESTAVEL_HEADER)      # cliente antigo não manda
+    fp_est_hash = anon_session.hash_fingerprint_estavel(fp_est_raw, rede) if fp_est_raw else None
 
     # Área da página em uso (o front informa `open` nas páginas de entrada: o
     # relógio do orçamento só anda em `metered`). Ausente = metered (cliente legado).
@@ -158,18 +160,17 @@ def resolve_identity(request: Request) -> dict:
     if area not in ("open", anon_session.AREA_METERED):
         area = anon_session.AREA_METERED
 
-    session_id, active_seconds, limit_reached, needs_cookie = anon_session.resolve_and_touch(
-        cfg.data_dir, anon_cfg, cookie_sid, fp_hash, area, rede,
-    )
+    r = anon_session.resolver_sessao(cfg.data_dir, anon_cfg, cookie_sid, fp_hash, area, rede, fp_est_hash)
     return {
         "authenticated": False,
         "user": None,
         "anon": {
-            "active_seconds": active_seconds,
+            "active_seconds": r.active_seconds,
             "limit_seconds": anon_cfg.limit_seconds,
-            "limit_reached": limit_reached,
+            "limit_reached": r.limit_reached,
+            "bloqueio_rede": r.bloqueio_rede,
             "heartbeat_interval_seconds": anon_cfg.heartbeat_interval_seconds,
             "inactivity_timeout_seconds": anon_cfg.inactivity_timeout_seconds,
         },
-        "set_cookie": session_id if needs_cookie else None,
+        "set_cookie": r.session_id if (r.needs_cookie and r.session_id) else None,
     }

@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 
 ROOT = Path(__file__).resolve().parents[2]
 ENV = ("API_ORCAMENTO_ANON", "API_ORCAMENTO_CONTA", "MCP_ORCAMENTO_ANON", "MCP_ORCAMENTO_CONTA", "MCP_COTA_DIARIA", "MCP_KEY_ATIVA",
-       "MCP_KEY_PEPPER", "ANON_SESSION_LIMIT_MINUTES", "ANON_API_CLIENT_COST_SECONDS")
+       "MCP_KEY_PEPPER", "ANON_SESSION_LIMIT_MINUTES", "ANON_API_CLIENT_COST_SECONDS", "ANON_REDE_LIMIT_MULTIPLIER")
 CONTATOS = tuple(f"CONTATOS_CONTA_{c}" for c in ("RAJADA", "HORA", "DIA", "30D", "NOVA_DIA", "NOVA_DIAS"))      # o conftest os desliga (0)
 
 
@@ -46,6 +46,7 @@ def test_rota_devolve_os_valores_das_constantes(cli):
     assert d["mcp"]["chave"]["cota_diaria"] == chave.COTA_DIARIA_PADRAO == chave.cota_diaria()
     assert d["sem_conta"]["orcamento_diario_segundos"] == 600 and d["sem_conta"]["custo_por_chamada_segundos"] == 3
     assert d["sem_conta"]["chamadas_medidas_por_dia"] == 200
+    assert d["sem_conta"]["teto_por_rede_segundos"] == 3 * 600                       # 3 x o orçamento individual (padrão)
     assert d["sem_conta"]["previa_linhas"] == PREVIEW_LIMIT and d["sem_conta"]["snapshots_atuais"] == N_DATAS_ATUAIS
     assert d["api"]["custo_por_rota"] == {"/api/v1/asns": custo_api("/api/v1/asns"), "/api/v1/query": 3, "/api/v1/map/query": 5, "demais": 1}
     assert d["api"]["chave_na_rest"] is False
@@ -106,3 +107,10 @@ def test_llms_txt_reflete_os_valores_reais(monkeypatch):
     monkeypatch.setenv("MCP_COTA_DIARIA", "0")
     assert "sem teto diário" in sitemap.llms()
 
+
+
+def test_teto_por_rede_acompanha_o_ambiente_e_zero_some(cli, monkeypatch):
+    monkeypatch.setenv("ANON_REDE_LIMIT_MULTIPLIER", "5")
+    assert cli.get("/api/v1/limites").json()["sem_conta"]["teto_por_rede_segundos"] == 3000
+    monkeypatch.setenv("ANON_REDE_LIMIT_MULTIPLIER", "0")
+    assert cli.get("/api/v1/limites").json()["sem_conta"]["teto_por_rede_segundos"] is None

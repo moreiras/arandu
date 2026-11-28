@@ -2015,6 +2015,17 @@
      "snapshots_atuais": {
       "title": "Snapshots Atuais",
       "type": "integer"
+     },
+     "teto_por_rede_segundos": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Teto Por Rede Segundos"
      }
     },
     "required": [

@@ -5794,6 +5794,8 @@ export interface components {
             renovacao: string;
             /** Snapshots Atuais */
             snapshots_atuais: number;
+            /** Teto Por Rede Segundos */
+            teto_por_rede_segundos?: number | null;
         };
         /** SnapshotDetailResponse */
         SnapshotDetailResponse: {
