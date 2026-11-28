@@ -373,7 +373,7 @@ def test_ixp_area_influencia_bate_com_a_rota_e_recusa_visao_invalida(srv, api, c
     code = ctx["code"]
     rota = api.get(f"/api/v1/ixps/{code}/area-influencia", params={"date": ctx["date"]}, headers=ALLOWED).json()
     t = call(srv, "ixp_area_influencia", {"code": code, "limit": 2})
-    assert t["ixp"] == code and t["pix"] == rota["pix"] and set(t["visoes"]) == {"diretos", "todos"}
+    assert t["ixp"] == code and t["pix"] == rota["pix"] and set(t["visoes"]) == {"diretos", "todos", "alcance_diretos", "alcance_todos"}
     for v, r in t["visoes"].items():
         if r:
             assert r["p50_km"] == rota["visoes"][v]["p50_km"] and r["municipios_total"] == len(rota["visoes"][v]["municipios_faixa"]) and len(r["municipios_faixa"]) <= 2
@@ -384,8 +384,13 @@ def test_ixp_area_influencia_bate_com_a_rota_e_recusa_visao_invalida(srv, api, c
     r = call(srv, "ixp_area_influencia", {"visao": "diretos"})
     assert r["visao"] == "diretos" and r["municipios_total"] == len(nac["municipios"]) and r["ptts"] == nac["ptts"] and "municipios" not in r
     assert '"cnpj"' not in json.dumps([t, m, r]) and '"empresa"' not in json.dumps([t, m, r])
+    for v in ("alcance_diretos", "alcance_todos"):
+        a = call(srv, "ixp_area_influencia", {"code": code, "visao": v})
+        assert set(a["visoes"]) == {v} and (not a["visoes"][v] or a["visoes"][v]["p50_km"] == rota["visoes"][v]["p50_km"])
     with pytest.raises(ToolError, match="visao inválida"):
         call(srv, "ixp_area_influencia", {"visao": "x"})
+    with pytest.raises(ToolError, match="visao inválida"):
+        call(srv, "ixp_area_influencia", {"visao": "alcance_todos"})                    # o alcance só existe por PTT
 
 
 def test_get_prefix_por_ip_e_get_uf_sem_argumento_batem_com_as_rotas(srv, api, ctx):

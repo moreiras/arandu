@@ -30,18 +30,23 @@ def test_rota_nacional_e_aberta_para_anonimo_e_traz_o_metodo(api):
     assert api.get("/api/v1/ixps/area-influencia", params={"visao": "x"}).status_code == 422
 
 
-def test_rota_por_ptt_traz_as_duas_visoes_ou_a_pedida(api, pipeline):
+def test_rota_por_ptt_traz_as_quatro_visoes_ou_a_pedida(api, pipeline):
     base, _ = pipeline
     d = _doc(base)
     code = next(c for c, p in d["ptts"].items() if p["visoes"]["diretos"] and p["visoes"]["todos"])
     r = api.get(f"/api/v1/ixps/{code}/area-influencia")
     assert r.status_code == 200, r.text
     j = r.json()
-    assert j["ixp"] == code and set(j["visoes"]) == {"diretos", "todos"} and j["pix"]["pontos"] and j["metodo"]["atribuicao"]
+    assert j["ixp"] == code and set(j["visoes"]) == {"diretos", "todos", "alcance_diretos", "alcance_todos"} and j["pix"]["pontos"] and j["metodo"]["atribuicao"]
     assert j["visoes"]["todos"]["p50_km"] == d["ptts"][code]["visoes"]["todos"]["p50_km"]
     um = api.get(f"/api/v1/ixps/{code}/area-influencia", params={"visao": "diretos"}).json()
     assert set(um["visoes"]) == {"diretos"} and set(um["totais"]) == {"diretos"}
     assert api.get("/api/v1/ixps/nao-existe/area-influencia").status_code == 404
+    for v in ("alcance_diretos", "alcance_todos"):
+        a = api.get(f"/api/v1/ixps/{code}/area-influencia", params={"visao": v}).json()
+        assert set(a["visoes"]) == {v} and a["totais"] == {} and a["visoes"][v]["p50_km"] == d["ptts"][code]["visoes"][v]["p50_km"]
+    assert api.get(f"/api/v1/ixps/{code}/area-influencia", params={"visao": "x"}).status_code == 422
+    assert api.get("/api/v1/ixps/area-influencia", params={"visao": "alcance_todos"}).status_code == 422          # o alcance só existe por PTT
 
 
 def test_snapshot_sem_o_arquivo_da_204_com_opcional_e_404_sem_ele_e_nunca_calcula(api, monkeypatch):

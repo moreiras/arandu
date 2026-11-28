@@ -10,8 +10,11 @@ from __future__ import annotations
 
 from typing import Optional
 
-VISOES = ("diretos", "todos")
+VISOES = ("diretos", "todos")                       # as do índice nacional por município
+VISOES_ALCANCE = ("alcance_diretos", "alcance_todos")      # só por PTT, sem disputa entre PTTs
+VISOES_PTT = VISOES + VISOES_ALCANCE
 ROTULOS_VISAO = {"diretos": "Só diretamente conectados", "todos": "Todos que anunciam no PTT"}
+ROTULOS_VISAO_PTT = {**ROTULOS_VISAO, "alcance_diretos": "Alcance dos diretamente conectados", "alcance_todos": "Alcance de todos que anunciam"}
 # campos de `visoes[v]` que o resumo nacional repete por PTT (sem a lista de municípios)
 _RESUMO = ("operadoras", "municipios", "acessos", "p50_km", "p80_km", "p90_km", "mediana_operadora_km", "faixas")
 
@@ -26,14 +29,14 @@ def _ponto(pontos: list) -> Optional[list]:
 
 
 def por_ptt(doc: dict, code: str, visao: Optional[str] = None) -> Optional[dict]:
-    """Os dois recortes (ou o pedido) de um PTT, com o posicionamento dos PIX. `None` se o PTT não consta no artefato."""
+    """As quatro visões (ou a pedida) de um PTT, com o posicionamento dos PIX. `None` se o PTT não consta no artefato."""
     p = (doc.get("ptts") or {}).get(code)
     if p is None:
         return None
-    visoes = {v: p["visoes"].get(v) for v in VISOES if visao in (None, v)}
+    visoes = {v: p["visoes"].get(v) for v in VISOES_PTT if visao in (None, v)}
     nomes_doc = doc.get("municipios_nomes") or {}
     nomes = {i: nomes_doc[i] for x in visoes.values() if x for i in x["municipios_faixa"] if i in nomes_doc}
-    return {**_meta(doc), "ixp": code, "nome": p["nome"], "uf": p["uf"], "pix": p["pix"], "totais": {v: doc["totais"][v] for v in visoes}, "visoes": visoes, "municipios_nomes": nomes}
+    return {**_meta(doc), "ixp": code, "nome": p["nome"], "uf": p["uf"], "pix": p["pix"], "totais": {v: doc["totais"][v] for v in visoes if v in doc["totais"]}, "visoes": visoes, "municipios_nomes": nomes}
 
 
 def nacional(doc: dict, visao: str) -> dict:

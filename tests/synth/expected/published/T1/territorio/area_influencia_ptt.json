@@ -10,8 +10,10 @@
   "ptts": "looking glasses do IX.br (snapshot)",
   "sici": "2026-08"
  },
- "limites": "Inferência, não cobertura de rede. Mostra onde as operadoras que aparecem no PTT declaram acessos de banda larga fixa ao SICI (mês de referência diferente da data do snapshot), com cada par (município, operadora) atribuído ao PTT mais próximo entre os que ela enxerga na visão. Não diz que a rede da operadora chega ao município nem que o tráfego passe pelo PTT. A distância é em linha reta, do centroide do município ao PIX mais próximo; PIX sem coordenada foi posicionado no centroide do município do endereço ou da sede do PTT. O CNPJ liga-se aos ASNs pelo cadastro do SICI (CNPJ do registro do ASN); operadora sem ASN ligado não entra, e um CNPJ com vários ASNs conta os acessos uma vez. Não há exclusão de operadoras. O P50, o P80 e o P90 pesam por acessos; a mediana por operadora conta cada operadora uma vez e mede outra população.",
+ "limites": "Inferência, não cobertura de rede. Mostra onde as operadoras que aparecem no PTT declaram acessos de banda larga fixa ao SICI (mês de referência diferente da data do snapshot), com cada par (município, operadora) atribuído ao PTT mais próximo entre os que ela enxerga na visão. Não diz que a rede da operadora chega ao município nem que o tráfego passe pelo PTT. As visões de alcance (`alcance_diretos`, `alcance_todos`) não disputam: cada município onde uma operadora do PTT declara acessos entra no alcance do PTT, mesmo que exista PTT mais próximo, e o mesmo município pode estar no alcance de vários PTTs; nelas o P50, o P80 e o P90 pesam pelos acessos do alcance total. A distância é em linha reta, do centroide do município ao PIX mais próximo; PIX sem coordenada foi posicionado no centroide do município do endereço ou da sede do PTT. O CNPJ liga-se aos ASNs pelo cadastro do SICI (CNPJ do registro do ASN); operadora sem ASN ligado não entra, e um CNPJ com vários ASNs conta os acessos uma vez. Não há exclusão de operadoras. O P50, o P80 e o P90 pesam por acessos; a mediana por operadora conta cada operadora uma vez e mede outra população.",
  "metodo": {
+  "alcance_diretos": "Alcance total, sem disputa entre PTTs: todos os municípios onde as operadoras diretamente conectadas a este PTT declaram acessos ao SICI, mesmo que haja outro PTT mais próximo onde elas também estão.",
+  "alcance_todos": "Alcance total, sem disputa entre PTTs: o mesmo para todas as operadoras com prefixo próprio visto no PTT (diretas e indiretas). Um município pode estar no alcance de vários PTTs.",
   "atribuicao": "Os acessos de cada par (município, CNPJ) vão para o PTT mais próximo entre os que o CNPJ enxerga na visão (união dos PTTs dos ASNs ligados a ele); cada acesso conta uma vez.",
   "diretos": "ASN com sessão própria no PTT e prefixo próprio visto nele.",
   "distancia": "Linha reta (geodésica) do centroide do município ao PIX mais próximo do PTT.",
@@ -232,6 +234,152 @@
    },
    "uf": "SP",
    "visoes": {
+    "alcance_diretos": {
+     "acessos": 232180,
+     "faixas": {
+      "alem_p80": {
+       "acessos": 43269,
+       "municipios": 2
+      },
+      "ate_p50": {
+       "acessos": 115989,
+       "municipios": 7
+      },
+      "p50_a_p80": {
+       "acessos": 72922,
+       "municipios": 3
+      }
+     },
+     "mediana_operadora_km": 700.4,
+     "municipios": 12,
+     "municipios_faixa": {
+      "9900001": [
+       12714,
+       1
+      ],
+      "9900002": [
+       14452,
+       1
+      ],
+      "9900003": [
+       2695,
+       1
+      ],
+      "9900004": [
+       17289,
+       1
+      ],
+      "9900005": [
+       19737,
+       2
+      ],
+      "9900006": [
+       15499,
+       1
+      ],
+      "9900007": [
+       22326,
+       1
+      ],
+      "9900008": [
+       24147,
+       3
+      ],
+      "9900009": [
+       19122,
+       3
+      ],
+      "9900010": [
+       23914,
+       2
+      ],
+      "9900011": [
+       29271,
+       2
+      ],
+      "9900012": [
+       31014,
+       1
+      ]
+     },
+     "operadoras": 24,
+     "p50_km": 844.6,
+     "p80_km": 1466.0,
+     "p90_km": 2686.0
+    },
+    "alcance_todos": {
+     "acessos": 232180,
+     "faixas": {
+      "alem_p80": {
+       "acessos": 43269,
+       "municipios": 2
+      },
+      "ate_p50": {
+       "acessos": 115989,
+       "municipios": 7
+      },
+      "p50_a_p80": {
+       "acessos": 72922,
+       "municipios": 3
+      }
+     },
+     "mediana_operadora_km": 700.4,
+     "municipios": 12,
+     "municipios_faixa": {
+      "9900001": [
+       12714,
+       1
+      ],
+      "9900002": [
+       14452,
+       1
+      ],
+      "9900003": [
+       2695,
+       1
+      ],
+      "9900004": [
+       17289,
+       1
+      ],
+      "9900005": [
+       19737,
+       2
+      ],
+      "9900006": [
+       15499,
+       1
+      ],
+      "9900007": [
+       22326,
+       1
+      ],
+      "9900008": [
+       24147,
+       3
+      ],
+      "9900009": [
+       19122,
+       3
+      ],
+      "9900010": [
+       23914,
+       2
+      ],
+      "9900011": [
+       29271,
+       2
+      ],
+      "9900012": [
+       31014,
+       1
+      ]
+     },
+     "operadoras": 24,
+     "p50_km": 844.6,
+     "p80_km": 1466.0,
+     "p90_km": 2686.0
+    },
     "diretos": {
      "acessos": 93066,
      "faixas": {
@@ -371,6 +519,152 @@
    },
    "uf": "RJ",
    "visoes": {
+    "alcance_diretos": {
+     "acessos": 207899,
+     "faixas": {
+      "alem_p80": {
+       "acessos": 36395,
+       "municipios": 2
+      },
+      "ate_p50": {
+       "acessos": 103734,
+       "municipios": 7
+      },
+      "p50_a_p80": {
+       "acessos": 67770,
+       "municipios": 3
+      }
+     },
+     "mediana_operadora_km": 936.1,
+     "municipios": 12,
+     "municipios_faixa": {
+      "9900001": [
+       11238,
+       1
+      ],
+      "9900002": [
+       12655,
+       1
+      ],
+      "9900003": [
+       3295,
+       1
+      ],
+      "9900004": [
+       13744,
+       1
+      ],
+      "9900005": [
+       14585,
+       2
+      ],
+      "9900006": [
+       15499,
+       1
+      ],
+      "9900007": [
+       16289,
+       1
+      ],
+      "9900008": [
+       17273,
+       3
+      ],
+      "9900009": [
+       19122,
+       3
+      ],
+      "9900010": [
+       23914,
+       2
+      ],
+      "9900011": [
+       29271,
+       2
+      ],
+      "9900012": [
+       31014,
+       1
+      ]
+     },
+     "operadoras": 18,
+     "p50_km": 1116.9,
+     "p80_km": 1456.9,
+     "p90_km": 2093.2
+    },
+    "alcance_todos": {
+     "acessos": 220885,
+     "faixas": {
+      "alem_p80": {
+       "acessos": 36395,
+       "municipios": 2
+      },
+      "ate_p50": {
+       "acessos": 89242,
+       "municipios": 6
+      },
+      "p50_a_p80": {
+       "acessos": 95248,
+       "municipios": 4
+      }
+     },
+     "mediana_operadora_km": 1059.8,
+     "municipios": 12,
+     "municipios_faixa": {
+      "9900001": [
+       11238,
+       1
+      ],
+      "9900002": [
+       14452,
+       1
+      ],
+      "9900003": [
+       3295,
+       1
+      ],
+      "9900004": [
+       13744,
+       1
+      ],
+      "9900005": [
+       19737,
+       2
+      ],
+      "9900006": [
+       15499,
+       1
+      ],
+      "9900007": [
+       22326,
+       2
+      ],
+      "9900008": [
+       17273,
+       3
+      ],
+      "9900009": [
+       19122,
+       3
+      ],
+      "9900010": [
+       23914,
+       2
+      ],
+      "9900011": [
+       29271,
+       2
+      ],
+      "9900012": [
+       31014,
+       1
+      ]
+     },
+     "operadoras": 21,
+     "p50_km": 1059.8,
+     "p80_km": 1456.9,
+     "p90_km": 2093.2
+    },
     "diretos": {
      "acessos": 71790,
      "faixas": {
@@ -481,6 +775,132 @@
    },
    "uf": "PR",
    "visoes": {
+    "alcance_diretos": {
+     "acessos": 141719,
+     "faixas": {
+      "alem_p80": {
+       "acessos": 18122,
+       "municipios": 1
+      },
+      "ate_p50": {
+       "acessos": 71911,
+       "municipios": 5
+      },
+      "p50_a_p80": {
+       "acessos": 51686,
+       "municipios": 3
+      }
+     },
+     "mediana_operadora_km": 1015.7,
+     "municipios": 9,
+     "municipios_faixa": {
+      "9900001": [
+       600,
+       1
+      ],
+      "9900005": [
+       14585,
+       1
+      ],
+      "9900006": [
+       15499,
+       2
+      ],
+      "9900007": [
+       16289,
+       1
+      ],
+      "9900008": [
+       17273,
+       2
+      ],
+      "9900009": [
+       18122,
+       3
+      ],
+      "9900010": [
+       18914,
+       2
+      ],
+      "9900011": [
+       19777,
+       1
+      ],
+      "9900012": [
+       20660,
+       1
+      ]
+     },
+     "operadoras": 9,
+     "p50_km": 1015.7,
+     "p80_km": 2523.5,
+     "p90_km": 2883.9
+    },
+    "alcance_todos": {
+     "acessos": 162492,
+     "faixas": {
+      "alem_p80": {
+       "acessos": 18122,
+       "municipios": 1
+      },
+      "ate_p50": {
+       "acessos": 85810,
+       "municipios": 6
+      },
+      "p50_a_p80": {
+       "acessos": 58560,
+       "municipios": 3
+      }
+     },
+     "mediana_operadora_km": 1015.7,
+     "municipios": 10,
+     "municipios_faixa": {
+      "9900001": [
+       600,
+       1
+      ],
+      "9900004": [
+       3545,
+       1
+      ],
+      "9900005": [
+       14585,
+       1
+      ],
+      "9900006": [
+       15499,
+       2
+      ],
+      "9900007": [
+       16289,
+       1
+      ],
+      "9900008": [
+       24147,
+       2
+      ],
+      "9900009": [
+       18122,
+       3
+      ],
+      "9900010": [
+       18914,
+       2
+      ],
+      "9900011": [
+       19777,
+       1
+      ],
+      "9900012": [
+       31014,
+       1
+      ]
+     },
+     "operadoras": 12,
+     "p50_km": 1015.7,
+     "p80_km": 2523.5,
+     "p90_km": 2883.9
+    },
     "diretos": {
      "acessos": 68524,
      "faixas": {

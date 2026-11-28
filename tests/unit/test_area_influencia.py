@@ -138,3 +138,65 @@ def test_documento_publicado_so_tem_contagens_e_marca_o_pix_aproximado():
     assert doc["ptts"]["p2"]["pix"]["sede"] == 1 and doc["natureza"] == "inferido" and doc["fontes"]["sici"] == "2026-08"
     assert doc["ptts"]["p1"]["visoes"]["todos"]["acessos"] == 100 and doc["ptts"]["p2"]["visoes"]["todos"]["acessos"] == 50
     assert doc["municipios_nomes"] == {"A": "Cidade A/AA", "C": "Cidade C/AA"}
+
+
+def test_alcance_nao_disputa_e_contem_a_influencia_provavel_do_mesmo_ptt():
+    muns = {"A": _mun(X=(100, [1])), "C": _mun(X=(300, [1])), "D": _mun(Y=(50, [2]))}
+    part = {"diretos": {1: {"p1", "p2"}, 2: {"p1"}}, "todos": {1: {"p1", "p2"}, 2: {"p1"}}}
+    r = calcular(muns, CEN, part, PIX)
+    for base, alc in (("diretos", "alcance_diretos"), ("todos", "alcance_todos")):
+        for ptt, prov in r[base]["ptts"].items():
+            a = r[alc]["ptts"][ptt]
+            assert set(prov["municipios_faixa"]) <= set(a["municipios_faixa"]) and a["acessos"] >= prov["acessos"] and a["operadoras"] >= prov["operadoras"]
+            assert all(a["municipios_faixa"][i][0] >= x[0] for i, x in prov["municipios_faixa"].items())
+    p1, p2 = r["alcance_diretos"]["ptts"]["p1"], r["alcance_diretos"]["ptts"]["p2"]
+    assert (p1["municipios"], p1["acessos"], p1["operadoras"]) == (3, 450, 2)          # X em A, C e D; Y em D
+    assert (p2["municipios"], p2["acessos"], p2["operadoras"]) == (2, 400, 1)          # só X, em A e C: Y não enxerga o p2
+    assert "municipios" not in r["alcance_diretos"] and "total" not in r["alcance_diretos"]       # sem índice nacional nem totais
+
+
+def test_municipio_aparece_no_alcance_de_dois_ptts_e_cada_acesso_conta_em_cada_um():
+    muns = {"C": _mun(X=(100, [1]))}
+    part = {"diretos": {1: {"p1", "p2"}}, "todos": {1: {"p1", "p2"}}}
+    r = calcular(muns, CEN, part, PIX)
+    assert r["diretos"]["ptts"]["p2"]["acessos"] == 100 and "p1" not in r["diretos"]["ptts"]       # influência provável: só o mais próximo (p2)
+    assert r["alcance_diretos"]["ptts"]["p1"]["municipios_faixa"]["C"][0] == 100                  # alcance: C nos dois PTTs
+    assert r["alcance_diretos"]["ptts"]["p2"]["municipios_faixa"]["C"][0] == 100
+    assert r["alcance_diretos"]["ptts"]["p1"]["p50_km"] > r["alcance_diretos"]["ptts"]["p2"]["p50_km"] > 0       # a distância é a de cada PTT
+
+
+def test_alcance_diretos_esta_contido_em_alcance_todos_e_usa_a_participacao_da_visao():
+    muns = {"A": _mun(X=(100, [1]), Y=(60, [2])), "C": _mun(Y=(40, [2]))}
+    part = {"diretos": {1: {"p1"}}, "todos": {1: {"p1"}, 2: {"p1", "p2"}}}
+    r = calcular(muns, CEN, part, PIX)
+    d, t = r["alcance_diretos"]["ptts"], r["alcance_todos"]["ptts"]
+    assert set(d) == {"p1"} and set(t) == {"p1", "p2"}
+    for ptt, x in d.items():
+        assert set(x["municipios_faixa"]) <= set(t[ptt]["municipios_faixa"]) and x["acessos"] <= t[ptt]["acessos"] and x["operadoras"] <= t[ptt]["operadoras"]
+    assert d["p1"]["acessos"] == 100 and d["p1"]["municipios"] == 1
+    assert t["p1"]["acessos"] == 200 and t["p2"]["acessos"] == 100                 # Y entra no p1 (A e C) e no p2 (A e C)
+
+
+def test_alcance_pondera_percentis_pelos_acessos_do_alcance_total_e_conta_cnpj_com_varios_asns_uma_vez():
+    cen = {str(i): (float(i), 0.0) for i in range(1, 11)}
+    muns = {str(i): _mun(X=(10, [1, 2])) for i in range(1, 11)}                 # 10 municípios, um CNPJ com dois ASNs, os dois no PTT p
+    part = {"diretos": {1: {"p"}, 2: {"p"}}, "todos": {1: {"p"}, 2: {"p"}}}
+    r = calcular(muns, cen, part, {"p": [(0.0, 0.0, "coordenada")]})["alcance_todos"]["ptts"]["p"]
+    assert r["acessos"] == 100 and r["operadoras"] == 1 and r["municipios"] == 10                                 # acessos uma vez só
+    assert abs(r["p50_km"] - 5 * 111.2) < 1 and abs(r["p80_km"] - 8 * 111.2) < 1 and abs(r["p90_km"] - 9 * 111.2) < 1
+    assert [r["municipios_faixa"][str(i)][1] for i in range(1, 11)] == [1, 1, 1, 1, 1, 2, 2, 2, 3, 3]
+    assert r["faixas"]["ate_p50"] == {"municipios": 5, "acessos": 50}
+
+
+def test_documento_publicado_traz_as_quatro_visoes_por_ptt_e_o_indice_nacional_so_as_duas():
+    sici = {"mes_referencia": "2026-08", "municipios": {"A": {"nome": "Cidade A", "uf": "AA", **_mun(**{"12345678000199": (100, [1])})},
+                                                       "C": {"nome": "Cidade C", "uf": "AA", **_mun(**{"12345678000199": (50, [1])})}}}
+    idx = [{"code": "p1", "name": "Cidade A", "uf": "AA"}, {"code": "p2", "name": "Cidade C", "uf": "AA"}]
+    cadastro = {"p1": [{"name": "x", "address": "", "lat": 0.0, "lon": 0.0}], "p2": [{"name": "y", "address": "", "lat": 0.0, "lon": 2.0}]}
+    part = {"diretos": {1: {"p1", "p2"}}, "todos": {1: {"p1", "p2"}}}
+    doc = montar("2026-11-22", sici, idx, cadastro, CEN, {}, part)
+    assert set(doc["ptts"]["p1"]["visoes"]) == {"diretos", "todos", "alcance_diretos", "alcance_todos"}
+    assert set(doc["municipios"]) == {"diretos", "todos"} and set(doc["totais"]) == {"diretos", "todos"}
+    assert doc["ptts"]["p1"]["visoes"]["diretos"]["acessos"] == 100 and doc["ptts"]["p1"]["visoes"]["alcance_diretos"]["acessos"] == 150     # p1 perde C para o p2 na disputa
+    assert doc["ptts"]["p2"]["visoes"]["alcance_diretos"]["municipios"] == 2
+    assert "12345678000199" not in json.dumps(doc)

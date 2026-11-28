@@ -60,6 +60,21 @@ def test_diretos_nunca_enxerga_mais_do_que_todos_e_os_pix_aproximados_ficam_regi
     assert ops("diretos") > 0 and ops("todos") > 0
 
 
+def test_alcance_contem_a_influencia_provavel_e_diretos_cabe_em_todos(pipeline):
+    base, _ = pipeline
+    d = _doc(base)
+    for code, p in d["ptts"].items():
+        v = p["visoes"]
+        for prov, alc in (("diretos", "alcance_diretos"), ("todos", "alcance_todos")):
+            if v[prov]:
+                assert v[alc] and set(v[prov]["municipios_faixa"]) <= set(v[alc]["municipios_faixa"])
+                assert v[alc]["acessos"] >= v[prov]["acessos"] and v[alc]["operadoras"] >= v[prov]["operadoras"]
+                assert all(v[alc]["municipios_faixa"][i][0] >= x[0] for i, x in v[prov]["municipios_faixa"].items())
+        if v["alcance_diretos"]:
+            assert v["alcance_todos"] and set(v["alcance_diretos"]["municipios_faixa"]) <= set(v["alcance_todos"]["municipios_faixa"])
+    assert set(d["municipios"]) == {"diretos", "todos"} and set(d["totais"]) == {"diretos", "todos"}              # o alcance não entra no índice nacional
+
+
 def test_artefato_nao_traz_cnpj_nem_nome_de_operadora(pipeline):
     base, _ = pipeline
     texto = gzip.open(base / "published" / T1 / ARQUIVO, "rt", encoding="utf-8").read()
