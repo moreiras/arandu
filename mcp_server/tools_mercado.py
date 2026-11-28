@@ -632,3 +632,51 @@ def ixp_assinantes(code: str, limit: int = 25, date: Optional[str] = None) -> di
         "municipios_diretos_total": len(r["municipios_diretos"]), "municipios_diretos": r["municipios_diretos"][:limit],
         "municipios_totais_total": len(r["municipios_totais"]), "municipios_totais": r["municipios_totais"][:limit],
     }
+
+
+@mcp.tool()
+def ixp_area_influencia(code: Optional[str] = None, visao: Optional[str] = None, ibge: Optional[str] = None, limit: int = 25, date: Optional[str] = None) -> dict:
+    """Área de influência observada dos PTTs do IX.br: a que distância atuam as operadoras que aparecem em cada PTT (INFERIDO, não é cobertura de rede).
+
+    Os acessos de banda larga fixa do SICI de cada (município, operadora) vão para o PTT mais próximo entre os que a operadora enxerga na visão: `diretos`
+    (ASN com sessão própria no PTT e prefixo próprio visto nele) ou `todos` (ASN com prefixo próprio visto no PTT, com sessão ou levado por outro participante).
+    Distância em linha reta do centroide do município ao PIX mais próximo. Sem `code` nem `ibge`: o resumo de todos os PTTs na visão. Com `code`: as duas visões do PTT
+    (P50, P80 e P90 da distância ponderada por acessos, mediana por operadora, municípios por faixa; `municipios` traz os `limit` maiores). Com `ibge`: o PTT principal
+    do município e a faixa nele. Faixas: 1 até o P50, 2 até o P80, 3 além. Só contagens, sem nome de operadora. O mês do SICI difere da data do snapshot.
+
+    Args:
+        code: Código do PTT (minúsculo; ex.: "sp", "rj", "vix").
+        visao: "diretos" ou "todos". Omita para as duas (com `code` ou `ibge`) ou use "todos" no resumo.
+        ibge: Código IBGE de 7 dígitos de um município.
+        limit: Quantos municípios listar por visão com `code` (1..200).
+        date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.
+    """
+    from api.services import area_influencia as ai
+
+    d = _resolve(date)
+    if visao is not None and visao not in ai.VISOES:
+        raise ValueError(f"visao inválida: {visao!r}; válidas: {list(ai.VISOES)}")
+    doc = _store.area_influencia_doc(d)
+    if not doc:
+        raise ValueError(f"Área de influência dos PTTs não publicada no snapshot {d}.")
+    limit = max(1, min(limit, 200))
+    if code:
+        r = ai.por_ptt(doc, code.lower(), visao)
+        if r is None:
+            raise ValueError(f"PTT '{code}' sem área de influência no snapshot {d}.")
+        for v in r["visoes"].values():
+            if v:
+                muns = v.pop("municipios_faixa")
+                v["municipios_total"] = len(muns)
+                v["municipios_faixa"] = {i: x for i, x in sorted(muns.items(), key=lambda kv: -kv[1][0])[:limit]}
+        listados = {i for v in r["visoes"].values() if v for i in v["municipios_faixa"]}
+        r["municipios_nomes"] = {i: n for i, n in r["municipios_nomes"].items() if i in listados}
+        return r
+    if ibge:
+        ibge = ibge.strip()
+        linhas = {v: doc["municipios"][v].get(ibge) for v in ai.VISOES if visao in (None, v)}
+        return {"snapshot_date": d, "ibge": ibge, "natureza": doc["natureza"], "limites": doc["limites"], "faixas": doc["faixas"], "fontes": doc["fontes"],
+                "campos": ["ptt_principal", "faixa", "acessos_principal", "acessos_municipio", "ptts"], "visoes": linhas}
+    r = ai.nacional(doc, visao or "todos")
+    r["municipios_total"] = len(r.pop("municipios"))
+    return r

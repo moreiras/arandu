@@ -365,6 +365,29 @@ def test_economic_group_por_cnpj_e_por_id_e_ixp_assinantes(srv, api, ctx):
         call(srv, "ixp_assinantes", {"code": "zz"})
 
 
+def test_ixp_area_influencia_bate_com_a_rota_e_recusa_visao_invalida(srv, api, ctx):
+    """Por PTT, por município e o resumo nacional são os mesmos números da REST; a lista de municípios é cortada em `limit`; sem nome de operadora."""
+    import pytest
+    from mcp.server.fastmcp.exceptions import ToolError
+    from tests.products.api_contract import ALLOWED
+    code = ctx["code"]
+    rota = api.get(f"/api/v1/ixps/{code}/area-influencia", params={"date": ctx["date"]}, headers=ALLOWED).json()
+    t = call(srv, "ixp_area_influencia", {"code": code, "limit": 2})
+    assert t["ixp"] == code and t["pix"] == rota["pix"] and set(t["visoes"]) == {"diretos", "todos"}
+    for v, r in t["visoes"].items():
+        if r:
+            assert r["p50_km"] == rota["visoes"][v]["p50_km"] and r["municipios_total"] == len(rota["visoes"][v]["municipios_faixa"]) and len(r["municipios_faixa"]) <= 2
+    nac = api.get("/api/v1/ixps/area-influencia", params={"date": ctx["date"], "visao": "diretos"}, headers=ALLOWED).json()
+    ibge, linha = next(iter(nac["municipios"].items()))
+    m = call(srv, "ixp_area_influencia", {"ibge": ibge})
+    assert m["visoes"]["diretos"] == linha and "todos" in m["visoes"] and m["natureza"] == "inferido"
+    r = call(srv, "ixp_area_influencia", {"visao": "diretos"})
+    assert r["visao"] == "diretos" and r["municipios_total"] == len(nac["municipios"]) and r["ptts"] == nac["ptts"] and "municipios" not in r
+    assert '"cnpj"' not in json.dumps([t, m, r]) and '"empresa"' not in json.dumps([t, m, r])
+    with pytest.raises(ToolError, match="visao inválida"):
+        call(srv, "ixp_area_influencia", {"visao": "x"})
+
+
 def test_get_prefix_por_ip_e_get_uf_sem_argumento_batem_com_as_rotas(srv, api, ctx):
     """`get_prefix(ip=)` é o /prefixes/lookup; `get_uf()` sem UF é o /ufs."""
     import pytest
@@ -436,7 +459,7 @@ def test_nomes_por_dominio_e_aliases_ocultos(srv):
     dominios = ("asn_", "ixp_", "rota_", "operadora_", "municipio_", "uf_", "outorga_", "infra_", "historico_", "geo_", "cdn_", "facility_", "grupo_")
     fora = sorted(n for n in visiveis if not n.startswith(dominios) and n not in {"query", "describe_schema", "viz"})
     assert fora == [], f"tool visível sem nome de domínio: {fora}"
-    assert len(visiveis) <= 58, f"{len(visiveis)} tools visíveis"   # teto: cada tool nova é uma escolha consciente (+2: contatos com chave)
+    assert len(visiveis) <= 59, f"{len(visiveis)} tools visíveis"   # teto: cada tool nova é uma escolha consciente (+2: contatos com chave; +1: ixp_area_influencia)
     todas = set(srv.mcp._tool_manager._tools)
     assert set(srv.mcp.ocultas) == todas - visiveis
     for antigo in sorted(srv.mcp.ocultas):
@@ -513,7 +536,7 @@ def test_instrucoes_nao_aumentaram(srv):
     # `query`, que os modelos menores não achavam; em troca as descrições das tools caíram de ~42 mil para ~11 mil caracteres (teto do total abaixo)
     assert len(srv.mcp.instructions) <= 6500
     descricoes = sum(len(srv.mcp._tool_manager._tools[n].description or "") for n in tools_of(srv))
-    assert len(srv.mcp.instructions) + descricoes <= 18000, descricoes
+    assert len(srv.mcp.instructions) + descricoes <= 18200, descricoes
 
 
 def test_describe_schema_liga_tarefas_e_collections_a_tools(srv):

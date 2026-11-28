@@ -50,6 +50,7 @@ OVERRIDE = {
     "ixp_communities": lambda c: {"community": c["community"]},
     "facility_detalhe": lambda c: {"id": int(c["fac_id"])},
     "ixp_portas": lambda c: {"code": c["ext_code"]},
+    "ixp_area_influencia": lambda c: {"code": c["code"]},
     "asn_peering": lambda c: {"asn": int(c["asn"])},
     "asn_bloqueios": lambda c: {"asn": int(c["asn_bloqueios"])},
     "asn_radar": lambda c: {"asn": int(c["asn_radar"])},

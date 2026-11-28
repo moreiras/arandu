@@ -901,6 +901,24 @@
    ],
    "tipo": "objeto"
   },
+  "ixp_area_influencia": {
+   "chaves": [
+    "faixas",
+    "fontes",
+    "ixp",
+    "limites",
+    "metodo",
+    "municipios_nomes",
+    "natureza",
+    "nome",
+    "pix",
+    "snapshot_date",
+    "totais",
+    "uf",
+    "visoes"
+   ],
+   "tipo": "objeto"
+  },
   "ixp_assinantes": {
    "chaves": [
     "asns",
@@ -1656,6 +1674,16 @@
     "limit",
     "lon",
     "raio_km"
+   ]
+  },
+  "ixp_area_influencia": {
+   "obrigatorios": [],
+   "parametros": [
+    "code",
+    "date",
+    "ibge",
+    "limit",
+    "visao"
    ]
   },
   "ixp_assinantes": {
