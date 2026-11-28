@@ -21,9 +21,9 @@ const ROTULO: Record<RegiaoVinculo, { texto: string; dica: string; cor: string }
 }
 
 /** Nome dos PTTs (vem na própria resposta de `/regiao`); sem nome, o código. */
-const nomeDosPtts = (nomes: Record<string, string>) => (c: string) => nomes[c] ?? c.toUpperCase()
+export const nomeDosPtts = (nomes: Record<string, string>) => (c: string) => nomes[c] ?? c.toUpperCase()
 
-function ListaPtts({ codigos, nome }: { codigos: string[]; nome: (c: string) => string }) {
+export function ListaPtts({ codigos, nome }: { codigos: string[]; nome: (c: string) => string }) {
   if (codigos.length === 0) return <span className="text-gray-300">—</span>
   return <>{codigos.slice(0, 4).map((c, i) => <span key={c}>{i > 0 && ', '}<Link to={`/ixp/${c}`} className="text-primario-600 hover:underline">{nome(c)}</Link></span>)}{codigos.length > 4 && <span className="text-gray-400"> +{codigos.length - 4}</span>}</>
 }

@@ -20,9 +20,24 @@ describe('CSV das camadas', () => {
   })
 
   it('SCM junta os ASNs com espaço; prefixos e prefixos de PTT têm colunas próprias', () => {
-    expect(linhasCsv([f({ cnpj: '1', asns: [10, 20] })], 'outorgas_scm')!.rows[0][6]).toBe('10 20')
+    expect(linhasCsv([f({ cnpj: '1', asns: [10, 20] })], 'outorgas_scm')!.rows[0][5]).toBe('10 20')
     expect(linhasCsv([f({ prefix_count: 7, ip_version: 4, origin_asn: 64500 })], 'prefixes_v4')!.rows[0]).toEqual(['64500', '4', '', '', '', '7'])
     expect(linhasCsv([f({ block_count: 3, block_unit: '/24', origin_asns: [1, 2], peer_asns: [3] })], 'prefixos_ix_v6')!.rows[0].slice(0, 4)).toEqual(['3', '/24', '1 2', '3'])
+  })
+
+  it('SCM: sem a coluna situacao (vazia em todos os registros) e com as colunas sici_* do balão', () => {
+    const r = linhasCsv([
+      f({ cnpj: '1', uf: 'AM', asns: [], sici_ativo: true, sici_mes_referencia: '2026-09', sici_acessos: 1239, sici_pf: 1000, sici_pj: 239, sici_municipios: 3, sici_tecnologia: 'Fibra' }),
+      f({ cnpj: '2', sici_ativo: 'false', sici_mes_referencia: '2026-09', sici_acessos: 0 }),
+      f({ cnpj: '3' }),
+    ], 'outorgas_scm')!
+    expect(r.headers).not.toContain('situacao')
+    expect(r.headers.slice(5)).toEqual(['asns', 'sici_ativo', 'sici_mes_referencia', 'sici_acessos', 'sici_pf', 'sici_pj', 'sici_municipios', 'sici_tecnologia'])
+    expect(r.rows.every((l) => l.length === r.headers.length)).toBe(true)
+    expect(r.rows[0].slice(5)).toEqual(['', 'sim', '2026-09', '1239', '1000', '239', '3', 'Fibra'])
+    expect(r.rows[1].slice(6, 9)).toEqual(['não', '2026-09', '0'])
+    // snapshot antigo: nada é afirmado, nem "não" nem zero
+    expect(r.rows[2].slice(6)).toEqual(['', '', '', '', '', '', ''])
   })
 
   it('camada sem exportação devolve null', () => {

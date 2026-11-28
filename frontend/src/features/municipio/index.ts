@@ -5,6 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { registrarAbas, registrarBloco, type BlocoDef } from '../entidade/registry'
 import type { MunicipioCtx } from './contexto'
+import { SITE } from '../../lib/site'
 import { InfraBloco } from './blocks/InfraBloco'
 import { MercadoFixoBloco } from './blocks/MercadoFixoBloco'
 import { IndicadoresBloco } from './blocks/IndicadoresBloco'
@@ -16,6 +17,7 @@ import { SerieMercadoBloco } from './blocks/SerieMercadoBloco'
 import { SemelhantesBloco } from './blocks/SemelhantesBloco'
 import { PainelBloco } from './blocks/PainelBloco'
 import { RedeBloco } from './blocks/RedeBloco'
+import { QuemAtendeBloco } from './blocks/QuemAtendeBloco'
 import { CarregadoresRegiaoBloco, ProntidaoRegiaoBloco, ProvedoresRegiaoBloco, PttsRegiaoBloco, TransitoRegiaoBloco } from './blocks/RegiaoBlocos'
 import { ErbsMunicipioBloco } from '../erbs/blocos'
 import { FustMunicipioBloco } from '../regulatorio/blocos'
@@ -39,7 +41,7 @@ const ABA: Record<string, string> = {
   painel: 'resumo',
   'mercado-fixo': 'mercado', 'serie-mercado': 'mercado', indicadores: 'mercado', 'mercado-movel': 'mercado',
   'estacoes-smp': 'infraestrutura', infraestrutura: 'infraestrutura',
-  rede: 'rede', 'regiao-provedores': 'rede', 'regiao-ptts': 'rede', 'regiao-transito': 'rede', 'regiao-carregadores': 'rede', 'regiao-prontidao': 'rede',
+  rede: 'rede', 'quem-atende': 'rede', 'regiao-provedores': 'rede', 'regiao-ptts': 'rede', 'regiao-transito': 'rede', 'regiao-carregadores': 'rede', 'regiao-prontidao': 'rede',
   qualidade: 'qualidade', reclamacoes: 'qualidade', consumidor: 'qualidade', fust: 'qualidade', contratos: 'qualidade',
   penetracao: 'contexto', semelhantes: 'contexto', 'mercado-grupos': 'mercado', 'rede-territorio': 'rede',
 }
@@ -69,6 +71,10 @@ def({ id: 'contratos', titulo: 'Contratos públicos de operadoras (PNCP)', ordem
   nota: 'o município é o do órgão comprador, não o local de entrega; resultados de itens publicados no PNCP em rodízio de coleta; não é ranking nem prova de atendimento; licença do portal não verificada', aplicavel: (c) => !!c.contratos, Componente: ContratosMunicipioBloco })
 def({ id: 'fust', titulo: 'FUST: compromissos no município', ordem: 37, depende: ['useMunicipioPerfil'], fontes: ['anatel_fust'], selo: 'fato',
   nota: 'cadastro da Anatel: não identifica a empresa executora; o valor é o previsto, não o desembolsado', aplicavel: (c) => !!c.fust, Componente: FustMunicipioBloco })
+def({ id: 'quem-atende', titulo: 'Quem atende e como se conecta', ordem: 36, depende: ['useMunicipioPerfil', 'useRegiao'], fontes: ['anatel_sici', 'registro_br', 'lg_ixbr', 'peeringdb_ixps'], selo: 'inferido',
+  nota: 'a operadora entra pelo CNPJ do SICI; o vínculo CNPJ e ASN é inferido; sessão direta em PTT vem do cadastro de participantes do IX.br e não é medida de qualidade',
+  comoLer: `A operadora entra pelo CNPJ declarado ao SICI. Um ASN de operadora nacional aparece em todos os municípios onde ela declara acessos e não indica rede dentro do município. Operadora sem ASN ligado pode ser cliente de trânsito de outra; o ${SITE.nome} não vê essa relação.`,
+  aplicavel: (c) => !!c.regiao && (c.fixo?.operadores?.length ?? 0) > 0, Componente: QuemAtendeBloco })
 def({ id: 'rede', titulo: 'Rede: ASNs das operadoras', ordem: 40, depende: ['useMunicipioPerfil'], fontes: ['registro_br'], selo: 'inferido',
   nota: 'ASNs ligados à operadora pelo CNPJ (Registro.br)', aplicavel: (c) => [...(c.fixo?.operadores ?? []), ...(c.movel?.operadores ?? [])].some((o) => o.asns.length > 0), Componente: RedeBloco })
 def({ id: 'infraestrutura', titulo: 'Infraestrutura: PTTs e transporte', ordem: 50, depende: ['map-pix', 'municipios-centroides', 'useRegiao'], fontes: ['curada_pix', 'lg_ixbr', 'peeringdb_ixps'], selo: 'estimado',

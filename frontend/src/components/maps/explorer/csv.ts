@@ -35,10 +35,16 @@ export function linhasCsv(features: GeoJSON.Feature[], layer: DataLayerId): { he
   }
   if (layer === 'outorgas_scm') {
     return {
-      headers: ['cnpj', 'razao_social', 'nome_fantasia', 'municipio', 'uf', 'situacao', 'asns'],
+      headers: ['cnpj', 'razao_social', 'nome_fantasia', 'municipio', 'uf', 'asns', 'sici_ativo', 'sici_mes_referencia', 'sici_acessos', 'sici_pf', 'sici_pj', 'sici_municipios', 'sici_tecnologia'],
       rows: features.map(f => {
         const p = props(f)
-        return [p.cnpj ?? '', p.razao_social ?? '', p.nome_fantasia ?? '', p.municipio ?? '', p.uf ?? '', p.situacao ?? '', (p.asns ?? []).join(' ')]
+        // Campos do SICI como no balão: sem o campo (snapshot antigo) a célula fica vazia, sem afirmar nada; "sim" e "não" só quando a camada traz `sici_ativo`.
+        const ativo = p.sici_ativo === undefined || p.sici_ativo === null ? '' : p.sici_ativo === true || p.sici_ativo === 'true' ? 'sim' : 'não'
+        const n = (v: unknown) => (v == null || v === '' ? '' : String(v))
+        return [
+          p.cnpj ?? '', p.razao_social ?? '', p.nome_fantasia ?? '', p.municipio ?? '', p.uf ?? '', (p.asns ?? []).join(' '),
+          ativo, p.sici_mes_referencia ?? '', n(p.sici_acessos), n(p.sici_pf), n(p.sici_pj), n(p.sici_municipios), p.sici_tecnologia ?? '',
+        ]
       }),
     }
   }

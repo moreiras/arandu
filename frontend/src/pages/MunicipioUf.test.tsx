@@ -79,7 +79,7 @@ beforeEach(() => {
 
 describe('registro de blocos de município e UF', () => {
   it('município: painel → mercado fixo → mercado móvel → rede → infraestrutura', () => {
-    expect(blocosDe('municipio').map((b) => b.id)).toEqual(['painel', 'penetracao', 'semelhantes', 'mercado-fixo', 'mercado-grupos', 'serie-mercado', 'indicadores', 'mercado-movel', 'estacoes-smp', 'fust', 'qualidade', 'reclamacoes', 'consumidor', 'contratos', 'rede-territorio', 'rede', 'regiao-provedores', 'regiao-ptts', 'regiao-transito', 'regiao-carregadores', 'regiao-prontidao', 'infraestrutura'])
+    expect(blocosDe('municipio').map((b) => b.id)).toEqual(['painel', 'penetracao', 'semelhantes', 'mercado-fixo', 'mercado-grupos', 'serie-mercado', 'indicadores', 'mercado-movel', 'estacoes-smp', 'quem-atende', 'fust', 'qualidade', 'reclamacoes', 'consumidor', 'contratos', 'rede-territorio', 'rede', 'regiao-provedores', 'regiao-ptts', 'regiao-transito', 'regiao-carregadores', 'regiao-prontidao', 'infraestrutura'])
   })
   it('UF: síntese → painel → PTTs → municípios → sem PTT → operadoras → linha do tempo', () => {
     expect(blocosDe('uf').map((b) => b.id)).toEqual(['painel', 'sintese', 'mapa-municipios', 'posicao', 'penetracao', 'tic-domicilios', 'demanda-oferta', 'estacoes-smp', 'fust', 'empresas-telecom', 'declaracao-sici', 'qualidade', 'reclamacoes', 'consumidor', 'prontidao', 'rede-territorio', 'transito', 'radar', 'exposicao', 'ptts', 'mercado-grupos', 'municipios', 'sem-ptt', 'operadoras', 'linha-do-tempo'])
@@ -190,7 +190,7 @@ describe('página de município com raio', () => {
     expect(screen.getByTestId('banner-agregado')).toHaveTextContent('2 municípios')
     expect(screen.getByTestId('resumo-raio')).toHaveTextContent('2 municípios num raio de 30 km')
     // Fibra Vix: 600 (Vitória) + 300 (Vila Velha) = 900 de 1.500 acessos (60%)
-    const linha = screen.getByRole('link', { name: 'Fibra Vix' }).closest('tr')!
+    const linha = screen.getAllByRole('link', { name: 'Fibra Vix' })[0].closest('tr')!
     expect(within(linha).getByText('900')).toBeInTheDocument()
     expect(within(linha).getByText('60%')).toBeInTheDocument()
     expect(screen.getByTestId('mapa-raio-falso')).toHaveTextContent('2+0')
