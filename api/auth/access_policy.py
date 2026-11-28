@@ -57,6 +57,8 @@ _OPEN_PATTERNS: Sequence[str] = (
     r"/feed/mudancas\.atom",          # só confirmados e só as datas atuais, então não abre a série antiga
     r"/ixps",
     r"/ixps/estimated-users",
+    r"/ixps/area-influencia",         # área de influência observada dos PTTs por município (aba do mapa de /ixps); leve, lê só o artefato publicado
+    r"/ixps/[^/]+/area-influencia",   # a mesma, recortada por PTT (bloco da página do PTT)
     r"/ixps/[^/]+/hilbert/v4/detail",
     r"/external-ixps",                # a lista com contagens; o detalhe `/external-ixps/{code}` é `metered`
     r"/asns/ix-presence",

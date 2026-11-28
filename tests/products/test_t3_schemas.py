@@ -66,6 +66,9 @@ def check_published(pub: Path, sample_asns: int | None = None) -> list[str]:
             errs += errors(vx, load(p), f"ixps/{p.name}")
     for name, rel in (("scm", "scm.json.gz"), ("sici", "sici.json.gz"), ("manifest", "manifest.json")):
         errs += errors(validator(name), load(pub / rel), rel)
+    area = pub / "territorio" / "area_influencia_ptt.json.gz"
+    if area.exists():                                # snapshots anteriores ao produto não o têm (a API responde 204 com `opcional`)
+        errs += errors(validator("area_influencia_ptt"), load(area), "territorio/area_influencia_ptt.json.gz")
     return errs
 
 
@@ -95,12 +98,13 @@ def _amostra(pub: Path, name: str):
         return load(pub / "asns" / "index.json")[0]
     if name == "ixp_doc":
         return load(sorted(p for p in (pub / "ixps").glob("*.json") if p.stem not in ("index", "_aggregate"))[0])
-    return load(pub / {"scm": "scm.json.gz", "sici": "sici.json.gz", "manifest": "manifest.json"}[name])
+    return load(pub / {"scm": "scm.json.gz", "sici": "sici.json.gz", "manifest": "manifest.json", "area_influencia_ptt": "territorio/area_influencia_ptt.json.gz"}[name])
 
 
 @pytest.mark.parametrize("name,campo", [
     ("asn_doc", "ixp_presence"), ("asn_doc", "global_prefixes_v4"), ("asn_index_entry", "has_rpki"),
     ("ixp_doc", "snapshot_date"), ("scm", "scms"), ("sici", "cnpjs"), ("manifest", "ixps_collected"),
+    ("area_influencia_ptt", "ptts"), ("area_influencia_ptt", "municipios"),
 ])
 def test_esquema_barra_remocao_de_campo_exigido(pipeline, name, campo):
     base, _ = pipeline
@@ -110,6 +114,18 @@ def test_esquema_barra_remocao_de_campo_exigido(pipeline, name, campo):
     assert campo in doc and campo in schema(name)["required"]
     sem = {k: x for k, x in doc.items() if k != campo}
     assert any("required property" in e.message for e in v.iter_errors(sem))
+
+
+def test_esquema_da_area_de_influencia_barra_faixa_invalida_e_natureza_trocada(pipeline):
+    base, _ = pipeline
+    doc = _amostra(base / "published" / T1, "area_influencia_ptt")
+    ruim = copy.deepcopy(doc)
+    ibge, linha = next(iter(ruim["municipios"]["todos"].items()))
+    linha[1] = 4                                                                  # faixa fora de 1 a 3
+    assert errors(validator("area_influencia_ptt"), ruim, "a")
+    ruim2 = copy.deepcopy(doc)
+    ruim2["natureza"] = "medido"
+    assert errors(validator("area_influencia_ptt"), ruim2, "a")
 
 
 def test_esquema_barra_mudanca_de_tipo(pipeline):

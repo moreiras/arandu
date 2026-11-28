@@ -20,7 +20,7 @@ TAREFAS: list[tuple[str, tuple[str, ...], str]] = [
     ("Achar um AS pelo nome ou buscar vários de uma vez", ("asn_lista", "asn_lote"), "`asn_lista(q=)`; `asn_lote` aceita até 100 ASNs e `fields`."),
     ("Snapshots disponíveis ou resumo de um", ("historico_snapshots",), ""),
     ("Evolução no tempo e o que mudou", ("historico_serie", "historico_mudancas"), "escopo asn:N, ixp:código, operadora:cnpj, uf:XX, brasil."),
-    ("Dados de um IXP", ("ixp_participantes", "ixp_potencial", "ixp_proximos", "ixp_usuarios", "ixp_assinantes", "ixp_externo", "ixp_lista"),
+    ("Dados de um IXP", ("ixp_participantes", "ixp_potencial", "ixp_proximos", "ixp_usuarios", "ixp_assinantes", "ixp_area_influencia", "ixp_externo", "ixp_lista"),
      "`ixp_proximos` = ASes a ≤ raio km do PTT (direct/origin/absent); `ixp_externo` = PeeringDB."),
     ("Um AS nos IXPs ou no mapa", ("asn_rede", "geo_localizar", "cdn_presenca"), ""),
     ("Alcance de um operador (usuários nos PTTs)", ("operadora_resolver", "operadora_alcance"),

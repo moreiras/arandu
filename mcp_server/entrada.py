@@ -42,7 +42,7 @@ _UF_POR_NOME = {v: k for k, v in UFS.items()}
 # Parâmetros que recebem código de PTT do IX.br, por tool (os de PTT externo, como `ixp_externo(code=)`, só vão para minúsculas)
 _PARAM_PTT = {
     "ixp_detalhe": "code", "ixp_participantes": "code", "ixp_potencial": "code", "ixp_proximos": "code", "ixp_usuarios": "code",
-    "ixp_assinantes": "code", "ixp_rejeicoes": "code", "asn_politica": "ixp", "ixp_communities": "ixp", "geo_localizar": "ixp",
+    "ixp_assinantes": "code", "ixp_area_influencia": "code", "ixp_rejeicoes": "code", "asn_politica": "ixp", "ixp_communities": "ixp", "geo_localizar": "ixp",
 }
 _PARAM_PTT_EXTERNO = {"ixp_externo": "code", "ixp_portas": "code"}
 # campos do `query` cujos valores são códigos de PTT do IX.br

@@ -108,6 +108,7 @@
  "mapas_hilbert",
  "snapshot_resumo",
  "decix_rs",
+ "area_influencia_ptt",
  "snapshot_completo",
  "routing_analysis",
  "bgp_updates_routeviews",

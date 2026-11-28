@@ -58,7 +58,7 @@ Autodeclarado; a ausência de declaração de um CNPJ num mês diz só que não 
 ## Quem usa
 
 - **Fontes derivadas:** `bndes_operacoes`, `cgu_ceis_cnep`, `receita_cnpj`, `siasg_contratos`
-- **Produtos:** `asn_docs`, `asn_saude`, `demanda_oferta`, `outorgas`, `penetracao`, `rede_territorio`, `regiao_municipios`, `sici`, `sici_indicadores`
+- **Produtos:** `area_influencia_ptt`, `asn_docs`, `asn_saude`, `demanda_oferta`, `outorgas`, `penetracao`, `rede_territorio`, `regiao_municipios`, `sici`, `sici_indicadores`
 
 ## Pendências (nao_verificado)
 

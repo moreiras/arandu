@@ -1,0 +1,18 @@
+# Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
+id: area_influencia_ptt
+nome: Área de influência observada dos PTTs
+ordem: -46
+modulo: products.area_influencia_ptt.build
+aceita_force: true
+produtos:
+- area_influencia_ptt
+depois_de:
+- sici
+- asn_indice
+- ixp_indice
+- metricas_ixp_asn
+politica_falha: opcional
+replay: true
+replay_se_publicado: territorio/area_influencia_ptt.json.gz
+descricao: 'Passo do build do snapshot: atribui os acessos de banda larga fixa do SICI de cada município e operadora (CNPJ) ao PTT mais próximo entre os que a operadora enxerga, em duas visões (ASNs diretamente conectados, ou todos os que anunciam prefixo próprio no PTT),
+  e publica P50, P80 e P90 da distância, a mediana por operadora, as faixas por município e o PTT principal de cada município. Inferência, com o método e os PTTs de PIX aproximado à vista.'

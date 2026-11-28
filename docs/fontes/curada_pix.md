@@ -48,7 +48,7 @@ Raspagem de página que pode mudar; já houve endereço repetido por engano (Mac
 
 ## Quem usa
 
-- **Produtos:** `mapas_prefixos`
+- **Produtos:** `area_influencia_ptt`, `mapas_prefixos`
 
 ## Pendências (nao_verificado)
 

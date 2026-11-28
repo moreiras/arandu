@@ -408,6 +408,10 @@ def _run_stages(work: Path, date: str, stages: tuple[str, ...], log, original: P
                 from products.rede_territorio import build as rede_territorio
 
                 rede_territorio.publicar_rede_territorio(work, date, log)
+            if original is None or (original / "territorio" / "area_influencia_ptt.json.gz").exists():      # área de influência dos PTTs (depois do SICI e dos documentos de ASN)
+                from products.area_influencia_ptt import build as area_influencia
+
+                area_influencia.publicar_area_influencia(work, date, log)
             coleta_checks.refresh_manifest(work, date, log, checksums=True)
     return timings
 

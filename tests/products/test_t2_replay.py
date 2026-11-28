@@ -9,7 +9,7 @@ import shutil
 import pytest
 
 from scripts import replay
-from tests.products.conftest import fake_ixps, fake_pix
+from tests.products.conftest import fake_ixps, fake_pix, patch_area_influencia
 from tests.synth.world import T1
 
 
@@ -29,6 +29,7 @@ def relatorio(pipeline, tmp_path_factory, monkeypatch_module):
     monkeypatch_module.setattr(snapshot_builder, "load_peeringdb_ixps_config", lambda: {
         "external": [EXTERNAL_IXP], "ixbr": [{"code": c, "pdb_ix_id": 9000 + i} for i, (c, _, _) in enumerate(PTTS)]})
     monkeypatch_module.setattr(Store, "_load_pix_config", lambda self: fake_pix())
+    patch_area_influencia(monkeypatch_module)
     from core import marcas as marcas_mod
     from tests.synth.qualidade import CURADA
 

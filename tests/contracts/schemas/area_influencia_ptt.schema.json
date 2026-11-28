@@ -1,0 +1,111 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Área de influência observada dos PTTs do IX.br",
+ "description": "Contrato T3 do artefato publicado territorio/area_influencia_ptt.json.gz (produto area_influencia_ptt). Escrito à mão e conferido com o dataset sintético; campos novos são permitidos, remoção ou mudança de tipo falham. Nenhum campo traz CNPJ ou nome de operadora.",
+ "type": "object",
+ "required": [
+  "faixas",
+  "fontes",
+  "generated_at",
+  "limites",
+  "metodo",
+  "municipios",
+  "municipios_nomes",
+  "natureza",
+  "ptts",
+  "ptts_com_pix_aproximado",
+  "snapshot_date",
+  "totais"
+ ],
+ "properties": {
+  "snapshot_date": {"type": "string"},
+  "generated_at": {"type": "string"},
+  "natureza": {"const": "inferido"},
+  "limites": {"type": "string"},
+  "metodo": {"type": "object"},
+  "faixas": {"type": "object", "additionalProperties": {"type": "string"}},
+  "fontes": {"type": "object", "required": ["sici"], "properties": {"sici": {"type": ["string", "null"]}}},
+  "ptts_com_pix_aproximado": {"type": "array", "items": {"type": "string"}},
+  "totais": {
+   "type": "object",
+   "required": ["diretos", "todos"],
+   "additionalProperties": {
+    "type": "object",
+    "required": ["acessos", "acessos_atribuidos", "acessos_sem_ptt", "acessos_sem_centroide", "cnpjs_com_varios_asns"],
+    "properties": {
+     "acessos": {"type": "integer"},
+     "acessos_atribuidos": {"type": "integer"},
+     "acessos_sem_ptt": {"type": "integer"},
+     "acessos_sem_centroide": {"type": "integer"},
+     "cnpjs_com_varios_asns": {"type": "integer"}
+    }
+   }
+  },
+  "ptts": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "object",
+    "required": ["nome", "uf", "pix", "visoes"],
+    "properties": {
+     "nome": {"type": "string"},
+     "uf": {"type": ["string", "null"]},
+     "pix": {
+      "type": "object",
+      "required": ["total", "coordenada", "endereco", "sede", "aproximado", "pontos"],
+      "properties": {
+       "total": {"type": "integer"},
+       "coordenada": {"type": "integer"},
+       "endereco": {"type": "integer"},
+       "sede": {"type": "integer"},
+       "aproximado": {"type": "boolean"},
+       "pontos": {
+        "type": "array",
+        "items": {"type": "array", "prefixItems": [{"type": "number"}, {"type": "number"}, {"enum": ["coordenada", "endereco", "sede"]}], "minItems": 3, "maxItems": 3}
+       }
+      }
+     },
+     "visoes": {
+      "type": "object",
+      "required": ["diretos", "todos"],
+      "additionalProperties": {
+       "oneOf": [
+        {"type": "null"},
+        {
+         "type": "object",
+         "required": ["operadoras", "acessos", "municipios", "p50_km", "p80_km", "p90_km", "mediana_operadora_km", "faixas", "municipios_faixa"],
+         "properties": {
+          "operadoras": {"type": "integer"},
+          "acessos": {"type": "integer"},
+          "municipios": {"type": "integer"},
+          "p50_km": {"type": "number"},
+          "p80_km": {"type": "number"},
+          "p90_km": {"type": "number"},
+          "mediana_operadora_km": {"type": "number"},
+          "faixas": {
+           "type": "object",
+           "required": ["ate_p50", "p50_a_p80", "alem_p80"],
+           "additionalProperties": {"type": "object", "required": ["municipios", "acessos"], "properties": {"municipios": {"type": "integer"}, "acessos": {"type": "integer"}}}
+          },
+          "municipios_faixa": {
+           "type": "object",
+           "additionalProperties": {"type": "array", "prefixItems": [{"type": "integer"}, {"enum": [1, 2, 3]}], "minItems": 2, "maxItems": 2}
+          }
+         }
+        }
+       ]
+      }
+     }
+    }
+   }
+  },
+  "municipios": {
+   "type": "object",
+   "required": ["diretos", "todos"],
+   "additionalProperties": {
+    "type": "object",
+    "additionalProperties": {"type": "array", "prefixItems": [{"type": "string"}, {"enum": [1, 2, 3]}, {"type": "integer"}, {"type": "integer"}, {"type": "integer"}], "minItems": 5, "maxItems": 5}
+   }
+  },
+  "municipios_nomes": {"type": "object", "additionalProperties": {"type": "string"}}
+ }
+}

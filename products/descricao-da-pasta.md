@@ -49,6 +49,7 @@ Convenção: `build.py` é o ponto de entrada (`python -m products.<pasta>.build
 | `penetracao/` | `penetracao` | Penetração de banda larga fixa e mercado não visto. |
 | `demanda_oferta/` | `demanda_oferta` | Demanda × oferta de banda larga fixa. |
 | `rede_territorio/` | `rede_territorio` | IPv6 estimado por município, usuários atrás de ROV e dependência de trânsito. |
+| `area_influencia_ptt/` | `area_influencia_ptt` | Área de influência observada dos PTTs do IX.br: distância a que atuam as operadoras, por acessos do SICI, em duas visões. |
 | `regiao/` | `regiao_municipios` | ASNs por município e o que se sabe deles (PTTs, trânsito). |
 | `erbs/` | `erbs` | Estações do SMP licenciadas por município, UF e operadora. |
 | `qualidade/` | `qualidade` | Indicadores de qualidade (RQUAL) e reclamações da Anatel. |

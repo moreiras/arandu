@@ -1,3 +1,4 @@
+import type { AreaInfluenciaNacional, AreaInfluenciaPtt, VisaoArea } from '../types/areaInfluencia'
 import type { BrasilIndicadores,
   Limites,
   HealthResponse,
@@ -1025,6 +1026,15 @@ export interface TerritorioMapa {
   snapshot_date: string; mes_referencia_sici: string; censo_ano: string; pnad_ano: string; indicador: string; rotulo: string; normalizacao: string; total: number
   limites: string; fonte: string; valores: Record<string, number>
 }
+// Área de influência observada dos PTTs: rotas abertas e leves, lidas do artefato publicado (snapshot sem o arquivo: `opcional` = 204, que `get` trata como "HTTP 404").
+const ESQUEMA_AREA_INFLUENCIA = 1
+export function fetchAreaInfluenciaPtt(code: string, date?: string): Promise<AreaInfluenciaPtt> {
+  return get(`/api/v1/ixps/${code}/area-influencia`, { date, esquema: ESQUEMA_AREA_INFLUENCIA, opcional: true })
+}
+export function fetchAreaInfluenciaNacional(visao: VisaoArea, date?: string): Promise<AreaInfluenciaNacional> {
+  return get('/api/v1/ixps/area-influencia', { date, visao, esquema: ESQUEMA_AREA_INFLUENCIA, opcional: true })
+}
+
 export function fetchTerritorioMapa(indicador: string, date?: string): Promise<TerritorioMapa> {
   return get('/api/v1/territorio/mapa', { indicador, date })
 }

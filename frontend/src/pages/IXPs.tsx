@@ -7,7 +7,7 @@ import { useActiveDate } from '../hooks/useSnapshot'
 import { IXPTable } from '../components/tables/IXPTable'
 import { ExternalIXPTable } from '../components/tables/ExternalIXPTable'
 import { SummaryTable } from '../components/tables/SummaryTable'
-import { IXPVoronoiMap } from '../components/maps/IXPVoronoiMap'
+import { AreaInfluenciaAbas } from '../features/ptt/AreaInfluenciaAbas'
 import type { IXPIndexEntry, ExternalIXPIndexEntry, SnapshotSummary } from '../types/api'
 import { CoberturaIxbr } from '../features/panorama/CoberturaIxbr'
 import { rotuloDe } from '../lib/universos'
@@ -156,18 +156,13 @@ function IXPsLista() {
       </details>
 
       <div className="space-y-2">
-        <div className="flex items-baseline justify-between gap-2">
-          <h2 className="text-base font-semibold text-gray-800">
-            Áreas de influência dos PTTs
-          </h2>
-          <span className="text-xs text-gray-600">
-            PTT mais próximo (distância geográfica) · grade 0,12°
-          </span>
-        </div>
+        <h2 className="text-base font-semibold text-gray-800">
+          Áreas de influência dos PTTs
+        </h2>
         {loadingIXPs ? (
           <div className="h-[460px] bg-gray-100 rounded-lg animate-pulse" />
         ) : (
-          <IXPVoronoiMap ixps={ixps} date={date ?? undefined} />
+          <AreaInfluenciaAbas ixps={ixps} date={date ?? undefined} />
         )}
       </div>
 

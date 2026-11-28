@@ -89,6 +89,7 @@ from api.routes import bloqueios
 from api.routes import radar as radar_routes
 from api.routes import contratos as contratos_routes
 from api.routes import exposicao as exposicao_routes
+from api.routes import area_influencia as area_influencia_routes
 from core.common import app_version, data_dir
 
 _log = logging.getLogger("arandurape")
@@ -555,6 +556,7 @@ app.include_router(exposicao_routes.router, prefix="/api/v1", tags=["exposicao"]
 app.include_router(instalacoes.router, prefix="/api/v1", tags=["instalacoes"])
 app.include_router(historico.router, prefix="/api/v1", tags=["historico"])      # antes de snapshots: /snapshots/diff não pode cair em /snapshots/{date_str}
 app.include_router(snapshots.router, prefix="/api/v1", tags=["snapshots"])
+app.include_router(area_influencia_routes.router, prefix="/api/v1", tags=["ixps"])      # antes de ixps: /ixps/area-influencia não pode cair em /ixps/{code}
 app.include_router(ixps.router, prefix="/api/v1", tags=["ixps"])
 app.include_router(ixp_geo.router, prefix="/api/v1", tags=["ixps"])
 app.include_router(external_ixps.router, prefix="/api/v1", tags=["external-ixps"])

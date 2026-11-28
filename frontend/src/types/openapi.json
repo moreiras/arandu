@@ -11129,6 +11129,76 @@
     ]
    }
   },
+  "/api/v1/ixps/area-influencia": {
+   "get": {
+    "description": "Para cada município, o PTT principal (o que recebe mais acessos do município), a faixa do município nesse PTT, os acessos atribuídos a ele e no município e o número de PTTs que recebem acessos do município,\nna visão pedida (`visao`: `diretos` ou `todos`, padrão `todos`). Traz também o resumo de cada PTT na visão (P50, P80 e P90 da distância ponderada por acessos, mediana por operadora, faixas) e os PTTs com PIX\nposicionado por aproximação. Os `municipios` são listas na ordem de `campos_municipio`. Cacheada por snapshot.\n\n**Inferência, não cobertura de rede.** Os acessos de banda larga fixa declarados ao SICI por município e operadora (CNPJ) são atribuídos ao PTT mais próximo entre os que a operadora enxerga na visão\n(`diretos`: ASN com sessão própria no PTT e prefixo próprio visto nele; `todos`: ASN com prefixo próprio visto no PTT, com sessão ou levado por outro participante). A distância é em linha reta do centroide do município\nao PIX mais próximo do PTT. Não há exclusão de operadoras, e o produto não traz nome de operadora, só contagens. O mês do SICI difere da data do snapshot. Faixas: 1 até o P50, 2 acima do P50 até o P80, 3 acima do P80.",
+    "operationId": "area_influencia_nacional_api_v1_ixps_area_influencia_get",
+    "parameters": [
+     {
+      "description": "`diretos` ou `todos`.",
+      "in": "query",
+      "name": "visao",
+      "required": false,
+      "schema": {
+       "default": "todos",
+       "description": "`diretos` ou `todos`.",
+       "enum": [
+        "diretos",
+        "todos"
+       ],
+       "title": "Visao",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Data do snapshot (YYYY-MM-DD).",
+      "in": "query",
+      "name": "date",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Data do snapshot (YYYY-MM-DD).",
+       "title": "Date"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Area Influencia Nacional Api V1 Ixps Area Influencia Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Área de influência observada dos PTTs, por município (país)",
+    "tags": [
+     "ixps"
+    ]
+   }
+  },
   "/api/v1/ixps/estimated-users": {
    "get": {
     "description": "Retorna `{code: estimated_users}` para todos os IXes — usuários finais BR estimados\nvisíveis via cada IXP (IPv4). Mesma metodologia de `/ixps/{code}/estimated-users`.\nCacheado por snapshot — use `staleTime: Infinity`.",
@@ -11260,6 +11330,91 @@
      }
     },
     "summary": "Documento completo de um IXP",
+    "tags": [
+     "ixps"
+    ]
+   }
+  },
+  "/api/v1/ixps/{code}/area-influencia": {
+   "get": {
+    "description": "Para o PTT, nas duas visões (ou só na pedida em `visao`): operadoras (CNPJs), municípios e acessos atribuídos; P50, P80 e P90 da distância em km (peso por acessos); a mediana por operadora (cada operadora conta 1,\noutra população que o P50); municípios e acessos por faixa; e, por município, os acessos atribuídos e a faixa. `pix` diz quantos PIX têm coordenada, quantos foram posicionados no centroide do município do\nendereço ou da sede, e os pontos usados no cálculo. Visão sem nenhuma operadora atribuída ao PTT vem `null`. Cacheada por snapshot.\n\n**Inferência, não cobertura de rede.** Os acessos de banda larga fixa declarados ao SICI por município e operadora (CNPJ) são atribuídos ao PTT mais próximo entre os que a operadora enxerga na visão\n(`diretos`: ASN com sessão própria no PTT e prefixo próprio visto nele; `todos`: ASN com prefixo próprio visto no PTT, com sessão ou levado por outro participante). A distância é em linha reta do centroide do município\nao PIX mais próximo do PTT. Não há exclusão de operadoras, e o produto não traz nome de operadora, só contagens. O mês do SICI difere da data do snapshot. Faixas: 1 até o P50, 2 acima do P50 até o P80, 3 acima do P80.",
+    "operationId": "area_influencia_ptt_api_v1_ixps__code__area_influencia_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "code",
+      "required": true,
+      "schema": {
+       "title": "Code",
+       "type": "string"
+      }
+     },
+     {
+      "description": "`diretos` ou `todos`; sem o parâmetro vêm as duas.",
+      "in": "query",
+      "name": "visao",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "diretos",
+          "todos"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "`diretos` ou `todos`; sem o parâmetro vêm as duas.",
+       "title": "Visao"
+      }
+     },
+     {
+      "description": "Data do snapshot (YYYY-MM-DD).",
+      "in": "query",
+      "name": "date",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Data do snapshot (YYYY-MM-DD).",
+       "title": "Date"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Area Influencia Ptt Api V1 Ixps  Code  Area Influencia Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Área de influência observada de um PTT",
     "tags": [
      "ixps"
     ]

@@ -90,10 +90,14 @@
   sem_mcp: "a comparação sai de query(collection=asns) com ixps_sessao_rs contains X e ncontains Y (álgebra de conjuntos, ver as instruções) ou de ixp_participantes de cada PTT"
 - http: GET /ixps
   mcp: ixp_lista
+- http: GET /ixps/area-influencia
+  mcp: ixp_area_influencia
 - http: GET /ixps/estimated-users
   mcp: ixp_usuarios
 - http: GET /ixps/{code}
   mcp: ixp_detalhe
+- http: GET /ixps/{code}/area-influencia
+  mcp: ixp_area_influencia
 - http: GET /ixps/{code}/assinantes
   mcp: ixp_assinantes
 - http: GET /ixps/{code}/estimated-users

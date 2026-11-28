@@ -103,6 +103,9 @@ DESCRICOES: dict[str, str] = {
         'Assinantes de banda larga fixa (SICI, Anatel) alcançáveis via os peers de um PTT, diretos e dos clientes deles. '
         'Args: code, limit.'
     ),
+    'ixp_area_influencia': (
+        'Até onde atuam as operadoras de um PTT (inferido, não é cobertura): P50/P80/P90 por acessos SICI, em duas visões. Args: code, visao, ibge.'
+    ),
     'ixp_communities': (
         'Communities dos route servers do IX.br: significado e quem usa. community exata (ex.: "65535:666") ou busca q '
         '(trecho, rótulo ou ASN-alvo de "não exportar para"). Args: community, q, ixp, classe.'

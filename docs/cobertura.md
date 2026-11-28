@@ -4,9 +4,9 @@ Gerado por `python3 scripts/gen_cobertura.py` a partir do OpenAPI, do MCP, do fr
 Não edite à mão. Rota nova precisa de uma entrada em `serve/capabilities/_manuais.yaml` (ou de uma capacidade declarada); lacuna
 sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rotas que os substituem.
 
-- Rotas de dados (GET, não deprecated): **179**; com tool no MCP: **142**; consumidas pela interface: **147**.
+- Rotas de dados (GET, não deprecated): **181**; com tool no MCP: **144**; consumidas pela interface: **149**.
 - Pendências marcadas (`pendente:`): **0**; lacunas sem justificativa: **0**.
-- Tools do MCP geradas de capacidade declarada: **2** de 58.
+- Tools do MCP geradas de capacidade declarada: **2** de 59.
 
 | Rota | MCP | UI | Observação |
 |---|---|---|---|
@@ -108,8 +108,10 @@ sem justificativa falha o CI. Alias `deprecated` ficam de fora: valem pelas rota
 | `GET /ipv4/uso-por-terceiros` | `query:uso_por_terceiros_ipv4` | ✔ |  |
 | `GET /ixp-compare/members` | — | ✔ | MCP: a comparação sai de query(collection=asns) com ixps_sessao_rs contains X e ncontains Y (álgebra de conjuntos, ver as instruções) ou de ixp_participantes de cada PTT |
 | `GET /ixps` | `ixp_lista` | ✔ |  |
+| `GET /ixps/area-influencia` | `ixp_area_influencia` | ✔ |  |
 | `GET /ixps/estimated-users` | `ixp_usuarios` | ✔ |  |
 | `GET /ixps/{code}` | `ixp_detalhe` | ✔ |  |
+| `GET /ixps/{code}/area-influencia` | `ixp_area_influencia` | ✔ |  |
 | `GET /ixps/{code}/assinantes` | `ixp_assinantes` | ✔ |  |
 | `GET /ixps/{code}/estimated-users` | `ixp_usuarios` | ✔ |  |
 | `GET /ixps/{code}/facilities` | `facility_lista` | ✔ |  |

@@ -2489,6 +2489,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ixps/area-influencia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Área de influência observada dos PTTs, por município (país)
+         * @description Para cada município, o PTT principal (o que recebe mais acessos do município), a faixa do município nesse PTT, os acessos atribuídos a ele e no município e o número de PTTs que recebem acessos do município,
+         *     na visão pedida (`visao`: `diretos` ou `todos`, padrão `todos`). Traz também o resumo de cada PTT na visão (P50, P80 e P90 da distância ponderada por acessos, mediana por operadora, faixas) e os PTTs com PIX
+         *     posicionado por aproximação. Os `municipios` são listas na ordem de `campos_municipio`. Cacheada por snapshot.
+         *
+         *     **Inferência, não cobertura de rede.** Os acessos de banda larga fixa declarados ao SICI por município e operadora (CNPJ) são atribuídos ao PTT mais próximo entre os que a operadora enxerga na visão
+         *     (`diretos`: ASN com sessão própria no PTT e prefixo próprio visto nele; `todos`: ASN com prefixo próprio visto no PTT, com sessão ou levado por outro participante). A distância é em linha reta do centroide do município
+         *     ao PIX mais próximo do PTT. Não há exclusão de operadoras, e o produto não traz nome de operadora, só contagens. O mês do SICI difere da data do snapshot. Faixas: 1 até o P50, 2 acima do P50 até o P80, 3 acima do P80.
+         */
+        get: operations["area_influencia_nacional_api_v1_ixps_area_influencia_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/ixps/estimated-users": {
         parameters: {
             query?: never;
@@ -2536,6 +2562,32 @@ export interface paths {
          *     Consulte `/api/v1/ixps` para a lista completa.
          */
         get: operations["get_ixp_api_v1_ixps__code__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ixps/{code}/area-influencia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Área de influência observada de um PTT
+         * @description Para o PTT, nas duas visões (ou só na pedida em `visao`): operadoras (CNPJs), municípios e acessos atribuídos; P50, P80 e P90 da distância em km (peso por acessos); a mediana por operadora (cada operadora conta 1,
+         *     outra população que o P50); municípios e acessos por faixa; e, por município, os acessos atribuídos e a faixa. `pix` diz quantos PIX têm coordenada, quantos foram posicionados no centroide do município do
+         *     endereço ou da sede, e os pontos usados no cálculo. Visão sem nenhuma operadora atribuída ao PTT vem `null`. Cacheada por snapshot.
+         *
+         *     **Inferência, não cobertura de rede.** Os acessos de banda larga fixa declarados ao SICI por município e operadora (CNPJ) são atribuídos ao PTT mais próximo entre os que a operadora enxerga na visão
+         *     (`diretos`: ASN com sessão própria no PTT e prefixo próprio visto nele; `todos`: ASN com prefixo próprio visto no PTT, com sessão ou levado por outro participante). A distância é em linha reta do centroide do município
+         *     ao PIX mais próximo do PTT. Não há exclusão de operadoras, e o produto não traz nome de operadora, só contagens. O mês do SICI difere da data do snapshot. Faixas: 1 até o P50, 2 acima do P50 até o P80, 3 acima do P80.
+         */
+        get: operations["area_influencia_ptt_api_v1_ixps__code__area_influencia_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -9866,6 +9918,42 @@ export interface operations {
             };
         };
     };
+    area_influencia_nacional_api_v1_ixps_area_influencia_get: {
+        parameters: {
+            query?: {
+                /** @description `diretos` ou `todos`. */
+                visao?: "diretos" | "todos";
+                /** @description Data do snapshot (YYYY-MM-DD). */
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     all_ixp_estimated_users_api_v1_ixps_estimated_users_get: {
         parameters: {
             query?: {
@@ -9923,6 +10011,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["IXPDocumentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    area_influencia_ptt_api_v1_ixps__code__area_influencia_get: {
+        parameters: {
+            query?: {
+                /** @description `diretos` ou `todos`; sem o parâmetro vêm as duas. */
+                visao?: ("diretos" | "todos") | null;
+                /** @description Data do snapshot (YYYY-MM-DD). */
+                date?: string | null;
+            };
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */
