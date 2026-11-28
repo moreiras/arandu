@@ -1,7 +1,7 @@
 # Catálogo do Arandurapé. Edite aqui; `python3 scripts/gen_docs.py` regenera docs/.
 id: area_influencia_ptt
 nome: Área de influência observada dos PTTs do IX.br
-descricao: Por PTT e em duas visões (só os ASNs diretamente conectados, ou todos os que anunciam prefixo próprio no PTT), a que distância atuam as operadoras que aparecem nele, medida pelos acessos de banda larga fixa
+descricao: Por PTT e em quatro visões (influência provável e alcance, cada uma para só os ASNs diretamente conectados ou para todos os que anunciam prefixo próprio no PTT), a que distância atuam as operadoras que aparecem nele, medida pelos acessos de banda larga fixa
   do SICI por município. Traz P50, P80 e P90 da distância ponderada por acessos, a mediana por operadora, as faixas por município e o PTT principal de cada município. Inferência, não cobertura de rede.
 modulo: products.area_influencia_ptt.build
 entradas:
@@ -18,10 +18,10 @@ saidas:
   publicado:
   - territorio/area_influencia_ptt.json.gz
 campos:
-- nome: ptts[code].visoes[diretos|todos]
+- nome: ptts[code].visoes[diretos|todos|alcance_diretos|alcance_todos]
   tipo: dict
-  significado: Operadoras (CNPJs), municípios e acessos atribuídos ao PTT; P50, P80 e P90 da distância em km (peso por acessos); mediana por operadora (cada operadora conta 1); municípios e acessos por faixa; e, por município, os acessos atribuídos e a faixa (1 até o P50, 2 até o P80, 3 além). `null` quando nenhuma operadora é atribuída ao PTT na visão.
-  tratamento: INFERIDO. Os acessos de cada par (município, CNPJ) vão para o PTT mais próximo entre os que o CNPJ enxerga na visão (união dos PTTs dos ASNs ligados ao CNPJ pelo SICI); cada acesso conta uma vez, mesmo num CNPJ com vários ASNs. Linha reta do centroide do município ao PIX mais próximo. Sem exclusão de operadoras. Nenhum nome de operadora é publicado, só contagens.
+  significado: Operadoras (CNPJs), municípios e acessos atribuídos ao PTT; P50, P80 e P90 da distância em km (peso por acessos); mediana por operadora (cada operadora conta 1); municípios e acessos por faixa; e, por município, os acessos atribuídos e a faixa (1 até o P50, 2 até o P80, 3 além). `null` quando nenhuma operadora é atribuída ao PTT na visão. As visões `alcance_*` valem só por PTT (não entram em `municipios` nem em `totais`).
+  tratamento: INFERIDO. Em `diretos` e `todos`, os acessos de cada par (município, CNPJ) vão para o PTT mais próximo entre os que o CNPJ enxerga na visão (união dos PTTs dos ASNs ligados ao CNPJ pelo SICI); cada acesso conta uma vez, mesmo num CNPJ com vários ASNs. Linha reta do centroide do município ao PIX mais próximo. Sem exclusão de operadoras. Em `alcance_diretos` e `alcance_todos` (mesma participação de `diretos` e `todos`) não há disputa, e todo par (município, CNPJ) cuja operadora está no PTT entra no alcance dele, mesmo com outro PTT mais próximo, e um município pode estar no alcance de vários PTTs (os acessos contam em cada um, sem somar entre PTTs); percentis e faixas pesam pelos acessos do alcance total. Nenhum nome de operadora é publicado, só contagens.
   publicado_em:
   - area_influencia_ptt → territorio/area_influencia_ptt.json.gz#ptts
 - nome: ptts[code].pix

@@ -24,11 +24,22 @@ export const VISAO_TODOS: AreaInfluenciaVisao = {
   municipios_faixa: { '9900001': [300, 1], '9900002': [150, 1], '9900004': [250, 2], '9900005': [200, 3] },
 }
 
+export const VISAO_ALCANCE_DIRETOS: AreaInfluenciaVisao = {
+  operadoras: 4, municipios: 4, acessos: 800, p50_km: 40, p80_km: 300, p90_km: 520, mediana_operadora_km: 70,
+  faixas: { ate_p50: { municipios: 2, acessos: 450 }, p50_a_p80: { municipios: 1, acessos: 200 }, alem_p80: { municipios: 1, acessos: 150 } },
+  municipios_faixa: { '9900001': [300, 1], '9900002': [150, 1], '9900004': [200, 2], '9900005': [150, 3] },
+}
+export const VISAO_ALCANCE_TODOS: AreaInfluenciaVisao = {
+  operadoras: 6, municipios: 4, acessos: 1100, p50_km: 60, p80_km: 350, p90_km: 610, mediana_operadora_km: 90,
+  faixas: { ate_p50: { municipios: 2, acessos: 500 }, p50_a_p80: { municipios: 1, acessos: 300 }, alem_p80: { municipios: 1, acessos: 300 } },
+  municipios_faixa: { '9900001': [350, 1], '9900002': [150, 1], '9900004': [300, 2], '9900005': [300, 3] },
+}
+
 export const AREA_PTT: AreaInfluenciaPtt = {
   ...meta, ixp: 'za', nome: 'Arandurápolis', uf: 'SP',
   pix: { total: 2, coordenada: 1, endereco: 0, sede: 1, aproximado: true, pontos: [[-23.6, -46.7, 'coordenada'], [-23.5, -46.6, 'sede']] },
   totais: { diretos: totais, todos: totais },
-  visoes: { diretos: VISAO_DIRETOS, todos: VISAO_TODOS },
+  visoes: { diretos: VISAO_DIRETOS, todos: VISAO_TODOS, alcance_diretos: VISAO_ALCANCE_DIRETOS, alcance_todos: VISAO_ALCANCE_TODOS },
   municipios_nomes: { '9900001': 'Arandurápolis/SP', '9900002': 'Tupãnópolis/RJ', '9900004': 'Itapuãzinho/SP', '9900005': 'Curumim do Sul/RS' },
 }
 

@@ -647,13 +647,15 @@ def ixp_area_influencia(code: Optional[str] = None, visao: Optional[str] = None,
 
     Os acessos de banda larga fixa do SICI de cada (município, operadora) vão para o PTT mais próximo entre os que a operadora enxerga na visão: `diretos`
     (ASN com sessão própria no PTT e prefixo próprio visto nele) ou `todos` (ASN com prefixo próprio visto no PTT, com sessão ou levado por outro participante).
-    Distância em linha reta do centroide do município ao PIX mais próximo. Sem `code` nem `ibge`: o resumo de todos os PTTs na visão. Com `code`: as duas visões do PTT
+    Só com `code` há ainda `alcance_diretos` e `alcance_todos`: as mesmas operadoras, sem disputa entre PTTs (todo município onde elas declaram acessos entra no alcance do PTT, mesmo
+    com outro PTT mais próximo; um município pode estar no alcance de vários PTTs).
+    Distância em linha reta do centroide do município ao PIX mais próximo. Sem `code` nem `ibge`: o resumo de todos os PTTs na visão. Com `code`: as quatro visões do PTT
     (P50, P80 e P90 da distância ponderada por acessos, mediana por operadora, municípios por faixa; `municipios` traz os `limit` maiores). Com `ibge`: o PTT principal
     do município e a faixa nele. Faixas: 1 até o P50, 2 até o P80, 3 além. Só contagens, sem nome de operadora. O mês do SICI difere da data do snapshot.
 
     Args:
         code: Código do PTT (minúsculo; ex.: "sp", "rj", "vix").
-        visao: "diretos" ou "todos". Omita para as duas (com `code` ou `ibge`) ou use "todos" no resumo.
+        visao: "diretos" ou "todos"; com `code` também "alcance_diretos" e "alcance_todos". Omita para todas as visões do PTT (com `code`), as duas do município (com `ibge`) ou use "todos" no resumo.
         ibge: Código IBGE de 7 dígitos de um município.
         limit: Quantos municípios listar por visão com `code` (1..200).
         date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.
@@ -661,8 +663,9 @@ def ixp_area_influencia(code: Optional[str] = None, visao: Optional[str] = None,
     from api.services import area_influencia as ai
 
     d = _resolve(date)
-    if visao is not None and visao not in ai.VISOES:
-        raise ValueError(f"visao inválida: {visao!r}; válidas: {list(ai.VISOES)}")
+    validas = ai.VISOES_PTT if code else ai.VISOES
+    if visao is not None and visao not in validas:
+        raise ValueError(f"visao inválida: {visao!r}; válidas: {list(validas)}")
     doc = _store.area_influencia_doc(d)
     if not doc:
         raise ValueError(f"Área de influência dos PTTs não publicada no snapshot {d}.")

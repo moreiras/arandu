@@ -5,8 +5,8 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { describe, expect, it } from 'vitest'
 import { COR_SEM_DADO } from '../components/maps/coresCoropletico'
-import { VISAO_DIRETOS, VISAO_TODOS } from '../features/ptt/areaInfluencia.fixture'
-import { corPtt, expressaoFaixas, expressaoPrincipal, formatarKm, frasesArea, MATIZES, matizesPorPtt, pct, TONS_UM_MATIZ } from './areaInfluencia'
+import { VISAO_ALCANCE_DIRETOS, VISAO_ALCANCE_TODOS, VISAO_DIRETOS, VISAO_TODOS } from '../features/ptt/areaInfluencia.fixture'
+import { corPtt, expressaoFaixas, expressaoPrincipal, formatarKm, frasesAlcance, frasesArea, MATIZES, matizesPorPtt, pct, TONS_UM_MATIZ } from './areaInfluencia'
 
 describe('formatarKm e pct', () => {
   it('arredonda para km inteiro com separador de milhar e trata menos de 1 km', () => {
@@ -94,5 +94,22 @@ describe('frasesArea', () => {
   it('o texto não tem travessão nem "(s)"', () => {
     const f = frasesArea(VISAO_DIRETOS, VISAO_TODOS)
     expect(Object.values(f).join(' ')).not.toMatch(/[—–]|\(s\)/)
+  })
+})
+
+describe('frasesAlcance', () => {
+  it('diz o alcance sem descontar PTTs mais próximos, com os números das duas visões', () => {
+    const f = frasesAlcance(VISAO_ALCANCE_DIRETOS, VISAO_ALCANCE_TODOS)
+    expect(f.diretos).toBe('Considerando todos os municípios onde atuam as operadoras diretamente conectadas, sem descontar PTTs mais próximos, a maioria (P50) está a até 40 km; quase todos (P80), a até 300 km; o P90 é 520 km.')
+    expect(f.todos).toMatch(/^Considerando todos os municípios onde atuam as operadoras que anunciam pelo PTT, diretas e indiretas, sem descontar PTTs mais próximos, a maioria \(P50\) está a até 60 km; quase todos \(P80\), a até 350 km; o P90 é 610 km\./)
+    expect(f.todos).toContain('O alcance reúne 6 operadoras em 4 municípios, contra 4 em 4 só com as conectadas.')
+    expect(f.mediana).toContain('No alcance, a mediana por operadora é de 90 km')
+    expect(Object.values(f).join(' ')).not.toMatch(/[—–]|\(s\)/)
+  })
+
+  it('usa o singular pelo número e diz quando uma visão não tem operadoras', () => {
+    const um = { ...VISAO_ALCANCE_TODOS, operadoras: 1, municipios: 1 }
+    expect(frasesAlcance(null, um).todos).toContain('O alcance reúne 1 operadora em 1 município.')
+    expect(frasesAlcance(null, null)).toEqual({ diretos: expect.stringMatching(/^Nenhum participante diretamente conectado/), todos: expect.stringMatching(/^Nenhum ASN com prefixo próprio/), mediana: null })
   })
 })

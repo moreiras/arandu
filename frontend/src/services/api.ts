@@ -1027,7 +1027,7 @@ export interface TerritorioMapa {
   limites: string; fonte: string; valores: Record<string, number>
 }
 // Área de influência observada dos PTTs: rotas abertas e leves, lidas do artefato publicado (snapshot sem o arquivo: `opcional` = 204, que `get` trata como "HTTP 404").
-const ESQUEMA_AREA_INFLUENCIA = 1
+const ESQUEMA_AREA_INFLUENCIA = 2
 export function fetchAreaInfluenciaPtt(code: string, date?: string): Promise<AreaInfluenciaPtt> {
   return get(`/api/v1/ixps/${code}/area-influencia`, { date, esquema: ESQUEMA_AREA_INFLUENCIA, opcional: true })
 }

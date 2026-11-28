@@ -5,12 +5,19 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import { COR_SEM_DADO } from '../components/maps/coresCoropletico'
 import { palavra } from './sintese'
-import type { AreaInfluenciaVisao, VisaoArea } from '../types/areaInfluencia'
+import type { AreaInfluenciaVisao, VisaoArea, VisaoAreaPtt } from '../types/areaInfluencia'
 
 /** Faixa de um município num PTT: 1 até o P50 (onde atua a maioria), 2 do P50 ao P80 (quase todos), 3 além do P80 (os restantes). */
 export type Faixa = 1 | 2 | 3
 
 export const ROTULO_VISAO: Record<VisaoArea, string> = { diretos: 'Só diretamente conectados', todos: 'Todos que anunciam no PTT' }
+/** As quatro visões da página do PTT, na ordem do seletor. */
+export const VISOES_PTT: VisaoAreaPtt[] = ['diretos', 'todos', 'alcance_diretos', 'alcance_todos']
+export const ROTULO_VISAO_PTT: Record<VisaoAreaPtt, string> = {
+  diretos: 'Influência provável dos diretamente conectados', todos: 'Influência provável de todos que anunciam',
+  alcance_diretos: 'Alcance dos diretamente conectados', alcance_todos: 'Alcance de todos que anunciam',
+}
+export const ehAlcance = (v: VisaoAreaPtt): boolean => v === 'alcance_diretos' || v === 'alcance_todos'
 export const ROTULO_FAIXA: Record<Faixa, string> = { 1: 'Até o P50 (onde atua a maioria)', 2: 'Do P50 ao P80 (quase todos)', 3: 'Além do P80 (os restantes)' }
 export const ROTULO_FAIXA_CURTO: Record<Faixa, string> = { 1: 'até o P50', 2: 'do P50 ao P80', 3: 'além do P80' }
 
@@ -99,6 +106,23 @@ export function frasesArea(diretos: AreaInfluenciaVisao | null | undefined, todo
   const med = todos ?? diretos
   const mediana = med
     ? `A mediana por operadora é de ${km(med.mediana_operadora_km)} (cada operadora conta uma vez). Ela mede outra população que o P50, que pesa por acessos.`
+    : null
+  return { diretos: dirs, todos: tod, mediana }
+}
+
+/** Frases das visões de alcance (sem descontar PTTs mais próximos). Visão sem operadoras diz isso, sem inventar distância. */
+export function frasesAlcance(diretos: AreaInfluenciaVisao | null | undefined, todos: AreaInfluenciaVisao | null | undefined): { diretos: string; todos: string; mediana: string | null } {
+  const dirs = diretos
+    ? `Considerando todos os municípios onde atuam as operadoras diretamente conectadas, sem descontar PTTs mais próximos, a maioria (P50) está a até ${km(diretos.p50_km)}; quase todos (P80), a até ${km(diretos.p80_km)}; o P90 é ${km(diretos.p90_km)}.`
+    : 'Nenhum participante diretamente conectado com prefixo próprio visto neste PTT tem acessos de banda larga fixa no alcance dele.'
+  const tod = todos
+    ? `Considerando todos os municípios onde atuam as operadoras que anunciam pelo PTT, diretas e indiretas, sem descontar PTTs mais próximos, a maioria (P50) está a até ${km(todos.p50_km)}; quase todos (P80), a até ${km(todos.p80_km)}; o P90 é ${km(todos.p90_km)}.`
+      + ` O alcance reúne ${todos.operadoras.toLocaleString('pt-BR')} ${palavra(todos.operadoras, 'operadora', 'operadoras')} em ${todos.municipios.toLocaleString('pt-BR')} ${palavra(todos.municipios, 'município', 'municípios')}`
+      + (diretos ? `, contra ${diretos.operadoras.toLocaleString('pt-BR')} em ${diretos.municipios.toLocaleString('pt-BR')} só com as conectadas.` : '.')
+    : 'Nenhum ASN com prefixo próprio visto neste PTT tem acessos de banda larga fixa no alcance dele.'
+  const med = todos ?? diretos
+  const mediana = med
+    ? `No alcance, a mediana por operadora é de ${km(med.mediana_operadora_km)} (cada operadora conta uma vez). Ela mede outra população que o P50, que pesa por acessos.`
     : null
   return { diretos: dirs, todos: tod, mediana }
 }

@@ -20,7 +20,8 @@ router = APIRouter()
 _DESCRICAO_COMUM = """
 **Inferência, não cobertura de rede.** Os acessos de banda larga fixa declarados ao SICI por município e operadora (CNPJ) são atribuídos ao PTT mais próximo entre os que a operadora enxerga na visão
 (`diretos`: ASN com sessão própria no PTT e prefixo próprio visto nele; `todos`: ASN com prefixo próprio visto no PTT, com sessão ou levado por outro participante). A distância é em linha reta do centroide do município
-ao PIX mais próximo do PTT. Não há exclusão de operadoras, e o produto não traz nome de operadora, só contagens. O mês do SICI difere da data do snapshot. Faixas: 1 até o P50, 2 acima do P50 até o P80, 3 acima do P80.
+ao PIX mais próximo do PTT. Por PTT há ainda duas visões de **alcance** (`alcance_diretos`, `alcance_todos`), sem disputa entre PTTs: todo município onde as operadoras do PTT declaram acessos entra no alcance dele,
+mesmo que exista PTT mais próximo, e um município pode estar no alcance de vários PTTs. Não há exclusão de operadoras, e o produto não traz nome de operadora, só contagens. O mês do SICI difere da data do snapshot. Faixas: 1 até o P50, 2 acima do P50 até o P80, 3 acima do P80.
 """
 
 
@@ -53,12 +54,12 @@ def area_influencia_nacional(request: Request, visao: Literal["diretos", "todos"
     "/ixps/{code}/area-influencia",
     summary="Área de influência observada de um PTT",
     description="""
-Para o PTT, nas duas visões (ou só na pedida em `visao`): operadoras (CNPJs), municípios e acessos atribuídos; P50, P80 e P90 da distância em km (peso por acessos); a mediana por operadora (cada operadora conta 1,
+Para o PTT, nas quatro visões (`diretos`, `todos`, `alcance_diretos`, `alcance_todos`; ou só na pedida em `visao`): operadoras (CNPJs), municípios e acessos atribuídos; P50, P80 e P90 da distância em km (peso por acessos); a mediana por operadora (cada operadora conta 1,
 outra população que o P50); municípios e acessos por faixa; e, por município, os acessos atribuídos e a faixa. `pix` diz quantos PIX têm coordenada, quantos foram posicionados no centroide do município do
 endereço ou da sede, e os pontos usados no cálculo. Visão sem nenhuma operadora atribuída ao PTT vem `null`. Cacheada por snapshot.
 """ + _DESCRICAO_COMUM,
 )
-def area_influencia_ptt(code: str, request: Request, visao: Optional[Literal["diretos", "todos"]] = Query(None, description="`diretos` ou `todos`; sem o parâmetro vêm as duas."),
+def area_influencia_ptt(code: str, request: Request, visao: Optional[Literal["diretos", "todos", "alcance_diretos", "alcance_todos"]] = Query(None, description="`diretos`, `todos`, `alcance_diretos` ou `alcance_todos`; sem o parâmetro vêm as quatro."),
                         date: Optional[str] = Query(None, description="Data do snapshot (YYYY-MM-DD).")) -> dict:
     d, doc = _doc(request, date)
     r = ai.por_ptt(doc, code, visao)

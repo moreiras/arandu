@@ -11,14 +11,13 @@ import { ResumoEmTexto, type FraseResumo } from '../../../components/ui/ResumoEm
 import { GrupoFontes } from '../../../components/ui/FontesEDatas'
 import { COR_SEM_DADO } from '../../../components/maps/coresCoropletico'
 import { useAreaInfluenciaPtt, useCentroides } from '../../../hooks/entidades'
-import { expressaoFaixas, formatarKm, frasesArea, pct, ROTULO_FAIXA, ROTULO_FAIXA_CURTO, ROTULO_VISAO, TONS_UM_MATIZ, type Faixa } from '../../../lib/areaInfluencia'
+import { ehAlcance, expressaoFaixas, formatarKm, frasesArea, frasesAlcance, pct, ROTULO_FAIXA, ROTULO_FAIXA_CURTO, ROTULO_VISAO_PTT, TONS_UM_MATIZ, VISOES_PTT, type Faixa } from '../../../lib/areaInfluencia'
 import { palavra } from '../../../lib/sintese'
-import type { AreaInfluenciaPtt, AreaInfluenciaVisao, VisaoArea } from '../../../types/areaInfluencia'
+import type { AreaInfluenciaPtt, AreaInfluenciaVisao, VisaoAreaPtt } from '../../../types/areaInfluencia'
 import type { BlocoProps } from '../../entidade/registry'
 import type { PttCtx } from '../contexto'
 
 const Coropletico = lazy(() => import('../../../components/maps/Coropletico').then((m) => ({ default: m.Coropletico })))
-const VISOES: VisaoArea[] = ['diretos', 'todos']
 const FAIXAS: Faixa[] = [1, 2, 3]
 const CHAVE_FAIXA = { 1: 'ate_p50', 2: 'p50_a_p80', 3: 'alem_p80' } as const
 const POR_PAGINA = 50
@@ -33,13 +32,13 @@ export function AreaInfluenciaBloco({ dados }: BlocoProps<PttCtx>) {
   return <Corpo d={q.data} />
 }
 
-function Seletor({ visao, aoMudar, disponiveis }: { visao: VisaoArea; aoMudar: (v: VisaoArea) => void; disponiveis: Record<VisaoArea, boolean> }) {
+function Seletor({ visao, aoMudar, disponiveis }: { visao: VisaoAreaPtt; aoMudar: (v: VisaoAreaPtt) => void; disponiveis: Record<VisaoAreaPtt, boolean> }) {
   return (
-    <div role="group" aria-label="Visão da área de influência" className="inline-flex overflow-hidden rounded-md border border-gray-200 text-xs" data-testid="seletor-visao">
-      {VISOES.map((v) => (
+    <div role="group" aria-label="Visão da área de influência" className="inline-flex flex-wrap overflow-hidden rounded-md border border-gray-200 text-xs" data-testid="seletor-visao">
+      {VISOES_PTT.map((v) => (
         <button key={v} type="button" aria-pressed={v === visao} onClick={() => aoMudar(v)}
           className={`px-3 py-1.5 ${v === visao ? 'bg-primario-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
-          {ROTULO_VISAO[v]}{disponiveis[v] ? '' : ' (sem dados)'}
+          {ROTULO_VISAO_PTT[v]}{disponiveis[v] ? '' : ' (sem dados)'}
         </button>
       ))}
     </div>
@@ -51,11 +50,16 @@ function Corpo({ d }: { d: AreaInfluenciaPtt }) {
   const { data: centroides } = useCentroides()
   const diretos = d.visoes.diretos ?? null
   const todos = d.visoes.todos ?? null
-  const [visao, setVisao] = useState<VisaoArea>(diretos ? 'diretos' : 'todos')
+  const alcDiretos = d.visoes.alcance_diretos ?? null
+  const alcTodos = d.visoes.alcance_todos ?? null
+  const [visao, setVisao] = useState<VisaoAreaPtt>(VISOES_PTT.find((v) => d.visoes[v]) ?? 'diretos')
   const atual = d.visoes[visao] ?? null
+  const alcance = ehAlcance(visao)
   const mesSici = d.fontes.sici
+  const noPtt = alcance ? 'no alcance deste PTT' : 'atribuídos a este PTT'
+  const noPttNome = alcance ? `no alcance do PTT ${d.nome}` : `atribuídos ao PTT ${d.nome}`
 
-  const frases = frasesArea(diretos, todos)
+  const frases = alcance ? frasesAlcance(alcDiretos, alcTodos) : frasesArea(diretos, todos)
   const resumo: FraseResumo[] = [
     { id: 'diretos', texto: frases.diretos, selo: 'inferido', fonte: FONTE, dataRef: mesSici },
     { id: 'todos', texto: frases.todos, selo: 'inferido', fonte: FONTE, dataRef: mesSici },
@@ -74,21 +78,21 @@ function Corpo({ d }: { d: AreaInfluenciaPtt }) {
 
   return (
     <div className="space-y-4" data-testid="area-influencia">
-      <Seletor visao={visao} aoMudar={setVisao} disponiveis={{ diretos: !!diretos, todos: !!todos }} />
+      <Seletor visao={visao} aoMudar={setVisao} disponiveis={{ diretos: !!diretos, todos: !!todos, alcance_diretos: !!alcDiretos, alcance_todos: !!alcTodos }} />
 
       <GrupoFontes snapshot={d.snapshot_date}>
         {atual ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4" data-testid="area-kpis">
-            <Kpi rotulo="Operadoras com acessos atribuídos" valor={n(atual.operadoras)} selo="inferido" fonte={FONTE} dataRef={mesSici} explicacao="Operadoras (CNPJs do SICI com ASN ligado) cujos acessos vão para este PTT por ser o mais próximo entre os que elas enxergam." />
+            <Kpi rotulo={alcance ? 'Operadoras no alcance' : 'Operadoras com acessos atribuídos'} valor={n(atual.operadoras)} selo="inferido" fonte={FONTE} dataRef={mesSici} explicacao={alcance ? 'Operadoras (CNPJs do SICI com ASN ligado) que aparecem neste PTT na visão escolhida e declaram acessos em algum município.' : 'Operadoras (CNPJs do SICI com ASN ligado) cujos acessos vão para este PTT por ser o mais próximo entre os que elas enxergam.'} />
             <Kpi rotulo="Municípios" valor={n(atual.municipios)} selo="inferido" fonte={FONTE} dataRef={mesSici} />
-            <Kpi rotulo="Acessos atribuídos" valor={n(atual.acessos)} selo="inferido" fonte={FONTE} dataRef={mesSici} explicacao="Acessos de banda larga fixa declarados ao SICI, contados uma vez, no PTT mais próximo entre os que a operadora enxerga." />
+            <Kpi rotulo={alcance ? 'Acessos no alcance' : 'Acessos atribuídos'} valor={n(atual.acessos)} selo="inferido" fonte={FONTE} dataRef={mesSici} explicacao={alcance ? 'Acessos de banda larga fixa declarados ao SICI nos municípios das operadoras do PTT, sem descontar PTTs mais próximos. Os mesmos acessos podem estar no alcance de outros PTTs.' : 'Acessos de banda larga fixa declarados ao SICI, contados uma vez, no PTT mais próximo entre os que a operadora enxerga.'} />
             <Kpi rotulo="Mediana por operadora" valor={formatarKm(atual.mediana_operadora_km)} selo="inferido" fonte={FONTE} dataRef={mesSici} explicacao="Distância mediana entre as operadoras do PTT, cada uma contando uma vez. Mede outra população que o P50." />
-            <Kpi rotulo="P50: a maioria dos acessos" valor={formatarKm(atual.p50_km)} selo="inferido" fonte={FONTE} dataRef={mesSici} explicacao="Distância em linha reta até a qual está metade dos acessos atribuídos ao PTT." />
+            <Kpi rotulo="P50: a maioria dos acessos" valor={formatarKm(atual.p50_km)} selo="inferido" fonte={FONTE} dataRef={mesSici} explicacao={alcance ? 'Distância em linha reta até a qual está metade dos acessos do alcance do PTT.' : 'Distância em linha reta até a qual está metade dos acessos atribuídos ao PTT.'} />
             <Kpi rotulo="P80: quase todos" valor={formatarKm(atual.p80_km)} selo="inferido" fonte={FONTE} dataRef={mesSici} />
             <Kpi rotulo="P90" valor={formatarKm(atual.p90_km)} selo="inferido" fonte={FONTE} dataRef={mesSici} />
           </div>
         ) : (
-          <p className="text-sm text-gray-600" data-testid="area-sem-visao">Nenhuma operadora tem acessos atribuídos a este PTT na visão “{ROTULO_VISAO[visao]}”.</p>
+          <p className="text-sm text-gray-600" data-testid="area-sem-visao">Nenhuma operadora tem acessos {noPtt} na visão “{ROTULO_VISAO_PTT[visao]}”.</p>
         )}
         <ResumoEmTexto frases={resumo} regras="area-influencia-1" snapshot={d.snapshot_date} notaComoLer="Os números são inferidos dos acessos do SICI e não medem a rede nem o tráfego." />
       </GrupoFontes>
@@ -104,10 +108,10 @@ function Corpo({ d }: { d: AreaInfluenciaPtt }) {
       <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_15rem]">
         <Suspense fallback={<p className="text-sm text-gray-400" role="status">Carregando o mapa…</p>}>
           <Coropletico cor={cor} nivel="municipio" altura={420} caixa={caixa} pontos={pontos}
-            descricao={`Mapa dos municípios com acessos atribuídos ao PTT ${d.nome} na visão ${ROTULO_VISAO[visao].toLowerCase()}, pintados pela faixa de distância. O ponto com anel marca o PIX. Os mesmos números estão nas tabelas abaixo.`}
+            descricao={`Mapa dos municípios com acessos ${noPttNome} na visão ${ROTULO_VISAO_PTT[visao].toLowerCase()}, pintados pela faixa de distância. O ponto com anel marca o PIX. Os mesmos números estão nas tabelas abaixo.`}
             rotulo={(ibge, nome, uf) => {
               const m = atual?.municipios_faixa[ibge]
-              return m ? `${nome}/${uf}: ${ROTULO_FAIXA_CURTO[m[1] as Faixa]}, ${n(m[0])} ${palavra(m[0], 'acesso atribuído', 'acessos atribuídos')}` : `${nome}/${uf}: sem acessos atribuídos a este PTT`
+              return m ? `${nome}/${uf}: ${ROTULO_FAIXA_CURTO[m[1] as Faixa]}, ${n(m[0])} ${alcance ? palavra(m[0], 'acesso no alcance', 'acessos no alcance') : palavra(m[0], 'acesso atribuído', 'acessos atribuídos')}` : `${nome}/${uf}: sem acessos ${noPtt}`
             }}
             aoClicar={(codigo, nivel) => navigate(nivel === 'uf' ? `/uf/${codigo}` : `/municipio/${codigo}`)} />
         </Suspense>
@@ -117,15 +121,15 @@ function Corpo({ d }: { d: AreaInfluenciaPtt }) {
             {FAIXAS.map((f) => (
               <li key={f} className="flex items-center gap-2"><span className="inline-block h-3 w-5 rounded-sm border border-gray-300" style={{ background: TONS_UM_MATIZ[f] }} aria-hidden="true" />{ROTULO_FAIXA[f]}</li>
             ))}
-            <li className="flex items-center gap-2"><span className="inline-block h-3 w-5 rounded-sm border border-gray-300" style={{ background: COR_SEM_DADO }} aria-hidden="true" />Sem acessos atribuídos a este PTT</li>
+            <li className="flex items-center gap-2"><span className="inline-block h-3 w-5 rounded-sm border border-gray-300" style={{ background: COR_SEM_DADO }} aria-hidden="true" />Sem acessos {noPtt}</li>
             <li className="flex items-center gap-2"><span className="inline-block h-3 w-3 rounded-full border-2 border-gray-900 bg-white" aria-hidden="true" />PIX do PTT</li>
           </ul>
           <p>Tons de uma cor só, do mais escuro (perto) ao mais claro (longe). A cor só ordena as faixas.</p>
         </figure>
       </div>
 
-      {atual && <TabelaFaixas visao={atual} />}
-      {atual && <TabelaMunicipios visao={atual} nomes={d.municipios_nomes} />}
+      {atual && <TabelaFaixas visao={atual} alcance={alcance} />}
+      {atual && <TabelaMunicipios visao={atual} nomes={d.municipios_nomes} alcance={alcance} />}
 
       <ComoLer titulo="Como ler a área de influência">
         <p>
@@ -133,12 +137,16 @@ function Corpo({ d }: { d: AreaInfluenciaPtt }) {
           Nenhum acesso conta duas vezes: um CNPJ com vários ASNs soma os PTTs deles e entra uma vez só.
         </p>
         <p>
-          A visão “{ROTULO_VISAO.diretos}” usa os ASNs com sessão própria no PTT e prefixo próprio visto nele. A visão “{ROTULO_VISAO.todos}” inclui também os ASNs que anunciam prefixo próprio pelo PTT sem sessão, levados por outro participante; a primeira está contida na segunda.
-          Não há exclusão de operadoras.
+          As duas visões de <strong>influência provável</strong> fazem essa atribuição: “{ROTULO_VISAO_PTT.diretos}” usa os ASNs com sessão própria no PTT e prefixo próprio visto nele; “{ROTULO_VISAO_PTT.todos}” inclui também os ASNs que anunciam prefixo próprio pelo PTT sem sessão, levados por outro participante.
+          A primeira está contida na segunda, e cada município entra na influência provável do PTT mais próximo da operadora.
+        </p>
+        <p>
+          As duas visões de <strong>alcance</strong> não disputam: “{ROTULO_VISAO_PTT.alcance_diretos}” e “{ROTULO_VISAO_PTT.alcance_todos}” usam as mesmas operadoras das duas primeiras, mas incluem todos os municípios onde elas declaram acessos, mesmo que exista outro PTT mais próximo onde a operadora também está.
+          Por isso um município pode estar no alcance de vários PTTs, o alcance de um PTT contém a influência provável dele, e os acessos do alcance não se somam entre PTTs. Não há exclusão de operadoras.
         </p>
         <p>
           A distância é em linha reta, do centroide do município ao PIX mais próximo do PTT (não é distância por rodovia ou fibra). PIX sem coordenada no cadastro é posicionado no centroide do município do endereço ou, sem endereço reconhecível, no da sede do PTT.
-          O P50, o P80 e o P90 pesam por acessos; a mediana por operadora conta cada operadora uma vez e por isso mede outra população.
+          O P50, o P80 e o P90 pesam por acessos (na influência provável, os atribuídos ao PTT; no alcance, os do alcance total); a mediana por operadora conta cada operadora uma vez e por isso mede outra população.
         </p>
         <p>
           Os acessos são do mês {mesSici ?? 'de referência'} do SICI, diferente do mês do snapshot ({d.snapshot_date}). O selo é <strong>inferido</strong>: o mapa mostra onde as operadoras que aparecem no PTT declaram acessos.
@@ -149,7 +157,7 @@ function Corpo({ d }: { d: AreaInfluenciaPtt }) {
   )
 }
 
-function TabelaFaixas({ visao }: { visao: AreaInfluenciaVisao }) {
+function TabelaFaixas({ visao, alcance }: { visao: AreaInfluenciaVisao; alcance: boolean }) {
   const limite = { 1: `até ${formatarKm(visao.p50_km)}`, 2: `até ${formatarKm(visao.p80_km)}`, 3: `além de ${formatarKm(visao.p80_km)}` }
   return (
     <div className="overflow-x-auto" data-testid="tabela-faixas">
@@ -159,7 +167,7 @@ function TabelaFaixas({ visao }: { visao: AreaInfluenciaVisao }) {
           <th scope="col" className="px-2 py-1 text-left">Faixa</th>
           <th scope="col" className="px-2 py-1 text-right">Distância</th>
           <th scope="col" className="px-2 py-1 text-right">Municípios</th>
-          <th scope="col" className="px-2 py-1 text-right">Acessos atribuídos</th>
+          <th scope="col" className="px-2 py-1 text-right">{alcance ? 'Acessos no alcance' : 'Acessos atribuídos'}</th>
           <th scope="col" className="px-2 py-1 text-right">Parcela dos acessos</th>
         </tr></thead>
         <tbody className="divide-y divide-gray-100">
@@ -181,7 +189,7 @@ function TabelaFaixas({ visao }: { visao: AreaInfluenciaVisao }) {
   )
 }
 
-function TabelaMunicipios({ visao, nomes }: { visao: AreaInfluenciaVisao; nomes: Record<string, string> }) {
+function TabelaMunicipios({ visao, nomes, alcance }: { visao: AreaInfluenciaVisao; nomes: Record<string, string>; alcance: boolean }) {
   const [faixa, setFaixa] = useState<0 | Faixa>(0)
   const [ate, setAte] = useState(POR_PAGINA)
   const linhas = useMemo(() => Object.entries(visao.municipios_faixa)
@@ -201,11 +209,11 @@ function TabelaMunicipios({ visao, nomes }: { visao: AreaInfluenciaVisao; nomes:
         </label>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <caption className="sr-only">Municípios com acessos atribuídos ao PTT, por faixa de distância</caption>
+            <caption className="sr-only">{alcance ? 'Municípios no alcance do PTT, por faixa de distância' : 'Municípios com acessos atribuídos ao PTT, por faixa de distância'}</caption>
             <thead className="text-xs text-gray-600"><tr>
               <th scope="col" className="px-2 py-1 text-left">Município</th>
               <th scope="col" className="px-2 py-1 text-left">Faixa</th>
-              <th scope="col" className="px-2 py-1 text-right">Acessos atribuídos</th>
+              <th scope="col" className="px-2 py-1 text-right">{alcance ? 'Acessos no alcance' : 'Acessos atribuídos'}</th>
             </tr></thead>
             <tbody className="divide-y divide-gray-100">
               {linhas.slice(0, ate).map((l) => (

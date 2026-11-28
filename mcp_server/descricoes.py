@@ -104,7 +104,7 @@ DESCRICOES: dict[str, str] = {
         'Args: code, limit.'
     ),
     'ixp_area_influencia': (
-        'Até onde atuam as operadoras de um PTT (inferido, não é cobertura): P50/P80/P90 por acessos SICI, em duas visões. Args: code, visao, ibge.'
+        'Até onde atuam as operadoras de um PTT (inferido, não é cobertura): P50/P80/P90 por acessos SICI, em duas visões e, por PTT, duas de alcance sem disputa entre PTTs. Args: code, visao, ibge.'
     ),
     'ixp_communities': (
         'Communities dos route servers do IX.br: significado e quem usa. community exata (ex.: "65535:666") ou busca q '
