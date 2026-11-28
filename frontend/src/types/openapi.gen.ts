@@ -4180,7 +4180,7 @@ export interface paths {
          * ASNs de um conjunto de municípios: PTTs, trânsito e carregadores
          * @description `ibges` são até 50 códigos IBGE de município separados por vírgula (o município da página e os do raio). Devolve os ASNs do conjunto (SICI, sede ou IPs geolocalizados, cada um com seu vínculo),
          *     a participação deles nos PTTs (direta e indireta, em número e %), os provedores de trânsito mais comuns (relações inferidas, com o nível de confiança), os ASNs que carregam os ASNs indiretos até
-         *     os PTTs e a lista de provedores. É inferência com limites explicados na resposta; não há posição de prefixo nem contato.
+         *     os PTTs e a lista de provedores (cada um com o `cnpj` da operadora quando o SICI o liga ao ASN; omitido para pessoa natural). É inferência com limites explicados na resposta; não há posição de prefixo nem contato.
          */
         get: operations["regiao_api_v1_regiao_get"];
         put?: never;
