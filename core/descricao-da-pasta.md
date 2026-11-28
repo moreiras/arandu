@@ -18,6 +18,7 @@ regras de camada estão em `.importlinter` e a ligação por referência entre c
 | `compose.py` | Fragmentos e montagem (`compose`) do documento de ASN: um bloco novo exige só um produto novo. |
 | `chaves_registro.py` | Nomes das contagens do Registro.br no resumo, no manifesto e no detalhe do snapshot: `registro_br_*` e, ao lado, `m3_*` (nome mantido por compatibilidade); a API completa o par que faltar. |
 | `jsonio.py` | Leitura tolerante de JSON dos artefatos de build (ausente ou ilegível devolve o padrão). |
+| `rov_faixas.py` | Faixas do ROV medido pelo APNIC por ASN e mínimo de amostras: regra única do produto `seguranca` e do Mapa Explorer. |
 | `colunar.py` | Tabela colunar de um arquivo só, lida por `mmap`, para coleções grandes (`maps/global_prefixes.col`). |
 | `ixp_coleta.py` | Estado da coleta de um PTT por família (`ok`, `vazia`: o looking glass respondeu com a tabela vazia, `missing`) e `status` do PTT, comum ao índice publicado, à API e ao MCP. |
 | `ixp_geo.py` | Camada de prefixos de um PTT no mapa (rotas do LG geolocalizadas e agregadas por cidade): calculada pelo pipeline em `maps/ixp_prefixes/` e lida pela API, que só calcula na hora se o arquivo faltar. |

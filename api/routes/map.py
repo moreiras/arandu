@@ -154,7 +154,7 @@ de filtros booleanos, proximidade geográfica e seleção de camadas.
 | `near` | objeto | Raio em km a partir da **sede** de AS: `{"ixp":"mao","radius_km":80}` |
 | `near_prefixes` | objeto | Raio em km a partir dos **prefixos geolocalizados** do AS (em vez da sede) |
 | `layers` | lista | Camadas a retornar: `asns_geo`, `prefixes_v4`, `prefixes_v6`, `pix`, `scms`, `outorgas_scm`, `prefixos_ix_v4`, `prefixos_ix_v6` |
-| `color_by` | string | Atributo de cor para `asns_geo`: `visibility`, `rpki`, `aspa`, `porte`, `pct_v6`, `outorga` |
+| `color_by` | string | Atributo de cor para `asns_geo`: `visibility`, `rpki` (ROA publicada), `aspa`, `rov` (faixa do ROV medido pelo APNIC, com `rov_faixa` e `rov_pct`), `porte`, `pct_v6`, `outorga` |
 | `scm_mode` | string | Para `outorgas_scm`: `todas` (default), `com_asn`, `sem_asn` |
 | `ix_apply_filter` | bool | Prefixos do PTT só com origem no recorte de ASes (default `false`) |
 
