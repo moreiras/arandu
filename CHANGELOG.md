@@ -5,6 +5,20 @@
 Correções e melhorias da análise do OBINT (instância pública), integradas na branch `correcoes-obint`. Os identificadores entre
 parênteses remetem à análise.
 
+- **Orçamento sem login resistente a janela privada.** Safari e Firefox zeravam o orçamento numa janela privada nova (cookie novo e
+  fingerprint alterado no canvas e no WebGL). O front passa a mandar também um fingerprint estável (família do navegador e sistema,
+  idioma, fuso, tela e núcleos), procurado depois do cookie e do fingerprint completo, e o tempo somado das sessões da mesma rede no dia
+  (IPv4 inteiro ou /64, por hash diário) tem teto de 3 vezes o orçamento individual (`ANON_REDE_LIMIT_MULTIPLIER`, 0 desliga), publicado
+  em `/api/v1/limites`. A seção 2.1 de `/privacidade` diz o que passa a ser guardado (texto aprovado pelo mantenedor). As mensagens de
+  uso esgotado dizem que entrar é gratuito.
+- **Área de influência observada dos PTTs.** Produto `area_influencia_ptt`: os acessos SICI de cada operadora em cada município vão ao
+  PTT mais próximo entre os que ela enxerga, em duas visões (diretamente conectados; todos que anunciam no PTT), com P50, P80 e P90 por
+  acessos e a mediana por operadora. Rotas abertas `/ixps/area-influencia` e `/ixps/{code}/area-influencia`, tool `ixp_area_influencia`,
+  mapa de contorno de municípios na página do PTT e mapa de `/ixps` em três abas (influência total, só diretos, Voronoi). Os 100 km
+  fixos do restante do site não mudam. Snapshots já publicados precisam gerar o produto (`python -m products.area_influencia_ptt.build`).
+- **Provedores da região por operadora e mapa por contorno no município.** Uma linha por CNPJ, com os ASNs na linha e os acessos uma
+  vez (`/regiao` traz `cnpj` por provedor, omitido para pessoa natural); os blocos da região avisam quando o raio passa dos 50 municípios
+  mais próximos; o mapa do raio desenha os contornos da malha municipal do IBGE.
 - **Resumos em texto: um bloco só e linguagem revista.** Cada resumo tem um único recolhido, "Como este resumo é gerado e de onde
   vêm os dados", com o método e as fontes das frases. As frases foram reescritas sem fórmulas de contraste nem coloquialismos ("não
   entra nessa conta", "É uma estimativa, não um censo"), e um teste barra essas fórmulas nos geradores. A nota solta "Por que há
