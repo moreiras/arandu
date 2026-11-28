@@ -45,6 +45,11 @@ describe('painel de camadas', () => {
     expect(screen.getByText('Colorir por')).toBeTruthy()                           // ajuste da camada aparece ao ligar
     fireEvent.change(screen.getByDisplayValue('Cor única'), { target: { value: 'rpki' } })
     expect(estado().colorBy).toBe('rpki')
+    expect(screen.getByRole('option', { name: 'ROA (RPKI)' })).toBeTruthy()
+    expect(screen.getByRole('option', { name: 'ASPA (RPKI)' })).toBeTruthy()
+    fireEvent.change(screen.getByLabelText('Colorir por'), { target: { value: 'rov' } })
+    expect(estado().colorBy).toBe('rov')
+    expect(screen.getByRole('option', { name: 'ROV (RPKI)' })).toBeTruthy()
     fireEvent.click(screen.getByText('Limpar tudo'))
     expect(estado().on.asns_geo).toBe(false)
     expect(estado().colorBy).toBe('solid')

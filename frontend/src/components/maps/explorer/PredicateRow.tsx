@@ -19,8 +19,8 @@ export const KIND_OPTIONS: Array<{ group: string; options: Array<{ value: Predic
     { value: 'ixps_origin_nin', label: 'Não origina em PTT' },
   ]},
   { group: 'Segurança', options: [
-    { value: 'has_rpki', label: 'Tem RPKI' },
-    { value: 'no_rpki',  label: 'Sem RPKI' },
+    { value: 'has_rpki', label: 'Com ROA' },
+    { value: 'no_rpki',  label: 'Sem ROA' },
     { value: 'has_aspa', label: 'Tem ASPA' },
     { value: 'no_aspa',  label: 'Sem ASPA' },
   ]},

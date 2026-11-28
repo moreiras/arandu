@@ -13,8 +13,10 @@ const props = (f: GeoJSON.Feature) => (f.properties ?? {}) as Record<string, any
 /** Cabeçalho e linhas da camada, ou `null` se a camada não tem exportação. */
 export function linhasCsv(features: GeoJSON.Feature[], layer: DataLayerId): { headers: string[]; rows: string[][] } | null {
   if (layer === 'asns_geo') {
+    // Colunas do ROV só quando a consulta foi feita com "Colorir por ROV" (o servidor só então traz `rov_faixa`); sem isso ficariam vazias e sugeririam ausência de medição.
+    const comRov = features.some(f => props(f).rov_faixa !== undefined)
     return {
-      headers: ['asn', 'nome', 'municipio', 'uf', 'pais', 'confianca_geo', 'tem_rpki', 'tem_aspa', 'porte', 'pct_v6', 'ptts_direto'],
+      headers: ['asn', 'nome', 'municipio', 'uf', 'pais', 'confianca_geo', 'tem_roa', 'tem_aspa', 'porte', 'pct_v6', 'ptts_direto', ...(comRov ? ['rov_faixa', 'rov_pct'] : [])],
       rows: features.map(f => {
         const p = props(f)
         return [
@@ -29,6 +31,7 @@ export function linhasCsv(features: GeoJSON.Feature[], layer: DataLayerId): { he
           p.porte ?? '',
           p.pct_v6 != null ? String(p.pct_v6) : '',
           p.ixps_direct ?? '',
+          ...(comRov ? [p.rov_faixa ?? '', p.rov_pct != null ? String(p.rov_pct) : ''] : []),
         ]
       }),
     }

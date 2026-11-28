@@ -384,8 +384,9 @@ export function LayerPanel({
               >
                 <option value="solid">Cor única</option>
                 <option value="visibility">Visibilidade IPv6/IPv4</option>
-                <option value="rpki">RPKI</option>
-                <option value="aspa">ASPA</option>
+                <option value="rpki">ROA (RPKI)</option>
+                <option value="aspa">ASPA (RPKI)</option>
+                <option value="rov">ROV (RPKI)</option>
                 <option value="porte">Porte da empresa</option>
                 <option value="pct_v6">% usuários IPv6</option>
                 <option value="outorga">Outorga SCM</option>
