@@ -70,7 +70,7 @@ def get_municipio(ibge: str, blocos: Optional[list[str]] = None, date: Optional[
 
 
 @mcp.tool()
-def get_uf(uf: Optional[str] = None, blocos: Optional[list[str]] = None, date: Optional[str] = None) -> dict:
+def get_uf(uf: Optional[str] = None, blocos: Optional[list[str]] = None, date: Optional[str] = None, include: Optional[list[str]] = None) -> dict:
     """Perfil de uma UF: totais, PTTs, municípios com a distância ao PTT mais próximo e maiores operadoras. Sem `uf`, o resumo das 27 UFs.
 
     `totais` traz municípios, acessos fixos, `fibra_pct`, ASNs BR e `usuarios` (estimativa APNIC dos ASNs da UF
@@ -79,17 +79,24 @@ def get_uf(uf: Optional[str] = None, blocos: Optional[list[str]] = None, date: O
     na UF e o total.
 
     Sem `uf` devolve uma linha por UF (PTTs, municípios, acessos fixos, % de fibra, ASNs, usuários estimados e municípios a mais de 100 km
-    de um PTT), a mesma de `GET /ufs`.
+    de um PTT, e `asns_sem_sessao_ptt`), a mesma de `GET /ufs`. Com `include`, cada UF traz também `rede` (IPv6 estimado, usuários atrás de ROV, acessos com um só provedor
+    de trânsito inferido, HHI do trânsito e mediana de prontidão em segurança de roteamento, cada um com o n ou a cobertura) e/ou `territorio` (mercado não visto, estimativa).
+    São estimativas e inferências, e a UF é a da sede das redes: prontidão e HHI não são veredito sobre um estado nem ranking.
 
     Args:
         uf: Sigla da UF (2 letras, ex.: "SP"). Omita para o resumo das 27 UFs.
         blocos: Subconjunto de ["ptts", "municipios", "operadoras"]; omita para todos (os `totais` vêm sempre). Só com `uf`.
         date: Data do snapshot (YYYY-MM-DD). Omita para o mais recente.
+        include: Só sem `uf`. Subconjunto de ["rede", "territorio"]: acrescenta a camada de rede e o mercado não visto a cada UF.
     """
     d = _resolve(date)
     if uf is None:
-        itens = _store.resumo_ufs(d)
-        return {"snapshot_date": d, "mes_referencia": (_store.sici_meta(d) or {}).get("mes_referencia"), "total": len(itens), "items": itens}
+        from api.services.ufs_extras import INCLUDES_UFS, com_extras
+        extras = {x.strip() for x in (include or []) if x and x.strip()}
+        if not extras <= INCLUDES_UFS:
+            raise ValueError(f"include inválido: {sorted(extras - INCLUDES_UFS)}; válidos: {sorted(INCLUDES_UFS)}")
+        itens, extra_meta = com_extras(_store, d, _store.resumo_ufs(d), extras or None)
+        return {"snapshot_date": d, "mes_referencia": (_store.sici_meta(d) or {}).get("mes_referencia"), "total": len(itens), "items": itens, **extra_meta}
     sigla = uf.strip().upper()
     if sigla not in _UFS_VALIDAS:
         raise ValueError(f"UF '{uf}' desconhecida. Use a sigla de 2 letras (ex.: SP).")

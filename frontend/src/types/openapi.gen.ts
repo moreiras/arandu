@@ -4860,8 +4860,13 @@ export interface paths {
          * @description Uma linha por UF com os números que a página `/estados` mostra: `ptts` (PTTs do IX.br na UF no snapshot, com ou sem coleta: a mesma
          *     lista usada na distância) e `ptts_com_coleta`, municípios e acessos fixos declarados ao SICI (`null` quando o snapshot não tem o SICI;
          *     ausência, não zero), `fibra_pct` (meio de acesso "Fibra"), ASNs BR e **usuários estimados** (soma APNIC dos ASNs
-         *     da UF, pela geolocalização da organização — estimativa, não censo), municípios a mais de 100 km de um PTT e, quando há o produto de território,
+         *     da UF, pela geolocalização da organização — estimativa, não censo), `asns_sem_sessao_ptt` (dos `asns`, os sem sessão direta em PTT do IX.br, pelo mesmo critério do filtro municipal),
+         *     municípios a mais de 100 km de um PTT e, quando há o produto de território,
          *     `domicilios` (projetados, IBGE) e `penetracao` (acessos fixos ÷ domicílios; é razão, não percentual, e pode passar de 1 porque um domicílio tem vários acessos).
+         *
+         *     `include=rede` acrescenta a cada UF o bloco `rede` (estimativas e inferências, cada uma com o n ou a cobertura: `ipv6_pct`, `rov_pct`, `transito_unico_pct`, `hhi_transito` com `hhi_transito_n`,
+         *     `prontidao_mediana` com `prontidao_n`) e `rede_meta` (natureza, limites e o aviso de que prontidão e HHI não são veredito nem ranking). `include=territorio` acrescenta `territorio` (`nao_visto` e
+         *     `nao_visto_por_100_dom`, estimativa) e `territorio_meta`. Produto ausente na data: o bloco da UF sai `null`, não zero.
          */
         get: operations["ufs_resumo_api_v1_ufs_get"];
         put?: never;
@@ -13506,6 +13511,8 @@ export interface operations {
         parameters: {
             query?: {
                 date?: string | null;
+                /** @description Extras por UF, separados por vírgula: `rede` (IPv6, ROV, trânsito, HHI do trânsito e prontidão, com o n) e `territorio` (mercado não visto). */
+                include?: string | null;
             };
             header?: never;
             path?: never;
