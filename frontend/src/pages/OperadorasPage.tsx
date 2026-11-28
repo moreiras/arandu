@@ -17,7 +17,6 @@ import { MapaSede } from '../features/operadoras/MapaSede'
 import { RankingsSici } from './RankingsPage'
 import { DICAS_COLUNA, ORDEM_SERVICOS, SERVICOS, servicoDe, type Servico, type ServicoId } from '../features/operadoras/servicos'
 import { Dica } from '../components/ui/Dica'
-import { NotaVariosTotais } from '../components/ui/NotaVariosTotais'
 import type { ServicoOutorga } from '../services/api'
 import { BarraDeAbas } from '../features/entidade/EntityPage'
 
@@ -112,7 +111,6 @@ function ListaServico({ servico }: { servico: Servico }) {
         <p className="text-sm text-gray-500 mt-1">{servico.descricao}</p>
       </div>
 
-      {servico.temSici && <NotaVariosTotais>Os CNPJs que declararam acessos fixos ao SICI (rankings e home), os com outorga SCM que declararam acessos fixos (cobertura de declaração) e os com outorga SCM que declararam acesso fixo ou móvel (o filtro &ldquo;Apenas em operação&rdquo; daqui) são três conjuntos próximos e com totais diferentes. &ldquo;Registros de outorga&rdquo; contam linhas do arquivo da Anatel; &ldquo;CNPJs com outorga&rdquo; contam empresas.</NotaVariosTotais>}
 
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

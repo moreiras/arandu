@@ -5,7 +5,7 @@
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
 import type { Selo } from '../entidade/proveniencia'
 import { ComoLer } from './ComoLer'
-import { FontesEDatas, useEmGrupoFontes, useRegistrarFontes } from './FontesEDatas'
+import { ListaFontes } from './FontesEDatas'
 
 /** Frase do resumo: o texto vai à tela; selo, fonte e data vão para o bloco recolhido de fontes. */
 export interface FraseResumo {
@@ -18,7 +18,8 @@ export interface FraseResumo {
 
 /**
  * Resumo em texto (PT-30): vem depois dos cartões, nunca no topo. As frases aparecem inteiras, em sequência, sem selo nem fonte em cada
- * uma; selos, fontes e datas ficam num bloco recolhido (o da seção, se houver um `GrupoFontes` acima; senão, o do próprio resumo).
+ * uma. Como o resumo é gerado e de onde vêm os dados (selos, fontes e datas das frases) ficam num único bloco recolhido do próprio
+ * resumo, mesmo dentro de um `GrupoFontes`: o bloco da seção fica com os cartões, e o leitor não procura as fontes do resumo noutro lugar.
  * O texto é gerado por regra fixa, sem modelo de linguagem, a partir dos mesmos números da página.
  */
 export function ResumoEmTexto({ frases, regras, rotulo = 'Em resumo', snapshot, notaComoLer, aoVivo = false }: {
@@ -32,9 +33,7 @@ export function ResumoEmTexto({ frases, regras, rotulo = 'Em resumo', snapshot, 
   /** Região anunciada (`role="status"`, `aria-live="polite"`) para o resumo que muda com a interação, como o do localizador. */
   aoVivo?: boolean
 }) {
-  const emGrupo = useEmGrupoFontes()
   const itens = frases.map((f) => ({ selo: f.selo, fonte: f.fonte, dataRef: f.dataRef }))
-  useRegistrarFontes(itens)
   if (frases.length === 0) return null
   return (
     <section aria-label={rotulo} className="space-y-2" data-testid="resumo-em-texto" {...(aoVivo ? { role: 'status', 'aria-live': 'polite' as const } : {})}>
@@ -42,15 +41,13 @@ export function ResumoEmTexto({ frases, regras, rotulo = 'Em resumo', snapshot, 
       <p className="max-w-[80ch] text-sm leading-relaxed text-gray-900">
         {frases.map((f, i) => <span key={f.id} data-testid={`frase-${f.id}`}>{i > 0 ? ' ' : ''}{f.texto}</span>)}
       </p>
-      <div className="space-y-1">
-        <ComoLer titulo="Como este resumo é gerado">
-          <p>
-            As frases são montadas por regras fixas (versão <code>{regras}</code>), sem modelo de linguagem, a partir dos números desta página.
-            Elas descrevem os dados e não explicam causas.{notaComoLer ? ` ${notaComoLer}` : ''}
-          </p>
-        </ComoLer>
-        {!emGrupo && <FontesEDatas itens={itens} titulo="Fontes e datas deste resumo" snapshot={snapshot} />}
-      </div>
+      <ComoLer titulo="Como este resumo é gerado e de onde vêm os dados">
+        <p>
+          As frases são montadas por regras fixas (versão <code>{regras}</code>), sem modelo de linguagem, a partir dos números desta página.
+          Elas descrevem os dados e não explicam causas.{notaComoLer ? ` ${notaComoLer}` : ''}
+        </p>
+        <ListaFontes itens={itens} snapshot={snapshot} />
+      </ComoLer>
     </section>
   )
 }

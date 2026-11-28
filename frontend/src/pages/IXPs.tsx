@@ -10,7 +10,6 @@ import { SummaryTable } from '../components/tables/SummaryTable'
 import { IXPVoronoiMap } from '../components/maps/IXPVoronoiMap'
 import type { IXPIndexEntry, ExternalIXPIndexEntry, SnapshotSummary } from '../types/api'
 import { CoberturaIxbr } from '../features/panorama/CoberturaIxbr'
-import { NotaVariosTotais } from '../components/ui/NotaVariosTotais'
 import { rotuloDe } from '../lib/universos'
 import { ApresentacaoRecolhida, GrupoFontes } from '../components/ui/FontesEDatas'
 import { Kpi } from '../components/ui/Kpi'
@@ -135,7 +134,6 @@ function IXPsLista() {
     <div className="space-y-8">
       <h1 className="text-titulo-1 text-gray-900">IXPs</h1>
 
-      <NotaVariosTotais>Os PTTs do IX.br e os IXPs de fora são listas diferentes e não se somam num número só. Um ASN pode ter sessão com o route server, constar do cadastro de participantes ou apenas originar prefixo visto no PTT: são três conjuntos de tamanhos muito diferentes. A soma dos usuários estimados por PTT conta o mesmo usuário em cada PTT onde o ASN aparece.</NotaVariosTotais>
 
       <GrupoFontes snapshot={snap}>
         <IXPsKpis

@@ -6,7 +6,7 @@
 import type { ReactNode } from 'react'
 import { Link } from '../../components/layout/LinkDatado'
 import { useQuery } from '@tanstack/react-query'
-import { GrupoFontes, Kpi, NotaVariosTotais, ResumoEmTexto } from '../../components/ui'
+import { GrupoFontes, Kpi, ResumoEmTexto } from '../../components/ui'
 import { REGRAS_SINTESE_TECNICA, sinteseTecnica } from './sinteseTecnica'
 import { rotuloDe } from '../../lib/universos'
 import { HomeMap } from '../../components/maps/HomeMap'
@@ -66,7 +66,6 @@ export function ResumoTecnico() {
     <div className="space-y-8" data-testid="resumo-tecnico">
       <GrupoFontes snapshot={ref}>
       <SnapshotHealth summary={s} loading={carregando} />
-      <NotaVariosTotais />
 
       <Tema titulo="Recursos e visibilidade" links={[['?aba=ipv6', 'IPv6'], ['?aba=ipv4', 'IPv4'], ['/bgp', 'Tabela BGP']]}>
         <Kpi selo="fato" rotulo={rotuloDe('asnsLacnic')} valor={num(s?.total_asns_br)} tom="primario" fonte="LACNIC (delegated-extended)" dataRef={ref} />

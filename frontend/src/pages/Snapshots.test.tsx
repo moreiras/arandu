@@ -30,7 +30,7 @@ describe('/snapshots', () => {
     expect(document.body.textContent).not.toMatch(/alocados pelo Registro\.br|ASN BR no IX\.br/)
   })
 
-  it('PT-15 / TRANSV-E4: 9.129 (LACNIC) e 9.150 (lista do Registro.br) aparecem com rótulos distintos, e a nota explica os vários totais', async () => {
+  it('PT-15 / TRANSV-E4: 9.129 (LACNIC) e 9.150 (lista do Registro.br) aparecem com rótulos distintos, sem nota solta', async () => {
     server.use(
       http.get('*/api/v1/brasil/snapshots', () => HttpResponse.json({ count: 1, latest: '2026-11-22', snapshots: ['2026-11-22'] })),
       http.get('*/api/v1/brasil/snapshots/:date', () => HttpResponse.json({ date: '2026-11-22', summary: { total_asns_br: 9129, registro_br_asns: 9150, br_asns_geolocalized: 8984 }, manifest: null })),
@@ -46,8 +46,7 @@ describe('/snapshots', () => {
     expect(lacnic.textContent).not.toContain('9.150')
     const rotulos = screen.getAllByRole('term').map((t) => t.textContent)
     expect(new Set(rotulos).size).toBe(rotulos.length)                       // o mesmo nome nunca designa dois números
-    expect(screen.getByTestId('nota-varios-totais')).toHaveTextContent('Por que há vários totais')
-    expect(screen.getByRole('link', { name: 'Como cada total é contado' })).toHaveAttribute('href', '/sobre#contagens')
+    expect(screen.queryByTestId('nota-varios-totais')).toBeNull()
   })
 
   const resumo = { total_asns_br: 9129, global_table: { br_asns_in_ft: 8500 }, br_asns_ft_v6: 7573, br_asns_ft_v4: 8400, ixp_aggregate: { br_asns_origin_union_count: 8550 }, br_apnic_users_total: 150000000 }

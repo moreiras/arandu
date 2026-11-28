@@ -155,13 +155,18 @@ describe('resumo em texto', () => {
     { id: 'a', texto: 'Primeira frase inteira, sem corte.', selo: 'fato' as const, fonte: 'Fonte A', dataRef: '2026-09-20' },
     { id: 'b', texto: 'Segunda frase.', selo: 'estimado' as const, fonte: 'Fonte B', dataRef: '2026-08' },
   ]
-  it('mostra as frases em sequência sem selo nem fonte, e agrega as fontes num bloco recolhido', () => {
+  it('mostra as frases em sequência sem selo nem fonte, e põe método e fontes num único bloco recolhido', () => {
     render(<ResumoEmTexto frases={frases} regras="r-1" />)
     const r = screen.getByTestId('resumo-em-texto')
     expect(within(r).getByText(/Primeira frase inteira, sem corte\./)).toBeInTheDocument()
     expect(r.querySelector('[data-selo]')).toBeInTheDocument()    // só dentro do bloco recolhido
-    const bloco = within(r).getByTestId('fontes-e-datas')
-    expect(bloco.textContent).toMatch(/Fonte A.*20\/09\/2026/)
+    const blocos = within(r).getAllByTestId('como-ler')
+    expect(blocos).toHaveLength(1)
+    expect(blocos[0].tagName).toBe('DETAILS')
+    expect(blocos[0]).toHaveTextContent('Como este resumo é gerado e de onde vêm os dados')
+    expect(blocos[0].textContent).toMatch(/regras fixas \(versão r-1\)/)
+    expect(within(blocos[0]).getByTestId('lista-fontes').textContent).toMatch(/Fonte A.*20\/09\/2026/)
+    expect(within(r).queryByTestId('fontes-e-datas')).toBeNull()
     expect(r.querySelector('p')!.textContent).toBe('Primeira frase inteira, sem corte. Segunda frase.')
   })
 
@@ -173,9 +178,12 @@ describe('resumo em texto', () => {
     expect(screen.getByTestId('resumo-em-texto')).toHaveAttribute('aria-live', 'polite')
   })
 
-  it('dentro de um grupo, entrega as fontes ao bloco da seção e não cria outro', () => {
-    render(<GrupoFontes><ResumoEmTexto frases={frases} regras="r-1" /></GrupoFontes>)
-    expect(screen.getAllByTestId('fontes-e-datas')).toHaveLength(1)
+  it('dentro de um grupo, o resumo mantém as próprias fontes no bloco dele e não as repete no bloco da seção', () => {
+    render(<GrupoFontes><Kpi rotulo="A" valor="1" selo="fato" fonte="Fonte K" dataRef="2026-09-20" /><ResumoEmTexto frases={frases} regras="r-1" /></GrupoFontes>)
+    const secao = screen.getByTestId('fontes-e-datas')
+    expect(secao.textContent).toMatch(/Fonte K/)
+    expect(secao.textContent).not.toMatch(/Fonte A/)
+    expect(within(screen.getByTestId('resumo-em-texto')).getByTestId('lista-fontes').textContent).toMatch(/Fonte A/)
   })
 })
 

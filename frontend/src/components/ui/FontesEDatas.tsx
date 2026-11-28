@@ -60,25 +60,33 @@ function dataVisivel(v: string): string {
  * cartão ou frase da seção. O conteúdo fica no DOM (`<details>`), então leitor de tela e busca na página o alcançam.
  */
 export function FontesEDatas({ itens, titulo = 'Fontes e datas destes números', snapshot, className = '' }: { itens: ItemFonte[]; titulo?: string; snapshot?: string | null; className?: string }) {
-  const lista = deduplicar(itens)
-  if (lista.length === 0) return null
+  if (deduplicar(itens).length === 0) return null
   return (
     <details className={`group/fontes text-xs text-gray-700 ${className}`} data-testid="fontes-e-datas">
       <summary className="inline-flex min-h-6 cursor-pointer select-none items-center gap-1.5 rounded px-1 text-primario-700 hover:text-primario-900">
         <span aria-hidden="true" className="transition-transform group-open/fontes:rotate-90">▸</span>
         {titulo}
       </summary>
-      <ul className="mt-1 space-y-1 pl-4">
-        {lista.map((i) => (
-          <li key={textoItem(i)} className="flex flex-wrap items-center gap-x-2 gap-y-0.5" data-fonte-item>
-            {i.selo && <SeloMarca selo={i.selo} legivel />}
-            {i.fonte && <span>{i.fonte}</span>}
-            {i.dataRef && <span className="text-gray-600">referência: {dataVisivel(i.dataRef)}</span>}
-          </li>
-        ))}
-        {snapshot && <li className="text-gray-600">Snapshot de {formatarReferencia(snapshot)}.</li>}
-      </ul>
+      <ListaFontes itens={itens} snapshot={snapshot} className="mt-1 pl-4" />
     </details>
+  )
+}
+
+/** A lista de fontes sem o recolhido: selo, fonte e data de referência de cada item, sem repetição, e o snapshot. */
+export function ListaFontes({ itens, snapshot, className = '' }: { itens: ItemFonte[]; snapshot?: string | null; className?: string }) {
+  const lista = deduplicar(itens)
+  if (lista.length === 0) return null
+  return (
+    <ul className={`space-y-1 text-xs text-gray-700 ${className}`} data-testid="lista-fontes">
+      {lista.map((i) => (
+        <li key={textoItem(i)} className="flex flex-wrap items-center gap-x-2 gap-y-0.5" data-fonte-item>
+          {i.selo && <SeloMarca selo={i.selo} legivel />}
+          {i.fonte && <span>{i.fonte}</span>}
+          {i.dataRef && <span className="text-gray-600">referência: {dataVisivel(i.dataRef)}</span>}
+        </li>
+      ))}
+      {snapshot && <li className="text-gray-600">Snapshot de {formatarReferencia(snapshot)}.</li>}
+    </ul>
   )
 }
 
