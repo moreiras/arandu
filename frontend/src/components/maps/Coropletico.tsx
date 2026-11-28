@@ -28,19 +28,27 @@ export interface PropsCoropletico {
   descricao: string
   /** Enquadramento inicial (oeste, sul, leste, norte); sem ele, o país inteiro. Usado nas páginas de UF. */
   caixa?: [[number, number], [number, number]]
+  /** Pontos marcados por cima (anel branco com contorno escuro, como os PIX no bloco de área de influência); atualizados sem recriar o mapa. */
+  pontos?: Array<{ lon: number; lat: number }>
 }
+
+const geojsonPontos = (pontos: PropsCoropletico['pontos']) => ({
+  type: 'FeatureCollection' as const,
+  features: (pontos ?? []).map((p) => ({ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [p.lon, p.lat] } })),
+})
 
 /**
  * Mapa coroplético sobre a malha municipal em tiles vetoriais (PMTiles lido por `Range`): sem GeoJSON, sem mapa-base, só os limites e a cor por feição.
  * O hover não usa estado do React (tooltip por DOM, regra do projeto). Orientação inicial: a lembrada pelo usuário (padrão sul para cima).
  */
-export function Coropletico({ cor, nivel = 'municipio', rotulo, aoClicar, altura = 520, className = '', descricao, caixa }: PropsCoropletico) {
+export function Coropletico({ cor, nivel = 'municipio', rotulo, aoClicar, altura = 520, className = '', descricao, caixa, pontos }: PropsCoropletico) {
   const ref = useRef<HTMLDivElement>(null)
   const mapa = useRef<maplibregl.Map | null>(null)
   const corRef = useRef(cor)
   const rotuloRef = useRef(rotulo)
   const cliqueRef = useRef(aoClicar)
-  corRef.current = cor; rotuloRef.current = rotulo; cliqueRef.current = aoClicar
+  const pontosRef = useRef(pontos)
+  corRef.current = cor; rotuloRef.current = rotulo; cliqueRef.current = aoClicar; pontosRef.current = pontos
   const camada = nivel === 'uf' ? 'ufs-fill' : 'mun-fill'
 
   useEffect(() => {
@@ -51,13 +59,17 @@ export function Coropletico({ cor, nivel = 'municipio', rotulo, aoClicar, altura
       container: el, attributionControl: false, center: MAP_DEFAULT_CENTER, zoom: 2.6, bearing: bearingInicial(), maxZoom: 9, dragRotate: true,
       style: {
         version: 8,
-        sources: { malha: { type: 'vector', url: `pmtiles://${base}`, attribution: 'Fonte: IBGE' } },
+        sources: {
+          malha: { type: 'vector', url: `pmtiles://${base}`, attribution: 'Fonte: IBGE' },
+          pontos: { type: 'geojson', data: geojsonPontos(pontosRef.current) },
+        },
         layers: [
           { id: 'fundo', type: 'background', paint: { 'background-color': '#f8fafc' } },
           { id: 'mun-fill', type: 'fill', source: 'malha', 'source-layer': 'municipios', paint: { 'fill-color': COR_SEM_DADO, 'fill-opacity': nivel === 'municipio' ? 1 : 0 } },
           { id: 'ufs-fill', type: 'fill', source: 'malha', 'source-layer': 'ufs', paint: { 'fill-color': COR_SEM_DADO, 'fill-opacity': nivel === 'uf' ? 1 : 0 } },
           { id: 'mun-linha', type: 'line', source: 'malha', 'source-layer': 'municipios', minzoom: 5, paint: { 'line-color': '#ffffff', 'line-width': 0.4, 'line-opacity': 0.7 } },
           { id: 'ufs-linha', type: 'line', source: 'malha', 'source-layer': 'ufs', paint: { 'line-color': '#475569', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.5, 7, 1.5] } },
+          { id: 'pontos-anel', type: 'circle', source: 'pontos', paint: { 'circle-radius': 6, 'circle-color': '#ffffff', 'circle-stroke-color': '#111827', 'circle-stroke-width': 2.5 } },
         ],
       } as maplibregl.StyleSpecification,
     })
@@ -97,6 +109,13 @@ export function Coropletico({ cor, nivel = 'municipio', rotulo, aoClicar, altura
     const aplicar = () => m.setPaintProperty(camada, 'fill-color', cor as never)
     if (m.isStyleLoaded()) aplicar(); else m.once('load', aplicar)
   }, [cor, camada])
+
+  useEffect(() => {
+    const m = mapa.current
+    if (!m) return
+    const aplicar = () => (m.getSource('pontos') as maplibregl.GeoJSONSource | undefined)?.setData(geojsonPontos(pontos))
+    if (m.isStyleLoaded()) aplicar(); else m.once('load', aplicar)
+  }, [pontos])
 
   return <div ref={ref} role="group" aria-label={descricao} style={{ height: altura }} className={`relative w-full overflow-hidden rounded-lg border border-gray-200 ${className}`} />
 }

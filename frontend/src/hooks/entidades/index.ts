@@ -6,3 +6,4 @@
 export * from './entidades'
 export { chaves, IMUTAVEL } from './chaves'
 export * from './geografia'
+export * from './areaInfluencia'
