@@ -11,7 +11,7 @@ import { http, HttpResponse } from 'msw'
 import { server } from '../../../test/server'
 import { useAppStore } from '../../../store/app'
 import { TONS_UM_MATIZ } from '../../../lib/areaInfluencia'
-import { AREA_PTT, VISAO_TODOS } from '../areaInfluencia.fixture'
+import { AREA_PTT, VISAO_ALCANCE_TODOS, VISAO_TODOS } from '../areaInfluencia.fixture'
 import { AreaInfluenciaBloco } from './AreaInfluenciaBloco'
 
 const propsMapa = vi.fn()
@@ -50,16 +50,43 @@ describe('bloco Área de influência observada do PTT', () => {
     servir(AREA_PTT)
     montar()
     await screen.findByTestId('area-kpis')
-    expect(screen.getByRole('button', { name: /Só diretamente conectados/ }).getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getByRole('button', { name: /Influência provável dos diretamente conectados/ }).getAttribute('aria-pressed')).toBe('true')
     const corDiretos = JSON.stringify(ultimoCor())
     expect(ultimoCor()).toContain(TONS_UM_MATIZ[1])
-    fireEvent.click(screen.getByRole('button', { name: /Todos que anunciam no PTT/ }))
-    expect(screen.getByRole('button', { name: /Todos que anunciam no PTT/ }).getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(screen.getByRole('button', { name: /Influência provável de todos que anunciam/ }))
+    expect(screen.getByRole('button', { name: /Influência provável de todos que anunciam/ }).getAttribute('aria-pressed')).toBe('true')
     expect(screen.getByTestId('area-kpis').textContent).toContain('20 km')        // P50 de todos
     expect(JSON.stringify(ultimoCor())).not.toBe(corDiretos)
     const p = propsMapa.mock.calls[propsMapa.mock.calls.length - 1][0]
     expect(p.pontos).toEqual([{ lat: -23.6, lon: -46.7 }, { lat: -23.5, lon: -46.6 }])
     expect(p.descricao).toContain('PIX')
+  })
+
+  it('o seletor tem quatro opções, na ordem: influência provável e alcance, dos conectados e de todos', async () => {
+    servir(AREA_PTT)
+    montar()
+    await screen.findByTestId('area-kpis')
+    const botoes = within(screen.getByTestId('seletor-visao')).getAllByRole('button').map((b) => b.textContent)
+    expect(botoes).toEqual(['Influência provável dos diretamente conectados', 'Influência provável de todos que anunciam', 'Alcance dos diretamente conectados', 'Alcance de todos que anunciam'])
+  })
+
+  it('as visões de alcance trocam cartões, frases, mapa e tabelas, sem disputa entre PTTs', async () => {
+    servir(AREA_PTT)
+    montar()
+    await screen.findByTestId('area-kpis')
+    fireEvent.click(screen.getByRole('button', { name: 'Alcance dos diretamente conectados' }))
+    expect(screen.getByRole('button', { name: 'Alcance dos diretamente conectados' }).getAttribute('aria-pressed')).toBe('true')
+    const kpis = screen.getByTestId('area-kpis').textContent ?? ''
+    expect(kpis).toContain('40 km')                                              // P50 do alcance dos diretos
+    expect(kpis).toContain('Acessos no alcance')
+    const texto = screen.getByTestId('resumo-em-texto').textContent ?? ''
+    expect(texto).toContain('Considerando todos os municípios onde atuam as operadoras diretamente conectadas, sem descontar PTTs mais próximos, a maioria (P50) está a até 40 km; quase todos (P80), a até 300 km; o P90 é 520 km.')
+    expect(texto).toContain('Considerando todos os municípios onde atuam as operadoras que anunciam pelo PTT, diretas e indiretas, sem descontar PTTs mais próximos, a maioria (P50) está a até 60 km')
+    expect(texto).not.toContain('Os participantes diretamente conectados atuam')
+    expect(propsMapa.mock.calls[propsMapa.mock.calls.length - 1][0].descricao).toContain('no alcance do PTT Arandurápolis')
+    expect(screen.getByTestId('tabela-faixas').textContent).toContain('Acessos no alcance')
+    fireEvent.click(screen.getByRole('button', { name: 'Alcance de todos que anunciam' }))
+    expect(screen.getByTestId('area-kpis').textContent).toContain('60 km')
   })
 
   it('tabela por faixa e tabela de municípios com nomes, filtro e paginação (alternativa textual ao mapa)', async () => {
@@ -82,10 +109,10 @@ describe('bloco Área de influência observada do PTT', () => {
   })
 
   it('visão sem acessos atribuídos avisa, e o seletor marca "sem dados"', async () => {
-    servir({ ...AREA_PTT, visoes: { diretos: null, todos: VISAO_TODOS } })
+    servir({ ...AREA_PTT, visoes: { diretos: null, todos: VISAO_TODOS, alcance_diretos: null, alcance_todos: VISAO_ALCANCE_TODOS } })
     montar()
     await screen.findByTestId('area-kpis')                                         // abre em "todos", a que tem dados
-    fireEvent.click(screen.getByRole('button', { name: /Só diretamente conectados \(sem dados\)/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Influência provável dos diretamente conectados \(sem dados\)/ }))
     expect(screen.getByTestId('area-sem-visao').textContent).toContain('Nenhuma operadora tem acessos atribuídos a este PTT')
     expect(screen.getByTestId('resumo-em-texto').textContent).toContain('Nenhum participante diretamente conectado com prefixo próprio visto neste PTT')
   })
@@ -103,7 +130,7 @@ describe('bloco Área de influência observada do PTT', () => {
     montar()
     await screen.findByTestId('area-kpis')
     const t = screen.getByText('Como ler a área de influência').closest('details')!.textContent ?? ''
-    for (const parte of [/PTT mais próximo entre os que a operadora enxerga/, /linha reta/, /Não há exclusão de operadoras/, /centroide do município do endereço/, /mês 2026-08 do SICI/, /inferido/, /não é cobertura de rede/, /Nenhum acesso conta duas vezes/]) expect(t).toMatch(parte)
+    for (const parte of [/influência provável/, /alcance/, /não disputam/, /um município pode estar no alcance de vários PTTs/, /PTT mais próximo entre os que a operadora enxerga/, /linha reta/, /Não há exclusão de operadoras/, /centroide do município do endereço/, /mês 2026-08 do SICI/, /inferido/, /não é cobertura de rede/, /Nenhum acesso conta duas vezes/]) expect(t).toMatch(parte)
   })
 
   it('snapshot sem o artefato (204) mostra o aviso e nenhum mapa', async () => {

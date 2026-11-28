@@ -6,6 +6,8 @@
 
 // Área de influência observada dos PTTs (`/ixps/area-influencia`, `/ixps/{code}/area-influencia`).
 export type VisaoArea = 'diretos' | 'todos'
+/** Visões de um PTT: as duas de influência provável (com disputa entre PTTs) e as duas de alcance (sem disputa; só por PTT). */
+export type VisaoAreaPtt = VisaoArea | 'alcance_diretos' | 'alcance_todos'
 export interface AreaInfluenciaFaixaTotais { municipios: number; acessos: number }
 /** Um PTT numa visão: P50, P80 e P90 da distância (km, ponderada por acessos), mediana por operadora e municípios por faixa. */
 export interface AreaInfluenciaVisao {
@@ -25,7 +27,7 @@ export interface AreaInfluenciaPix { total: number; coordenada: number; endereco
 export interface AreaInfluenciaPtt extends AreaInfluenciaMeta {
   ixp: string; nome: string; uf: string; pix: AreaInfluenciaPix
   totais: Partial<Record<VisaoArea, AreaInfluenciaTotais>>
-  visoes: Partial<Record<VisaoArea, AreaInfluenciaVisao | null>>
+  visoes: Partial<Record<VisaoAreaPtt, AreaInfluenciaVisao | null>>
   /** IBGE → "Nome/UF" dos municípios das listas. */
   municipios_nomes: Record<string, string>
 }

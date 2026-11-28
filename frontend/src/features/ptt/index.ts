@@ -67,7 +67,7 @@ def({ id: 'rejeicoes', titulo: 'Rejeições e política nos route servers', orde
 def({ id: 'instalacoes', titulo: 'Instalações (PeeringDB)', ordem: 57, depende: ['useIxpPerfil'], fontes: ['peeringdb_fac'], selo: 'fato',
   nota: 'cadastro autodeclarado no PeeringDB; o indicador de cadastro é inferido das datas e não diz nada da operação', aplicavel: (c) => !!c.facilities || !!c.portas, Componente: InstalacoesBloco })
 def({ id: 'area-influencia', titulo: 'Área de influência observada', ordem: 58, depende: ['area-influencia-ptt'], fontes: ['anatel_sici', 'lg_ixbr', 'curada_pix', 'ibge_malha_municipal'], selo: 'inferido',
-  nota: 'acessos do SICI atribuídos ao PTT mais próximo entre os que a operadora enxerga; distância em linha reta; não é cobertura de rede', Componente: AreaInfluenciaBloco })
+  nota: 'acessos do SICI atribuídos ao PTT mais próximo entre os que a operadora enxerga (influência provável) ou sem disputa entre PTTs (alcance); distância em linha reta; não é cobertura de rede', Componente: AreaInfluenciaBloco })
 def({ id: 'mapa', semTitulo: true, titulo: 'Distribuição geográfica', ordem: 60, depende: ['ixp-geo'], fontes: ['prefix_geo', 'curada_pix'], selo: 'inferido', nota: 'geolocalização por prefixo, com confiança variável', Componente: MapaGeoBloco })
 def({ id: 'hilbert-v6', semTitulo: true, titulo: 'Espaço IPv6: curva de Hilbert', ordem: 70, depende: ['useIxp', 'ixp-members'], fontes: ['lg_ixbr', 'registro_br'], selo: 'fato', aplicavel: (c) => !!c.v6, Componente: HilbertV6Bloco })
 def({ id: 'hilbert-v4', semTitulo: true, titulo: 'Espaço IPv4: curva de Hilbert', ordem: 80, depende: ['useIxp', 'ixp-members'], fontes: ['lg_ixbr', 'registro_br'], selo: 'fato', aplicavel: (c) => !!c.v4, Componente: HilbertV4Bloco })
