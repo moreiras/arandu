@@ -43,6 +43,17 @@ export interface QuemAtende {
   listaCortada: boolean
 }
 
+/** Empresário individual e MEI chegam da API com o rótulo "Empresário individual" e o CNPJ mascarado: nome sem link para a operadora e sem CNPJ completo. */
+export const ehPessoaNatural = (nome: string) => /^empres[aá]rio individual/i.test((nome ?? '').trim())
+
+/** União dos PTTs de vários ASNs (de uma mesma operadora): direto em qualquer um conta como direto; só indireto é o que sobra, sem repetir um PTT já direto. */
+export function unirPtts(provedores: Array<{ ptts_diretos: string[]; ptts_indiretos: string[] }>): { diretos: string[]; indiretos: string[] } {
+  const diretos = new Set<string>()
+  const indiretos = new Set<string>()
+  for (const p of provedores) { p.ptts_diretos.forEach((c) => diretos.add(c)); p.ptts_indiretos.forEach((c) => indiretos.add(c)) }
+  return { diretos: [...diretos].sort(), indiretos: [...indiretos].filter((c) => !diretos.has(c)).sort() }
+}
+
 const NOME_NAO_INFORMADO = /^\s*nenhum\s+informado\s*$/i
 const pct = (parte: number, total: number) => (total > 0 ? (parte / total) * 100 : 0)
 
@@ -61,19 +72,12 @@ export function quemAtende(
   for (const m of marcas) { marcaDe.set(m.de_cnpj, m.marca); marcaDe.set(m.para_cnpj, m.marca) }
   const total = operadores.reduce((t, o) => t + o.acessos, 0)
   const todas: LinhaQuemAtende[] = operadores.map((o) => {
-    const diretos = new Set<string>()
-    const indiretos = new Set<string>()
-    let ausentes = 0
-    for (const a of o.asns) {
-      const p = porAsn.get(a)
-      if (!p) { ausentes++; continue }
-      p.ptts_diretos.forEach((c) => diretos.add(c))
-      p.ptts_indiretos.forEach((c) => indiretos.add(c))
-    }
-    const so = [...indiretos].filter((c) => !diretos.has(c)).sort()
+    const lidos = o.asns.map((a) => porAsn.get(a)).filter((p): p is NonNullable<typeof p> => !!p)
+    const ausentes = o.asns.length - lidos.length
+    const { diretos, indiretos: so } = unirPtts(lidos)
     let situacao: SituacaoRede
     if (o.asns.length === 0) situacao = 'sem_asn'
-    else if (diretos.size > 0) situacao = 'direta'
+    else if (diretos.length > 0) situacao = 'direta'
     else if (so.length > 0) situacao = 'so_indireta'
     else if (!regiao || (listaCortada && ausentes > 0)) situacao = 'indeterminada'
     else situacao = 'sem_ptt'
@@ -83,7 +87,7 @@ export function quemAtende(
     return {
       cnpj: o.cnpj, nome: nenhum ? (nomeAsn ?? '') : nomeSici, nomeDoAsn: nenhum && !!nomeAsn, semNome: nenhum && !nomeAsn,
       marca: marcaDe.get(o.cnpj), acessos: o.acessos, share: pct(o.acessos, total), asns: o.asns,
-      diretos: [...diretos].sort(), indiretos: so, situacao,
+      diretos, indiretos: so, situacao,
     }
   }).sort((a, b) => b.acessos - a.acessos || a.cnpj.localeCompare(b.cnpj))
 

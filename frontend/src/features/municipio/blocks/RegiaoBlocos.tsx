@@ -3,16 +3,21 @@
 // Este arquivo faz parte do Arandurape.
 // Licença: GNU Affero General Public License v3 ou posterior.
 // Texto completo: https://www.gnu.org/licenses/agpl-3.0.html
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from '../../../components/layout/LinkDatado'
 import type { BlocoProps } from '../../entidade/registry'
 import type { RegiaoVinculo } from '../../../types/api'
 import type { MunicipioCtx } from '../contexto'
 import { fmt } from '../ui'
+import { fmtKm } from '../../../lib/geo'
+import { palavra } from '../../../lib/sintese'
+import { ehPessoaNatural } from '../quemAtende'
+import { agruparProvedores, avisoLimiteRegiao, type LinhaProvedor } from '../regiaoProvedores'
 import { BarraClasses } from '../../prontidao/blocos'
 import { ThOrdenavel } from '../../../components/ui/ThOrdenavel'
 import { useOrdenacao } from '../../../lib/ordenacao'
 
+const ASNS_VISIVEIS = 3
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`)
 const ROTULO: Record<RegiaoVinculo, { texto: string; dica: string; cor: string }> = {
   sici: { texto: 'SICI', dica: 'a operadora declara acessos no município (Anatel)', cor: 'bg-primario-50 text-primario-700 border-primario-100' },
@@ -32,47 +37,96 @@ function Limites({ texto }: { texto?: string }) {
   return <p className="mt-2 text-xs text-gray-500">{texto}</p>
 }
 
-/** Os provedores (ASNs) da região: quem declara acessos no SICI, quem tem sede e quem tem IPs geolocalizados ali, mesmo sem assinantes informados. */
+/** Aviso de corte da região (o raio pedido tinha mais municípios que o teto): vai nos blocos que leem `/regiao`, sem esconder o limite. */
+export function AvisoLimiteRegiao({ dados }: { dados: MunicipioCtx }) {
+  const texto = avisoLimiteRegiao(dados.conjunto, fmtKm, fmt)
+  return texto ? <p className="text-xs rounded border border-aviso-100 bg-aviso-50 text-aviso-700 px-2 py-1" data-testid="aviso-limite-regiao">{texto}</p> : null
+}
+
+function AsnsDaLinha({ l }: { l: LinhaProvedor }) {
+  const [aberto, setAberto] = useState(false)
+  const lista = aberto ? l.asns : l.asns.slice(0, ASNS_VISIVEIS)
+  const resto = l.asns.length - ASNS_VISIVEIS
+  return (
+    <span className="flex flex-wrap items-center gap-1">
+      {lista.map((a) => <Link key={a.asn} to={`/asn/${a.asn}`} title={a.nome} className="text-xs px-1.5 py-0.5 rounded bg-primario-50 text-primario-700 border border-primario-100">AS{a.asn}</Link>)}
+      {resto > 0 && <button type="button" className="text-xs text-primario-600 hover:underline" aria-expanded={aberto} onClick={() => setAberto(!aberto)}>{aberto ? 'recolher' : `+${fmt(resto)}`}</button>}
+    </span>
+  )
+}
+
+function NomeDaLinha({ l }: { l: LinhaProvedor }) {
+  const nome = l.nome || `AS${l.asns[0].asn}`
+  // Pessoa natural (EI/MEI): o nome já vem mascarado e não há CNPJ nem página de operadora
+  return l.cnpj && !ehPessoaNatural(nome)
+    ? <Link to={`/operadora/${l.cnpj}`} className="text-primario-600 hover:underline">{nome}</Link>
+    : <span className="text-gray-700">{nome}</span>
+}
+
+/**
+ * As operadoras da região, uma linha por CNPJ, com os ASNs de cada uma: quem declara acessos (fixo ou móvel) no SICI, quem tem sede e quem tem IPs
+ * geolocalizados ali. Diferente de "Quem atende e como se conecta", que parte só do fixo declarado ao SICI. ASN sem CNPJ ligado é uma linha própria.
+ */
 export function ProvedoresRegiaoBloco({ dados }: BlocoProps<MunicipioCtx>) {
   const r = dados.regiao!
   const nomePtt = nomeDosPtts(r.ptts_nomes)
   const [todos, setTodos] = useState(false)
-  // A API corta a lista em 300: só se ordena no navegador quando ela veio inteira (reordenar um recorte esconderia quem lidera a coluna).
+  const ag = useMemo(() => agruparProvedores(r.provedores), [r.provedores])
+  // A API corta a lista em 300 ASNs: só se ordena no navegador quando ela veio inteira (reordenar um recorte esconderia quem lidera a coluna).
   const inteira = r.provedores_total <= r.provedores.length
-  const { ordenados, props: propsLocal } = useOrdenacao(r.provedores, {
-    asn: { valor: (p) => p.asn, primeiro: 'asc' },
-    vinculo: (p) => p.vinculos.map((k) => ROTULO[k].texto).join(' '),
-    acessos: (p) => (p.acessos_fixo + p.acessos_movel > 0 ? p.acessos_fixo + p.acessos_movel : null),
-    prefixos: (p) => (p.prefixos_geo > 0 ? p.prefixos_geo : null),
-    ptts: (p) => p.ptts_diretos.length || null,
+  const { ordenados, props: propsLocal } = useOrdenacao(ag.linhas, {
+    operadora: { valor: (l) => l.nome, primeiro: 'asc' },
+    asns: (l) => l.asns.length,
+    vinculo: (l) => l.vinculos.map((k) => ROTULO[k].texto).join(' '),
+    acessos: (l) => (l.acessos > 0 ? l.acessos : null),
+    prefixos: (l) => (l.prefixos > 0 ? l.prefixos : null),
+    ptts: (l) => l.diretos.length || null,
   })
   const props = (c: Parameters<typeof propsLocal>[0]) => (inteira ? propsLocal(c) : { campo: c, ordem: null })
   const lista = todos ? ordenados : ordenados.slice(0, 15)
   const v = r.asns.por_vinculo
+  const operadoras = ag.operadoras
+  const semCnpj = ag.linhas.length - operadoras
   return (
     <div className="space-y-2" data-testid="regiao-provedores">
+      <AvisoLimiteRegiao dados={dados} />
       <p className="text-sm text-gray-700">
         <strong className="tabular-nums">{fmt(r.asns.total)}</strong> ASNs ligados {r.ibges.length > 1 ? 'aos municípios' : 'ao município'}:{' '}
         {fmt(v.sici)} com acessos declarados ao SICI, {fmt(v.sede)} com sede ali e {fmt(v.geo)} com IPs geolocalizados ali (um ASN pode ter mais de um vínculo).
+        A tabela agrupa os ASNs por operadora: {fmt(ag.linhas.length)} {palavra(ag.linhas.length, 'linha', 'linhas')}, sendo {fmt(operadoras)} {palavra(operadoras, 'operadora identificada pelo CNPJ', 'operadoras identificadas pelo CNPJ')}
+        {semCnpj > 0 ? ` e ${fmt(semCnpj)} ${palavra(semCnpj, 'ASN', 'ASNs')} sem CNPJ ligado` : ''}.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead><tr className="text-left text-xs text-gray-400 border-b border-gray-100"><ThOrdenavel {...props('asn')} className="px-2 py-1">ASN</ThOrdenavel><ThOrdenavel {...props('vinculo')} className="px-2 py-1">Vínculo</ThOrdenavel><ThOrdenavel {...props('acessos')} alinhar="right" className="px-2 py-1 text-right" title="total declarado pela operadora do ASN no recorte; operadora com vários ASNs repete o mesmo total em cada um">Acessos da operadora (fixo + móvel)</ThOrdenavel><ThOrdenavel {...props('prefixos')} alinhar="right" className="px-2 py-1 text-right">Prefixos ali</ThOrdenavel><ThOrdenavel {...props('ptts')} className="px-2 py-1">PTTs diretos</ThOrdenavel></tr></thead>
+          <caption className="sr-only">Operadoras da região, com os ASNs, o vínculo, os acessos declarados, os prefixos geolocalizados e os PTTs diretos</caption>
+          <thead><tr className="text-left text-xs text-gray-400 border-b border-gray-100">
+            <ThOrdenavel {...props('operadora')} className="px-2 py-1">Operadora</ThOrdenavel>
+            <ThOrdenavel {...props('asns')} className="px-2 py-1">ASNs</ThOrdenavel>
+            <ThOrdenavel {...props('vinculo')} className="px-2 py-1">Vínculo</ThOrdenavel>
+            <ThOrdenavel {...props('acessos')} alinhar="right" className="px-2 py-1 text-right" title="total declarado pela operadora (CNPJ) na região, fixo e móvel, contado uma vez por operadora">Acessos (fixo + móvel)</ThOrdenavel>
+            <ThOrdenavel {...props('prefixos')} alinhar="right" className="px-2 py-1 text-right" title="soma dos prefixos geolocalizados ali em todos os ASNs da operadora">Prefixos ali</ThOrdenavel>
+            <ThOrdenavel {...props('ptts')} className="px-2 py-1" title="PTT em que algum ASN da operadora tem sessão direta">PTTs diretos</ThOrdenavel>
+          </tr></thead>
           <tbody className="divide-y divide-gray-50">
-            {lista.map((p) => (
-              <tr key={p.asn}>
-                <td className="px-2 py-1"><Link to={`/asn/${p.asn}`} className="text-primario-600 hover:underline">AS{p.asn}</Link> <span className="text-gray-600">{p.nome}</span></td>
-                <td className="px-2 py-1 whitespace-nowrap">{p.vinculos.map((k) => <span key={k} title={ROTULO[k].dica} className={`mr-1 px-1.5 py-0.5 rounded border text-xs ${ROTULO[k].cor}`}>{ROTULO[k].texto}</span>)}</td>
-                <td className="px-2 py-1 text-right tabular-nums">{p.acessos_fixo + p.acessos_movel > 0 ? fmt(p.acessos_fixo + p.acessos_movel) : '—'}</td>
-                <td className="px-2 py-1 text-right tabular-nums">{p.prefixos_geo > 0 ? fmt(p.prefixos_geo) : '—'}</td>
-                <td className="px-2 py-1"><ListaPtts codigos={p.ptts_diretos} nome={nomePtt} /></td>
+            {lista.map((l) => (
+              <tr key={l.chave} data-testid="regiao-linha">
+                <td className="px-2 py-1"><NomeDaLinha l={l} /></td>
+                <td className="px-2 py-1"><AsnsDaLinha l={l} /></td>
+                <td className="px-2 py-1 whitespace-nowrap">{l.vinculos.map((k) => <span key={k} title={ROTULO[k].dica} className={`mr-1 px-1.5 py-0.5 rounded border text-xs ${ROTULO[k].cor}`}>{ROTULO[k].texto}</span>)}</td>
+                <td className="px-2 py-1 text-right tabular-nums">{l.acessos > 0 ? fmt(l.acessos) : '—'}</td>
+                <td className="px-2 py-1 text-right tabular-nums">{l.prefixos > 0 ? fmt(l.prefixos) : '—'}</td>
+                <td className="px-2 py-1"><ListaPtts codigos={l.diretos} nome={nomePtt} /></td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      {r.provedores.length > 15 && <button type="button" className="text-xs text-primario-600 hover:underline" onClick={() => setTodos(!todos)}>{todos ? 'Mostrar só os 15 primeiros' : `Mostrar todos (${fmt(r.provedores.length)}${r.provedores_total > r.provedores.length ? ` de ${fmt(r.provedores_total)}` : ''})`}</button>}
-      <p className="text-xs text-gray-500">Os acessos são da operadora (CNPJ) do ASN: quando ela tem vários ASNs o mesmo total aparece em cada linha, então não some as linhas.</p>
+      {ag.linhas.length > 15 && <button type="button" className="text-xs text-primario-600 hover:underline" onClick={() => setTodos(!todos)}>{todos ? 'Mostrar só as 15 primeiras' : `Mostrar todas (${fmt(ag.linhas.length)}${r.provedores_total > r.provedores.length ? `, de ${fmt(r.provedores_total)} ASNs` : ''})`}</button>}
+      {!inteira && <p className="text-xs text-gray-500">A API devolve no máximo {fmt(r.provedores.length)} ASNs ({fmt(r.provedores_total)} na região): a tabela mostra os de mais acessos e não pode ser reordenada.</p>}
+      <p className="text-xs text-gray-500">
+        Os acessos são da operadora (CNPJ) e entram uma vez por linha, mesmo que ela tenha vários ASNs. PTTs: a união dos ASNs da operadora. O nome é o mais frequente entre os ASNs
+        dela; ASN sem CNPJ ligado e pessoa natural ficam em linha própria.
+      </p>
       <Limites texto={r.limites} />
     </div>
   )
@@ -92,6 +146,7 @@ export function PttsRegiaoBloco({ dados }: BlocoProps<MunicipioCtx>) {
   })
   return (
     <div className="space-y-3" data-testid="regiao-ptts">
+      <AvisoLimiteRegiao dados={dados} />
       <dl className="grid grid-cols-3 gap-3 text-sm">
         <div><dt className="text-xs text-gray-500">Com sessão em PTT (direto)</dt><dd className="text-lg font-semibold tabular-nums">{pct(p.pct_direto)}</dd><dd className="text-xs text-gray-500">{fmt(p.com_ptt_direto)} de {fmt(r.asns.total)} ASNs</dd></div>
         <div><dt className="text-xs text-gray-500">Só indireto</dt><dd className="text-lg font-semibold tabular-nums">{pct(p.pct_indireto)}</dd><dd className="text-xs text-gray-500">{fmt(p.so_indireto)} ASNs, por meio de outro ASN</dd></div>
@@ -124,6 +179,7 @@ export function TransitoRegiaoBloco({ dados }: BlocoProps<MunicipioCtx>) {
   const nomePtt = nomeDosPtts(r.ptts_nomes)
   return (
     <div className="space-y-2" data-testid="regiao-transito">
+      <AvisoLimiteRegiao dados={dados} />
       <table className="w-full text-sm">
         <thead><tr className="text-left text-xs text-gray-400 border-b border-gray-100"><th className="px-2 py-1">Provedor de trânsito</th><th className="px-2 py-1 text-right">ASNs da região</th><th className="px-2 py-1 text-right" title="confirmado / provável / possível">Confiança</th><th className="px-2 py-1">Está em</th></tr></thead>
         <tbody className="divide-y divide-gray-50">
@@ -148,6 +204,7 @@ export function CarregadoresRegiaoBloco({ dados }: BlocoProps<MunicipioCtx>) {
   const nomePtt = nomeDosPtts(r.ptts_nomes)
   return (
     <div className="space-y-2" data-testid="regiao-carregadores">
+      <AvisoLimiteRegiao dados={dados} />
       <table className="w-full text-sm">
         <thead><tr className="text-left text-xs text-gray-400 border-b border-gray-100"><th className="px-2 py-1">ASN que carrega</th><th className="px-2 py-1 text-right">ASNs da região</th><th className="px-2 py-1">PTTs onde tem sessão</th></tr></thead>
         <tbody className="divide-y divide-gray-50">
@@ -182,6 +239,7 @@ export function ProntidaoRegiaoBloco({ dados }: BlocoProps<MunicipioCtx>) {
   const linhas = Object.entries(a.medicoes ?? {}).filter(([, m]) => m.asns > 0)
   return (
     <div className="space-y-3 text-sm" data-testid="regiao-prontidao">
+      <AvisoLimiteRegiao dados={dados} />
       <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
         <div><span className="text-2xl font-semibold tabular-nums">{a.media_ponderada_usuarios == null ? '—' : a.media_ponderada_usuarios.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</span> <span className="text-gray-500">média do índice ponderada pelos usuários estimados</span></div>
         <div className="text-gray-600">{fmt(a.asns_com_indice)} de {fmt(a.asns)} ASNs da região com índice · Brasil {p.brasil.media_ponderada_usuarios?.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) ?? '—'}</div>

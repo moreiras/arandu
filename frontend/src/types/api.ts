@@ -2681,7 +2681,7 @@ export interface RegiaoTransito {
 }
 export interface RegiaoCarregador { asn: number; nome: string; asns: number; pct: number | null; na_regiao: boolean; ptts_diretos: string[] }
 export interface RegiaoProvedor {
-  asn: number; nome: string; vinculos: RegiaoVinculo[]; acessos_fixo: number; acessos_movel: number; prefixos_geo: number; ptts_diretos: string[]; ptts_indiretos: string[]
+  asn: number; nome: string; /** CNPJ da operadora (SICI); ausente para pessoa natural, ASN sem CNPJ ligado e snapshots antigos da API */ cnpj?: string | null; vinculos: RegiaoVinculo[]; acessos_fixo: number; acessos_movel: number; prefixos_geo: number; ptts_diretos: string[]; ptts_indiretos: string[]
 }
 export interface Regiao {
   snapshot_date: string; natureza: string; limites: string; fontes: Record<string, string | null>

@@ -75,7 +75,7 @@ export function MunicipioPage() {
   const ctx: MunicipioCtx = {
     ibge: base.ibge, fixo: d.fixo, movel: d.movel, centroide: d.centroide, indicadores: d.indicadores, serieMercado: d.perfil?.serie_mercado, mercadoGrupos: d.perfil?.mercado_grupos, redeTerritorio: d.perfil?.rede_territorio, territorio: d.perfil?.territorio, erbs: d.perfil?.erbs, fust: d.perfil?.fust, qualidade: d.perfil?.qualidade, reclamacoes: d.perfil?.reclamacoes, consumidor: d.perfil?.consumidor, contratos: contratos.data ?? null,
     proximos: d.proximos, carregandoPtts: false, regiao: regiao.data ?? null,
-    ...(somando && agregado ? { ...agregado, conjunto: { n, central: base.ibge } } : {}),
+    ...(somando && agregado ? { ...agregado, conjunto: { n, central: base.ibge, cortado: conjunto.cortado, dentroDoRaio: conjunto.dentroDoRaio, raioKm: conjunto.raioKm, raioEfetivoKm: conjunto.raioEfetivoKm } } : {}),
   }
   return (
     <div className="space-y-5">
