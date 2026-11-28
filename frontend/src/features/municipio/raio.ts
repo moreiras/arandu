@@ -68,3 +68,17 @@ export function circuloGeoJSON(centro: LonLat, km: number, passos = 96): GeoJSON
   }
   return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [anel] } }
 }
+
+/** Filtro MapLibre que casa os municípios da malha (propriedade `ibge`, texto) com a lista; lista vazia não casa nenhum. */
+export function filtroPorIbge(ibges: string[]): ['in', ['get', 'ibge'], ['literal', string[]]] {
+  return ['in', ['get', 'ibge'], ['literal', ibges]]
+}
+
+/** Os três filtros do mapa do raio, derivados do conjunto: os somados, o central e os que passaram do teto. */
+export function filtrosDoConjunto(c: ConjuntoRaio) {
+  return {
+    somados: filtroPorIbge(c.selecionados.map((v) => v.ibge)),
+    central: filtroPorIbge([c.central]),
+    fora: filtroPorIbge(c.foraDoLimite.map((v) => v.ibge)),
+  }
+}

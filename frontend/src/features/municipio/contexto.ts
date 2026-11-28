@@ -40,7 +40,7 @@ export interface MunicipioCtx {
   /** ASNs do município ou do conjunto: provedores, PTTs, trânsito e carregadores (`GET /regiao`). */
   regiao?: Regiao | null
   /** Presente quando a página soma um raio de municípios: quantos entram e qual é o central. */
-  conjunto?: { n: number; central: string }
+  conjunto?: { n: number; central: string; cortado?: boolean; dentroDoRaio?: number; raioKm?: number; raioEfetivoKm?: number }
 }
 
 export const RAIO_PTT_PROXIMO_KM = 100

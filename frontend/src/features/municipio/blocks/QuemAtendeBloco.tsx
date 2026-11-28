@@ -10,12 +10,10 @@ import { palavra } from '../../../lib/sintese'
 import type { BlocoProps } from '../../entidade/registry'
 import type { MunicipioCtx } from '../contexto'
 import { fmt, fmtCnpj } from '../ui'
-import { quemAtende, type LinhaQuemAtende } from '../quemAtende'
+import { ehPessoaNatural, quemAtende, type LinhaQuemAtende } from '../quemAtende'
 import { ListaPtts, nomeDosPtts } from './RegiaoBlocos'
 
 const pct = (v: number) => `${v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`
-/** Empresário individual e MEI chegam da API com o rótulo "Empresário individual": o nome já traz o CNPJ mascarado, então aqui não há link nem CNPJ completo. */
-const ehPessoaNatural = (nome: string) => /^empres[aá]rio individual/i.test(nome.trim())
 const ehCnpjCompleto = (c: string) => /^\d{14}$/.test((c ?? '').replace(/\D/g, '')) && !/[*]/.test(c)
 
 function Nome({ l }: { l: LinhaQuemAtende }) {
