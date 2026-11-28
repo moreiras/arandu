@@ -5,6 +5,10 @@
 Correções e melhorias da análise do OBINT (instância pública), integradas na branch `correcoes-obint`. Os identificadores entre
 parênteses remetem à análise.
 
+- **Alcance dos PTTs, sem disputa entre PTTs.** O mapa da área de influência na página de cada PTT ganha duas visões: o alcance dos
+  diretamente conectados e o de todos que anunciam, com todos os municípios onde essas operadoras declaram acessos, sem descontar PTTs
+  mais próximos (faixas P50, P80 e restantes sobre esse alcance). `/ixps/{code}/area-influencia` aceita `alcance_diretos` e
+  `alcance_todos`; o produto precisa ser regerado nos snapshots.
 - **Como ler e fontes num só recolhido por seção.** O "Como ler" e o "Fontes e datas" das seções de cartões viram um único recolhido,
   fechado e em caixa ("Como ler e de onde vêm estes números"); em `/municipios`, o "Como ler" que abria aberto acima da tabela e as
   notas soltas abaixo dela passam a esse recolhido. O "Em resumo" da home fica com até cinco frases curtas.
