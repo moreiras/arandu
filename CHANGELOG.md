@@ -5,6 +5,13 @@
 Correções e melhorias da análise do OBINT (instância pública), integradas na branch `correcoes-obint`. Os identificadores entre
 parênteses remetem à análise.
 
+- **Como ler e fontes num só recolhido por seção.** O "Como ler" e o "Fontes e datas" das seções de cartões viram um único recolhido,
+  fechado e em caixa ("Como ler e de onde vêm estes números"); em `/municipios`, o "Como ler" que abria aberto acima da tabela e as
+  notas soltas abaixo dela passam a esse recolhido. O "Em resumo" da home fica com até cinco frases curtas.
+- **ROA, ROV e ASPA no mapa.** O "Colorir por" das sedes dos ASes passa a ter "ROA (RPKI)" (antes "RPKI"), "ASPA (RPKI)" (publicação do
+  objeto; a verificação de ASPA ainda não é medida) e o novo "ROV (RPKI)", por faixas da medição do APNIC com mínimo de amostras
+  (`color_by=rov` em `/map/query`). Essas opções e o % de usuários IPv6 deixam o verde e o vermelho por tons de um mesmo azul.
+  **Aviso:** no CSV das sedes, a coluna `tem_rpki` passou a se chamar `tem_roa`.
 - **Orçamento sem login resistente a janela privada.** Safari e Firefox zeravam o orçamento numa janela privada nova (cookie novo e
   fingerprint alterado no canvas e no WebGL). O front passa a mandar também um fingerprint estável (família do navegador e sistema,
   idioma, fuso, tela e núcleos), procurado depois do cookie e do fingerprint completo, e o tempo somado das sessões da mesma rede no dia
