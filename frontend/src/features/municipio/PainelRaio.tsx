@@ -61,6 +61,10 @@ export function PainelRaio({ conjunto, raioKm, onRaio, centroides, perfis, pront
       <Suspense fallback={<div className="h-80 rounded-lg bg-gray-50" />}>
         <MapaRaio conjunto={conjunto} centroides={centroides} nomes={nomes} />
       </Suspense>
+      <p className="text-xs text-gray-500" data-testid="legenda-raio">
+        Contornos dos municípios (Fonte: IBGE, Malha Municipal 2024): contorno escuro e área mais firme, o município da página; área clara, os municípios somados
+        {conjunto.cortado ? '; contorno cinza tracejado, os que estão no raio pedido mas passaram do limite e não entram nas somas' : ''}. A lista dos municípios fica logo abaixo.
+      </p>
       {raioKm > 0 && (
         <details className="text-sm">
           <summary className="cursor-pointer text-gray-600">Municípios somados ({fmt(conjunto.selecionados.length)})</summary>
