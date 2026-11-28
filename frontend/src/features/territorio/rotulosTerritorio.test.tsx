@@ -10,14 +10,14 @@ import { MemoryRouter } from 'react-router-dom'
 import { DemandaOfertaUfBloco } from '../uf/blocks/DemandaOfertaUfBloco'
 import { PenetracaoBloco } from './PenetracaoBloco'
 
-const fontes = import.meta.glob(['../uf/blocks/PainelBloco.tsx', '../estados/CartogramaUfs.tsx', '../../pages/UsoInternetPage.tsx', '../../pages/MunicipiosPage.tsx'],
+const fontes = import.meta.glob(['../uf/blocks/UsuariosSedeUfBloco.tsx', '../estados/CartogramaUfs.tsx', '../../pages/UsoInternetPage.tsx', '../../pages/MunicipiosPage.tsx'],
   { query: '?raw', import: 'default', eager: true }) as Record<string, string>
 const fonte = (fim: string) => Object.entries(fontes).find(([a]) => a.endsWith(fim))![1]
 
 describe('usuários por UF dizem "sede" (UF-E3)', () => {
   it('o rótulo diz que é a UF da sede do ASN e que não é a população conectada', () => {
-    expect(fonte('/PainelBloco.tsx')).toMatch(/Usuários estimados em ASNs sediados na UF/)
-    expect(fonte('/PainelBloco.tsx')).toMatch(/não é a população conectada/)
+    expect(fonte('/UsuariosSedeUfBloco.tsx')).toMatch(/Usuários estimados em ASNs sediados na UF/)
+    expect(fonte('/UsuariosSedeUfBloco.tsx')).toMatch(/não é a população conectada/)
     expect(fonte('/CartogramaUfs.tsx')).toMatch(/Usuários \(sede da rede\)/)
     expect(fonte('/CartogramaUfs.tsx')).toMatch(/Não é a população conectada nem o uso de Internet na UF/)
   })

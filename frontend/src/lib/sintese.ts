@@ -19,11 +19,15 @@ export interface FraseSintese {
   fonte: string
   /** Data (AAAA-MM-DD) ou mês (AAAA-MM) a que o número se refere. */
   dataRef?: string | null
+  /** Link depois da frase (por exemplo, a lista completa de que a frase cita só os primeiros). */
+  link?: { to: string; rotulo: string }
 }
 
 /** Mínimo e máximo de frases de uma síntese: com menos de duas não há síntese (o bloco some), e acima de quatro vira lista de KPIs. */
 export const MIN_FRASES = 2
 export const MAX_FRASES = 4
+/** Teto das páginas com mais de quatro regras na ordem fixa (UF: mercado, domicílios, infraestrutura, rede e regulação). */
+export const MAX_FRASES_ORDEM_FIXA = 7
 
 /** Palavras de juízo, causa ou intenção que uma frase gerada nunca usa (conferido em `sintese.test.ts` de cada gerador). */
 export const PALAVRAS_PROIBIDAS = /\b(melhor|pior|atrás|atras|ruim|omitiu|preocupante|alarmante|deficiente|porque|culpa|negligên)/i
@@ -44,8 +48,8 @@ export const palavra = (q: number | null | undefined, um: string, varios: string
 /** "1 PTT" / "3 PTTs". */
 export const plural = (q: number, um: string, varios: string) => `${n0(q)} ${q === 1 ? um : varios}`
 
-/** Mantém no máximo `MAX_FRASES`, sem duplicar id; o bloco só aparece com pelo menos `MIN_FRASES`. */
-export function limitar(frases: Array<FraseSintese | null | undefined | false>): FraseSintese[] {
+/** Mantém no máximo `max` (padrão `MAX_FRASES`), sem duplicar id; o bloco só aparece com pelo menos `MIN_FRASES`. */
+export function limitar(frases: Array<FraseSintese | null | undefined | false>, max = MAX_FRASES): FraseSintese[] {
   const vistos = new Set<string>()
   const ok: FraseSintese[] = []
   for (const f of frases) {
@@ -53,6 +57,6 @@ export function limitar(frases: Array<FraseSintese | null | undefined | false>):
     vistos.add(f.id)
     ok.push(f)
   }
-  const cortadas = ok.slice(0, MAX_FRASES)
+  const cortadas = ok.slice(0, max)
   return cortadas.length >= MIN_FRASES ? cortadas : []
 }

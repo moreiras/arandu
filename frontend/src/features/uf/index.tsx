@@ -24,6 +24,7 @@ import { ProntidaoUfBloco } from '../prontidao/blocos'
 import { RadarUfBloco } from '../radar/blocos'
 import { ExposicaoUfBloco } from '../exposicao/blocos'
 import { PainelBloco } from './blocks/PainelBloco'
+import { UsuariosSedeUfBloco } from './blocks/UsuariosSedeUfBloco'
 import { TransitoUfBloco } from './blocks/TransitoUfBloco'
 import { PttsBloco } from './blocks/PttsBloco'
 import { DeclaracaoSiciUfBloco } from './blocks/DeclaracaoSiciUfBloco'
@@ -49,7 +50,7 @@ const ABA: Record<string, string> = {
   sintese: 'resumo', painel: 'resumo', 'mapa-municipios': 'resumo', posicao: 'resumo',
   municipios: 'mercado', operadoras: 'mercado', 'mercado-grupos': 'mercado', penetracao: 'mercado', 'demanda-oferta': 'mercado',
   ptts: 'infraestrutura', 'sem-ptt': 'infraestrutura', 'estacoes-smp': 'infraestrutura',
-  prontidao: 'rede', 'rede-territorio': 'rede', transito: 'rede', radar: 'rede', exposicao: 'rede',
+  'usuarios-sede': 'rede', prontidao: 'rede', 'rede-territorio': 'rede', transito: 'rede', radar: 'rede', exposicao: 'rede',
   'declaracao-sici': 'qualidade', qualidade: 'qualidade', reclamacoes: 'qualidade', consumidor: 'qualidade', fust: 'qualidade', 'empresas-telecom': 'qualidade',
   'tic-domicilios': 'contexto',
   'linha-do-tempo': 'historico',
@@ -89,6 +90,8 @@ def({ id: 'consumidor', titulo: 'Reclamações no Consumidor.gov.br', ordem: 19.
   nota: 'reclamações finalizadas, declaradas por consumidores; só empresas com 5 ou mais reclamações na UF; depende do tamanho da base de clientes; sem ranking', aplicavel: (c) => !!c.consumidor, Componente: ConsumidorUfBloco })
 def({ id: 'fust', titulo: 'FUST: compromissos na UF', ordem: 19.5, depende: ['useUfPerfil'], fontes: ['anatel_fust'], selo: 'fato',
   nota: 'cadastro da Anatel: não identifica a empresa executora; o valor é o previsto, não o desembolsado', aplicavel: (c) => !!c.fust, Componente: FustUfBloco })
+def({ id: 'usuarios-sede', titulo: 'Usuários estimados (APNIC) por sede do ASN', ordem: 19.75, depende: ['useUfPerfil', 'ufs'], fontes: ['apnic_pop', 'registro_br'], selo: 'estimado',
+  nota: 'estimativa APNIC; conta na UF da sede do ASN, não é a população conectada', Componente: UsuariosSedeUfBloco })
 def({ id: 'prontidao', titulo: 'Prontidão em segurança de roteamento', ordem: 19.8, depende: ['useUfPerfil'], fontes: ['apnic_irov', 'bogons', 'caida_spoofer', 'irr_route_objects', 'peeringdb_networks', 'rpki_collector'], selo: 'estimado',
   nota: 'agregado dos ASNs da UF; soma ponderada de medições de terceiros, não veredito sobre empresas', aplicavel: (c) => !!c.prontidao, Componente: ProntidaoUfBloco })
 def({ id: 'transito', titulo: 'Provedores de trânsito (inferido)', ordem: 19.9, depende: ['useUfPerfil'], fontes: ['fulltable_routeviews', 'lg_ixbr', 'rpki_collector', 'caida_as2org'], selo: 'inferido',

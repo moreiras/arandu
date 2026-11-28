@@ -48,3 +48,67 @@ describe('sinteseUf', () => {
     expect(f.find((x) => x.id === 'penetracao')!.texto).toContain('0,3 acessos fixos')
   })
 })
+
+const op = (cnpj: string, empresa: string, share: number) => ({ cnpj, empresa, razao_social: empresa, uf_sede: 'AM', acessos: 1000, share, municipios: 3, acessos_brasil: 5000, asns: [64500] })
+
+describe('sinteseUf: operadoras, ASNs sem sessão em PTT e CNPJs sem declaração (uf 5.5)', () => {
+  const completo = () => {
+    const c = base({ asns_sem_sessao_ptt: 67 } as never)
+    c.operadorasPresentes = [op('00000000000191', 'Alfa Telecom', 38.4), op('00000000000272', 'Beta Redes', 21.05), op('00000000000353', 'Gama Net', 8), op('00000000000434', 'Delta', 2)] as never
+    c.indicadores = { mes_referencia: '2026-09', metodologia: 'x', acessos: 724373, n_operadoras: 90, hhi: 1, sem_declaracao: { cnpjs_sem_declaracao: 307, com_usuarios_apnic: 10, sem_usuarios: 20, nao_comparavel: 277, usuarios_apnic: 5 } } as never
+    return c
+  }
+
+  it('ordem fixa: mercado, domicílios, infraestrutura, rede e regulação, com as sete frases', () => {
+    const f = sinteseUf(completo(), '2026-11-22')
+    expect(f.map((x) => x.id)).toEqual(['acessos', 'operadoras', 'penetracao', 'sem-ptt', 'rede', 'sem-sessao', 'sem-declaracao'])
+    for (const x of f) { expect(x.fonte).not.toBe(''); expect(x.dataRef).toBeTruthy(); expect(x.texto).not.toMatch(PALAVRAS_PROIBIDAS); expect(x.texto).not.toMatch(/[—–]/) }
+  })
+
+  it('as três maiores por acessos declarados na UF: nomes, parcelas, mês, regra e link para o ranking completo na própria frase', () => {
+    const f = sinteseUf(completo(), '2026-11-22').find((x) => x.id === 'operadoras')!
+    expect(f.texto).toBe('Em 09/2026, as três operadoras com mais acessos fixos declarados ao SICI em Amazonas são Alfa Telecom (38,4% dos acessos declarados na UF), Beta Redes (21,1% dos acessos declarados na UF) e Gama Net (8% dos acessos declarados na UF). Regra: ordem decrescente dos acessos declarados na UF, um CNPJ por operadora, sem somar grupos econômicos.')
+    expect(f.texto).not.toContain('Delta')
+    expect(f.selo).toBe('fato')
+    expect(f.link).toEqual({ to: '/operadoras?visao=ranking&uf=AM', rotulo: 'Ver o ranking completo da UF' })
+  })
+
+  it('com menos de três operadoras presentes não há ranking nominal', () => {
+    const c = completo(); c.operadorasPresentes = c.operadorasPresentes.slice(0, 2)
+    expect(sinteseUf(c, '2026-11-22').some((x) => x.id === 'operadoras')).toBe(false)
+  })
+
+  it('operadora sem nome cai no CNPJ (o nome de pessoa natural já vem pelo rótulo da API)', () => {
+    const c = completo(); c.operadorasPresentes = [op('00000000000191', 'Empresário individual', 40), op('00000000000272', '', 20), op('00000000000353', 'Gama Net', 8)] as never
+    c.operadorasPresentes[1].razao_social = ''
+    const t = sinteseUf(c, '2026-11-22').find((x) => x.id === 'operadoras')!.texto
+    expect(t).toContain('Empresário individual (40% ')
+    expect(t).toContain('00.000.000/0002-72 (20% ')
+  })
+
+  it('ASNs sem sessão direta: N dos M, com a definição e o aviso de que a UF é a da sede', () => {
+    const f = sinteseUf(completo(), '2026-11-22').find((x) => x.id === 'sem-sessao')!
+    expect(f.texto).toContain('Dos 110 ASNs brasileiros com sede em Amazonas, 67 não têm sessão direta em PTT do IX.br.')
+    expect(f.texto).toMatch(/Sessão direta é a sessão BGP do ASN com o route server/)
+    expect(f.texto).toMatch(/a UF é a da sede, não a de operação/)
+    expect(f.selo).toBe('fato')
+    const um = completo(); um.totais.asns_sem_sessao_ptt = 1
+    expect(sinteseUf(um, null).find((x) => x.id === 'sem-sessao')!.texto).toContain('1 não tem sessão direta')
+  })
+
+  it('sem o agregado (resposta antiga), sem a frase de ASNs; sem indicadores, sem a de CNPJs sem declaração', () => {
+    const c = completo(); delete (c.totais as { asns_sem_sessao_ptt?: number }).asns_sem_sessao_ptt; c.indicadores = null
+    const ids = sinteseUf(c, null).map((x) => x.id)
+    expect(ids).not.toContain('sem-sessao')
+    expect(ids).not.toContain('sem-declaracao')
+  })
+
+  it('CNPJs sem declaração: contagem, mês de referência e regra, sem causa nem intenção', () => {
+    const f = sinteseUf(completo(), '2026-11-22').find((x) => x.id === 'sem-declaracao')!
+    expect(f.texto).toBe('307 CNPJs com outorga SCM e sede em Amazonas não têm acessos declarados ao SICI em 09/2026. Regra: CNPJ com outorga SCM e sede na UF sem acessos declarados nesse mês; isso não indica causa nem intenção.')
+    expect(f.dataRef).toBe('2026-09')
+    const um = completo(); um.indicadores!.sem_declaracao!.cnpjs_sem_declaracao = 1
+    expect(sinteseUf(um, null).find((x) => x.id === 'sem-declaracao')!.texto).toMatch(/^1 CNPJ com outorga SCM e sede em Amazonas não tem acessos/)
+  })
+})
+

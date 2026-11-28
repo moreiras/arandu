@@ -82,7 +82,7 @@ describe('registro de blocos de município e UF', () => {
     expect(blocosDe('municipio').map((b) => b.id)).toEqual(['painel', 'penetracao', 'semelhantes', 'mercado-fixo', 'mercado-grupos', 'serie-mercado', 'indicadores', 'mercado-movel', 'estacoes-smp', 'fust', 'qualidade', 'reclamacoes', 'consumidor', 'contratos', 'rede-territorio', 'rede', 'regiao-provedores', 'regiao-ptts', 'regiao-transito', 'regiao-carregadores', 'regiao-prontidao', 'infraestrutura'])
   })
   it('UF: síntese → painel → PTTs → municípios → sem PTT → operadoras → linha do tempo', () => {
-    expect(blocosDe('uf').map((b) => b.id)).toEqual(['painel', 'sintese', 'mapa-municipios', 'posicao', 'penetracao', 'tic-domicilios', 'demanda-oferta', 'estacoes-smp', 'fust', 'empresas-telecom', 'declaracao-sici', 'qualidade', 'reclamacoes', 'consumidor', 'prontidao', 'rede-territorio', 'transito', 'radar', 'exposicao', 'ptts', 'mercado-grupos', 'municipios', 'sem-ptt', 'operadoras', 'linha-do-tempo'])
+    expect(blocosDe('uf').map((b) => b.id)).toEqual(['painel', 'sintese', 'mapa-municipios', 'posicao', 'penetracao', 'tic-domicilios', 'demanda-oferta', 'estacoes-smp', 'fust', 'empresas-telecom', 'declaracao-sici', 'qualidade', 'reclamacoes', 'usuarios-sede', 'consumidor', 'prontidao', 'rede-territorio', 'transito', 'radar', 'exposicao', 'ptts', 'mercado-grupos', 'municipios', 'sem-ptt', 'operadoras', 'linha-do-tempo'])
   })
 })
 
@@ -242,11 +242,18 @@ describe('página de UF', () => {
     expect(within(semPtt).getByRole('link', { name: 'Distante' })).toHaveAttribute('href', '/municipio/3203205')
     expect(within(semPtt).queryByRole('link', { name: 'Vitória' })).toBeNull()      // Vitória tem PTT a poucos km
     expect(screen.getByRole('heading', { name: 'Operadoras na UF' })).toBeInTheDocument()
-    expect(await screen.findByText('Usuários estimados em ASNs sediados na UF')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Usuários estimados (APNIC) por sede do ASN' })).toBeInTheDocument()      // saiu do topo (UF 5.5): vive no bloco da aba Rede
     expect(screen.getByText('345.678')).toBeInTheDocument()
     expect(screen.getByText('78,5%')).toBeInTheDocument()
     // gráfico de faixas de distância: 9.000 acessos a até 50 km e 300 a mais de 100 km
     expect(screen.getByRole('img', { name: /até 50 km: 97%.*100 a 300 km: 3%/ })).toBeInTheDocument()
+  })
+
+  it('a aba Rede traz os usuários estimados em ASNs sediados na UF, com o aviso de que contam na UF da sede', async () => {
+    montar('/uf/:uf', '/uf/es?aba=rede', <UFPage />)
+    expect(await screen.findByRole('heading', { name: 'Usuários estimados (APNIC) por sede do ASN' })).toBeInTheDocument()
+    expect(screen.getByText('345.678')).toBeInTheDocument()
+    expect(screen.getByText(/Conta na UF da sede do ASN; não é a população conectada/)).toBeInTheDocument()
   })
 
   it('faz uma única chamada de dados à API para a UF (perfil), sem as rotas antigas nem o PIX', async () => {
