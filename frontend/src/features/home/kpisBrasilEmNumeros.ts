@@ -56,7 +56,7 @@ export function montarKpis(resumo: SnapshotSummary | null | undefined, anterior:
     { id: 'ptts', selo: 'fato', tom: 'tecnico', rotulo: 'PTTs do IX.br com coleta', valor: r?.ixps_ok != null ? n0(r.ixps_ok) : null,
       variacao: deltaInteiro(r?.ixps_ok, a?.ixps_ok, true), fonte: 'looking glass do IX.br', dataRef: dataSnapshot },
     { id: 'usuarios', selo: 'estimado', tom: 'estimado', rotulo: rotuloDe('usuariosPais'), valor: r?.br_apnic_users_total != null ? compacto(r.br_apnic_users_total) : null,
-      variacao: undefined, fonte: 'APNIC (estimativa, não é censo)', dataRef: dataSnapshot },
+      variacao: undefined, fonte: 'APNIC (estimativa a partir de amostras de anúncios)', dataRef: dataSnapshot },
   ]
   const serie = sici?.serie_total ?? []
   const ult = serie[serie.length - 1]

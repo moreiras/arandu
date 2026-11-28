@@ -3111,6 +3111,10 @@ export interface BrasilIndicadores {
   dnssec?: MedicaoApnicPais
   rov?: MedicaoApnicPais
   asns?: number
+  /** ASNs da lista do Registro.br no IX.br, cada um contado uma vez no país: diretos (sessão com route server em algum PTT), indiretos (só originam prefixos vistos nos PTTs) e os que aparecem como origem. */
+  ixbr?: { asns_br_total: number; asns_br_diretos: number; asns_br_indiretos: number; asns_br_originam: number; fonte: string; nota: string }
+  /** HHI nacional do mercado fixo por CNPJ (acessos declarados ao SICI); ausente sem o produto de indicadores. */
+  mercado?: { hhi_cnpj: number; acessos: number | null; n_cnpjs: number | null; mes_referencia: string | null; fonte: string; nota: string }
   /** Retrato por macro-região da sede do AS (PT-22 / PANORAMA TÉCNICO 5.2); as linhas e `sem_regiao` fecham o `total`. Ausente sem o cadastro de organizações. */
   por_regiao?: {
     regioes: Array<{ regiao: string; nome: string; asns: number; usuarios: number; usuarios_ipv6: number; usuarios_com_roa: number; usuarios_sessao_rs: number; asns_com_ipv6: number }>

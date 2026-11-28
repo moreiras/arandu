@@ -19,6 +19,8 @@ export interface FraseSintese {
   fonte: string
   /** Data (AAAA-MM-DD) ou mês (AAAA-MM) a que o número se refere. */
   dataRef?: string | null
+  /** Agrupa frases em parágrafos (frases seguidas com o mesmo valor ficam juntas); sem o campo, o resumo é um parágrafo só. */
+  paragrafo?: string
 }
 
 /** Mínimo e máximo de frases de uma síntese: com menos de duas não há síntese (o bloco some), e acima de quatro vira lista de KPIs. */
@@ -44,8 +46,11 @@ export const palavra = (q: number | null | undefined, um: string, varios: string
 /** "1 PTT" / "3 PTTs". */
 export const plural = (q: number, um: string, varios: string) => `${n0(q)} ${q === 1 ? um : varios}`
 
-/** Mantém no máximo `MAX_FRASES`, sem duplicar id; o bloco só aparece com pelo menos `MIN_FRASES`. */
-export function limitar(frases: Array<FraseSintese | null | undefined | false>): FraseSintese[] {
+/** Teto do resumo da Home, que cobre rede, IX.br, segurança, mercado e usuários em parágrafos curtos. */
+export const MAX_FRASES_HOME = 20
+
+/** Mantém no máximo `max` frases (`MAX_FRASES` por padrão), sem duplicar id; o bloco só aparece com pelo menos `MIN_FRASES`. */
+export function limitar(frases: Array<FraseSintese | null | undefined | false>, max = MAX_FRASES): FraseSintese[] {
   const vistos = new Set<string>()
   const ok: FraseSintese[] = []
   for (const f of frases) {
@@ -53,6 +58,6 @@ export function limitar(frases: Array<FraseSintese | null | undefined | false>):
     vistos.add(f.id)
     ok.push(f)
   }
-  const cortadas = ok.slice(0, MAX_FRASES)
+  const cortadas = ok.slice(0, max)
   return cortadas.length >= MIN_FRASES ? cortadas : []
 }
