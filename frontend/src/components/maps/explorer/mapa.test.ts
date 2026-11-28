@@ -86,7 +86,7 @@ describe('interações do mapa Explorar', () => {
     m.dispara('mouseenter', 'explorer-asns', ev({ asn: 64500, color_value: 'yes' }))
     expect(m.canvas.style.cursor).toBe('pointer')
     expect(chamadas.popups[0].html).toContain('<strong>AS64500</strong>')
-    expect(chamadas.popups[0].html).toContain('Tem RPKI')                        // usa o color_by lido na hora do evento
+    expect(chamadas.popups[0].html).toContain('Com ROA publicada')                        // usa o color_by lido na hora do evento
     m.dispara('mouseleave', 'explorer-asns', ev({}))
     expect(m.canvas.style.cursor).toBe('')
     expect(chamadas.popups[0].removido).toBe(true)

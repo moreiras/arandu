@@ -203,7 +203,7 @@ class MapasService:
         "asns_geo", "asns_ix_direct", "asns_ix_origin",
         "prefixes_v4", "prefixes_v6", "outorgas_scm",
     })
-    _VALID_COLOR_BY   = frozenset({"solid", "visibility", "rpki", "aspa", "porte", "pct_v6", "outorga"})
+    _VALID_COLOR_BY   = frozenset({"solid", "visibility", "rpki", "aspa", "porte", "pct_v6", "outorga", "rov"})
 
     def map_query(self, date_str: str, body: dict) -> dict:
         """GeoJSON composável para o Mapa Explorer.
@@ -240,7 +240,9 @@ class MapasService:
 
         ``color_by``
             Atributo de cor para a camada ``asns_geo``.
-            Valores: ``visibility`` (default), ``rpki``, ``aspa``, ``porte``, ``pct_v6``.
+            Valores: ``visibility`` (default), ``rpki`` (ASN com ROA publicada), ``aspa``
+            (objeto ASPA publicado), ``rov`` (faixa do ROV medido pelo APNIC; traz também
+            ``rov_faixa`` e ``rov_pct`` em cada feição), ``porte``, ``pct_v6``, ``outorga``.
 
         ``ix_code``
             Código do PTT do IX.br (ex: ``"sp"``, ``"rj"``, ``"mao"``).
@@ -341,6 +343,7 @@ class MapasService:
                     continue
                 row = asn_row_map.get(asn, {})
                 props = {**(f.get("properties") or {}), "layer": "asns_geo"}
+                row = self._row_cor(row, asn, color_by, date_str)
                 cv = self._map_color_value(row, color_by)
                 if cv is not None:
                     props["color_value"] = cv
@@ -360,6 +363,7 @@ class MapasService:
                 if code_low not in (row.get("ixps_membro") or []):
                     continue
                 props = {**(f.get("properties") or {}), "layer": "asns_ix_direct"}
+                row = self._row_cor(row, asn, color_by, date_str)
                 cv = self._map_color_value(row, color_by)
                 if cv is not None:
                     props["color_value"] = cv
@@ -381,6 +385,7 @@ class MapasService:
                     continue
                 row = asn_row_map.get(asn, {})
                 props = {**(f.get("properties") or {}), "layer": "asns_ix_origin"}
+                row = self._row_cor(row, asn, color_by, date_str)
                 cv = self._map_color_value(row, color_by)
                 if cv is not None:
                     props["color_value"] = cv
@@ -577,10 +582,26 @@ class MapasService:
         self._map_recorte_cache[key] = result
         return result
 
+    def _row_cor(self, row: dict, asn, color_by: str, date_str: str) -> dict:
+        """Com `color_by="rov"`, acrescenta à linha a faixa e o percentual do ROV do ASN (produto `seguranca`); sem o produto, tudo `sem_dado`."""
+        if color_by != "rov":
+            return row
+        key = ("rov", date_str)
+        if key not in self._map_recorte_cache:
+            from core.rov_faixas import faixa_rov
+            doc = self.seguranca_doc(date_str) or {}
+            self._map_recorte_cache[key] = {
+                int(a): {"rov_faixa": faixa_rov(s.get("rov")), "rov_pct": (s.get("rov") or {}).get("validates_pct")}
+                for a, s in (doc.get("asns") or {}).items() if s.get("rov")
+            }
+        return {**row, **self._map_recorte_cache[key].get(asn, {"rov_faixa": "sem_dado", "rov_pct": None})}
+
     @staticmethod
     def _asn_export_props(row: dict) -> dict:
         """Campos extras incluídos em features de ASes para exportação CSV."""
+        rov = {"rov_faixa": row["rov_faixa"], "rov_pct": row.get("rov_pct")} if "rov_faixa" in row else {}
         return {
+            **rov,
             "has_rpki": row.get("has_rpki"),
             "has_aspa": row.get("has_aspa"),
             "porte": row.get("porte") or "",
@@ -615,6 +636,8 @@ class MapasService:
             return row.get("porte") or "unknown"
         if color_by == "pct_v6":
             return row.get("pct_v6")  # número 0–100 ou None
+        if color_by == "rov":
+            return row.get("rov_faixa") or "sem_dado"
         if color_by == "outorga":
             return "with_scm" if row.get("has_scm") else "without_scm"
         return None

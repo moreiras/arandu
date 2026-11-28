@@ -6,7 +6,7 @@
 import { describe, expect, it } from 'vitest'
 import { linhasCsv, textoCsv } from './csv'
 import { circlePolygon } from './geo'
-import { colorByItems, colorExpr, colorValueLabel } from './estilo'
+import { colorByItems, colorByNota, colorExpr, colorValueLabel } from './estilo'
 
 const f = (properties: Record<string, unknown>): GeoJSON.Feature => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties })
 
@@ -16,7 +16,7 @@ describe('CSV das camadas', () => {
     expect(r.headers[0]).toBe('asn')
     expect(r.rows[0]).toEqual(['64500', 'Exemplo', 'Vitória', 'ES', 'BR', '', 'sim', 'não', '', '12.5', 'sp,rj'])
     expect(r.rows[1].slice(0, 2)).toEqual(['1', '']) 
-    expect(r.rows[1][6]).toBe('')                                    // tem_rpki ausente → vazio, não "não"
+    expect(r.rows[1][6]).toBe('')                                    // tem_roa ausente → vazio, não "não"
   })
 
   it('SCM junta os ASNs com espaço; prefixos e prefixos de PTT têm colunas próprias', () => {
@@ -69,8 +69,9 @@ describe('colorir por', () => {
   it('rótulos do balão e itens da legenda por dimensão', () => {
     expect(colorValueLabel('both', 'visibility')).toBe('IPv6 + IPv4')
     expect(colorValueLabel('v6_only', 'visibility')).toBe('Só IPv6')
-    expect(colorValueLabel('yes', 'rpki')).toBe('Tem RPKI')
-    expect(colorValueLabel('no', 'aspa')).toBe('Sem ASPA')
+    expect(colorValueLabel('yes', 'rpki')).toBe('Com ROA publicada')
+    expect(colorValueLabel('no', 'aspa')).toBe('Sem ASPA publicada')
+    expect(colorValueLabel('unknown', 'rpki')).toBe('Sem dado')
     expect(colorValueLabel(37, 'pct_v6')).toBe('37% IPv6')
     expect(colorValueLabel('with_scm', 'outorga')).toBe('Com outorga SCM')
     expect(colorValueLabel('x', 'solid')).toBe('')
@@ -83,7 +84,41 @@ describe('colorir por', () => {
     expect(colorExpr('qualquer-coisa')[0]).toBe('literal')
     const rpki = colorExpr('rpki') as unknown[]
     expect(rpki.slice(0, 2)).toEqual(['match', ['get', 'color_value']])
-    expect(rpki[rpki.length - 1]).toBe('#9ca3af')
-    expect((colorExpr('pct_v6') as unknown[])[0]).toBe('interpolate')
+    expect(rpki[rpki.length - 1]).toBe('#d9dde3')
+    expect(JSON.stringify(colorExpr('pct_v6'))).toContain('interpolate')
+  })
+
+  it('ROA, ASPA e ROV: rótulos e itens de legenda do pedido, ROV com faixas em texto', () => {
+    expect(colorByItems('rpki').map(i => i.label)).toEqual(['Com ROA publicada', 'Sem ROA publicada', 'Sem dado'])
+    expect(colorByItems('aspa').map(i => i.label)).toEqual(['Com ASPA publicada', 'Sem ASPA publicada', 'Sem dado'])
+    expect(colorByItems('rov').map(i => i.label)).toEqual(['Até 10% das medições com validação', 'De 10% a 90%', 'Acima de 90%', 'Amostra insuficiente', 'Sem dado'])
+    expect(colorValueLabel('acima_de_90', 'rov')).toBe('Acima de 90% das medições com validação')
+    expect(colorValueLabel('amostra_insuficiente', 'rov')).toBe('Amostra insuficiente')
+    expect(colorValueLabel(undefined, 'rov')).toBe('Sem dado')
+  })
+
+  it('notas da legenda: ASPA diz que a verificação não é medida; ROV leva o selo estimado e cita o APNIC', () => {
+    expect(colorByNota('aspa')!.nota).toContain('verificação de ASPA')
+    expect(colorByNota('aspa')!.nota).toContain('não é medida')
+    expect(colorByNota('rov')!.selo).toBe('estimado')
+    expect(colorByNota('rov')!.nota).toContain('APNIC')
+    expect(colorByNota('porte')).toBeNull()
+  })
+
+  it('cor não expressa juízo: sem vermelho nem verde nas dimensões tratadas, em itens e expressões', () => {
+    const proibidas = ['#dc2626', '#16a34a', '#f59e0b']
+    for (const por of ['rpki', 'aspa', 'rov', 'pct_v6']) {
+      const texto = JSON.stringify(colorExpr(por)) + JSON.stringify(colorByItems(por))
+      for (const c of proibidas) expect(texto).not.toContain(c)
+    }
+  })
+
+  it('CSV das sedes: colunas do ROV só quando a consulta trouxe rov_faixa', () => {
+    const sem = linhasCsv([f({ asn: 1 })], 'asns_geo')!
+    expect(sem.headers).not.toContain('rov_faixa')
+    const com = linhasCsv([f({ asn: 1, rov_faixa: 'de_10_a_90', rov_pct: 42.5 }), f({ asn: 2, rov_faixa: 'sem_dado' })], 'asns_geo')!
+    expect(com.headers.slice(-2)).toEqual(['rov_faixa', 'rov_pct'])
+    expect(com.rows[0].slice(-2)).toEqual(['de_10_a_90', '42.5'])
+    expect(com.rows[1].slice(-2)).toEqual(['sem_dado', ''])
   })
 })

@@ -28,7 +28,7 @@ describe('balões do mapa', () => {
     expect(h).toContain(' · Vitória/ES')
     expect(h).toContain('Anatel: Exemplo Telecom Ltda')
     expect(h).not.toContain('fantasia:')                              // igual ao nome: não repete
-    expect(h).toContain('Tem RPKI')
+    expect(h).toContain('Com ROA publicada')
     expect(htmlAsn({ asn: 1 }, 'solid')).toBe('<strong>AS1</strong><br/>')
   })
 

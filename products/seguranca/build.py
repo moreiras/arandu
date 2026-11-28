@@ -27,9 +27,8 @@ from core import compose
 from core.avisos_agregado import avisos, peso_top1
 from core.common import normalized_path, now_iso, published_path
 from core.jsonio import carregar_json_gz, gravar_json_gz
+from core.rov_faixas import FAIXAS_ROV, MIN_AMOSTRAS, faixa_pct, faixa_rov  # noqa: F401  (reexportados: outros módulos e testes leem daqui)
 
-MIN_AMOSTRAS = 100                       # abaixo disso o percentual do APNIC é instável e não entra nos agregados
-FAIXAS_ROV = ((10.0, "ate_10"), (90.0, "de_10_a_90"))      # percentual até 10, de 10 a 90 e acima de 90 (valida)
 MAX_PREFIXOS_BOGON = 20                  # lista por ASN limitada; o total vai em `n_prefixos_bogon`
 FAIXAS_PORTE = ((0, "sem_usuarios"), (1000, "ate_1000"), (10000, "de_1000_a_10000"), (100000, "de_10000_a_100000"), (1000000, "de_100000_a_1000000"))      # porte = usuários estimados do APNIC
 FAIXAS_ACESSOS_SICI = ((0, "sem_acessos"), (1000, "ate_1000"), (10000, "de_1000_a_10000"), (100000, "de_10000_a_100000"))                      # informação extra: acessos fixos declarados ao SICI
@@ -100,10 +99,6 @@ def faixa_acessos_sici(acessos: Optional[int]) -> str:
     return "acima_de_100000"
 
 
-def _faixa_pct(v: float) -> str:
-    return "ate_10" if v <= FAIXAS_ROV[0][0] else "de_10_a_90" if v <= FAIXAS_ROV[1][0] else "acima_de_90"
-
-
 def _agregar(valores: list[tuple[float, int]]) -> dict:
     """`valores`: [(percentual, amostras)] dos ASNs com amostras suficientes."""
     if not valores:
@@ -112,7 +107,7 @@ def _agregar(valores: list[tuple[float, int]]) -> dict:
     pesos = sum(a for _, a in valores)
     faixas = {"ate_10": 0, "de_10_a_90": 0, "acima_de_90": 0}
     for v in pct:
-        faixas[_faixa_pct(v)] += 1
+        faixas[faixa_pct(v)] += 1
     peso = peso_top1(a for _, a in valores)           # o peso da média ponderada são as amostras do APNIC
     return {"asns": len(pct), "n_asns_com_dado": len(pct), "peso_top1": peso, "avisos": avisos(len(pct), peso), "mediana_pct": round(statistics.median(pct), 2), "media_ponderada_pct": round(sum(v * a for v, a in valores) / pesos, 2),
             "faixas": faixas}
