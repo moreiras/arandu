@@ -50,8 +50,8 @@ export const palavra = (q: number | null | undefined, um: string, varios: string
 /** "1 PTT" / "3 PTTs". */
 export const plural = (q: number, um: string, varios: string) => `${n0(q)} ${q === 1 ? um : varios}`
 
-/** Teto do resumo da Home, que cobre rede, IX.br, segurança, mercado e usuários em parágrafos curtos. */
-export const MAX_FRASES_HOME = 20
+/** Teto do resumo da Home: uma frase curta por tema (rede, IX.br, usuários, segurança, mercado), em um ou dois parágrafos. */
+export const MAX_FRASES_HOME = 6
 
 /** Mantém no máximo `max` frases (`MAX_FRASES` por padrão), sem duplicar id; o bloco só aparece com pelo menos `MIN_FRASES`. */
 export function limitar(frases: Array<FraseSintese | null | undefined | false>, max = MAX_FRASES): FraseSintese[] {
