@@ -9,11 +9,11 @@ export function BudgetChip() {
   // NBR 17225 5.16.2: o login desliga o limite; o aviso aparece em todas as larguras, inclusive no celular
   // e, a 2 minutos do fim, diz como continuar. `role=status` anuncia a mudança a leitores de tela.
   const perto = !anon.limitReached && left <= 120
-  const text = anon.limitReached ? 'Uso avançado esgotado: entre para continuar' : perto ? `Restam ${min} min de uso avançado: entre para continuar sem limite` : `Uso avançado: restam ${min} min`
+  const text = anon.limitReached ? 'Uso avançado esgotado: entre gratuitamente para continuar' : perto ? `Restam ${min} min de uso avançado: entre gratuitamente para continuar sem limite` : `Uso avançado: restam ${min} min`
   // O minuto só é anunciado quando muda de faixa (perto do fim ou esgotado), não a cada minuto.
   return (
     <span className="inline-flex">
-    <span role="status" className="sr-only">{anon.limitReached ? 'Uso avançado esgotado. Entre para continuar.' : perto ? 'Faltam menos de 2 minutos de uso avançado. Entre para continuar sem limite.' : ''}</span>
+    <span role="status" className="sr-only">{anon.limitReached ? 'Uso avançado esgotado. Entre gratuitamente para continuar.' : perto ? 'Faltam menos de 2 minutos de uso avançado. Entre gratuitamente para continuar sem limite.' : ''}</span>
     <a
       href="/login"
       title="Entre para usar as páginas avançadas sem limite de tempo"

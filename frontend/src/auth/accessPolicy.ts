@@ -29,7 +29,7 @@ export const LOGIN_REASONS: Record<string, string> = {
   historico: 'Para consultar snapshots anteriores e a evolução no tempo, entre com sua conta.',
   contatos: 'Os contatos só são exibidos para usuários logados.',
   exportar: 'Para exportar os dados em CSV, entre com sua conta.',
-  esgotado: 'O tempo de uso das páginas avançadas sem login acabou. Entre para continuar.',
+  esgotado: 'O tempo de uso das páginas avançadas sem login acabou. Entre gratuitamente para continuar.',
   geral: 'Entre com sua conta para continuar.',
 }
 

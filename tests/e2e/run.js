@@ -124,7 +124,7 @@ async function jiggle(page, n = 1) {
   await step('esgotado: a página avançada explica o limite e oferece "Entrar"; não diz "não encontrado" nem mostra zeros', async () => {
     await page.goto(BASE + '/asn/3356'); await painel(page).waitFor({ state: 'visible', timeout: 30000 })
     const t = (await painel(page).innerText()).replace(/\s+/g, ' ')
-    if (!t.includes('O tempo de uso das páginas avançadas sem login acabou. Entre para continuar.')) throw new Error('mensagem do painel: ' + t)
+    if (!t.includes('O tempo de uso das páginas avançadas sem login acabou. Entre gratuitamente para continuar.')) throw new Error('mensagem do painel: ' + t)
     const href = await painel(page).getByRole('link', { name: 'Entrar' }).getAttribute('href')
     if (!href || !href.startsWith('/login?next=') || !decodeURIComponent(href).includes('/asn/3356')) throw new Error('link Entrar sem next: ' + href)
     const corpo = (await page.locator('body').innerText()).replace(/\s+/g, ' ')

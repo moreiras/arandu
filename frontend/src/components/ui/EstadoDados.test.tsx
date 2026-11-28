@@ -55,7 +55,7 @@ describe('EstadoDados', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Limite de uso sem login atingido')
     expect(screen.getByRole('status')).not.toHaveTextContent('volte em')
     rerender(<EstadoDados erro={new AccessError('limit', 'x', { retryAfter: 7200 })} />)
-    expect(screen.getByRole('status')).toHaveTextContent('Entre para continuar ou volte em 2 h.')
+    expect(screen.getByRole('status')).toHaveTextContent('Entre gratuitamente para continuar ou volte em 2 h.')
   })
 
   it('429 de taxa: mensagem da API, espera e "Tentar de novo"', () => {

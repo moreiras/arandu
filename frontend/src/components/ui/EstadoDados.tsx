@@ -91,7 +91,7 @@ export function EstadoDados({ estado, erro, oQue = 'estes dados', snapshot, mens
       break
     case 'orcamento':
       titulo = 'Limite de uso sem login atingido'
-      texto = `O tempo de uso das páginas avançadas sem login acabou. Entre para continuar${espera != null ? ` ou volte em ${formatarEspera(espera)}` : ''}. O dado não foi carregado; isso não indica que ele não exista.`
+      texto = `O tempo de uso das páginas avançadas sem login acabou. Entre gratuitamente para continuar${espera != null ? ` ou volte em ${formatarEspera(espera)}` : ''}. O dado não foi carregado; isso não indica que ele não exista.`
       acao = 'entrar'
       break
     case 'taxa': {

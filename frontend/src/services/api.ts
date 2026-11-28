@@ -230,7 +230,7 @@ async function failure(res: Response): Promise<never> {
   const orcamentoEsgotado = !!body?.anon_limit_reached || res.headers.get(ANON_LIMIT_HEADER) === 'true'
   if ((res.status === 403 || res.status === 429) && orcamentoEsgotado) {
     anonLimitListeners.forEach((cb) => cb())
-    throw new AccessError('limit', 'O tempo de uso das páginas avançadas sem login acabou. Entre para continuar.',
+    throw new AccessError('limit', 'O tempo de uso das páginas avançadas sem login acabou. Entre gratuitamente para continuar.',
       { retryAfter: segundosParaTentar(res, body) })
   }
   if (res.status === 429) {
