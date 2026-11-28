@@ -12,6 +12,9 @@
 export const ESCALA_SEQUENCIAL = ['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725'] as const
 /** Texto único da legenda da escala sequencial: a Viridis vai do roxo (escuro, menor) ao amarelo (claro, maior). */
 export const LEGENDA_SEQUENCIAL = 'Cor do roxo (menor valor) ao amarelo (maior valor); cinza = sem dado.'
+/** Escala de um só tom (azul-acinzentado, do claro ao escuro) para indicadores sensíveis: a cor só ordena, sem sugerir alerta nem melhora. */
+export const ESCALA_UM_TOM = ['#eef2f7', '#b4c6dc', '#6f93bb', '#3a6593', '#173a63'] as const
+export const LEGENDA_UM_TOM = 'Cor do mais claro (menor valor) ao mais escuro (maior valor); cinza = sem dado. A cor só ordena os valores: não indica melhora nem alerta.'
 export const ESCALA_DIVERGENTE = ['#b2182b', '#ef8a62', '#f7f7f7', '#67a9cf', '#2166ac'] as const
 /** Categorias (até 8) distinguíveis por quem tem deuteranopia ou protanopia (paleta de Okabe-Ito). */
 export const CATEGORIAS_SEGURAS = ['#0072b2', '#e69f00', '#009e73', '#d55e00', '#cc79a7', '#56b4e9', '#f0e442', '#000000'] as const
