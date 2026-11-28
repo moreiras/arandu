@@ -9,6 +9,9 @@ técnico, numa chamada só e aberta (a home é página de entrada).
 - `ipv6`: adoção de IPv6 pelos usuários, somando as estimativas do APNIC por ASN do Brasil (Σ usuários IPv6 ÷ Σ usuários). É agregado dos
   ASes, não o número que o APNIC publica por país (que usa a própria amostra por país); a diferença costuma ser pequena e vem rotulada;
 - `dnssec` e `rov`: o agregado nacional do produto de segurança de roteamento (medições do APNIC por ASN, com amostra mínima);
+- `ixbr`: ASNs brasileiros no IX.br pela regra do índice de ASNs: diretos (sessão com o route server de algum PTT) e indiretos (originam prefixos vistos
+  em algum PTT, mas não têm sessão em nenhum; o prefixo chega por outro participante). Cada ASN conta uma vez, qualquer que seja o número de PTTs;
+- `mercado`: o HHI nacional do mercado fixo por CNPJ (acessos declarados ao SICI), com o mês de referência;
 - `por_regiao`: o retrato por macro-região da sede do AS (ASNs, usuários, IPv6, ROA e sessão em route server do IX.br; as linhas fecham o total);
 - `prontidao`: o índice de prontidão em segurança de roteamento do país (classes, média ponderada por usuários, pilares e componentes);
 - `rpki` (Panorama técnico): `publicacao` (ASNs com ROA e ASPA, o mesmo corpo de `/rpki/summary`) e `rotas` (estado RPKI de origem das
@@ -85,8 +88,23 @@ def por_regiao(store: Store, date_str: str) -> Optional[dict]:
     }
 
 
+def ixbr_asns_br(store: Store, date_str: str) -> dict:
+    """ASNs brasileiros (`is_br`) no IX.br, cada um contado uma vez no país: `diretos` têm sessão com o route server de ao menos um PTT; `indiretos` originam
+    prefixos vistos em ao menos um PTT e não têm sessão em nenhum (o prefixo chega por outro participante); `originam` é a união dos dois grupos que aparecem como origem
+    (um direto sem prefixo visto não entra nela). Calculado do índice de ASNs, sem I/O extra."""
+    br = [a for a in store.asn_index(date_str) if a.get("is_br")]
+    diretos = sum(1 for a in br if (a.get("ixps_direct_count") or 0) >= 1)
+    originam = sum(1 for a in br if (a.get("ixps_origin_count") or 0) >= 1)
+    indiretos = sum(1 for a in br if (a.get("ixps_origin_count") or 0) >= 1 and (a.get("ixps_direct_count") or 0) == 0)
+    return {
+        "asns_br_total": len(br), "asns_br_diretos": diretos, "asns_br_indiretos": indiretos, "asns_br_originam": originam,
+        "fonte": "looking glasses do IX.br (sessão com route server e origem das rotas) sobre os ASNs do Registro.br",
+        "nota": "Direto: sessão com o route server de algum PTT; não inclui peering bilateral. Indireto: só origina prefixos vistos em PTTs, levados por outro participante.",
+    }
+
+
 def indicadores(store: Store, date_str: str) -> dict:
-    chave = (id(store), date_str)
+    chave = (id(store), str(store.base), date_str)
     if chave in _CACHE:
         return _CACHE[chave]
     out: dict = {"snapshot_date": date_str, "ipv6": ipv6_apnic(store, date_str)}
@@ -100,6 +118,13 @@ def indicadores(store: Store, date_str: str) -> dict:
         out["dnssec"] = {**(b.get("dnssec") or {}), "fonte": fontes.get("dnssec")}
         out["rov"] = {**(b.get("rov") or {}), "fonte": fontes.get("rov")}
         out["asns"] = b.get("asns")
+    out["ixbr"] = ixbr_asns_br(store, date_str)
+    ind = store.sici_indicadores(date_str) or {}
+    nac = ind.get("brasil")
+    if nac and nac.get("hhi") is not None:
+        out["mercado"] = {"hhi_cnpj": nac.get("hhi"), "acessos": nac.get("acessos"), "n_cnpjs": nac.get("n_operadoras"), "mes_referencia": ind.get("mes_referencia"),
+                          "fonte": "SICI, Anatel (acessos fixos declarados pelas operadoras)",
+                          "nota": "HHI do país inteiro por CNPJ, de 0 a 10.000, sobre os acessos fixos declarados; não agrupa CNPJs de um mesmo grupo econômico e difere do HHI local."}
     pr = store.prontidao_doc(date_str)
     if pr:
         from api.services import prontidao as p
@@ -173,7 +198,7 @@ def _por_tipo_da_janela(store: Store, de: str, ate: str) -> dict:
 
 
 def destaques_home(store: Store, date_str: str) -> dict:
-    chave = (id(store), date_str)
+    chave = (id(store), str(store.base), date_str)
     if chave in _CACHE_DESTAQUES:
         return _CACHE_DESTAQUES[chave]
     from api.auth.access_policy import N_DATAS_ATUAIS
