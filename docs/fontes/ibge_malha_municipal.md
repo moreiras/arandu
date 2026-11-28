@@ -46,6 +46,10 @@ Geometria simplificada (tolerância de 1 pixel do zoom, até o zoom 7), serve pa
 
 - **normalizado:** git
 
+## Quem usa
+
+- **Produtos:** `area_influencia_ptt`
+
 ## Pendências (nao_verificado)
 
 - Texto da licença/termos de uso do IBGE (páginas respondem 403 a acesso automatizado); até lá o uso vale pela autorização do mantenedor de 2026-11-11, com a atribuição "Fonte: IBGE".

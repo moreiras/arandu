@@ -49,7 +49,7 @@ Uma única sessão por IXP, em um instante; enxerga só o que o Route Server apr
 
 ## Quem usa
 
-- **Produtos:** `as_relationships`, `bgp_ixp_normalizado`
+- **Produtos:** `area_influencia_ptt`, `as_relationships`, `bgp_ixp_normalizado`
 
 ## Pendências (nao_verificado)
 

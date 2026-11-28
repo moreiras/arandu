@@ -8004,6 +8004,109 @@
       "pendencias": []
     },
     {
+      "id": "area_influencia_ptt",
+      "nome": "Área de influência observada dos PTTs do IX.br",
+      "descricao": "Por PTT e em duas visões (só os ASNs diretamente conectados, ou todos os que anunciam prefixo próprio no PTT), a que distância atuam as operadoras que aparecem nele, medida pelos acessos de banda larga fixa do SICI por município. Traz P50, P80 e P90 da distância ponderada por acessos, a mediana por operadora, as faixas por município e o PTT principal de cada município. Inferência, não cobertura de rede.",
+      "modulo": "products.area_influencia_ptt.build",
+      "entradas": [
+        {
+          "source": "anatel_sici"
+        },
+        {
+          "source": "lg_ixbr"
+        },
+        {
+          "source": "curada_pix"
+        },
+        {
+          "source": "ibge_malha_municipal"
+        }
+      ],
+      "chaves_de_juncao": [
+        "ibge",
+        "asn",
+        "cnpj",
+        "ixp"
+      ],
+      "saidas": {
+        "bruto": [],
+        "normalizado": [],
+        "publicado": [
+          "territorio/area_influencia_ptt.json.gz"
+        ],
+        "fragmentos": []
+      },
+      "campos": [
+        {
+          "nome": "ptts[code].visoes[diretos|todos]",
+          "tipo": "dict",
+          "significado": "Operadoras (CNPJs), municípios e acessos atribuídos ao PTT; P50, P80 e P90 da distância em km (peso por acessos); mediana por operadora (cada operadora conta 1); municípios e acessos por faixa; e, por município, os acessos atribuídos e a faixa (1 até o P50, 2 até o P80, 3 além). `null` quando nenhuma operadora é atribuída ao PTT na visão.",
+          "tratamento": "INFERIDO. Os acessos de cada par (município, CNPJ) vão para o PTT mais próximo entre os que o CNPJ enxerga na visão (união dos PTTs dos ASNs ligados ao CNPJ pelo SICI); cada acesso conta uma vez, mesmo num CNPJ com vários ASNs. Linha reta do centroide do município ao PIX mais próximo. Sem exclusão de operadoras. Nenhum nome de operadora é publicado, só contagens.",
+          "publicado_em": [
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#ptts"
+          ],
+          "sensivel": false
+        },
+        {
+          "nome": "ptts[code].pix",
+          "tipo": "dict",
+          "significado": "Quantos PIX do PTT têm coordenada no cadastro, quantos foram posicionados no centroide do município do endereço e quantos no da sede, se o posicionamento é aproximado, e os pontos usados no cálculo.",
+          "tratamento": "PIX sem coordenada em `config/pix.yaml` vai para o centroide do município do endereço; sem endereço reconhecível, para o da sede do PTT. PTT sem PIX no cadastro usa a sede.",
+          "publicado_em": [
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#ptts"
+          ],
+          "sensivel": false
+        },
+        {
+          "nome": "municipios[diretos|todos][ibge]",
+          "tipo": "list",
+          "significado": "[PTT principal, faixa nesse PTT, acessos atribuídos ao principal, acessos atribuídos no município, nº de PTTs que recebem acessos do município]. Principal é o PTT com mais acessos do município.",
+          "tratamento": "INFERIDO. Município sem operadora atribuída a PTT na visão não consta.",
+          "publicado_em": [
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#municipios"
+          ],
+          "sensivel": false
+        },
+        {
+          "nome": "municipios_nomes[ibge]",
+          "tipo": "str",
+          "significado": "\"Nome/UF\" dos municípios que aparecem nas listas, para a tabela de alternativa textual ao mapa.",
+          "publicado_em": [
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#municipios_nomes"
+          ],
+          "sensivel": false
+        },
+        {
+          "nome": "totais[diretos|todos]",
+          "tipo": "dict",
+          "significado": "Acessos do SICI no país, atribuídos a algum PTT, sem PTT visível para a operadora e em município sem centroide; CNPJs com mais de um ASN.",
+          "publicado_em": [
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#totais"
+          ],
+          "sensivel": false
+        },
+        {
+          "nome": "ptts_com_pix_aproximado / faixas / metodo / limites / fontes / natureza / snapshot_date / generated_at",
+          "tipo": "list / dict / str",
+          "significado": "PTTs com algum PIX posicionado por centroide, definição das faixas, método em texto, limites, o mês do SICI e o rótulo de natureza.",
+          "publicado_em": [
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#ptts_com_pix_aproximado",
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#faixas",
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#metodo",
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#limites",
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#fontes",
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#natureza",
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#snapshot_date",
+            "area_influencia_ptt → territorio/area_influencia_ptt.json.gz#generated_at"
+          ],
+          "sensivel": false
+        }
+      ],
+      "cenarios_de_teste": [],
+      "limites": "Mostra onde as operadoras que aparecem no PTT declaram acessos ao SICI, não onde a rede delas chega nem por onde passa o tráfego. O mês do SICI difere da data do snapshot. O vínculo CNPJ ↔ ASN é o do SICI (registro do ASN); operadora sem ASN ligado fica de fora. Distância em linha reta, sem considerar rodovias ou fibra.",
+      "pendencias": []
+    },
+    {
       "id": "as2org",
       "nome": "Organização por ASN (CAIDA) e irmãos do Brasil",
       "descricao": "Para cada ASN do Brasil conhecido pelo CAIDA AS Rank, a organização (nome, país, número de ASNs no mundo) e os outros ASNs do Brasil da mesma organização (\"irmãos\"), mais a cobertura em relação aos ASNs do Brasil do snapshot. Organização inferida pelo CAIDA a partir do WHOIS; não é grupo societário.",
@@ -17384,6 +17487,7 @@
         "rs_policy",
         "as2org",
         "abuso_agregado",
+        "area_influencia_ptt",
         "bloqueios",
         "radar",
         "contratos",
@@ -18312,6 +18416,42 @@
       "destinos": [],
       "aceita_force": true,
       "descricao": "Passo do build do snapshot: cruza o SICI (acessos por município e CNPJ) com a adoção de IPv6 e os usuários dos ASNs (APNIC), o ROV medido pela APNIC e os provedores de trânsito inferidos, e publica o IPv6 estimado por município, os usuários atrás de ROV por UF e a dependência de trânsito. Estimativas e inferências, com a suposição e a cobertura à vista."
+    },
+    {
+      "id": "area_influencia_ptt",
+      "nome": "Área de influência observada dos PTTs",
+      "ordem": -46,
+      "runner": "worker",
+      "modulo": "products.area_influencia_ptt.build",
+      "args": [
+        "--date",
+        "{date}"
+      ],
+      "comando": [],
+      "fontes": [],
+      "produtos": [
+        "area_influencia_ptt"
+      ],
+      "parcial": [],
+      "refresca": [],
+      "depois_de": [
+        "sici",
+        "asn_indice",
+        "ixp_indice",
+        "metricas_ixp_asn"
+      ],
+      "somente_se_executou": [],
+      "politica_falha": "opcional",
+      "tentativas": 1,
+      "espera_s": 60,
+      "so_com_only": false,
+      "pesada": false,
+      "replay": true,
+      "replay_se_publicado": "territorio/area_influencia_ptt.json.gz",
+      "continua": false,
+      "destinos": [],
+      "aceita_force": true,
+      "descricao": "Passo do build do snapshot: atribui os acessos de banda larga fixa do SICI de cada município e operadora (CNPJ) ao PTT mais próximo entre os que a operadora enxerga, em duas visões (ASNs diretamente conectados, ou todos os que anunciam prefixo próprio no PTT), e publica P50, P80 e P90 da distância, a mediana por operadora, as faixas por município e o PTT principal de cada município. Inferência, com o método e os PTTs de PIX aproximado à vista."
     },
     {
       "id": "anatel_outorgas",

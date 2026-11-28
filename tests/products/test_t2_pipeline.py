@@ -114,7 +114,7 @@ import gzip
 
 GOLDEN_T1_MERCADO = ["scm.json.gz", "smp.json.gz", "stfc.json.gz", "seac.json.gz", "sici.json.gz", "sici_municipios.json.gz",
                      "sici_movel.json.gz", "grupos_societarios.json.gz", "asns/64504.json", "asns/64505.json", "asns/64510.json",
-                     "asns/64500.json", "asns/64501.json", "empresas/cadastro.json.gz", "financiamento/operadoras.json.gz", "radar/asns.json.gz", "contratos/operadoras.json.gz", "contratos/municipios.json.gz", "contratos/resumo.json.gz", "exposicao/asns.json.gz"]
+                     "asns/64500.json", "asns/64501.json", "empresas/cadastro.json.gz", "financiamento/operadoras.json.gz", "radar/asns.json.gz", "contratos/operadoras.json.gz", "contratos/municipios.json.gz", "contratos/resumo.json.gz", "exposicao/asns.json.gz", "territorio/area_influencia_ptt.json.gz"]
 
 
 def load_gz(base, date, name):

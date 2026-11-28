@@ -1,0 +1,598 @@
+{
+ "faixas": {
+  "1": "ate_p50",
+  "2": "p50_a_p80",
+  "3": "alem_p80"
+ },
+ "fontes": {
+  "centroides": "IBGE",
+  "pix": "cadastro de PIX do IX.br (config/pix.yaml)",
+  "ptts": "looking glasses do IX.br (snapshot)",
+  "sici": "2026-08"
+ },
+ "limites": "Inferência, não cobertura de rede. Mostra onde as operadoras que aparecem no PTT declaram acessos de banda larga fixa ao SICI (mês de referência diferente da data do snapshot), com cada par (município, operadora) atribuído ao PTT mais próximo entre os que ela enxerga na visão. Não diz que a rede da operadora chega ao município nem que o tráfego passe pelo PTT. A distância é em linha reta, do centroide do município ao PIX mais próximo; PIX sem coordenada foi posicionado no centroide do município do endereço ou da sede do PTT. O CNPJ liga-se aos ASNs pelo cadastro do SICI (CNPJ do registro do ASN); operadora sem ASN ligado não entra, e um CNPJ com vários ASNs conta os acessos uma vez. Não há exclusão de operadoras. O P50, o P80 e o P90 pesam por acessos; a mediana por operadora conta cada operadora uma vez e mede outra população.",
+ "metodo": {
+  "atribuicao": "Os acessos de cada par (município, CNPJ) vão para o PTT mais próximo entre os que o CNPJ enxerga na visão (união dos PTTs dos ASNs ligados a ele); cada acesso conta uma vez.",
+  "diretos": "ASN com sessão própria no PTT e prefixo próprio visto nele.",
+  "distancia": "Linha reta (geodésica) do centroide do município ao PIX mais próximo do PTT.",
+  "faixas": {
+   "1": "até o P50 (onde atua a maioria)",
+   "2": "acima do P50 até o P80 (quase todos)",
+   "3": "acima do P80 (os restantes)"
+  },
+  "mediana_operadora": "Mediana, entre as operadoras do PTT, da distância mediana (por acessos) de cada uma; cada operadora conta 1.",
+  "percentis": "Menor distância cujo acumulado de acessos atinge a fração do total do PTT (P50, P80, P90).",
+  "todos": "ASN com prefixo próprio visto no PTT, com sessão ou levado por outro participante (inclui os diretos)."
+ },
+ "municipios": {
+  "diretos": {
+   "9900001": [
+    "za",
+    1,
+    12714,
+    13314,
+    2
+   ],
+   "9900002": [
+    "zb",
+    1,
+    12655,
+    14452,
+    2
+   ],
+   "9900003": [
+    "za",
+    1,
+    2695,
+    3295,
+    2
+   ],
+   "9900004": [
+    "za",
+    1,
+    17289,
+    17289,
+    1
+   ],
+   "9900005": [
+    "zc",
+    1,
+    14585,
+    19737,
+    2
+   ],
+   "9900006": [
+    "zb",
+    1,
+    15499,
+    15499,
+    1
+   ],
+   "9900007": [
+    "zc",
+    1,
+    16289,
+    22326,
+    2
+   ],
+   "9900008": [
+    "zc",
+    2,
+    17273,
+    24147,
+    2
+   ],
+   "9900009": [
+    "zb",
+    3,
+    19122,
+    19122,
+    1
+   ],
+   "9900010": [
+    "zb",
+    1,
+    23914,
+    23914,
+    1
+   ],
+   "9900011": [
+    "zc",
+    2,
+    19777,
+    29271,
+    2
+   ],
+   "9900012": [
+    "za",
+    2,
+    31014,
+    31014,
+    1
+   ]
+  },
+  "todos": {
+   "9900001": [
+    "za",
+    1,
+    12714,
+    13314,
+    2
+   ],
+   "9900002": [
+    "zb",
+    1,
+    14452,
+    14452,
+    1
+   ],
+   "9900003": [
+    "za",
+    1,
+    2695,
+    3295,
+    2
+   ],
+   "9900004": [
+    "za",
+    1,
+    17289,
+    17289,
+    1
+   ],
+   "9900005": [
+    "zc",
+    1,
+    14585,
+    19737,
+    2
+   ],
+   "9900006": [
+    "zb",
+    1,
+    15499,
+    15499,
+    1
+   ],
+   "9900007": [
+    "zc",
+    1,
+    16289,
+    22326,
+    2
+   ],
+   "9900008": [
+    "zc",
+    2,
+    24147,
+    24147,
+    1
+   ],
+   "9900009": [
+    "zb",
+    3,
+    19122,
+    19122,
+    1
+   ],
+   "9900010": [
+    "zb",
+    1,
+    23914,
+    23914,
+    1
+   ],
+   "9900011": [
+    "zc",
+    2,
+    19777,
+    29271,
+    2
+   ],
+   "9900012": [
+    "za",
+    3,
+    31014,
+    31014,
+    1
+   ]
+  }
+ },
+ "municipios_nomes": {
+  "9900001": "Arandurápolis/SP",
+  "9900002": "Tupãnópolis/RJ",
+  "9900003": "Guaraniópolis/PR",
+  "9900004": "Itapuãzinho/SP",
+  "9900005": "Curumim do Sul/RS",
+  "9900006": "Ybyrapé/MG",
+  "9900007": "Mbaracayú Novo/PR",
+  "9900008": "Tabajara do Norte/AM",
+  "9900009": "Potiguara/RN",
+  "9900010": "Caeté Velho/BA",
+  "9900011": "Jaguarão de Cima/RS",
+  "9900012": "Pindorama Alta/GO"
+ },
+ "natureza": "inferido",
+ "ptts": {
+  "za": {
+   "nome": "Arandurápolis",
+   "pix": {
+    "aproximado": false,
+    "coordenada": 1,
+    "endereco": 0,
+    "pontos": [
+     [
+      -23.6,
+      -46.7,
+      "coordenada"
+     ]
+    ],
+    "sede": 0,
+    "total": 1
+   },
+   "uf": "SP",
+   "visoes": {
+    "diretos": {
+     "acessos": 93066,
+     "faixas": {
+      "alem_p80": {
+       "acessos": 21520,
+       "municipios": 3
+      },
+      "ate_p50": {
+       "acessos": 40532,
+       "municipios": 5
+      },
+      "p50_a_p80": {
+       "acessos": 31014,
+       "municipios": 1
+      }
+     },
+     "mediana_operadora_km": 359.7,
+     "municipios": 9,
+     "municipios_faixa": {
+      "9900001": [
+       12714,
+       1
+      ],
+      "9900002": [
+       1797,
+       1
+      ],
+      "9900003": [
+       2695,
+       1
+      ],
+      "9900004": [
+       17289,
+       1
+      ],
+      "9900005": [
+       5152,
+       3
+      ],
+      "9900007": [
+       6037,
+       1
+      ],
+      "9900008": [
+       6874,
+       3
+      ],
+      "9900011": [
+       9494,
+       3
+      ],
+      "9900012": [
+       31014,
+       2
+      ]
+     },
+     "operadoras": 13,
+     "p50_km": 812.0,
+     "p80_km": 844.6,
+     "p90_km": 1189.3
+    },
+    "todos": {
+     "acessos": 84395,
+     "faixas": {
+      "alem_p80": {
+       "acessos": 45660,
+       "municipios": 3
+      },
+      "ate_p50": {
+       "acessos": 38735,
+       "municipios": 4
+      },
+      "p50_a_p80": {
+       "acessos": 0,
+       "municipios": 0
+      }
+     },
+     "mediana_operadora_km": 333.9,
+     "municipios": 7,
+     "municipios_faixa": {
+      "9900001": [
+       12714,
+       1
+      ],
+      "9900003": [
+       2695,
+       1
+      ],
+      "9900004": [
+       17289,
+       1
+      ],
+      "9900005": [
+       5152,
+       3
+      ],
+      "9900007": [
+       6037,
+       1
+      ],
+      "9900011": [
+       9494,
+       3
+      ],
+      "9900012": [
+       31014,
+       3
+      ]
+     },
+     "operadoras": 11,
+     "p50_km": 812.0,
+     "p80_km": 812.0,
+     "p90_km": 1189.3
+    }
+   }
+  },
+  "zb": {
+   "nome": "Tupãnópolis",
+   "pix": {
+    "aproximado": true,
+    "coordenada": 1,
+    "endereco": 0,
+    "pontos": [
+     [
+      -22.95,
+      -43.25,
+      "coordenada"
+     ],
+     [
+      -22.95,
+      -43.25,
+      "sede"
+     ]
+    ],
+    "sede": 1,
+    "total": 2
+   },
+   "uf": "RJ",
+   "visoes": {
+    "diretos": {
+     "acessos": 71790,
+     "faixas": {
+      "alem_p80": {
+       "acessos": 19122,
+       "municipios": 1
+      },
+      "ate_p50": {
+       "acessos": 52668,
+       "municipios": 4
+      },
+      "p50_a_p80": {
+       "acessos": 0,
+       "municipios": 0
+      }
+     },
+     "mediana_operadora_km": 673.5,
+     "municipios": 5,
+     "municipios_faixa": {
+      "9900002": [
+       12655,
+       1
+      ],
+      "9900003": [
+       600,
+       1
+      ],
+      "9900006": [
+       15499,
+       1
+      ],
+      "9900009": [
+       19122,
+       3
+      ],
+      "9900010": [
+       23914,
+       1
+      ]
+     },
+     "operadoras": 8,
+     "p50_km": 1219.9,
+     "p80_km": 2093.2,
+     "p90_km": 2093.2
+    },
+    "todos": {
+     "acessos": 73587,
+     "faixas": {
+      "alem_p80": {
+       "acessos": 19122,
+       "municipios": 1
+      },
+      "ate_p50": {
+       "acessos": 54465,
+       "municipios": 4
+      },
+      "p50_a_p80": {
+       "acessos": 0,
+       "municipios": 0
+      }
+     },
+     "mediana_operadora_km": 673.5,
+     "municipios": 5,
+     "municipios_faixa": {
+      "9900002": [
+       14452,
+       1
+      ],
+      "9900003": [
+       600,
+       1
+      ],
+      "9900006": [
+       15499,
+       1
+      ],
+      "9900009": [
+       19122,
+       3
+      ],
+      "9900010": [
+       23914,
+       1
+      ]
+     },
+     "operadoras": 9,
+     "p50_km": 1219.9,
+     "p80_km": 2093.2,
+     "p90_km": 2093.2
+    }
+   }
+  },
+  "zc": {
+   "nome": "Guaraniópolis",
+   "pix": {
+    "aproximado": true,
+    "coordenada": 0,
+    "endereco": 1,
+    "pontos": [
+     [
+      -24.95,
+      -53.45,
+      "endereco"
+     ]
+    ],
+    "sede": 0,
+    "total": 1
+   },
+   "uf": "PR",
+   "visoes": {
+    "diretos": {
+     "acessos": 68524,
+     "faixas": {
+      "alem_p80": {
+       "acessos": 0,
+       "municipios": 0
+      },
+      "ate_p50": {
+       "acessos": 31474,
+       "municipios": 3
+      },
+      "p50_a_p80": {
+       "acessos": 37050,
+       "municipios": 2
+      }
+     },
+     "mediana_operadora_km": 700.4,
+     "municipios": 5,
+     "municipios_faixa": {
+      "9900001": [
+       600,
+       1
+      ],
+      "9900005": [
+       14585,
+       1
+      ],
+      "9900007": [
+       16289,
+       1
+      ],
+      "9900008": [
+       17273,
+       2
+      ],
+      "9900011": [
+       19777,
+       2
+      ]
+     },
+     "operadoras": 5,
+     "p50_km": 845.1,
+     "p80_km": 2523.5,
+     "p90_km": 2523.5
+    },
+    "todos": {
+     "acessos": 75398,
+     "faixas": {
+      "alem_p80": {
+       "acessos": 0,
+       "municipios": 0
+      },
+      "ate_p50": {
+       "acessos": 31474,
+       "municipios": 3
+      },
+      "p50_a_p80": {
+       "acessos": 43924,
+       "municipios": 2
+      }
+     },
+     "mediana_operadora_km": 700.4,
+     "municipios": 5,
+     "municipios_faixa": {
+      "9900001": [
+       600,
+       1
+      ],
+      "9900005": [
+       14585,
+       1
+      ],
+      "9900007": [
+       16289,
+       1
+      ],
+      "9900008": [
+       24147,
+       2
+      ],
+      "9900011": [
+       19777,
+       2
+      ]
+     },
+     "operadoras": 6,
+     "p50_km": 845.1,
+     "p80_km": 2523.5,
+     "p90_km": 2523.5
+    }
+   }
+  }
+ },
+ "ptts_com_pix_aproximado": [
+  "zb",
+  "zc"
+ ],
+ "snapshot_date": "2026-09-20",
+ "totais": {
+  "diretos": {
+   "acessos": 434257,
+   "acessos_atribuidos": 233380,
+   "acessos_sem_centroide": 0,
+   "acessos_sem_ptt": 200877,
+   "cnpjs_com_varios_asns": 1
+  },
+  "todos": {
+   "acessos": 434257,
+   "acessos_atribuidos": 233380,
+   "acessos_sem_centroide": 0,
+   "acessos_sem_ptt": 200877,
+   "cnpjs_com_varios_asns": 1
+  }
+ }
+}

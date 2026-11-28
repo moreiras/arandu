@@ -13,6 +13,28 @@ def fake_pix():
     return {c: [{"name": n, "lat": mun[n][3], "lon": mun[n][4]}] for c, n, _ in PTTS}
 
 
+def fake_centroides():
+    """Centroides (lon, lat) dos municípios fictícios (o IBGE 99… não está em config/municipios-centroides.json)."""
+    return {m[0]: (m[4], m[3]) for m in MUNICIPIOS}
+
+
+def fake_pix_cadastro():
+    """Cadastro de PIX para a área de influência: za com coordenada; zb com um PIX sem endereço reconhecível (vai para a sede); zc só com endereço (vai para o município dele)."""
+    mun = {m[1]: m for m in MUNICIPIOS}
+    return {"za": [{"name": "[PIX A]", "address": "", "lat": mun["Arandurápolis"][3], "lon": mun["Arandurápolis"][4]}],
+            "zb": [{"name": "[PIX B1]", "address": "", "lat": mun["Tupãnópolis"][3], "lon": mun["Tupãnópolis"][4]}, {"name": "[PIX B2]", "address": "Rua Sem Cidade, 10"}],
+            "zc": [{"name": "[PIX C]", "address": "Rua A, 1 - Mbaracayú Novo - PR"}]}
+
+
+def patch_area_influencia(mp):
+    """Entradas de `config/` do produto `area_influencia_ptt` trocadas pelas do dataset sintético (no pipeline, no compare e no replay)."""
+    from products.area_influencia_ptt import build as area_influencia
+
+    mp.setattr(area_influencia, "carregar_centroides", fake_centroides)
+    mp.setattr(area_influencia, "carregar_pix", fake_pix_cadastro)
+    mp.setattr(area_influencia, "carregar_referencia", lambda: {})
+
+
 def fake_ixps():
     return [{"code": c, "name": n, "uf": uf, "telnet_host": f"lg.{c}.ix.br", "telnet_port": 23, "timeout": 60}
             for c, n, uf in PTTS]
@@ -70,6 +92,10 @@ def run_pipeline(base, date, monkeypatch):
     regiao.publicar_regiao(base, date, log)                            # ASNs por município, depois do SICI e das relações
     from products.rede_territorio import build as rede_territorio
     rede_territorio.publicar_rede_territorio(base, date, log)           # IPv6, ROV e trânsito no território (depois da região e da segurança)
+    from products.area_influencia_ptt import build as area_influencia
+
+    patch_area_influencia(monkeypatch)
+    area_influencia.publicar_area_influencia(base, date, log)         # área de influência dos PTTs (depois do SICI e dos documentos de ASN)
     coleta_checks.refresh_manifest(base, date, log, checksums=True)    # o manifesto passa a conter o arquivo novo
     return result
 
