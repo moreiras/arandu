@@ -51,6 +51,7 @@
    "/api/v1/brasil/snapshots/${date}",
    "/api/v1/external-ixps",
    "/api/v1/ixps",
+   "/api/v1/ixps/area-influencia",
    "/api/v1/ixps/estimated-users"
   ],
   "/operadoras": [

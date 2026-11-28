@@ -19,6 +19,10 @@ class TerritorioRepo(ArtifactRepo):
         """`territorio/rede_territorio.json.gz`: IPv6 estimado, usuários atrás de ROV e dependência de trânsito."""
         return self.ler(date_str, "territorio/rede_territorio.json.gz")
 
+    def area_influencia_doc(self, date_str: str) -> Optional[dict]:
+        """`territorio/area_influencia_ptt.json.gz`: área de influência observada de cada PTT, por visão, e o índice por município."""
+        return self.ler(date_str, "territorio/area_influencia_ptt.json.gz")
+
     def regiao_doc(self, date_str: str) -> Optional[dict]:
         """`territorio/regiao.json.gz`: ASNs por município e a tabela de fatos por ASN."""
         return self.ler(date_str, "territorio/regiao.json.gz")

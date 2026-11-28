@@ -701,6 +701,9 @@ class Store:
     def rede_territorio_doc(self, date_str: str) -> Optional[dict]:
         return self._territorio.rede_doc(date_str)
 
+    def area_influencia_doc(self, date_str: str) -> Optional[dict]:
+        return self._territorio.area_influencia_doc(date_str)
+
     def regiao_doc(self, date_str: str) -> Optional[dict]:
         return self._territorio.regiao_doc(date_str)
 

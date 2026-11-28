@@ -1633,6 +1633,25 @@
    "status": 200,
    "tipo": "objeto"
   },
+  "GET /api/v1/ixps/area-influencia": {
+   "chaves": [
+    "campos_municipio",
+    "faixas",
+    "fontes",
+    "limites",
+    "metodo",
+    "municipios",
+    "natureza",
+    "ptts",
+    "ptts_com_pix_aproximado",
+    "rotulo_visao",
+    "snapshot_date",
+    "total",
+    "visao"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
   "GET /api/v1/ixps/estimated-users": {
    "chaves": [
     "afi",
@@ -1654,6 +1673,25 @@
     "uf",
     "v4",
     "v6"
+   ],
+   "status": 200,
+   "tipo": "objeto"
+  },
+  "GET /api/v1/ixps/{code}/area-influencia": {
+   "chaves": [
+    "faixas",
+    "fontes",
+    "ixp",
+    "limites",
+    "metodo",
+    "municipios_nomes",
+    "natureza",
+    "nome",
+    "pix",
+    "snapshot_date",
+    "totais",
+    "uf",
+    "visoes"
    ],
    "status": 200,
    "tipo": "objeto"
