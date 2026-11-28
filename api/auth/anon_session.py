@@ -10,9 +10,14 @@ diretório usado por `storage.py` para o CSV de usuários e os logs de acesso,
 mas com garantias transacionais nativas (BEGIN IMMEDIATE), evitando o tipo de
 condição de corrida já observada em `storage._rotate_old_logs()`.
 
-Identidade resolvida por cookie (prioridade) ou fingerprint de dispositivo
-(fallback), com TTL de 24h por padrão — é essa expiração do registro que
-reinicia a contagem, não uma lógica de aplicação separada.
+Identidade resolvida por cookie (prioridade), fingerprint forte e fingerprint
+estável (fallbacks, nesta ordem), com TTL de 24h por padrão — é essa expiração do
+registro que reinicia a contagem, não uma lógica de aplicação separada.
+
+Além do orçamento individual há um teto por rede: a soma do tempo ativo de todas as
+sessões da mesma rede no dia (`rede_hash`), por padrão `REDE_MULTIPLICADOR_PADRAO` vezes o
+orçamento individual. Ele fecha o contorno de quem abre uma janela privada que muda cookie
+e fingerprint forte.
 """
 from __future__ import annotations
 
@@ -33,6 +38,7 @@ from typing import Optional
 
 COOKIE_NAME = "anon_sid"
 FINGERPRINT_HEADER = "X-Device-Fingerprint"
+FINGERPRINT_ESTAVEL_HEADER = "X-Device-Fingerprint-Estavel"
 
 _DB_FILENAME = "anon_sessions.db"
 
@@ -44,19 +50,25 @@ CREATE TABLE IF NOT EXISTS anon_sessions (
     last_heartbeat_at TEXT NOT NULL,
     created_at TEXT NOT NULL,
     expires_at TEXT NOT NULL,
-    ipua_hash TEXT
+    ipua_hash TEXT,
+    fingerprint_estavel_hash TEXT,
+    rede_hash TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_anon_sessions_fingerprint
     ON anon_sessions(fingerprint_hash);
 """
 
-# Migração para bancos criados antes da coluna ipua_hash (sessão de cliente sem
-# cookie nem fingerprint: identificada por hash(IP + User-Agent)).
-_MIGRATIONS = (
-    "ALTER TABLE anon_sessions ADD COLUMN ipua_hash TEXT",
+# Colunas acrescentadas depois da criação da tabela: `ipua_hash` (cliente sem cookie nem fingerprint, identificado por hash(IP + User-Agent)),
+# `fingerprint_estavel_hash` (fingerprint sem os sinais que o modo privado altera) e `rede_hash` (HMAC da rede e do dia, nunca o IP).
+_COLUNAS_NOVAS = (
+    ("ipua_hash", "TEXT"),
+    ("fingerprint_estavel_hash", "TEXT"),
+    ("rede_hash", "TEXT"),
 )
-_INDEX_IPUA = (
-    "CREATE INDEX IF NOT EXISTS idx_anon_sessions_ipua ON anon_sessions(ipua_hash)"
+_INDICES = (
+    "CREATE INDEX IF NOT EXISTS idx_anon_sessions_ipua ON anon_sessions(ipua_hash)",
+    "CREATE INDEX IF NOT EXISTS idx_anon_sessions_fp_estavel ON anon_sessions(fingerprint_estavel_hash)",
+    "CREATE INDEX IF NOT EXISTS idx_anon_sessions_rede ON anon_sessions(rede_hash)",
 )
 
 # Limpeza de sessões expiradas: no máximo 1x a cada 10 min por processo.
@@ -78,13 +90,21 @@ class AnonSessionConfig:
     # com 3 s e o orçamento padrão (600 s), 200 pedidos medidos por IP a cada 24 h. Navegador atrás de
     # CGNAT tem cookie de sessão próprio e não entra nesta conta. 0 = desligado.
     api_client_cost_seconds: int = 3
+    # Teto do tempo ativo somado de todas as sessões da mesma rede no dia, em múltiplos de `limit_seconds`. 0 = desligado.
+    rede_multiplier: int = 3
 
     @property
     def limit_seconds(self) -> int:
         return self.limit_minutes * 60
 
+    @property
+    def rede_limit_seconds(self) -> int:
+        """Teto da rede em segundos; 0 = sem teto por rede."""
+        return max(0, self.rede_multiplier) * self.limit_seconds
+
 
 TTL_PADRAO_HORAS = 24
+REDE_MULTIPLICADOR_PADRAO = 3
 
 
 def load_anon_config() -> AnonSessionConfig:
@@ -95,6 +115,7 @@ def load_anon_config() -> AnonSessionConfig:
         ttl_hours=int(os.environ.get("ANON_SESSION_TTL_HOURS", str(TTL_PADRAO_HORAS))),
         inactivity_timeout_seconds=int(os.environ.get("ANON_INACTIVITY_TIMEOUT_SECONDS", "45")),
         api_client_cost_seconds=int(os.environ.get("ANON_API_CLIENT_COST_SECONDS", "3")),
+        rede_multiplier=int(os.environ.get("ANON_REDE_LIMIT_MULTIPLIER", str(REDE_MULTIPLICADOR_PADRAO))),
     )
 
 
@@ -108,6 +129,13 @@ def hash_fingerprint(raw: str, rede: Optional[str] = None) -> str:
     misturam."""
     base = f"{rede}|{raw}" if rede else raw
     return hashlib.sha256(base.encode("utf-8", errors="ignore")).hexdigest()
+
+
+def hash_fingerprint_estavel(raw: str, rede: Optional[str] = None) -> str:
+    """Fingerprint estável (frontend/src/auth/fingerprint.ts: família do navegador, idioma, fuso, tela e núcleos), sem canvas, WebGL nem
+    versão do user-agent, que o modo privado do Safari e do Firefox altera. Mesmo escopo de rede e dia de `hash_fingerprint`; o prefixo
+    separa os dois espaços de hash."""
+    return hash_fingerprint(f"estavel|{raw}", rede)
 
 
 def rede_do_ip(ip: str) -> str:
@@ -171,12 +199,15 @@ def _connect(data_dir: Path):
         # Esquema/migração/WAL 1x por processo (o gate roda a cada requisição de API).
         conn.execute("PRAGMA journal_mode=WAL")
         conn.executescript(_SCHEMA)
-        for stmt in _MIGRATIONS:
-            try:
-                conn.execute(stmt)
-            except sqlite3.OperationalError:
-                pass  # coluna já existe
-        conn.execute(_INDEX_IPUA)
+        existentes = {r[1] for r in conn.execute("PRAGMA table_info(anon_sessions)")}
+        for coluna, tipo in _COLUNAS_NOVAS:
+            if coluna not in existentes:
+                try:
+                    conn.execute(f"ALTER TABLE anon_sessions ADD COLUMN {coluna} {tipo}")
+                except sqlite3.OperationalError:
+                    pass  # outro processo (API e gate abrem o banco juntos) acrescentou antes
+        for stmt in _INDICES:
+            conn.execute(stmt)
         _initialized.add(str(path))
     _maybe_purge(conn)
     try:
@@ -209,15 +240,41 @@ def _new_session_id() -> str:
     return secrets.token_urlsafe(32)
 
 
-def resolve_and_touch(
+@dataclass
+class Resolucao:
+    session_id: str
+    active_seconds: int
+    limit_reached: bool          # orçamento individual esgotado OU rede acima do teto
+    needs_cookie: bool
+    bloqueio_rede: bool = False  # o bloqueio vem do teto da rede (o individual pode não ter acabado)
+
+
+def _total_rede(conn: sqlite3.Connection, rede: Optional[str]) -> int:
+    """Tempo ativo somado das sessões da rede no dia (`rede_hash` já traz o dia). Só linhas com `rede_hash`: o custo por chamada de
+    script (`charge_client`) tem teto próprio e não entra, para um script não gastar o teto de quem navega."""
+    if not rede:
+        return 0
+    return conn.execute("SELECT COALESCE(SUM(active_seconds), 0) FROM anon_sessions WHERE rede_hash = ?", (rede,)).fetchone()[0]
+
+
+def rede_acima_do_teto(conn: sqlite3.Connection, cfg: AnonSessionConfig, rede: Optional[str]) -> bool:
+    teto = cfg.rede_limit_seconds
+    return bool(teto and rede and _total_rede(conn, rede) >= teto)
+
+
+_SELECT_SESSAO = "SELECT session_id, active_seconds, last_heartbeat_at, expires_at FROM anon_sessions WHERE "
+
+
+def resolver_sessao(
     data_dir: Path,
     cfg: AnonSessionConfig,
     cookie_session_id: Optional[str],
     fingerprint_hash: Optional[str],
     area: str = AREA_METERED,
     rede: Optional[str] = None,
-) -> tuple[str, int, bool, bool]:
-    """Resolve a sessão anônima (cookie > fingerprint > nova) e registra um heartbeat.
+    fingerprint_estavel_hash: Optional[str] = None,
+) -> Resolucao:
+    """Resolve a sessão anônima (cookie > fingerprint forte > fingerprint estável > nova) e registra um heartbeat.
 
     O delta somado a `active_seconds` é `agora - last_heartbeat_at`, limitado a um
     teto de `heartbeat_interval_seconds * heartbeat_ceiling_multiplier` — evita que
@@ -230,7 +287,12 @@ def resolve_and_touch(
     `last_heartbeat_at` é atualizado — ao voltar a uma página avançada o primeiro
     delta não infla o contador.
 
-    Retorna (session_id, active_seconds, limit_reached, cookie_precisa_ser_emitido).
+    Achada pelo estável (janela privada: cookie e fingerprint forte novos), a sessão passa a gravar o forte novo, para os próximos pedidos
+    acharem-na pelo forte, e o cookie é reemitido com o id dela (sem sessão nova). Os fingerprints são sempre buscados dentro da rede e do dia
+    (o hash os traz).
+
+    Com `rede`, vale também o teto da rede (`AnonSessionConfig.rede_limit_seconds`): somado o tempo de todas as sessões dela, acima do teto
+    `limit_reached` fica True mesmo com o orçamento individual sobrando, e uma rede acima do teto não cria sessão nova.
     """
     now = datetime.now(timezone.utc)
     now_iso = now.isoformat()
@@ -242,39 +304,39 @@ def resolve_and_touch(
         try:
             row = None
             if cookie_session_id:
-                row = conn.execute(
-                    "SELECT session_id, active_seconds, last_heartbeat_at, expires_at "
-                    "FROM anon_sessions WHERE session_id = ?",
-                    (cookie_session_id,),
-                ).fetchone()
+                row = conn.execute(_SELECT_SESSAO + "session_id = ?", (cookie_session_id,)).fetchone()
                 if row and row[3] < now_iso:
                     row = None  # TTL expirado — trata como inexistente
 
             needs_cookie = row is None
-            if row is None and fingerprint_hash:
+            achada_pelo_estavel = False
+            for coluna, valor in (("fingerprint_hash", fingerprint_hash), ("fingerprint_estavel_hash", fingerprint_estavel_hash)):
+                if row is not None or not valor:
+                    continue
                 row = conn.execute(
-                    "SELECT session_id, active_seconds, last_heartbeat_at, expires_at "
-                    "FROM anon_sessions WHERE fingerprint_hash = ? "
-                    "ORDER BY last_heartbeat_at DESC LIMIT 1",
-                    (fingerprint_hash,),
+                    _SELECT_SESSAO + f"{coluna} = ? ORDER BY last_heartbeat_at DESC LIMIT 1", (valor,),
                 ).fetchone()
                 if row and row[3] < now_iso:
                     row = None
+                achada_pelo_estavel = row is not None and coluna == "fingerprint_estavel_hash"
 
             if row is None:
+                if rede_acima_do_teto(conn, cfg, rede):       # rede no teto: nova sessão não adianta nada
+                    conn.execute("ROLLBACK")
+                    return Resolucao("", cfg.limit_seconds, True, False, True)
                 if not _pode_criar_sessao(rede):              # rede criando sessões demais (script trocando de cookie)
                     conn.execute("ROLLBACK")
-                    return "", cfg.limit_seconds, True, False
+                    return Resolucao("", cfg.limit_seconds, True, False)
                 session_id = _new_session_id()
                 expires_at = (now + ttl).isoformat()
                 conn.execute(
                     "INSERT INTO anon_sessions "
-                    "(session_id, fingerprint_hash, active_seconds, last_heartbeat_at, created_at, expires_at) "
-                    "VALUES (?, ?, 0, ?, ?, ?)",
-                    (session_id, fingerprint_hash, now_iso, now_iso, expires_at),
+                    "(session_id, fingerprint_hash, active_seconds, last_heartbeat_at, created_at, expires_at, "
+                    "fingerprint_estavel_hash, rede_hash) VALUES (?, ?, 0, ?, ?, ?, ?, ?)",
+                    (session_id, fingerprint_hash, now_iso, now_iso, expires_at, fingerprint_estavel_hash, rede),
                 )
                 conn.execute("COMMIT")
-                return session_id, 0, False, True
+                return Resolucao(session_id, 0, False, True)
 
             session_id, active_seconds, last_heartbeat_at, _expires_at = row
             last_dt = datetime.fromisoformat(last_heartbeat_at)
@@ -286,16 +348,34 @@ def resolve_and_touch(
                 active_seconds = min(active_seconds + int(delta.total_seconds()), max(active_seconds, cfg.limit_seconds))
             expires_at = (now + ttl).isoformat()
             conn.execute(
-                "UPDATE anon_sessions SET active_seconds = ?, last_heartbeat_at = ?, "
-                "expires_at = ?, fingerprint_hash = COALESCE(fingerprint_hash, ?) "
+                "UPDATE anon_sessions SET active_seconds = ?, last_heartbeat_at = ?, expires_at = ?, "
+                "fingerprint_hash = CASE WHEN ? = 1 THEN COALESCE(?, fingerprint_hash) ELSE COALESCE(fingerprint_hash, ?) END, "
+                "fingerprint_estavel_hash = COALESCE(fingerprint_estavel_hash, ?), rede_hash = COALESCE(rede_hash, ?) "
                 "WHERE session_id = ?",
-                (active_seconds, now_iso, expires_at, fingerprint_hash, session_id),
+                (active_seconds, now_iso, expires_at, int(achada_pelo_estavel), fingerprint_hash, fingerprint_hash,
+                 fingerprint_estavel_hash, rede, session_id),
             )
+            individual = active_seconds >= cfg.limit_seconds
+            bloqueio_rede = (not individual) and rede_acima_do_teto(conn, cfg, rede)
             conn.execute("COMMIT")
-            return session_id, active_seconds, active_seconds >= cfg.limit_seconds, needs_cookie
+            return Resolucao(session_id, active_seconds, individual or bloqueio_rede, needs_cookie, bloqueio_rede)
         except Exception:
             conn.execute("ROLLBACK")
             raise
+
+
+def resolve_and_touch(
+    data_dir: Path,
+    cfg: AnonSessionConfig,
+    cookie_session_id: Optional[str],
+    fingerprint_hash: Optional[str],
+    area: str = AREA_METERED,
+    rede: Optional[str] = None,
+    fingerprint_estavel_hash: Optional[str] = None,
+) -> tuple[str, int, bool, bool]:
+    """`resolver_sessao` no formato antigo: (session_id, active_seconds, limit_reached, cookie_precisa_ser_emitido)."""
+    r = resolver_sessao(data_dir, cfg, cookie_session_id, fingerprint_hash, area, rede, fingerprint_estavel_hash)
+    return r.session_id, r.active_seconds, r.limit_reached, r.needs_cookie
 
 
 def peek_limit_reached(data_dir: Path, cfg: AnonSessionConfig, cookie_session_id: Optional[str]) -> bool:
@@ -320,8 +400,9 @@ def peek_limit_reached(data_dir: Path, cfg: AnonSessionConfig, cookie_session_id
 class PeekResult:
     found: bool
     active_seconds: int
-    limit_reached: bool
-    identity: str  # cookie | fingerprint | ipua | none
+    limit_reached: bool      # individual esgotado OU rede acima do teto (a mesma regra de `resolver_sessao`)
+    identity: str  # cookie | fingerprint | fingerprint_estavel | ipua | none
+    bloqueio_rede: bool = False
 
 
 def peek_state(
@@ -330,8 +411,10 @@ def peek_state(
     cookie_session_id: Optional[str],
     fingerprint_hash: Optional[str] = None,
     ipua_hash: Optional[str] = None,
+    fingerprint_estavel_hash: Optional[str] = None,
+    rede: Optional[str] = None,
 ) -> PeekResult:
-    """Estado da sessão anônima sem heartbeat: cookie > fingerprint > hash(IP+UA)."""
+    """Estado da sessão anônima sem heartbeat: cookie > fingerprint forte > fingerprint estável > hash(IP+UA), mais o teto da rede."""
     now_iso = datetime.now(timezone.utc).isoformat()
     with _connect(data_dir) as conn:
         attempts = []
@@ -339,8 +422,11 @@ def peek_state(
             attempts.append(("cookie", "session_id", cookie_session_id))
         if fingerprint_hash:
             attempts.append(("fingerprint", "fingerprint_hash", fingerprint_hash))
+        if fingerprint_estavel_hash:
+            attempts.append(("fingerprint_estavel", "fingerprint_estavel_hash", fingerprint_estavel_hash))
         if ipua_hash:
             attempts.append(("ipua", "ipua_hash", ipua_hash))
+        achado = None
         for kind, column, value in attempts:
             row = conn.execute(
                 f"SELECT active_seconds, expires_at FROM anon_sessions WHERE {column} = ? "
@@ -348,8 +434,13 @@ def peek_state(
                 (value,),
             ).fetchone()
             if row and row[1] >= now_iso:
-                return PeekResult(True, row[0], row[0] >= cfg.limit_seconds, kind)
-    return PeekResult(False, 0, False, "none")
+                achado = (kind, row[0])
+                break
+        individual = achado is not None and achado[1] >= cfg.limit_seconds
+        bloqueio_rede = (not individual) and rede_acima_do_teto(conn, cfg, rede)
+    if achado is None:
+        return PeekResult(False, 0, bloqueio_rede, "none", bloqueio_rede)
+    return PeekResult(True, achado[1], individual or bloqueio_rede, achado[0], bloqueio_rede)
 
 
 def charge_client(

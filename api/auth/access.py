@@ -153,7 +153,9 @@ def evaluate_access(
     # rede do IP. Cookie inventado e fingerprint aleatório não acham sessão e caem aqui.
     rede = anon_session.hash_rede(ip, cfg.jwt_secret)
     fp_hash = anon_session.hash_fingerprint(fp_raw, rede) if fp_raw else None
-    state = anon_session.peek_state(cfg.data_dir, anon_cfg, cookie_sid, fp_hash, rede)
+    fp_est_raw = request.headers.get(anon_session.FINGERPRINT_ESTAVEL_HEADER)
+    fp_est_hash = anon_session.hash_fingerprint_estavel(fp_est_raw, rede) if fp_est_raw else None
+    state = anon_session.peek_state(cfg.data_dir, anon_cfg, cookie_sid, fp_hash, rede, fp_est_hash, rede)   # inclui o teto da rede
     limit_reached = state.limit_reached
 
     classification = policy.classify(method, path, query, recent_dates(request))
@@ -163,7 +165,7 @@ def evaluate_access(
     # Cliente sem sessão válida (script/curl, cookie inventado): debita custo por requisição não aberta na conta da rede do IP.
     if (
         anon_cfg.api_client_cost_seconds > 0
-        and state.identity not in ("cookie", "fingerprint")
+        and state.identity not in ("cookie", "fingerprint", "fingerprint_estavel")
         and classification.cls != policy.OPEN
         and policy_mode() == "enforce"
     ):

@@ -49,6 +49,7 @@ from api.auth.anon_session import (
     peek_limit_reached,
     COOKIE_NAME as ANON_COOKIE_NAME,
     FINGERPRINT_HEADER,
+    FINGERPRINT_ESTAVEL_HEADER,
 )
 from api.auth.config import init_auth_config
 from api.auth import access_policy as _politica
@@ -315,7 +316,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_CORS_ORIGINS,
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type", "Authorization", FINGERPRINT_HEADER, "X-Arandu-Area"],
+    allow_headers=["Content-Type", "Authorization", FINGERPRINT_HEADER, FINGERPRINT_ESTAVEL_HEADER, "X-Arandu-Area"],
     expose_headers=["X-Anon-Limit-Reached", "X-Login-Required"],
     allow_credentials=True,
 )

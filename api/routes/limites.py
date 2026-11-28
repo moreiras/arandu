@@ -27,6 +27,7 @@ class Janela(BaseModel):
 class SemConta(BaseModel):
     identificacao: str
     orcamento_diario_segundos: int
+    teto_por_rede_segundos: Optional[int] = None      # tempo somado de todas as sessões da rede no dia; None = sem teto
     custo_por_chamada_segundos: int
     chamadas_medidas_por_dia: Optional[int] = None
     renovacao: str

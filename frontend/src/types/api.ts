@@ -10,6 +10,7 @@ export interface Limites {
   sem_conta: {
     identificacao: string
     orcamento_diario_segundos: number
+    teto_por_rede_segundos?: number | null
     custo_por_chamada_segundos: number
     chamadas_medidas_por_dia: number | null
     renovacao: string
