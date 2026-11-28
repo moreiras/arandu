@@ -7,7 +7,7 @@ import { coletaDaFamilia, type IXPIndexEntry } from '../../types/api'
 import { compacto, limitar, n0, palavra, plural, type FraseSintese } from '../../lib/sintese'
 import type { PttCtx } from './contexto'
 
-export const REGRAS_SINTESE_PTT = 'sintese-ptt-2'
+export const REGRAS_SINTESE_PTT = 'sintese-ptt-3'
 
 /** Quantos PTTs têm mais ASNs em sessão direta que este, e quantos têm o mesmo número (empate); nulo sem o número deste PTT ou sem a lista. */
 export function posicaoEntrePtts(code: string, todos: IXPIndexEntry[] | undefined): { mais: number; empate: number; de: number } | null {
@@ -36,8 +36,8 @@ export function sinteseIxp(c: PttCtx, nome: string, todos: IXPIndexEntry[] | und
     pos && { id: 'posicao', selo: 'fato', fonte: 'looking glasses do IX.br (regra: ASNs em sessão direta, união IPv6 e IPv4)', dataRef: snap,
       texto: `Entre os ${n0(pos.de)} ${palavra(pos.de, 'PTT', 'PTTs')} do IX.br com coleta, ${pos.mais === 0 ? 'nenhum tem' : `${n0(pos.mais)} ${palavra(pos.mais, 'tem', 'têm')}`} mais ASNs em sessão direta que este${pos.empate > 0 ? `, e ${n0(pos.empate)} ${palavra(pos.empate, 'tem', 'têm')} o mesmo número` : ''}.` },
     usuarios != null && { id: 'usuarios', selo: 'estimado', fonte: 'APNIC Labs e looking glass do IX.br', dataRef: snap,
-      texto: `Estimativa: ${compacto(usuarios)} usuários alcançáveis por este PTT em IPv4; a soma entre PTTs conta o mesmo usuário em cada PTT onde o ASN aparece.` },
+      texto: `Cerca de ${compacto(usuarios)} usuários estimados estão em redes alcançáveis por este PTT em IPv4. Somar vários PTTs contaria o mesmo usuário mais de uma vez.` },
     c.brOriginUnion != null && { id: 'origem', selo: 'fato', fonte: 'looking glass do IX.br', dataRef: snap,
-      texto: `${plural(c.brOriginUnion, 'ASN brasileiro origina', 'ASNs brasileiros originam')} prefixos vistos no PTT, inclusive por trânsito de outro participante.` },
+      texto: `${plural(c.brOriginUnion, 'ASN brasileiro origina', 'ASNs brasileiros originam')} prefixos vistos no PTT, inclusive os levados por outro participante.` },
   ])
 }

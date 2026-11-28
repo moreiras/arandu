@@ -7,7 +7,7 @@ import type { ResumoTerritorio } from '../../types/api'
 import { compacto, limitar, n0, palavra, pct1, plural, type FraseSintese } from '../../lib/sintese'
 import { nomeUf } from '../../lib/ufs'
 
-export const REGRAS_SINTESE_MUNICIPIOS = 'sintese-municipios-2'
+export const REGRAS_SINTESE_MUNICIPIOS = 'sintese-municipios-3'
 
 const razao = (v: number) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
@@ -28,7 +28,7 @@ export function sinteseMunicipios(r: ResumoTerritorio | null | undefined): Frase
     longe.acessos_por_domicilio != null && perto.acessos_por_domicilio != null && { id: 'razao', selo: 'estimado', fonte: 'SICI, Anatel, e domicílios projetados (Censo 2022 e PNAD)', dataRef: r.mes_referencia_sici,
       texto: `Nesses municípios há ${razao(longe.acessos_por_domicilio)} acesso fixo declarado por domicílio projetado. Nos que ficam até ${n0(r.raio_sem_ptt_km)} km, são ${razao(perto.acessos_por_domicilio)}. A comparação é de médias entre os grupos e não mede causa.` },
     p.com_mais_acessos_que_domicilios > 0 && { id: 'acima-de-1', selo: 'estimado', fonte: 'SICI, Anatel, e domicílios projetados (Censo 2022 e PNAD)', dataRef: r.mes_referencia_sici,
-      texto: `${n0(p.com_mais_acessos_que_domicilios)} ${p.com_mais_acessos_que_domicilios === 1 ? 'município' : 'municípios'} ${p.com_mais_acessos_que_domicilios === 1 ? 'tem' : 'têm'} mais acessos fixos declarados do que domicílios projetados; acesso não é domicílio (há acessos de empresas e mais de um acesso por domicílio).` },
+      texto: `${n0(p.com_mais_acessos_que_domicilios)} ${p.com_mais_acessos_que_domicilios === 1 ? 'município' : 'municípios'} ${p.com_mais_acessos_que_domicilios === 1 ? 'tem' : 'têm'} mais acessos fixos declarados do que domicílios projetados; os acessos incluem os de empresas e podem ser mais de um por domicílio.` },
     { id: 'cobertura', selo: 'fato', fonte: 'IBGE (tabela de municípios e Censo 2022)', dataRef: ref,
       texto: `A penetração foi calculada em ${n0(p.municipios_com_penetracao)} de ${n0(total.municipios)} ${palavra(total.municipios, 'município', 'municípios')}, os que têm ao menos ${n0(p.porte_minimo_domicilios)} domicílios. Outros ${n0(p.municipios_abaixo_do_porte)} ${palavra(p.municipios_abaixo_do_porte, 'tem', 'têm')} menos que isso, e ${n0(p.municipios_sem_domicilios)} ${palavra(p.municipios_sem_domicilios, 'não tem', 'não têm')} domicílios no Censo.` },
   ])

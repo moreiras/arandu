@@ -12,7 +12,7 @@ import { RELACAO_PTT } from '../../lib/universos'
  * Frase-síntese do AS: gerada por **regras**, sem modelo de linguagem. Cada frase sai de campos do snapshot, leva o
  * selo (fato, inferido ou estimado) e a versão das regras. Mudar uma regra muda `REGRAS_VERSAO`; o teste fixa o conjunto de ids.
  */
-export const REGRAS_VERSAO = 'sintese-as-3'
+export const REGRAS_VERSAO = 'sintese-as-4'
 
 export interface Frase { id: string; texto: string; selo: Selo }
 /** Frase com a fonte e a data de referência, que o resumo em texto manda para o bloco recolhido (PT-30). */
@@ -57,7 +57,7 @@ export function provedoresTransitoV4(doc: ASNDocument): ProvedoresV4 {
 
 const lista = (asns: number[]) => asns.map((a) => `AS${a}`).join(', ')
 
-/** Frase de trânsito da regra `sintese-as-3`: conta provedores de nível provável ou superior (não `n_provedores`, que é confirmado+). */
+/** Frase de trânsito da regra `sintese-as-4`: conta provedores de nível provável ou superior (não `n_provedores`, que é confirmado+). */
 export function fraseTransito(doc: ASNDocument): string {
   const t = provedoresTransitoV4(doc)
   if (t.semRelacoes) return 'Esta data não tem a lista de provedores de trânsito do AS, que vem de inferência a partir das relações do CAIDA e da tabela global.'
@@ -65,7 +65,7 @@ export function fraseTransito(doc: ASNDocument): string {
   const irm = t.irmaos.length ? ` ${lista(t.irmaos)}, do mesmo CNPJ ou da mesma organização, ${t.irmaos.length > 1 ? 'não entram' : 'não entra'} na contagem.` : ''
   if (t.fortes.length >= 2) return `Pelas relações inferidas, o AS tem ${n(t.fortes.length)} provedores de trânsito IPv4 de nível provável ou superior (${lista(t.fortes)})${poss}.${irm}`
   if (t.fortes.length === 1) return `Pelas relações inferidas, o AS tem um provedor de trânsito IPv4 de nível provável ou superior (${lista(t.fortes)})${poss}.${irm}`
-  if (t.possiveis.length) return `Pelas relações inferidas, nenhum provedor de trânsito IPv4 chega ao nível provável neste snapshot; há ${plural(t.possiveis.length, 'relação possível', 'relações possíveis')}.${irm}`
+  if (t.possiveis.length) return `Pelas relações inferidas, nenhum provedor de trânsito IPv4 atinge o nível provável neste snapshot; há ${plural(t.possiveis.length, 'relação possível', 'relações possíveis')}.${irm}`
   return t.indeterminado ? `Não há visibilidade suficiente para inferir provedores de trânsito IPv4.${irm}` : `Nenhum provedor de trânsito IPv4 foi inferido neste snapshot.${irm}`
 }
 

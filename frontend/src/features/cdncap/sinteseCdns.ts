@@ -6,11 +6,11 @@
 import type { CDNPresenceResponse } from '../../types/api'
 import { limitar, n0, palavra, type FraseSintese } from '../../lib/sintese'
 
-export const REGRAS_SINTESE_CDNS = 'sintese-cdns-2'
+export const REGRAS_SINTESE_CDNS = 'sintese-cdns-3'
 
 /**
  * Síntese da presença de CDNs e CAPs (PT-22, cdns 5.2): dos mesmos números da matriz (`/cdns/presence`: provedores, colunas do IX.br e de fora). A lista é um
- * catálogo curado e incompleto: "nenhum provedor do catálogo" não quer dizer ausência de conteúdo, e a frase diz isso. Presença por cadastro de participantes
+ * catálogo curado e incompleto: "nenhum provedor do catálogo" não indica ausência de conteúdo, e a frase diz isso. Presença por cadastro de participantes
  * casado com a lista curada é inferida (mesmo selo do KPI do Panorama); a de fora vem do PeeringDB, autodeclarada. Não recomenda instalar nada em lugar algum.
  */
 export function sinteseCdns(d: CDNPresenceResponse | null | undefined): FraseSintese[] {
@@ -25,7 +25,7 @@ export function sinteseCdns(d: CDNPresenceResponse | null | undefined): FraseSin
     nPtts > 0 && { id: 'ptts-sem', selo: 'inferido', fonte: 'catálogo curado do projeto e cadastro do IX.br', dataRef: d.snapshot_date,
       texto: pttsSemCdn === 0
         ? `${nPtts === 1 ? 'O PTT do IX.br tem' : `Todos os ${n0(nPtts)} PTTs do IX.br têm`} ao menos um provedor do catálogo no cadastro.`
-        : `${n0(pttsSemCdn)} dos ${n0(nPtts)} ${palavra(nPtts, 'PTT', 'PTTs')} do IX.br ${palavra(pttsSemCdn, 'não tem', 'não têm')} nenhum provedor do catálogo no cadastro. O catálogo é incompleto, então zero não quer dizer ausência de conteúdo.` },
+        : `${n0(pttsSemCdn)} dos ${n0(nPtts)} ${palavra(nPtts, 'PTT', 'PTTs')} do IX.br ${palavra(pttsSemCdn, 'não tem', 'não têm')} nenhum provedor do catálogo no cadastro. O catálogo é incompleto: a falta de um provedor da lista não indica ausência de conteúdo.` },
     d.external_columns.length > 0 && { id: 'fora', selo: 'fato', fonte: 'PeeringDB (autodeclarado)', dataRef: d.snapshot_date,
       texto: `Fora do IX.br, ${n0(fora)} ${palavra(fora, 'provedor do catálogo declara', 'provedores do catálogo declaram')} presença em ${n0(d.external_columns.length)} ${palavra(d.external_columns.length, 'IXP', 'IXPs')} do PeeringDB.` },
   ])

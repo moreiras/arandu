@@ -8,7 +8,7 @@ import { limitar, type FraseSintese } from '../../lib/sintese'
 import { TEXTO_ZERO_REGISTRADO, estadoMargem } from './margem'
 import temas from './temasSintese.json'
 
-export const REGRAS_SINTESE_CETIC = 'sintese-cetic-1'
+export const REGRAS_SINTESE_CETIC = 'sintese-cetic-2'
 
 export type Pesquisa = 'domicilios' | 'provedores'
 export interface TemaCetic { id: string; tabela: string; dimensao: string; recorte: string; item: string; resposta: string }
@@ -57,7 +57,7 @@ export function sinteseCetic(dom: EntradaCetic | undefined, prov: EntradaCetic |
     a4 && dom && { id: 'a4', selo: 'estimado', fonte: fd('A4'), dataRef: String(dom.edicao),
       texto: `${valorComMargem(a4)} dos domicílios têm acesso à Internet${a && de ? `; na classe social DE a proporção é ${valorComMargem(de)} e na classe A, ${valorComMargem(a)}` : ''}.` },
     a5 && dom && { id: 'a5', selo: 'estimado', fonte: fd('A5'), dataRef: String(dom.edicao),
-      texto: `${valorComMargem(a5)} dos domicílios com acesso à Internet usam banda larga fixa (universo: domicílios com acesso à Internet, não todos os domicílios).` },
+      texto: `${valorComMargem(a5)} dos domicílios com acesso à Internet usam banda larga fixa (o universo são os domicílios com acesso à Internet).` },
     e1a && prov && { id: 'e1a', selo: 'estimado', fonte: fp('E1A'), dataRef: String(prov.edicao),
       texto: `${valorComMargem(e1a)} das empresas provedoras declaram participar do IX.br.` },
     c1 && prov && { id: 'c1', selo: 'estimado', fonte: fp('C1'), dataRef: String(prov.edicao),
