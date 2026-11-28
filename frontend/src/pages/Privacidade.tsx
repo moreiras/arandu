@@ -50,7 +50,9 @@ export function Privacidade() {
           e uma <strong>identificação técnica do navegador</strong>, da qual guardamos apenas um{' '}
           <em>hash</em> irreversível, para contabilizar o tempo de uso das páginas avançadas e
           manter esse limite mesmo quando o cookie é bloqueado. Em acessos sem cookie, pode ser usado um
-          hash do endereço IP combinado com o navegador. Esses dados não identificam a pessoa, não são
+          hash do endereço IP combinado com o navegador. Para que o limite não seja contornado abrindo várias janelas, guardamos
+          também um <em>hash</em> da rede de origem, feito com um valor secreto que muda todos os dias, e somamos o tempo de uso
+          das sessões da mesma rede no dia. Esses dados não identificam a pessoa, não são
           compartilhados e são apagados após 24 horas.
         </p>
       </section>
