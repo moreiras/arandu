@@ -10,7 +10,7 @@ Funções puras sobre `territorio/regiao.json.gz` (produto `regiao_municipios`).
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-from typing import Optional
+from typing import Callable, Optional
 
 from core.prontidao_agregado import agregar as agregar_prontidao
 
@@ -65,7 +65,10 @@ def _nome(doc: dict, asn) -> str:
     return (doc["asns"].get(str(asn)) or {}).get("n") or ""
 
 
-def agregar(doc: dict, ibges: list[str], prontidao: Optional[dict] = None) -> dict:
+def agregar(doc: dict, ibges: list[str], prontidao: Optional[dict] = None, cnpj_de: Optional[Callable[[int], Optional[str]]] = None,
+            e_titular: Optional[Callable[[int, Optional[str]], bool]] = None) -> dict:
+    """`cnpj_de(asn)` liga o ASN ao CNPJ (SICI), para a tabela agrupar os ASNs de uma mesma operadora; `e_titular(asn, cnpj)` diz se é pessoa natural
+    (EI/MEI), caso em que o CNPJ não sai."""
     asns = doc["asns"]
     por = membros(doc, ibges)
     total = len(por)
@@ -112,7 +115,11 @@ def agregar(doc: dict, ibges: list[str], prontidao: Optional[dict] = None) -> di
     carregadores = sorted(({"asn": int(c), "nome": _nome(doc, c), "asns": n, "pct": _pct(n, indiretos), "na_regiao": c in por, "ptts_diretos": (asns.get(c) or {}).get("d") or []}
                            for c, n in carreg.items()), key=lambda x: (-x["asns"], x["asn"]))
     # a lista de provedores
-    provedores = sorted(({"asn": int(a), "nome": _nome(doc, a), "vinculos": sorted(e["vinculos"], key=("sici", "sede", "geo").index), "acessos_fixo": e["fixo"], "acessos_movel": e["movel"],
+    def _cnpj(a: str) -> Optional[str]:
+        c = cnpj_de(int(a)) if cnpj_de else None
+        return None if not c or (e_titular is not None and e_titular(int(a), c)) else c
+
+    provedores = sorted(({"asn": int(a), "nome": _nome(doc, a), "cnpj": _cnpj(a), "vinculos": sorted(e["vinculos"], key=("sici", "sede", "geo").index), "acessos_fixo": e["fixo"], "acessos_movel": e["movel"],
                           "prefixos_geo": e["prefixos_geo"], "ptts_diretos": (asns.get(a) or {}).get("d") or [],
                           "ptts_indiretos": sorted(set((asns.get(a) or {}).get("o") or []) - set((asns.get(a) or {}).get("d") or []))} for a, e in por.items()),
                         key=lambda x: (-(x["acessos_fixo"] + x["acessos_movel"]), -len(x["vinculos"]), -x["prefixos_geo"], x["asn"]))

@@ -27,7 +27,7 @@ router = APIRouter()
     description="""
 `ibges` são até 50 códigos IBGE de município separados por vírgula (o município da página e os do raio). Devolve os ASNs do conjunto (SICI, sede ou IPs geolocalizados, cada um com seu vínculo),
 a participação deles nos PTTs (direta e indireta, em número e %), os provedores de trânsito mais comuns (relações inferidas, com o nível de confiança), os ASNs que carregam os ASNs indiretos até
-os PTTs e a lista de provedores. É inferência com limites explicados na resposta; não há posição de prefixo nem contato.
+os PTTs e a lista de provedores (cada um com o `cnpj` da operadora quando o SICI o liga ao ASN; omitido para pessoa natural). É inferência com limites explicados na resposta; não há posição de prefixo nem contato.
 """,
 )
 def regiao(request: Request, ibges: str = Query(..., description="Códigos IBGE de município separados por vírgula (até 50)"), date: Optional[str] = Query(None)) -> dict:
@@ -39,6 +39,8 @@ def regiao(request: Request, ibges: str = Query(..., description="Códigos IBGE 
     if not doc:
         raise HTTPException(404, f"Região não publicada no snapshot {d}.")
     try:
-        return s.agregar(doc, s.ibges_da_consulta(ibges), store.prontidao_doc(d))
+        titulares = store.pessoa_natural_indice(d)
+        return s.agregar(doc, s.ibges_da_consulta(ibges), store.prontidao_doc(d), cnpj_de=lambda asn: store.sici_cnpj_for_asn(d, asn),
+                         e_titular=lambda asn, cnpj: titulares.e_titular(cnpj=cnpj, asn=asn) is not None)
     except s.RegiaoErro as e:
         raise HTTPException(e.status, e.mensagem)

@@ -126,3 +126,13 @@ def test_prontidao_da_regiao_sem_asn_no_indice_ou_sem_produto(artefato):
     assert s.agregar(artefato, ["3205309"], None)["prontidao"] is None
     vazio = s.agregar(artefato, ["3205309"], _pront((999, (10, 0, 0))))["prontidao"]
     assert vazio["agregado"] is None and vazio["asns_no_indice"] == 0
+
+
+def test_provedor_traz_o_cnpj_da_operadora_e_omite_o_de_pessoa_natural(artefato):
+    cnpjs = {100: "11111111000191", 160: "22222222000191", 170: "22222222000191"}
+    r = s.agregar(artefato, ["3205309", "3205200"], cnpj_de=cnpjs.get, e_titular=lambda asn, cnpj: cnpj == "11111111000191")
+    por = {p["asn"]: p["cnpj"] for p in r["provedores"]}
+    assert por[160] == por[170] == "22222222000191"               # dois ASNs, uma operadora: o front agrupa por este campo
+    assert por[100] is None                                        # titular pessoa natural: CNPJ nunca sai
+    assert por[150] is None                                        # ASN sem CNPJ ligado
+    assert all(p["cnpj"] is None for p in s.agregar(artefato, ["3205309"])["provedores"])
