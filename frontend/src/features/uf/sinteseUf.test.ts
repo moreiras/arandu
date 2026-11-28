@@ -90,7 +90,7 @@ describe('sinteseUf: operadoras, ASNs sem sessão em PTT e CNPJs sem declaraçã
     const f = sinteseUf(completo(), '2026-11-22').find((x) => x.id === 'sem-sessao')!
     expect(f.texto).toContain('Dos 110 ASNs brasileiros com sede em Amazonas, 67 não têm sessão direta em PTT do IX.br.')
     expect(f.texto).toMatch(/Sessão direta é a sessão BGP do ASN com o route server/)
-    expect(f.texto).toMatch(/a UF é a da sede, não a de operação/)
+    expect(f.texto).toMatch(/a UF é a da sede da organização/)
     expect(f.selo).toBe('fato')
     const um = completo(); um.totais.asns_sem_sessao_ptt = 1
     expect(sinteseUf(um, null).find((x) => x.id === 'sem-sessao')!.texto).toContain('1 não tem sessão direta')

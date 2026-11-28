@@ -25,7 +25,7 @@ const PADROES: Array<[string, RegExp]> = [
 ]
 
 /** Geradores ainda não revisados: pertencem a outra frente de trabalho nesta rodada. */
-const PENDENTES: string[] = ['features/uf/sinteseUf.ts']
+const PENDENTES: string[] = []
 
 function geradores(dir: string): string[] {
   return readdirSync(dir).flatMap((nome) => {

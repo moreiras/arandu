@@ -10,7 +10,7 @@ import { UNIVERSOS } from '../../lib/universos'
 import { fmtCnpj } from '../municipio/ui'
 import type { UfCtx } from './contexto'
 
-export const REGRAS_SINTESE_UF = 'sintese-uf-3'
+export const REGRAS_SINTESE_UF = 'sintese-uf-4'
 const SICI = 'SICI, Anatel (declarado pelas operadoras)'
 
 /**
@@ -37,13 +37,13 @@ export function sinteseUf(c: UfCtx, snapshot: string | null): FraseSintese[] {
       texto: `${mesTxt ? `Em ${mesTxt}, as` : 'As'} três operadoras com mais acessos fixos declarados ao SICI em ${nome} são ${tres.map((o) => `${o.empresa || o.razao_social || fmtCnpj(o.cnpj)} (${n1(o.share)}% dos acessos declarados na UF)`).join(', ').replace(/, ([^,]*)$/, ' e $1')}. Regra: ordem decrescente dos acessos declarados na UF, um CNPJ por operadora, sem somar grupos econômicos.`,
       link: { to: `/operadoras?visao=ranking&uf=${c.uf}`, rotulo: 'Ver o ranking completo da UF' } },
     pen != null && { id: 'penetracao', selo: 'estimado', fonte: 'SICI, Anatel, e Censo 2022 (IBGE) com projeção pela PNAD', dataRef: c.territorio?.mes_referencia_sici ?? mes,
-      texto: `Estimativa: ${n1(pen * 100)} acessos fixos para cada 100 domicílios. Os domicílios são os do Censo 2022 projetados pela PNAD, e acesso não é domicílio.` },
+      texto: `Estimativa: ${n1(pen * 100)} acessos fixos para cada 100 domicílios. Os domicílios são os do Censo 2022 projetados pela PNAD, e os acessos podem ser de empresas ou mais de um por domicílio.` },
     longe != null && longe > 0 && t.municipios != null && { id: 'sem-ptt', selo: 'estimado', fonte: 'SICI, Anatel, e PTTs do IX.br (distância em linha reta)', dataRef: mes,
-      texto: `Dos ${n0(t.municipios)} municípios com acessos declarados, ${plural(longe, 'fica', 'ficam')} a mais de ${n0(t.raio_sem_ptt_km)} km em linha reta de um PTT do IX.br${t.acessos_sem_ptt != null ? `, com ${n0(t.acessos_sem_ptt)} acessos fixos declarados` : ''}. A distância é a do centróide do município, não o trajeto de fibra.` },
+      texto: `Dos ${n0(t.municipios)} municípios com acessos declarados, ${plural(longe, 'fica', 'ficam')} a mais de ${n0(t.raio_sem_ptt_km)} km em linha reta de um PTT do IX.br${t.acessos_sem_ptt != null ? `, com ${n0(t.acessos_sem_ptt)} acessos fixos declarados` : ''}. A distância é medida em linha reta a partir do centróide do município.` },
     { id: 'rede', selo: 'fato', fonte: 'looking glasses do IX.br e Registro.br', dataRef: snapshot,
-      texto: `${c.ixps.length === 0 ? 'Não há PTT do IX.br na UF' : `A UF tem ${plural(c.ixps.length, 'PTT do IX.br', 'PTTs do IX.br')}`}. Há ${n0(t.asns)} ${UNIVERSOS.asnsComUf.rotulo}, e a UF é a da sede, não a de operação.` },
+      texto: `${c.ixps.length === 0 ? 'Não há PTT do IX.br na UF' : `A UF tem ${plural(c.ixps.length, 'PTT do IX.br', 'PTTs do IX.br')}`}. Há ${n0(t.asns)} ${UNIVERSOS.asnsComUf.rotulo}, contados na UF da sede da organização.` },
     t.asns > 1 && t.asns_sem_sessao_ptt != null && { id: 'sem-sessao', selo: 'fato', fonte: 'looking glasses e route servers do IX.br, e Registro.br', dataRef: snapshot,
-      texto: `Dos ${n0(t.asns)} ASNs brasileiros com sede em ${nome}, ${n0(t.asns_sem_sessao_ptt)} ${palavra(t.asns_sem_sessao_ptt, 'não tem', 'não têm')} sessão direta em PTT do IX.br. Sessão direta é a sessão BGP do ASN com o route server de ao menos um PTT; o ASN pode alcançar o IX.br por trânsito de outro AS, e a UF é a da sede, não a de operação.` },
+      texto: `Dos ${n0(t.asns)} ASNs brasileiros com sede em ${nome}, ${n0(t.asns_sem_sessao_ptt)} ${palavra(t.asns_sem_sessao_ptt, 'não tem', 'não têm')} sessão direta em PTT do IX.br. Sessão direta é a sessão BGP do ASN com o route server de ao menos um PTT; o ASN pode alcançar o IX.br por trânsito de outro AS, e a UF é a da sede da organização.` },
     sem != null && mesDecl != null && { id: 'sem-declaracao', selo: 'fato', fonte: 'SICI e outorgas SCM, Anatel', dataRef: mesDecl,
       texto: `${plural(sem.cnpjs_sem_declaracao, 'CNPJ com outorga SCM e sede em ' + nome + ' não tem', 'CNPJs com outorga SCM e sede em ' + nome + ' não têm')} acessos declarados ao SICI em ${formatarReferencia(mesDecl)}. Regra: CNPJ com outorga SCM e sede na UF sem acessos declarados nesse mês; isso não indica causa nem intenção.` },
   ], MAX_FRASES_ORDEM_FIXA)
