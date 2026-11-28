@@ -7,7 +7,7 @@ import type { SiciMovelStats, SiciStats } from '../../types/api'
 import { formatarReferencia } from '../../components/entidade/proveniencia'
 import { limitar, n0, palavra, pct1, type FraseSintese } from '../../lib/sintese'
 
-export const REGRAS_SINTESE_MERCADO = 'sintese-mercado-2'
+export const REGRAS_SINTESE_MERCADO = 'sintese-mercado-3'
 const FONTE = 'SICI, Anatel (declarado pelas operadoras)'
 
 /** Soma dos três maiores CNPJs em % do total declarado; nulo sem total ou com menos de três CNPJs (a regra é "três maiores"). */
@@ -30,7 +30,7 @@ export function sinteseMercado(fixo: SiciStats | null | undefined, movel: SiciMo
     fixo && fixo.total_acessos > 0 && { id: 'fixo', selo: 'fato', fonte: FONTE, dataRef: fixo.mes_referencia,
       texto: `${mesFixo}${mesFixo ? 'foram' : 'Foram'} declarados ao SICI, da Anatel, ${n0(fixo.total_acessos)} acessos de banda larga fixa, por ${n0(fixo.operadoras_ativas)} ${palavra(fixo.operadoras_ativas, 'CNPJ com acessos', 'CNPJs com acessos')}.` },
     tres != null && { id: 'tres-maiores', selo: 'fato', fonte: FONTE, dataRef: fixo?.mes_referencia,
-      texto: `Os três CNPJs com mais acessos fixos declarados somam ${pct1(tres)} do total. A conta usa os acessos declarados por CNPJ, sem agrupar por grupo econômico.` },
+      texto: `Os três CNPJs com mais acessos fixos declarados somam ${pct1(tres)} do total. O cálculo usa os acessos declarados por CNPJ, sem agrupar por grupo econômico.` },
     movel && movel.total_acessos > 0 && { id: 'movel', selo: 'fato', fonte: FONTE, dataRef: movel.mes_referencia,
       texto: `${mesMovel}${mesMovel ? 'foram' : 'Foram'} declaradas ${n0(movel.total_acessos)} linhas de banda larga móvel, sem contar M2M${movel.acessos_m2m != null ? `, que somam ${n0(movel.acessos_m2m)} acessos à parte` : ''}.` },
   ])

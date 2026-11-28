@@ -1950,6 +1950,31 @@ def test_brasil_indicadores_por_regiao_fecha_o_total_nacional(api):
     assert r["total"]["usuarios_sessao_rs"] == sum(a.get("apnic_users") or 0 for a in br if (a.get("ixps_direct_count") or 0) >= 1)
 
 
+def test_brasil_indicadores_ixbr_conta_cada_asn_br_uma_vez(api):
+    """Home: ASNs BR diretos (sessão com route server em algum PTT) e indiretos (só originam, sem sessão em nenhum) saem do índice, sem repetir por PTT."""
+    d = api.get("/api/v1/brasil/indicadores", headers=ANON).json()
+    x = d["ixbr"]
+    store = api.app.state.store
+    br = [a for a in store.asn_index(store.latest()) if a.get("is_br")]
+    assert x["asns_br_total"] == len(br)
+    assert x["asns_br_diretos"] == sum(1 for a in br if (a.get("ixps_direct_count") or 0) >= 1)
+    assert x["asns_br_indiretos"] == sum(1 for a in br if (a.get("ixps_origin_count") or 0) >= 1 and (a.get("ixps_direct_count") or 0) == 0)
+    assert x["asns_br_indiretos"] <= x["asns_br_originam"] <= x["asns_br_total"] and x["asns_br_diretos"] <= x["asns_br_total"]
+    assert "indireto" in x["nota"].lower() and x["fonte"]
+
+
+def test_brasil_indicadores_mercado_traz_o_hhi_nacional_com_a_regra(api):
+    """Home: HHI nacional por CNPJ vem do produto de indicadores do SICI (o mesmo de `/mercado/grupos`, `brasil`), com mês e regra; sem o produto, o bloco não existe."""
+    d = api.get("/api/v1/brasil/indicadores", headers=ANON).json()
+    store = api.app.state.store
+    nac = (store.sici_indicadores(store.latest()) or {}).get("brasil")
+    if not nac or nac.get("hhi") is None:
+        assert "mercado" not in d
+        return
+    m = d["mercado"]
+    assert m["hhi_cnpj"] == nac["hhi"] and m["n_cnpjs"] == nac.get("n_operadoras") and m["mes_referencia"] and "CNPJ" in m["nota"]
+
+
 def test_rota_medida_nao_fica_na_borda_exceto_mapas_e_agregados(api, ctx):
     """A borda (Cloudflare) não passa pelo gate: o que ela guarda vai para quem esgotou o orçamento. Rota `metered` sai com
     `Cloudflare-CDN-Cache-Control: no-store`, salvo as camadas de mapa e agregados da lista `_BORDA_PATTERNS`; rota aberta não leva o

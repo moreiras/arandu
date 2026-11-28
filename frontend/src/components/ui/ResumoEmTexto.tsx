@@ -14,6 +14,8 @@ export interface FraseResumo {
   selo: Selo
   fonte: string
   dataRef?: string | null
+  /** Frases seguidas com o mesmo `paragrafo` formam um parágrafo; sem o campo, todas ficam num só. */
+  paragrafo?: string
 }
 
 /**
@@ -35,12 +37,19 @@ export function ResumoEmTexto({ frases, regras, rotulo = 'Em resumo', snapshot, 
 }) {
   const itens = frases.map((f) => ({ selo: f.selo, fonte: f.fonte, dataRef: f.dataRef }))
   if (frases.length === 0) return null
+  const paragrafos = frases.reduce<FraseResumo[][]>((acc, f, i) => {
+    if (i > 0 && f.paragrafo === frases[i - 1].paragrafo) acc[acc.length - 1].push(f)
+    else acc.push([f])
+    return acc
+  }, [])
   return (
     <section aria-label={rotulo} className="space-y-2" data-testid="resumo-em-texto" {...(aoVivo ? { role: 'status', 'aria-live': 'polite' as const } : {})}>
       <h2 className="text-sm font-semibold text-gray-800">{rotulo}</h2>
-      <p className="max-w-[80ch] text-sm leading-relaxed text-gray-900">
-        {frases.map((f, i) => <span key={f.id} data-testid={`frase-${f.id}`}>{i > 0 ? ' ' : ''}{f.texto}</span>)}
-      </p>
+      {paragrafos.map((grupo, p) => (
+        <p key={p} className="max-w-[80ch] text-sm leading-relaxed text-gray-900">
+          {grupo.map((f, i) => <span key={f.id} data-testid={`frase-${f.id}`}>{i > 0 ? ' ' : ''}{f.texto}</span>)}
+        </p>
+      ))}
       <ComoLer titulo="Como este resumo é gerado e de onde vêm os dados">
         <p>
           As frases são montadas por regras fixas (versão <code>{regras}</code>), sem modelo de linguagem, a partir dos números desta página.

@@ -1502,8 +1502,9 @@ export function fetchCeticIndicadores(opts: { date?: string; pesquisa: string; t
  * 4: `rpki.rotas.rotas_br.{afi}.asn_br_fora_de_bloco` e rota brasileira só por prefixo (D4).
  * 5: `rpki.rotas.saude.moas` por família ({prefixos, prefixos_br, coletores}) nos snapshots com MOAS medido.
  * 6: `por_regiao`, o retrato por macro-região da sede do AS (PT-22 / PANORAMA TÉCNICO 5.2).
+ * 7: `ixbr` (ASNs brasileiros diretos e indiretos no IX.br) e `mercado` (HHI nacional por CNPJ), para o resumo da Home.
  */
-const ESQUEMA_BRASIL_INDICADORES = 6
+const ESQUEMA_BRASIL_INDICADORES = 7
 
 /** Agregados do país para a home e o Panorama técnico: IPv6 do APNIC, DNSSEC, ROV, prontidão e RPKI. Rota aberta. */
 export function fetchBrasilIndicadores(date?: string): Promise<BrasilIndicadores> {

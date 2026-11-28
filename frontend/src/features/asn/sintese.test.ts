@@ -31,7 +31,7 @@ describe('frase-síntese do AS (regras versionadas)', () => {
     expect(sinteseAs(doc).find((x) => x.id === 'rpki')!.texto).toBe('1 de 2 prefixos alocados ou anunciados têm ROA válido.')
   })
 
-  it('tem versão das regras', () => expect(REGRAS_VERSAO).toBe('sintese-as-3'))
+  it('tem versão das regras', () => expect(REGRAS_VERSAO).toBe('sintese-as-4'))
 
   it('AS completo: anúncio, PTTs, RPKI, usuários com posição; cada frase com selo', () => {
     const f = sinteseAs(base, ref)
@@ -79,7 +79,7 @@ describe('frase-síntese do AS (regras versionadas)', () => {
     const proprio = { ...base, asn: 28573, relacoes: rel([[28573, 'provavel']], { multihomed: { v4: null, v6: null } }) } as unknown as ASNDocument
     expect(fraseTransito(proprio)).toBe('Não há visibilidade suficiente para inferir provedores de trânsito IPv4.')
     const so = { ...base, relacoes: rel([[1, 'possivel'], [2, 'possivel']], { multihomed: { v4: null, v6: null } }) } as unknown as ASNDocument
-    expect(fraseTransito(so)).toBe('Pelas relações inferidas, nenhum provedor de trânsito IPv4 chega ao nível provável neste snapshot; há 2 relações possíveis.')
+    expect(fraseTransito(so)).toBe('Pelas relações inferidas, nenhum provedor de trânsito IPv4 atinge o nível provável neste snapshot; há 2 relações possíveis.')
     expect(fraseTransito(so)).not.toMatch(/mais de um provedor/)
     const um = { ...base, relacoes: rel([[3356, 'confirmado']], { multihomed: { v4: false, v6: null } }) } as unknown as ASNDocument
     expect(fraseTransito(um)).toBe('Pelas relações inferidas, o AS tem um provedor de trânsito IPv4 de nível provável ou superior (AS3356).')

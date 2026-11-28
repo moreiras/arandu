@@ -24,7 +24,7 @@ describe('sinteseCetic', () => {
     expect(f.map((x) => x.id)).toEqual(['a4', 'a5', 'e1a', 'c1'])
     expect(f[0].texto).toBe('86,3% (±0,8) dos domicílios têm acesso à Internet; na classe social DE a proporção é 73,4% (±1,4) e na classe A, 99,8% (±0,5).')
     expect(f[1].texto).toContain('76,4% (±1,3) dos domicílios com acesso à Internet usam banda larga fixa')
-    expect(f[1].texto).toContain('não todos os domicílios')
+    expect(f[1].texto).toContain('o universo são os domicílios com acesso à Internet')
     expect(f[2].texto).toBe('34,4% (±2,5) das empresas provedoras declaram participar do IX.br.')
     expect(f[0].fonte).toBe('TIC Domicílios 2025, tabela A4 (Cetic.br|NIC.br)')
     expect(f[2].fonte).toMatch(/TIC Provedores 2024, tabela E1A .*autodeclaração/)

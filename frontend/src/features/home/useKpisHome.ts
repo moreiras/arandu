@@ -8,6 +8,7 @@ import { chaves, IMUTAVEL } from '../../hooks/entidades/chaves'
 import { useActiveDate } from '../../hooks/useSnapshot'
 import { useAppStore } from '../../store/app'
 import { fetchAcessosStats, fetchSnapshot } from '../../services/api'
+import { useBrasilIndicadores } from '../panorama/IndicadoresBrasil'
 import { montarKpis } from './kpisBrasilEmNumeros'
 
 /** Os KPIs da Home ("O Brasil em números" e a síntese do topo): rede (resumo do snapshot, com o anterior para a variação) e mercado (SICI). Uma só definição das consultas. */
@@ -19,6 +20,7 @@ export function useKpisHome() {
   const anteriorData = (atual.data?.manifest as { comparado_com?: string | null } | null)?.comparado_com ?? null
   const anterior = useQuery({ queryKey: chaves.snapshot(anteriorData), queryFn: () => fetchSnapshot(anteriorData!), enabled: !!anteriorData, ...IMUTAVEL, retry: false })
   const sici = useQuery({ queryKey: ['sici-stats-home', date], queryFn: () => fetchAcessosStats(date ?? undefined, 1), enabled: !!date, ...IMUTAVEL, retry: false })
+  const { data: br } = useBrasilIndicadores()
   const data = date ?? latest
-  return { kpis: montarKpis(atual.data?.summary, anterior.data?.summary, sici.data, data), data }
+  return { kpis: montarKpis(atual.data?.summary, anterior.data?.summary, sici.data, data), data, dados: { resumo: atual.data?.summary, br, sici: sici.data } }
 }
